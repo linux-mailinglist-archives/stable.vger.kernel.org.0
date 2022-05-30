@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F21537D9B
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAA03537D98
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237516AbiE3Nhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:37:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56472 "EHLO
+        id S237542AbiE3Ngv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:36:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237867AbiE3Nfw (ORCPT
+        with ESMTP id S237876AbiE3Nfw (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98FE795A34;
-        Mon, 30 May 2022 06:29:09 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD03795DCD;
+        Mon, 30 May 2022 06:29:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FCFF60EE0;
-        Mon, 30 May 2022 13:29:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0469C3411A;
-        Mon, 30 May 2022 13:29:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D8E9B80DAD;
+        Mon, 30 May 2022 13:29:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1180AC36AE9;
+        Mon, 30 May 2022 13:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917348;
-        bh=O/cCnmDC0+HiYEH7R5Qp6f1XM/22h+N2T5KYNs2lq7s=;
+        s=k20201202; t=1653917350;
+        bh=DrlCtqRdmd/H4FDcqecWOdiAET1SvEdTVJUq2ANWkK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMG8WlARTN9suMxYJvVNHgH3fbU3PHmBdlpe2pDE3QQyaL3SuJOCvUZOhI6DuBZV7
-         RRPZE9hjRpZ84wWxbiQMywd2HAm0GOaLQw2obI2bNvDK2Md6ut6hY+8vHHZpftJzvr
-         YLtTIOyLHLhfHf5g21819PKjGcpPVgyCX787xKUtleHAGQRWIuQfmRNQWejDZxWNa5
-         14CrXcF+WoyyT14eO7k2Jb48mc78lF7k8j0wpEfZ5cPpPmjPp8y/kMsEu0XQl8Kjs1
-         ECJbXVAHsIgDgizI8KFanz0NL5t37tgk97cPwiKURDgRO54UuqJEzUKqmTBgHgGA5x
-         MRIUjwUXA+UnA==
+        b=qpF5BJkUH7F79e2m3y1Faif/lDDdUm4JG1rm/yTK+ahFCGUOu8QtANoRMQw3SelDr
+         2G+1t9HwmVXRno7hY2BHSbsSvBJAYtrTSWLNDXKnw8vb2JzN79jsGeJAUIungAHMk+
+         VWUeP4zmDQpMuSrFJs0Voumj7Ym/FbuYZzkYm2ah/fwmS0J8+edz6zrVzLBd3bbVwG
+         Cf3Lras5zwSfG8xd8pZBpHjpUY3oESb5WM0rWBEua4I39nlD5OEurruULBgKfcF6/D
+         W4Y1R3iBzluCjf2hw39586R2SARkPTC3mq7n5OuWHwIXmbDEuFWgCtASjMkSx/Ojp8
+         yxQyh53dUlOQw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Corey Minyard <cminyard@mvista.com>,
-        kernel test robot <lkp@intel.com>,
+Cc:     Daniel Latypov <dlatypov@google.com>,
+        Zeal Robot <zealci@zte.com.cn>, Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        openipmi-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.18 106/159] ipmi: Fix pr_fmt to avoid compilation issues
-Date:   Mon, 30 May 2022 09:23:31 -0400
-Message-Id: <20220530132425.1929512-106-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
+Subject: [PATCH AUTOSEL 5.18 107/159] kunit: bail out of test filtering logic quicker if OOM
+Date:   Mon, 30 May 2022 09:23:32 -0400
+Message-Id: <20220530132425.1929512-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -57,35 +59,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Daniel Latypov <dlatypov@google.com>
 
-[ Upstream commit 2ebaf18a0b7fb764bba6c806af99fe868cee93de ]
+[ Upstream commit a02353f491622e49c7ddedc6a6dc4f1d6ed2150a ]
 
-The was it was wouldn't work in some situations, simplify it.  What was
-there was unnecessary complexity.
+When filtering what tests to run (suites and/or cases) via
+kunit.filter_glob (e.g. kunit.py run <glob>), we allocate copies of
+suites.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+These allocations can fail, and we largely don't handle that.
+Note: realistically, this probably doesn't matter much.
+We're not allocating much memory and this happens early in boot, so if
+we can't do that, then there's likely far bigger problems.
+
+This patch makes us immediately bail out from the top-level function
+(kunit_filter_suites) with -ENOMEM if any of the underlying kmalloc()
+calls return NULL.
+
+Implementation note: we used to return NULL pointers from some functions
+to indicate either that all suites/tests were filtered out or there was
+an error allocating the new array.
+
+We'll log a short error in this case and not run any tests or print a
+TAP header. From a kunit.py user's perspective, they'll get a message
+about missing/invalid TAP output and have to dig into the test.log to
+see it. Since hitting this error seems so unlikely, it's probably fine
+to not invent a way to plumb this error message more visibly.
+
+See also: https://lore.kernel.org/linux-kselftest/20220329103919.2376818-1-lv.ruyi@zte.com.cn/
+
+Signed-off-by: Daniel Latypov <dlatypov@google.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Reported-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/kunit/executor.c      | 27 ++++++++++++++++++++++-----
+ lib/kunit/executor_test.c |  4 +++-
+ 2 files changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index f1827257ef0e..2610e809c802 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -11,8 +11,8 @@
-  * Copyright 2002 MontaVista Software Inc.
-  */
+diff --git a/lib/kunit/executor.c b/lib/kunit/executor.c
+index 22640c9ee819..2f73a6a35a7e 100644
+--- a/lib/kunit/executor.c
++++ b/lib/kunit/executor.c
+@@ -71,9 +71,13 @@ kunit_filter_tests(struct kunit_suite *const suite, const char *test_glob)
  
--#define pr_fmt(fmt) "%s" fmt, "IPMI message handler: "
--#define dev_fmt pr_fmt
-+#define pr_fmt(fmt) "IPMI message handler: " fmt
-+#define dev_fmt(fmt) pr_fmt(fmt)
+ 	/* Use memcpy to workaround copy->name being const. */
+ 	copy = kmalloc(sizeof(*copy), GFP_KERNEL);
++	if (!copy)
++		return ERR_PTR(-ENOMEM);
+ 	memcpy(copy, suite, sizeof(*copy));
  
- #include <linux/module.h>
- #include <linux/errno.h>
+ 	filtered = kcalloc(n + 1, sizeof(*filtered), GFP_KERNEL);
++	if (!filtered)
++		return ERR_PTR(-ENOMEM);
+ 
+ 	n = 0;
+ 	kunit_suite_for_each_test_case(suite, test_case) {
+@@ -106,14 +110,16 @@ kunit_filter_subsuite(struct kunit_suite * const * const subsuite,
+ 
+ 	filtered = kmalloc_array(n + 1, sizeof(*filtered), GFP_KERNEL);
+ 	if (!filtered)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	n = 0;
+ 	for (i = 0; subsuite[i] != NULL; ++i) {
+ 		if (!glob_match(filter->suite_glob, subsuite[i]->name))
+ 			continue;
+ 		filtered_suite = kunit_filter_tests(subsuite[i], filter->test_glob);
+-		if (filtered_suite)
++		if (IS_ERR(filtered_suite))
++			return ERR_CAST(filtered_suite);
++		else if (filtered_suite)
+ 			filtered[n++] = filtered_suite;
+ 	}
+ 	filtered[n] = NULL;
+@@ -146,7 +152,8 @@ static void kunit_free_suite_set(struct suite_set suite_set)
+ }
+ 
+ static struct suite_set kunit_filter_suites(const struct suite_set *suite_set,
+-					    const char *filter_glob)
++					    const char *filter_glob,
++					    int *err)
+ {
+ 	int i;
+ 	struct kunit_suite * const **copy, * const *filtered_subsuite;
+@@ -166,6 +173,10 @@ static struct suite_set kunit_filter_suites(const struct suite_set *suite_set,
+ 
+ 	for (i = 0; i < max; ++i) {
+ 		filtered_subsuite = kunit_filter_subsuite(suite_set->start[i], &filter);
++		if (IS_ERR(filtered_subsuite)) {
++			*err = PTR_ERR(filtered_subsuite);
++			return filtered;
++		}
+ 		if (filtered_subsuite)
+ 			*copy++ = filtered_subsuite;
+ 	}
+@@ -236,9 +247,15 @@ int kunit_run_all_tests(void)
+ 		.start = __kunit_suites_start,
+ 		.end = __kunit_suites_end,
+ 	};
++	int err;
+ 
+-	if (filter_glob_param)
+-		suite_set = kunit_filter_suites(&suite_set, filter_glob_param);
++	if (filter_glob_param) {
++		suite_set = kunit_filter_suites(&suite_set, filter_glob_param, &err);
++		if (err) {
++			pr_err("kunit executor: error filtering suites: %d\n", err);
++			return err;
++		}
++	}
+ 
+ 	if (!action_param)
+ 		kunit_exec_run_tests(&suite_set);
+diff --git a/lib/kunit/executor_test.c b/lib/kunit/executor_test.c
+index 4ed57fd94e42..eac6ff480273 100644
+--- a/lib/kunit/executor_test.c
++++ b/lib/kunit/executor_test.c
+@@ -137,14 +137,16 @@ static void filter_suites_test(struct kunit *test)
+ 		.end = suites + 2,
+ 	};
+ 	struct suite_set filtered = {.start = NULL, .end = NULL};
++	int err = 0;
+ 
+ 	/* Emulate two files, each having one suite */
+ 	subsuites[0][0] = alloc_fake_suite(test, "suite0", dummy_test_cases);
+ 	subsuites[1][0] = alloc_fake_suite(test, "suite1", dummy_test_cases);
+ 
+ 	/* Filter out suite1 */
+-	filtered = kunit_filter_suites(&suite_set, "suite0");
++	filtered = kunit_filter_suites(&suite_set, "suite0", &err);
+ 	kfree_subsuites_at_end(test, &filtered); /* let us use ASSERTs without leaking */
++	KUNIT_EXPECT_EQ(test, err, 0);
+ 	KUNIT_ASSERT_EQ(test, filtered.end - filtered.start, (ptrdiff_t)1);
+ 
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, filtered.start);
 -- 
 2.35.1
 
