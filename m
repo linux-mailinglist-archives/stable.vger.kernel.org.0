@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8058537D96
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57679537CD5
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232729AbiE3Ngh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:36:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47658 "EHLO
+        id S237498AbiE3Nhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:37:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237796AbiE3Nfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:45 -0400
+        with ESMTP id S237805AbiE3Nfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B609549B;
-        Mon, 30 May 2022 06:28:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE07954A4;
+        Mon, 30 May 2022 06:28:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18212B80DA8;
-        Mon, 30 May 2022 13:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2489C385B8;
-        Mon, 30 May 2022 13:28:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 397DFB80DB2;
+        Mon, 30 May 2022 13:28:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5283AC3411F;
+        Mon, 30 May 2022 13:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917334;
-        bh=63KEk9VLTggDHYa7uCWhw1ThCahBRf68liu0x9+Y4Q8=;
+        s=k20201202; t=1653917336;
+        bh=7Cf6JB2q1A9OGemJDYVSx1pjXiSzVu0Yuw1kwfazgNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUIgdk6pfmIKpE5HjRAIK67fUEqsy5MUReSZx+eThVg+X0h6pTaH6sFDChYFUsW2J
-         4pLsDZ72QBvgCiANOvgFBC3gAbZ61T7m/A1EUgEPWO1BnweeshU5/wpfavWdi5eoW5
-         jGw2Zk3G0FZ6nUNxMCsYTGkM9i3JXKJww0x2PlRXRC1/jN2Yul1+i3cUXdYOytRZYu
-         nmpVs0sPJff0XljqQig4VXl+xAe8wl6UA7K+4g4TXk/LI3cB+rGoD8NbMvLBd745TC
-         P1pnwif6aUri5nETVMbpdSZh4e7njz9GCKQVLF/bUH1dYp+F1wRcFPRFEUzabfRTdj
-         lxyQN+LcagesA==
+        b=N+pmp3iBfoJA77WpsPr8E2WVtbJgfxpkdj6HUxxfIMYdNOLT3RtVI1jdxIvg8oXC6
+         e34YJ4buwHM4PxsAqN/TWd/w/JtRHKY4CN0oFzK6CwQvkfdoAFxeWxyE0wkodNxZz8
+         qjHsFn36JoHqNsiyW7q7N5/0BoLwNJXGOgBwRTcjtVfHnzaLCv4l76cPhsRMdreTYC
+         s1SPZRxAk4KICazhfwPI2JdbWRXIP0fdfxSEg0mQhDxgy5Hle5s1vPmMJJifRI96EK
+         TtCjh2kwEKidl+kXc0ny8EC4Nxi1Efvk0OUGZlNB2SvicjdXDAC1778Ur+8TbUFTs1
+         1yFq/PGPOJH5w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Patrice Chotard <patrice.chotard@foss.st.com>,
-        eberhard.stoll@kontron.de, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, mcoquelin.stm32@gmail.com,
-        alexandre.torgue@foss.st.com, linux-spi@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 099/159] spi: stm32-qspi: Fix wait_cmd timeout in APM mode
-Date:   Mon, 30 May 2022 09:23:24 -0400
-Message-Id: <20220530132425.1929512-99-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, m.szyprowski@samsung.com,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.18 100/159] dma-debug: change allocation mode from GFP_NOWAIT to GFP_ATIOMIC
+Date:   Mon, 30 May 2022 09:23:25 -0400
+Message-Id: <20220530132425.1929512-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -59,36 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard@foss.st.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit d83d89ea68b4726700fa87b22db075e4217e691c ]
+[ Upstream commit 84bc4f1dbbbb5f8aa68706a96711dccb28b518e5 ]
 
-In APM mode, TCF and TEF flags are not set. To avoid timeout in
-stm32_qspi_wait_cmd(), don't check if TCF/TEF are set.
+We observed the error "cacheline tracking ENOMEM, dma-debug disabled"
+during a light system load (copying some files). The reason for this error
+is that the dma_active_cacheline radix tree uses GFP_NOWAIT allocation -
+so it can't access the emergency memory reserves and it fails as soon as
+anybody reaches the watermark.
 
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Reported-by: eberhard.stoll@kontron.de
-Link: https://lore.kernel.org/r/20220511074644.558874-2-patrice.chotard@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch changes GFP_NOWAIT to GFP_ATOMIC, so that it can access the
+emergency memory reserves.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32-qspi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/dma/debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
-index ffdc55f87e82..dd38cb8ffbc2 100644
---- a/drivers/spi/spi-stm32-qspi.c
-+++ b/drivers/spi/spi-stm32-qspi.c
-@@ -308,7 +308,8 @@ static int stm32_qspi_wait_cmd(struct stm32_qspi *qspi,
- 	if (!op->data.nbytes)
- 		goto wait_nobusy;
- 
--	if (readl_relaxed(qspi->io_base + QSPI_SR) & SR_TCF)
-+	if ((readl_relaxed(qspi->io_base + QSPI_SR) & SR_TCF) ||
-+	    qspi->fmode == CCR_FMODE_APM)
- 		goto out;
- 
- 	reinit_completion(&qspi->data_completion);
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index f8ff598596b8..ac740630c79c 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -448,7 +448,7 @@ void debug_dma_dump_mappings(struct device *dev)
+  * other hand, consumes a single dma_debug_entry, but inserts 'nents'
+  * entries into the tree.
+  */
+-static RADIX_TREE(dma_active_cacheline, GFP_NOWAIT);
++static RADIX_TREE(dma_active_cacheline, GFP_ATOMIC);
+ static DEFINE_SPINLOCK(radix_lock);
+ #define ACTIVE_CACHELINE_MAX_OVERLAP ((1 << RADIX_TREE_MAX_TAGS) - 1)
+ #define CACHELINE_PER_PAGE_SHIFT (PAGE_SHIFT - L1_CACHE_SHIFT)
 -- 
 2.35.1
 
