@@ -2,145 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDEFE5372E1
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 00:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C511D537337
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 03:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231790AbiE2W4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 May 2022 18:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44114 "EHLO
+        id S231462AbiE3BJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 May 2022 21:09:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230417AbiE2W4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 May 2022 18:56:01 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AE976287
-        for <stable@vger.kernel.org>; Sun, 29 May 2022 15:55:59 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id o6-20020a17090a0a0600b001e2c6566046so2730167pjo.0
-        for <stable@vger.kernel.org>; Sun, 29 May 2022 15:55:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=3rHWukX/982VVQshnDvvj6GQbQddSOFHJAD6q40l/44=;
-        b=pA5sNwsl8FmEzjXLzyBvULvJQL1UuHOJQFXM/7JG0RFTz89SiIR1LCbKQ0y3YINRKP
-         5T2iU3rJpyf3OnybaZjGDuqQnbCJObz/hvH8PcLbJrypGvNgwBJxdDI76rpNNgsCJNqX
-         TLRmrJYbB94zbGjloM1MWFZA5W8M6jzGv5bWolforg3dpM3QiflieAYVsdSWoN3CuRr8
-         3XUO5gMW4xwuWvwPYejisXXygI+5EywAQ+/SYZ1yIq/fYEByiC/uteFn5llb80SDhd1a
-         UENyt9p0A2zzSZDp4R0tgdlxtSk9VCLduJ3X/eXhCPfx4avaM8HsHxiLTR00+JbV7dcs
-         m4rQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=3rHWukX/982VVQshnDvvj6GQbQddSOFHJAD6q40l/44=;
-        b=GiCTxrllyPJlCn7N3+saYXhUrlF0jWEtXymS1sMMU8nUQTgi35ZwSKfEpv9stwQpuK
-         /ZJw7kn44mkUWp1B5ZR71ekheEiAeCWsPYtmDLOB77sg6Z6b79HMYMM+D+Abv0seGG4X
-         +qn1IN0+0KfyRJRQoyBI4SZ2OKEkOLrQwjznWmku8hhG95ZWZPC073m3Z+xUERCUhSWt
-         Xbap1EQw+2RRdtyaxjbfiWcy+lXVznsphO3XBwcJCi7OrR/D4Z0xz3bd/giggwrf86Fj
-         9bWpsdjISnTkmor3okt5MHJnZrN/MiIjBauGL9pJmDj7BvCLU14lr9qnX/4XK/JayT0U
-         z1Xw==
-X-Gm-Message-State: AOAM5318LwZF4pks1/gNwAIHedLZ15+YVqGDcyhfwpIlM9QhapDTaZ+I
-        79NdA4G8bW4LBTQQBKmUpifqwBYD4uEyX5mvOA8=
-X-Google-Smtp-Source: ABdhPJzKSKWGAS9/j/DunDd47RR8qO89Sqo0apTHWhxH2fvqdNMDOukSJkgOakhM9HjaKZNrQsVYjhHYKtpsoWzanXg=
-X-Received: by 2002:a17:902:ec91:b0:163:8d61:dfc with SMTP id
- x17-20020a170902ec9100b001638d610dfcmr15527314plg.12.1653864958613; Sun, 29
- May 2022 15:55:58 -0700 (PDT)
+        with ESMTP id S231372AbiE3BJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 May 2022 21:09:43 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267AD663E4;
+        Sun, 29 May 2022 18:09:41 -0700 (PDT)
+Received: from kwepemi500004.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LBHNg5LgrzjWyr;
+        Mon, 30 May 2022 09:08:51 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ kwepemi500004.china.huawei.com (7.221.188.17) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Mon, 30 May 2022 09:09:39 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Mon, 30 May 2022 09:09:38 +0800
+Subject: Re: [PATCH 5.10 000/163] 5.10.119-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
+References: <20220527084828.156494029@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <cbe51a80-109b-0ae1-149c-34f4162b8eee@huawei.com>
+Date:   Mon, 30 May 2022 09:09:37 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Sender: fariqtumuh010@gmail.com
-Received: by 2002:a17:90a:4489:0:0:0:0 with HTTP; Sun, 29 May 2022 15:55:58
- -0700 (PDT)
-From:   Juliette Morgan <juliettemorgan21@gmail.com>
-Date:   Mon, 30 May 2022 00:55:58 +0200
-X-Google-Sender-Auth: CNRfgc8SHgj2YJu6xdRjRPmJfrM
-Message-ID: <CAEotuPS_Nmwy6Dinwow+t_QcQ2NWEtYkuuUesZs0-9QSfn9hUQ@mail.gmail.com>
-Subject: READ AND REPLY URGENT
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=7.3 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
-        BAYES_99,BAYES_999,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,MONEY_FRAUD_8,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,
-        T_MONEY_PERCENT,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:102d listed in]
-        [list.dnswl.org]
-        *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
-        *      [score: 0.9993]
-        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
-        *      [score: 0.9993]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [fariqtumuh010[at]gmail.com]
-        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [fariqtumuh010[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.0 T_MONEY_PERCENT X% of a lot of money for you
-        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
-        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
-        *  0.0 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear God,s Select Good Day,
 
-I apologized, If this mail find's you disturbing, It might not be the
-best way to approach you as we have not met before, but due to the
-urgency of my present situation i decided  to communicate this way, so
-please pardon my manna, I am writing this mail to you with heavy tears
-In my eyes and great sorrow in my heart, My Name is Mrs.Juliette
-Morgan, and I am contacting you from my country Norway, I want to tell
-you this because I don't have any other option than to tell you as I
-was touched to open up to you,
 
-I married to Mr.sami Morgan. Who worked with Norway embassy in Burkina
-Faso for nine years before he died in the year 2020.We were married
-for eleven years without a child He died after a brief illness that
-lasted for only five days. Since his death I decided not to remarry,
-When my late husband was alive he deposited the sum of =E2=82=AC 8.5 Millio=
-n
-Euro (Eight million, Five hundred thousand Euros) in a bank in
-Ouagadougou the capital city of Burkina Faso in west Africa Presently
-this money is still in bank. He made this money available for
-exportation of Gold from Burkina Faso mining.
+On 2022/5/27 16:48, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.119 release.
+> There are 163 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 29 May 2022 08:46:26 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.119-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Recently, My Doctor told me that I would not last for the period of
-seven months due to cancer problem. The one that disturbs me most is
-my stroke sickness.Having known my condition I decided to hand you
-over this money to take care of the less-privileged people, you will
-utilize this money the way I am going to instruct herein.
+Tested on arm64 and x86 for 5.10.119-rc1,
 
-I want you to take 30 Percent of the total money for your personal use
-While 70% of the money will go to charity, people in the street and
-helping the orphanage. I grew up as an Orphan and I don't have any
-body as my family member, just to endeavour that the house of God is
-maintained. Am doing this so that God will forgive my sins and accept
-my soul because these sicknesses have suffered me so much.
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.119-rc1
+Commit: d318333bd3dbc483b4d566521dc6486ef9f6ba04
+Compiler: gcc version 7.3.0 (GCC)
 
-As soon as I receive your reply I shall give you the contact of the
-bank in Burkina Faso and I will also instruct the Bank Manager to
-issue you an authority letter that will prove you the present
-beneficiary of the money in the bank that is if you assure me that you
-will act accordingly as I Stated herein.
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9033
+passed: 9033
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Always reply to my alternative for security purposes
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9033
+passed: 9033
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Hoping to receive your reply:
-From Mrs.Juliette Morgan,
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
