@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D00AB5381D9
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F169953817B
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237272AbiE3OVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:21:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
+        id S240666AbiE3OUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:20:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241327AbiE3ORa (ORCPT
+        with ESMTP id S241326AbiE3ORa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD589BAED;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ABFF9BAEC;
         Mon, 30 May 2022 06:45:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE5D1B80DA7;
-        Mon, 30 May 2022 13:45:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C2DDC36AE3;
-        Mon, 30 May 2022 13:45:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC53860F24;
+        Mon, 30 May 2022 13:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C8CBC36AE9;
+        Mon, 30 May 2022 13:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918317;
-        bh=J11CO3pogeGFoR+jzuE6Z5/TLYchrXLjnu5sq2WeMEE=;
+        s=k20201202; t=1653918319;
+        bh=/EVIXbXHVhz6z6r4WZ74kyE/k9deasy2cPR5W3Pn0Rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExjGtsOYq6TKDeL3Ms/el6a7HZX3eAGd5zXQWGGkNg0wmJLdP88zD+1m+LT+/HxVI
-         utddQ65M74iNlJXQ34YoBqj5yqqoqX2mIhrfnbu6xnDtS2Lv0WOJCMBdcKB1XUR9dw
-         sHxQiYmL269S46zzSyeyDPrtLVZ+oId/m+dfDvyx5IYe7v2cvVsIfVP7ZxMYaepBPY
-         xloZGtOIXS/6VI9mbXs0K0qh3ZMSHI+go1iw6Hb6756wxsHsGQTd62SzeeFXPSVlIh
-         lOi4s+Qar2JxTSm2zrdJtE8yE3i92JafyzcdL2hk6Gw5Zimf7Bfs8PduntUvP3EV9F
-         PUuqZa9gABHBQ==
+        b=BMc8lhqeczUB5i0sRSwCn9RT+Ci5ok+GTMjqAjLY86XHJnRfrY+sMl1qKF3xwagFa
+         M5jTiivb4fTBdjAOpwiOFWqpsuenAojMIHmL+cvBEZZXNxdZ8gTtMlxKWiNOceg4hz
+         72GHQq4IuQa50qHRj17+rfAE6WLqX+PZoacOwvpbUxvRG4OPV6UtE0X3/yzySta/r3
+         9kcXIVWhZENNI84CXZYzS0aGdeBv9slUsE5ek65Sxfp34a3Lee5tXQlsshY/Y4JD++
+         S6eWcegRgZL5FPGNIpchv6eexZHw3tHyBpAlLhEHVwg8HuoclNxzLgtgV6g/+JNZPK
+         CbARBJ5KMf9zw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, andriy.shevchenko@linux.intel.com,
-        peter.ujfalusi@linux.intel.com, akihiko.odaki@gmail.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 32/76] ASoC: Intel: bytcr_rt5640: Add quirk for the HP Pro Tablet 408
-Date:   Mon, 30 May 2022 09:43:22 -0400
-Message-Id: <20220530134406.1934928-32-sashal@kernel.org>
+Cc:     Steven Price <steven.price@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 33/76] drm/plane: Move range check for format_count earlier
+Date:   Mon, 30 May 2022 09:43:23 -0400
+Message-Id: <20220530134406.1934928-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
@@ -61,50 +59,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit ce216cfa84a4e1c23b105e652c550bdeaac9e922 ]
+[ Upstream commit 4b674dd69701c2e22e8e7770c1706a69f3b17269 ]
 
-Add a quirk for the HP Pro Tablet 408, this BYTCR tablet has no CHAN
-package in its ACPI tables and uses SSP0-AIF1 rather then SSP0-AIF2 which
-is the default for BYTCR devices.
+While the check for format_count > 64 in __drm_universal_plane_init()
+shouldn't be hit (it's a WARN_ON), in its current position it will then
+leak the plane->format_types array and fail to call
+drm_mode_object_unregister() leaking the modeset identifier. Move it to
+the start of the function to avoid allocating those resources in the
+first place.
 
-It also uses DMIC1 for the internal mic rather then the default IN3
-and it uses JD2 rather then the default JD1 for jack-detect.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211485
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220427134918.527381-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://lore.kernel.org/dri-devel/20211203102815.38624-1-steven.price@arm.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/drm_plane.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 43ee3d095a1b..3020a993f6ef 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -615,6 +615,18 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_OVCD_SF_0P75 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* HP Pro Tablet 408 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pro Tablet 408"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_DMIC1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_1500UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{	/* HP Stream 7 */
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+index affe1cfed009..24f643982903 100644
+--- a/drivers/gpu/drm/drm_plane.c
++++ b/drivers/gpu/drm/drm_plane.c
+@@ -186,6 +186,13 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
+ 	if (WARN_ON(config->num_total_plane >= 32))
+ 		return -EINVAL;
+ 
++	/*
++	 * First driver to need more than 64 formats needs to fix this. Each
++	 * format is encoded as a bit and the current code only supports a u64.
++	 */
++	if (WARN_ON(format_count > 64))
++		return -EINVAL;
++
+ 	WARN_ON(drm_drv_uses_atomic_modeset(dev) &&
+ 		(!funcs->atomic_destroy_state ||
+ 		 !funcs->atomic_duplicate_state));
+@@ -207,13 +214,6 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
+ 		return -ENOMEM;
+ 	}
+ 
+-	/*
+-	 * First driver to need more than 64 formats needs to fix this. Each
+-	 * format is encoded as a bit and the current code only supports a u64.
+-	 */
+-	if (WARN_ON(format_count > 64))
+-		return -EINVAL;
+-
+ 	if (format_modifiers) {
+ 		const uint64_t *temp_modifiers = format_modifiers;
+ 
 -- 
 2.35.1
 
