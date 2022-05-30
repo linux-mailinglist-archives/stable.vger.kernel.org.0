@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B22A0538048
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:23:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A26A537F16
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232809AbiE3N5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:57:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60768 "EHLO
+        id S239603AbiE3N5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:57:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238832AbiE3Nxr (ORCPT
+        with ESMTP id S238833AbiE3Nxr (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:53:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC4B941A5;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A710939D1;
         Mon, 30 May 2022 06:37:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3C71B80DB7;
-        Mon, 30 May 2022 13:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1D36C36AE9;
-        Mon, 30 May 2022 13:37:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C516B60FA2;
+        Mon, 30 May 2022 13:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1603AC36AEA;
+        Mon, 30 May 2022 13:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917867;
-        bh=CEB7zLhOIcLwSOQl4CUWTYbGqt5Qvom65s0Ym0hUi8w=;
+        s=k20201202; t=1653917869;
+        bh=yshcQHCPfHZtHbEvkMQsCzGrimfL7sMR4F4SAhXpLKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXWV4B2W3zkXEdSKhPQyb63ZNdvU+panq4YymTnXXmZ5b7ZwMdaxfWArslA+ELbKS
-         qlXndvr5HgVS7GiWeWnRkQUgQ0ZEso895SXZYTNnXvPA0ToseB9PdGCXzvJBnY+TxU
-         u82p3W/FC0xtOjD7zSiZk9N5BZLuYB2rALAUg/XulT8D9KBNuKizCb+iRyLpTkRTf5
-         WGYU+1neUjatMZTSVBWTGOcg5KvvPVL5F6QkMJ4itcDrR924zqBKSxiDCAHsDSoxMI
-         l11dG5/h3cjpi2bdlxgWGdQDtMJ8vhWqruvxJldKC9az301Ej8orVoACO8j48JcZwE
-         /Jh+5BMiNk42w==
+        b=p8c/g5FdphfmUKEt0PlaGkhTP98Hqj07CdCzQN1o3eNleTyYRINbCxKmfPPkVFdB2
+         gZqi9dUuNiCXBUlwfpSemtSq+Svx2ecYMNBhbCdETDpbCfCRDxze9mAzs3BDbwv1uZ
+         jwDnKJUFH5o7XYOXXxIeShCKnQhfeNxutArQJ9nfCWfHTF4iaIMZxsQGRcITDuleY2
+         9uC2b32oVHg0B9YMkR6MvK2nptMoqeB6C/aKdJm2lYhLaxDpyfxM0Zbp7noGyEz0kg
+         ZigG6F3cTLRDNPu1QUehu60FHn5lIjhArb26QIRhFsSF2EURp0udLft+u/DYF+ZUe1
+         LnYz4tF34Ngdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, wg@grandegger.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, ndesaulniers@google.com,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.17 122/135] can: mcp251xfd: silence clang's -Wunaligned-access warning
-Date:   Mon, 30 May 2022 09:31:20 -0400
-Message-Id: <20220530133133.1931716-122-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org
+Subject: [PATCH AUTOSEL 5.17 123/135] x86/microcode: Add explicit CPU vendor dependency
+Date:   Mon, 30 May 2022 09:31:21 -0400
+Message-Id: <20220530133133.1931716-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -62,62 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 1a6dd9996699889313327be03981716a8337656b ]
+[ Upstream commit 9c55d99e099bd7aa6b91fce8718505c35d5dfc65 ]
 
-clang emits a -Wunaligned-access warning on union
-mcp251xfd_tx_ojb_load_buf.
+Add an explicit dependency to the respective CPU vendor so that the
+respective microcode support for it gets built only when that support is
+enabled.
 
-The reason is that field hw_tx_obj (not declared as packed) is being
-packed right after a 16 bits field inside a packed struct:
-
-| union mcp251xfd_tx_obj_load_buf {
-| 	struct __packed {
-| 		struct mcp251xfd_buf_cmd cmd;
-| 		  /* ^ 16 bits fields */
-| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
-| 		  /* ^ not declared as packed */
-| 	} nocrc;
-| 	struct __packed {
-| 		struct mcp251xfd_buf_cmd_crc cmd;
-| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
-| 		__be16 crc;
-| 	} crc;
-| } ____cacheline_aligned;
-
-Starting from LLVM 14, having an unpacked struct nested in a packed
-struct triggers a warning. c.f. [1].
-
-This is a false positive because the field is always being accessed
-with the relevant put_unaligned_*() function. Adding __packed to the
-structure declaration silences the warning.
-
-[1] https://github.com/llvm/llvm-project/issues/55520
-
-Link: https://lore.kernel.org/all/20220518114357.55452-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Reported-by: kernel test robot <lkp@intel.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/8ead0da9-9545-b10d-e3db-7df1a1f219e4@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
-index f551c900803e..aed6e9d47517 100644
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
-@@ -434,7 +434,7 @@ struct mcp251xfd_hw_tef_obj {
- /* The tx_obj_raw version is used in spi async, i.e. without
-  * regmap. We have to take care of endianness ourselves.
-  */
--struct mcp251xfd_hw_tx_obj_raw {
-+struct __packed mcp251xfd_hw_tx_obj_raw {
- 	__le32 id;
- 	__le32 flags;
- 	u8 data[sizeof_field(struct canfd_frame, data)];
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index d0ecc4005df3..380c16ff5078 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1332,7 +1332,7 @@ config MICROCODE
+ 
+ config MICROCODE_INTEL
+ 	bool "Intel microcode loading support"
+-	depends on MICROCODE
++	depends on CPU_SUP_INTEL && MICROCODE
+ 	default MICROCODE
+ 	help
+ 	  This options enables microcode patch loading support for Intel
+@@ -1344,7 +1344,7 @@ config MICROCODE_INTEL
+ 
+ config MICROCODE_AMD
+ 	bool "AMD microcode loading support"
+-	depends on MICROCODE
++	depends on CPU_SUP_AMD && MICROCODE
+ 	help
+ 	  If you select this option, microcode patch loading support for AMD
+ 	  processors will be enabled.
 -- 
 2.35.1
 
