@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57679537CD5
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67FF537D08
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237498AbiE3Nhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:37:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44732 "EHLO
+        id S237519AbiE3Ngt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:36:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237805AbiE3Nfq (ORCPT
+        with ESMTP id S237807AbiE3Nfq (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE07954A4;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B96F954A3;
         Mon, 30 May 2022 06:28:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 397DFB80DB2;
-        Mon, 30 May 2022 13:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5283AC3411F;
-        Mon, 30 May 2022 13:28:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00E3B60EE0;
+        Mon, 30 May 2022 13:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F02FC3411E;
+        Mon, 30 May 2022 13:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917336;
-        bh=7Cf6JB2q1A9OGemJDYVSx1pjXiSzVu0Yuw1kwfazgNM=;
+        s=k20201202; t=1653917337;
+        bh=rtHzjj2GFfazvNSR27w6EM4Oeo2YGiREyRIw+vC3rmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+pmp3iBfoJA77WpsPr8E2WVtbJgfxpkdj6HUxxfIMYdNOLT3RtVI1jdxIvg8oXC6
-         e34YJ4buwHM4PxsAqN/TWd/w/JtRHKY4CN0oFzK6CwQvkfdoAFxeWxyE0wkodNxZz8
-         qjHsFn36JoHqNsiyW7q7N5/0BoLwNJXGOgBwRTcjtVfHnzaLCv4l76cPhsRMdreTYC
-         s1SPZRxAk4KICazhfwPI2JdbWRXIP0fdfxSEg0mQhDxgy5Hle5s1vPmMJJifRI96EK
-         TtCjh2kwEKidl+kXc0ny8EC4Nxi1Efvk0OUGZlNB2SvicjdXDAC1778Ur+8TbUFTs1
-         1yFq/PGPOJH5w==
+        b=CfhHlIubqgFaQ26qsyBBX62m3uUuaZOte+nyDQrtvU0kR0r3p2I0BJciH3Ns0Qr5f
+         yK/wxJDDQv2V9UzkOx0cAD4sltESdVhYyPq+dxhYOhb9hLdfApa9YR8nKu1vVwHPz/
+         0xPub9zkzr4ZlY8sjZdhxdIrm0EDe43j81/eZQeDXSW9D0MKd3mVashrunh2ZFoeVd
+         VkdjfNCojlvxJs0Kb/3hyNQLoZQmNg/otb8a6TAgtGV8H/QzFeHj8DVP1MKp5OiuyQ
+         poJvranirpFe9McO15yC3QhtE47ly5kgW556iAyE+1Mv8DcgqLNtYClyiVdoMQg3Iz
+         twcy4lVXuinVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Seth Forshee <seth.forshee@digitalocean.com>,
         Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, m.szyprowski@samsung.com,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.18 100/159] dma-debug: change allocation mode from GFP_NOWAIT to GFP_ATIOMIC
-Date:   Mon, 30 May 2022 09:23:25 -0400
-Message-Id: <20220530132425.1929512-100-sashal@kernel.org>
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Christian Brauner <brauner@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 101/159] fs: hold writers when changing mount's idmapping
+Date:   Mon, 30 May 2022 09:23:26 -0400
+Message-Id: <20220530132425.1929512-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -57,39 +60,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-[ Upstream commit 84bc4f1dbbbb5f8aa68706a96711dccb28b518e5 ]
+[ Upstream commit e1bbcd277a53e08d619ffeec56c5c9287f2bf42f ]
 
-We observed the error "cacheline tracking ENOMEM, dma-debug disabled"
-during a light system load (copying some files). The reason for this error
-is that the dma_active_cacheline radix tree uses GFP_NOWAIT allocation -
-so it can't access the emergency memory reserves and it fails as soon as
-anybody reaches the watermark.
+Hold writers when changing a mount's idmapping to make it more robust.
 
-This patch changes GFP_NOWAIT to GFP_ATOMIC, so that it can access the
-emergency memory reserves.
+The vfs layer takes care to retrieve the idmapping of a mount once
+ensuring that the idmapping used for vfs permission checking is
+identical to the idmapping passed down to the filesystem.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+For ioctl codepaths the filesystem itself is responsible for taking the
+idmapping into account if they need to. While all filesystems with
+FS_ALLOW_IDMAP raised take the same precautions as the vfs we should
+enforce it explicitly by making sure there are no active writers on the
+relevant mount while changing the idmapping.
+
+This is similar to turning a mount ro with the difference that in
+contrast to turning a mount ro changing the idmapping can only ever be
+done once while a mount can transition between ro and rw as much as it
+wants.
+
+This is a minor user-visible change. But it is extremely unlikely to
+matter. The caller must've created a detached mount via OPEN_TREE_CLONE
+and then handed that O_PATH fd to another process or thread which then
+must've gotten a writable fd for that mount and started creating files
+in there while the caller is still changing mount properties. While not
+impossible it will be an extremely rare corner-case and should in
+general be considered a bug in the application. Consider making a mount
+MOUNT_ATTR_NOEXEC or MOUNT_ATTR_NODEV while allowing someone else to
+perform lookups or exec'ing in parallel by handing them a copy of the
+OPEN_TREE_CLONE fd or another fd beneath that mount.
+
+Link: https://lore.kernel.org/r/20220510095840.152264-1-brauner@kernel.org
+Cc: Seth Forshee <seth.forshee@digitalocean.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/namespace.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index f8ff598596b8..ac740630c79c 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -448,7 +448,7 @@ void debug_dma_dump_mappings(struct device *dev)
-  * other hand, consumes a single dma_debug_entry, but inserts 'nents'
-  * entries into the tree.
-  */
--static RADIX_TREE(dma_active_cacheline, GFP_NOWAIT);
-+static RADIX_TREE(dma_active_cacheline, GFP_ATOMIC);
- static DEFINE_SPINLOCK(radix_lock);
- #define ACTIVE_CACHELINE_MAX_OVERLAP ((1 << RADIX_TREE_MAX_TAGS) - 1)
- #define CACHELINE_PER_PAGE_SHIFT (PAGE_SHIFT - L1_CACHE_SHIFT)
+diff --git a/fs/namespace.c b/fs/namespace.c
+index afe2b64b14f1..41461f55c039 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -4026,8 +4026,9 @@ static int can_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
+ static inline bool mnt_allow_writers(const struct mount_kattr *kattr,
+ 				     const struct mount *mnt)
+ {
+-	return !(kattr->attr_set & MNT_READONLY) ||
+-	       (mnt->mnt.mnt_flags & MNT_READONLY);
++	return (!(kattr->attr_set & MNT_READONLY) ||
++		(mnt->mnt.mnt_flags & MNT_READONLY)) &&
++	       !kattr->mnt_userns;
+ }
+ 
+ static int mount_setattr_prepare(struct mount_kattr *kattr, struct mount *mnt)
 -- 
 2.35.1
 
