@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCB9537C50
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7492537BB4
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:28:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236906AbiE3N2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:28:49 -0400
+        id S236913AbiE3N1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:27:39 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236905AbiE3N12 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:27:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A8584A1D;
-        Mon, 30 May 2022 06:26:01 -0700 (PDT)
+        with ESMTP id S236870AbiE3N1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:27:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4910887A3B;
+        Mon, 30 May 2022 06:25:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 376CFB80DA9;
-        Mon, 30 May 2022 13:25:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DECEC36AE7;
-        Mon, 30 May 2022 13:25:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A82960EB4;
+        Mon, 30 May 2022 13:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B35CC36AE5;
+        Mon, 30 May 2022 13:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917144;
-        bh=MryhVYwL20qdpycWJZzLIYovOEL+Bs5lNHa/2TnV0EA=;
+        s=k20201202; t=1653917145;
+        bh=kdM3fNE5gu/C38KDzzmn5dQwtfjNDKoBsKPgDt1kxYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKxLbBOKfSBeA9wLI0UOft+82dBc1ayyO7LgZdz71KbG1qs18NiR6knTbgmTgecmI
-         13lWI6cA2zeW+ak7PEtMFhx9rfr4v1/fY0H2ItaRjNNQBbfdFgL9s+2T6dMONR0eGi
-         e0mhK8PE2zHSAs3XGfdJ8FaFgCqGuT2RjoJSMSLJOjqXCNeCgOE8G90p+YwrKceTUJ
-         /e6Y4IpY22a1U4VlHWck5aU1yo1Ja8/XsTAiKIwBbM2UX0XkcOQ4iWU/puPXpi0gPH
-         se/c5pGHgtqikof0W70prot0ZOVKhLoU5TuDmSz+wBAz5YKz+mvwIWikMqXVhr/l85
-         POTCLDH8N8ZgA==
+        b=LmCEEL6Hf/eeOK7BVUAaO5UETckHnF3jnCG6/5FfyOn3Aflc/BDV0vDnqASUtXaQ+
+         B/0JusFfZlfnp6dWoFLeZHD2UgCv13OlB/i7Azz0f/WVBEjLlJJecEjuCPvQNMUnYd
+         Ne9H+iX80WM0lvv/DKvltgr4g/2A434kogrqh5bLOlhaoW7iB49h2S+YPtgw7R6PL6
+         rEJU3GyoiX6PgzwzlWP2cRqrqBaTUt5ZDgcAM6jzKNOzvLGJOmtAnxiS6CKNnqgjMx
+         5gn+Om9Tb6nj6OkobQPPBl+6s1CtOveMudIOv4ydtkATvgt9tXRjg7THbckl2DljiU
+         jR1ozwL2E6NYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 034/159] loop: implement ->free_disk
-Date:   Mon, 30 May 2022 09:22:19 -0400
-Message-Id: <20220530132425.1929512-34-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 035/159] scsi: lpfc: Move cfg_log_verbose check before calling lpfc_dmp_dbg()
+Date:   Mon, 30 May 2022 09:22:20 -0400
+Message-Id: <20220530132425.1929512-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -56,71 +59,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d2c7f56f8b5256d57f9e3fc7794c31361d43bdd9 ]
+[ Upstream commit e294647b1aed4247fe52851f3a3b2b19ae906228 ]
 
-Ensure that the lo_device which is stored in the gendisk private
-data is valid until the gendisk is freed.  Currently the loop driver
-uses a lot of effort to make sure a device is not freed when it is
-still in use, but to to fix a potential deadlock this will be relaxed
-a bit soon.
+In an attempt to log message 0126 with LOG_TRACE_EVENT, the following hard
+lockup call trace hangs the system.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220330052917.2566582-12-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Call Trace:
+ _raw_spin_lock_irqsave+0x32/0x40
+ lpfc_dmp_dbg.part.32+0x28/0x220 [lpfc]
+ lpfc_cmpl_els_fdisc+0x145/0x460 [lpfc]
+ lpfc_sli_cancel_jobs+0x92/0xd0 [lpfc]
+ lpfc_els_flush_cmd+0x43c/0x670 [lpfc]
+ lpfc_els_flush_all_cmd+0x37/0x60 [lpfc]
+ lpfc_sli4_async_event_proc+0x956/0x1720 [lpfc]
+ lpfc_do_work+0x1485/0x1d70 [lpfc]
+ kthread+0x112/0x130
+ ret_from_fork+0x1f/0x40
+Kernel panic - not syncing: Hard LOCKUP
+
+The same CPU tries to claim the phba->port_list_lock twice.
+
+Move the cfg_log_verbose checks as part of the lpfc_printf_vlog() and
+lpfc_printf_log() macros before calling lpfc_dmp_dbg().  There is no need
+to take the phba->port_list_lock within lpfc_dmp_dbg().
+
+Link: https://lore.kernel.org/r/20220412222008.126521-3-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_init.c   | 29 +----------------------------
+ drivers/scsi/lpfc/lpfc_logmsg.h |  6 +++---
+ 2 files changed, 4 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a58595f5ee2c..ed7bec11948c 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1768,6 +1768,14 @@ static void lo_release(struct gendisk *disk, fmode_t mode)
- 	mutex_unlock(&lo->lo_mutex);
- }
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 461d333b1b3a..f9cd4b72d949 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -15700,34 +15700,7 @@ void lpfc_dmp_dbg(struct lpfc_hba *phba)
+ 	unsigned int temp_idx;
+ 	int i;
+ 	int j = 0;
+-	unsigned long rem_nsec, iflags;
+-	bool log_verbose = false;
+-	struct lpfc_vport *port_iterator;
+-
+-	/* Don't dump messages if we explicitly set log_verbose for the
+-	 * physical port or any vport.
+-	 */
+-	if (phba->cfg_log_verbose)
+-		return;
+-
+-	spin_lock_irqsave(&phba->port_list_lock, iflags);
+-	list_for_each_entry(port_iterator, &phba->port_list, listentry) {
+-		if (port_iterator->load_flag & FC_UNLOADING)
+-			continue;
+-		if (scsi_host_get(lpfc_shost_from_vport(port_iterator))) {
+-			if (port_iterator->cfg_log_verbose)
+-				log_verbose = true;
+-
+-			scsi_host_put(lpfc_shost_from_vport(port_iterator));
+-
+-			if (log_verbose) {
+-				spin_unlock_irqrestore(&phba->port_list_lock,
+-						       iflags);
+-				return;
+-			}
+-		}
+-	}
+-	spin_unlock_irqrestore(&phba->port_list_lock, iflags);
++	unsigned long rem_nsec;
  
-+static void lo_free_disk(struct gendisk *disk)
-+{
-+	struct loop_device *lo = disk->private_data;
-+
-+	mutex_destroy(&lo->lo_mutex);
-+	kfree(lo);
-+}
-+
- static const struct block_device_operations lo_fops = {
- 	.owner =	THIS_MODULE,
- 	.open =		lo_open,
-@@ -1776,6 +1784,7 @@ static const struct block_device_operations lo_fops = {
- #ifdef CONFIG_COMPAT
- 	.compat_ioctl =	lo_compat_ioctl,
- #endif
-+	.free_disk =	lo_free_disk,
- };
- 
- /*
-@@ -2090,15 +2099,14 @@ static void loop_remove(struct loop_device *lo)
- {
- 	/* Make this loop device unreachable from pathname. */
- 	del_gendisk(lo->lo_disk);
--	blk_cleanup_disk(lo->lo_disk);
-+	blk_cleanup_queue(lo->lo_disk->queue);
- 	blk_mq_free_tag_set(&lo->tag_set);
- 
- 	mutex_lock(&loop_ctl_mutex);
- 	idr_remove(&loop_index_idr, lo->lo_number);
- 	mutex_unlock(&loop_ctl_mutex);
--	/* There is no route which can find this loop device. */
--	mutex_destroy(&lo->lo_mutex);
--	kfree(lo);
-+
-+	put_disk(lo->lo_disk);
- }
- 
- static void loop_probe(dev_t dev)
+ 	if (atomic_cmpxchg(&phba->dbg_log_dmping, 0, 1) != 0)
+ 		return;
+diff --git a/drivers/scsi/lpfc/lpfc_logmsg.h b/drivers/scsi/lpfc/lpfc_logmsg.h
+index 7d480c798794..a5aafe230c74 100644
+--- a/drivers/scsi/lpfc/lpfc_logmsg.h
++++ b/drivers/scsi/lpfc/lpfc_logmsg.h
+@@ -73,7 +73,7 @@ do { \
+ #define lpfc_printf_vlog(vport, level, mask, fmt, arg...) \
+ do { \
+ 	{ if (((mask) & (vport)->cfg_log_verbose) || (level[1] <= '3')) { \
+-		if ((mask) & LOG_TRACE_EVENT) \
++		if ((mask) & LOG_TRACE_EVENT && !(vport)->cfg_log_verbose) \
+ 			lpfc_dmp_dbg((vport)->phba); \
+ 		dev_printk(level, &((vport)->phba->pcidev)->dev, "%d:(%d):" \
+ 			   fmt, (vport)->phba->brd_no, vport->vpi, ##arg);  \
+@@ -89,11 +89,11 @@ do { \
+ 				 (phba)->pport->cfg_log_verbose : \
+ 				 (phba)->cfg_log_verbose; \
+ 	if (((mask) & log_verbose) || (level[1] <= '3')) { \
+-		if ((mask) & LOG_TRACE_EVENT) \
++		if ((mask) & LOG_TRACE_EVENT && !log_verbose) \
+ 			lpfc_dmp_dbg(phba); \
+ 		dev_printk(level, &((phba)->pcidev)->dev, "%d:" \
+ 			fmt, phba->brd_no, ##arg); \
+-	} else  if (!(phba)->cfg_log_verbose)\
++	} else if (!log_verbose)\
+ 		lpfc_dbg_print(phba, "%d:" fmt, phba->brd_no, ##arg); \
+ 	} \
+ } while (0)
 -- 
 2.35.1
 
