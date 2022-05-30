@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A7F537F37
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDDE537F58
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238733AbiE3NxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:53:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34776 "EHLO
+        id S238435AbiE3NwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:52:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239029AbiE3NvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:01 -0400
+        with ESMTP id S239070AbiE3NvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750E78217E;
-        Mon, 30 May 2022 06:35:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5DEB82E4;
+        Mon, 30 May 2022 06:35:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6478B80DB6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C92CB80DBE;
+        Mon, 30 May 2022 13:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD8FC341C6;
         Mon, 30 May 2022 13:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19738C341C7;
-        Mon, 30 May 2022 13:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917706;
-        bh=cB/zmou4JNBatz0EsRvy0e6Im6lxkG/oKJCnqFwoMfc=;
+        s=k20201202; t=1653917708;
+        bh=7jqS2tTlnNZbrQ98eK9OJ7pRMtBHKuwDuhlgk5Xc4Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZUlB9s5JH+JNsIlBG6NEr5Bi6dlYEbiDJdxlsd9nD7LFJuyGz6uWocQRYNPe13Mx
-         q7EVfdlrnfdzpJ9j9a+WpRXf7t9Nb+gNG9bQGIY02Ez4Y+ATzlYFAcmGxGZX+1TEK2
-         /42gvU8ci2U5DXHukHpTK4dR4+IXzfyZNbIQJBXUb72ng5u6eS5qqR7JoIYw2SBjTm
-         uZU5fT3tWXfRW48cN4qIBZSagerussar3tEl5jrvSHCDQswn2KJTERdEexEt75YQFH
-         1R/KK3WCAqeERfS2nPtAoqAlGZqL1GZgTUVCNai3CzCuQeOU1796YH8w+STqhMnPDj
-         YFA/ikA3vy4bg==
+        b=Bk5Cv+uBJVmmzJjN4C+OhXLe40dTWCnjXSIT3fh/FpldhBgRp1+3tSfuq2DFKcnyA
+         Y1cs89Ds0YdSklSVih1gwNspd1h2LKa9Hm7AjYOgjNJP5QyGhP6J1HH5kCee2JGLqZ
+         KIFCfluTUQawF5ThI1H9ZfvXKL5cIZp/ScZerll+qVtdFgwvSOeD9pmrVj/wge3geW
+         kx8MyHwJgIqO35SulCA+oax9a/OLPxvyd9dlH+IloS+oFTiU4tu7eYGCdHYjjaxns0
+         jYyEQxWbrCxNldTKl+h0FeOOABlSq9FMyu9sbB8AGVRMUmQ10jl8w7A3raSYGaCRU4
+         CsJPnstjkanfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?N=C3=ADcolas=20F=2E=20R=2E=20A=2E=20Prado?= 
-        <nfraprado@collabora.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        matthias.bgg@gmail.com, hsin-hsiung.wang@mediatek.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 070/135] regulator: mt6315: Enforce regulator-compatible, not name
-Date:   Mon, 30 May 2022 09:30:28 -0400
-Message-Id: <20220530133133.1931716-70-sashal@kernel.org>
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 071/135] HID: bigben: fix slab-out-of-bounds Write in bigben_probe
+Date:   Mon, 30 May 2022 09:30:29 -0400
+Message-Id: <20220530133133.1931716-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,39 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 6d435a94ba5bb4f2ad381c0828fbae89c66b50fe ]
+[ Upstream commit fc4ef9d5724973193bfa5ebed181dba6de3a56db ]
 
-The MT6315 PMIC dt-binding should enforce that one of the valid
-regulator-compatible is set in each regulator node. However it was
-mistakenly matching against regulator-name instead.
+There is a slab-out-of-bounds Write bug in hid-bigbenff driver.
+The problem is the driver assumes the device must have an input but
+some malicious devices violate this assumption.
 
-Fix the typo. This not only fixes the compatible verification, but also
-lifts the regulator-name restriction, so that more meaningful names can
-be set for each platform.
+Fix this by checking hid_device's input is non-empty before its usage.
 
-Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Link: https://lore.kernel.org/r/20220429201325.2205799-1-nfraprado@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/regulator/mt6315-regulator.yaml         | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-bigbenff.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
-index 61dd5af80db6..5d2d989de893 100644
---- a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
-+++ b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
-@@ -31,7 +31,7 @@ properties:
-         $ref: "regulator.yaml#"
+diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+index 74ad8bf98bfd..e8c5e3ac9fff 100644
+--- a/drivers/hid/hid-bigbenff.c
++++ b/drivers/hid/hid-bigbenff.c
+@@ -347,6 +347,12 @@ static int bigben_probe(struct hid_device *hid,
+ 	bigben->report = list_entry(report_list->next,
+ 		struct hid_report, list);
  
-         properties:
--          regulator-name:
-+          regulator-compatible:
-             pattern: "^vbuck[1-4]$"
++	if (list_empty(&hid->inputs)) {
++		hid_err(hid, "no inputs found\n");
++		error = -ENODEV;
++		goto error_hw_stop;
++	}
++
+ 	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
+ 	set_bit(FF_RUMBLE, hidinput->input->ffbit);
  
-     additionalProperties: false
 -- 
 2.35.1
 
