@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50642537CED
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFBDD537D7A
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237702AbiE3Nh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56328 "EHLO
+        id S237512AbiE3Nho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:37:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237845AbiE3Nfv (ORCPT
+        with ESMTP id S237846AbiE3Nfv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20153954B4;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3874995A1A;
         Mon, 30 May 2022 06:29:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60B59B80DAD;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B208860DD4;
         Mon, 30 May 2022 13:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BF42C36AEA;
-        Mon, 30 May 2022 13:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FB81C36AE3;
+        Mon, 30 May 2022 13:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917345;
-        bh=++FBKUrUNdenNgdg9O0dxiFbOQonQ6ctCVrjU7cnTw8=;
+        s=k20201202; t=1653917346;
+        bh=j8BlhbMW32GkhbU+NCT33qF/jy4hbgqTlQH7X9esMYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/XB2Ip2Wzu6wFbdUN77KhlIEPKnDvRyzihuM204HGWVgj5MN7he6XPeqKYnyPkfc
-         HEX2SxIAJm66Eg573Mfdi+BmNZozbt+6j/fiJ6EvrJVI8TpB+N3KEc1V2hsytWlPDC
-         GVrbhLdsHiiRjDG908z/ycNgLlIbQcr2Zim4p9sdpupVST+/IuJ6I69fcqTqrXBTCz
-         ivilts0T7bWltWc4cDb8FOeM5UnLiXGmLP9oq1DrWIw4UpKgyzr7SfxCRKc6go2BOx
-         pePiGBgAwVxWB+Ja26WfKoVCX3fKZg/maAOLr6cMJ+6Klv8/MCR4uMTBQIQWBpSzs2
-         YIt5njY+i/PTg==
+        b=aAwwwbcmUH1vMb5bPbO/SwL0a309nJAYZeP7kj+Ev4AYEsAzXngx7kW4r9Gp8uQuH
+         z1CD+CHuGKznAPN5o0kybhAPc/57HCtbhzT78xlMB8kMZMfRLZU9iBIhJvYMnF7rcS
+         r8f5lfOvgK9+E/Z1+hO9vqZJXQ4aG9FfdmoFoh8DHjSylac+FsAwng0PxAw1ZA10Z+
+         W2yDEAAymbQdHTy/syie+YjD6Yj4Ew6F7g3ncPtBVd8D/SGvAH5mI+eF8+7w4ipRL1
+         qhfI1UM/1GvyCOxUwT4GC689mB+PWtTaPFNxXiXZOZ9QaK6Y8+0vddCoSP/wxT/YwL
+         P+japcrbidpug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Jian-Hong Pan <jhp@endlessos.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 103/159] ACPI: PM: Block ASUS B1400CEAE from suspend to idle by default
-Date:   Mon, 30 May 2022 09:23:28 -0400
-Message-Id: <20220530132425.1929512-103-sashal@kernel.org>
+Cc:     Corey Minyard <cminyard@mvista.com>,
+        Haowen Bai <baihaowen@meizu.com>,
+        Sasha Levin <sashal@kernel.org>,
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.18 104/159] ipmi:ssif: Check for NULL msg when handling events and messages
+Date:   Mon, 30 May 2022 09:23:29 -0400
+Message-Id: <20220530132425.1929512-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -58,55 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit d52848620de00cde4a3a5df908e231b8c8868250 ]
+[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
 
-ASUS B1400CEAE fails to resume from suspend to idle by default.  This was
-bisected back to commit df4f9bc4fb9c ("nvme-pci: add support for ACPI
-StorageD3Enable property") but this is a red herring to the problem.
+Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
+SSIF_GETTING_EVENTS states without a valid message in the msg field,
+it's probably best to be defensive here and check and print a log, since
+that means something else went wrong.
 
-Before this commit the system wasn't getting into deepest sleep state.
-Presumably this commit is allowing entry into deepest sleep state as
-advertised by firmware, but there are some other problems related to
-the wakeup.
+Also add a default clause to that switch statement to release the lock
+and print a log, in case the state variable gets messed up somehow.
 
-As it is confirmed the system works properly with S3, set the default for
-this system to S3.
-
-Reported-by: Jian-Hong Pan <jhp@endlessos.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215742
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Tested-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Haowen Bai <baihaowen@meizu.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index c992e57b2c79..3147702710af 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -373,6 +373,18 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "20GGA00L00"),
- 		},
- 	},
-+	/*
-+	 * ASUS B1400CEAE hangs on resume from suspend (see
-+	 * https://bugzilla.kernel.org/show_bug.cgi?id=215742).
-+	 */
-+	{
-+	.callback = init_default_s3,
-+	.ident = "ASUS B1400CEAE",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "ASUS EXPERTBOOK B1400CEAE"),
-+		},
-+	},
- 	{},
- };
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index f199cc194844..64c73ea9c915 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -814,6 +814,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
  
+ 	case SSIF_GETTING_EVENTS:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting events\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -838,6 +846,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
+ 
+ 	case SSIF_GETTING_MESSAGES:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting messages\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -861,6 +877,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			deliver_recv_msg(ssif_info, msg);
+ 		}
+ 		break;
++
++	default:
++		/* Should never happen, but just in case. */
++		dev_warn(&ssif_info->client->dev,
++			 "Invalid state in message done handling: %d\n",
++			 ssif_info->ssif_state);
++		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 	}
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
 -- 
 2.35.1
 
