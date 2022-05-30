@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F00AC538268
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E8E53830E
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238924AbiE3OXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
+        id S240650AbiE3O3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239668AbiE3OSy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C8E122B7A;
-        Mon, 30 May 2022 06:49:56 -0700 (PDT)
+        with ESMTP id S241594AbiE3O0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:26:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3632AB0DB;
+        Mon, 30 May 2022 06:51:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0B2261013;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 79B6ECE106B;
+        Mon, 30 May 2022 13:49:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B58C3411E;
         Mon, 30 May 2022 13:49:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B0AC3411F;
-        Mon, 30 May 2022 13:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918595;
-        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
+        s=k20201202; t=1653918596;
+        bh=mfzOGPGDFMwBe8JQHvgneMIcB+OQk61Uas1dXZKCVjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEl7ajDelcP/heH6+IbIHd0nPhCCRsnGxvv4jkaQFTT9++nB5ALiQF8OuXrBERtup
-         8Ffn0CcZiD5neOwQ1eIiyDwZey3ORnMkADkV7OGFC8e0s3BVAbKsqfGhI7mazdbR2x
-         HELluNHZnspeWUo/FfGboPP5Sq/+EnRzWApvSdIcgIE6TV1Xea2kYXfuOqt8g/RnbG
-         kAydEBFQadtfGwz46POdtVl360EHwBZ37OIAoeApQ2Q1ILYZp2zkqXAb81GS1tW1IU
-         04i2yuB4uGzYWgiPVwH+uV3Rj5FyMz7uopMeJ+Yj4LDWpC0PazIQ0pm3rbexjJllmU
-         fC5M5lHJPDagQ==
+        b=Lrgl0Z/XybRsHS/zZ5jcjund71qMAZ9GTi5JQBTM18sv/Q/OwENwrvdYfSGvRIBgY
+         FQRLkGwVD5r3wjVB8Z4LL8W/RJJuiKDm1ylhuAhFgnZglGpfYyDT0I+02fkuFatDq2
+         U5/rCdskx+0VnlMbtiWjqQA9y90hAzdJ+OqjSQv9RIxVSJMAcTwhtOLxbe17tk8vK2
+         y3h40Dk3YzItxoHVh8DISxHvgrLHOCiPsvBJWYWIlwmC7I4214grPn/LmC9ioWe6/a
+         dkTFuDAxJEORxAIJh/HwW3nTmVhRMD96fgfvrChxwKrsvzYrVljrp27aXczeAHoF5q
+         Zo51L8s4PNQUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/38] ath9k: fix QCA9561 PA bias level
-Date:   Mon, 30 May 2022 09:48:57 -0400
-Message-Id: <20220530134924.1936816-11-sashal@kernel.org>
+Cc:     Luca Weiss <luca.weiss@fairphone.com>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, linux-media@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 12/38] media: venus: hfi: avoid null dereference in deinit
+Date:   Mon, 30 May 2022 09:48:58 -0400
+Message-Id: <20220530134924.1936816-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134924.1936816-1-sashal@kernel.org>
 References: <20220530134924.1936816-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,49 +59,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
+[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
 
-This patch fixes an invalid TX PA DC bias level on QCA9561, which
-results in a very low output power and very low throughput as devices
-are further away from the AP (compared to other 2.4GHz APs).
+If venus_probe fails at pm_runtime_put_sync the error handling first
+calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
+core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
+anymore.
 
-This patch was suggested by Felix Fietkau, who noted[1]:
-"The value written to that register is wrong, because while the mask
-definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
-shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
-wrong for 9561."
+Avoid this null pointer derefence by skipping the call when necessary.
 
-In real life testing, without this patch the 2.4GHz throughput on
-Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
-practical maximum with the patch applied.
-
-[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
-
-Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/qcom/venus/hfi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-index a171dbb29fbb..ad949eb02f3d 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-@@ -720,7 +720,7 @@
- #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
- 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
- #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
--#define AR_CH0_TOP2_XPABIASLVL_S	12
-+#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
+diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
+index 24207829982f..8a99e2d8274a 100644
+--- a/drivers/media/platform/qcom/venus/hfi.c
++++ b/drivers/media/platform/qcom/venus/hfi.c
+@@ -113,6 +113,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
+ 		mutex_lock(&core->lock);
+ 	}
  
- #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
- 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
++	if (!core->ops)
++		goto unlock;
++
+ 	ret = core->ops->core_deinit(core);
+ 
+ 	if (!ret)
 -- 
 2.35.1
 
