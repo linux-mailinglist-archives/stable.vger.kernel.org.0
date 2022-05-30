@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D366538230
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5F65382CF
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237168AbiE3OWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:22:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
+        id S238008AbiE3O2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:28:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241922AbiE3OSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA14A9CF02;
-        Mon, 30 May 2022 06:48:34 -0700 (PDT)
+        with ESMTP id S241942AbiE3OSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F499CF2A;
+        Mon, 30 May 2022 06:48:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 842C86103D;
-        Mon, 30 May 2022 13:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1AC3C341C0;
-        Mon, 30 May 2022 13:48:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B47DB80DAC;
+        Mon, 30 May 2022 13:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C578DC3411A;
+        Mon, 30 May 2022 13:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918507;
-        bh=iDmtIbiCibEJV3q/3pm/u+kHThmsdq8O7eZM/tAXpic=;
+        s=k20201202; t=1653918512;
+        bh=D1xKN/mMd+ATU/bbOM5le7faxJRmppzL8zhz3hlRk24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRzKRmigijbq4qN6ajskuUmvkh7qtFcbYJGEy+8qvvFpjzVtmGzBaTIOxH3wzraHX
-         nBy8oZPpTbGjgnbfLxJ9aJKP/T1hOzJKretMzOWco/yVRlup0ltHQS4flvzlqWHK4z
-         rcvnFX5rBd2vW/Yi5DG33gz4mR09yJ63sNuYBY7W0ivvM0isBeaBVDWrp1ic2b1+TO
-         b1NU5LVNP4LidTikIag66QvY89ccJ+y1/liYfMblbNemKAjW/N5Ay8a22ntNc9k6Ih
-         ZzS0ZGNkMAUPITEObGZxc5M4X2TaMCwN4ee0FMHRtHLCVO/LGVeLTWLI0n1/DkWW0E
-         Qf6jWeV92cWrg==
+        b=qej3Qwua4Wbi7cnvqI0ICS1TLjhAOh+YZZBohf7dKyd/yha4574GOVWawzX4cCuxL
+         hRfCqFR7BXS3nT82Jb1Skr9IXlJbw0P7CW1zDzEZEy7GTnWOGGoYBm+fopzPj751jB
+         0doQpjGf0pBLKJOeYXBYQHE6QRkl5mDuqBI4rYP2Atnyo8w4Wb73OvSzjG/SDWGd/S
+         EFIHF3tX0PCa4HwHa4WKLHSvxBgiueBpnDUnaSJ6twEIoEioyLY3u5sXv+rqUYm2g4
+         iaUnJ/V9HshFGUXMU0N++nLAIuWYffltRzn3SKS21MlvhGKzQxFjW+ueMSFaan70tX
+         QyC84+dohVkQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        steven.eckhoff.opensource@gmail.com, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 33/55] ASoC: tscs454: Add endianness flag in snd_soc_component_driver
-Date:   Mon, 30 May 2022 09:46:39 -0400
-Message-Id: <20220530134701.1935933-33-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, bigeasy@linutronix.de, imagedong@tencent.com,
+        petrm@nvidia.com, memxor@gmail.com, arnd@arndb.de,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 34/55] net: remove two BUG() from skb_checksum_help()
+Date:   Mon, 30 May 2022 09:46:40 -0400
+Message-Id: <20220530134701.1935933-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -58,66 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ff69ec96b87dccb3a29edef8cec5d4fefbbc2055 ]
+[ Upstream commit d7ea0d9df2a6265b2b180d17ebc64b38105968fc ]
 
-The endianness flag is used on the CODEC side to specify an
-ambivalence to endian, typically because it is lost over the hardware
-link. This device receives audio over an I2S DAI and as such should
-have endianness applied.
+I have a syzbot report that managed to get a crash in skb_checksum_help()
 
-A fixup is also required to use the width directly rather than relying
-on the format in hw_params, now both little and big endian would be
-supported. It is worth noting this changes the behaviour of S24_LE to
-use a word length of 24 rather than 32. This would appear to be a
-correction since the fact S24_LE is stored as 32 bits should not be
-presented over the bus.
+If syzbot can trigger these BUG(), it makes sense to replace
+them with more friendly WARN_ON_ONCE() since skb_checksum_help()
+can instead return an error code.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220504170905.332415-26-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Note that syzbot will still crash there, until real bug is fixed.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tscs454.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/core/dev.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/tscs454.c b/sound/soc/codecs/tscs454.c
-index c3587af9985c..3d981441b8d1 100644
---- a/sound/soc/codecs/tscs454.c
-+++ b/sound/soc/codecs/tscs454.c
-@@ -3128,18 +3128,17 @@ static int set_aif_sample_format(struct snd_soc_component *component,
- 	unsigned int width;
- 	int ret;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index a03036456221..8fd0a0591e89 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2857,11 +2857,15 @@ int skb_checksum_help(struct sk_buff *skb)
+ 	}
  
--	switch (format) {
--	case SNDRV_PCM_FORMAT_S16_LE:
-+	switch (snd_pcm_format_width(format)) {
-+	case 16:
- 		width = FV_WL_16;
- 		break;
--	case SNDRV_PCM_FORMAT_S20_3LE:
-+	case 20:
- 		width = FV_WL_20;
- 		break;
--	case SNDRV_PCM_FORMAT_S24_3LE:
-+	case 24:
- 		width = FV_WL_24;
- 		break;
--	case SNDRV_PCM_FORMAT_S24_LE:
--	case SNDRV_PCM_FORMAT_S32_LE:
-+	case 32:
- 		width = FV_WL_32;
- 		break;
- 	default:
-@@ -3337,6 +3336,7 @@ static const struct snd_soc_component_driver soc_component_dev_tscs454 = {
- 	.num_dapm_routes = ARRAY_SIZE(tscs454_intercon),
- 	.controls =	tscs454_snd_controls,
- 	.num_controls = ARRAY_SIZE(tscs454_snd_controls),
-+	.endianness = 1,
- };
+ 	offset = skb_checksum_start_offset(skb);
+-	BUG_ON(offset >= skb_headlen(skb));
++	ret = -EINVAL;
++	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
++		goto out;
++
+ 	csum = skb_checksum(skb, offset, skb->len - offset, 0);
  
- #define TSCS454_RATES SNDRV_PCM_RATE_8000_96000
+ 	offset += skb->csum_offset;
+-	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
++	if (WARN_ON_ONCE(offset + sizeof(__sum16) > skb_headlen(skb)))
++		goto out;
+ 
+ 	if (skb_cloned(skb) &&
+ 	    !skb_clone_writable(skb, offset + sizeof(__sum16))) {
 -- 
 2.35.1
 
