@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 835AD537D1D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD79537D0A
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232301AbiE3Ngn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:36:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43730 "EHLO
+        id S233095AbiE3Ngp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:36:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237266AbiE3Ndv (ORCPT
+        with ESMTP id S237090AbiE3Ndv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:33:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 625A0915A4;
-        Mon, 30 May 2022 06:28:03 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22377880CB;
+        Mon, 30 May 2022 06:28:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4DD8B80DA8;
-        Mon, 30 May 2022 13:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 994CEC3411C;
-        Mon, 30 May 2022 13:27:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5D95B80DAD;
+        Mon, 30 May 2022 13:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECEE7C3411A;
+        Mon, 30 May 2022 13:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917274;
-        bh=laup2rznz3Il/ZJtnKku7FRUlcG86YxUDSIH8CKkm2E=;
+        s=k20201202; t=1653917276;
+        bh=4jTvK2lpoiEdeQm+qpzHyCZoxAUPXJcXPmcaCJ93CzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rbi443Zthh3CYE6N9Tef0yFfAD889eFh8hC56Mu9ut1zowhvTWqPywso8qG5XxYxx
-         BXX4k9icXgJ9Ajp+5U2Mx5AiwiajE6Zscm1n/Gmg/QElRNoqzzA6DhT+70uP8vhLPE
-         t9eAtDLiaJUNrHRw/sTTbIzLUPxh9WnVqY8GxV68TdXHmqVvlNd7IjD4aQhE2PKmLA
-         fbMETP8yPEYy8UU54MaScPWuQBjZeAhqIPyXjHjuFrAbIScnaMlth9wa5amJimncAa
-         li2tCBItkmMZcHEouJbFv2ZcYz5gA/59plnIo0jtO36pxFFkS9ebihFtSSEMgfZWGA
-         xmtIhmn40LteQ==
+        b=cqW93jEsrqqXY0AzoRFlkys8p7tt9Kus03VSkStKcYOM+bNmQBfTGNWx7304tShiZ
+         sk63qLxMQjiEzRv2YTHReHQffJltg1myUxxRUqkoIjSvHrhH9NyoqZ71BtOXOgiDAv
+         Rj7W5dDlnztnevCakoQ4eVjR8fmrpQffS0wzs5pF6HOTtH6U+krMQ8qcjQrsiRjkq/
+         tyWDRneOfRcnKfRKxmLv+kDKYTjk//LBGPTWO6alTMgFTDFrhSSYdzIm7XKqfc8Aro
+         3iEIOku+Hy6VvGvkN2IRBV8NxBw7TdOn5uHWq3xH0/xr7sINqXARx2IbstmLra+L0b
+         HX08WTgM4kZ7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 078/159] ASoC: dapm: Don't fold register value changes into notifications
-Date:   Mon, 30 May 2022 09:23:03 -0400
-Message-Id: <20220530132425.1929512-78-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        pierre-louis.bossart@linux.intel.com, lgirdwood@gmail.com,
+        ranjani.sridharan@linux.intel.com, kai.vehmanen@linux.intel.com,
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 079/159] ASoC: SOF: ipc3-topology: Correct get_control_data for non bytes payload
+Date:   Mon, 30 May 2022 09:23:04 -0400
+Message-Id: <20220530132425.1929512-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -56,48 +61,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
+[ Upstream commit a962890a5a3cce903ff7c7a19fadee63ed9efdc7 ]
 
-DAPM tracks and reports the value presented to the user from DAPM controls
-separately to the register value, these may diverge during initialisation
-or when an autodisable control is in use.
+It is possible to craft a topology where sof_get_control_data() would do
+out of bounds access because it expects that it is only called when the
+payload is bytes type.
+Confusingly it also handles other types of controls, but the payload
+parsing implementation is only valid for bytes.
 
-When writing DAPM controls we currently report that a change has occurred
-if either the DAPM value or the value stored in the register has changed,
-meaning that if the two are out of sync we may appear to report a spurious
-event to userspace. Since we use this folded in value for nothing other
-than the value reported to userspace simply drop the folding in of the
-register change.
+Fix the code to count the non bytes controls and instead of storing a
+pointer to sof_abi_hdr in sof_widget_data (which is only valid for bytes),
+store the pointer to the data itself and add a new member to save the size
+of the data.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
+In case of non bytes controls we store the pointer to the chanv itself,
+which is just an array of values at the end.
+
+In case of bytes control, drop the wrong cdata->data (wdata[i].pdata) check
+against NULL since it is incorrect and invalid in this context.
+The data is pointing to the end of cdata struct, so it should never be
+null.
+
+Reported-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Tested-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Link: https://lore.kernel.org/r/20220427185221.28928-1-peter.ujfalusi@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c | 2 --
- 1 file changed, 2 deletions(-)
+ sound/soc/sof/ipc3-topology.c | 39 +++++++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index ca917a849c42..869c76506b66 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -3437,7 +3437,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
- 			update.val = val;
- 			card->update = &update;
- 		}
--		change |= reg_change;
+diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
+index 2f8450a8c0a1..af1bbd34213c 100644
+--- a/sound/soc/sof/ipc3-topology.c
++++ b/sound/soc/sof/ipc3-topology.c
+@@ -20,7 +20,8 @@
+ struct sof_widget_data {
+ 	int ctrl_type;
+ 	int ipc_cmd;
+-	struct sof_abi_hdr *pdata;
++	void *pdata;
++	size_t pdata_size;
+ 	struct snd_sof_control *control;
+ };
  
- 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
- 						  rconnect);
-@@ -3539,7 +3538,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
- 			update.val = val;
- 			card->update = &update;
+@@ -784,16 +785,26 @@ static int sof_get_control_data(struct snd_soc_component *scomp,
  		}
--		change |= reg_change;
  
- 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
+ 		cdata = wdata[i].control->ipc_control_data;
+-		wdata[i].pdata = cdata->data;
+-		if (!wdata[i].pdata)
+-			return -EINVAL;
+ 
+-		/* make sure data is valid - data can be updated at runtime */
+-		if (widget->dobj.widget.kcontrol_type[i] == SND_SOC_TPLG_TYPE_BYTES &&
+-		    wdata[i].pdata->magic != SOF_ABI_MAGIC)
+-			return -EINVAL;
++		if (widget->dobj.widget.kcontrol_type[i] == SND_SOC_TPLG_TYPE_BYTES) {
++			/* make sure data is valid - data can be updated at runtime */
++			if (cdata->data->magic != SOF_ABI_MAGIC)
++				return -EINVAL;
++
++			wdata[i].pdata = cdata->data->data;
++			wdata[i].pdata_size = cdata->data->size;
++		} else {
++			/* points to the control data union */
++			wdata[i].pdata = cdata->chanv;
++			/*
++			 * wdata[i].control->size is calculated with struct_size
++			 * and includes the size of struct sof_ipc_ctrl_data
++			 */
++			wdata[i].pdata_size = wdata[i].control->size -
++					      sizeof(struct sof_ipc_ctrl_data);
++		}
+ 
+-		*size += wdata[i].pdata->size;
++		*size += wdata[i].pdata_size;
+ 
+ 		/* get data type */
+ 		switch (cdata->cmd) {
+@@ -876,10 +887,12 @@ static int sof_process_load(struct snd_soc_component *scomp,
+ 	 */
+ 	if (ipc_data_size) {
+ 		for (i = 0; i < widget->num_kcontrols; i++) {
+-			memcpy(&process->data[offset],
+-			       wdata[i].pdata->data,
+-			       wdata[i].pdata->size);
+-			offset += wdata[i].pdata->size;
++			if (!wdata[i].pdata_size)
++				continue;
++
++			memcpy(&process->data[offset], wdata[i].pdata,
++			       wdata[i].pdata_size);
++			offset += wdata[i].pdata_size;
+ 		}
+ 	}
  
 -- 
 2.35.1
