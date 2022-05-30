@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A68537B68
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB8D537B6D
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236542AbiE3NYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230415AbiE3NYl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 30 May 2022 09:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57234 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236538AbiE3NYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:24:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D1671A1A;
+        with ESMTP id S236535AbiE3NYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:24:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9B6AE6E;
         Mon, 30 May 2022 06:24:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EABB9B80DA7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B67B960DD4;
+        Mon, 30 May 2022 13:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D14C3411C;
         Mon, 30 May 2022 13:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66562C385B8;
-        Mon, 30 May 2022 13:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917074;
-        bh=m8OgePpjLaw3vqTYFrtd4bJ7YgU/xYB3M8CWzOMVcdc=;
+        s=k20201202; t=1653917076;
+        bh=s3qNkoIYVWMpejiHT67UNIh/odgE/06E//y1wED6l1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bX11V3oMN+/wnYPlL0/UAMWBEEmOveKuwZ82Wee9Mvbuw/IGBTjuL4Z+eUJbvkWOM
-         hyhl4xzFyrhnPVAuk0Nx5gKXgE9lk2j3UI78EajiXZtVKCOYSHp9j7DHSlE8Vdr681
-         m1rfjeEMBfCVq22gA6uABRrEYpO+9oHVx2gYzt4YSrCir1cPQZE4sI1NorY7mo9yCA
-         vYJ9h875kxRYoTrZqUq2LWL4tiqT8apHzrGXb1VurPxT15XTfzbGn4cg3KiKJmUL61
-         pIfgYeV5ijGa3S4C6Bp/FpMbiC+EHteTC3ATR46cdNMfm/i/CnMDZNycHif/4zj1s7
-         kKuaSfc3Ssziw==
+        b=oEi3QpzvTN0D3kbvTJCtNVR5N/xh+pJrO9HVq0Dxr4lfkiNEj8MF8dw2KfZbifTnB
+         1dRyYoWzL0cTDQew6wtgd/kfYUfeomvVC4rp7p6rfhdQ/yHq7+ePB3GRO4vU8c6SlH
+         KkqYPVp4Psumwb4J7C9nKVdtiGFE3jmotgOxB2RAq9rjxnDCI3w+g9SG5m+gsceZKJ
+         c8h2MBW3q/kC6JMdn+RdyuxJ1CMFWhFusZCitJ4iqoDotTEGmbc4shpYRJBFPnP/8Q
+         2PLRYxiAmMTh7LSgrDMaP6UpxRuHKodiTMbHBoViehXOJbQ7XnAEygbApSqbU8yG5g
+         gcyOCTl+/e4Zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arunpravin <Arunpravin.PaneerSelvam@amd.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     Zack Rusin <zackr@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
         Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, matthew.auld@intel.com, dan.carpenter@oracle.com,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 002/159] drm/selftests: fix a shift-out-of-bounds bug
-Date:   Mon, 30 May 2022 09:21:47 -0400
-Message-Id: <20220530132425.1929512-2-sashal@kernel.org>
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.18 003/159] drm/vmwgfx: validate the screen formats
+Date:   Mon, 30 May 2022 09:21:48 -0400
+Message-Id: <20220530132425.1929512-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,98 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arunpravin <Arunpravin.PaneerSelvam@amd.com>
+From: Zack Rusin <zackr@vmware.com>
 
-[ Upstream commit fc3785fb56a27304c769af730d079f4337d4dc76 ]
+[ Upstream commit 8bb75aeb58bd688d70827ae179bd3da57b6d975b ]
 
-pass the correct size value computed using the max_order.
+The kms code wasn't validating the modifiers and was letting through
+unsupported formats. rgb8 was never properly supported and has no
+matching svga screen target format so remove it.
+This fixes format/modifier failures in kms_addfb_basic from IGT.
 
-<log snip>
-
-[ 68.124177][ T1] UBSAN: shift-out-of-bounds in include/linux/log2.h:67:13
-[ 68.125333][ T1] shift exponent 4294967295 is too large for 32-bit type 'long
-unsigned int'
-[ 68.126563][ T1] CPU: 0 PID: 1 Comm: swapper Not tainted
-5.17.0-rc2-00311-g39ec47bbfd5d #2
-[ 68.127758][ T1] Call Trace:
-[ 68.128187][ T1] dump_stack_lvl (lib/dump_stack.c:108)
-[ 68.128793][ T1] dump_stack (lib/dump_stack.c:114)
-[ 68.129331][ T1] ubsan_epilogue (lib/ubsan.c:152)
-[ 68.129958][ T1] __ubsan_handle_shift_out_of_bounds.cold (arch/x86/include/asm/smap.h:85)
-
-[ 68.130791][ T1] ? drm_block_alloc+0x28/0x80
-[ 68.131582][ T1] ? rcu_read_lock_sched_held (kernel/rcu/update.c:125)
-[ 68.132215][ T1] ? kmem_cache_alloc (include/trace/events/kmem.h:54 mm/slab.c:3501)
-[ 68.132878][ T1] ? mark_free+0x2e/0x80
-[ 68.133524][ T1] drm_buddy_init.cold (include/linux/log2.h:67
-drivers/gpu/drm/drm_buddy.c:131)
-[ 68.134145][ T1] ? test_drm_cmdline_init (drivers/gpu/drm/selftests/test-drm_buddy.c:87)
-
-[ 68.134770][ T1] igt_buddy_alloc_limit (drivers/gpu/drm/selftests/test-drm_buddy.c:30)
-[ 68.135472][ T1] ? vprintk_default (kernel/printk/printk.c:2257)
-[ 68.136057][ T1] ? test_drm_cmdline_init (drivers/gpu/drm/selftests/test-drm_buddy.c:87)
-
-[ 68.136812][ T1] test_drm_buddy_init (drivers/gpu/drm/selftests/drm_selftest.c:77
-drivers/gpu/drm/selftests/test-drm_buddy.c:95)
-[ 68.137475][ T1] do_one_initcall (init/main.c:1300)
-[ 68.138111][ T1] ? parse_args (kernel/params.c:609 kernel/params.c:146
-kernel/params.c:188)
-[ 68.138717][ T1] do_basic_setup (init/main.c:1372 init/main.c:1389 init/main.c:1408)
-[ 68.139366][ T1] kernel_init_freeable (init/main.c:1617)
-[ 68.140040][ T1] ? rest_init (init/main.c:1494)
-[ 68.140634][ T1] kernel_init (init/main.c:1504)
-[ 68.141155][ T1] ret_from_fork (arch/x86/entry/entry_32.S:772)
-[ 68.141607][ T1]
-================================================================================
-[ 68.146730][ T1] ------------[ cut here ]------------
-[ 68.147460][ T1] kernel BUG at drivers/gpu/drm/drm_buddy.c:140!
-[ 68.148280][ T1] invalid opcode: 0000 [#1]
-[ 68.148895][ T1] CPU: 0 PID: 1 Comm: swapper Not tainted
-5.17.0-rc2-00311-g39ec47bbfd5d #2
-[ 68.149896][ T1] EIP: drm_buddy_init (drivers/gpu/drm/drm_buddy.c:140 (discriminator 1))
-
-For more details: https://lists.01.org/hyperkitty/list/lkp@lists.01.org/thread/FDIF3HCILZNN5UQAZMOR7E3MQSMHHKWU/
-
-Signed-off-by: Arunpravin <Arunpravin.PaneerSelvam@amd.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220303201602.2365-1-Arunpravin.PaneerSelvam@amd.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220318174332.440068-4-zack@kde.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/selftests/test-drm_buddy.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c | 30 +++++++++++++++--------------
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.h |  1 -
+ 2 files changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/selftests/test-drm_buddy.c b/drivers/gpu/drm/selftests/test-drm_buddy.c
-index fa997f89522b..913cbd7eae04 100644
---- a/drivers/gpu/drm/selftests/test-drm_buddy.c
-+++ b/drivers/gpu/drm/selftests/test-drm_buddy.c
-@@ -902,14 +902,13 @@ static int igt_buddy_alloc_range(void *arg)
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+index 93431e8f6606..9410152f9d6f 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -914,6 +914,15 @@ static int vmw_kms_new_framebuffer_surface(struct vmw_private *dev_priv,
+ 	 * Sanity checks.
+ 	 */
  
- static int igt_buddy_alloc_limit(void *arg)
- {
--	u64 end, size = U64_MAX, start = 0;
-+	u64 size = U64_MAX, start = 0;
- 	struct drm_buddy_block *block;
- 	unsigned long flags = 0;
- 	LIST_HEAD(allocated);
- 	struct drm_buddy mm;
- 	int err;
- 
--	size = end = round_down(size, 4096);
- 	err = drm_buddy_init(&mm, size, PAGE_SIZE);
- 	if (err)
- 		return err;
-@@ -921,7 +920,8 @@ static int igt_buddy_alloc_limit(void *arg)
- 		goto out_fini;
++	if (!drm_any_plane_has_format(&dev_priv->drm,
++				      mode_cmd->pixel_format,
++				      mode_cmd->modifier[0])) {
++		drm_dbg(&dev_priv->drm,
++			"unsupported pixel format %p4cc / modifier 0x%llx\n",
++			&mode_cmd->pixel_format, mode_cmd->modifier[0]);
++		return -EINVAL;
++	}
++
+ 	/* Surface must be marked as a scanout. */
+ 	if (unlikely(!surface->metadata.scanout))
+ 		return -EINVAL;
+@@ -1236,20 +1245,13 @@ static int vmw_kms_new_framebuffer_bo(struct vmw_private *dev_priv,
+ 		return -EINVAL;
  	}
  
--	err = drm_buddy_alloc_blocks(&mm, start, end, size,
-+	size = mm.chunk_size << mm.max_order;
-+	err = drm_buddy_alloc_blocks(&mm, start, size, size,
- 				     PAGE_SIZE, &allocated, flags);
+-	/* Limited framebuffer color depth support for screen objects */
+-	if (dev_priv->active_display_unit == vmw_du_screen_object) {
+-		switch (mode_cmd->pixel_format) {
+-		case DRM_FORMAT_XRGB8888:
+-		case DRM_FORMAT_ARGB8888:
+-			break;
+-		case DRM_FORMAT_XRGB1555:
+-		case DRM_FORMAT_RGB565:
+-			break;
+-		default:
+-			DRM_ERROR("Invalid pixel format: %p4cc\n",
+-				  &mode_cmd->pixel_format);
+-			return -EINVAL;
+-		}
++	if (!drm_any_plane_has_format(&dev_priv->drm,
++				      mode_cmd->pixel_format,
++				      mode_cmd->modifier[0])) {
++		drm_dbg(&dev_priv->drm,
++			"unsupported pixel format %p4cc / modifier 0x%llx\n",
++			&mode_cmd->pixel_format, mode_cmd->modifier[0]);
++		return -EINVAL;
+ 	}
  
- 	if (unlikely(err))
+ 	vfbd = kzalloc(sizeof(*vfbd), GFP_KERNEL);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
+index 4d36e8507380..d9ebd02099a6 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
+@@ -247,7 +247,6 @@ struct vmw_framebuffer_bo {
+ static const uint32_t __maybe_unused vmw_primary_plane_formats[] = {
+ 	DRM_FORMAT_XRGB1555,
+ 	DRM_FORMAT_RGB565,
+-	DRM_FORMAT_RGB888,
+ 	DRM_FORMAT_XRGB8888,
+ 	DRM_FORMAT_ARGB8888,
+ };
 -- 
 2.35.1
 
