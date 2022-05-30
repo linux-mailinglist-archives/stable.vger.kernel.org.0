@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA1E537D2E
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D828E537DB0
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237775AbiE3NiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
+        id S236187AbiE3NiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:38:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237572AbiE3Ngw (ORCPT
+        with ESMTP id S237586AbiE3Ngw (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 313ED12AB4;
-        Mon, 30 May 2022 06:30:30 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE1BBC8B;
+        Mon, 30 May 2022 06:30:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADA6FB80DA8;
-        Mon, 30 May 2022 13:30:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA59C385B8;
-        Mon, 30 May 2022 13:30:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C9D760EE0;
+        Mon, 30 May 2022 13:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3097C3411A;
+        Mon, 30 May 2022 13:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917428;
-        bh=hPUbUC3wFDCP8aithaZ5HvATm1athO3Gq5+G/6a2wHU=;
+        s=k20201202; t=1653917430;
+        bh=A3CivUUyS2UHd9YX6XuOP1Gz13QUVPcNKCp/bvnCo6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUn+qb925lrCw+BQTGsxEMQEe66h1V/7FnR/jyKP8m+Mm9ytSoM6E8ChHKUdDaZ0b
-         yQDMq9IjNaMLkLBPCqXv8S8L9KNG3h662gUCBQ/+8FpSdzWK2SUgkl7x3sN86PLWM8
-         aPK7wegWXa50xKwILHnfvl/6lmrmanMH9ZShD2h6modV2Rut0RSkyaYnNuf/xK6T5K
-         6xEcsWL1ipeIlOqsYqThqUU9DtubuUt1U39hRxKa6n0jfMEMOkenYv4VJYJAK/JoRS
-         BbpjjL7C+6l6YbWabkHqS4Fm8ivXnbEuwa/km49ihTWQeQPp4jCeWV+62QR6PJmKyg
-         BCeKsYEli4gUw==
+        b=lkO9RZxk7z8u/G5eMrMDs7tWe8c+lZRS/VwmOjIilhSgnWakxaVX0nRGNgpvYZlzx
+         uL1WGBzIyn/WwKSIwyOwV/MhGKHHSlDhwEJBC748baH76zXP60LpGe+AESLj3CgxK6
+         dns8iMC7qFBOsS74Le35rOWuRlCJiL7IgsQgMGkA37+InKHeYHGIBbWD5ExqBSH6Oe
+         k9HjY+mgrFEaeHLzFL5hp8HOyL3DhxOo+qY3lrrrmUGL7FiXE1zRnaK1LYtIqdgMmb
+         bmK7i5CgB8I2UCK39657CWzN50Th+tMtAH61nIRLaw0hpS7WEniVynHblmI03Ja3om
+         Jw6K9B/zChAag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, lijo.lazar@amd.com, guchun.chen@amd.com,
-        Hawking.Zhang@amd.com, darren.powell@amd.com, aaron.liu@amd.com,
-        andrey.grodzovsky@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 131/159] drm/amdgpu: Move mutex_init(&smu->message_lock) to smu_early_init()
-Date:   Mon, 30 May 2022 09:23:56 -0400
-Message-Id: <20220530132425.1929512-131-sashal@kernel.org>
+Cc:     Omar Sandoval <osandov@fb.com>,
+        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 132/159] btrfs: fix anon_dev leak in create_subvol()
+Date:   Mon, 30 May 2022 09:23:57 -0400
+Message-Id: <20220530132425.1929512-132-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -61,128 +58,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit 4b9caaa0281972ca5ea4e1cdac2e12b9df1ae00b ]
+[ Upstream commit 2256e901f5bddc56e24089c96f27b77da932dfcc ]
 
-Lockdep complains about the smu->message_lock mutex being used before
-it is initialized through the following call path:
+When btrfs_qgroup_inherit(), btrfs_alloc_tree_block, or
+btrfs_insert_root() fail in create_subvol(), we return without freeing
+anon_dev. Reorganize the error handling in create_subvol() to fix this.
 
-amdgpu_device_init()
- amdgpu_dpm_mode2_reset()
-  smu_mode2_reset()
-   smu_v12_0_mode2_reset()
-    smu_cmn_send_smc_msg_with_param()
-
-Move the mutex_init() call to smu_early_init() to fix the mutex being
-used before it is initialized.
-
-This fixes the following lockdep splat:
-
-[    3.867331] ------------[ cut here ]------------
-[    3.867335] fbcon: Taking over console
-[    3.867338] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-[    3.867340] WARNING: CPU: 14 PID: 491 at kernel/locking/mutex.c:579 __mutex_lock+0x44c/0x830
-[    3.867349] Modules linked in: amdgpu(+) crct10dif_pclmul drm_ttm_helper crc32_pclmul ttm crc32c_intel ghash_clmulni_intel hid_lg_g15 iommu_v2 sp5100_tco nvme gpu_sched drm_dp_helper nvme_core ccp wmi video hid_logitech_dj ip6_tables ip_tables ipmi_devintf ipmi_msghandler fuse i2c_dev
-[    3.867363] CPU: 14 PID: 491 Comm: systemd-udevd Tainted: G          I       5.18.0-rc5+ #33
-[    3.867366] Hardware name: Micro-Star International Co., Ltd. MS-7C95/B550M PRO-VDH WIFI (MS-7C95), BIOS 2.90 12/23/2021
-[    3.867369] RIP: 0010:__mutex_lock+0x44c/0x830
-[    3.867372] Code: ff 85 c0 0f 84 33 fc ff ff 8b 0d b7 50 25 01 85 c9 0f 85 25 fc ff ff 48 c7 c6 fb 41 82 99 48 c7 c7 6b 63 80 99 e8 88 2a f8 ff <0f> 0b e9 0b fc ff ff f6 83 b9 0c 00 00 01 0f 85 64 ff ff ff 4c 89
-[    3.867377] RSP: 0018:ffffaef8c0fc79f0 EFLAGS: 00010286
-[    3.867380] RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000027
-[    3.867382] RDX: ffff9ccc0dda0928 RSI: 0000000000000001 RDI: ffff9ccc0dda0920
-[    3.867384] RBP: ffffaef8c0fc7a80 R08: 0000000000000000 R09: ffffaef8c0fc7820
-[    3.867386] R10: 0000000000000003 R11: ffff9ccc2a2fffe8 R12: 0000000000000002
-[    3.867388] R13: ffff9cc990808058 R14: 0000000000000000 R15: ffff9cc98bfc0000
-[    3.867390] FS:  00007fc4d830f580(0000) GS:ffff9ccc0dd80000(0000) knlGS:0000000000000000
-[    3.867394] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.867396] CR2: 0000560a77031410 CR3: 000000010f522000 CR4: 0000000000750ee0
-[    3.867398] PKRU: 55555554
-[    3.867399] Call Trace:
-[    3.867401]  <TASK>
-[    3.867403]  ? smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
-[    3.867533]  ? __mutex_lock+0x90/0x830
-[    3.867535]  ? amdgpu_dpm_mode2_reset+0x37/0x60 [amdgpu]
-[    3.867653]  ? smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
-[    3.867758]  smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
-[    3.867857]  smu_mode2_reset+0x2b/0x50 [amdgpu]
-[    3.867953]  amdgpu_dpm_mode2_reset+0x46/0x60 [amdgpu]
-[    3.868096]  amdgpu_device_init.cold+0x1069/0x1e78 [amdgpu]
-[    3.868219]  ? _raw_spin_unlock_irqrestore+0x30/0x50
-[    3.868222]  ? pci_conf1_read+0x9b/0xf0
-[    3.868226]  amdgpu_driver_load_kms+0x15/0x110 [amdgpu]
-[    3.868314]  amdgpu_pci_probe+0x1a9/0x3c0 [amdgpu]
-[    3.868398]  local_pci_probe+0x41/0x80
-[    3.868401]  pci_device_probe+0xab/0x200
-[    3.868404]  really_probe+0x1a1/0x370
-[    3.868407]  __driver_probe_device+0xfc/0x170
-[    3.868410]  driver_probe_device+0x1f/0x90
-[    3.868412]  __driver_attach+0xbf/0x1a0
-[    3.868414]  ? __device_attach_driver+0xe0/0xe0
-[    3.868416]  bus_for_each_dev+0x65/0x90
-[    3.868419]  bus_add_driver+0x151/0x1f0
-[    3.868421]  driver_register+0x89/0xd0
-[    3.868423]  ? 0xffffffffc0bd4000
-[    3.868425]  do_one_initcall+0x5d/0x300
-[    3.868428]  ? do_init_module+0x22/0x240
-[    3.868431]  ? rcu_read_lock_sched_held+0x3c/0x70
-[    3.868434]  ? trace_kmalloc+0x30/0xe0
-[    3.868437]  ? kmem_cache_alloc_trace+0x1e6/0x3a0
-[    3.868440]  do_init_module+0x4a/0x240
-[    3.868442]  __do_sys_finit_module+0x93/0xf0
-[    3.868446]  do_syscall_64+0x5b/0x80
-[    3.868449]  ? rcu_read_lock_sched_held+0x3c/0x70
-[    3.868451]  ? lockdep_hardirqs_on_prepare+0xd9/0x180
-[    3.868454]  ? do_syscall_64+0x67/0x80
-[    3.868456]  ? do_syscall_64+0x67/0x80
-[    3.868458]  ? do_syscall_64+0x67/0x80
-[    3.868460]  ? do_syscall_64+0x67/0x80
-[    3.868462]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[    3.868465] RIP: 0033:0x7fc4d8ec1ced
-[    3.868467] Code: 5d c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d fb 70 0e 00 f7 d8 64 89 01 48
-[    3.868472] RSP: 002b:00007fff687ae6b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[    3.868475] RAX: ffffffffffffffda RBX: 0000560a76fbca60 RCX: 00007fc4d8ec1ced
-[    3.868477] RDX: 0000000000000000 RSI: 00007fc4d902343c RDI: 0000000000000011
-[    3.868479] RBP: 00007fc4d902343c R08: 0000000000000000 R09: 0000560a76fb59c0
-[    3.868481] R10: 0000000000000011 R11: 0000000000000246 R12: 0000000000020000
-[    3.868484] R13: 0000560a76f8bfd0 R14: 0000000000000000 R15: 0000560a76fc2d10
-[    3.868487]  </TASK>
-[    3.868489] irq event stamp: 120617
-[    3.868490] hardirqs last  enabled at (120617): [<ffffffff9817169e>] __up_console_sem+0x5e/0x70
-[    3.868494] hardirqs last disabled at (120616): [<ffffffff98171683>] __up_console_sem+0x43/0x70
-[    3.868497] softirqs last  enabled at (119684): [<ffffffff980ee83a>] __irq_exit_rcu+0xca/0x100
-[    3.868501] softirqs last disabled at (119679): [<ffffffff980ee83a>] __irq_exit_rcu+0xca/0x100
-[    3.868504] ---[ end trace 0000000000000000 ]---
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/ioctl.c | 49 +++++++++++++++++++++++-------------------------
+ 1 file changed, 23 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-index f10a0256413e..32cff21f261c 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -576,6 +576,8 @@ static int smu_early_init(void *handle)
- 	smu->smu_baco.platform_support = false;
- 	smu->user_dpm_profile.fan_mode = -1;
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index be6c24577dbe..777801902511 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -561,7 +561,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	struct timespec64 cur_time = current_time(dir);
+ 	struct inode *inode;
+ 	int ret;
+-	dev_t anon_dev = 0;
++	dev_t anon_dev;
+ 	u64 objectid;
+ 	u64 index = 0;
  
-+	mutex_init(&smu->message_lock);
-+
- 	adev->powerplay.pp_handle = smu;
- 	adev->powerplay.pp_funcs = &swsmu_pm_funcs;
+@@ -571,11 +571,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
  
-@@ -975,8 +977,6 @@ static int smu_sw_init(void *handle)
- 	bitmap_zero(smu->smu_feature.supported, SMU_FEATURE_MAX);
- 	bitmap_zero(smu->smu_feature.allowed, SMU_FEATURE_MAX);
- 
--	mutex_init(&smu->message_lock);
+ 	ret = btrfs_get_free_objectid(fs_info->tree_root, &objectid);
+ 	if (ret)
+-		goto fail_free;
 -
- 	INIT_WORK(&smu->throttling_logging_work, smu_throttling_logging_work_fn);
- 	INIT_WORK(&smu->interrupt_work, smu_interrupt_work_fn);
- 	atomic64_set(&smu->throttle_int_counter, 0);
+-	ret = get_anon_bdev(&anon_dev);
+-	if (ret < 0)
+-		goto fail_free;
++		goto out_root_item;
+ 
+ 	/*
+ 	 * Don't create subvolume whose level is not zero. Or qgroup will be
+@@ -583,9 +579,13 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	 */
+ 	if (btrfs_qgroup_level(objectid)) {
+ 		ret = -ENOSPC;
+-		goto fail_free;
++		goto out_root_item;
+ 	}
+ 
++	ret = get_anon_bdev(&anon_dev);
++	if (ret < 0)
++		goto out_root_item;
++
+ 	btrfs_init_block_rsv(&block_rsv, BTRFS_BLOCK_RSV_TEMP);
+ 	/*
+ 	 * The same as the snapshot creation, please see the comment
+@@ -593,26 +593,26 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	 */
+ 	ret = btrfs_subvolume_reserve_metadata(root, &block_rsv, 8, false);
+ 	if (ret)
+-		goto fail_free;
++		goto out_anon_dev;
+ 
+ 	trans = btrfs_start_transaction(root, 0);
+ 	if (IS_ERR(trans)) {
+ 		ret = PTR_ERR(trans);
+ 		btrfs_subvolume_release_metadata(root, &block_rsv);
+-		goto fail_free;
++		goto out_anon_dev;
+ 	}
+ 	trans->block_rsv = &block_rsv;
+ 	trans->bytes_reserved = block_rsv.size;
+ 
+ 	ret = btrfs_qgroup_inherit(trans, 0, objectid, inherit);
+ 	if (ret)
+-		goto fail;
++		goto out;
+ 
+ 	leaf = btrfs_alloc_tree_block(trans, root, 0, objectid, NULL, 0, 0, 0,
+ 				      BTRFS_NESTING_NORMAL);
+ 	if (IS_ERR(leaf)) {
+ 		ret = PTR_ERR(leaf);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	btrfs_mark_buffer_dirty(leaf);
+@@ -667,7 +667,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 		btrfs_tree_unlock(leaf);
+ 		btrfs_free_tree_block(trans, objectid, leaf, 0, 1);
+ 		free_extent_buffer(leaf);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	free_extent_buffer(leaf);
+@@ -676,19 +676,18 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	key.offset = (u64)-1;
+ 	new_root = btrfs_get_new_fs_root(fs_info, objectid, anon_dev);
+ 	if (IS_ERR(new_root)) {
+-		free_anon_bdev(anon_dev);
+ 		ret = PTR_ERR(new_root);
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+-	/* Freeing will be done in btrfs_put_root() of new_root */
++	/* anon_dev is owned by new_root now. */
+ 	anon_dev = 0;
+ 
+ 	ret = btrfs_record_root_in_trans(trans, new_root);
+ 	if (ret) {
+ 		btrfs_put_root(new_root);
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_create_subvol_root(trans, new_root, root, mnt_userns);
+@@ -696,7 +695,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	if (ret) {
+ 		/* We potentially lose an unused inode item here */
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -705,28 +704,28 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	ret = btrfs_set_inode_index(BTRFS_I(dir), &index);
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_insert_dir_item(trans, name, namelen, BTRFS_I(dir), &key,
+ 				    BTRFS_FT_DIR, index);
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	btrfs_i_size_write(BTRFS_I(dir), dir->i_size + namelen * 2);
+ 	ret = btrfs_update_inode(trans, root, BTRFS_I(dir));
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_add_root_ref(trans, objectid, root->root_key.objectid,
+ 				 btrfs_ino(BTRFS_I(dir)), index, name, namelen);
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_uuid_tree_add(trans, root_item->uuid,
+@@ -734,8 +733,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	if (ret)
+ 		btrfs_abort_transaction(trans, ret);
+ 
+-fail:
+-	kfree(root_item);
++out:
+ 	trans->block_rsv = NULL;
+ 	trans->bytes_reserved = 0;
+ 	btrfs_subvolume_release_metadata(root, &block_rsv);
+@@ -751,11 +749,10 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 			return PTR_ERR(inode);
+ 		d_instantiate(dentry, inode);
+ 	}
+-	return ret;
+-
+-fail_free:
++out_anon_dev:
+ 	if (anon_dev)
+ 		free_anon_bdev(anon_dev);
++out_root_item:
+ 	kfree(root_item);
+ 	return ret;
+ }
 -- 
 2.35.1
 
