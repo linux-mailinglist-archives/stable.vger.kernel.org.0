@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3501D53814B
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 694F05381D2
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239272AbiE3OTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:19:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40298 "EHLO
+        id S239709AbiE3OVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:21:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241416AbiE3ORe (ORCPT
+        with ESMTP id S241415AbiE3ORe (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 345E3B7F9;
-        Mon, 30 May 2022 06:46:41 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6844201B1;
+        Mon, 30 May 2022 06:46:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C55CF60FB4;
-        Mon, 30 May 2022 13:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EECEC3411C;
-        Mon, 30 May 2022 13:46:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C1A6B80D89;
+        Mon, 30 May 2022 13:46:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41BCBC385B8;
+        Mon, 30 May 2022 13:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918400;
-        bh=C0kxJt/ZStRMOdCA/r6r6TzCrcndSVTKFCqLNI3DauA=;
+        s=k20201202; t=1653918403;
+        bh=XVo2yCuzfnzKF6Z5v9kNLDoXaQ+fRzAmSHziUgvBhqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkGkHYu9+Gxd64E09MRMzOmvHp/Ct2cR6vIuWlMrNR9euFmCt6dpWSuMSeGoHmXnG
-         xao/GzuP/ivYDzUf9Gk8LxtUXTznt46vUSyKJwbGWPfFrFIzfXPzpKu3nY2fKZ5dsH
-         NVA1eucW1H0DXpmL186xqwzt/WoSgp+VD9xzg89OHXr1O4DV0vn4C8ZyR4vGFSabpD
-         UMNznTF2KEYdr2yOp4e+8sibziLyclZho61UQ8ta4Gg6qxrRC9yh1Oq8+SVPb3UmD8
-         IqF9+ruA+O/Plx+ynBj4DAI8vDYz+luOzFic98ibGNSc8eztEG8xNWf0ed43oVF/0x
-         hiGUEZdpy8Z+w==
+        b=HS6wDdsCMU8dL9AGVhZJ3Pq9V+YwhDuRNhLesIwvFiumetxYSGvwGZxVyZBMOsj+t
+         mQ8HKOdgDLcz8FVZrGBSntmAbIQ+IlUNUwwDmQg2fSDiA+sE0HfwCz+o0bkF4cR/QO
+         RhI2AdVisgK3axRhlE7Ks5JGYo85USXm306ExIqZlRiPL/9130C+wy/bR9hP/IK1Ik
+         kWYgzyFgwBij1ODnWYRODbkWv21GQQAIvrNYWRrpkP7JF09Q9baqoZCkOJZddbiPXJ
+         B9WhAGRGCN2MgwBtpsgqUYjVXUqDB6WWstPkVL0t+uHwVBLj8mFldrJNC+t4LESQoS
+         j0xvslHAEhZ3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org
-Subject: [PATCH AUTOSEL 5.10 68/76] x86/microcode: Add explicit CPU vendor dependency
-Date:   Mon, 30 May 2022 09:43:58 -0400
-Message-Id: <20220530134406.1934928-68-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linus.walleij@linaro.org, nico@fluxnic.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 69/76] ARM: 9201/1: spectre-bhb: rely on linker to emit cross-section literal loads
+Date:   Mon, 30 May 2022 09:43:59 -0400
+Message-Id: <20220530134406.1934928-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
@@ -57,44 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 9c55d99e099bd7aa6b91fce8718505c35d5dfc65 ]
+[ Upstream commit ad12c2f1587c6ec9b52ff226f438955bfae6ad89 ]
 
-Add an explicit dependency to the respective CPU vendor so that the
-respective microcode support for it gets built only when that support is
-enabled.
+The assembler does not permit 'LDR PC, <sym>' when the symbol lives in a
+different section, which is why we have been relying on rather fragile
+open-coded arithmetic to load the address of the vector_swi routine into
+the program counter using a single LDR instruction in the SWI slot in
+the vector table. The literal was moved to a different section to in
+commit 19accfd373847 ("ARM: move vector stubs") to ensure that the
+vector stubs page does not need to be mapped readable for user space,
+which is the case for the vector page itself, as it carries the kuser
+helpers as well.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/8ead0da9-9545-b10d-e3db-7df1a1f219e4@infradead.org
+So the cross-section literal load is open-coded, and this relies on the
+address of vector_swi to be at the very start of the vector stubs page,
+and we won't notice if we got it wrong until booting the kernel and see
+it break. Fortunately, it was guaranteed to break, so this was fragile
+but not problematic.
+
+Now that we have added two other variants of the vector table, we have 3
+occurrences of the same trick, and so the size of our ISA/compiler/CPU
+validation space has tripled, in a way that may cause regressions to only
+be observed once booting the image in question on a CPU that exercises a
+particular vector table.
+
+So let's switch to true cross section references, and let the linker fix
+them up like it fixes up all the other cross section references in the
+vector page.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/kernel/entry-armv.S | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index db95ac482e0e..ed713840d469 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1321,7 +1321,7 @@ config MICROCODE
+diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
+index 030351d169aa..aad77ad97d5f 100644
+--- a/arch/arm/kernel/entry-armv.S
++++ b/arch/arm/kernel/entry-armv.S
+@@ -1074,10 +1074,15 @@ ENDPROC(vector_bhb_bpiall_\name)
+ 	.endm
  
- config MICROCODE_INTEL
- 	bool "Intel microcode loading support"
--	depends on MICROCODE
-+	depends on CPU_SUP_INTEL && MICROCODE
- 	default MICROCODE
- 	help
- 	  This options enables microcode patch loading support for Intel
-@@ -1333,7 +1333,7 @@ config MICROCODE_INTEL
+ 	.section .stubs, "ax", %progbits
+-	@ This must be the first word
++	@ These need to remain at the start of the section so that
++	@ they are in range of the 'SWI' entries in the vector tables
++	@ located 4k down.
++.L__vector_swi:
+ 	.word	vector_swi
+ #ifdef CONFIG_HARDEN_BRANCH_HISTORY
++.L__vector_bhb_loop8_swi:
+ 	.word	vector_bhb_loop8_swi
++.L__vector_bhb_bpiall_swi:
+ 	.word	vector_bhb_bpiall_swi
+ #endif
  
- config MICROCODE_AMD
- 	bool "AMD microcode loading support"
--	depends on MICROCODE
-+	depends on CPU_SUP_AMD && MICROCODE
- 	help
- 	  If you select this option, microcode patch loading support for AMD
- 	  processors will be enabled.
+@@ -1220,10 +1225,11 @@ vector_addrexcptn:
+ 	.globl	vector_fiq
+ 
+ 	.section .vectors, "ax", %progbits
+-.L__vectors_start:
+ 	W(b)	vector_rst
+ 	W(b)	vector_und
+-	W(ldr)	pc, .L__vectors_start + 0x1000
++ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_swi		)
++THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_swi		)
++	W(ldr)	pc, .
+ 	W(b)	vector_pabt
+ 	W(b)	vector_dabt
+ 	W(b)	vector_addrexcptn
+@@ -1232,10 +1238,11 @@ vector_addrexcptn:
+ 
+ #ifdef CONFIG_HARDEN_BRANCH_HISTORY
+ 	.section .vectors.bhb.loop8, "ax", %progbits
+-.L__vectors_bhb_loop8_start:
+ 	W(b)	vector_rst
+ 	W(b)	vector_bhb_loop8_und
+-	W(ldr)	pc, .L__vectors_bhb_loop8_start + 0x1004
++ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_loop8_swi	)
++THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_loop8_swi	)
++	W(ldr)	pc, .
+ 	W(b)	vector_bhb_loop8_pabt
+ 	W(b)	vector_bhb_loop8_dabt
+ 	W(b)	vector_addrexcptn
+@@ -1243,10 +1250,11 @@ vector_addrexcptn:
+ 	W(b)	vector_bhb_loop8_fiq
+ 
+ 	.section .vectors.bhb.bpiall, "ax", %progbits
+-.L__vectors_bhb_bpiall_start:
+ 	W(b)	vector_rst
+ 	W(b)	vector_bhb_bpiall_und
+-	W(ldr)	pc, .L__vectors_bhb_bpiall_start + 0x1008
++ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_bpiall_swi	)
++THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_bpiall_swi	)
++	W(ldr)	pc, .
+ 	W(b)	vector_bhb_bpiall_pabt
+ 	W(b)	vector_bhb_bpiall_dabt
+ 	W(b)	vector_addrexcptn
 -- 
 2.35.1
 
