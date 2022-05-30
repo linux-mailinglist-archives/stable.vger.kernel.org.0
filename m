@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2957253824A
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1074538176
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241356AbiE3OWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:22:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42698 "EHLO
+        id S240634AbiE3OUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241875AbiE3OSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:09 -0400
+        with ESMTP id S241891AbiE3OSK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3899CC85;
-        Mon, 30 May 2022 06:48:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7551B9CCA4;
+        Mon, 30 May 2022 06:48:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9379B61001;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AED860FD7;
+        Mon, 30 May 2022 13:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E33C36AEB;
         Mon, 30 May 2022 13:48:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EDB9C341C0;
-        Mon, 30 May 2022 13:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918493;
-        bh=k9u9j8aY1zKKEsAw274pxYRcOYeWowMXMlTUdX+0YAo=;
+        s=k20201202; t=1653918494;
+        bh=srE8cZV7uZ5jo1lc4JV2ZCVGuEAjbdgMCcMiaUhLJPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxLZu0yoXJAdMSTUCiXePYMdpwLzF0RfZxC0AC6yD5PSTNU1231V5mUNN7OdalinZ
-         p8NT62Idj422Vd9lFEz66+g3jiu1UAxP9+3NHJ/b5qaD/FkwK4LiGRNsZukvHOK5nZ
-         VBVBb30/KFvqoj5c47aHbm+8F9T0yuhAADpaZSUnoU/AC0uWfyO1eyuBAMA1bHCrwV
-         Evsfyw3k25Es1ndRaUkXQuEffIUlp/8o2Udw4vaad7auzGAv8sE+7eb+oCd6jAqBM4
-         7cLOTUuMB50r/y7NSr7rsjHsa/L5KQVpDy3akfgXf6ek4/dw60LoS2vSlB2gY2/P77
-         nhiYvaymIvkdw==
+        b=G1En3f7tL3gB6XNxEaVoVwO2Q6VWwZLA5R7UIiTcKnOp8YwYqwTmnD6POfCSVmg8d
+         K43yZIbfAcjDI5z5pI/DjCwrBkW2UIN1xIB6wEn7jvxmrtMdb5Vubkl7HPxxrhuzIA
+         Ma2J6/1RX2nNJoa7qY29VFIIgN8uCa7qQP/U7lfRnvtl29XKehVd4QuAA0QTK0bZIT
+         k0TmJJVEHIE5fZh4E5Dn0m9Q4UWu2S1BrS4Lmm7Is73IZVGfrrPi3NDnNYATIstOmL
+         OA2OWo5iUHYjDe7Ej+7PODNC00FD/QSz+fKv7+oo9mjDdSmBVP9Dij5weIV+z47GFe
+         Dhcyp5mpzjGLA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lv Ruyi <lv.ruyi@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, airlied@linux.ie, daniel@ffwll.ch,
-        swboyd@chromium.org, angelogioacchino.delregno@collabora.com,
-        dianders@chromium.org, vulab@iscas.ac.cn,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 26/55] drm: msm: fix error check return value of irq_of_parse_and_map()
-Date:   Mon, 30 May 2022 09:46:32 -0400
-Message-Id: <20220530134701.1935933-26-sashal@kernel.org>
+Cc:     jianghaoran <jianghaoran@kylinos.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, edumazet@google.com,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 27/55] ipv6: Don't send rs packets to the interface of ARPHRD_TUNNEL
+Date:   Mon, 30 May 2022 09:46:33 -0400
+Message-Id: <20220530134701.1935933-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -61,41 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: jianghaoran <jianghaoran@kylinos.cn>
 
-[ Upstream commit b9e4f1d2b505df8e2439b63e67afaa287c1c43e2 ]
+[ Upstream commit b52e1cce31ca721e937d517411179f9196ee6135 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+ARPHRD_TUNNEL interface can't process rs packets
+and will generate TX errors
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483175/
-Link: https://lore.kernel.org/r/20220424031959.3172406-1-lv.ruyi@zte.com.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+ex:
+ip tunnel add ethn mode ipip local 192.168.1.1 remote 192.168.1.2
+ifconfig ethn x.x.x.x
+
+ethn: flags=209<UP,POINTOPOINT,RUNNING,NOARP>  mtu 1480
+	inet x.x.x.x  netmask 255.255.255.255  destination x.x.x.x
+	inet6 fe80::5efe:ac1e:3cdb  prefixlen 64  scopeid 0x20<link>
+	tunnel   txqueuelen 1000  (IPIP Tunnel)
+	RX packets 0  bytes 0 (0.0 B)
+	RX errors 0  dropped 0  overruns 0  frame 0
+	TX packets 0  bytes 0 (0.0 B)
+	TX errors 3  dropped 0 overruns 0  carrier 0  collisions 0
+
+Signed-off-by: jianghaoran <jianghaoran@kylinos.cn>
+Link: https://lore.kernel.org/r/20220429053802.246681-1-jianghaoran@kylinos.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv6/addrconf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-index 77823ccdd0f8..39d0082eedcc 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-@@ -698,9 +698,9 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
- 	pdev = mdp5_kms->pdev;
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index efea88fb3cd5..e29553e4f4ee 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -4202,7 +4202,8 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
+ 	send_rs = send_mld &&
+ 		  ipv6_accept_ra(ifp->idev) &&
+ 		  ifp->idev->cnf.rtr_solicits != 0 &&
+-		  (dev->flags&IFF_LOOPBACK) == 0;
++		  (dev->flags & IFF_LOOPBACK) == 0 &&
++		  (dev->type != ARPHRD_TUNNEL);
+ 	read_unlock_bh(&ifp->idev->lock);
  
- 	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
--	if (irq < 0) {
--		ret = irq;
--		DRM_DEV_ERROR(&pdev->dev, "failed to get irq: %d\n", ret);
-+	if (!irq) {
-+		ret = -EINVAL;
-+		DRM_DEV_ERROR(&pdev->dev, "failed to get irq\n");
- 		goto fail;
- 	}
- 
+ 	/* While dad is in progress mld report's source address is in6_addrany.
 -- 
 2.35.1
 
