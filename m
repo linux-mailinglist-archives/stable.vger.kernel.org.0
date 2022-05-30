@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EEEB538267
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A5D538290
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238434AbiE3OXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
+        id S239205AbiE3OY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239573AbiE3OSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6C8122B4C;
-        Mon, 30 May 2022 06:49:54 -0700 (PDT)
+        with ESMTP id S242184AbiE3OS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EE111CA0D;
+        Mon, 30 May 2022 06:49:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC90660FD6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E54D4B80DA8;
+        Mon, 30 May 2022 13:49:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4D62C36AE3;
         Mon, 30 May 2022 13:49:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4428C3411E;
-        Mon, 30 May 2022 13:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918553;
-        bh=AF0zBlv4K65o/Q7PnxvPyyw9KqF09vTd9402ZLCM7ks=;
+        s=k20201202; t=1653918554;
+        bh=a+nto0WPeTFaOBkATJKClQmpfGywYTjO3j8Tv34EtKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eciy1RJIoi8Rzhj1pFLNm3sScKuYWf4qm0XfD4rrJBlkMYfbNFgKZbI//OagzcN8q
-         p56sWESviAHhfDJRrBoZNCzNd31sI201Yz4vQBtXaVMN5muK647S04X4uxIskkZ3vn
-         JOxkK/ApvLPDiOCPWmpClm+hX4xHxIY/lWTU85wej436EEhomGFK7FVRBbWhiYfkWE
-         8Fi421BZ2RghG83qvMdUVzF/MZ+Pk64JIJH1rGhsEUHaNdBJACQy68TPhchngZ7E07
-         qPQAncJXt6K4skfCZmxr2cwWdXinBerSFXb1AifKKUmMLbSgiZszmXQcxdDJZEGGca
-         XRO0Vds3PdiIg==
+        b=fNcBAc4mr76AzYFmI4oRhJREQNw0Anz+zRzwKoTde2mPUICdeMCe4kP8SXdT0WC6M
+         dN3gDP+Bi0FJM+6X/Sl8a6JkL5AP1wDYZT3WLZsr00nxO4ZNZ/n+eOUiEOrjhEHVIl
+         AVfb0dWhH075BSz8fhR41QXmxtoLyBoMzCgJCKVtP/sQaLrG6C09Boaa5qjzD56Diu
+         P5WVJ8+1klQYiyqfcrr1xvilWr7QCMcdYURmDtgYMuReKmqg22tSDk4kEKPF6McKOV
+         3gpd1yJ5gGeDhWrV+zqWqsFyLOU2UGzHrUT2E62BJ7LHbynGCDGl3bvS2EmA7pZDVC
+         sAkVcbxgq0xfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linus.walleij@linaro.org, nico@fluxnic.net, keithpac@amazon.com,
-        arnd@arndb.de, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 51/55] ARM: 9201/1: spectre-bhb: rely on linker to emit cross-section literal loads
-Date:   Mon, 30 May 2022 09:46:57 -0400
-Message-Id: <20220530134701.1935933-51-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        corbet@lwn.net, linux-hwmon@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 52/55] hwmon: Make chip parameter for with_info API mandatory
+Date:   Mon, 30 May 2022 09:46:58 -0400
+Message-Id: <20220530134701.1935933-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -58,106 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit ad12c2f1587c6ec9b52ff226f438955bfae6ad89 ]
+[ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
 
-The assembler does not permit 'LDR PC, <sym>' when the symbol lives in a
-different section, which is why we have been relying on rather fragile
-open-coded arithmetic to load the address of the vector_swi routine into
-the program counter using a single LDR instruction in the SWI slot in
-the vector table. The literal was moved to a different section to in
-commit 19accfd373847 ("ARM: move vector stubs") to ensure that the
-vector stubs page does not need to be mapped readable for user space,
-which is the case for the vector page itself, as it carries the kuser
-helpers as well.
+Various attempts were made recently to "convert" the old
+hwmon_device_register() API to devm_hwmon_device_register_with_info()
+by just changing the function name without actually converting the
+driver. Prevent this from happening by making the 'chip' parameter of
+devm_hwmon_device_register_with_info() mandatory.
 
-So the cross-section literal load is open-coded, and this relies on the
-address of vector_swi to be at the very start of the vector stubs page,
-and we won't notice if we got it wrong until booting the kernel and see
-it break. Fortunately, it was guaranteed to break, so this was fragile
-but not problematic.
-
-Now that we have added two other variants of the vector table, we have 3
-occurrences of the same trick, and so the size of our ISA/compiler/CPU
-validation space has tripled, in a way that may cause regressions to only
-be observed once booting the image in question on a CPU that exercises a
-particular vector table.
-
-So let's switch to true cross section references, and let the linker fix
-them up like it fixes up all the other cross section references in the
-vector page.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-armv.S | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ Documentation/hwmon/hwmon-kernel-api.rst |  2 +-
+ drivers/hwmon/hwmon.c                    | 16 +++++++---------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 8e8efe28d799..4d900c61a0f7 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -1074,10 +1074,15 @@ ENDPROC(vector_bhb_bpiall_\name)
- 	.endm
+diff --git a/Documentation/hwmon/hwmon-kernel-api.rst b/Documentation/hwmon/hwmon-kernel-api.rst
+index c41eb6108103..23f27fe78e37 100644
+--- a/Documentation/hwmon/hwmon-kernel-api.rst
++++ b/Documentation/hwmon/hwmon-kernel-api.rst
+@@ -72,7 +72,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
+ to register a hardware monitoring device. It creates the standard sysfs
+ attributes in the hardware monitoring core, letting the driver focus on reading
+ from and writing to the chip instead of having to bother with sysfs attributes.
+-The parent device parameter cannot be NULL with non-NULL chip info. Its
++The parent device parameter as well as the chip parameter must not be NULL. Its
+ parameters are described in more detail below.
  
- 	.section .stubs, "ax", %progbits
--	@ This must be the first word
-+	@ These need to remain at the start of the section so that
-+	@ they are in range of the 'SWI' entries in the vector tables
-+	@ located 4k down.
-+.L__vector_swi:
- 	.word	vector_swi
- #ifdef CONFIG_HARDEN_BRANCH_HISTORY
-+.L__vector_bhb_loop8_swi:
- 	.word	vector_bhb_loop8_swi
-+.L__vector_bhb_bpiall_swi:
- 	.word	vector_bhb_bpiall_swi
- #endif
+ devm_hwmon_device_register_with_info is similar to
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index a2175394cd25..c73b93b9bb87 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -715,11 +715,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
  
-@@ -1220,10 +1225,11 @@ vector_addrexcptn:
- 	.globl	vector_fiq
+ /**
+  * hwmon_device_register_with_info - register w/ hwmon
+- * @dev: the parent device
+- * @name: hwmon name attribute
+- * @drvdata: driver data to attach to created device
+- * @chip: pointer to hwmon chip information
++ * @dev: the parent device (mandatory)
++ * @name: hwmon name attribute (mandatory)
++ * @drvdata: driver data to attach to created device (optional)
++ * @chip: pointer to hwmon chip information (mandatory)
+  * @extra_groups: pointer to list of additional non-standard attribute groups
++ *	(optional)
+  *
+  * hwmon_device_unregister() must be called when the device is no
+  * longer needed.
+@@ -732,13 +733,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
+ 				const struct hwmon_chip_info *chip,
+ 				const struct attribute_group **extra_groups)
+ {
+-	if (!name)
+-		return ERR_PTR(-EINVAL);
+-
+-	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
++	if (!dev || !name || !chip)
+ 		return ERR_PTR(-EINVAL);
  
- 	.section .vectors, "ax", %progbits
--.L__vectors_start:
- 	W(b)	vector_rst
- 	W(b)	vector_und
--	W(ldr)	pc, .L__vectors_start + 0x1000
-+ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_swi		)
-+THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_swi		)
-+	W(ldr)	pc, .
- 	W(b)	vector_pabt
- 	W(b)	vector_dabt
- 	W(b)	vector_addrexcptn
-@@ -1232,10 +1238,11 @@ vector_addrexcptn:
+-	if (chip && !dev)
++	if (!chip->ops || !chip->ops->is_visible || !chip->info)
+ 		return ERR_PTR(-EINVAL);
  
- #ifdef CONFIG_HARDEN_BRANCH_HISTORY
- 	.section .vectors.bhb.loop8, "ax", %progbits
--.L__vectors_bhb_loop8_start:
- 	W(b)	vector_rst
- 	W(b)	vector_bhb_loop8_und
--	W(ldr)	pc, .L__vectors_bhb_loop8_start + 0x1004
-+ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_loop8_swi	)
-+THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_loop8_swi	)
-+	W(ldr)	pc, .
- 	W(b)	vector_bhb_loop8_pabt
- 	W(b)	vector_bhb_loop8_dabt
- 	W(b)	vector_addrexcptn
-@@ -1243,10 +1250,11 @@ vector_addrexcptn:
- 	W(b)	vector_bhb_loop8_fiq
- 
- 	.section .vectors.bhb.bpiall, "ax", %progbits
--.L__vectors_bhb_bpiall_start:
- 	W(b)	vector_rst
- 	W(b)	vector_bhb_bpiall_und
--	W(ldr)	pc, .L__vectors_bhb_bpiall_start + 0x1008
-+ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_bpiall_swi	)
-+THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_bpiall_swi	)
-+	W(ldr)	pc, .
- 	W(b)	vector_bhb_bpiall_pabt
- 	W(b)	vector_bhb_bpiall_dabt
- 	W(b)	vector_addrexcptn
+ 	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
 -- 
 2.35.1
 
