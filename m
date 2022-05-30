@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C30FE5381EF
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C010E5381C1
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241271AbiE3OV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40316 "EHLO
+        id S241129AbiE3OU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241730AbiE3OSA (ORCPT
+        with ESMTP id S241721AbiE3OSA (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BAF7C146;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0298E7B9E0;
         Mon, 30 May 2022 06:48:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCA7CB80DA7;
-        Mon, 30 May 2022 13:47:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A5B4C3411C;
-        Mon, 30 May 2022 13:47:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC7460F24;
+        Mon, 30 May 2022 13:47:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0241EC3411A;
+        Mon, 30 May 2022 13:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918477;
-        bh=ecnKdu3dNIXXUsykxvWsk2ozbn7wJ/lFBbmn3Vbe17A=;
+        s=k20201202; t=1653918479;
+        bh=4tvL/uObB8oELHOKTh9in7xifhIumfAmb8eA+LaNlpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAIY5E6ssVVJDokVt64BPe10yTQfcw8IW18UX99UdHN+As1O17T1fY+AzqdO+oeVx
-         aNnMJr9VDLqMrDcltK9iTFIklH3BxR143l8SBkOcPJkPJF1Qu5kHSjH/51+QaA5oXB
-         PQzDDHYt9Gi36dpS/XNVQoLQCXdVmyDhwtI2bJDYrOnFuG3IgrpG6duK/zQpyU8tne
-         eLnc4YpKd+clLLgXhXYm4r1KT7M9z4q7WGWwbEYaJjwsXtFL3NsbngeJlFubCjQEaH
-         jxl2NgNuD2yqO88GPSlyQdjsie7NZXQnb0NojpOa/il1dOh9247+0FWlTRQHDFELQw
-         CEEbUODOE9o1w==
+        b=F50vHFjVCwUXDCoJK2FgPIkyhMJK9dX9mj0DK+VpRO/KOlUhbrNDv8fGq7Sr0qWCy
+         R6q6UCKWec9Cx3uS/g2aQT6ftbhwOXwZW4kc0bGp5aCjqsMR2vlaIkKyybfThn4EKX
+         I94Sv+k1CiquoTCJi5UKUGFQ+k6s1kvB7CtRYiw3PThxkcEARNCGLEbRvJAmLlXH3h
+         mdd/NAFzypk1wGSsf+ocCCgdXcpgO99cqZRjIOJdMsrniSNPkNAgtwYgeKuP4Cf1MQ
+         8U3cfMMHHLrCGJiELFfJkT8Bystvwbf8a+jN1x6EQWe9bE6Av7T2MrPbumFXidy/HS
+         4KLj0x4k+L8og==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>, will@kernel.org,
-        maz@kernel.org, suzuki.poulose@arm.com, vladimir.murzin@arm.com,
-        james.morse@arm.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 22/55] arm64/sme: Add ID_AA64SMFR0_EL1 to __read_sysreg_by_encoding()
-Date:   Mon, 30 May 2022 09:46:28 -0400
-Message-Id: <20220530134701.1935933-22-sashal@kernel.org>
+Cc:     Steven Price <steven.price@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 23/55] drm/plane: Move range check for format_count earlier
+Date:   Mon, 30 May 2022 09:46:29 -0400
+Message-Id: <20220530134701.1935933-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -59,37 +59,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit 8a58bcd00e2e8d46afce468adc09fcd7968f514c ]
+[ Upstream commit 4b674dd69701c2e22e8e7770c1706a69f3b17269 ]
 
-We need to explicitly enumerate all the ID registers which we rely on
-for CPU capabilities in __read_sysreg_by_encoding(), ID_AA64SMFR0_EL1 was
-missed from this list so we trip a BUG() in paths which rely on that
-function such as CPU hotplug. Add the register.
+While the check for format_count > 64 in __drm_universal_plane_init()
+shouldn't be hit (it's a WARN_ON), in its current position it will then
+leak the plane->format_types array and fail to call
+drm_mode_object_unregister() leaking the modeset identifier. Move it to
+the start of the function to avoid allocating those resources in the
+first place.
 
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220427130828.162615-1-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://lore.kernel.org/dri-devel/20211203102815.38624-1-steven.price@arm.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_plane.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index d07dadd6b8ff..7759cd8293d8 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -845,6 +845,7 @@ static u64 __read_sysreg_by_encoding(u32 sys_id)
- 	read_sysreg_case(SYS_ID_AA64PFR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64PFR1_EL1);
- 	read_sysreg_case(SYS_ID_AA64ZFR0_EL1);
-+	read_sysreg_case(SYS_ID_AA64SMFR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64DFR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64DFR1_EL1);
- 	read_sysreg_case(SYS_ID_AA64MMFR0_EL1);
+diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+index d6ad60ab0d38..6bdebcca5690 100644
+--- a/drivers/gpu/drm/drm_plane.c
++++ b/drivers/gpu/drm/drm_plane.c
+@@ -186,6 +186,13 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
+ 	if (WARN_ON(config->num_total_plane >= 32))
+ 		return -EINVAL;
+ 
++	/*
++	 * First driver to need more than 64 formats needs to fix this. Each
++	 * format is encoded as a bit and the current code only supports a u64.
++	 */
++	if (WARN_ON(format_count > 64))
++		return -EINVAL;
++
+ 	WARN_ON(drm_drv_uses_atomic_modeset(dev) &&
+ 		(!funcs->atomic_destroy_state ||
+ 		 !funcs->atomic_duplicate_state));
+@@ -207,13 +214,6 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
+ 		return -ENOMEM;
+ 	}
+ 
+-	/*
+-	 * First driver to need more than 64 formats needs to fix this. Each
+-	 * format is encoded as a bit and the current code only supports a u64.
+-	 */
+-	if (WARN_ON(format_count > 64))
+-		return -EINVAL;
+-
+ 	if (format_modifiers) {
+ 		const uint64_t *temp_modifiers = format_modifiers;
+ 		while (*temp_modifiers++ != DRM_FORMAT_MOD_INVALID)
 -- 
 2.35.1
 
