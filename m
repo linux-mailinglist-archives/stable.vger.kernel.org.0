@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF2D537FF1
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08A5538130
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239044AbiE3ONL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:13:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47440 "EHLO
+        id S238444AbiE3OO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:14:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240489AbiE3OMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:12:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99452E15F3;
-        Mon, 30 May 2022 06:43:01 -0700 (PDT)
+        with ESMTP id S240584AbiE3OMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:12:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0A0E5287;
+        Mon, 30 May 2022 06:43:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 475BEB80DA7;
-        Mon, 30 May 2022 13:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DABC3411A;
-        Mon, 30 May 2022 13:42:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 919AB60FA6;
+        Mon, 30 May 2022 13:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082CDC385B8;
+        Mon, 30 May 2022 13:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918178;
-        bh=bnrcRjMfckQxsM84Kybl6SlPqIVCfrWLK493AIts6sk=;
+        s=k20201202; t=1653918183;
+        bh=BrmU2q/cxigeabEKhzsjzIcdbxKZm27SnJIADA1gcgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f5iZYFPr5UknKz5wqn8vTEBY68qdItMErhDqHtaH+258IHmbJ6SQqH7bGIO3b6u33
-         YXGxa5xhr8mZVuDpfUB2plYuB3Dqxk1ppVZ9xxfpBF/sX1BELTn5V+ugBSObE3oBXs
-         nnbiAH3M979YmsILs7OoFrADcn3DoiERgNmh9RWbI9DyZS2IGbvYXaYDJzzrRnjQSh
-         q16kmoRDfuGsDUW0dKwEupEz8mcI1lPbFFjSvyXNWNWMsVIQPGySLDHFBuZD8JnHzC
-         HoUY9PaJd3guRpNNSA9FAZWlpHlfkmB5q57RrVUcatCZn4Bo8kfLPgdXpVQAFETQ5z
-         L3/oLQ0mlcCPw==
+        b=m1m/j+yuON3RBIq+33ajHmhBE64fEPkKP3ATqNCXVlEOX3qp0CLRIRUIsHS8IiBU7
+         emmkARxEwOdTK9HzpMG2RYTtKhm08i75g1HQigdwiEgjti6gLp5jmslDcKB1rykMPA
+         RnbZfKIf30B0n3syqdyF0u192AjmxBGn3hc+HloWn0Cn1nqUjAw0PINz0V1aDE9IkO
+         pMKueeSmyV5ktgXQ3EaB9WUQMap4+XUIjhCkpjs0rhOsG3V9lwg2+/T35xzMknxb2C
+         PWpbvpzqZSp6qtwegtzLPiP+e2aV+d4mCX/JvTd6ORCmms/YJeIpzJJ+tSeXPuxKAq
+         KS6aXlLYrkDmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Xu Jianhai <zero.xu@bytedance.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 5.15 087/109] nbd: Fix hung on disconnect request if socket is closed before
-Date:   Mon, 30 May 2022 09:38:03 -0400
-Message-Id: <20220530133825.1933431-87-sashal@kernel.org>
+Cc:     Sathishkumar S <sathishkumar.sundararaju@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, lang.yu@amd.com, darren.powell@amd.com,
+        Graham.Sider@amd.com, Prike.Liang@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 088/109] drm/amd/pm: update smartshift powerboost calc for smu12
+Date:   Mon, 30 May 2022 09:38:04 -0400
+Message-Id: <20220530133825.1933431-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -58,61 +61,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Sathishkumar S <sathishkumar.sundararaju@amd.com>
 
-[ Upstream commit 491bf8f236fdeec698fa6744993f1ecf3fafd1a5 ]
+[ Upstream commit 138292f1dc00e7e0724f44769f9da39cf2f3bf0b ]
 
-When userspace closes the socket before sending a disconnect
-request, the following I/O requests will be blocked in
-wait_for_reconnect() until dead timeout. This will cause the
-following disconnect request also hung on blk_mq_quiesce_queue().
-That means we have no way to disconnect a nbd device if there
-are some I/O requests waiting for reconnecting until dead timeout.
-It's not expected. So let's wake up the thread waiting for
-reconnecting directly when a disconnect request is sent.
+smartshift apu and dgpu power boost are reported as percentage with
+respect to their power limits. This value[0-100] reflects the boost
+for the respective device.
 
-Reported-by: Xu Jianhai <zero.xu@bytedance.com>
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220322080639.142-1-xieyongji@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sathishkumar S <sathishkumar.sundararaju@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ .../gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c   | 60 ++++++++++++++-----
+ 1 file changed, 44 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 582b23befb5c..8704212482e5 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -896,11 +896,15 @@ static int wait_for_reconnect(struct nbd_device *nbd)
- 	struct nbd_config *config = nbd->config;
- 	if (!config->dead_conn_timeout)
- 		return 0;
--	if (test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags))
-+
-+	if (!wait_event_timeout(config->conn_wait,
-+				test_bit(NBD_RT_DISCONNECTED,
-+					 &config->runtime_flags) ||
-+				atomic_read(&config->live_connections) > 0,
-+				config->dead_conn_timeout))
- 		return 0;
--	return wait_event_timeout(config->conn_wait,
--				  atomic_read(&config->live_connections) > 0,
--				  config->dead_conn_timeout) > 0;
-+
-+	return !test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags);
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+index 145f13b8c977..138466081875 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+@@ -1127,6 +1127,39 @@ static int renoir_get_power_profile_mode(struct smu_context *smu,
+ 	return size;
  }
  
- static int nbd_handle_cmd(struct nbd_cmd *cmd, int index)
-@@ -2026,6 +2030,7 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
- 	mutex_lock(&nbd->config_lock);
- 	nbd_disconnect(nbd);
- 	sock_shutdown(nbd);
-+	wake_up(&nbd->config->conn_wait);
- 	/*
- 	 * Make sure recv thread has finished, we can safely call nbd_clear_que()
- 	 * to cancel the inflight I/Os.
++static void renoir_get_ss_power_percent(SmuMetrics_t *metrics,
++					uint32_t *apu_percent, uint32_t *dgpu_percent)
++{
++	uint32_t apu_boost = 0;
++	uint32_t dgpu_boost = 0;
++	uint16_t apu_limit = 0;
++	uint16_t dgpu_limit = 0;
++	uint16_t apu_power = 0;
++	uint16_t dgpu_power = 0;
++
++	apu_power = metrics->ApuPower;
++	apu_limit = metrics->StapmOriginalLimit;
++	if (apu_power > apu_limit && apu_limit != 0)
++		apu_boost =  ((apu_power - apu_limit) * 100) / apu_limit;
++	apu_boost = (apu_boost > 100) ? 100 : apu_boost;
++
++	dgpu_power = metrics->dGpuPower;
++	if (metrics->StapmCurrentLimit > metrics->StapmOriginalLimit)
++		dgpu_limit = metrics->StapmCurrentLimit - metrics->StapmOriginalLimit;
++	if (dgpu_power > dgpu_limit && dgpu_limit != 0)
++		dgpu_boost = ((dgpu_power - dgpu_limit) * 100) / dgpu_limit;
++	dgpu_boost = (dgpu_boost > 100) ? 100 : dgpu_boost;
++
++	if (dgpu_boost >= apu_boost)
++		apu_boost = 0;
++	else
++		dgpu_boost = 0;
++
++	*apu_percent = apu_boost;
++	*dgpu_percent = dgpu_boost;
++}
++
++
+ static int renoir_get_smu_metrics_data(struct smu_context *smu,
+ 				       MetricsMember_t member,
+ 				       uint32_t *value)
+@@ -1135,6 +1168,9 @@ static int renoir_get_smu_metrics_data(struct smu_context *smu,
+ 
+ 	SmuMetrics_t *metrics = (SmuMetrics_t *)smu_table->metrics_table;
+ 	int ret = 0;
++	uint32_t apu_percent = 0;
++	uint32_t dgpu_percent = 0;
++
+ 
+ 	mutex_lock(&smu->metrics_lock);
+ 
+@@ -1183,26 +1219,18 @@ static int renoir_get_smu_metrics_data(struct smu_context *smu,
+ 		*value = metrics->Voltage[1];
+ 		break;
+ 	case METRICS_SS_APU_SHARE:
+-		/* return the percentage of APU power with respect to APU's power limit.
+-		 * percentage is reported, this isn't boost value. Smartshift power
+-		 * boost/shift is only when the percentage is more than 100.
++		/* return the percentage of APU power boost
++		 * with respect to APU's power limit.
+ 		 */
+-		if (metrics->StapmOriginalLimit > 0)
+-			*value =  (metrics->ApuPower * 100) / metrics->StapmOriginalLimit;
+-		else
+-			*value = 0;
++		renoir_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
++		*value = apu_percent;
+ 		break;
+ 	case METRICS_SS_DGPU_SHARE:
+-		/* return the percentage of dGPU power with respect to dGPU's power limit.
+-		 * percentage is reported, this isn't boost value. Smartshift power
+-		 * boost/shift is only when the percentage is more than 100.
++		/* return the percentage of dGPU power boost
++		 * with respect to dGPU's power limit.
+ 		 */
+-		if ((metrics->dGpuPower > 0) &&
+-		    (metrics->StapmCurrentLimit > metrics->StapmOriginalLimit))
+-			*value = (metrics->dGpuPower * 100) /
+-				  (metrics->StapmCurrentLimit - metrics->StapmOriginalLimit);
+-		else
+-			*value = 0;
++		renoir_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
++		*value = dgpu_percent;
+ 		break;
+ 	default:
+ 		*value = UINT_MAX;
 -- 
 2.35.1
 
