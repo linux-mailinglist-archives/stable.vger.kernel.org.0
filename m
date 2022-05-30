@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 870235382D5
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A09653830B
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238966AbiE3O2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:28:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33096 "EHLO
+        id S240631AbiE3O3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241552AbiE3OXU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:23:20 -0400
+        with ESMTP id S237928AbiE3OXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:23:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8026412B007;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F3B12B00D;
         Mon, 30 May 2022 06:50:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EE4B61034;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34D3360FD4;
+        Mon, 30 May 2022 13:50:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B74C3411F;
         Mon, 30 May 2022 13:50:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7306C3411E;
-        Mon, 30 May 2022 13:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918641;
-        bh=zZ8Ny6isuJgovwiWB2jimRYvq29LtKT6NbIjjiWAd9U=;
+        s=k20201202; t=1653918642;
+        bh=7NQUcC/FlqpwOfcBIb3NaowHI4IDjxIyTjXjX85mQTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aVUemRt3czYNmOBoWFZr2w7dDCx4dVGVwukHyR8D2ccPdzCfa1nAm58IuFmlfX9BW
-         n1T2qlIGYAEOMW92QOd4ZQ8xVh8nc5sodgT4V1/vy4G8eshgvXh3JjTcx1A9PKcAqy
-         g+waqt4J6bLRjCL7CA5mypCIv2jCDKTERC9NxBp/pk/XvdJky9PwjeLXNDnItTCfP0
-         /O7FzYZsaV2YAawyqdRTMljfFIpwuHJ4zP3T5ho75eM8UzzmyhGE8VsnJTWFCG9Lgv
-         kR60/gPjGyavGrc8ImjsRCX/MONLAEiQTDr641pp+lRP91MxRJ7cGWgtlLMJv88nL+
-         VN+oya6kBSM/w==
+        b=QPXcNm27ef1ghlpzWdo1ULGg/cqPpFNWOAq37awD+f83XlKfqfLXXB9atmixphxnY
+         gDDCAHGYVxBFItYgmxSrn/EgiwT39ovBAsi3+8gJE8bmgs7/R6dyE3ztVihEoHEOk7
+         D1tadU80P+9U946s42F42bu/IAqjjVOTHeo7cOYqA6i3aeOR3bulJ3e2/kwrUhjcKB
+         ADVYnegYXX18GaYZLBcNOL5DdqjNqIFwmueF/xvSRzG0i3a32AFrxrTpMNlQyom9ca
+         oEkiQJI5w4TStcsghJ/T5Q3/sVV6+3K9nV6WvwqlaYAw/h4CvXmTXe0z0pOYTc8FbS
+         ES7oznQLC1dVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lin Ma <linma@zju.edu.cn>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 32/38] ASoC: rt5645: Fix errorenous cleanup order
-Date:   Mon, 30 May 2022 09:49:18 -0400
-Message-Id: <20220530134924.1936816-32-sashal@kernel.org>
+Cc:     Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
+        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 33/38] net: phy: micrel: Allow probing without .driver_data
+Date:   Mon, 30 May 2022 09:49:19 -0400
+Message-Id: <20220530134924.1936816-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134924.1936816-1-sashal@kernel.org>
 References: <20220530134924.1936816-1-sashal@kernel.org>
@@ -57,50 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 2def44d3aec59e38d2701c568d65540783f90f2f ]
+[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
 
-There is a logic error when removing rt5645 device as the function
-rt5645_i2c_remove() first cancel the &rt5645->jack_detect_work and
-delete the &rt5645->btn_check_timer latter. However, since the timer
-handler rt5645_btn_check_callback() will re-queue the jack_detect_work,
-this cleanup order is buggy.
+Currently, if the .probe element is present in the phy_driver structure
+and the .driver_data is not, a NULL pointer dereference happens.
 
-That is, once the del_timer_sync in rt5645_i2c_remove is concurrently
-run with the rt5645_btn_check_callback, the canceled jack_detect_work
-will be rescheduled again, leading to possible use-after-free.
+Allow passing .probe without .driver_data by inserting NULL checks
+for priv->type.
 
-This patch fix the issue by placing the del_timer_sync function before
-the cancel_delayed_work_sync.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220516092035.28283-1-linma@zju.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5645.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/phy/micrel.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
-index 9185bd7c5a6d..d34000182f67 100644
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -4105,9 +4105,14 @@ static int rt5645_i2c_remove(struct i2c_client *i2c)
- 	if (i2c->irq)
- 		free_irq(i2c->irq, rt5645);
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 013590330059..1d00a563892a 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -285,7 +285,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
+ 		}
+ 	}
  
-+	/*
-+	 * Since the rt5645_btn_check_callback() can queue jack_detect_work,
-+	 * the timer need to be delted first
-+	 */
-+	del_timer_sync(&rt5645->btn_check_timer);
-+
- 	cancel_delayed_work_sync(&rt5645->jack_detect_work);
- 	cancel_delayed_work_sync(&rt5645->rcclock_work);
--	del_timer_sync(&rt5645->btn_check_timer);
+-	if (priv->led_mode >= 0)
++	if (priv->type && priv->led_mode >= 0)
+ 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
  
- 	regulator_bulk_disable(ARRAY_SIZE(rt5645->supplies), rt5645->supplies);
+ 	return 0;
+@@ -301,10 +301,10 @@ static int kszphy_config_init(struct phy_device *phydev)
+ 
+ 	type = priv->type;
+ 
+-	if (type->has_broadcast_disable)
++	if (type && type->has_broadcast_disable)
+ 		kszphy_broadcast_disable(phydev);
+ 
+-	if (type->has_nand_tree_disable)
++	if (type && type->has_nand_tree_disable)
+ 		kszphy_nand_tree_disable(phydev);
+ 
+ 	return kszphy_config_reset(phydev);
+@@ -775,7 +775,7 @@ static int kszphy_probe(struct phy_device *phydev)
+ 
+ 	priv->type = type;
+ 
+-	if (type->led_mode_reg) {
++	if (type && type->led_mode_reg) {
+ 		ret = of_property_read_u32(np, "micrel,led-mode",
+ 				&priv->led_mode);
+ 		if (ret)
+@@ -796,7 +796,8 @@ static int kszphy_probe(struct phy_device *phydev)
+ 		unsigned long rate = clk_get_rate(clk);
+ 		bool rmii_ref_clk_sel_25_mhz;
+ 
+-		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
++		if (type)
++			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
+ 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
+ 				"micrel,rmii-reference-clock-select-25-mhz");
  
 -- 
 2.35.1
