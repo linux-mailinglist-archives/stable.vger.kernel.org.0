@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B116F53837B
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A2653833C
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238014AbiE3OeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:34:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50934 "EHLO
+        id S240521AbiE3OcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241126AbiE3OaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:30:17 -0400
+        with ESMTP id S241199AbiE3OaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:30:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E0258E64;
-        Mon, 30 May 2022 06:51:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786E35A086;
+        Mon, 30 May 2022 06:51:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20D89B80DC0;
-        Mon, 30 May 2022 13:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95BAAC36AE7;
-        Mon, 30 May 2022 13:51:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D919B80DBB;
+        Mon, 30 May 2022 13:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB49C3411A;
+        Mon, 30 May 2022 13:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918709;
-        bh=TsnccSUjaIJsssqB3PsBicURUVYF0tCQj+AKgET2PTs=;
+        s=k20201202; t=1653918714;
+        bh=CEITeVdnUAOiOrrBMPlDtB3IbeTnyP2R9hTakvFIAbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzArhrqYOY3exU8ZQEerITInhEmVJ5ZcmaQyF/vAiLKsYEDSdN13U0eEm3Q5yBm2H
-         HZmMDoj2BEoLxVhh1W/kSS7Nj0nMnZTl8KPC/QmEq9wSsZycJTXxbE/bDevr34r5FP
-         YcZle2jt5ejsmpAxFWg93ev4UUyeIo11Ca19+81Xa63fWjSrGfRnAVb1GOSMOdlNBK
-         Fl2ExO4itKdgAAJoDlZA9WgHfa5Ni3yVSuNq3OHMlZ5W5WPo670Ooi5R9dmJ60FVin
-         WHSxMbdDeJYRfP020FbLtMqdXgqkX4niSa8Rhfop05W//mp/sTkyyGlaWDEgQgI2/h
-         sv8cRpg2+Hv0g==
+        b=EpZKNlPFEb/ePJEbvI7d3ZcO6u0oBjZ/eTuU/6/WHnBgwNUuuqQVFuSvmrmU/fDnd
+         nZtGJyO5vIe9KqA9pWUzFql/GydOnSeX9o0KSlFAKGq4TYui/3P3C57hwb7uOF02xt
+         w1Smx3sFnuY3xYWjdTHedg8roj2mJTpDxTp5Q5eQSgPZAWBZeBiPNuOPEIc49BYrqu
+         C2bWHkVnXm91Onq9nTrbAdTXsIW1FTTLR9gDAtb76AVglkLgezCVwb0GYeiXykqQqZ
+         c1GY7bHgkSsQVMBsqq/pinkc6C998Qr/jdQmmmG64qxomUljK5dgkZUscudZnBXAop
+         50iTa6fFgNGSA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        pkshih@realtek.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 21/29] rtlwifi: Use pr_warn instead of WARN_ONCE
-Date:   Mon, 30 May 2022 09:50:48 -0400
-Message-Id: <20220530135057.1937286-21-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, rdunlap@infradead.org,
+        linux@dominikbrodowski.net, openrisc@lists.librecores.org
+Subject: [PATCH AUTOSEL 4.14 22/29] openrisc: start CPU timer early in boot
+Date:   Mon, 30 May 2022 09:50:49 -0400
+Message-Id: <20220530135057.1937286-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135057.1937286-1-sashal@kernel.org>
 References: <20220530135057.1937286-1-sashal@kernel.org>
@@ -59,37 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit ad732da434a2936128769216eddaece3b1af4588 ]
+[ Upstream commit 516dd4aacd67a0f27da94f3fe63fe0f4dbab6e2b ]
 
-This memory allocation failure can be triggered by fault injection or
-high pressure testing, resulting a WARN.
+In order to measure the boot process, the timer should be switched on as
+early in boot as possible. As well, the commit defines the get_cycles
+macro, like the previous patches in this series, so that generic code is
+aware that it's implemented by the platform, as is done on other archs.
 
-Fix this by replacing WARN with pr_warn.
-
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220511014453.1621366-1-dzm91@hust.edu.cn
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Acked-by: Stafford Horne <shorne@gmail.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/openrisc/include/asm/timex.h | 1 +
+ arch/openrisc/kernel/head.S       | 9 +++++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index 4fa4d877f913..c29beb00203c 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -1060,7 +1060,7 @@ int rtl_usb_probe(struct usb_interface *intf,
- 	hw = ieee80211_alloc_hw(sizeof(struct rtl_priv) +
- 				sizeof(struct rtl_usb_priv), &rtl_ops);
- 	if (!hw) {
--		WARN_ONCE(true, "rtl_usb: ieee80211 alloc failed\n");
-+		pr_warn("rtl_usb: ieee80211 alloc failed\n");
- 		return -ENOMEM;
- 	}
- 	rtlpriv = hw->priv;
+diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
+index 9935cad1b9b9..34d015bf0462 100644
+--- a/arch/openrisc/include/asm/timex.h
++++ b/arch/openrisc/include/asm/timex.h
+@@ -27,6 +27,7 @@ static inline cycles_t get_cycles(void)
+ {
+ 	return mfspr(SPR_TTCR);
+ }
++#define get_cycles get_cycles
+ 
+ /* This isn't really used any more */
+ #define CLOCK_TICK_RATE 1000
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 4d878d13b860..3f1e9d168710 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -459,6 +459,15 @@ _start:
+ 	l.ori	r3,r0,0x1
+ 	l.mtspr	r0,r3,SPR_SR
+ 
++	/*
++	 * Start the TTCR as early as possible, so that the RNG can make use of
++	 * measurements of boot time from the earliest opportunity. Especially
++	 * important is that the TTCR does not return zero by the time we reach
++	 * rand_initialize().
++	 */
++	l.movhi r3,hi(SPR_TTMR_CR)
++	l.mtspr r0,r3,SPR_TTMR
++
+ 	CLEAR_GPR(r1)
+ 	CLEAR_GPR(r2)
+ 	CLEAR_GPR(r3)
 -- 
 2.35.1
 
