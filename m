@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7ED3538338
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0CC538337
 	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240912AbiE3OcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:32:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50894 "EHLO
+        id S240718AbiE3OcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:32:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240996AbiE3OaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:30:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9133056200;
-        Mon, 30 May 2022 06:51:50 -0700 (PDT)
+        with ESMTP id S240895AbiE3OaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:30:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824984B420;
+        Mon, 30 May 2022 06:51:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 99CB8CE0FC9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD91760EC3;
         Mon, 30 May 2022 13:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E55C385B8;
-        Mon, 30 May 2022 13:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7015DC36AE5;
+        Mon, 30 May 2022 13:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918707;
-        bh=q4/TRkFKO17K5S6Q52l+i8SN+KZng04nsE2jNUt5RHw=;
+        s=k20201202; t=1653918708;
+        bh=ZtsaDR2IWu8SvqQ6ynaqLlc+4Y8bj/DYVgveu4E+KqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fw08vm2LX254cGBcuK0/wLdBKXYUHDB/H51sFlBjHGNHzOofMgWZWgraZFucwGT4K
-         ZgBV11gP2OGGyDqmbF26usQDB7jxTVlCiQa1RF4VyZnLWwmaw29g/6gyNTn2kfM83u
-         fIEaDNCJ5a5OVfvSgI5D/w49bW6YE2Ctlso9OR5Td7c9e3FumLQ6UAq1hqYJZoohRF
-         x4tABMdweSPiRNLSWDeQwFqbGwA86C7hkRr1D18RlPHxjK/JRcZIH4CMe4k+Q1iFr4
-         p7mxWFhqJgHvwG4H3tmVIQ/Hg6+fxlBbRHFmdEj5QveNYY5KmQfYBYLeUy4Hpus46Q
-         u8vKzKO9N2c5w==
+        b=cq/X/HnwsQvX3bgUjnE8O5h+byzBbD6aB3SwEBOMDSvnEYAv0wauJSy471kzBInCq
+         4WHc6A+NWAcDup2vjA45zmqLzWFTc10FSc8/UbuM0V6qL/cQnwYGbkw8e7WL/fplMF
+         Ccx1WBTQwy62RnPU73mdzrwVjexPCQURnOtalaUPFHt5tKngpMhSj87nemVf8qo7hK
+         wYMwM9WkeQizaQn9HWn+VmXgSscmsAZjUmkgf0gkdxpeWdhaoUO9OGB6nO5kG8J7TE
+         fnlGcV9PzBLQt4+VNo3EvpPHjW4pULOqIW08n92tjvB+sNGb1ahxFKs540MahUj3Np
+         00M2CSManhusg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 19/29] dma-debug: change allocation mode from GFP_NOWAIT to GFP_ATIOMIC
-Date:   Mon, 30 May 2022 09:50:46 -0400
-Message-Id: <20220530135057.1937286-19-sashal@kernel.org>
+Cc:     Corey Minyard <cminyard@mvista.com>,
+        Haowen Bai <baihaowen@meizu.com>,
+        Sasha Levin <sashal@kernel.org>,
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 20/29] ipmi:ssif: Check for NULL msg when handling events and messages
+Date:   Mon, 30 May 2022 09:50:47 -0400
+Message-Id: <20220530135057.1937286-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135057.1937286-1-sashal@kernel.org>
 References: <20220530135057.1937286-1-sashal@kernel.org>
@@ -55,39 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 84bc4f1dbbbb5f8aa68706a96711dccb28b518e5 ]
+[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
 
-We observed the error "cacheline tracking ENOMEM, dma-debug disabled"
-during a light system load (copying some files). The reason for this error
-is that the dma_active_cacheline radix tree uses GFP_NOWAIT allocation -
-so it can't access the emergency memory reserves and it fails as soon as
-anybody reaches the watermark.
+Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
+SSIF_GETTING_EVENTS states without a valid message in the msg field,
+it's probably best to be defensive here and check and print a log, since
+that means something else went wrong.
 
-This patch changes GFP_NOWAIT to GFP_ATOMIC, so that it can access the
-emergency memory reserves.
+Also add a default clause to that switch statement to release the lock
+and print a log, in case the state variable gets messed up somehow.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: Haowen Bai <baihaowen@meizu.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dma-debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-index 61e7240947f5..163e0e9b357f 100644
---- a/lib/dma-debug.c
-+++ b/lib/dma-debug.c
-@@ -465,7 +465,7 @@ EXPORT_SYMBOL(debug_dma_dump_mappings);
-  * At any time debug_dma_assert_idle() can be called to trigger a
-  * warning if any cachelines in the given page are in the active set.
-  */
--static RADIX_TREE(dma_active_cacheline, GFP_NOWAIT);
-+static RADIX_TREE(dma_active_cacheline, GFP_ATOMIC);
- static DEFINE_SPINLOCK(radix_lock);
- #define ACTIVE_CACHELINE_MAX_OVERLAP ((1 << RADIX_TREE_MAX_TAGS) - 1)
- #define CACHELINE_PER_PAGE_SHIFT (PAGE_SHIFT - L1_CACHE_SHIFT)
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index cf87bfe971e6..171c54c86356 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -816,6 +816,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
+ 
+ 	case SSIF_GETTING_EVENTS:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting events\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -839,6 +847,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
+ 
+ 	case SSIF_GETTING_MESSAGES:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting messages\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -861,6 +877,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			deliver_recv_msg(ssif_info, msg);
+ 		}
+ 		break;
++
++	default:
++		/* Should never happen, but just in case. */
++		dev_warn(&ssif_info->client->dev,
++			 "Invalid state in message done handling: %d\n",
++			 ssif_info->ssif_state);
++		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 	}
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
 -- 
 2.35.1
 
