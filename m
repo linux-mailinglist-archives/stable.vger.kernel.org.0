@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DB8538007
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D87E1537F51
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240023AbiE3OKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:10:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
+        id S234502AbiE3OJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:09:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239779AbiE3OGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:06:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC2227FEF;
-        Mon, 30 May 2022 06:41:41 -0700 (PDT)
+        with ESMTP id S239893AbiE3OGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:06:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274532FFFD;
+        Mon, 30 May 2022 06:41:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C46360FAF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1853D60FA3;
+        Mon, 30 May 2022 13:41:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C76EC3411E;
         Mon, 30 May 2022 13:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0444C36AE9;
-        Mon, 30 May 2022 13:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918100;
-        bh=7jqS2tTlnNZbrQ98eK9OJ7pRMtBHKuwDuhlgk5Xc4Sk=;
+        s=k20201202; t=1653918102;
+        bh=K2Ct8v612oBd7AGh9aMx4iuQ2nz0lA2eVt8p+V/mDAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3qHegE7IBysWQyMezM7MqdTglKIJ/VlylYn8NRDOPGMgNb9RELhLqYAJ1v2abH08
-         ZbExjlEP3KZtjZ5tqjdmctCVbDtGZm40ALli9Uv3mniIRxY5JOgcKShj1v+j8mrzGz
-         /IUdMshOEDvV9rF5wDe3o8X5p3a46mgtxP7hNl/HeSwVqFU4ecZHqZE2/sHdoUv1+B
-         dykav/J3bxiv0G6XczefiD92RvKXGDz2FgJnJNH2eT1JHfN1g8Vq36OGRqq1yc6ijc
-         S7tsptjaSSCFCTn7SOq6bBYUg1fxSxWpZIhKhpS+QvOcPTvzYKIUacOkYK0XdQ4ejS
-         OUkhS8vHrLYsQ==
+        b=lDdjHn6PcRun6xfMWZudlq8w8WhkRT+7UF1cKGZ2Hdo1n+csDznfJ0SYSeahXWKqC
+         Ndb8xe4AwODrsDCVcr6KBd9OhUrgE8oV0uEZIAiR4Q0HjEBF0XvoepMxt9Y+XpL35Q
+         5Xd7Umbpl9hwIdTnvkGE5/3WuNffrKh91QTlbBSeuY9dYlD387/8YGlH0K0WICOFWR
+         /RGw7azO2HNBt1o7A4TtWVL3ehmEtrk0dqxjPcaWOhgvMjWVkA7J64cDnR94NQCgxN
+         sSOP800u+6SGjdZbREcBi/+mmN5sb68ASm+PVDTsAsgHZzo0KQ53bYW+NLnTsdLTa0
+         z4FlDI0RgDoxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 060/109] HID: bigben: fix slab-out-of-bounds Write in bigben_probe
-Date:   Mon, 30 May 2022 09:37:36 -0400
-Message-Id: <20220530133825.1933431-60-sashal@kernel.org>
+Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
+        Rob Herring <robh@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        frowand.list@gmail.com, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 061/109] of: Support more than one crash kernel regions for kexec -s
+Date:   Mon, 30 May 2022 09:37:37 -0400
+Message-Id: <20220530133825.1933431-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -58,41 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit fc4ef9d5724973193bfa5ebed181dba6de3a56db ]
+[ Upstream commit 8af6b91f58341325bf74ecb0389ddc0039091d84 ]
 
-There is a slab-out-of-bounds Write bug in hid-bigbenff driver.
-The problem is the driver assumes the device must have an input but
-some malicious devices violate this assumption.
+When "crashkernel=X,high" is used, there may be two crash regions:
+high=crashk_res and low=crashk_low_res. But now the syscall
+kexec_file_load() only add crashk_res into "linux,usable-memory-range",
+this may cause the second kernel to have no available dma memory.
 
-Fix this by checking hid_device's input is non-empty before its usage.
+Fix it like kexec-tools does for option -c, add both 'high' and 'low'
+regions into the dtb.
 
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Baoquan He <bhe@redhat.com>
+Link: https://lore.kernel.org/r/20220506114402.365-6-thunder.leizhen@huawei.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/of/kexec.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index 74ad8bf98bfd..e8c5e3ac9fff 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -347,6 +347,12 @@ static int bigben_probe(struct hid_device *hid,
- 	bigben->report = list_entry(report_list->next,
- 		struct hid_report, list);
- 
-+	if (list_empty(&hid->inputs)) {
-+		hid_err(hid, "no inputs found\n");
-+		error = -ENODEV;
-+		goto error_hw_stop;
-+	}
+diff --git a/drivers/of/kexec.c b/drivers/of/kexec.c
+index 761fd870d1db..72c790a3c910 100644
+--- a/drivers/of/kexec.c
++++ b/drivers/of/kexec.c
+@@ -386,6 +386,15 @@ void *of_kexec_alloc_and_setup_fdt(const struct kimage *image,
+ 				crashk_res.end - crashk_res.start + 1);
+ 		if (ret)
+ 			goto out;
 +
- 	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
- 	set_bit(FF_RUMBLE, hidinput->input->ffbit);
++		if (crashk_low_res.end) {
++			ret = fdt_appendprop_addrrange(fdt, 0, chosen_node,
++					"linux,usable-memory-range",
++					crashk_low_res.start,
++					crashk_low_res.end - crashk_low_res.start + 1);
++			if (ret)
++				goto out;
++		}
+ 	}
  
+ 	/* add bootargs */
 -- 
 2.35.1
 
