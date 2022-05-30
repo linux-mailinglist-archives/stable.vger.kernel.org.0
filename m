@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42854537BDF
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1390537BA0
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbiE3NZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:25:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58196 "EHLO
+        id S236666AbiE3NZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236708AbiE3NZL (ORCPT
+        with ESMTP id S236590AbiE3NZL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:25:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE0E84A01;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 185E784A00;
         Mon, 30 May 2022 06:25:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96768B80D84;
-        Mon, 30 May 2022 13:25:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A61C385B8;
-        Mon, 30 May 2022 13:25:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7752060DD5;
+        Mon, 30 May 2022 13:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7108C3411A;
+        Mon, 30 May 2022 13:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917107;
-        bh=+ehzoZ1+4/6eIf04m+qPZ2eANMxYBdwQHqalydfBe80=;
+        s=k20201202; t=1653917108;
+        bh=FQ0KiZojiiCMdSntTJQX+VlNmgl4iS0gWsxYxk6CTm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWBeJeGAcIH5Vom7aZ33vnn7uOSqcEoDHdP1JCizha21+kwdFBmpv/fUe6kAKD7Yt
-         LbbKVMzNg9dbdZmiG69YyHkYXIWsKJpisZYGeVtN04at78fBgXfhLz+ZPzEIZcGzwX
-         oiO/RR01KngI2FFXu/wEZ4mP47VzLAJcgyLmMpzimxQxOGOjxa2TQy8Oh58f02DZ1K
-         nCEDUp2Z8tNdk4u81S5HESvWCFpoBX7SHh7p/AXu4t+/0wzmI6PPNPjYi2ZEOJcJLl
-         HVU2QdPfXRnZUvCsKateqkPTwlpscffvQ8xX1ablK+wdyTtc2bBIheGvcfdoV38H9s
-         GoovVqSR37kHw==
+        b=FDdAZoQ6CayteEuZ9GyJvPTE8kxvhGIDxf6MxAZ4mzs1LL16EfSxc5S5gYowrQfi1
+         jPJJ9a6gUjUkQ+L5agUgRgiaIDljiMV/zCb6rmfIHt0NrqPCW49Pr6JG246ThubF9z
+         9KGeWmeiRixqRnKoMxF021qLPM3ka9iSLB2WBMvguWSVn2zvXCzsiUs1HAzOYFCVN+
+         lhs69j4KKJ2zhxC/wybvSIR9RhEI+FpHAzM1Z3/E83WVfsMeGPN1pVspta0FDyuFXB
+         1v6J9pnQusrARpO9gAY9crFTNhDAjviN+Y66ZgGZXYL0pfNBajyWGUAzMBgNn81G6v
+         MCu+C2CY1jMWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>, Du Cheng <ducheng2@gmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Claudio Suarez <cssk@net-c.es>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>, deller@gmx.de,
-        geert@linux-m68k.org, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 017/159] fbcon: Consistently protect deferred_takeover with console_lock()
-Date:   Mon, 30 May 2022 09:22:02 -0400
-Message-Id: <20220530132425.1929512-17-sashal@kernel.org>
+Cc:     Mike Travis <mike.travis@hpe.com>, Steve Wahl <steve.wahl@hpe.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org
+Subject: [PATCH AUTOSEL 5.18 018/159] x86/platform/uv: Update TSC sync state for UV5
+Date:   Mon, 30 May 2022 09:22:03 -0400
+Message-Id: <20220530132425.1929512-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -63,52 +59,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Mike Travis <mike.travis@hpe.com>
 
-[ Upstream commit 43553559121ca90965b572cf8a1d6d0fd618b449 ]
+[ Upstream commit bb3ab81bdbd53f88f26ffabc9fb15bd8466486ec ]
 
-This shouldn't be a problem in practice since until we've actually
-taken over the console there's nothing we've registered with the
-console/vt subsystem, so the exit/unbind path that check this can't
-do the wrong thing. But it's confusing, so fix it by moving it a tad
-later.
+The UV5 platform synchronizes the TSCs among all chassis, and will not
+proceed to OS boot without achieving synchronization.  Previous UV
+platforms provided a register indicating successful synchronization.
+This is no longer available on UV5.  On this platform TSC_ADJUST
+should not be reset by the kernel.
 
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Du Cheng <ducheng2@gmail.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Claudio Suarez <cssk@net-c.es>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220405210335.3434130-14-daniel.vetter@ffwll.ch
+Signed-off-by: Mike Travis <mike.travis@hpe.com>
+Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dimitri Sivanich <dimitri.sivanich@hpe.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20220406195149.228164-3-steve.wahl@hpe.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/apic/x2apic_uv_x.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 2fc1b80a26ad..9a8ae6fa6ecb 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -3265,6 +3265,9 @@ static void fbcon_register_existing_fbs(struct work_struct *work)
+diff --git a/arch/x86/kernel/apic/x2apic_uv_x.c b/arch/x86/kernel/apic/x2apic_uv_x.c
+index f5a48e66e4f5..a6e9c2794ef5 100644
+--- a/arch/x86/kernel/apic/x2apic_uv_x.c
++++ b/arch/x86/kernel/apic/x2apic_uv_x.c
+@@ -199,7 +199,13 @@ static void __init uv_tsc_check_sync(void)
+ 	int mmr_shift;
+ 	char *state;
  
- 	console_lock();
- 
-+	deferred_takeover = false;
-+	logo_shown = FBCON_LOGO_DONTSHOW;
+-	/* Different returns from different UV BIOS versions */
++	/* UV5 guarantees synced TSCs; do not zero TSC_ADJUST */
++	if (!is_uv(UV2|UV3|UV4)) {
++		mark_tsc_async_resets("UV5+");
++		return;
++	}
 +
- 	for_each_registered_fb(i)
- 		fbcon_fb_registered(registered_fb[i]);
- 
-@@ -3282,8 +3285,6 @@ static int fbcon_output_notifier(struct notifier_block *nb,
- 	pr_info("fbcon: Taking over console\n");
- 
- 	dummycon_unregister_output_notifier(&fbcon_output_nb);
--	deferred_takeover = false;
--	logo_shown = FBCON_LOGO_DONTSHOW;
- 
- 	/* We may get called in atomic context */
- 	schedule_work(&fbcon_deferred_takeover_work);
++	/* UV2,3,4, UV BIOS TSC sync state available */
+ 	mmr = uv_early_read_mmr(UVH_TSC_SYNC_MMR);
+ 	mmr_shift =
+ 		is_uv2_hub() ? UVH_TSC_SYNC_SHIFT_UV2K : UVH_TSC_SYNC_SHIFT;
 -- 
 2.35.1
 
