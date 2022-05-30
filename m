@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF27537F36
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F82538030
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236412AbiE3N5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:57:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33318 "EHLO
+        id S238372AbiE3N5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:57:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239428AbiE3N4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:56:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17BB495DC4;
-        Mon, 30 May 2022 06:38:23 -0700 (PDT)
+        with ESMTP id S239446AbiE3N4i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:56:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6AF95DE8;
+        Mon, 30 May 2022 06:38:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9712460F7B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0A6AB80D84;
+        Mon, 30 May 2022 13:38:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E464C341C4;
         Mon, 30 May 2022 13:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3739DC385B8;
-        Mon, 30 May 2022 13:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917902;
-        bh=cYbqQ0dMuwCZflYozzYeRbTkmB9Hzvvc14PryXL08Gw=;
+        s=k20201202; t=1653917903;
+        bh=HwjH44pS8984mw7Nh4lKusX1l8RJWXNJDc+xlPI7FLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUHhJ6KAF70VyGGHb4xkxBm/kIufPH+BnaT57GbFGMMJ7GN9wI7UJQ4jAmS36eSlT
-         7Hrp8faOumS4WVHEQXIKobm7KRXVKZ0IO50FDMRrrVO3X6ecEg0T3I5b/xuUpOrMVp
-         nxp6WYb5/JIfJlLcCnsOZtIH9+GG4zhx/W2LBPFgrn1YG196bx/uxiwAs97UffUeRg
-         kZGWPi5gJULZKcJjA9yWu/WWBnRr/LDBHa8KxWy0iLHZgZ4AK8tcp54pugJM5s8yjZ
-         uNGqeaVwjr4hImZAInFU78EhBmF2TL46T+vZ3bTFYwtYLYYnJt6bG3LTpWzMYcNyDV
-         A9j/LUo0oj+/w==
+        b=H6meau/lDVLcIYsw/pb53l7KlH++2+dzWJfj6c8SnAlbzeHqF1bFsc0TORa0HCC83
+         TwU/BxXTjZ4UCce2KXeMVsPjQjN3PcdC8mXYUpbW6/dhyGYocv/eq3xe8mZHqluzB1
+         NOG7zp8usQaZbOHdElGnBXD8ogdLLspb4EE+398Qjs6OnrV2a3A7mHOp+ToqRlle12
+         PJCJEfyj98ckNyc79ism14UE6YDVmNE/4eugEkyKC3/M3bMHbVjY+Q+pwkTaVIvbIy
+         fKfysVrEnu450eq2xfTuNS5mVtO/+tVtq7Ohub5LFvory4eTMXtAOuXlxn2mIXAnxB
+         R9aQNASPvFdjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonghong Song <yhs@fb.com>, Mykola Lysenko <mykolal@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, nathan@kernel.org,
-        ndesaulniers@google.com, sunyucong@gmail.com,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.17 134/135] selftests/bpf: fix btf_dump/btf_dump due to recent clang change
-Date:   Mon, 30 May 2022 09:31:32 -0400
-Message-Id: <20220530133133.1931716-134-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.17 135/135] gfs2: use i_lock spin_lock for inode qadata
+Date:   Mon, 30 May 2022 09:31:33 -0400
+Message-Id: <20220530133133.1931716-135-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -60,87 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 4050764cbaa25760aab40857f723393c07898474 ]
+[ Upstream commit 5fcff61eea9efd1f4b60e89d2d686b5feaea100f ]
 
-Latest llvm-project upstream had a change of behavior
-related to qualifiers on function return type ([1]).
-This caused selftests btf_dump/btf_dump failure.
-The following example shows what changed.
+Before this patch, functions gfs2_qa_get and _put used the i_rw_mutex to
+prevent simultaneous access to its i_qadata. But i_rw_mutex is now used
+for many other things, including iomap_begin and end, which causes a
+conflict according to lockdep. We cannot just remove the lock since
+simultaneous opens (gfs2_open -> gfs2_open_common -> gfs2_qa_get) can
+then stomp on each others values for i_qadata.
 
-  $ cat t.c
-  typedef const char * const (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
-  struct t {
-    int a;
-    fn_ptr_arr2_t l;
-  };
-  int foo(struct t *arg) {
-    return arg->a;
-  }
+This patch solves the conflict by using the i_lock spin_lock in the inode
+to prevent simultaneous access.
 
-Compiled with latest upstream llvm15,
-  $ clang -O2 -g -target bpf -S -emit-llvm t.c
-The related generated debuginfo IR looks like:
-  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
-  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !32)
-  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
-  !20 = !DISubroutineType(types: !21)
-  !21 = !{!22, null}
-  !22 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !23, size: 64)
-  !23 = !DISubroutineType(types: !24)
-  !24 = !{!25, !28}
-  !25 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !26, size: 64)
-  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
-  !27 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-You can see two intermediate const qualifier to pointer are dropped in debuginfo IR.
-
-With llvm14, we have following debuginfo IR:
-  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
-  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !34)
-  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
-  !20 = !DISubroutineType(types: !21)
-  !21 = !{!22, null}
-  !22 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !23)
-  !23 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !24, size: 64)
-  !24 = !DISubroutineType(types: !25)
-  !25 = !{!26, !30}
-  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
-  !27 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !28, size: 64)
-  !28 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !29)
-  !29 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-All const qualifiers are preserved.
-
-To adapt the selftest to both old and new llvm, this patch removed
-the intermediate const qualifier in const-to-ptr types, to make the
-test succeed again.
-
-  [1] https://reviews.llvm.org/D125919
-
-Reported-by: Mykola Lysenko <mykolal@fb.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20220523152044.3905809-1-yhs@fb.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/quota.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-index 1c7105fcae3c..4ee4748133fe 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-@@ -94,7 +94,7 @@ typedef void (* (*signal_t)(int, void (*)(int)))(int);
+diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
+index be0997e24d60..dc77080a82bb 100644
+--- a/fs/gfs2/quota.c
++++ b/fs/gfs2/quota.c
+@@ -531,34 +531,42 @@ static void qdsb_put(struct gfs2_quota_data *qd)
+  */
+ int gfs2_qa_get(struct gfs2_inode *ip)
+ {
+-	int error = 0;
+ 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
++	struct inode *inode = &ip->i_inode;
  
- typedef char * (*fn_ptr_arr1_t[10])(int **);
+ 	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
+ 		return 0;
  
--typedef char * (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
-+typedef char * (* (* const fn_ptr_arr2_t[5])())(char * (*)(int));
+-	down_write(&ip->i_rw_mutex);
++	spin_lock(&inode->i_lock);
+ 	if (ip->i_qadata == NULL) {
+-		ip->i_qadata = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
+-		if (!ip->i_qadata) {
+-			error = -ENOMEM;
+-			goto out;
+-		}
++		struct gfs2_qadata *tmp;
++
++		spin_unlock(&inode->i_lock);
++		tmp = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
++		if (!tmp)
++			return -ENOMEM;
++
++		spin_lock(&inode->i_lock);
++		if (ip->i_qadata == NULL)
++			ip->i_qadata = tmp;
++		else
++			kmem_cache_free(gfs2_qadata_cachep, tmp);
+ 	}
+ 	ip->i_qadata->qa_ref++;
+-out:
+-	up_write(&ip->i_rw_mutex);
+-	return error;
++	spin_unlock(&inode->i_lock);
++	return 0;
+ }
  
- struct struct_w_typedefs {
- 	int_t a;
+ void gfs2_qa_put(struct gfs2_inode *ip)
+ {
+-	down_write(&ip->i_rw_mutex);
++	struct inode *inode = &ip->i_inode;
++
++	spin_lock(&inode->i_lock);
+ 	if (ip->i_qadata && --ip->i_qadata->qa_ref == 0) {
+ 		kmem_cache_free(gfs2_qadata_cachep, ip->i_qadata);
+ 		ip->i_qadata = NULL;
+ 	}
+-	up_write(&ip->i_rw_mutex);
++	spin_unlock(&inode->i_lock);
+ }
+ 
+ int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
 -- 
 2.35.1
 
