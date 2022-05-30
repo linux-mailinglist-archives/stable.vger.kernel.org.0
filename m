@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4172E53823C
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0936F53822D
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241079AbiE3OW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:22:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60660 "EHLO
+        id S237819AbiE3OWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:22:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239481AbiE3OOC (ORCPT
+        with ESMTP id S239484AbiE3OOC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:14:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C0F996A3;
-        Mon, 30 May 2022 06:43:13 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E008EAB80;
+        Mon, 30 May 2022 06:43:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B15EDB80DAE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E28EB60FC6;
+        Mon, 30 May 2022 13:42:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D3EBC3411C;
         Mon, 30 May 2022 13:42:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380DFC3411E;
-        Mon, 30 May 2022 13:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918174;
-        bh=qoEqqG5jjxCAbW2crZUv/sz/nd05QD4ziCVP9ciO8nU=;
+        s=k20201202; t=1653918176;
+        bh=0qLbL55MF/P0+Qou/QahJDBlhd7ow5V6cdXeBWPYJEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVVzJtUb7G2+cmLzW8koG6RIbV+Ggd4FjfZjn1llLsDllvbgeSiW3BS03Mo6ZxXw+
-         lGtVaGT7UlK01nN4npWN1OoabLvvdxE+gWWdh2lm1OZrhfCbOYK28CrFRIVQKnHkW5
-         mLd+VOQ2gYTBNsxJQ0MS8IYo66GWDYzoSJKBpAFzitii0038sIK9JaYQCAUSJNorws
-         Mp6tXSvwbGtxvgS425EBSn2QOm/DutN2tr9KvEuNgWW1cMkR0leEl+vvQmV8CU56LU
-         pr3ivctoE11EV0myxnVjAABCWTwJl8oEvnL/ifeExYVlJulaYI82IvFVhdgCzT3yJS
-         4e4Qivc8l3KTw==
+        b=aOPOW8kW7GypBG7cHOIO3/Tj/1bd7nTL5IqoYcOPMsOZGxpXnsTNie6lniI9Sv7PW
+         4Q1eVoQ5FyP+KpTUdrkzlpK0h9vWmcpDnJKUk/dpRbrtpGi4uFULlPxVHknYjmndov
+         Wr5A1Ls6pZvtIjgWboDDkJASciRQck5veMa2lXroJwb8DS60k/DAq6vfeue+eliIIw
+         PymS6neyaiVi4bCjkfidaw2NqTfFw7S536L4eWZxg9TI2lSVnfVJoXKutM7AP8/80s
+         hF2wS98VaQrfg8L0zpz3EiG4KI0i17PVmudL18OlgXaT2QkzViK+8d/wQWHqgycqzU
+         zRH7+AeXa8frg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Smith, Kyle Miller (Nimble Kernel)" <kyles@hpe.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 085/109] nvme-pci: fix a NULL pointer dereference in nvme_alloc_admin_tags
-Date:   Mon, 30 May 2022 09:38:01 -0400
-Message-Id: <20220530133825.1933431-85-sashal@kernel.org>
+Cc:     Lin Ma <linma@zju.edu.cn>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 086/109] ASoC: rt5645: Fix errorenous cleanup order
+Date:   Mon, 30 May 2022 09:38:02 -0400
+Message-Id: <20220530133825.1933431-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -58,43 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Smith, Kyle Miller (Nimble Kernel)" <kyles@hpe.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit da42761181627e9bdc37d18368b827948a583929 ]
+[ Upstream commit 2def44d3aec59e38d2701c568d65540783f90f2f ]
 
-In nvme_alloc_admin_tags, the admin_q can be set to an error (typically
--ENOMEM) if the blk_mq_init_queue call fails to set up the queue, which
-is checked immediately after the call. However, when we return the error
-message up the stack, to nvme_reset_work the error takes us to
-nvme_remove_dead_ctrl()
-  nvme_dev_disable()
-   nvme_suspend_queue(&dev->queues[0]).
+There is a logic error when removing rt5645 device as the function
+rt5645_i2c_remove() first cancel the &rt5645->jack_detect_work and
+delete the &rt5645->btn_check_timer latter. However, since the timer
+handler rt5645_btn_check_callback() will re-queue the jack_detect_work,
+this cleanup order is buggy.
 
-Here, we only check that the admin_q is non-NULL, rather than not
-an error or NULL, and begin quiescing a queue that never existed, leading
-to bad / NULL pointer dereference.
+That is, once the del_timer_sync in rt5645_i2c_remove is concurrently
+run with the rt5645_btn_check_callback, the canceled jack_detect_work
+will be rescheduled again, leading to possible use-after-free.
 
-Signed-off-by: Kyle Smith <kyles@hpe.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This patch fix the issue by placing the del_timer_sync function before
+the cancel_delayed_work_sync.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220516092035.28283-1-linma@zju.edu.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/rt5645.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index e6f55cf6e494..3ddd24a42043 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1680,6 +1680,7 @@ static int nvme_alloc_admin_tags(struct nvme_dev *dev)
- 		dev->ctrl.admin_q = blk_mq_init_queue(&dev->admin_tagset);
- 		if (IS_ERR(dev->ctrl.admin_q)) {
- 			blk_mq_free_tag_set(&dev->admin_tagset);
-+			dev->ctrl.admin_q = NULL;
- 			return -ENOMEM;
- 		}
- 		if (!blk_get_queue(dev->ctrl.admin_q)) {
+diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
+index 9408ee63cb26..8ea6d4333562 100644
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -4154,9 +4154,14 @@ static int rt5645_i2c_remove(struct i2c_client *i2c)
+ 	if (i2c->irq)
+ 		free_irq(i2c->irq, rt5645);
+ 
++	/*
++	 * Since the rt5645_btn_check_callback() can queue jack_detect_work,
++	 * the timer need to be delted first
++	 */
++	del_timer_sync(&rt5645->btn_check_timer);
++
+ 	cancel_delayed_work_sync(&rt5645->jack_detect_work);
+ 	cancel_delayed_work_sync(&rt5645->rcclock_work);
+-	del_timer_sync(&rt5645->btn_check_timer);
+ 
+ 	regulator_bulk_disable(ARRAY_SIZE(rt5645->supplies), rt5645->supplies);
+ 
 -- 
 2.35.1
 
