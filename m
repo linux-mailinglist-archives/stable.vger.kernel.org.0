@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01BC0538360
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6730538373
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241359AbiE3OdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42896 "EHLO
+        id S237120AbiE3Odl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:33:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242624AbiE3ObY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:24 -0400
+        with ESMTP id S242656AbiE3ObZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D6E12DBC6;
-        Mon, 30 May 2022 06:53:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C1E12DBF6;
+        Mon, 30 May 2022 06:53:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BF9E60F24;
-        Mon, 30 May 2022 13:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BCD5C3411C;
-        Mon, 30 May 2022 13:52:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 423786102F;
+        Mon, 30 May 2022 13:53:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57BB2C3411A;
+        Mon, 30 May 2022 13:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918774;
-        bh=ejMD652Yw8v6FqVr0yyLm749VC0Rg0oqhwUlI6amkUE=;
+        s=k20201202; t=1653918779;
+        bh=Xlh2jYqXF5aWMkpYTrGr9h+FlAuLQOz3xMpWM9qsbjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lqs1cbFslqzO4j8spujayMga+0WL74JOtBEJbuDLolCwvkQoDvUBa9BpI3VKDHV06
-         oEKJDU0l2/JDUODGvIWrK5Y6xObD34qwF2meRtkdmoolFbKZMKDtYC5qDFbkskhL+r
-         HdDkcHf5KwO+G7kF213bsg4f7Z74YrrIiLxFDuL+unGfTW31Xyf53c5tr4dDOvc4fI
-         LA6yrysO5tGayCv0YXnDDSoZf7qVeJMAUVIMR1eCmAw7g0g+EgoZ2EXlMHXMjKPsSD
-         E4sFQ9TXAL8Kl+cj7fcxKwfsa62QSKssPBKYJw6IcSi/w4FslGJKgztvdVu4V0J3St
-         hfYoYwweRgihA==
+        b=ag8cajVcjVFPaqJOTl6Lco1bbKm5m7DVAXRVZDLNnOI42Z+UjHEQn8K3iY1jlBoWD
+         s2If/td9jICItwbQ/WJFdiYfW8y8gOy4J6rpW8HrQNBscs5zempWBiW8j82YR944T9
+         SaeZ3QCLKpQ3UGzxdkXO1LaSX67+k/CWpK07M2iaKIMlcNURCnT9CdiCHSNq7VVn0A
+         BDqritZ44Sd8JVR1zQP3b3yC1bQTr35Xd6GIOWWrnUQcIhnzrozsH5vuONa4dG/e+1
+         GYJ1IRLrmpPELmlyKCWK1/wEPTH1ldyqABRpkOOl143oI/qFrCj2B6d1Fh5XKwYzt+
+         U00NNtu2XBM0Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Corey Minyard <cminyard@mvista.com>,
-        Haowen Bai <baihaowen@meizu.com>,
-        Sasha Levin <sashal@kernel.org>,
-        openipmi-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 17/24] ipmi:ssif: Check for NULL msg when handling events and messages
-Date:   Mon, 30 May 2022 09:52:04 -0400
-Message-Id: <20220530135211.1937674-17-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, rdunlap@infradead.org,
+        linux@dominikbrodowski.net, openrisc@lists.librecores.org
+Subject: [PATCH AUTOSEL 4.9 18/24] openrisc: start CPU timer early in boot
+Date:   Mon, 30 May 2022 09:52:05 -0400
+Message-Id: <20220530135211.1937674-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135211.1937674-1-sashal@kernel.org>
 References: <20220530135211.1937674-1-sashal@kernel.org>
@@ -57,73 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
+[ Upstream commit 516dd4aacd67a0f27da94f3fe63fe0f4dbab6e2b ]
 
-Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
-SSIF_GETTING_EVENTS states without a valid message in the msg field,
-it's probably best to be defensive here and check and print a log, since
-that means something else went wrong.
+In order to measure the boot process, the timer should be switched on as
+early in boot as possible. As well, the commit defines the get_cycles
+macro, like the previous patches in this series, so that generic code is
+aware that it's implemented by the platform, as is done on other archs.
 
-Also add a default clause to that switch statement to release the lock
-and print a log, in case the state variable gets messed up somehow.
-
-Reported-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Acked-by: Stafford Horne <shorne@gmail.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/openrisc/include/asm/timex.h | 1 +
+ arch/openrisc/kernel/head.S       | 9 +++++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index a4ef9a6bd367..45117728e735 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -812,6 +812,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		break;
+diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
+index 9935cad1b9b9..34d015bf0462 100644
+--- a/arch/openrisc/include/asm/timex.h
++++ b/arch/openrisc/include/asm/timex.h
+@@ -27,6 +27,7 @@ static inline cycles_t get_cycles(void)
+ {
+ 	return mfspr(SPR_TTCR);
+ }
++#define get_cycles get_cycles
  
- 	case SSIF_GETTING_EVENTS:
-+		if (!msg) {
-+			/* Should never happen, but just in case. */
-+			dev_warn(&ssif_info->client->dev,
-+				 "No message set while getting events\n");
-+			ipmi_ssif_unlock_cond(ssif_info, flags);
-+			break;
-+		}
-+
- 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
- 			/* Error getting event, probably done. */
- 			msg->done(msg);
-@@ -835,6 +843,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		break;
+ /* This isn't really used any more */
+ #define CLOCK_TICK_RATE 1000
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 98dd6860bc0b..0b6be5b3522b 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -452,6 +452,15 @@ _start:
+ 	l.ori	r3,r0,0x1
+ 	l.mtspr	r0,r3,SPR_SR
  
- 	case SSIF_GETTING_MESSAGES:
-+		if (!msg) {
-+			/* Should never happen, but just in case. */
-+			dev_warn(&ssif_info->client->dev,
-+				 "No message set while getting messages\n");
-+			ipmi_ssif_unlock_cond(ssif_info, flags);
-+			break;
-+		}
++	/*
++	 * Start the TTCR as early as possible, so that the RNG can make use of
++	 * measurements of boot time from the earliest opportunity. Especially
++	 * important is that the TTCR does not return zero by the time we reach
++	 * rand_initialize().
++	 */
++	l.movhi r3,hi(SPR_TTMR_CR)
++	l.mtspr r0,r3,SPR_TTMR
 +
- 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
- 			/* Error getting event, probably done. */
- 			msg->done(msg);
-@@ -857,6 +873,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 			deliver_recv_msg(ssif_info, msg);
- 		}
- 		break;
-+
-+	default:
-+		/* Should never happen, but just in case. */
-+		dev_warn(&ssif_info->client->dev,
-+			 "Invalid state in message done handling: %d\n",
-+			 ssif_info->ssif_state);
-+		ipmi_ssif_unlock_cond(ssif_info, flags);
- 	}
- 
- 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+ 	CLEAR_GPR(r1)
+ 	CLEAR_GPR(r2)
+ 	CLEAR_GPR(r3)
 -- 
 2.35.1
 
