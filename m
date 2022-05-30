@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE62537EC6
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:14:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1D55380D1
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238393AbiE3Nxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:53:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39916 "EHLO
+        id S238785AbiE3Nxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:53:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238411AbiE3NwT (ORCPT
+        with ESMTP id S238424AbiE3NwT (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:52:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C42212609;
-        Mon, 30 May 2022 06:37:21 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A56512772;
+        Mon, 30 May 2022 06:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D80DB80D89;
-        Mon, 30 May 2022 13:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9417FC3411C;
-        Mon, 30 May 2022 13:37:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4D11B80AE8;
+        Mon, 30 May 2022 13:37:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5649FC3411A;
+        Mon, 30 May 2022 13:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917838;
-        bh=xRzVVb9dp3AfJuQgs6IuBJGSwSqg0aexqaH6UBZReSc=;
+        s=k20201202; t=1653917840;
+        bh=OgUDXA45bwkJ5vJysgvw42AgkjEwX/rQiiRRrhcxWUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPbR0MH836BOLpvr94nweT/plOaYETOHZZ0ScIa07hD3FYIaCB6oR+0MWF76FwwBD
-         FI1m7VR3IVoF7y4RFjytMd9iD1DwVtQfmiMVntzqALZ1BDvwXwzAceWO9S8fmhOaVk
-         pfo6PIgi3PXiPD3r9Lmb+/S7ba0XNQJzsc8dVtJw4c5PqxyFo5vy0Tn2SQcyNRFkaI
-         FudWgyuu6KZzfne9nwFaQs6Wmo1vhwLjx4Z6FOIIVtyTQH8+rpBB/Tzq58nDtA2IY2
-         YxmE2TU+eVYkgFOERDURj5gF569DuFgPIeq5F2eY1TVyhQnksBMj5P/KX5jQhKFM2z
-         zUX1Z0l8M2g4Q==
+        b=TdRT7ZkwY4RaVxLhkDy1VH33PFQjdGSp1wANjSvPHwfmz1OImS6KBoug3UFHRnlnq
+         F3IwEknTt6vaJ/b0LormgOEKOyvpRxEImyKIwyqmn5TuArm+93wKTqrCemABQO5Od2
+         detGoNgSDRmfDb/dY9pDL+Kv9JsjpQNkve0vJd7fQSJbdPGSV7R/cnYbfrOiP0AhWl
+         nZRUOOiFf0pYF+/eaaSrxeq75Esb2h0sb/uILYuFE3bHl+ixyjL9qc/YSF/YYjR228
+         ET2ZiuiFr7LxZ2h8qFjZqeImaUgfz4eJgeV8bKKQXdbSgAneozvai6rayVsdrCDDot
+         iEDU+HQIYOrNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Latypov <dlatypov@google.com>,
-        David Gow <davidgow@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.17 111/135] kunit: tool: make parser stop overwriting status of suites w/ no_tests
-Date:   Mon, 30 May 2022 09:31:09 -0400
-Message-Id: <20220530133133.1931716-111-sashal@kernel.org>
+Cc:     Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
+        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 112/135] net: phy: micrel: Allow probing without .driver_data
+Date:   Mon, 30 May 2022 09:31:10 -0400
+Message-Id: <20220530133133.1931716-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -59,82 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Latypov <dlatypov@google.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit dbf0b0d53a2b5afa6ef7372dcedf52302669fc2c ]
+[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
 
-Consider this invocation
-$ ./tools/testing/kunit/kunit.py parse <<EOF
-  TAP version 14
-  1..2
-  ok 1 - suite
-    # Subtest: no_tests_suite
-    # catastrophic error!
-  not ok 1 - no_tests_suite
-EOF
+Currently, if the .probe element is present in the phy_driver structure
+and the .driver_data is not, a NULL pointer dereference happens.
 
-It will have a 0 exit code even though there's a "not ok".
+Allow passing .probe without .driver_data by inserting NULL checks
+for priv->type.
 
-Consider this one:
-$ ./tools/testing/kunit/kunit.py parse <<EOF
-  TAP version 14
-  1..2
-  ok 1 - suite
-  not ok 1 - no_tests_suite
-EOF
-
-It will a non-zero exit code.
-
-Why?
-We have this line in the kunit_parser.py
-> parent_test = parse_test_header(lines, test)
-where we have special handling when we see "# Subtest" and we ignore the
-explicit reported "not ok 1" status!
-
-Also, NO_TESTS at a suite-level only results in a non-zero status code
-where then there's only one suite atm.
-
-This change is the minimal one to make sure we don't overwrite it.
-
-Signed-off-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: David Gow <davidgow@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/kunit/kunit_parser.py                        | 7 +++++--
- .../test_data/test_is_test_passed-no_tests_no_plan.log     | 2 +-
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/phy/micrel.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/kunit/kunit_parser.py b/tools/testing/kunit/kunit_parser.py
-index 05ff334761dd..2f93ed1d7f99 100644
---- a/tools/testing/kunit/kunit_parser.py
-+++ b/tools/testing/kunit/kunit_parser.py
-@@ -789,8 +789,11 @@ def parse_test(lines: LineStream, expected_num: int, log: List[str]) -> Test:
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index cfb5378bbb39..f20d8c3e91bf 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -348,7 +348,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
+ 		}
+ 	}
  
- 	# Check for there being no tests
- 	if parent_test and len(subtests) == 0:
--		test.status = TestStatus.NO_TESTS
--		test.add_error('0 tests run!')
-+		# Don't override a bad status if this test had one reported.
-+		# Assumption: no subtests means CRASHED is from Test.__init__()
-+		if test.status in (TestStatus.TEST_CRASHED, TestStatus.SUCCESS):
-+			test.status = TestStatus.NO_TESTS
-+			test.add_error('0 tests run!')
+-	if (priv->led_mode >= 0)
++	if (priv->type && priv->led_mode >= 0)
+ 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
  
- 	# Add statuses to TestCounts attribute in Test object
- 	bubble_up_test_results(test)
-diff --git a/tools/testing/kunit/test_data/test_is_test_passed-no_tests_no_plan.log b/tools/testing/kunit/test_data/test_is_test_passed-no_tests_no_plan.log
-index dd873c981108..4f81876ee6f1 100644
---- a/tools/testing/kunit/test_data/test_is_test_passed-no_tests_no_plan.log
-+++ b/tools/testing/kunit/test_data/test_is_test_passed-no_tests_no_plan.log
-@@ -3,5 +3,5 @@ TAP version 14
-   # Subtest: suite
-   1..1
-     # Subtest: case
--  ok 1 - case # SKIP
-+  ok 1 - case
- ok 1 - suite
+ 	return 0;
+@@ -364,10 +364,10 @@ static int kszphy_config_init(struct phy_device *phydev)
+ 
+ 	type = priv->type;
+ 
+-	if (type->has_broadcast_disable)
++	if (type && type->has_broadcast_disable)
+ 		kszphy_broadcast_disable(phydev);
+ 
+-	if (type->has_nand_tree_disable)
++	if (type && type->has_nand_tree_disable)
+ 		kszphy_nand_tree_disable(phydev);
+ 
+ 	return kszphy_config_reset(phydev);
+@@ -1365,7 +1365,7 @@ static int kszphy_probe(struct phy_device *phydev)
+ 
+ 	priv->type = type;
+ 
+-	if (type->led_mode_reg) {
++	if (type && type->led_mode_reg) {
+ 		ret = of_property_read_u32(np, "micrel,led-mode",
+ 				&priv->led_mode);
+ 		if (ret)
+@@ -1386,7 +1386,8 @@ static int kszphy_probe(struct phy_device *phydev)
+ 		unsigned long rate = clk_get_rate(clk);
+ 		bool rmii_ref_clk_sel_25_mhz;
+ 
+-		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
++		if (type)
++			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
+ 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
+ 				"micrel,rmii-reference-clock-select-25-mhz");
+ 
 -- 
 2.35.1
 
