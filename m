@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DD0537C4B
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C1F3537C5E
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237083AbiE3NbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
+        id S237072AbiE3NbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:31:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237115AbiE3NaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:30:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70EFDBC86;
-        Mon, 30 May 2022 06:26:31 -0700 (PDT)
+        with ESMTP id S237152AbiE3NaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:30:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25BD7E002;
+        Mon, 30 May 2022 06:26:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE6060E2D;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 451DFB80D89;
+        Mon, 30 May 2022 13:26:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18BA0C3411F;
         Mon, 30 May 2022 13:26:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F57C3411C;
-        Mon, 30 May 2022 13:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917190;
-        bh=cnzevXgz+waa72ojOU4KwgyU+p6nulyrqLCnlw984fs=;
+        s=k20201202; t=1653917192;
+        bh=1rMP8kZatU4ASe70FEHQC3m9PZKnZRDIpdNd/40kEeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ng+ResfkkVGLko3kl/PtGZZJnpfidk2LUwDcTry9/UDJjg+XMMB4fdgqSTVk677Tu
-         cvaDeinZWgmQTY1ZAzy2j+umP59ifcaILkM6LcD/UbKkOxgKPCRIu0BbivgIQ+H+k5
-         /GG+Vxh/+e1ezq0z3VckZMu7XToOW/2cGXsig2glvc6d1m0wURMfI0R0ZqrY8TeG3B
-         gVx3hP9yo/sT9+X2mWLE/OIs7KHHzPUDVaz0RtkxezM65DjE/QWXemZcYw9dz4ITWy
-         kFEVVcgTCBzauSZetGpHid/t4H1zQByM6Q/U2DvNzJMa9q1LZtOuSYnt/NvQCJ+Ato
-         2fo8PO2L523qQ==
+        b=gJux4ZwpHcT8ehDUuc97DsswlrdybY1JYHcW9flPV+5qvk3B+QuwpE+b911PofYRP
+         URvzUu8OGJhDPHmQtIcvHDxYp7pw6vMP/8Akk9sJXMKyf8za1tkmPjw+rxJmVwK3fk
+         kEMER+V61g0k4QxcqQhv6N0O3Y0lq6vDeepDcy9UVQyYHpPFNLiQPGNSxVB56HRluR
+         BqK6+i7aK42bWRtkLxW6Nss2ExgWqEvqntKfe7Yj9C4ylDNIgOO0ZVVw4cOGyTlnwv
+         muH4jBHRHRx4tTpX481fYARowQVVSSRGED06ZXU1H7BasZZlluvzDDo9uc4oYSvc1+
+         KlEbH3hhaLiqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+Cc:     Luca Weiss <luca.weiss@fairphone.com>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 049/159] media: i2c: dw9714: Disable the regulator when the driver fails to probe
-Date:   Mon, 30 May 2022 09:22:34 -0400
-Message-Id: <20220530132425.1929512-49-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, linux-media@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 050/159] media: venus: hfi: avoid null dereference in deinit
+Date:   Mon, 30 May 2022 09:22:35 -0400
+Message-Id: <20220530132425.1929512-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -57,43 +59,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit 02276e18defa2fccf16413b44440277d98c2b1ea ]
+[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
 
-When the driver fails to probe, we will get the following splat:
+If venus_probe fails at pm_runtime_put_sync the error handling first
+calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
+core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
+anymore.
 
-[   59.305988] ------------[ cut here ]------------
-[   59.306417] WARNING: CPU: 2 PID: 395 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
-[   59.310345] RIP: 0010:_regulator_put+0x3ec/0x4e0
-[   59.318362] Call Trace:
-[   59.318582]  <TASK>
-[   59.318765]  regulator_put+0x1f/0x30
-[   59.319058]  devres_release_group+0x319/0x3d0
-[   59.319420]  i2c_device_probe+0x766/0x940
+Avoid this null pointer derefence by skipping the call when necessary.
 
-Fix this by disabling the regulator in error handling.
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/dw9714.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/qcom/venus/hfi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/i2c/dw9714.c b/drivers/media/i2c/dw9714.c
-index cd7008ad8f2f..8c5797ba57d4 100644
---- a/drivers/media/i2c/dw9714.c
-+++ b/drivers/media/i2c/dw9714.c
-@@ -183,6 +183,7 @@ static int dw9714_probe(struct i2c_client *client)
- 	return 0;
+diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
+index 4e2151fb47f0..1968f09ad177 100644
+--- a/drivers/media/platform/qcom/venus/hfi.c
++++ b/drivers/media/platform/qcom/venus/hfi.c
+@@ -104,6 +104,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
+ 		mutex_lock(&core->lock);
+ 	}
  
- err_cleanup:
-+	regulator_disable(dw9714_dev->vcc);
- 	v4l2_ctrl_handler_free(&dw9714_dev->ctrls_vcm);
- 	media_entity_cleanup(&dw9714_dev->sd.entity);
++	if (!core->ops)
++		goto unlock;
++
+ 	ret = core->ops->core_deinit(core);
  
+ 	if (!ret)
 -- 
 2.35.1
 
