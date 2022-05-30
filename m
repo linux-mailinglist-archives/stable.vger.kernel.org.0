@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF07537FE9
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB09537ECF
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237808AbiE3Nv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:51:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33020 "EHLO
+        id S236802AbiE3Nwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238508AbiE3NuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:50:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C2DAB0F3;
-        Mon, 30 May 2022 06:34:55 -0700 (PDT)
+        with ESMTP id S238619AbiE3Nua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:50:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A43AEE26;
+        Mon, 30 May 2022 06:35:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7632C60F2A;
-        Mon, 30 May 2022 13:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B4B1C3411E;
-        Mon, 30 May 2022 13:34:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E465B80DAE;
+        Mon, 30 May 2022 13:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 154A2C3411A;
+        Mon, 30 May 2022 13:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917694;
-        bh=6Hz5HqIYdJLRIZwRktEAYB4iRCBgmhBAZDeEbAndy0g=;
+        s=k20201202; t=1653917699;
+        bh=6Z3XCzEXjQtAZfG+nCO+8RY/1jNooV9Q2m+ygrcTIRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWYwVozCqwP4cMii/2Q+UTYPfLHrHEsgy8WwWDVYfER703fombQjkNj1aQoXPFv2Q
-         MCJMqnAD8ROU48tXse4VijYniiy2Ii5BIbVP0i7aMEGnifalgBA6C2EG/FXuVJWRqg
-         /ky/m1rPCmgf7TSGpzqg//Zq7onAnNHYgnRAwKzDhU6Vt4SPlFJ7UDgZaPOxiEe6LJ
-         boqg2syyOfM1btC1I0aVj6CLVxBfQ/0T5qgU8CFzwN/jiF52YBM4y06Ouz/DVhREmw
-         Z81oImUta9BZzMMyCdyhh5f8cE7pzrlsrirp9EHzpA61gSAI3mhqbunMf5hOZsKXQl
-         KeP9bnqc65Cpg==
+        b=aJhOZ+uPLV4KsZqx9yj7FpbA6Ll/Huv8RvLkU1yb3ua37gnFB+/Oq/i49w0jeXasa
+         swcSgTCjnBBilty90ECKP0TEvOH+UQuBW0OmdUCkpOKxszlgU+mVP6Vlf2SNGHlzNC
+         DWzE3quRlYIYDJnylxHp1Oc0aSxb4bV/eRWrZstn8UCV5/uI1hfgY+ScYuEzskX/kZ
+         YifIPcshREpFebRVc/6ZeP9fkEghBtjqGK67Fmh5YBZosDBFUdS9wsJCap1ELH2+6A
+         P6Kfg5Uk/qckSW0Sh95+7ltsViqYhx50JIPjcreXx/3GhuCZ8QgVh1bn3Tv2nyh2hE
+         5Bed1PCExU4jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@nvidia.com>,
-        Maksym Yaremchuk <maksymy@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 067/135] mlxsw: Treat LLDP packets as control
-Date:   Mon, 30 May 2022 09:30:25 -0400
-Message-Id: <20220530133133.1931716-67-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        john.clements@amd.com, candice.li@amd.com, Likun.Gao@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.17 068/135] drm/amdgpu/psp: move PSP memory alloc from hw_init to sw_init
+Date:   Mon, 30 May 2022 09:30:26 -0400
+Message-Id: <20220530133133.1931716-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -59,57 +59,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 0106668cd2f91bf913fb78972840dedfba80a3c3 ]
+[ Upstream commit b95b5391684b39695887afb4a13cccee7820f5d6 ]
 
-When trapping packets for on-CPU processing, Spectrum machines
-differentiate between control and non-control traps. Traffic trapped
-through non-control traps is treated as data and kept in shared buffer in
-pools 0-4. Traffic trapped through control traps is kept in the dedicated
-control buffer 9. The advantage of marking traps as control is that
-pressure in the data plane does not prevent the control traffic to be
-processed.
+Memory allocations should be done in sw_init.  hw_init should
+just be hardware programming needed to initialize the IP block.
+This is how most other IP blocks work.  Move the GPU memory
+allocations from psp hw_init to psp sw_init and move the memory
+free to sw_fini.  This also fixes a potential GPU memory leak
+if psp hw_init fails.
 
-When the LLDP trap was introduced, it was marked as a control trap. But
-then in commit aed4b5721143 ("mlxsw: spectrum: PTP: Hook into packet
-receive path"), PTP traps were introduced. Because Ethernet-encapsulated
-PTP packets look to the Spectrum-1 ASIC as LLDP traffic and are trapped
-under the LLDP trap, this trap was reconfigured as non-control, in sync
-with the PTP traps.
-
-There is however no requirement that PTP traffic be handled as data.
-Besides, the usual encapsulation for PTP traffic is UDP, not bare Ethernet,
-and that is in deployments that even need PTP, which is far less common
-than LLDP. This is reflected by the default policer, which was not bumped
-up to the 19Kpps / 24Kpps that is the expected load of a PTP-enabled
-Spectrum-1 switch.
-
-Marking of LLDP trap as non-control was therefore probably misguided. In
-this patch, change it back to control.
-
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 95 ++++++++++++-------------
+ 1 file changed, 47 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-index 47b061b99160..ed4d0d3448f3 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-@@ -864,7 +864,7 @@ static const struct mlxsw_sp_trap_item mlxsw_sp_trap_items_arr[] = {
- 		.trap = MLXSW_SP_TRAP_CONTROL(LLDP, LLDP, TRAP),
- 		.listeners_arr = {
- 			MLXSW_RXL(mlxsw_sp_rx_ptp_listener, LLDP, TRAP_TO_CPU,
--				  false, SP_LLDP, DISCARD),
-+				  true, SP_LLDP, DISCARD),
- 		},
- 	},
- 	{
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index dee17a0e1187..786518f7e37b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -331,7 +331,39 @@ static int psp_sw_init(void *handle)
+ 		}
+ 	}
+ 
++	ret = amdgpu_bo_create_kernel(adev, PSP_1_MEG, PSP_1_MEG,
++				      amdgpu_sriov_vf(adev) ?
++				      AMDGPU_GEM_DOMAIN_VRAM : AMDGPU_GEM_DOMAIN_GTT,
++				      &psp->fw_pri_bo,
++				      &psp->fw_pri_mc_addr,
++				      &psp->fw_pri_buf);
++	if (ret)
++		return ret;
++
++	ret = amdgpu_bo_create_kernel(adev, PSP_FENCE_BUFFER_SIZE, PAGE_SIZE,
++				      AMDGPU_GEM_DOMAIN_VRAM,
++				      &psp->fence_buf_bo,
++				      &psp->fence_buf_mc_addr,
++				      &psp->fence_buf);
++	if (ret)
++		goto failed1;
++
++	ret = amdgpu_bo_create_kernel(adev, PSP_CMD_BUFFER_SIZE, PAGE_SIZE,
++				      AMDGPU_GEM_DOMAIN_VRAM,
++				      &psp->cmd_buf_bo, &psp->cmd_buf_mc_addr,
++				      (void **)&psp->cmd_buf_mem);
++	if (ret)
++		goto failed2;
++
+ 	return 0;
++
++failed2:
++	amdgpu_bo_free_kernel(&psp->fw_pri_bo,
++			      &psp->fw_pri_mc_addr, &psp->fw_pri_buf);
++failed1:
++	amdgpu_bo_free_kernel(&psp->fence_buf_bo,
++			      &psp->fence_buf_mc_addr, &psp->fence_buf);
++	return ret;
+ }
+ 
+ static int psp_sw_fini(void *handle)
+@@ -361,6 +393,13 @@ static int psp_sw_fini(void *handle)
+ 	kfree(cmd);
+ 	cmd = NULL;
+ 
++	amdgpu_bo_free_kernel(&psp->fw_pri_bo,
++			      &psp->fw_pri_mc_addr, &psp->fw_pri_buf);
++	amdgpu_bo_free_kernel(&psp->fence_buf_bo,
++			      &psp->fence_buf_mc_addr, &psp->fence_buf);
++	amdgpu_bo_free_kernel(&psp->cmd_buf_bo, &psp->cmd_buf_mc_addr,
++			      (void **)&psp->cmd_buf_mem);
++
+ 	return 0;
+ }
+ 
+@@ -2391,51 +2430,18 @@ static int psp_load_fw(struct amdgpu_device *adev)
+ 	struct psp_context *psp = &adev->psp;
+ 
+ 	if (amdgpu_sriov_vf(adev) && amdgpu_in_reset(adev)) {
+-		psp_ring_stop(psp, PSP_RING_TYPE__KM); /* should not destroy ring, only stop */
+-		goto skip_memalloc;
+-	}
+-
+-	if (amdgpu_sriov_vf(adev)) {
+-		ret = amdgpu_bo_create_kernel(adev, PSP_1_MEG, PSP_1_MEG,
+-						AMDGPU_GEM_DOMAIN_VRAM,
+-						&psp->fw_pri_bo,
+-						&psp->fw_pri_mc_addr,
+-						&psp->fw_pri_buf);
++		/* should not destroy ring, only stop */
++		psp_ring_stop(psp, PSP_RING_TYPE__KM);
+ 	} else {
+-		ret = amdgpu_bo_create_kernel(adev, PSP_1_MEG, PSP_1_MEG,
+-						AMDGPU_GEM_DOMAIN_GTT,
+-						&psp->fw_pri_bo,
+-						&psp->fw_pri_mc_addr,
+-						&psp->fw_pri_buf);
+-	}
+-
+-	if (ret)
+-		goto failed;
+-
+-	ret = amdgpu_bo_create_kernel(adev, PSP_FENCE_BUFFER_SIZE, PAGE_SIZE,
+-					AMDGPU_GEM_DOMAIN_VRAM,
+-					&psp->fence_buf_bo,
+-					&psp->fence_buf_mc_addr,
+-					&psp->fence_buf);
+-	if (ret)
+-		goto failed;
+-
+-	ret = amdgpu_bo_create_kernel(adev, PSP_CMD_BUFFER_SIZE, PAGE_SIZE,
+-				      AMDGPU_GEM_DOMAIN_VRAM,
+-				      &psp->cmd_buf_bo, &psp->cmd_buf_mc_addr,
+-				      (void **)&psp->cmd_buf_mem);
+-	if (ret)
+-		goto failed;
++		memset(psp->fence_buf, 0, PSP_FENCE_BUFFER_SIZE);
+ 
+-	memset(psp->fence_buf, 0, PSP_FENCE_BUFFER_SIZE);
+-
+-	ret = psp_ring_init(psp, PSP_RING_TYPE__KM);
+-	if (ret) {
+-		DRM_ERROR("PSP ring init failed!\n");
+-		goto failed;
++		ret = psp_ring_init(psp, PSP_RING_TYPE__KM);
++		if (ret) {
++			DRM_ERROR("PSP ring init failed!\n");
++			goto failed;
++		}
+ 	}
+ 
+-skip_memalloc:
+ 	ret = psp_hw_start(psp);
+ 	if (ret)
+ 		goto failed;
+@@ -2553,13 +2559,6 @@ static int psp_hw_fini(void *handle)
+ 	psp_tmr_terminate(psp);
+ 	psp_ring_destroy(psp, PSP_RING_TYPE__KM);
+ 
+-	amdgpu_bo_free_kernel(&psp->fw_pri_bo,
+-			      &psp->fw_pri_mc_addr, &psp->fw_pri_buf);
+-	amdgpu_bo_free_kernel(&psp->fence_buf_bo,
+-			      &psp->fence_buf_mc_addr, &psp->fence_buf);
+-	amdgpu_bo_free_kernel(&psp->cmd_buf_bo, &psp->cmd_buf_mc_addr,
+-			      (void **)&psp->cmd_buf_mem);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
