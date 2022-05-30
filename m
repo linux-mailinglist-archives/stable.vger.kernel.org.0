@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 335CC5381DB
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0B153816D
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237650AbiE3OVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40142 "EHLO
+        id S240495AbiE3OTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241178AbiE3ORU (ORCPT
+        with ESMTP id S241176AbiE3ORU (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043761146BC;
-        Mon, 30 May 2022 06:44:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E3B1157E5;
+        Mon, 30 May 2022 06:44:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C871B80D83;
-        Mon, 30 May 2022 13:44:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 782DDC36AE5;
-        Mon, 30 May 2022 13:44:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC947B80D6B;
+        Mon, 30 May 2022 13:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C586AC3411C;
+        Mon, 30 May 2022 13:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918284;
-        bh=irNiHLPnjDX5xM02HqZO7BlPyD+MMDTayUwBSi+oCtk=;
+        s=k20201202; t=1653918285;
+        bh=u+z48SM47mESXsWhumFb6ZKzLhZAopSDcM0JtCRIbDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmiEZ/UL2yfwSm8616iKA5kxgnBTYKyCnk7QT+hgvotaV3QKdPWauGIZl3z++D6Br
-         RM+UD/P0G0RF763r+yULFmdz9j3PAZf9KxJ9Ilpjb9XeSIExJ/4JFvo97GCTrE9/IU
-         rl4ssvaF7b/mtpvjR0lmqz5qtM6u+q0vM20UEqiBD2BDxy9acuPdvAMbZ5UM/wiiPo
-         ceGJL6gdRrKoiBjxvQB/1xozCqpeW5jJJCJL6FctjEYfy9Ap8geByeJ/AslLNuSHCc
-         sJ4XUx/mFW5ALkMZ0jTMB+GjHlUs1z5MqyGvqdHa90d0Q7knig126p4LCS0iBMGDYq
-         BzRyaVGSG6VXQ==
+        b=hSjMS/OCX8GoUaDuybE0m1Voq/QxQOL56Lyk87DqGGUSu9Q0RrItkj39vv50tSHSX
+         PrQd/NqbhrKYpcOxuSE2j07X+VIbd8NQtUZ8lzALOuM3m0Z0IJzymO2h9Y9c7beE4+
+         UJtf42B/aF5LwJYU20WwLmJuFy1zR6bG03xTLDaqQkAIkKjksBufnGzmkqnT2OtB9E
+         fZIMvmMfQH8PmRT0ua9wseCH2A9BXzQDSPACwi511zFj+GpmPlGDSolkvzBP4JQFM3
+         Vso4G7HRLYKSXsXw73I1ORr9uCgzVc+cRj19X/NRt2xprskpnSeCsJlU+HF6DZ7ouy
+         uPrQz0+5G0/gA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 17/76] spi: spi-rspi: Remove setting {src,dst}_{addr,addr_width} based on DMA direction
-Date:   Mon, 30 May 2022 09:43:07 -0400
-Message-Id: <20220530134406.1934928-17-sashal@kernel.org>
+Cc:     Len Brown <len.brown@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, lenb@kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 18/76] tools/power turbostat: fix ICX DRAM power numbers
+Date:   Mon, 30 May 2022 09:43:08 -0400
+Message-Id: <20220530134406.1934928-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
@@ -58,68 +57,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit 6f381481a5b236cb53d6de2c49c6ef83a4d0f432 ]
+[ Upstream commit 6397b6418935773a34b533b3348b03f4ce3d7050 ]
 
-The direction field in the DMA config is deprecated. The rspi driver
-sets {src,dst}_{addr,addr_width} based on the DMA direction and
-it results in dmaengine_slave_config() failure as RZ DMAC driver
-validates {src,dst}_addr_width values independent of DMA direction.
+ICX (and its duplicates) require special hard-coded DRAM RAPL units,
+rather than using the generic RAPL energy units.
 
-This patch fixes the issue by passing both {src,dst}_{addr,addr_width}
-values independent of DMA direction.
-
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Suggested-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220411173115.6619-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rspi.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ tools/power/x86/turbostat/turbostat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
-index e39fd38f5180..ea03cc589e61 100644
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -1107,14 +1107,11 @@ static struct dma_chan *rspi_request_dma_chan(struct device *dev,
- 	}
- 
- 	memset(&cfg, 0, sizeof(cfg));
-+	cfg.dst_addr = port_addr + RSPI_SPDR;
-+	cfg.src_addr = port_addr + RSPI_SPDR;
-+	cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-+	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
- 	cfg.direction = dir;
--	if (dir == DMA_MEM_TO_DEV) {
--		cfg.dst_addr = port_addr;
--		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
--	} else {
--		cfg.src_addr = port_addr;
--		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
--	}
- 
- 	ret = dmaengine_slave_config(chan, &cfg);
- 	if (ret) {
-@@ -1145,12 +1142,12 @@ static int rspi_request_dma(struct device *dev, struct spi_controller *ctlr,
- 	}
- 
- 	ctlr->dma_tx = rspi_request_dma_chan(dev, DMA_MEM_TO_DEV, dma_tx_id,
--					     res->start + RSPI_SPDR);
-+					     res->start);
- 	if (!ctlr->dma_tx)
- 		return -ENODEV;
- 
- 	ctlr->dma_rx = rspi_request_dma_chan(dev, DMA_DEV_TO_MEM, dma_rx_id,
--					     res->start + RSPI_SPDR);
-+					     res->start);
- 	if (!ctlr->dma_rx) {
- 		dma_release_channel(ctlr->dma_tx);
- 		ctlr->dma_tx = NULL;
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 424ed19a9d54..ef65f7eed1ec 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4189,6 +4189,7 @@ rapl_dram_energy_units_probe(int  model, double rapl_energy_units)
+ 	case INTEL_FAM6_HASWELL_X:	/* HSX */
+ 	case INTEL_FAM6_BROADWELL_X:	/* BDX */
+ 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
++	case INTEL_FAM6_ICELAKE_X:	/* ICX */
+ 		return (rapl_dram_energy_units = 15.3 / 1000000);
+ 	default:
+ 		return (rapl_energy_units);
 -- 
 2.35.1
 
