@@ -2,152 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E92EA5384E3
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D31538505
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240188AbiE3P1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 11:27:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52508 "EHLO
+        id S238315AbiE3Pf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 11:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238904AbiE3P10 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:27:26 -0400
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B514E113B7D;
-        Mon, 30 May 2022 07:30:08 -0700 (PDT)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-f2cbceefb8so14506633fac.11;
-        Mon, 30 May 2022 07:30:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=d7xW7gHOA/Y7RTTX4uM7hk1m15c3AIRNklX4XQ0oC4U=;
-        b=OT4+PeUEJve3QGWc9WPtczXM4nxLHQsyR4uwKvRvvseWwxDhDJGxq9WEzb/G9LRVIQ
-         pejIatrMU64IqrP2nC9sTOLLPIuxDUrOSKa+9mRa9SUK1kV72Av5TQ9Xfx0yw4+PaTLj
-         /9/Gc2NpZIhW0aPJoAibqogyJNXne+7BTRNz7Haot9RCUPXOzrY+X6BrziO7bATBPJwX
-         kPr2MWrWla/O4Fo2ltaKdq0IPRcnjd3usIGtzs6hApyF9euAJnkcXCu+5CeiQBEgFwBl
-         LFX/d2ZRWMSaUzaXHmDJIzF22t76kU1g2IjgeFfKs44eSqsF1oAl8BEAFFb86S3WwnYa
-         yQvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :subject:content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=d7xW7gHOA/Y7RTTX4uM7hk1m15c3AIRNklX4XQ0oC4U=;
-        b=t4gaTmsjZfRuQ38YOUhHXlHq1si3GjJx4UaxS3JgzmM/PyOFFq0k9HxvPZv5NXDNd9
-         nD/I/zUrA+5s5j8dQi8d9apZ6WEAFJM0EhIG1pQYaSWJzeigz8xruTTEC+KNEOe/4NPf
-         KexPifLoQmn2Bh5MT4u3YIaIj6WrLjtAJuB/kZgzMXlaIHmLILK3G7iwF67QmFPfl9b0
-         zJs+FkQy3dBBqjgWsLP75nbLfqFanbY1cPbH1VQOa05DlaaGHsDqqe+wA7mpD4brOM/k
-         a1OH94lUgdlW0Z26PfTfiVZphyPDMV76FnL/yil4xK4pyM88YxK2ETwNZFHjwEQJHn4R
-         xXhw==
-X-Gm-Message-State: AOAM532DzcvsHfeQtMbCoCn51uJ1M08i5JBvIIOoLuzNaq/V1xPmMRv/
-        Jw10ee1OGwfYtdOJwPrhd3E=
-X-Google-Smtp-Source: ABdhPJxqgg/hLCoWMSbiN8n6CeKDRA9RCRTXUiZTobg7fQPkuq8MKFzwPVOQMsuIR6NT3y94lrsmGQ==
-X-Received: by 2002:a05:6870:5b8e:b0:f2:33ed:7bf2 with SMTP id em14-20020a0568705b8e00b000f233ed7bf2mr10281502oab.15.1653921006557;
-        Mon, 30 May 2022 07:30:06 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y26-20020a9d461a000000b0060603221255sm5089194ote.37.2022.05.30.07.30.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 May 2022 07:30:05 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <4be7c74e-e54a-c284-adef-7a0f1f8d21bb@roeck-us.net>
-Date:   Mon, 30 May 2022 07:30:04 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH AUTOSEL 5.18 151/159] hwmon: Make chip parameter for
- with_info API mandatory
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        with ESMTP id S242708AbiE3PfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:35:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4941F14916C;
+        Mon, 30 May 2022 07:41:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D77A860EA6;
+        Mon, 30 May 2022 14:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CCEC385B8;
+        Mon, 30 May 2022 14:41:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653921717;
+        bh=8abrn0+fyaPOA35f7xmWZpHOHqa414fCZZbKmkVupjM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pqwLJQyttHeCPer1sfDH0foSp8e/arMMnFrMmAru9XrZ6jm7g/ajrEcIvpf4/sGG8
+         j+mEfsV8h2gk7WZptLWACzxOAyIyN2p8t5LHZluCv/mpLj+mKbccprao57jsNMQgcn
+         FKnAHaVnVyGHF05wiz5jDb2dm4jpMxLWhZX4mwr8OjIXrsErRQIZobH/VG6z6E33sl
+         eSFuyCLMbqKiHRCj5NUnbmS7KTlV9tKcZqIlEKX2ldQ9IEAo8XtAivLXb7Uzn19oUF
+         7gL9/wR8KRd9D24wVXGUQLmuu7LICcpmWXyk7qDp+lD3dUMcZkhyXK1y3YoUuHEYi5
+         gurOAs1LGl21w==
+Date:   Mon, 30 May 2022 16:41:54 +0200
+From:   Mark Brown <broonie@kernel.org>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Oliver Upton <oupton@google.com>,
+        Will Deacon <will@kernel.org>, Fuad Tabba <tabba@google.com>,
+        Quentin Perret <qperret@google.com>, kernel-team@android.com,
         stable@vger.kernel.org
-Cc:     jdelvare@suse.com, corbet@lwn.net, linux-hwmon@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220530132425.1929512-1-sashal@kernel.org>
- <20220530132425.1929512-151-sashal@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20220530132425.1929512-151-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Subject: Re: [PATCH 01/18] KVM: arm64: Always start with clearing SVE flag on
+ load
+Message-ID: <YpTXsgd1MPpJEjUJ@sirena.org.uk>
+References: <20220528113829.1043361-1-maz@kernel.org>
+ <20220528113829.1043361-2-maz@kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ttQtBwibfUEMVFH9"
+Content-Disposition: inline
+In-Reply-To: <20220528113829.1043361-2-maz@kernel.org>
+X-Cookie: May your camel be as swift as the wind.
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/30/22 06:24, Sasha Levin wrote:
-> From: Guenter Roeck <linux@roeck-us.net>
-> 
-> [ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
-> 
-> Various attempts were made recently to "convert" the old
-> hwmon_device_register() API to devm_hwmon_device_register_with_info()
-> by just changing the function name without actually converting the
-> driver. Prevent this from happening by making the 'chip' parameter of
-> devm_hwmon_device_register_with_info() mandatory.
-> 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Please drop.
+--ttQtBwibfUEMVFH9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->   Documentation/hwmon/hwmon-kernel-api.rst |  2 +-
->   drivers/hwmon/hwmon.c                    | 16 +++++++---------
->   2 files changed, 8 insertions(+), 10 deletions(-)
-> 
-> diff --git a/Documentation/hwmon/hwmon-kernel-api.rst b/Documentation/hwmon/hwmon-kernel-api.rst
-> index c41eb6108103..23f27fe78e37 100644
-> --- a/Documentation/hwmon/hwmon-kernel-api.rst
-> +++ b/Documentation/hwmon/hwmon-kernel-api.rst
-> @@ -72,7 +72,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
->   to register a hardware monitoring device. It creates the standard sysfs
->   attributes in the hardware monitoring core, letting the driver focus on reading
->   from and writing to the chip instead of having to bother with sysfs attributes.
-> -The parent device parameter cannot be NULL with non-NULL chip info. Its
-> +The parent device parameter as well as the chip parameter must not be NULL. Its
->   parameters are described in more detail below.
->   
->   devm_hwmon_device_register_with_info is similar to
-> diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-> index 989e2c8496dd..187212988b6c 100644
-> --- a/drivers/hwmon/hwmon.c
-> +++ b/drivers/hwmon/hwmon.c
-> @@ -886,11 +886,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
->   
->   /**
->    * hwmon_device_register_with_info - register w/ hwmon
-> - * @dev: the parent device
-> - * @name: hwmon name attribute
-> - * @drvdata: driver data to attach to created device
-> - * @chip: pointer to hwmon chip information
-> + * @dev: the parent device (mandatory)
-> + * @name: hwmon name attribute (mandatory)
-> + * @drvdata: driver data to attach to created device (optional)
-> + * @chip: pointer to hwmon chip information (mandatory)
->    * @extra_groups: pointer to list of additional non-standard attribute groups
-> + *	(optional)
->    *
->    * hwmon_device_unregister() must be called when the device is no
->    * longer needed.
-> @@ -903,13 +904,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
->   				const struct hwmon_chip_info *chip,
->   				const struct attribute_group **extra_groups)
->   {
-> -	if (!name)
-> -		return ERR_PTR(-EINVAL);
-> -
-> -	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
-> +	if (!dev || !name || !chip)
->   		return ERR_PTR(-EINVAL);
->   
-> -	if (chip && !dev)
-> +	if (!chip->ops || !chip->ops->is_visible || !chip->info)
->   		return ERR_PTR(-EINVAL);
->   
->   	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
+On Sat, May 28, 2022 at 12:38:11PM +0100, Marc Zyngier wrote:
+> On each vcpu load, we set the KVM_ARM64_HOST_SVE_ENABLED
+> flag if SVE is enabled for EL0 on the host. This is used to restore
+> the correct state on vpcu put.
+>=20
+> However, it appears that nothing ever clears this flag. Once
+> set, it will stick until the vcpu is destroyed, which has the
+> potential to spuriously enable SVE for userspace.
 
+Oh dear.
+
+Reviewed-by: Mark Brown <broonie@kernel.org>
+
+> We probably never saw the issue because no VMM uses SVE, but
+> that's still pretty bad. Unconditionally clearing the flag
+> on vcpu load addresses the issue.
+
+Unless I'm missing something since we currently always disable
+SVE on syscall even if the VMM were using SVE for some reason
+(SVE memcpy()?) we should already have disabled SVE for EL0 in
+sve_user_discard() during kernel entry so EL0 access to SVE
+should be disabled in the system register by the time we get
+here.
+
+--ttQtBwibfUEMVFH9
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmKU17EACgkQJNaLcl1U
+h9Bxzgf/W2VmJBtB0a4vcrBCgfX7ollA3ex5VNB6egRZO8MINJrGPpI+Jv5J21sA
+1ouYS/mgLxtq0X8ACQX1wcCv4SHFzZ+fOj0D7PM85BvUxWWF4AYlyjZ9dfpx0t4X
+BQykcxau0Ep3Gj27LAkCQxvAe/X5QEuymskYptEMrIigKy2Af+LwdwJNy03Pw/M7
+BJBGRk6DKpX9GBCnNx/zVjAp3wkpW50q67c2S+A35z2VzD5Fpk7zQWtwQGCp+X/D
+/UZr74rJl6izdLI+ycIFUr41Lq95C7cl4/mHC1h4S9i9ceklOthnl1BgxOY0c/FT
+zsZnSWRL7SBHTEnNr46EjfpsiId3Cg==
+=aTTw
+-----END PGP SIGNATURE-----
+
+--ttQtBwibfUEMVFH9--
