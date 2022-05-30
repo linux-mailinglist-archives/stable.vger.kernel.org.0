@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E5F538032
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365DE537F2E
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239937AbiE3OKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
+        id S239915AbiE3OKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238886AbiE3OEx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:04:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75689994E2;
-        Mon, 30 May 2022 06:40:53 -0700 (PDT)
+        with ESMTP id S238898AbiE3OEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:04:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB60D994E6;
+        Mon, 30 May 2022 06:40:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D9F4B80DB3;
-        Mon, 30 May 2022 13:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CAEAC3411C;
-        Mon, 30 May 2022 13:40:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47B5F60F14;
+        Mon, 30 May 2022 13:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ABD3C385B8;
+        Mon, 30 May 2022 13:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918050;
-        bh=ARbzlDf1UKpKv9/GIRtOkWDmRY3goZYnA1OEOS34yEI=;
+        s=k20201202; t=1653918054;
+        bh=BGfVVxAsAf78mYgg00a1N32o3qU1TBRZu6X1C354dqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKEcj1QJUhgUDu174cnGbCE0bTXshTygOuMRjuMpaWdyKMnmBDfUACfpeZSliBALt
-         qgyjFih2jZU8ZY5LVI+HRx9LRBHvvpTriJuGR5pAaCcRkUQF2eq4gq/tZ55lCF2gLS
-         p3IF2tK4fFePr6DchbKbG1B+qv3GMMNhERnTEHA1XA28cpZRJnDmNfXT46YrUSjYZ9
-         8p0McqQ8oF2MskOzAyAcNVZBDzCJjRdvSOSSPU1n4vby2l1V38aPRoOzvoCtzvgMXY
-         fIrOPtoWGoewcqnP5qi85L9ZnC2QASyckbpByyHKUDP9XBVndKUnyrmiPia6VmMz+j
-         a+RreHJAfHIIg==
+        b=gF2Y1XsKjxjbFpszVpDZ2554HDP8It0/e+hlOp7bUSeri7gt16W/i8wrusHIZWCsk
+         YsLPOvoKdRjpUV5YyVOutlrmpU0xw0+FLk9wksOSGQxsb1B1DBkAZioYWZYkPhgAP2
+         D7Pl0Mi3VrQovp9RFd4ZDWcpNeonFChoEzdQye/DrEmglZBGNlLYG6lnDrL9zjRcIB
+         kecJIDxS8RvNwoRO9Guv9ZAELqybN7HpKZtobNbjwWOwFHKufzkakTOjdTOtZiN/Jl
+         oHk0LtkeRp8BhEc4vke+S4u/CARXwUNiFnRyvWPVaaIdCmlEHPTsWz2sS1fLJzurYP
+         kHEvS0Xtqn/Gw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hari Chandrakanthan <quic_haric@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 043/109] ath11k: disable spectral scan during spectral deinit
-Date:   Mon, 30 May 2022 09:37:19 -0400
-Message-Id: <20220530133825.1933431-43-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>, will@kernel.org,
+        maz@kernel.org, suzuki.poulose@arm.com, vladimir.murzin@arm.com,
+        james.morse@arm.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 044/109] arm64/sme: Add ID_AA64SMFR0_EL1 to __read_sysreg_by_encoding()
+Date:   Mon, 30 May 2022 09:37:20 -0400
+Message-Id: <20220530133825.1933431-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -59,102 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Chandrakanthan <quic_haric@quicinc.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 161c64de239c7018e0295e7e0520a19f00aa32dc ]
+[ Upstream commit 8a58bcd00e2e8d46afce468adc09fcd7968f514c ]
 
-When ath11k modules are removed using rmmod with spectral scan enabled,
-crash is observed. Different crash trace is observed for each crash.
+We need to explicitly enumerate all the ID registers which we rely on
+for CPU capabilities in __read_sysreg_by_encoding(), ID_AA64SMFR0_EL1 was
+missed from this list so we trip a BUG() in paths which rely on that
+function such as CPU hotplug. Add the register.
 
-Send spectral scan disable WMI command to firmware before cleaning
-the spectral dbring in the spectral_deinit API to avoid this crash.
-
-call trace from one of the crash observed:
-[ 1252.880802] Unable to handle kernel NULL pointer dereference at virtual address 00000008
-[ 1252.882722] pgd = 0f42e886
-[ 1252.890955] [00000008] *pgd=00000000
-[ 1252.893478] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-[ 1253.093035] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.89 #0
-[ 1253.115261] Hardware name: Generic DT based system
-[ 1253.121149] PC is at ath11k_spectral_process_data+0x434/0x574 [ath11k]
-[ 1253.125940] LR is at 0x88e31017
-[ 1253.132448] pc : [<7f9387b8>]    lr : [<88e31017>]    psr: a0000193
-[ 1253.135488] sp : 80d01bc8  ip : 00000001  fp : 970e0000
-[ 1253.141737] r10: 88e31000  r9 : 970ec000  r8 : 00000080
-[ 1253.146946] r7 : 94734040  r6 : a0000113  r5 : 00000057  r4 : 00000000
-[ 1253.152159] r3 : e18cb694  r2 : 00000217  r1 : 1df1f000  r0 : 00000001
-[ 1253.158755] Flags: NzCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
-[ 1253.165266] Control: 10c0383d  Table: 5e71006a  DAC: 00000055
-[ 1253.172472] Process swapper/0 (pid: 0, stack limit = 0x60870141)
-[ 1253.458055] [<7f9387b8>] (ath11k_spectral_process_data [ath11k]) from [<7f917fdc>] (ath11k_dbring_buffer_release_event+0x214/0x2e4 [ath11k])
-[ 1253.466139] [<7f917fdc>] (ath11k_dbring_buffer_release_event [ath11k]) from [<7f8ea3c4>] (ath11k_wmi_tlv_op_rx+0x1840/0x29cc [ath11k])
-[ 1253.478807] [<7f8ea3c4>] (ath11k_wmi_tlv_op_rx [ath11k]) from [<7f8fe868>] (ath11k_htc_rx_completion_handler+0x180/0x4e0 [ath11k])
-[ 1253.490699] [<7f8fe868>] (ath11k_htc_rx_completion_handler [ath11k]) from [<7f91308c>] (ath11k_ce_per_engine_service+0x2c4/0x3b4 [ath11k])
-[ 1253.502386] [<7f91308c>] (ath11k_ce_per_engine_service [ath11k]) from [<7f9a4198>] (ath11k_pci_ce_tasklet+0x28/0x80 [ath11k_pci])
-[ 1253.514811] [<7f9a4198>] (ath11k_pci_ce_tasklet [ath11k_pci]) from [<8032227c>] (tasklet_action_common.constprop.2+0x64/0xe8)
-[ 1253.526476] [<8032227c>] (tasklet_action_common.constprop.2) from [<803021e8>] (__do_softirq+0x130/0x2d0)
-[ 1253.537756] [<803021e8>] (__do_softirq) from [<80322610>] (irq_exit+0xcc/0xe8)
-[ 1253.547304] [<80322610>] (irq_exit) from [<8036a4a4>] (__handle_domain_irq+0x60/0xb4)
-[ 1253.554428] [<8036a4a4>] (__handle_domain_irq) from [<805eb348>] (gic_handle_irq+0x4c/0x90)
-[ 1253.562321] [<805eb348>] (gic_handle_irq) from [<80301a78>] (__irq_svc+0x58/0x8c)
-
-Tested-on: QCN6122 hw1.0 AHB WLAN.HK.2.6.0.1-00851-QCAHKSWPL_SILICONZ-1
-
-Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/1649396345-349-1-git-send-email-quic_haric@quicinc.com
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220427130828.162615-1-broonie@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/spectral.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ arch/arm64/kernel/cpufeature.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/spectral.c b/drivers/net/wireless/ath/ath11k/spectral.c
-index 1afe67759659..e5af9358e610 100644
---- a/drivers/net/wireless/ath/ath11k/spectral.c
-+++ b/drivers/net/wireless/ath/ath11k/spectral.c
-@@ -214,7 +214,10 @@ static int ath11k_spectral_scan_config(struct ath11k *ar,
- 		return -ENODEV;
- 
- 	arvif->spectral_enabled = (mode != ATH11K_SPECTRAL_DISABLED);
-+
-+	spin_lock_bh(&ar->spectral.lock);
- 	ar->spectral.mode = mode;
-+	spin_unlock_bh(&ar->spectral.lock);
- 
- 	ret = ath11k_wmi_vdev_spectral_enable(ar, arvif->vdev_id,
- 					      ATH11K_WMI_SPECTRAL_TRIGGER_CMD_CLEAR,
-@@ -829,9 +832,6 @@ static inline void ath11k_spectral_ring_free(struct ath11k *ar)
- {
- 	struct ath11k_spectral *sp = &ar->spectral;
- 
--	if (!sp->enabled)
--		return;
--
- 	ath11k_dbring_srng_cleanup(ar, &sp->rx_ring);
- 	ath11k_dbring_buf_cleanup(ar, &sp->rx_ring);
- }
-@@ -883,15 +883,16 @@ void ath11k_spectral_deinit(struct ath11k_base *ab)
- 		if (!sp->enabled)
- 			continue;
- 
--		ath11k_spectral_debug_unregister(ar);
--		ath11k_spectral_ring_free(ar);
-+		mutex_lock(&ar->conf_mutex);
-+		ath11k_spectral_scan_config(ar, ATH11K_SPECTRAL_DISABLED);
-+		mutex_unlock(&ar->conf_mutex);
- 
- 		spin_lock_bh(&sp->lock);
--
--		sp->mode = ATH11K_SPECTRAL_DISABLED;
- 		sp->enabled = false;
--
- 		spin_unlock_bh(&sp->lock);
-+
-+		ath11k_spectral_debug_unregister(ar);
-+		ath11k_spectral_ring_free(ar);
- 	}
- }
- 
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index e71c9cfb46e8..ca417167675a 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1281,6 +1281,7 @@ u64 __read_sysreg_by_encoding(u32 sys_id)
+ 	read_sysreg_case(SYS_ID_AA64PFR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64PFR1_EL1);
+ 	read_sysreg_case(SYS_ID_AA64ZFR0_EL1);
++	read_sysreg_case(SYS_ID_AA64SMFR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64DFR0_EL1);
+ 	read_sysreg_case(SYS_ID_AA64DFR1_EL1);
+ 	read_sysreg_case(SYS_ID_AA64MMFR0_EL1);
 -- 
 2.35.1
 
