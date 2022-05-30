@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C23B537FDF
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64C00538066
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237660AbiE3Nrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:47:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45558 "EHLO
+        id S238309AbiE3Nsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238345AbiE3NpS (ORCPT
+        with ESMTP id S238343AbiE3NpS (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:45:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472AB8FD61;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4BC8FD5F;
         Mon, 30 May 2022 06:32:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 019E5B80DB6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF3F060F22;
         Mon, 30 May 2022 13:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE5DC36AEA;
-        Mon, 30 May 2022 13:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E880C3411E;
+        Mon, 30 May 2022 13:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917566;
-        bh=RBHz7ZF803gdhje7BfbRLZ/t4QWWO44yiiVcusiMfKc=;
+        s=k20201202; t=1653917568;
+        bh=Y5TfIR57pQIvdobT2yvCU/JqS/K7zygsgLVkFeCYq5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQOVAByj7i2yYGqlIgmMr2uMzOf5UYFZIUyV2zdjXXWMpuX2MJhyOmcp4gxjt7xaI
-         TzGTC4TUIUWDmZB9n6yFwOzH0X9xLyEmNGToFI2qNCnVN8VZd4YhuRrlHv4hA3H5oD
-         ELyfXcrScrIIY54G3K03FzmEekemPDoFBA09BxeLkWwoI7IdZXEClnGpE8fPcpf3iK
-         y08wagPCAFNkmHyBu9agpkiuk6o54i+IrKVZCsMtFQqjXfyaymI4BDK6vk1dFSRjsJ
-         lTbwzFMZ8xUzcugY/r/f4Mmv/ipuVc0yrtcO2K3HvNnqvENFj1j3cNZxr+QxXT+nPu
-         LCtvSjVK1j0Zg==
+        b=uuL7CXILodRAPhOzCLcNKxkqlpp7HtqzXYv7Mwo0jIiJ1jyFkN6xrJSdFPkVm+GZd
+         F7ac8JXbpdKAgwHoZy7evp6TdH+DRYp5nGgPlwPgD2DXwFECyv8m0M8TwC9LXrYkVD
+         Gc2/Y31mBkceFZ3aPcwEVLBJLSQbNheoXfGIt8yzX+57xY3skosfsyZXp+zGix489W
+         Tioa181hZnc1oO0qsDZtl/LEWIwisyTshk6o8Z+mpIsLSwyzk/59QX0WexV0OQFSHH
+         zyOjoQCZrWWroBiloR1tE4xbSNDz1s6bKfgSlZDtYLy7Qu6ZgYISMSyfq82zbw8jWo
+         DwfqpwOWGvrCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Len Brown <len.brown@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, lenb@kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 028/135] tools/power turbostat: fix ICX DRAM power numbers
-Date:   Mon, 30 May 2022 09:29:46 -0400
-Message-Id: <20220530133133.1931716-28-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
+        dsahern@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 029/135] tcp: consume incoming skb leading to a reset
+Date:   Mon, 30 May 2022 09:29:47 -0400
+Message-Id: <20220530133133.1931716-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -57,32 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6397b6418935773a34b533b3348b03f4ce3d7050 ]
+[ Upstream commit d9d024f96609016628d750ebc8ee4a6f0d80e6e1 ]
 
-ICX (and its duplicates) require special hard-coded DRAM RAPL units,
-rather than using the generic RAPL energy units.
+Whenever tcp_validate_incoming() handles a valid RST packet,
+we should not pretend the packet was dropped.
 
-Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Len Brown <len.brown@intel.com>
+Create a special section at the end of tcp_validate_incoming()
+to handle this case.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_input.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 47d3ba895d6d..4f176bbf29f4 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4376,6 +4376,7 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
- 	case INTEL_FAM6_BROADWELL_X:	/* BDX */
- 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
- 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
-+	case INTEL_FAM6_ICELAKE_X:	/* ICX */
- 		return (rapl_dram_energy_units = 15.3 / 1000000);
- 	default:
- 		return (rapl_energy_units);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 7bf84ce34d9e..96c25c97ee56 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5694,7 +5694,7 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
+ 						  &tp->last_oow_ack_time))
+ 				tcp_send_dupack(sk, skb);
+ 		} else if (tcp_reset_check(sk, skb)) {
+-			tcp_reset(sk, skb);
++			goto reset;
+ 		}
+ 		goto discard;
+ 	}
+@@ -5730,17 +5730,16 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
+ 		}
+ 
+ 		if (rst_seq_match)
+-			tcp_reset(sk, skb);
+-		else {
+-			/* Disable TFO if RST is out-of-order
+-			 * and no data has been received
+-			 * for current active TFO socket
+-			 */
+-			if (tp->syn_fastopen && !tp->data_segs_in &&
+-			    sk->sk_state == TCP_ESTABLISHED)
+-				tcp_fastopen_active_disable(sk);
+-			tcp_send_challenge_ack(sk);
+-		}
++			goto reset;
++
++		/* Disable TFO if RST is out-of-order
++		 * and no data has been received
++		 * for current active TFO socket
++		 */
++		if (tp->syn_fastopen && !tp->data_segs_in &&
++		    sk->sk_state == TCP_ESTABLISHED)
++			tcp_fastopen_active_disable(sk);
++		tcp_send_challenge_ack(sk);
+ 		goto discard;
+ 	}
+ 
+@@ -5765,6 +5764,11 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
+ discard:
+ 	tcp_drop(sk, skb);
+ 	return false;
++
++reset:
++	tcp_reset(sk, skb);
++	__kfree_skb(skb);
++	return false;
+ }
+ 
+ /*
 -- 
 2.35.1
 
