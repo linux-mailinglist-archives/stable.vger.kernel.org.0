@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE291537CDD
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B1D9537CE3
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237567AbiE3Ni0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:38:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56410 "EHLO
+        id S237671AbiE3Ni3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:38:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237609AbiE3NhK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:37:10 -0400
+        with ESMTP id S237499AbiE3NhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:37:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E03B85EEA;
-        Mon, 30 May 2022 06:31:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E6FDFEF;
+        Mon, 30 May 2022 06:31:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F8E860F14;
-        Mon, 30 May 2022 13:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EC6C341C5;
-        Mon, 30 May 2022 13:30:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59B8B60F17;
+        Mon, 30 May 2022 13:31:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99250C385B8;
+        Mon, 30 May 2022 13:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917459;
-        bh=jfjiiczskkWIPFRnJUOUCmc+nJhtQvnuC1XUvP8+RYg=;
+        s=k20201202; t=1653917462;
+        bh=7I9wkZ18VKMSfMj34etzh1NGc6dewEvPDbaS8IEmtrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uE0SBNbqUuOz4iH1mj1vF+l2H3W88LxaU7oUmt1sAgZLw1HGXZhw3km/6JYoKW4Zg
-         zkrZILcnrkD68ZTIbcR4h3BZSx7FFlth4LaWBXLIRSpx3vbyexm/k0LoQfkg5cyr7Z
-         8hYTz4011i26H1x9QK9FyhI6hwTIxLBUxR0+0InpmT4AwkVd5ha8KBqmB58bgDUvFI
-         ToFxQ/IQ73uq2U7oytltwaSuOGVXUEAgtMokKiCmPMbsLeHwbtlgl3BK3E9TSDaBRr
-         GVsgfb9AU8FDhKmPksZCFulg0Xzm/fln93LF625H1KnK2FATr8X9aa09vZXZT6NDXl
-         YysMAQQyz0fnA==
+        b=YrAnf0Cgp2j2dXz14PykUL5Az9d27Axgiv4qIX0yOnm/gc3jH+V0+55AC18Yh4udv
+         9DEX1ElpM/H8mhcWt2HVfBl3ImS05c9jCad6No4tkoX6lYUFEbnNJsZDA/o5o/gNjO
+         BFPrvwSMrizkN6udlEAhgKytqNldfj/Gs9G5LlDlFMsYy+JIwxovuZD46lUB/5pzP7
+         wk0itTu9Ftvpoo0z3XrnmC0+2o/N/FQgXrVThJjunlJq2STl2h/5TDbBZxO1gEQ1gS
+         2i2Kdk5AdmzVuIHIw2Mn8XfsLuisr+IpBjnO/HeTb6Rg+ZEnflpALPN1miF3a67KXh
+         DM7EPV2FyNpdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Elder <elder@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, elder@kernel.org,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 146/159] net: ipa: ignore endianness if there is no header
-Date:   Mon, 30 May 2022 09:24:11 -0400
-Message-Id: <20220530132425.1929512-146-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linus.walleij@linaro.org, nico@fluxnic.net, keithpac@amazon.com,
+        arnd@arndb.de, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 147/159] ARM: 9201/1: spectre-bhb: rely on linker to emit cross-section literal loads
+Date:   Mon, 30 May 2022 09:24:12 -0400
+Message-Id: <20220530132425.1929512-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -58,81 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 332ef7c814bdd60f08d0d9013d0e1104798b2d23 ]
+[ Upstream commit ad12c2f1587c6ec9b52ff226f438955bfae6ad89 ]
 
-If we program an RX endpoint to have no header (header length is 0),
-header-related endpoint configuration values are meaningless and are
-ignored.
+The assembler does not permit 'LDR PC, <sym>' when the symbol lives in a
+different section, which is why we have been relying on rather fragile
+open-coded arithmetic to load the address of the vector_swi routine into
+the program counter using a single LDR instruction in the SWI slot in
+the vector table. The literal was moved to a different section to in
+commit 19accfd373847 ("ARM: move vector stubs") to ensure that the
+vector stubs page does not need to be mapped readable for user space,
+which is the case for the vector page itself, as it carries the kuser
+helpers as well.
 
-The only case we support that defines a header is QMAP endpoints.
-In ipa_endpoint_init_hdr_ext() we set the endianness mask value
-unconditionally, but it should not be done if there is no header
-(meaning it is not configured for QMAP).
+So the cross-section literal load is open-coded, and this relies on the
+address of vector_swi to be at the very start of the vector stubs page,
+and we won't notice if we got it wrong until booting the kernel and see
+it break. Fortunately, it was guaranteed to break, so this was fragile
+but not problematic.
 
-Set the endianness conditionally, and rearrange the logic in that
-function slightly to avoid testing the qmap flag twice.
+Now that we have added two other variants of the vector table, we have 3
+occurrences of the same trick, and so the size of our ISA/compiler/CPU
+validation space has tripled, in a way that may cause regressions to only
+be observed once booting the image in question on a CPU that exercises a
+particular vector table.
 
-Delete an incorrect comment in ipa_endpoint_init_aggr().
+So let's switch to true cross section references, and let the linker fix
+them up like it fixes up all the other cross section references in the
+vector page.
 
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_endpoint.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ arch/arm/kernel/entry-armv.S | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
-index cea7b2e2ce96..33be251c1e5c 100644
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -586,19 +586,23 @@ static void ipa_endpoint_init_hdr_ext(struct ipa_endpoint *endpoint)
- 	struct ipa *ipa = endpoint->ipa;
- 	u32 val = 0;
+diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
+index 7a8682468a84..f181af18a904 100644
+--- a/arch/arm/kernel/entry-armv.S
++++ b/arch/arm/kernel/entry-armv.S
+@@ -1176,10 +1176,15 @@ ENDPROC(vector_bhb_bpiall_\name)
+ 	.endm
  
--	val |= HDR_ENDIANNESS_FMASK;		/* big endian */
--
--	/* A QMAP header contains a 6 bit pad field at offset 0.  The RMNet
--	 * driver assumes this field is meaningful in packets it receives,
--	 * and assumes the header's payload length includes that padding.
--	 * The RMNet driver does *not* pad packets it sends, however, so
--	 * the pad field (although 0) should be ignored.
--	 */
--	if (endpoint->data->qmap && !endpoint->toward_ipa) {
--		val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
--		/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
--		val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
--		/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
-+	if (endpoint->data->qmap) {
-+		/* We have a header, so we must specify its endianness */
-+		val |= HDR_ENDIANNESS_FMASK;	/* big endian */
-+
-+		/* A QMAP header contains a 6 bit pad field at offset 0.
-+		 * The RMNet driver assumes this field is meaningful in
-+		 * packets it receives, and assumes the header's payload
-+		 * length includes that padding.  The RMNet driver does
-+		 * *not* pad packets it sends, however, so the pad field
-+		 * (although 0) should be ignored.
-+		 */
-+		if (!endpoint->toward_ipa) {
-+			val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
-+			/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
-+			val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
-+			/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
-+		}
- 	}
+ 	.section .stubs, "ax", %progbits
+-	@ This must be the first word
++	@ These need to remain at the start of the section so that
++	@ they are in range of the 'SWI' entries in the vector tables
++	@ located 4k down.
++.L__vector_swi:
+ 	.word	vector_swi
+ #ifdef CONFIG_HARDEN_BRANCH_HISTORY
++.L__vector_bhb_loop8_swi:
+ 	.word	vector_bhb_loop8_swi
++.L__vector_bhb_bpiall_swi:
+ 	.word	vector_bhb_bpiall_swi
+ #endif
  
- 	/* HDR_PAYLOAD_LEN_INC_PADDING is 0 */
-@@ -756,8 +760,6 @@ static void ipa_endpoint_init_aggr(struct ipa_endpoint *endpoint)
+@@ -1322,10 +1327,11 @@ vector_addrexcptn:
+ 	.globl	vector_fiq
  
- 			close_eof = rx_data->aggr_close_eof;
- 			val |= aggr_sw_eof_active_encoded(version, close_eof);
--
--			/* AGGR_HARD_BYTE_LIMIT_ENABLE is 0 */
- 		} else {
- 			val |= u32_encode_bits(IPA_ENABLE_DEAGGR,
- 					       AGGR_EN_FMASK);
+ 	.section .vectors, "ax", %progbits
+-.L__vectors_start:
+ 	W(b)	vector_rst
+ 	W(b)	vector_und
+-	W(ldr)	pc, .L__vectors_start + 0x1000
++ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_swi		)
++THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_swi		)
++	W(ldr)	pc, .
+ 	W(b)	vector_pabt
+ 	W(b)	vector_dabt
+ 	W(b)	vector_addrexcptn
+@@ -1334,10 +1340,11 @@ vector_addrexcptn:
+ 
+ #ifdef CONFIG_HARDEN_BRANCH_HISTORY
+ 	.section .vectors.bhb.loop8, "ax", %progbits
+-.L__vectors_bhb_loop8_start:
+ 	W(b)	vector_rst
+ 	W(b)	vector_bhb_loop8_und
+-	W(ldr)	pc, .L__vectors_bhb_loop8_start + 0x1004
++ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_loop8_swi	)
++THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_loop8_swi	)
++	W(ldr)	pc, .
+ 	W(b)	vector_bhb_loop8_pabt
+ 	W(b)	vector_bhb_loop8_dabt
+ 	W(b)	vector_addrexcptn
+@@ -1345,10 +1352,11 @@ vector_addrexcptn:
+ 	W(b)	vector_bhb_loop8_fiq
+ 
+ 	.section .vectors.bhb.bpiall, "ax", %progbits
+-.L__vectors_bhb_bpiall_start:
+ 	W(b)	vector_rst
+ 	W(b)	vector_bhb_bpiall_und
+-	W(ldr)	pc, .L__vectors_bhb_bpiall_start + 0x1008
++ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_bpiall_swi	)
++THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_bpiall_swi	)
++	W(ldr)	pc, .
+ 	W(b)	vector_bhb_bpiall_pabt
+ 	W(b)	vector_bhb_bpiall_dabt
+ 	W(b)	vector_addrexcptn
 -- 
 2.35.1
 
