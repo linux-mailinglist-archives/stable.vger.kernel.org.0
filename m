@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F98537F0D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26FC7538022
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235347AbiE3Nsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:48:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
+        id S238179AbiE3NsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:48:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238311AbiE3NpQ (ORCPT
+        with ESMTP id S238320AbiE3NpQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:45:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4609CCBC;
-        Mon, 30 May 2022 06:32:43 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B9B28FD46;
+        Mon, 30 May 2022 06:32:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E603B80DAE;
-        Mon, 30 May 2022 13:32:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D8D1C36AE3;
-        Mon, 30 May 2022 13:32:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6003260F6B;
+        Mon, 30 May 2022 13:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE2BC3411A;
+        Mon, 30 May 2022 13:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917559;
-        bh=GTHiEG6Fbnv6d3nL/QXh9DsjWVX96eO95njhrpvwukM=;
+        s=k20201202; t=1653917561;
+        bh=I+5VL4h4/uUKIFvLHkwrzyV1ZwSfo2lBjc7LZAxD4nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovFrWFhr01hgIvRzzHQBt8CZ4UMacUppVNni0+MsljjhgoOSg2SChG1ofc6WUcDNA
-         rCpg+y9r+PT/RJFT8DE+dygbKoIaTyv5PsSF2L8VRhqCd8JO5fb/uQICB5PjWDOrn4
-         WYJAKmB8BNhyY3txgwDmvVdCKK1KSL05uluzgOBydM/X53IJGaxyQtrop5y40DH7bm
-         c34OzHx0KME/gZag46q626SjBJMQfbAf3RUKBxbxg6vJIlpW18xOYSwl9vzKtyANKG
-         JBGGM4MOZk651ZCUV0j7Ov6QExKrpM3AQ7c+khm1TOBt3wBkUCBiHcB423yIFmAaUZ
-         7oNoXFImHmKkw==
+        b=apwZy7wbVNmh2G3J4nlPDdRAROlgMriMnFA6nMJukGUAxRnbIYpGRk0DA4VySEXEY
+         OeJ/ZWIGO4lFCkbRDpCI1Y4NBiGnvGABhUsD9d73V/dBYnDX6PO0IOUS4Uv2qOLS4N
+         OLoiC679hZNUSzHCuQUKn1ptCpqqLJA2AFH1tP3c0Hn6+lqXSQs8N5WhE5mjGqPrC+
+         IWofDyUZu37mNAOMwvonHBom9zeVSJpFoglV1WlST0wWr5SHzZ0yDOO6FDoP47vGtX
+         eIszlgQsRUTIlUeNUqN13YRGWC5h3a+ai+7GVoMYB09EcHDv3gjIaCJhu7T6cedqLd
+         Eej3qQBSeSymA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, xkernel.wang@foxmail.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 024/135] ALSA: jack: Access input_dev under mutex
-Date:   Mon, 30 May 2022 09:29:42 -0400
-Message-Id: <20220530133133.1931716-24-sashal@kernel.org>
+Cc:     Po-Hao Huang <phhuang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tony0620emma@gmail.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 025/135] rtw88: fix incorrect frequency reported
+Date:   Mon, 30 May 2022 09:29:43 -0400
+Message-Id: <20220530133133.1931716-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,152 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Po-Hao Huang <phhuang@realtek.com>
 
-[ Upstream commit 1b6a6fc5280e97559287b61eade2d4b363e836f2 ]
+[ Upstream commit 6723c0cde84fde582a261c186ce84100dcfa0019 ]
 
-It is possible when using ASoC that input_dev is unregistered while
-calling snd_jack_report, which causes NULL pointer dereference.
-In order to prevent this serialize access to input_dev using mutex lock.
+We should only fill in frequency reported by firmware during scan.
+Add this so frames won't be dropped by mac80211 due to frequency
+mismatch.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20220412091628.3056922-1-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220407095858.46807-3-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/jack.h |  1 +
- sound/core/jack.c    | 34 +++++++++++++++++++++++++++-------
- 2 files changed, 28 insertions(+), 7 deletions(-)
+ drivers/net/wireless/realtek/rtw88/rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/sound/jack.h b/include/sound/jack.h
-index 1181f536557e..1ed90e2109e9 100644
---- a/include/sound/jack.h
-+++ b/include/sound/jack.h
-@@ -62,6 +62,7 @@ struct snd_jack {
- 	const char *id;
- #ifdef CONFIG_SND_JACK_INPUT_DEV
- 	struct input_dev *input_dev;
-+	struct mutex input_dev_lock;
- 	int registered;
- 	int type;
- 	char name[100];
-diff --git a/sound/core/jack.c b/sound/core/jack.c
-index d1e3055f2b6a..88493cc31914 100644
---- a/sound/core/jack.c
-+++ b/sound/core/jack.c
-@@ -42,8 +42,11 @@ static int snd_jack_dev_disconnect(struct snd_device *device)
- #ifdef CONFIG_SND_JACK_INPUT_DEV
- 	struct snd_jack *jack = device->device_data;
- 
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return 0;
-+	}
- 
- 	/* If the input device is registered with the input subsystem
- 	 * then we need to use a different deallocator. */
-@@ -52,6 +55,7 @@ static int snd_jack_dev_disconnect(struct snd_device *device)
- 	else
- 		input_free_device(jack->input_dev);
- 	jack->input_dev = NULL;
-+	mutex_unlock(&jack->input_dev_lock);
- #endif /* CONFIG_SND_JACK_INPUT_DEV */
- 	return 0;
- }
-@@ -90,8 +94,11 @@ static int snd_jack_dev_register(struct snd_device *device)
- 	snprintf(jack->name, sizeof(jack->name), "%s %s",
- 		 card->shortname, jack->id);
- 
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return 0;
-+	}
- 
- 	jack->input_dev->name = jack->name;
- 
-@@ -116,6 +123,7 @@ static int snd_jack_dev_register(struct snd_device *device)
- 	if (err == 0)
- 		jack->registered = 1;
- 
-+	mutex_unlock(&jack->input_dev_lock);
- 	return err;
- }
- #endif /* CONFIG_SND_JACK_INPUT_DEV */
-@@ -517,9 +525,11 @@ int snd_jack_new(struct snd_card *card, const char *id, int type,
- 		return -ENOMEM;
- 	}
- 
--	/* don't creat input device for phantom jack */
--	if (!phantom_jack) {
- #ifdef CONFIG_SND_JACK_INPUT_DEV
-+	mutex_init(&jack->input_dev_lock);
-+
-+	/* don't create input device for phantom jack */
-+	if (!phantom_jack) {
- 		int i;
- 
- 		jack->input_dev = input_allocate_device();
-@@ -537,8 +547,8 @@ int snd_jack_new(struct snd_card *card, const char *id, int type,
- 				input_set_capability(jack->input_dev, EV_SW,
- 						     jack_switch_types[i]);
- 
--#endif /* CONFIG_SND_JACK_INPUT_DEV */
- 	}
-+#endif /* CONFIG_SND_JACK_INPUT_DEV */
- 
- 	err = snd_device_new(card, SNDRV_DEV_JACK, jack, &ops);
- 	if (err < 0)
-@@ -578,10 +588,14 @@ EXPORT_SYMBOL(snd_jack_new);
- void snd_jack_set_parent(struct snd_jack *jack, struct device *parent)
- {
- 	WARN_ON(jack->registered);
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return;
-+	}
- 
- 	jack->input_dev->dev.parent = parent;
-+	mutex_unlock(&jack->input_dev_lock);
- }
- EXPORT_SYMBOL(snd_jack_set_parent);
- 
-@@ -629,6 +643,8 @@ EXPORT_SYMBOL(snd_jack_set_key);
- 
- /**
-  * snd_jack_report - Report the current status of a jack
-+ * Note: This function uses mutexes and should be called from a
-+ * context which can sleep (such as a workqueue).
-  *
-  * @jack:   The jack to report status for
-  * @status: The current status of the jack
-@@ -654,8 +670,11 @@ void snd_jack_report(struct snd_jack *jack, int status)
- 					     status & jack_kctl->mask_bits);
- 
- #ifdef CONFIG_SND_JACK_INPUT_DEV
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return;
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(jack->key); i++) {
- 		int testbit = ((SND_JACK_BTN_0 >> i) & ~mask_bits);
-@@ -675,6 +694,7 @@ void snd_jack_report(struct snd_jack *jack, int status)
- 	}
- 
- 	input_sync(jack->input_dev);
-+	mutex_unlock(&jack->input_dev_lock);
- #endif /* CONFIG_SND_JACK_INPUT_DEV */
- }
- EXPORT_SYMBOL(snd_jack_report);
+diff --git a/drivers/net/wireless/realtek/rtw88/rx.c b/drivers/net/wireless/realtek/rtw88/rx.c
+index d2d607e22198..84aedabdf285 100644
+--- a/drivers/net/wireless/realtek/rtw88/rx.c
++++ b/drivers/net/wireless/realtek/rtw88/rx.c
+@@ -158,7 +158,8 @@ void rtw_rx_fill_rx_status(struct rtw_dev *rtwdev,
+ 	memset(rx_status, 0, sizeof(*rx_status));
+ 	rx_status->freq = hw->conf.chandef.chan->center_freq;
+ 	rx_status->band = hw->conf.chandef.chan->band;
+-	if (rtw_fw_feature_check(&rtwdev->fw, FW_FEATURE_SCAN_OFFLOAD))
++	if (rtw_fw_feature_check(&rtwdev->fw, FW_FEATURE_SCAN_OFFLOAD) &&
++	    test_bit(RTW_FLAG_SCANNING, rtwdev->flags))
+ 		rtw_set_rx_freq_by_pktstat(pkt_stat, rx_status);
+ 	if (pkt_stat->crc_err)
+ 		rx_status->flag |= RX_FLAG_FAILED_FCS_CRC;
 -- 
 2.35.1
 
