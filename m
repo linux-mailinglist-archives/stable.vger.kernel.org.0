@@ -2,70 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9415384F2
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E065384DE
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236530AbiE3PbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 11:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
+        id S239533AbiE3P1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 11:27:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240922AbiE3P0k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:26:40 -0400
-Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDB71D870C;
-        Mon, 30 May 2022 07:29:20 -0700 (PDT)
-Received: by mail-ot1-x330.google.com with SMTP id h9-20020a056830400900b0060b03bfe792so7752182ots.12;
-        Mon, 30 May 2022 07:29:20 -0700 (PDT)
+        with ESMTP id S241543AbiE3P1A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:27:00 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606601DA08F;
+        Mon, 30 May 2022 07:29:39 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-e93bbb54f9so14489713fac.12;
+        Mon, 30 May 2022 07:29:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=sender:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=6SRs6BADyrsPSpT6/zp75/O1zXuT6qo/GVIivSdlPrk=;
-        b=HC1pdH4T3wmwccr0NaLhryGOq2t3yr0Prb7zlh5qycWi1XrAJ/DzMOuHYkwKtjjzS1
-         PnGf65umOlfcYq9KxHdTEnplYc4VWf36xXgKLFYLQNQyv++3eRRbfzGhxtqzqgD+2Fll
-         aNvmtDrFh5YAsaJ0m9gbpSiCTZCTVR2/GBbGNBOoViNitHgDpstNF77/YWwjRckgbosg
-         r6aSuzgCRd+djVxzWbr6b1B2wLIhLouHXzjIH5Zs9D8LZBbgkpkFh7HYBOdDXHkwoYWc
-         GD3DioaBfuOb1SaiEnuNtQv/27SYVvp1hiwvQ/I1xf3WsouQFJys14Nd/M9egUUfAhVW
-         IppA==
+        bh=Ek1zhecwOf7J3Spdw9zlYjdJXq9BwxbOrVFP+eor5pw=;
+        b=QKxobhHKedlsvzz4b6NO450+GC/pVOjg0raSYbvShshZ/7yJlud0RVH3sk5dBP6R20
+         KbAvFj5lL42vZoP3B9RU1MehIaADneJeVvcJ3Tyrs4uLbab0UXC+GbLfdWmAuo68p+iB
+         i8EcLcdFwuMh1KliSMT4aSIDjjDwczmArj/tILL7ZMuxdIPTSRFphnwpVQxKVF0KQ4Bx
+         4niSKF+91xwMBv3IBsh87ZodCBCE0Yv9M2Bvy/QfAY4QjP8nBvgiWv+eGg1HqpGL0IOi
+         Cet1Zurlb/5pB80qbbRqGIoohk0/NSRFdedt5+ezVVDyg+6OZxbKBl6k8hNwWpGACWJm
+         AlSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
          :subject:content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=6SRs6BADyrsPSpT6/zp75/O1zXuT6qo/GVIivSdlPrk=;
-        b=HgaHC6SpPvNvv0TPvHCimfFldS45icXkidEbt9kotPCnTc7PQ2iX+cd1dR6psf2Fbk
-         9JpRbF+LjVLz/5ksnSF5gXPT9OXEOe75Hevtxt8Lm+NUmmi016OR/tKMg6/Y7hFqYBeb
-         XIDWtolhu7YFqH6ZdNQK2JZcNAi024dNZnTWNDKxHZ8hHnMrxa2zPplgJr4flsFzN9nt
-         WIJxMZEiZtBnGmup5sQClurqhHTe2D6gD+HxVxIAT6romYxDmlbrqV4kDntuX5a71Dkr
-         zylgQ9jLTXf1InAkSNFE7wrAxyFnJ0m1ljU/OXq8cc3sk3dlzuBbGEHJDDmEUY3UNlZE
-         oZMg==
-X-Gm-Message-State: AOAM531ltvTLrKAeMDw8SMgBi2t5NoA8k1gX5sNeydH44xdcjOGqpp5N
-        e3447yMXQycueJCu3huwXSCdwpHenpw=
-X-Google-Smtp-Source: ABdhPJzNQW57aCQ9vm4kBdmiJZM6Jwr8g61/hPF9I2F5N4DPTRB3ZZy5swfMxF0tVMVbs9+Sr/rm9A==
-X-Received: by 2002:a9d:410e:0:b0:60b:875:7ec3 with SMTP id o14-20020a9d410e000000b0060b08757ec3mr16528218ote.181.1653920957825;
-        Mon, 30 May 2022 07:29:17 -0700 (PDT)
+        bh=Ek1zhecwOf7J3Spdw9zlYjdJXq9BwxbOrVFP+eor5pw=;
+        b=PqVUgQMSWWvBWqdLzVJ+H3OJ18ftKxPX8kYtNyEJPNIA54G6mjWmzs1Se4Kfb049lR
+         S665EoHV31h8VJvjmviWfnulSpuaS02ElKgeFiLJSR+/mNfXe4mljPyDwhPGF3RwF9u3
+         +aoPRXalTjhRVG9KCcus3RlvKWtZ+U4ELpwnQ/M84jgR3zi4SzN112AF9pg3nSwWZSRo
+         B/odxTGy7TxBYPiwn1ziOFhn79EhS7FTmxKgvyIYV8oSMabOGJFYjv4WGQGVJzmttJvx
+         tSgwvkPqzMfR4fm/5I+pcBh8iCdJptt5B43JI7KRVJrjaW6OnE8W1rXHxC+4LPTrLK9M
+         Vqig==
+X-Gm-Message-State: AOAM5304MMXtTy2Sq89aZxXpGChL1OSslGZqtyq/DrTrFe8V08JR0fHU
+        02K/lu0P9KniLVP/rz9sQ+qSx939cuI=
+X-Google-Smtp-Source: ABdhPJzIGdzFTGto01heed5GuCFbm8+gYav3h0YyyJ1hks+MIg/VHui6z+Bkntx1ZrPBZL1emu/i+Q==
+X-Received: by 2002:a05:6870:33a9:b0:f2:c44c:d054 with SMTP id w41-20020a05687033a900b000f2c44cd054mr10722530oae.70.1653920977093;
+        Mon, 30 May 2022 07:29:37 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id lx6-20020a0568704b8600b000f3347daaa6sm1240868oab.9.2022.05.30.07.29.16
+        by smtp.gmail.com with ESMTPSA id q30-20020a056830441e00b0060b6a3a5eefsm3129315otv.36.2022.05.30.07.29.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 May 2022 07:29:17 -0700 (PDT)
+        Mon, 30 May 2022 07:29:36 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <c162e89e-5c1a-af11-c98b-205f57adac51@roeck-us.net>
-Date:   Mon, 30 May 2022 07:29:15 -0700
+Message-ID: <333a76e6-6be6-a885-d0c0-2e6f06a10d66@roeck-us.net>
+Date:   Mon, 30 May 2022 07:29:35 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.1
-Subject: Re: [PATCH AUTOSEL 5.4 52/55] hwmon: Make chip parameter for
+Subject: Re: [PATCH AUTOSEL 5.10 71/76] hwmon: Make chip parameter for
  with_info API mandatory
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
 Cc:     jdelvare@suse.com, corbet@lwn.net, linux-hwmon@vger.kernel.org,
         linux-doc@vger.kernel.org
-References: <20220530134701.1935933-1-sashal@kernel.org>
- <20220530134701.1935933-52-sashal@kernel.org>
+References: <20220530134406.1934928-1-sashal@kernel.org>
+ <20220530134406.1934928-71-sashal@kernel.org>
 From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20220530134701.1935933-52-sashal@kernel.org>
+In-Reply-To: <20220530134406.1934928-71-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -79,7 +79,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/30/22 06:46, Sasha Levin wrote:
+On 5/30/22 06:44, Sasha Levin wrote:
 > From: Guenter Roeck <linux@roeck-us.net>
 > 
 > [ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
@@ -114,10 +114,10 @@ Please drop.
 >   
 >   devm_hwmon_device_register_with_info is similar to
 > diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-> index a2175394cd25..c73b93b9bb87 100644
+> index d649fea82999..2c17407aadb7 100644
 > --- a/drivers/hwmon/hwmon.c
 > +++ b/drivers/hwmon/hwmon.c
-> @@ -715,11 +715,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
+> @@ -818,11 +818,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
 >   
 >   /**
 >    * hwmon_device_register_with_info - register w/ hwmon
@@ -134,7 +134,7 @@ Please drop.
 >    *
 >    * hwmon_device_unregister() must be called when the device is no
 >    * longer needed.
-> @@ -732,13 +733,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
+> @@ -835,13 +836,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
 >   				const struct hwmon_chip_info *chip,
 >   				const struct attribute_group **extra_groups)
 >   {
