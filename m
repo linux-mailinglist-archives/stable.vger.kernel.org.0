@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBAA537E82
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:13:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC5E538129
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:28:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238286AbiE3Nsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:48:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49230 "EHLO
+        id S237640AbiE3Nrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:47:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238773AbiE3Np4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:45:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07CE8A006E;
-        Mon, 30 May 2022 06:33:33 -0700 (PDT)
+        with ESMTP id S238792AbiE3Np5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:45:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6056AA0D09;
+        Mon, 30 May 2022 06:33:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C179BB80DB0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 006A660E9B;
+        Mon, 30 May 2022 13:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E876C3411A;
         Mon, 30 May 2022 13:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A0E5C385B8;
-        Mon, 30 May 2022 13:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917609;
-        bh=CHObYO3QTAakNe5T3Fe914iXUbpSy1aT88lWYZtUQ/Y=;
+        s=k20201202; t=1653917611;
+        bh=1rMP8kZatU4ASe70FEHQC3m9PZKnZRDIpdNd/40kEeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3q611tMgYLwVVLXnM9npCzgnB+kWTRnFanJRgz5EzTXHwcCnbdDRD0Y76jxezlmR
-         bdy9Fwj4euCd2j+L0Ho+znBLPTFSU+8q/dp4QTAoDIegI4IQTKcbaq8+CUbIp+/bN8
-         9p1KQNOdxwoChcpVBAF6iJ/C9xBo1iwynFQ/6gMuazoG+oFOO5lvjqjbyIT0fmINZZ
-         oSZ6yRZv3aFyKgvhqm6C79m0mj4AYRUDhfYxCv0vqFlPxxSNTDN1xMVavvzrK4NiBY
-         JW3msTpLk9OxdGDjn6U9l1yAPFGPo6Rtji9NpuF0iBkWE2gBN1KYqmi+o1f4sde7Lv
-         V40I5vBR8AetQ==
+        b=TUmV3j/FDdfWx6IJMRliOyqi8DSAM7Xiv/9rz7cvrbZv5YF/IJy/z7CcZQhQoEcKq
+         xwVkapDxp3S5kqFtBurG2BhRpcv3dPx5TXnwSr8YKs+/QC4USWheTxUGzIIeaiXM7n
+         7W/fSg6+1x5EVSW4wG5BqaS8JZMJmjAzknYToCJvu63ubUWZPFXorEebv0QvamNUS0
+         pkeuqerQkbqUA9By3E2Dn9/X7ksA2d1BVuW5VZuEwGGUiZrnfq3GmCV+FRT5JGSjpa
+         fJq2t97rBvLMJhPm2IYi89kIHimczfUj9JwCByTzpOV1uP4SHFhhZJJFWtfzb73Pmp
+         9PHT6sKqjmn+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Bingbu Cao <bingbu.cao@intel.com>,
+Cc:     Luca Weiss <luca.weiss@fairphone.com>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, dongchun.zhu@mediatek.com,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 039/135] media: Revert "media: dw9768: activate runtime PM and turn off device"
-Date:   Mon, 30 May 2022 09:29:57 -0400
-Message-Id: <20220530133133.1931716-39-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, linux-media@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 040/135] media: venus: hfi: avoid null dereference in deinit
+Date:   Mon, 30 May 2022 09:29:58 -0400
+Message-Id: <20220530133133.1931716-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -59,48 +59,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit 7dd0f93a31af03cba81c684c4c361bba510ffe71 ]
+[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
 
-This reverts commit c09d776eaa060534a1663e3b89d842db3e1d9076.
+If venus_probe fails at pm_runtime_put_sync the error handling first
+calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
+core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
+anymore.
 
-Revert the commit as it breaks runtime PM support on OF based systems.
-More fixes to the driver are needed.
+Avoid this null pointer derefence by skipping the call when necessary.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/dw9768.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/media/platform/qcom/venus/hfi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/i2c/dw9768.c b/drivers/media/i2c/dw9768.c
-index 65c6acf3ced9..c086580efac7 100644
---- a/drivers/media/i2c/dw9768.c
-+++ b/drivers/media/i2c/dw9768.c
-@@ -469,11 +469,6 @@ static int dw9768_probe(struct i2c_client *client)
- 
- 	dw9768->sd.entity.function = MEDIA_ENT_F_LENS;
- 
--	/*
--	 * Device is already turned on by i2c-core with ACPI domain PM.
--	 * Attempt to turn off the device to satisfy the privacy LED concerns.
--	 */
--	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 	if (!pm_runtime_enabled(dev)) {
- 		ret = dw9768_runtime_resume(dev);
-@@ -488,7 +483,6 @@ static int dw9768_probe(struct i2c_client *client)
- 		dev_err(dev, "failed to register V4L2 subdev: %d", ret);
- 		goto err_power_off;
+diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
+index 4e2151fb47f0..1968f09ad177 100644
+--- a/drivers/media/platform/qcom/venus/hfi.c
++++ b/drivers/media/platform/qcom/venus/hfi.c
+@@ -104,6 +104,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
+ 		mutex_lock(&core->lock);
  	}
--	pm_runtime_idle(dev);
  
- 	return 0;
++	if (!core->ops)
++		goto unlock;
++
+ 	ret = core->ops->core_deinit(core);
  
+ 	if (!ret)
 -- 
 2.35.1
 
