@@ -2,69 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CADE553855D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD78F53857E
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:53:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238822AbiE3Pt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 11:49:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
+        id S235771AbiE3PxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 11:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239934AbiE3PtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:49:12 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2675A95A0B
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 08:08:37 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id t13so9506090ljd.6
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 08:08:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=elQ8ovHeePfEyvDpZZSAHdlwsc5opTR17fDgZ+MZlI4=;
-        b=G+JEkGkIb/z2sNEqJCYGJ5wLRAXy//9cmj/RoePJ7laPmY0gZ4OYlxNknCg3moq98z
-         y6U0lgHJhFUQ0vMegkZIb5CYNOrFMYki411WkR8w5zDt/9HiWVflEvNqAJkWsMl2+ggs
-         kMYsVR9Fe1HGji9tosS7J9uH/Runp+nrl9ShYrsck9rbeXsHI00FferGMhteZwMgC6iV
-         +pDnnOJZqCclhJ7SGNpAX/lbIAtAs/t8GbA20vNg503jbfdUjNN3WoehCNJJK+42ZohP
-         AEU08vwC3yWm8qErZJ/4Zfdp/UZMJqLqy+Qlt3VipMk8TUkHLeC8RIDBhrZMoqwFyrIi
-         d0uA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=elQ8ovHeePfEyvDpZZSAHdlwsc5opTR17fDgZ+MZlI4=;
-        b=5QFjlDf5m32UlvOP980c86u+B/MCEudJWaNYXzvYN79pustVQKzLT0oWt7/FGzpvDM
-         imZbEdjHMDb/KD3/BMGIIsdeKUkxXtg7Fvtm66IKEMujZaTbJ5hjkAh9DbdrG1ZBlsxl
-         REZ+UsRCXuK8JQo5dVxkTw/mZ+/TME72z7r4KTzGbeCCFFcgqzadK9DYQX+N59IC88IX
-         WZ/PXjHyPLQw8VbLld0akUhRdy4C3XDLS2urNB3bp14ebQmj8i8jRefT1KFQD9kA1/Kx
-         faBIA56rEhn42mhQsWbKBjsOrTwHyUD6O8X64cFQ6moCP5nRlXedK+00Pm76NLjUKeNH
-         iAlw==
-X-Gm-Message-State: AOAM533dS7En6TntEJYEI2pMgjKci6BBP+IzcVbYkQatUTlHpW6gtPrW
-        NjBvmCuwIwsN0Ot5Ue5vabHjyz1w9rYiwN1ANBk=
-X-Google-Smtp-Source: ABdhPJyHsNO3LLF4JSv9dzL2OwtWrQM4gX3+OvNGp4DwEofP0/d+TQwE9+eZrUwBynCMmSXZc6ih41yUX6EI5DPoJpg=
-X-Received: by 2002:a2e:58f:0:b0:255:4e2f:a7c9 with SMTP id
- 137-20020a2e058f000000b002554e2fa7c9mr4351334ljf.127.1653923315486; Mon, 30
- May 2022 08:08:35 -0700 (PDT)
+        with ESMTP id S242819AbiE3Pwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:52:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2948BDA00;
+        Mon, 30 May 2022 08:25:45 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EB1061050;
+        Mon, 30 May 2022 15:25:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5206FC385B8;
+        Mon, 30 May 2022 15:25:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653924344;
+        bh=O+hU68gl2+Hq+XBPyYhDfKRG6FwWm8EiSR/+SfKEaiI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=k2BFQTagxI7oHvtdvDPWS1q2+w9+U3WBjiKfvXNjrxAVTYvu1vTt7iJIyJRC9/qb/
+         pQLRtVtFYGHuyS4RnGsNhMkvmS5NQ46uLg+b6V1tzra0EgClMbmEfkeBIvyyRncyDh
+         MAkS4X0QI3B71VlgplPvNOr69iOxc0LSyQe44kh0=
+Date:   Mon, 30 May 2022 17:25:41 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Keith Packard <keithpac@amazon.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH AUTOSEL 5.18 147/159] ARM: 9201/1: spectre-bhb: rely on
+ linker to emit cross-section literal loads
+Message-ID: <YpTh9dan5lJgH2aL@kroah.com>
+References: <20220530132425.1929512-1-sashal@kernel.org>
+ <20220530132425.1929512-147-sashal@kernel.org>
+ <CAMj1kXGAuKTqV0S4jxticZJp7ChtqqeXjn7SV1E83p5yVE1pkw@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:ab3:561a:0:0:0:0:0 with HTTP; Mon, 30 May 2022 08:08:34
- -0700 (PDT)
-Reply-To: sgtkayla2001@gmail.com
-From:   Kayla manthey <sonouke.victor@gmail.com>
-Date:   Mon, 30 May 2022 15:08:34 +0000
-Message-ID: <CAA+ANJ+Sej9gErPw0qduhg64mYCLVvDVTMuyEybNXLN48mN8Uw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXGAuKTqV0S4jxticZJp7ChtqqeXjn7SV1E83p5yVE1pkw@mail.gmail.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hallo mijn liefste, ik wil graag weten of je mijn vorige bericht hebt
-ontvangen, bedankt.
+On Mon, May 30, 2022 at 03:32:47PM +0200, Ard Biesheuvel wrote:
+> AUTONAK
+> 
+> As discussed before, please disregard all patches authored by me when
+> running the bot.
+
+Ok, but why wasn't this spectre-bhb commit asked to be backported to
+stable in the first place?  Do older kernels not need these types of
+fixes?
+
+thanks,
+
+greg k-h
