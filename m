@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B64538123
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11610538010
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232936AbiE3OEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:04:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59906 "EHLO
+        id S236950AbiE3OEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239784AbiE3OCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:02:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D99C5E69;
-        Mon, 30 May 2022 06:39:42 -0700 (PDT)
+        with ESMTP id S239862AbiE3OCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:02:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086FEC8BE9;
+        Mon, 30 May 2022 06:39:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88C39B80DA9;
-        Mon, 30 May 2022 13:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A3EC36AE5;
-        Mon, 30 May 2022 13:39:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8350860DD5;
+        Mon, 30 May 2022 13:39:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B89C3411A;
+        Mon, 30 May 2022 13:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917980;
-        bh=NZOjF323UZNafxUxjZt3FD7HpP5qouR5J6a9gRbV+4w=;
+        s=k20201202; t=1653917984;
+        bh=w+Mx4L1UD8ofc/ecEwIzqvOnTw6oXAnw/UDczpyP7ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UVhWjOb223Lyh1g89xsRmy9QHcH0wpuf4990VCWj26nBXgKF9Aga2niaOWVK4Zi76
-         miDpj4KZJkC4GBeV1by4jBRk16rZg1v4ZvITa6utNH/em+0m0lhqWLXRgsJd+8hNQK
-         6EFALj5dxuyfl+dnqNVrSibW1jtpg3hnTxjARLja9NeC7pdt69K4PPfRJfFWdMaAHx
-         iFOIxDCOJx61vf39lDhF1E6bfl2/mn02DogFwL9zYkDw3HhSzitGuv9BtSkE9ef9RU
-         3gU3i/C+PRIRJqTsZAS6lqpsvSqZCPdt+n3/X4MJ3qmsrVIVE8BZfKZZ/VyTRuNQ8z
-         sTS94Fkg3nmdw==
+        b=rRStDMJ42bIpbzumTtH06hFxk0VyHgFhw/Hs057yjX6Zv8xdbiT/2fdQqqaQCBbFP
+         oXZga/AMLpYH+YsmMDVu4ms0HoaoQI4jWJQAtGsZSKKK14T1YV9cySudlitXANryj0
+         CKBiRXzAljGon13E6QZgt6C+Oj4df5xPfeKzK7A185hOCf0FfPLL5wlQmnwzYfhGLs
+         gGrpY+jLr9v4oiMcK5pDRHdntA/hNsZvEwaRHT/N0zHrlr/REIqeA9yXNsGLC5GeTT
+         cNUJZMlTpDGOzETyXapvv0elEWc5D9n0nBW4FNl8JAZp3w5OIKBEgZRAlJLWzFptZt
+         tjgfgFqzmAzgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Maulik Shah <quic_mkshah@quicinc.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, lorenzo.pieralisi@arm.com,
-        sudeep.holla@arm.com, rafael@kernel.org, daniel.lezcano@linaro.org,
-        linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 027/109] cpuidle: PSCI: Improve support for suspend-to-RAM for PSCI OSI mode
-Date:   Mon, 30 May 2022 09:37:03 -0400
-Message-Id: <20220530133825.1933431-27-sashal@kernel.org>
+Cc:     Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, lijo.lazar@amd.com, Hawking.Zhang@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 028/109] drm/amd/pm: fix double free in si_parse_power_table()
+Date:   Mon, 30 May 2022 09:37:04 -0400
+Message-Id: <20220530133825.1933431-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -59,108 +59,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 171b66e2e2e9d80b93c8cff799e6175074b22297 ]
+[ Upstream commit f3fa2becf2fc25b6ac7cf8d8b1a2e4a86b3b72bd ]
 
-When PSCI OSI mode is supported the syscore flag is set for the CPU devices
-that becomes attached to their PM domains (genpds). In the suspend-to-idle
-case, we call dev_pm_genpd_suspend|resume() to allow genpd to properly
-manage the power-off/on operations (pick an idlestate and manage the on/off
-notifications).
+In function si_parse_power_table(), array adev->pm.dpm.ps and its member
+is allocated. If the allocation of each member fails, the array itself
+is freed and returned with an error code. However, the array is later
+freed again in si_dpm_fini() function which is called when the function
+returns an error.
 
-For suspend-to-ram, dev_pm_genpd_suspend|resume() is currently not being
-called, which causes a problem that the genpd on/off notifiers do not get
-sent as expected. This prevents the platform-specific operations from being
-executed, typically needed just before/after the boot CPU is being turned
-off/on.
+This leads to potential double free of the array adev->pm.dpm.ps, as
+well as leak of its array members, since the members are not freed in
+the allocation function and the array is not nulled when freed.
+In addition adev->pm.dpm.num_ps, which keeps track of the allocated
+array member, is not updated until the member allocation is
+successfully finished, this could also lead to either use after free,
+or uninitialized variable access in si_dpm_fini().
 
-To deal with this problem, let's register a syscore ops for cpuidle-psci
-when PSCI OSI mode is being used and call dev_pm_genpd_suspend|resume()
-from them. In this way, genpd regains control of the PM domain topology and
-then sends the on/off notifications when it's appropriate.
+Fix this by postponing the free of the array until si_dpm_fini() and
+increment adev->pm.dpm.num_ps everytime the array member is allocated.
 
-Reported-by: Maulik Shah <quic_mkshah@quicinc.com>
-Suggested-by: Maulik Shah <quic_mkshah@quicinc.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Tested-by: Maulik Shah <quic_mkshah@quicinc.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/cpuidle-psci.c | 46 ++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/gpu/drm/amd/pm/powerplay/si_dpm.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle-psci.c b/drivers/cpuidle/cpuidle-psci.c
-index b51b5df08450..540105ca0781 100644
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -23,6 +23,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/string.h>
-+#include <linux/syscore_ops.h>
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c b/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
+index 81f82aa05ec2..66fc63f1f1c1 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
+@@ -7247,17 +7247,15 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 	if (!adev->pm.dpm.ps)
+ 		return -ENOMEM;
+ 	power_state_offset = (u8 *)state_array->states;
+-	for (i = 0; i < state_array->ucNumEntries; i++) {
++	for (adev->pm.dpm.num_ps = 0, i = 0; i < state_array->ucNumEntries; i++) {
+ 		u8 *idx;
+ 		power_state = (union pplib_power_state *)power_state_offset;
+ 		non_clock_array_index = power_state->v2.nonClockInfoIndex;
+ 		non_clock_info = (struct _ATOM_PPLIB_NONCLOCK_INFO *)
+ 			&non_clock_info_array->nonClockInfo[non_clock_array_index];
+ 		ps = kzalloc(sizeof(struct  si_ps), GFP_KERNEL);
+-		if (ps == NULL) {
+-			kfree(adev->pm.dpm.ps);
++		if (ps == NULL)
+ 			return -ENOMEM;
+-		}
+ 		adev->pm.dpm.ps[i].ps_priv = ps;
+ 		si_parse_pplib_non_clock_info(adev, &adev->pm.dpm.ps[i],
+ 					      non_clock_info,
+@@ -7279,8 +7277,8 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 			k++;
+ 		}
+ 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
++		adev->pm.dpm.num_ps++;
+ 	}
+-	adev->pm.dpm.num_ps = state_array->ucNumEntries;
  
- #include <asm/cpuidle.h>
- 
-@@ -131,6 +132,49 @@ static int psci_idle_cpuhp_down(unsigned int cpu)
- 	return 0;
- }
- 
-+static void psci_idle_syscore_switch(bool suspend)
-+{
-+	bool cleared = false;
-+	struct device *dev;
-+	int cpu;
-+
-+	for_each_possible_cpu(cpu) {
-+		dev = per_cpu_ptr(&psci_cpuidle_data, cpu)->dev;
-+
-+		if (dev && suspend) {
-+			dev_pm_genpd_suspend(dev);
-+		} else if (dev) {
-+			dev_pm_genpd_resume(dev);
-+
-+			/* Account for userspace having offlined a CPU. */
-+			if (pm_runtime_status_suspended(dev))
-+				pm_runtime_set_active(dev);
-+
-+			/* Clear domain state to re-start fresh. */
-+			if (!cleared) {
-+				psci_set_domain_state(0);
-+				cleared = true;
-+			}
-+		}
-+	}
-+}
-+
-+static int psci_idle_syscore_suspend(void)
-+{
-+	psci_idle_syscore_switch(true);
-+	return 0;
-+}
-+
-+static void psci_idle_syscore_resume(void)
-+{
-+	psci_idle_syscore_switch(false);
-+}
-+
-+static struct syscore_ops psci_idle_syscore_ops = {
-+	.suspend = psci_idle_syscore_suspend,
-+	.resume = psci_idle_syscore_resume,
-+};
-+
- static void psci_idle_init_cpuhp(void)
- {
- 	int err;
-@@ -138,6 +182,8 @@ static void psci_idle_init_cpuhp(void)
- 	if (!psci_cpuidle_use_cpuhp)
- 		return;
- 
-+	register_syscore_ops(&psci_idle_syscore_ops);
-+
- 	err = cpuhp_setup_state_nocalls(CPUHP_AP_CPU_PM_STARTING,
- 					"cpuidle/psci:online",
- 					psci_idle_cpuhp_up,
+ 	/* fill in the vce power states */
+ 	for (i = 0; i < adev->pm.dpm.num_of_vce_states; i++) {
 -- 
 2.35.1
 
