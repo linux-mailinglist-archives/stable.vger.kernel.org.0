@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F2E53828A
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1055382ED
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239054AbiE3OYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:24:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40142 "EHLO
+        id S240283AbiE3O3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242194AbiE3OSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB5D91573;
-        Mon, 30 May 2022 06:49:24 -0700 (PDT)
+        with ESMTP id S242005AbiE3OSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41B19D078;
+        Mon, 30 May 2022 06:48:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2176060FE3;
-        Mon, 30 May 2022 13:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A29DC36AE3;
-        Mon, 30 May 2022 13:48:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1F64B80DBB;
+        Mon, 30 May 2022 13:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420E2C36AE3;
+        Mon, 30 May 2022 13:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918524;
-        bh=hqCtAb/WgSm7rzufedKllC993dM4mSQ0Ss6AEyB21jo=;
+        s=k20201202; t=1653918528;
+        bh=NYXfqZ1HeJVoDcZHWihxR8rS6ByUyPeh1j4e3NSlOOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biJIFPlBEHiLGmsHm5yxhwSDNu+r6ev9N2je8L2R8FHm7RlxdLNBuXVS3WsJZ22zq
-         NspRNcms1wTy+pvNhKnkAfQ27OukFAZvm53tBtnn1dH3dyffzIcN6d5ghvnbkjEUAS
-         bFjSXc5EqvFJCdCxMp8Ttg0JDDC0cc3haRIdpbBpKg4fw8YdGqqKOytIMw4EQuVADP
-         lvned5DUt0sdccjGVd8fOsPcbIQntyq8ZOQVga/fyKBberBJAbzqDfogGY2FQ4+hX1
-         vNWD6u2cL8TaYi7psgIpagTC5rfOfAU1xOLPcFwI8ldpfLoRMVJuI4DQ23bgY/WTtl
-         OBEFzW7H+VTSQ==
+        b=a3JtxWzI6fEl1w2TRfGv+GSrOHscMuRlssAdOX+/21KxW3MqQoAb+HVDlZy8t5Jcl
+         XF0IN5FWogHUxqh3YxWUMIU3NH4S8jJUaoMmf27hQASXSADE+BbDlUUSt8SJnx+GFH
+         HcCbhYYZ5bAY9ZNUNiZ/oD4PTvJVL51auQ1CuuLkSlje8HXlYAD7LhC4407iJb/oGr
+         BuMntNlPxcu/aypwUPGqCypOZ0U0l4w/+Wc42rjwQ1uz32WwmfxAxHJtFRb1IKUv5O
+         Hi23MuClPf7lNB7LOhP4im+e2YcOD3noUYvDu6C4mfH2keUGRe0gftKul4S/HHtDl7
+         NJiFRdf0EFjlg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        pkshih@realtek.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 41/55] rtlwifi: Use pr_warn instead of WARN_ONCE
-Date:   Mon, 30 May 2022 09:46:47 -0400
-Message-Id: <20220530134701.1935933-41-sashal@kernel.org>
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linmq006@gmail.com,
+        wsa+renesas@sang-engineering.com, martin.weber@br-automation.com,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 42/55] media: coda: limit frame interval enumeration to supported encoder frame sizes
+Date:   Mon, 30 May 2022 09:46:48 -0400
+Message-Id: <20220530134701.1935933-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -59,37 +59,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit ad732da434a2936128769216eddaece3b1af4588 ]
+[ Upstream commit 67e33dd957880879e785cfea83a3aa24bd5c5577 ]
 
-This memory allocation failure can be triggered by fault injection or
-high pressure testing, resulting a WARN.
+Let VIDIOC_ENUM_FRAMEINTERVALS return -EINVAL if userspace queries
+frame intervals for frame sizes unsupported by the encoder. Fixes the
+following v4l2-compliance failure:
 
-Fix this by replacing WARN with pr_warn.
+		fail: v4l2-test-formats.cpp(123): found frame intervals for invalid size 47x16
+		fail: v4l2-test-formats.cpp(282): node->codec_mask & STATEFUL_ENCODER
+	test VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS: FAIL
 
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220511014453.1621366-1-dzm91@hust.edu.cn
+[hverkuil: drop incorrect 'For decoder devices, return -ENOTTY.' in the commit log]
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/coda/coda-common.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index bad06939a247..9bcb187d37dc 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -1013,7 +1013,7 @@ int rtl_usb_probe(struct usb_interface *intf,
- 	hw = ieee80211_alloc_hw(sizeof(struct rtl_priv) +
- 				sizeof(struct rtl_usb_priv), &rtl_ops);
- 	if (!hw) {
--		WARN_ONCE(true, "rtl_usb: ieee80211 alloc failed\n");
-+		pr_warn("rtl_usb: ieee80211 alloc failed\n");
- 		return -ENOMEM;
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index 0adc54832657..fb469340634b 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -1192,7 +1192,8 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
+ 				    struct v4l2_frmivalenum *f)
+ {
+ 	struct coda_ctx *ctx = fh_to_ctx(fh);
+-	int i;
++	struct coda_q_data *q_data;
++	const struct coda_codec *codec;
+ 
+ 	if (f->index)
+ 		return -EINVAL;
+@@ -1201,12 +1202,19 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
+ 	if (!ctx->vdoa && f->pixel_format == V4L2_PIX_FMT_YUYV)
+ 		return -EINVAL;
+ 
+-	for (i = 0; i < CODA_MAX_FORMATS; i++) {
+-		if (f->pixel_format == ctx->cvd->src_formats[i] ||
+-		    f->pixel_format == ctx->cvd->dst_formats[i])
+-			break;
++	if (coda_format_normalize_yuv(f->pixel_format) == V4L2_PIX_FMT_YUV420) {
++		q_data = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
++		codec = coda_find_codec(ctx->dev, f->pixel_format,
++					q_data->fourcc);
++	} else {
++		codec = coda_find_codec(ctx->dev, V4L2_PIX_FMT_YUV420,
++					f->pixel_format);
  	}
- 	rtlpriv = hw->priv;
+-	if (i == CODA_MAX_FORMATS)
++	if (!codec)
++		return -EINVAL;
++
++	if (f->width < MIN_W || f->width > codec->max_w ||
++	    f->height < MIN_H || f->height > codec->max_h)
+ 		return -EINVAL;
+ 
+ 	f->type = V4L2_FRMIVAL_TYPE_CONTINUOUS;
 -- 
 2.35.1
 
