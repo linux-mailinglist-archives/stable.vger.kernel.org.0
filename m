@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57798537FEF
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C645380DF
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230079AbiE3OJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:09:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41042 "EHLO
+        id S240081AbiE3OKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:10:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238863AbiE3OEx (ORCPT
+        with ESMTP id S238874AbiE3OEx (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:04:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DFD994EA;
-        Mon, 30 May 2022 06:40:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F23CE5E1;
+        Mon, 30 May 2022 06:40:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5585B80D86;
-        Mon, 30 May 2022 13:40:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5006EC3411F;
-        Mon, 30 May 2022 13:40:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E39D6B80DB3;
+        Mon, 30 May 2022 13:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61A60C3411A;
+        Mon, 30 May 2022 13:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918030;
-        bh=Ow6M4ULs7W4f93rXHxWgT7eJhCkKFS4V4mUHz2rkBzU=;
+        s=k20201202; t=1653918042;
+        bh=oU8GNFgXSJWl0iMx94vn/omYjclzz4RaQjc+ksz0cus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gefLLr7T35C+YQz3IfpmnoJJjf+DxwkLZGMH6+QMIEwhnwgXFdh4R9gCT7FUezRVV
-         8H2GhZksJE43JM239zOhH4dLxA8yyk3g8t9i+vXKBeP8f6vx+byMZYo9IydNqpCNWP
-         dxeLogbVLZ38P8hbDzmjoStGjIcEzZt6tcjKchRd425JhAO2H7X+w/m55BwL6MJkZE
-         uSq3XPwfiPN93DzY/ggF/8T68RemKvOUeV2GyXuUnBfqYCOpf3FCQ9e24R4MGb4HRG
-         QMeE2kcPiMufT2IA6NzyHK9LInpl7mhL6LMv2pLZCa3XZZpBT1C5EOikQXtPaWk6Iv
-         xN4sOzYFnpE1A==
+        b=o2/eAVO/ZlmAmBZYrCrcUKQq+aq4OQSyBRQt7erktoAOfBfDvJm6oVpGD6WUbKEpj
+         3Gv8hlBZru1jfkh/m2OFCkZOAB+YdHbZ2PQAxNpJfBn69Cvn58U7goss86/elJYv2K
+         /SCIIWKkREnWfYZb0D6w2xZAjKFhOSr2okENsEMAMYyiMJtlMMXm/86LEODJnMVcM6
+         ELEwUNW4d2Jui+KZYxASxVak+l0L0hAqIOsfs0eJbfQ+kZDtziI/HqtOmn/DJ0SIEN
+         Ux0OF0XHl4d5b4CD0KYcAa7T2r6c6NrrVIsHzaLIKlvp8MJvH1PkZxsb6Uwm084i/R
+         FZVh4J6itn7+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lv Ruyi <lv.ruyi@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, kashyap.desai@broadcom.com,
-        sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-        jejb@linux.ibm.com, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 039/109] scsi: megaraid: Fix error check return value of register_chrdev()
-Date:   Mon, 30 May 2022 09:37:15 -0400
-Message-Id: <20220530133825.1933431-39-sashal@kernel.org>
+Cc:     Haohui Mai <ricetons@gmail.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
+        airlied@linux.ie, daniel@ffwll.ch, tao.zhou1@amd.com,
+        YiPeng.Chai@amd.com, Hawking.Zhang@amd.com,
+        rajib.mahapatra@amd.com, Jack.Xiao@amd.com, Lang.Yu@amd.com,
+        Prike.Liang@amd.com, Bokun.Zhang@amd.com, rohit.khaire@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 040/109] drm/amdgpu/sdma: Fix incorrect calculations of the wptr of the doorbells
+Date:   Mon, 30 May 2022 09:37:16 -0400
+Message-Id: <20220530133825.1933431-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,36 +63,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Haohui Mai <ricetons@gmail.com>
 
-[ Upstream commit c5acd61dbb32b6bda0f3a354108f2b8dcb788985 ]
+[ Upstream commit 7dba6e838e741caadcf27ef717b6dcb561e77f89 ]
 
-If major equals 0, register_chrdev() returns an error code when it fails.
-This function dynamically allocates a major and returns its number on
-success, so we should use "< 0" to check it instead of "!".
+This patch fixes the issue where the driver miscomputes the 64-bit
+values of the wptr of the SDMA doorbell when initializing the
+hardware. SDMA engines v4 and later on have full 64-bit registers for
+wptr thus they should be set properly.
 
-Link: https://lore.kernel.org/r/20220418105755.2558828-1-lv.ruyi@zte.com.cn
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Older generation hardwares like CIK / SI have only 16 / 20 / 24bits
+for the WPTR, where the calls of lower_32_bits() will be removed in a
+following patch.
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Haohui Mai <ricetons@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c | 4 ++--
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c | 8 ++++----
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c | 8 ++++----
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
-index 56910e94dbf2..7dd6dd74d2bc 100644
---- a/drivers/scsi/megaraid.c
-+++ b/drivers/scsi/megaraid.c
-@@ -4628,7 +4628,7 @@ static int __init megaraid_init(void)
- 	 * major number allocation.
- 	 */
- 	major = register_chrdev(0, "megadev_legacy", &megadev_fops);
--	if (!major) {
-+	if (major < 0) {
- 		printk(KERN_WARNING
- 				"megaraid: failed to register char device\n");
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+index e37948c15769..9014f71d52dd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -770,8 +770,8 @@ static void sdma_v4_0_ring_set_wptr(struct amdgpu_ring *ring)
+ 
+ 		DRM_DEBUG("Using doorbell -- "
+ 				"wptr_offs == 0x%08x "
+-				"lower_32_bits(ring->wptr) << 2 == 0x%08x "
+-				"upper_32_bits(ring->wptr) << 2 == 0x%08x\n",
++				"lower_32_bits(ring->wptr << 2) == 0x%08x "
++				"upper_32_bits(ring->wptr << 2) == 0x%08x\n",
+ 				ring->wptr_offs,
+ 				lower_32_bits(ring->wptr << 2),
+ 				upper_32_bits(ring->wptr << 2));
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+index 50bf3b71bc93..0f75864365d6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+@@ -400,8 +400,8 @@ static void sdma_v5_0_ring_set_wptr(struct amdgpu_ring *ring)
+ 	if (ring->use_doorbell) {
+ 		DRM_DEBUG("Using doorbell -- "
+ 				"wptr_offs == 0x%08x "
+-				"lower_32_bits(ring->wptr) << 2 == 0x%08x "
+-				"upper_32_bits(ring->wptr) << 2 == 0x%08x\n",
++				"lower_32_bits(ring->wptr << 2) == 0x%08x "
++				"upper_32_bits(ring->wptr << 2) == 0x%08x\n",
+ 				ring->wptr_offs,
+ 				lower_32_bits(ring->wptr << 2),
+ 				upper_32_bits(ring->wptr << 2));
+@@ -782,9 +782,9 @@ static int sdma_v5_0_gfx_resume(struct amdgpu_device *adev)
+ 
+ 		if (!amdgpu_sriov_vf(adev)) { /* only bare-metal use register write for wptr */
+ 			WREG32(sdma_v5_0_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR),
+-			       lower_32_bits(ring->wptr) << 2);
++			       lower_32_bits(ring->wptr << 2));
+ 			WREG32(sdma_v5_0_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR_HI),
+-			       upper_32_bits(ring->wptr) << 2);
++			       upper_32_bits(ring->wptr << 2));
+ 		}
+ 
+ 		doorbell = RREG32_SOC15_IP(GC, sdma_v5_0_get_reg_offset(adev, i, mmSDMA0_GFX_DOORBELL));
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
+index e32efcfb0c8b..f643b977b5f4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
+@@ -287,8 +287,8 @@ static void sdma_v5_2_ring_set_wptr(struct amdgpu_ring *ring)
+ 	if (ring->use_doorbell) {
+ 		DRM_DEBUG("Using doorbell -- "
+ 				"wptr_offs == 0x%08x "
+-				"lower_32_bits(ring->wptr) << 2 == 0x%08x "
+-				"upper_32_bits(ring->wptr) << 2 == 0x%08x\n",
++				"lower_32_bits(ring->wptr << 2) == 0x%08x "
++				"upper_32_bits(ring->wptr << 2) == 0x%08x\n",
+ 				ring->wptr_offs,
+ 				lower_32_bits(ring->wptr << 2),
+ 				upper_32_bits(ring->wptr << 2));
+@@ -660,8 +660,8 @@ static int sdma_v5_2_gfx_resume(struct amdgpu_device *adev)
+ 		WREG32_SOC15_IP(GC, sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_MINOR_PTR_UPDATE), 1);
+ 
+ 		if (!amdgpu_sriov_vf(adev)) { /* only bare-metal use register write for wptr */
+-			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR), lower_32_bits(ring->wptr) << 2);
+-			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR_HI), upper_32_bits(ring->wptr) << 2);
++			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR), lower_32_bits(ring->wptr << 2));
++			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR_HI), upper_32_bits(ring->wptr << 2));
+ 		}
+ 
+ 		doorbell = RREG32_SOC15_IP(GC, sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_DOORBELL));
 -- 
 2.35.1
 
