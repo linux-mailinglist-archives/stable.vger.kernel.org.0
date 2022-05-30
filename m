@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9505C537F17
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:18:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0512F537EE6
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240067AbiE3OK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:10:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36926 "EHLO
+        id S232085AbiE3OM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239887AbiE3OIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:08:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1E79B187;
-        Mon, 30 May 2022 06:42:32 -0700 (PDT)
+        with ESMTP id S239966AbiE3OIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:08:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD0D82170;
+        Mon, 30 May 2022 06:42:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A80CB80AE8;
-        Mon, 30 May 2022 13:42:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56D7EC341C7;
-        Mon, 30 May 2022 13:42:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AD6B60F2A;
+        Mon, 30 May 2022 13:42:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8E8C385B8;
+        Mon, 30 May 2022 13:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918143;
-        bh=ZRBlCTHt0pyFWYQr3Ew2t9lLWa2U4S35aOox2RxugS8=;
+        s=k20201202; t=1653918148;
+        bh=ov0LuNiuyG+BT8nA3Az8CHNv6yO/nXoJT8tXa6GRz7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUOtRBaAibxjPJbFJpD0kYncUcFoHuVLD1i8LAfXR6NpjQT4Heeui4pGD2/6CbOcv
-         rjJ+ShUz+j+tU4yQqfF36DZm/yLwvDnlxTPTXczhRxFV8ISNfh2lPyfyW9dOUveJx0
-         yvCFLlAAQGUM54SPvSwPQHqXmY1MV4o78p6V2QcJlmawL7jKZcXsvX2IEU7sdD5NLf
-         JJd4apwuXZFgTNVlPBK70IPfq114S/UjNZS7GHRGb7YMNKKM6Ob3S/cnzdKdwhnJsw
-         4H+DLtIpLfF21uQznQvYL/0SnJ95tBwGj78kOWYL9GFLnYSAR7/Z2KimSBzEaQse/N
-         q/B7wh1/fMLBw==
+        b=H0NmeC1S1lA5PXAjnIfBdv9523ISGT6j8LDY5dGcFtKPU3QfFY/9su0S7RmXyIAeU
+         iDIMoyTVRKbkVScvCDbkTAd8hD5aFxb//hrhSMdpbChhChQbR7gySqWgq18Y+5yGA4
+         fvifE1hkuarE8kBNWNUl/eFJCtJDopT0kjd25W3VT68IROHcvxc3FLpDz8GQMSKONd
+         X04jW7SDiQvQ4gMGIQMLWDeJTwlr3lZVro5Fhlz0YuLli1wADwfJ9sA9ipJ8uvR08s
+         BFyaSHzUPfGBTqqXYiCAV0NcDtnL3atK96MfwIZW7XssQW8nVPxF6gRoiNE7yDciR2
+         prgCF73D+IVlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangyu Hua <hbh25y@gmail.com>,
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jacob-chen@iotwrt.com,
-        ezequiel@vanguardiasur.com.ar, heiko@sntech.de,
-        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 076/109] media: rga: fix possible memory leak in rga_probe
-Date:   Mon, 30 May 2022 09:37:52 -0400
-Message-Id: <20220530133825.1933431-76-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linmq006@gmail.com,
+        wsa+renesas@sang-engineering.com, martin.weber@br-automation.com,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 077/109] media: coda: limit frame interval enumeration to supported encoder frame sizes
+Date:   Mon, 30 May 2022 09:37:53 -0400
+Message-Id: <20220530133825.1933431-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -60,51 +59,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit a71eb6025305192e646040cd76ccacb5bd48a1b5 ]
+[ Upstream commit 67e33dd957880879e785cfea83a3aa24bd5c5577 ]
 
-rga->m2m_dev needs to be freed when rga_probe fails.
+Let VIDIOC_ENUM_FRAMEINTERVALS return -EINVAL if userspace queries
+frame intervals for frame sizes unsupported by the encoder. Fixes the
+following v4l2-compliance failure:
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+		fail: v4l2-test-formats.cpp(123): found frame intervals for invalid size 47x16
+		fail: v4l2-test-formats.cpp(282): node->codec_mask & STATEFUL_ENCODER
+	test VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS: FAIL
+
+[hverkuil: drop incorrect 'For decoder devices, return -ENOTTY.' in the commit log]
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rga/rga.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/platform/coda/coda-common.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
-index d99ea8973b67..e3246344fb72 100644
---- a/drivers/media/platform/rockchip/rga/rga.c
-+++ b/drivers/media/platform/rockchip/rga/rga.c
-@@ -868,7 +868,7 @@ static int rga_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index 4a553f42ff0a..befc9db16c86 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -1318,7 +1318,8 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
+ 				    struct v4l2_frmivalenum *f)
+ {
+ 	struct coda_ctx *ctx = fh_to_ctx(fh);
+-	int i;
++	struct coda_q_data *q_data;
++	const struct coda_codec *codec;
  
- 	ret = pm_runtime_resume_and_get(rga->dev);
- 	if (ret < 0)
--		goto rel_vdev;
-+		goto rel_m2m;
+ 	if (f->index)
+ 		return -EINVAL;
+@@ -1327,12 +1328,19 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
+ 	if (!ctx->vdoa && f->pixel_format == V4L2_PIX_FMT_YUYV)
+ 		return -EINVAL;
  
- 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
- 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
-@@ -884,7 +884,7 @@ static int rga_probe(struct platform_device *pdev)
- 					   DMA_ATTR_WRITE_COMBINE);
- 	if (!rga->cmdbuf_virt) {
- 		ret = -ENOMEM;
--		goto rel_vdev;
-+		goto rel_m2m;
+-	for (i = 0; i < CODA_MAX_FORMATS; i++) {
+-		if (f->pixel_format == ctx->cvd->src_formats[i] ||
+-		    f->pixel_format == ctx->cvd->dst_formats[i])
+-			break;
++	if (coda_format_normalize_yuv(f->pixel_format) == V4L2_PIX_FMT_YUV420) {
++		q_data = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
++		codec = coda_find_codec(ctx->dev, f->pixel_format,
++					q_data->fourcc);
++	} else {
++		codec = coda_find_codec(ctx->dev, V4L2_PIX_FMT_YUV420,
++					f->pixel_format);
  	}
+-	if (i == CODA_MAX_FORMATS)
++	if (!codec)
++		return -EINVAL;
++
++	if (f->width < MIN_W || f->width > codec->max_w ||
++	    f->height < MIN_H || f->height > codec->max_h)
+ 		return -EINVAL;
  
- 	rga->src_mmu_pages =
-@@ -921,6 +921,8 @@ static int rga_probe(struct platform_device *pdev)
- free_dma:
- 	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
- 		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
-+rel_m2m:
-+	v4l2_m2m_release(rga->m2m_dev);
- rel_vdev:
- 	video_device_release(vfd);
- unreg_v4l2_dev:
+ 	f->type = V4L2_FRMIVAL_TYPE_CONTINUOUS;
 -- 
 2.35.1
 
