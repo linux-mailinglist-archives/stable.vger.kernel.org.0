@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF574537BF1
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1344A537BEB
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232923AbiE3N2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:28:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59346 "EHLO
+        id S236802AbiE3N2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:28:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236808AbiE3N10 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:27:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBAF84A02;
-        Mon, 30 May 2022 06:25:57 -0700 (PDT)
+        with ESMTP id S236852AbiE3N1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:27:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE2E82176;
+        Mon, 30 May 2022 06:25:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1B0360EA5;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 523DE60E2D;
+        Mon, 30 May 2022 13:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1814C3411A;
         Mon, 30 May 2022 13:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161F8C36AE7;
-        Mon, 30 May 2022 13:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917147;
-        bh=2KToFwkNvNzfdHZcKKJhemrDipNoBJWJHSrlZBAWX2s=;
+        s=k20201202; t=1653917148;
+        bh=Ft6p9kGIOkJkapwXK6jXCxSUMdE+m/EftAbFKlr8HL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYMsTlRuxe7knRvbc1mGE/bxyE7UaxMYNaJ05MkxqVFJ5oEnznWHn02vT4Dsu9EpK
-         6d1vmt0WH3P4QHvXhZUZdFc5s8Xs5exY7msNKNfxM69oF4CKB1gojDWDiSo6klSEGv
-         jtex8VZDjmM5YwRI3nWKcLj8iLIObR3ING/RZAlh2pWNvB6gKvlJ3qhpyg6uZt+RUv
-         9btudViPTMfrBNmglINbE81GfdiQNMpJLg6ygPr6CNaubK8zlEjSO+VH85J5p89zCB
-         DxIQqW+oa3cXpPh+kJKwgxtGuIxa5fvRa+njXZZkBzgLkzFsi1FZpJh3jymiWjWSB+
-         pOYZMt4obRiKA==
+        b=WC7wdZabFLp+/rWhgkJVmq11Fmvb4CjBVhkABVHQu5LVQJCYZ8zaTIoK6ww+nppLn
+         qf+VeqmzAS3hjnm6l33LyZRtyJvRRNZZBLNLFWwlYPtGAmIKC4d0KV/dC02ys/kakk
+         qven2PvzkIY+w2n58f/6u48PZahwmLkiMG85xNbD11rGKyomRZw0wayao3XIC6aax3
+         EnmJbS6Z/Fpz/rtpHHuBmVOZqj0WSEAe3La2BiDi5Wi2rxLxISK84Q2attgpuNKbUe
+         boTY1e4z2myAwx/RTN7SiE6MVgi8Dh/cbtMrz8aHiD5HqLMWD0l32R7yqaJg/CmviB
+         G+DV3OuZ71CIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Smart <jsmart2021@gmail.com>,
@@ -39,9 +39,9 @@ Cc:     James Smart <jsmart2021@gmail.com>,
         Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
         dick.kennedy@broadcom.com, jejb@linux.ibm.com,
         linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 036/159] scsi: lpfc: Fix SCSI I/O completion and abort handler deadlock
-Date:   Mon, 30 May 2022 09:22:21 -0400
-Message-Id: <20220530132425.1929512-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 037/159] scsi: lpfc: Fix null pointer dereference after failing to issue FLOGI and PLOGI
+Date:   Mon, 30 May 2022 09:22:22 -0400
+Message-Id: <20220530132425.1929512-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -61,147 +61,165 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 03cbbd7c2f5ee288f648f4aeedc765a181188553 ]
+[ Upstream commit 577a942df3de2666f6947bdd3a5c9e8d30073424 ]
 
-During stress I/O tests with 500+ vports, hard LOCKUP call traces are
-observed.
+If lpfc_issue_els_flogi() fails and returns non-zero status, the node
+reference count is decremented to trigger the release of the nodelist
+structure. However, if there is a prior registration or dev-loss-evt work
+pending, the node may be released prematurely.  When dev-loss-evt
+completes, the released node is referenced causing a use-after-free null
+pointer dereference.
 
-CPU A:
- native_queued_spin_lock_slowpath+0x192
- _raw_spin_lock_irqsave+0x32
- lpfc_handle_fcp_err+0x4c6
- lpfc_fcp_io_cmd_wqe_cmpl+0x964
- lpfc_sli4_fp_handle_cqe+0x266
- __lpfc_sli4_process_cq+0x105
- __lpfc_sli4_hba_process_cq+0x3c
- lpfc_cq_poll_hdler+0x16
- irq_poll_softirq+0x76
- __softirqentry_text_start+0xe4
- irq_exit+0xf7
- do_IRQ+0x7f
+Similarly, when processing non-zero ELS PLOGI completion status in
+lpfc_cmpl_els_plogi(), the ndlp flags are checked for a transport
+registration before triggering node removal.  If dev-loss-evt work is
+pending, the node may be released prematurely and a subsequent call to
+lpfc_dev_loss_tmo_handler() results in a use after free ndlp dereference.
 
-CPU B:
- native_queued_spin_lock_slowpath+0x5b
- _raw_spin_lock+0x1c
- lpfc_abort_handler+0x13e
- scmd_eh_abort_handler+0x85
- process_one_work+0x1a7
- worker_thread+0x30
- kthread+0x112
- ret_from_fork+0x1f
+Add test for pending dev-loss before decrementing the node reference count
+for FLOGI, PLOGI, PRLI, and ADISC handling.
 
-Diagram of lockup:
-
-CPUA                            CPUB
-----                            ----
-lpfc_cmd->buf_lock
-                            phba->hbalock
-                            lpfc_cmd->buf_lock
-phba->hbalock
-
-Fix by reordering the taking of the lpfc_cmd->buf_lock and phba->hbalock in
-lpfc_abort_handler routine so that it tries to take the lpfc_cmd->buf_lock
-first before phba->hbalock.
-
-Link: https://lore.kernel.org/r/20220412222008.126521-7-jsmart2021@gmail.com
+Link: https://lore.kernel.org/r/20220412222008.126521-9-jsmart2021@gmail.com
 Co-developed-by: Justin Tee <justin.tee@broadcom.com>
 Signed-off-by: Justin Tee <justin.tee@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 33 +++++++++++++++------------------
- 1 file changed, 15 insertions(+), 18 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 51 +++++++++++++++++++++++++-----------
+ 1 file changed, 35 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index ba9dbb51b75f..c4fa7d68fe03 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -5864,25 +5864,25 @@ lpfc_abort_handler(struct scsi_cmnd *cmnd)
- 	if (!lpfc_cmd)
- 		return ret;
- 
--	spin_lock_irqsave(&phba->hbalock, flags);
-+	/* Guard against IO completion being called at same time */
-+	spin_lock_irqsave(&lpfc_cmd->buf_lock, flags);
-+
-+	spin_lock(&phba->hbalock);
- 	/* driver queued commands are in process of being flushed */
- 	if (phba->hba_flag & HBA_IOQ_FLUSH) {
- 		lpfc_printf_vlog(vport, KERN_WARNING, LOG_FCP,
- 			"3168 SCSI Layer abort requested I/O has been "
- 			"flushed by LLD.\n");
- 		ret = FAILED;
--		goto out_unlock;
-+		goto out_unlock_hba;
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 872a26376ccb..46a01a51b207 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1532,10 +1532,13 @@ lpfc_initial_flogi(struct lpfc_vport *vport)
  	}
  
--	/* Guard against IO completion being called at same time */
--	spin_lock(&lpfc_cmd->buf_lock);
--
- 	if (!lpfc_cmd->pCmd) {
- 		lpfc_printf_vlog(vport, KERN_WARNING, LOG_FCP,
- 			 "2873 SCSI Layer I/O Abort Request IO CMPL Status "
- 			 "x%x ID %d LUN %llu\n",
- 			 SUCCESS, cmnd->device->id, cmnd->device->lun);
--		goto out_unlock_buf;
-+		goto out_unlock_hba;
+ 	if (lpfc_issue_els_flogi(vport, ndlp, 0)) {
+-		/* This decrement of reference count to node shall kick off
+-		 * the release of the node.
++		/* A node reference should be retained while registered with a
++		 * transport or dev-loss-evt work is pending.
++		 * Otherwise, decrement node reference to trigger release.
+ 		 */
+-		lpfc_nlp_put(ndlp);
++		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD)) &&
++		    !(ndlp->nlp_flag & NLP_IN_DEV_LOSS))
++			lpfc_nlp_put(ndlp);
+ 		return 0;
+ 	}
+ 	return 1;
+@@ -1578,10 +1581,13 @@ lpfc_initial_fdisc(struct lpfc_vport *vport)
  	}
  
- 	iocb = &lpfc_cmd->cur_iocbq;
-@@ -5890,7 +5890,7 @@ lpfc_abort_handler(struct scsi_cmnd *cmnd)
- 		pring_s4 = phba->sli4_hba.hdwq[iocb->hba_wqidx].io_wq->pring;
- 		if (!pring_s4) {
- 			ret = FAILED;
--			goto out_unlock_buf;
-+			goto out_unlock_hba;
+ 	if (lpfc_issue_els_fdisc(vport, ndlp, 0)) {
+-		/* decrement node reference count to trigger the release of
+-		 * the node.
++		/* A node reference should be retained while registered with a
++		 * transport or dev-loss-evt work is pending.
++		 * Otherwise, decrement node reference to trigger release.
+ 		 */
+-		lpfc_nlp_put(ndlp);
++		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD)) &&
++		    !(ndlp->nlp_flag & NLP_IN_DEV_LOSS))
++			lpfc_nlp_put(ndlp);
+ 		return 0;
+ 	}
+ 	return 1;
+@@ -1983,6 +1989,7 @@ lpfc_cmpl_els_plogi(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 	int disc;
+ 	struct serv_parm *sp = NULL;
+ 	u32 ulp_status, ulp_word4, did, iotag;
++	bool release_node = false;
+ 
+ 	/* we pass cmdiocb to state machine which needs rspiocb as well */
+ 	cmdiocb->context_un.rsp_iocb = rspiocb;
+@@ -2071,19 +2078,21 @@ lpfc_cmpl_els_plogi(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			spin_unlock_irq(&ndlp->lock);
+ 			goto out;
  		}
- 		spin_lock(&pring_s4->ring_lock);
- 	}
-@@ -5923,8 +5923,8 @@ lpfc_abort_handler(struct scsi_cmnd *cmnd)
- 			 "3389 SCSI Layer I/O Abort Request is pending\n");
- 		if (phba->sli_rev == LPFC_SLI_REV4)
- 			spin_unlock(&pring_s4->ring_lock);
--		spin_unlock(&lpfc_cmd->buf_lock);
--		spin_unlock_irqrestore(&phba->hbalock, flags);
-+		spin_unlock(&phba->hbalock);
-+		spin_unlock_irqrestore(&lpfc_cmd->buf_lock, flags);
- 		goto wait_for_cmpl;
- 	}
+-		spin_unlock_irq(&ndlp->lock);
  
-@@ -5945,15 +5945,13 @@ lpfc_abort_handler(struct scsi_cmnd *cmnd)
- 	if (ret_val != IOCB_SUCCESS) {
- 		/* Indicate the IO is not being aborted by the driver. */
- 		lpfc_cmd->waitq = NULL;
--		spin_unlock(&lpfc_cmd->buf_lock);
--		spin_unlock_irqrestore(&phba->hbalock, flags);
- 		ret = FAILED;
--		goto out;
-+		goto out_unlock_hba;
- 	}
+ 		/* No PLOGI collision and the node is not registered with the
+ 		 * scsi or nvme transport. It is no longer an active node. Just
+ 		 * start the device remove process.
+ 		 */
+ 		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD))) {
+-			spin_lock_irq(&ndlp->lock);
+ 			ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
+-			spin_unlock_irq(&ndlp->lock);
++			if (!(ndlp->nlp_flag & NLP_IN_DEV_LOSS))
++				release_node = true;
++		}
++		spin_unlock_irq(&ndlp->lock);
++
++		if (release_node)
+ 			lpfc_disc_state_machine(vport, ndlp, cmdiocb,
+ 						NLP_EVT_DEVICE_RM);
+-		}
+ 	} else {
+ 		/* Good status, call state machine */
+ 		prsp = list_entry(((struct lpfc_dmabuf *)
+@@ -2294,6 +2303,7 @@ lpfc_cmpl_els_prli(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 	u32 loglevel;
+ 	u32 ulp_status;
+ 	u32 ulp_word4;
++	bool release_node = false;
  
- 	/* no longer need the lock after this point */
--	spin_unlock(&lpfc_cmd->buf_lock);
--	spin_unlock_irqrestore(&phba->hbalock, flags);
-+	spin_unlock(&phba->hbalock);
-+	spin_unlock_irqrestore(&lpfc_cmd->buf_lock, flags);
+ 	/* we pass cmdiocb to state machine which needs rspiocb as well */
+ 	cmdiocb->context_un.rsp_iocb = rspiocb;
+@@ -2370,14 +2380,18 @@ lpfc_cmpl_els_prli(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 		 * it is no longer an active node.  Otherwise devloss
+ 		 * handles the final cleanup.
+ 		 */
++		spin_lock_irq(&ndlp->lock);
+ 		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD)) &&
+ 		    !ndlp->fc4_prli_sent) {
+-			spin_lock_irq(&ndlp->lock);
+ 			ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
+-			spin_unlock_irq(&ndlp->lock);
++			if (!(ndlp->nlp_flag & NLP_IN_DEV_LOSS))
++				release_node = true;
++		}
++		spin_unlock_irq(&ndlp->lock);
++
++		if (release_node)
+ 			lpfc_disc_state_machine(vport, ndlp, cmdiocb,
+ 						NLP_EVT_DEVICE_RM);
+-		}
+ 	} else {
+ 		/* Good status, call state machine.  However, if another
+ 		 * PRLI is outstanding, don't call the state machine
+@@ -2749,6 +2763,7 @@ lpfc_cmpl_els_adisc(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 	struct lpfc_nodelist *ndlp;
+ 	int  disc;
+ 	u32 ulp_status, ulp_word4, tmo;
++	bool release_node = false;
  
- 	if (phba->cfg_poll & DISABLE_FCP_RING_INT)
- 		lpfc_sli_handle_fast_ring_event(phba,
-@@ -5988,10 +5986,9 @@ lpfc_abort_handler(struct scsi_cmnd *cmnd)
- out_unlock_ring:
- 	if (phba->sli_rev == LPFC_SLI_REV4)
- 		spin_unlock(&pring_s4->ring_lock);
--out_unlock_buf:
--	spin_unlock(&lpfc_cmd->buf_lock);
--out_unlock:
--	spin_unlock_irqrestore(&phba->hbalock, flags);
-+out_unlock_hba:
-+	spin_unlock(&phba->hbalock);
-+	spin_unlock_irqrestore(&lpfc_cmd->buf_lock, flags);
- out:
- 	lpfc_printf_vlog(vport, KERN_WARNING, LOG_FCP,
- 			 "0749 SCSI Layer I/O Abort Request Status x%x ID %d "
+ 	/* we pass cmdiocb to state machine which needs rspiocb as well */
+ 	cmdiocb->context_un.rsp_iocb = rspiocb;
+@@ -2815,13 +2830,17 @@ lpfc_cmpl_els_adisc(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 		 * transport, it is no longer an active node. Otherwise
+ 		 * devloss handles the final cleanup.
+ 		 */
++		spin_lock_irq(&ndlp->lock);
+ 		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD))) {
+-			spin_lock_irq(&ndlp->lock);
+ 			ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
+-			spin_unlock_irq(&ndlp->lock);
++			if (!(ndlp->nlp_flag & NLP_IN_DEV_LOSS))
++				release_node = true;
++		}
++		spin_unlock_irq(&ndlp->lock);
++
++		if (release_node)
+ 			lpfc_disc_state_machine(vport, ndlp, cmdiocb,
+ 						NLP_EVT_DEVICE_RM);
+-		}
+ 	} else
+ 		/* Good status, call state machine */
+ 		lpfc_disc_state_machine(vport, ndlp, cmdiocb,
 -- 
 2.35.1
 
