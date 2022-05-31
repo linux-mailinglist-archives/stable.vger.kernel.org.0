@@ -2,55 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9F053944E
-	for <lists+stable@lfdr.de>; Tue, 31 May 2022 17:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EED539452
+	for <lists+stable@lfdr.de>; Tue, 31 May 2022 17:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345888AbiEaPwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 May 2022 11:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51886 "EHLO
+        id S232910AbiEaPxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 May 2022 11:53:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231700AbiEaPwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 11:52:46 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A86DF4EDF3;
-        Tue, 31 May 2022 08:52:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description;
-        bh=LpXPAneCugbQKHFScwdaqR/e+kKcx/ImtDg7Wq8zAWA=; b=icH4vRbWpozE50sycTIIOtua87
-        YO+86QBJ38xanxRX9luKNWYPuGhPGvCuhU0yDUCTTTBxPrQZTyack11k5kZ6ZfU/SpJ3eHIFqwjjv
-        c6Xnz2kH/yQSELj5WtLrMQdho7kslht3v1Rw/r6XbIzCqT/t2Mpj6jmmUYVd40q0acNUtY9KYNhJ7
-        x0BbhLLahoffzlV5BEUS62JmYJeXcFhI2IAK0pwKnRgRp9seqQbPnwvv8IDYgc9dk+kSNgm9kq72J
-        +0tTawagakssCe4R/8uNHcUsoDgKC3LjTsTRa00S+RwYbF/iAgZmdhWnZwMggAGomjwPwCQukRv2Q
-        zqNp6vWQ==;
-Received: from [2601:1c0:6280:3f0::aa0b]
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nw4Ab-005UoH-R7; Tue, 31 May 2022 15:52:34 +0000
-Message-ID: <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
-Date:   Tue, 31 May 2022 08:52:28 -0700
+        with ESMTP id S1345919AbiEaPxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 11:53:44 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 746A48DDF5
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 08:53:42 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id nn3-20020a17090b38c300b001e0e091cf03so1924598pjb.1
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 08:53:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
+         :subject:content-transfer-encoding;
+        bh=8KcP8g0SX6NNLKFwX4YHAyEfOJb0z0q05cv5Q2aR/eA=;
+        b=lL2tO5fhoERlWz0RwF4tnTfX8QI6EM/suaQXQSU4eCJOp7xbKRr02HJgrJhU9rjnQy
+         L7Dfa+TCWRKQckeRXhfeYPDdB5OlZGzRMDpJUTgSTCHauMJ9yqDVJr1rsq5DPxjAIqNf
+         uMj8CdbZMbq9/d6VcU5fgujT5EWqkT+34PbcTlZmr1SLxAp7be9lyH6S+7OAjLDnkiVA
+         O16IwKF86TgxjDWLAey1Feyo3fbpzGZr8s4JdfgMeY+PVpZUfTHKkqEh3gNDkljhQAyy
+         jZ20MS3QsaSAxwtawZvJW7MVSCX4dWC/H1skgl/UJUNb3z5ZD1WEegvID+sLSezOeO/I
+         VWrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:from:subject:content-transfer-encoding;
+        bh=8KcP8g0SX6NNLKFwX4YHAyEfOJb0z0q05cv5Q2aR/eA=;
+        b=JlTRrKsGqBtRutAzAuexCb5PQw9QoQVqpQgMtdpvs1fdyM04VSzZNLEdxrsgPRrYCU
+         C5uq/BEKTr6Gt70V/p0W89UtfW/uY5tlIIYmEm8GhsDFCIeT466Px6/TJOXETA5NHJb6
+         SpwFi41FnOQPxjfwkwwOLsIC9TlSJbE+e7wIkeYsZ6GQ3/V6MZXnPHCLD41DVmSvtV1W
+         /FggT/b4zk/59w/K1e6+jDE3+UJzO6TcUNtedxVjlTDY0xHaawuw7TlqD8P8cEiwBr0t
+         4+Wu7FtIazjPr5RWPAXf+6Yq3DuPpfpTSpk+BI0bxbfx1SZcqGncYvSAbxSeasnbkeTa
+         eqRw==
+X-Gm-Message-State: AOAM5301teUD37KgDUf6HUwKzazh955U3HtVhT8CVW0ZSQNk2sKiIw0W
+        BZ8E6pn+bq0IQnyyiVgyGGeCUfUpGTdtpA==
+X-Google-Smtp-Source: ABdhPJySbfBH6v4drzskdrgYlUFGLJoOcPtqnEP5k0+c8039GL4KUOPVITLTxfLPRaRBrtnGWmZWVg==
+X-Received: by 2002:a17:902:ebc8:b0:162:17a3:561 with SMTP id p8-20020a170902ebc800b0016217a30561mr46756930plg.144.1654012421659;
+        Tue, 31 May 2022 08:53:41 -0700 (PDT)
+Received: from [192.168.254.36] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id n1-20020a170903110100b00163ac8673edsm7456119plh.35.2022.05.31.08.53.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 31 May 2022 08:53:41 -0700 (PDT)
+Message-ID: <b6ca08bb-2275-ab66-1a78-d4ac9e87057c@linaro.org>
+Date:   Tue, 31 May 2022 08:53:40 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.1
-Subject: Re: [PATCH v2] HID: uclogic: properly format kernel-doc comment for
- hid_dbg() wrappers
 Content-Language: en-US
-To:     Bagas Sanjaya <bagasdotme@gmail.com>, linux-doc@vger.kernel.org
-Cc:     kernel test robot <lkp@intel.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        =?UTF-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>,
-        llvm@lists.linux.dev, stable@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220531092817.13894-1-bagasdotme@gmail.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20220531092817.13894-1-bagasdotme@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Namjae Jeon <linkinjeon@kernel.org>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        linux-fsdevel@vger.kernel.org
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: exfat: check if cluster num is valid
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,84 +71,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
+Please apply upstream commit: 64ba4b15e5c0 ("exfat: check if cluster num is valid")
+to stable 5.18.y and 5.17.y
+Backports for 5.15.y and 5.10.y will follow soon.
 
-
-On 5/31/22 02:28, Bagas Sanjaya wrote:
-> Running kernel-doc script on drivers/hid/hid-uclogic-params.c, it found
-> 6 warnings for hid_dbg() wrapper functions below:
-> 
-> drivers/hid/hid-uclogic-params.c:48: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
-> drivers/hid/hid-uclogic-params.c:48: warning: missing initial short description on line:
->  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
-> drivers/hid/hid-uclogic-params.c:48: info: Scanning doc for function Dump
-> drivers/hid/hid-uclogic-params.c:80: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface frame parameters with hid_dbg(), indented with two
-> drivers/hid/hid-uclogic-params.c:80: warning: missing initial short description on line:
->  * Dump tablet interface frame parameters with hid_dbg(), indented with two
-> drivers/hid/hid-uclogic-params.c:80: info: Scanning doc for function Dump
-> drivers/hid/hid-uclogic-params.c:105: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface parameters with hid_dbg().
-> drivers/hid/hid-uclogic-params.c:105: warning: missing initial short description on line:
->  * Dump tablet interface parameters with hid_dbg().
-> 
-> One of them is reported by kernel test robot.
-> 
-> Fix these warnings by properly format kernel-doc comment for these
-> functions.
-> 
-> Link: https://lore.kernel.org/linux-doc/202205272033.XFYlYj8k-lkp@intel.com/
-> Fixes: a228809fa6f39c ("HID: uclogic: Move param printing to a function")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Cc: Nikolai Kondrashov <spbnick@gmail.com>
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: "José Expósito" <jose.exposito89@gmail.com>
-> Cc: llvm@lists.linux.dev
-> Cc: stable@vger.kernel.org # v5.18
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-> ---
->  Changes since v1 [1]:
->    - Approach the warning by fixing kernel-doc comments formatting
->      (suggested by Jonathan Corbet)
-> 
->  [1]: https://lore.kernel.org/linux-doc/20220528091403.160169-1-bagasdotme@gmail.com/
-
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-
-One note (nit) below:
-
->  drivers/hid/hid-uclogic-params.c | 24 ++++++++++++++----------
->  1 file changed, 14 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-> index db838f16282d64..647bbd3e000e2f 100644
-> --- a/drivers/hid/hid-uclogic-params.c
-> +++ b/drivers/hid/hid-uclogic-params.c
-> @@ -23,11 +23,11 @@
->  /**
->   * uclogic_params_pen_inrange_to_str() - Convert a pen in-range reporting type
->   *                                       to a string.
-> - *
->   * @inrange:	The in-range reporting type to convert.
->   *
-> - * Returns:
-> - *	The string representing the type, or NULL if the type is unknown.
-> + * Return:
-> + * * The string representing the type, or
-> + * * NULL if the type is unknown.
-
-        %NULL
-would be better here, but not required.
-
->   */
->  static const char *uclogic_params_pen_inrange_to_str(
->  				enum uclogic_params_pen_inrange inrange)
-
-
-Thanks.
 -- 
-~Randy
+Thanks,
+Tadeusz
