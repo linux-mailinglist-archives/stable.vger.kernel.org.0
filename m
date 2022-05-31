@@ -2,129 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AC253899C
-	for <lists+stable@lfdr.de>; Tue, 31 May 2022 03:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BBA5389F4
+	for <lists+stable@lfdr.de>; Tue, 31 May 2022 04:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238311AbiEaBao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 21:30:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
+        id S243592AbiEaCiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 22:38:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231684AbiEaBao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 21:30:44 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46DE962A2F;
-        Mon, 30 May 2022 18:30:42 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4LBvlp3Nx5zQkQD;
-        Tue, 31 May 2022 09:27:34 +0800 (CST)
-Received: from dggpemm500013.china.huawei.com (7.185.36.172) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 31 May 2022 09:30:39 +0800
-Received: from ubuntu1804.huawei.com (10.67.175.36) by
- dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 31 May 2022 09:30:39 +0800
-From:   Chen Zhongjin <chenzhongjin@huawei.com>
-To:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-CC:     <ebiederm@xmission.com>, <akpm@linux-foundation.org>,
-        <paskripkin@gmail.com>, <chenzhongjin@huawei.com>
-Subject: [PATCH] profiling: fix shift too large makes kernel panic
-Date:   Tue, 31 May 2022 09:28:54 +0800
-Message-ID: <20220531012854.229439-1-chenzhongjin@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S237072AbiEaCiM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 22:38:12 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F37350052;
+        Mon, 30 May 2022 19:38:09 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id bo5so11972196pfb.4;
+        Mon, 30 May 2022 19:38:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=5L9D0CPZoOn6iRer1/Iis9Os7Lr0syhKXln0w+FamQg=;
+        b=JKLzhF1usQmkIBdH2Vxsk7pDBv1OyOocxBwl+GQaJlEQlp8y2UKmKsfLyJEhM2N/gl
+         iBpTqmHvcKayfwyif2yByQnVOdgUmbJMknASvbSKnevTqd+cWvgfp6C8JFvzJqMOC33t
+         6d3zn/BOMUCv4CLqOrvzG+XHdi2FkE+Kt+b5geEh67iTW5l+v3dBZcbAlmcZwtnXE49A
+         BGLmJvekNBrYyDQdsMrI4ajZKNbTCI+GeoO7dZPXQ/69DR59l+NI/vSXXlfGySI/wQmy
+         ssciwG49ZPJBJWcqlayW1szsi/HnLTjWnE7O/zd56W1zaFYDtyzl1+8bZPobCDdswIvC
+         ZbPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=5L9D0CPZoOn6iRer1/Iis9Os7Lr0syhKXln0w+FamQg=;
+        b=HYAZp0lGXeLg8FMuyPclrIN+uYFPHn2OV127p03wbOgBU1LBpVRgkeHj/+GUdJrHYT
+         AEHbI5oDaBldA5tqjaBcAaqX8HmBzIGJZzsoDly2PJsesdIoLF/wdw5leVGMb1/iNTix
+         Y+9FTSitjeN3CLqLn1fwohHOEtIWctGY6q7c56hZ5Y5LtW697uRTgdciOtgMYf/7S2Qh
+         cst0pzANUjqt2g+h+HYuMjGn7TZrQ9kln5M4qEfzU6eDwN8GqeedHc89mEeUqFZ1A8bN
+         0IzeNrQd3nNHfBXNn9iyJvnpbLQp47gBWVopX3uQcovujGfmVk6W9or2zvOCUzy9Qq3E
+         eOPA==
+X-Gm-Message-State: AOAM531hKRVjfRF3hb7reRKIypJSasBrZP7XhqM3DOB88NBYIfklx5Fh
+        53Aav2sRzAIVOdhe2o0lXcjYu1GeWDpwWA==
+X-Google-Smtp-Source: ABdhPJxO664InV+6aWDDRju8azkE7SdS5F2TwFncm+G+qhlV5ky/ruidv8wc6jADxF5vlYvOx26s1Q==
+X-Received: by 2002:a05:6a00:a03:b0:51b:5131:704e with SMTP id p3-20020a056a000a0300b0051b5131704emr7294679pfh.53.1653964688792;
+        Mon, 30 May 2022 19:38:08 -0700 (PDT)
+Received: from [192.168.43.80] (subs02-180-214-232-77.three.co.id. [180.214.232.77])
+        by smtp.gmail.com with ESMTPSA id y139-20020a626491000000b0051844a64d3dsm9484454pfb.25.2022.05.30.19.38.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 May 2022 19:38:08 -0700 (PDT)
+Message-ID: <1344ac58-f019-03ef-fab8-6e1d910514e2@gmail.com>
+Date:   Tue, 31 May 2022 09:38:03 +0700
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.36]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500013.china.huawei.com (7.185.36.172)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH AUTOSEL 5.17 128/135] hwmon: Make chip parameter for
+ with_info API mandatory
+Content-Language: en-US
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     jdelvare@suse.com, corbet@lwn.net, linux-hwmon@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220530133133.1931716-1-sashal@kernel.org>
+ <20220530133133.1931716-128-sashal@kernel.org>
+ <dddc2b53-62eb-fda7-4425-afdd179a7037@roeck-us.net>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <dddc2b53-62eb-fda7-4425-afdd179a7037@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"2d186afd04d6: profiling: fix shift-out-of-bounds bugs" limits shift
-value by [0, BITS_PER_LONG -1], which means [0, 63].
+On 5/30/22 21:27, Guenter Roeck wrote:
+> On 5/30/22 06:31, Sasha Levin wrote:
+>> From: Guenter Roeck <linux@roeck-us.net>
+>>
+>> [ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
+>>
+>> Various attempts were made recently to "convert" the old
+>> hwmon_device_register() API to devm_hwmon_device_register_with_info()
+>> by just changing the function name without actually converting the
+>> driver. Prevent this from happening by making the 'chip' parameter of
+>> devm_hwmon_device_register_with_info() mandatory.
+>>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> This patch should not be backported. It is only relevant for new
+> kernel releases, and may have adverse affect if applied to older
+> kernels.
 
-However, syzbot found that the max shift value should be the bit number
-of (_etext - _stext). If shift be out of this, the "buffer_bytes" will
-be zero and cause kzalloc(0). Then kernel goes panic for derefrence
-returned pointer 16.
+So this patch is meant to be backported to 5.18 only, right?
 
-It can be easily reproduced by pass a large number like 60 to enable
-profiling and then run readprofile.
-
-LOGS:
- BUG: kernel NULL pointer dereference, address: 0000000000000010
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 6148067 P4D 6148067 PUD 6142067 PMD 0
- PREEMPT SMP
- CPU: 4 PID: 184 Comm: readprofile Not tainted 5.18.0+ #162
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
- RIP: 0010:read_profile+0x104/0x220
- RSP: 0018:ffffc900006fbe80 EFLAGS: 00000202
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: ffff888006150000 RSI: 0000000000000001 RDI: ffffffff82aba4a0
- RBP: 000000000188bb60 R08: 0000000000000010 R09: ffff888006151000
- R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff82aba4a0
- R13: 0000000000000000 R14: ffffc900006fbf08 R15: 0000000000020c30
- FS:  000000000188a8c0(0000) GS:ffff88803ed00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000010 CR3: 0000000006144000 CR4: 00000000000006e0
- Call Trace:
-  <TASK>
-  proc_reg_read+0x56/0x70
-  vfs_read+0x9a/0x1b0
-  ksys_read+0xa1/0xe0
-  ? fpregs_assert_state_consistent+0x1e/0x40
-  do_syscall_64+0x3a/0x80
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
- RIP: 0033:0x4d4b4e
- RSP: 002b:00007ffebb668d58 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
- RAX: ffffffffffffffda RBX: 000000000188a8a0 RCX: 00000000004d4b4e
- RDX: 0000000000000400 RSI: 000000000188bb60 RDI: 0000000000000003
- RBP: 0000000000000003 R08: 000000000000006e R09: 0000000000000000
- R10: 0000000000000041 R11: 0000000000000246 R12: 000000000188bb60
- R13: 0000000000000400 R14: 0000000000000000 R15: 000000000188bb60
-  </TASK>
- Modules linked in:
- CR2: 0000000000000010
-Killed
- ---[ end trace 0000000000000000 ]---
-
-Check prof_len in profile_init() to prevent it be zero.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
----
- kernel/profile.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/kernel/profile.c b/kernel/profile.c
-index 37640a0bd8a3..ae82ddfc6a68 100644
---- a/kernel/profile.c
-+++ b/kernel/profile.c
-@@ -109,6 +109,13 @@ int __ref profile_init(void)
- 
- 	/* only text is profiled */
- 	prof_len = (_etext - _stext) >> prof_shift;
-+
-+	if (!prof_len) {
-+		pr_warn("profiling shift: %u too large\n", prof_shift);
-+		prof_on = 0;
-+		return -EINVAL;
-+	}
-+
- 	buffer_bytes = prof_len*sizeof(atomic_t);
- 
- 	if (!alloc_cpumask_var(&prof_cpu_mask, GFP_KERNEL))
 -- 
-2.17.1
-
+An old man doll... just what I always wanted! - Clara
