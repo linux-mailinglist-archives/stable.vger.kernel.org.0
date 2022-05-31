@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1F753945C
-	for <lists+stable@lfdr.de>; Tue, 31 May 2022 17:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8DC539490
+	for <lists+stable@lfdr.de>; Tue, 31 May 2022 17:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345540AbiEaP4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 May 2022 11:56:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60912 "EHLO
+        id S235478AbiEaP5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 May 2022 11:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243830AbiEaP4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 11:56:35 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBD0527F4
-        for <stable@vger.kernel.org>; Tue, 31 May 2022 08:56:34 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id s14so13199113plk.8
-        for <stable@vger.kernel.org>; Tue, 31 May 2022 08:56:34 -0700 (PDT)
+        with ESMTP id S1345979AbiEaP5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 11:57:12 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA9FD7A80B
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 08:56:58 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id e11so2109534pfj.5
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 08:56:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=qxbyGgJmuUugZ0TnjyCSJBdjXee0oAy3MfHmQafm2ko=;
-        b=cT5Yhl7gs/6NyAzPez1MN73VZeRhEfFpHJNSfCwGw3hHLCSUYQTDPqKCI3lK6Wa4x1
-         IMV0CfUzNtijKrrgk+KwKVqE2ss9lndkWj7d/ij0WkU5cNa+2U0JQnqGYIGW4y4jzmO8
-         m0fclBTBLFdo5J894GMxX/h7B1fIFV3iQ2w7GJABgk3uHMV59BZ5kzsHh+oEZ2pN5/nn
-         bqKwSAMxqWCOp4LGru9EM1aV1pskn7sa07gQ2/UV1zHjilQqK8LkdxR77lx3QqGtUu+j
-         q06EFqEPcMjfPP6f6qTYBlr+djbmD34TFibbahMURVYALH9iVKr1fCWmyAFwdpDkwxcP
-         vVGg==
+        bh=Ut0kTJB8jFm6gv4A9ig72S34WS8IPzTidh9YVWwEiS8=;
+        b=m2x00DcvozUXS5IX50RXFZKSR5JFj4Zn1o+LxFArZe+sDl9UrTLhMeOhNlY6UomxoG
+         /bPMkrq+U14Et03V7LKOwtV+Vl00ok2yMZp6iCUCh/f2Gwb2OXQEALsQit4UBi4a7upS
+         geCIlSXG2VXvyzaQ2bb4qIcMhAzqMhuLaEE9KTE0TrylQmHbA5puY8y8B++BZSyHQiB5
+         qqH1hEpJwjXboeGYg6Mc2bsFn/yqz/QOgbQEx1nJWXdyScH88KGhM0SZiMTACikRj34F
+         uePRvH59b1/mSFckp+tpTMWhFQ5/D8VMif1LoVgx1dWM76sVEGWrXO0AWeKWaB1LPVl+
+         9MQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=qxbyGgJmuUugZ0TnjyCSJBdjXee0oAy3MfHmQafm2ko=;
-        b=oc11a+MIYNAQOmxUh9ry52EHyIhrfDSLDNJLNu5x4nF+qccca1dl5YKLDfpw0q+MsM
-         rGvksaZnODB66mskzPF+4nQRP4XgG3z9F8aRFR73MCwH6je7KudBeFwDLtft4khSE0v5
-         KbkJAEd6KUIaB6CiuhDj7l5BrGowPVD+btZdx3xfX5CdJcWSM6W2XE5yZgVfUkhMRWGp
-         k8Q8/MHzkEZyVwsVlzYezY1uayMguM8gDd8gFGV2I4g50dU8kjNuqbXTloi0oZktDWyA
-         XYoNrLd/0fzx7qDraD3wxN5dEMJDha8tVcd2ccXsK7x9Bj0Lab/9IS1Zj8I2i/VkbeQa
-         o27w==
-X-Gm-Message-State: AOAM533oLzGMGbhCKs5O0oj7zix/r6L1mIwFuBATvDJzFY0q4qHNPF1o
-        ZmDEQxPTM9jWoIYk/zLF+BtpSQ7OHyajgg==
-X-Google-Smtp-Source: ABdhPJwOCayO7IduOScGpAJJo8UeMVxnsFOimID7wiZ6FU52PHYeaqf092o8xLCW/qFtoCytq63mGQ==
-X-Received: by 2002:a17:90b:3a85:b0:1e0:548:2bf7 with SMTP id om5-20020a17090b3a8500b001e005482bf7mr29428413pjb.55.1654012593317;
-        Tue, 31 May 2022 08:56:33 -0700 (PDT)
+        bh=Ut0kTJB8jFm6gv4A9ig72S34WS8IPzTidh9YVWwEiS8=;
+        b=GAAaN4Z4dm4AB4XeKuxJjntGosxA+SjDDHiQHmcV4wXPv5+vZNOkD9zl5yl3hT+jtn
+         W6S6j7ODFveB0RRL7NKBkw+qhkeAY2NcF/gp88h6eHiBsi7ffHNSaddBIfanDM3Fy5oV
+         mF78pXMdYXCVidZTfE9nCuqTZ/RTBanGmzqwpJQMlFOW48n9YGd0yEDzQt9/sIGkDLfn
+         8NULU2YWOwdVyk9mW35bY2ps5dBGIThopcrJSFlpoxAoNchybA6UpoQqKLHJ/v0xGa1j
+         1qM5p6+lbvwabPalxBpAPcnK52hayJCLoEt5AWXlTUUnA03m3GU8CusZV5+0cbUBqLyp
+         W2VQ==
+X-Gm-Message-State: AOAM533OZroUhscXeLX5BN1mT9GYOJ1wFXq5bNWX0KolEsZ2E90KRn++
+        0A4F5jGDjNQvpn0HW51akUcgcRGIihP8ug==
+X-Google-Smtp-Source: ABdhPJxtl9gR0kHCZ2ksw1iKHAsdHc30hPxh8JH++XeHVk4et8ZY3FRLfngTU0IpHohCSHcTPx9s2A==
+X-Received: by 2002:a63:5143:0:b0:3fa:218d:db2 with SMTP id r3-20020a635143000000b003fa218d0db2mr40227106pgl.354.1654012617844;
+        Tue, 31 May 2022 08:56:57 -0700 (PDT)
 Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id cm12-20020a17090afa0c00b001e09cab8893sm2123986pjb.42.2022.05.31.08.56.32
+        by smtp.gmail.com with ESMTPSA id ca7-20020a17090af30700b001e292e30129sm2141892pjb.22.2022.05.31.08.56.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 31 May 2022 08:56:32 -0700 (PDT)
+        Tue, 31 May 2022 08:56:57 -0700 (PDT)
 From:   Tadeusz Struk <tadeusz.struk@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
         syzbot+a4087e40b9c13aad7892@syzkaller.appspotmail.com,
         Sungjong Seo <sj1557.seo@samsung.com>,
         Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH v5.15] exfat: check if cluster num is valid
-Date:   Tue, 31 May 2022 08:56:17 -0700
-Message-Id: <20220531155617.8910-1-tadeusz.struk@linaro.org>
+Subject: [PATCH v5.10] exfat: check if cluster num is valid
+Date:   Tue, 31 May 2022 08:56:47 -0700
+Message-Id: <20220531155647.8933-1-tadeusz.struk@linaro.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <b6ca08bb-2275-ab66-1a78-d4ac9e87057c@linaro.org>
 References: <b6ca08bb-2275-ab66-1a78-d4ac9e87057c@linaro.org>
@@ -114,10 +114,10 @@ Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
  3 files changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/fs/exfat/balloc.c b/fs/exfat/balloc.c
-index cc5cffc4a769..e2113e0a848c 100644
+index 579c10f57c2b..258b6bb5762a 100644
 --- a/fs/exfat/balloc.c
 +++ b/fs/exfat/balloc.c
-@@ -148,7 +148,9 @@ int exfat_set_bitmap(struct inode *inode, unsigned int clu, bool sync)
+@@ -148,7 +148,9 @@ int exfat_set_bitmap(struct inode *inode, unsigned int clu)
  	struct super_block *sb = inode->i_sb;
  	struct exfat_sb_info *sbi = EXFAT_SB(sb);
  
@@ -128,7 +128,7 @@ index cc5cffc4a769..e2113e0a848c 100644
  	ent_idx = CLUSTER_TO_BITMAP_ENT(clu);
  	i = BITMAP_OFFSET_SECTOR_INDEX(sb, ent_idx);
  	b = BITMAP_OFFSET_BIT_IN_SECTOR(sb, ent_idx);
-@@ -166,7 +168,9 @@ void exfat_clear_bitmap(struct inode *inode, unsigned int clu, bool sync)
+@@ -166,7 +168,9 @@ void exfat_clear_bitmap(struct inode *inode, unsigned int clu)
  	struct exfat_sb_info *sbi = EXFAT_SB(sb);
  	struct exfat_mount_options *opts = &sbi->options;
  
@@ -140,10 +140,10 @@ index cc5cffc4a769..e2113e0a848c 100644
  	i = BITMAP_OFFSET_SECTOR_INDEX(sb, ent_idx);
  	b = BITMAP_OFFSET_BIT_IN_SECTOR(sb, ent_idx);
 diff --git a/fs/exfat/exfat_fs.h b/fs/exfat/exfat_fs.h
-index 1d6da61157c9..9f82a8a835ee 100644
+index b8f0e829ecbd..0d139c7d150d 100644
 --- a/fs/exfat/exfat_fs.h
 +++ b/fs/exfat/exfat_fs.h
-@@ -381,6 +381,14 @@ static inline int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
+@@ -380,6 +380,14 @@ static inline int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
  		EXFAT_RESERVED_CLUSTERS;
  }
  
@@ -159,7 +159,7 @@ index 1d6da61157c9..9f82a8a835ee 100644
  int exfat_set_volume_dirty(struct super_block *sb);
  int exfat_clear_volume_dirty(struct super_block *sb);
 diff --git a/fs/exfat/fatent.c b/fs/exfat/fatent.c
-index e949e563443c..421c27353104 100644
+index c3c9afee7418..a1481e47a761 100644
 --- a/fs/exfat/fatent.c
 +++ b/fs/exfat/fatent.c
 @@ -81,14 +81,6 @@ int exfat_ent_set(struct super_block *sb, unsigned int loc,
