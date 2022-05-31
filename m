@@ -2,113 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589CE5394D2
-	for <lists+stable@lfdr.de>; Tue, 31 May 2022 18:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B70539524
+	for <lists+stable@lfdr.de>; Tue, 31 May 2022 18:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346092AbiEaQPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 May 2022 12:15:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35520 "EHLO
+        id S238201AbiEaQ7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 May 2022 12:59:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346050AbiEaQP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 12:15:26 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD89597295
-        for <stable@vger.kernel.org>; Tue, 31 May 2022 09:15:24 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id m20so27555507ejj.10
-        for <stable@vger.kernel.org>; Tue, 31 May 2022 09:15:24 -0700 (PDT)
+        with ESMTP id S243076AbiEaQ7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 12:59:44 -0400
+Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890F56A041
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 09:59:43 -0700 (PDT)
+Received: by mail-io1-xd2b.google.com with SMTP id p74so14748999iod.8
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 09:59:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Nc6gvDu/qCvsuozChw2iy5NBV+S2vwfP2USSk50VMaI=;
-        b=XFtuth3C72V67k3+fMSyhH1pmrbg8CevCXU8dXJ6Sm9JEFBuS1Dkcz8LaMSZsOzAuT
-         Ys0IC+HnBqxy6ybSR5QEb0dWYLiwBSVV8QU08XP8+TnbDSyRNAPUGi7wgIGbJBSBNJ4C
-         scvA3/xgUHBhIDZsTdb2SJQ+ff8W8Kf9lb4UMttoqY5sWjBA1+jUduOYmAwmpnyP19yd
-         /6Fkqxsi251mNBs0UuieKMGyu/NYsuxv6lEIK0DcMIvzwSF1d+yq5xPBB0j5RavmSJkr
-         YekkVFqKM3x2MrjMyac/hk3VbdUScyPcDQMfdqfanZ/sOWp89bKNtD69kjkwYB82kN+z
-         aptg==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=IogAKhGoBa9QPMdAgVh78qOCFlabkTOpSN00yjBwN70=;
+        b=aV2Jhtojku5+XH3SKWTkRsvFjeM2zpJXxFqMfPruboXZUfx+MQeaHkVetyiMnVkvsJ
+         Wg/7NHN2RzwCOCcivJkeqIko5Ksa4Mob/8Chjlq4r9JooGcO1DHOkKAgfjNSmVUba8om
+         3ZcTK5Ds50kVmNFs1R+ImTi+D7eDip4tTMgWzFcojXvgmhciG3BvFay0fIOz20qFT/6d
+         qlrDE+v68PblL+GGgyUCUDT4WCsvfZmDgzzQFGiU7xv/HNrFdxwavCJj6oHEW1ae6av/
+         9+J3O8aZM2iq1cGKCPQHIiLcUrgGgKJYzRplYSONR6wVkZijWUt1wvW3NAHzww3v5zhY
+         1jDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Nc6gvDu/qCvsuozChw2iy5NBV+S2vwfP2USSk50VMaI=;
-        b=oUpzZk7diGc/hpn+DPn3L/Vb1j17LHkjHbf/f5HqDqP+JffitRTbDefVPWoUk7oel7
-         7/oXBZv13xEpx33FoFYZQ86SioHdmCzu1Q7f8Co77b4TM2diXzG5M5gcYs3RTLGsM/wV
-         Yc3OGZ/JI9F+qf1fhFDOSU48kMSLKTFGwdwQVI2w47/7OHXuDBBSPFsPMNa2uMn6AfCc
-         a2djPcArvVohFOj3j0UTGGF0NGmNmLMYthg6bnRUwIOTFJIfmDDRvPR8fb/bGfn6CmFJ
-         nmMaRkO7aQfC3UNIPPgM2OkyhPFz1SrG9XSWW6scfBgbdxcdh3PCB8O/7JE8CZQX42ea
-         7g5A==
-X-Gm-Message-State: AOAM531acZRwqs1ZXDv8KPFQkcwC6eCbC3BzyxSiNf8dqScVdZzVNvZC
-        6rAX4c+ENS3GiQY4SryGAQVty+qBnE0naysDBOGfMw==
-X-Google-Smtp-Source: ABdhPJwN17Hgc+ppJgUO4HXW0nH1ejUJ/8liIf3QjlGw/tzvqb5Qe2xK9aZnyTAB6QbJpR0wXNNZx7uvqSI7I3Vj8gA=
-X-Received: by 2002:a17:906:7953:b0:6fe:dcc0:356f with SMTP id
- l19-20020a170906795300b006fedcc0356fmr39943846ejo.75.1654013722984; Tue, 31
- May 2022 09:15:22 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=IogAKhGoBa9QPMdAgVh78qOCFlabkTOpSN00yjBwN70=;
+        b=RaFXcf+CViCIWQd+pZZtY/DEipfvckL+xN14bsQDF2D2nIc7cAoC/bWKE94eWsKmkd
+         4ECQrOMck83GEryvJYVprG4/PaFQPQsMZok3U8wgBuoK84zhGj/ij17Cf2RfCywB3xD4
+         +o6M0rMYMxmfHb/7qKqBvO/pVuKoFV5wR7mNsE2/iYxqLb/KBtHZDV0bkbgRK0ULSwrp
+         urE64yIPkURSZbarV5HrkyEaeTREUXHfkCmOVmxk6zaHfNr1TKe4uQCk6njTfrmyd0V7
+         2M7mqezFo34dMgo1EU1LGfpIIJZkTdev6Xx3BSeOfD99zydMalHRekdReNyaBp2QVu+5
+         gjxA==
+X-Gm-Message-State: AOAM532luWRMU/yiww24elbrgYSQWU36uB4MmKXwoySQbIAetu2DKCS9
+        yS2sxOeg8Ade+YtJ8A3uUyxfszQ4oD5S/TEkfg==
+X-Google-Smtp-Source: ABdhPJw24lg7zhLg2frGjgba6fMi6rCFix3Nk33sPX4HCJHqZobH10wMo/KukLB2kJsIyuLBMvykPYixK4NZG6DYu4g=
+X-Received: by 2002:a05:6638:1607:b0:330:f07b:7c5c with SMTP id
+ x7-20020a056638160700b00330f07b7c5cmr11528666jas.68.1654016382893; Tue, 31
+ May 2022 09:59:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220530133133.1931716-1-sashal@kernel.org> <20220530133133.1931716-89-sashal@kernel.org>
-In-Reply-To: <20220530133133.1931716-89-sashal@kernel.org>
-From:   Daniel Latypov <dlatypov@google.com>
-Date:   Tue, 31 May 2022 09:15:11 -0700
-Message-ID: <CAGS_qxrtZBrpk8x64oj53o4EEUCgTj1c4D12W+6UNArQfiiXaQ@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.17 089/135] kunit: bail out of test filtering
- logic quicker if OOM
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Zeal Robot <zealci@zte.com.cn>, Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
+Received: by 2002:a92:d24c:0:0:0:0:0 with HTTP; Tue, 31 May 2022 09:59:42
+ -0700 (PDT)
+Reply-To: payenjane100@gmail.com
+From:   payen jane <kadidiatanoukouni@gmail.com>
+Date:   Tue, 31 May 2022 09:59:42 -0700
+Message-ID: <CALX-3m-oyEVkdU4EtKLvgKa-5QpnHaQUA+f0DBmt7O=G2oHnQw@mail.gmail.com>
+Subject: =?UTF-8?B?5oiR6ZyA6KaB5L2g55qE5biu5Yqp?=
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: base64
+X-Spam-Status: Yes, score=7.5 required=5.0 tests=BAYES_99,BAYES_999,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:d2b listed in]
+        [list.dnswl.org]
+        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 1.0000]
+        *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
+        *      [score: 1.0000]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [payenjane100[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [kadidiatanoukouni[at]gmail.com]
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 30, 2022 at 6:36 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Daniel Latypov <dlatypov@google.com>
->
-> [ Upstream commit a02353f491622e49c7ddedc6a6dc4f1d6ed2150a ]
->
-
-Is it possible to make sure the fix for this commit gets picked up as well [1]?
-I was waiting a bit to see if it was going to get picked up
-automatically, but I don't see such an email yet:
-https://lore.kernel.org/stable/?q=kunit+OOM
-(Perhaps the automation just hasn't gotten around to it yet?)
-
-Alternatively, reverting just this commit would also work, if that's easier.
-
-[1] commit 1b11063d32d7e11366e48be64215ff517ce32217
-Author: Daniel Latypov <dlatypov@google.com>
-Date:   Fri May 13 11:37:07 2022 -0700
-
-    kunit: fix executor OOM error handling logic on non-UML
-
-    The existing logic happens to work fine on UML, but is not correct when
-    running on other arches.
-
-    1. We didn't initialize `int err`, and kunit_filter_suites() doesn't
-       explicitly set it to 0 on success. So we had false "failures".
-       Note: it doesn't happen on UML, causing this to get overlooked.
-    2. If we error out, we do not call kunit_handle_shutdown().
-       This makes kunit.py timeout when using a non-UML arch, since the QEMU
-       process doesn't ever exit.
-
-    Fixes: a02353f49162 ("kunit: bail out of test filtering logic
-quicker if OOM")
-    Signed-off-by: Daniel Latypov <dlatypov@google.com>
-    Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-    Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-
-Without 1b11063d32d7 above, this "fix" breaks more cases than it fixes
-due to my sloppiness.
-
-Thanks,
-Daniel
+5oiR5biM5pyb5L2g6IO955CG6Kej6L+Z5p2h5L+h5oGv77yM5Zug5Li65oiR5q2j5Zyo5L2/55So
+57+76K+R57uZ5L2g5YaZ5L+h44CCDQoNCuaIkeaYr+eugMK35L2p5oGp5Lit5aOr5aSr5Lq644CC
+DQoNCuWcqOe+juWbvemZhuWGm+eahOWGm+S6i+mDqOmXqOOAgue+juWbve+8jOS4gOWQjeS4reWj
+q++8jDMyIOWyge+8jOaIkeaYr+adpeiHque+juWbveeUsOe6s+ilv+W3nuWFi+WIqeWkq+WFsOea
+hOWNlei6q++8jOebruWJjeWcqOWIqeavlOS6muePreWKoOilv+aJp+ihjOS4gOmhueeJueauiuS7
+u+WKoeOAgg0KDQrmiJHmmK/kuIDkuKrlhYXmu6HniLHlv4PjgIHor5rlrp7lkozmt7Hmg4XnmoTk
+urrvvIzlhbfmnInoia/lpb3nmoTlub3pu5jmhJ/vvIzmiJHllpzmrKLnu5Por4bmlrDmnIvlj4vl
+ubbkuobop6Pku5bku6znmoTnlJ/mtLvmlrnlvI/vvIzmiJHllpzmrKLnnIvliLDlpKfmtbfnmoTm
+s6LmtpvlkozlsbHohInnmoTnvo7kuL3ku6Xlj4rlpKfoh6rnhLbmiYDmi6XmnInnmoTkuIDliIfm
+j5DkvpvjgILlvojpq5jlhbTog73mm7TlpJrlnLDkuobop6PmgqjvvIzmiJHorqTkuLrmiJHku6zl
+j6/ku6Xlu7rnq4voia/lpb3nmoTllYbkuJrlj4vosIrjgIINCg0K5oiR5LiA55u05b6I5LiN5byA
+5b+D77yM5Zug5Li65Yeg5bm05p2l55Sf5rS75a+55oiR5LiN5YWs5bmz77yb5oiR5ZyoIDIxDQrl
+soHml7blpLHljrvkuobniLbmr43jgILmiJHniLbkurLnmoTlkI3lrZfmmK/luJXnibnph4zmlq/k
+vanmganlkozmiJHnmoTmr43kurLnjpvkuL3kvanmganjgILmsqHmnInkurrluK7liqnmiJHvvIzk
+vYbmiJHlvojpq5jlhbTmiJHnu4jkuo7lnKjnvo7lhpvkuK3mib7liLDkuoboh6rlt7HjgIINCg0K
+5oiR57uT5ama55Sf5LqG5LiA5Liq5a2p5a2Q77yM5L2G5LuW5Y675LiW5LqG77yM5Zyo5oiR5LiI
+5aSr5byA5aeL6IOM5Y+b5oiR5ZCO5LiN5LmF77yM5oiR5LiN5b6X5LiN5pS+5byD5ama5ae744CC
+DQoNCuaIkeS5n+W+iOW5uOi/kOWcqOaIkeeahOWbveWutue+juWbveWSjOWIqeavlOS6muePreWK
+oOilv+i/memHjOaLpeacieaIkeeUn+a0u+S4remcgOimgeeahOS4gOWIh++8jOS9huayoeacieS6
+uue7meaIkeW7uuiuruOAguaIkemcgOimgeS4gOS4quivmuWunueahOS6uuadpeS/oeS7u++8jOS7
+luS5n+S8muW7uuiuruaIkeWmguS9leaKlei1hOaIkeeahOmSseOAguWboOS4uuaIkeaYr+aIkeeI
+tuavjeWcqOS7luS7rOatu+WJjeeUn+S4i+eahOWUr+S4gOS4gOS4quWls+WtqeOAgg0KDQrmiJHk
+uI3orqTor4bkvaDvvIzkvYbmiJHorqTkuLrmnInkuIDkuKrlj6/ku6Xkv6Hku7vnmoTlpb3kurrv
+vIzlj6/ku6Xlu7rnq4vnnJ/mraPnmoTkv6Hku7vlkozoia/lpb3nmoTllYbkuJrlj4vosIrvvIzl
+poLmnpzkvaDnnJ/nmoTmnInkuIDkuKror5rlrp7nmoTlkI3lrZfvvIzmiJHkuZ/mnInkuIDkupvk
+uovmg4XopoHlkozkvaDliIbkuqvnm7jkv6HjgILlnKjkvaDouqvkuIrvvIzlm6DkuLrmiJHpnIDo
+poHkvaDnmoTluK7liqnjgILmiJHmi6XmnInmiJHlnKjliKnmr5Tkuprnj63liqDopb/otZrliLDn
+moTmgLvpop3vvIg0NzANCuS4h+e+juWFg++8ieOAguaIkeWwhuWcqOS4i+S4gOWwgeeUteWtkOmC
+ruS7tuS4reWRiuivieS9oOaIkeaYr+WmguS9leWBmuWIsOeahO+8jOS4jeimgeaDiuaFjO+8jOWu
+g+S7rOaYr+aXoOmjjumZqeeahO+8jOaIkei/mOWcqOS4jiBSZWQNCuacieiBlOezu+eahOS6uumB
+k+S4u+S5ieWMu+eUn+eahOW4ruWKqeS4i+Wwhui/meeslOmSseWtmOWFpeS6huS4gOWutumTtuih
+jOOAguaIkeW4jOacm+S9oOS7peaIkeeahOWPl+ebiuS6uui6q+S7veaOpeWPl+WfuumHke+8jOW5
+tuWcqOaIkeWcqOi/memHjOWujOaIkOWQjuWmpeWWhOS/neeuoeWug++8jOW5tuiOt+W+l+aIkeea
+hOWGm+S6i+mAmuihjOivge+8jOS7peS+v+WcqOS9oOeahOWbveWutuS4juS9oOS8mumdou+8m+S4
+jeimgeWus+aAlemTtuihjOS8mumAmui/h+eUteaxh+Wwhui1hOmHkei9rOe7meaCqO+8jOi/meWv
+ueaIkeS7rOadpeivtOWuieWFqOS4lOW/q+aNt+OAgg0KDQrnrJTorrA75oiR5LiN55+l6YGT5oiR
+5Lus6KaB5Zyo6L+Z6YeM5b6F5aSa5LmF5ZKM5oiR55qE5ZG96L+Q77yM5Zug5Li65oiR5Zyo6L+Z
+6YeM5bm45YWN5LqO5Lik5qyh54K45by56KKt5Ye777yM6L+Z5a+86Ie05oiR5a+75om+5LiA5Liq
+5YC85b6X5L+h6LWW55qE5Lq65p2l5biu5Yqp5oiR5o6l5pS25ZKM5oqV6LWE5Z+66YeR77yM5Zug
+5Li65oiR5bCG5p2l5Yiw5L2g55qE5Zu95a625Ye66Lqr5oqV6LWE77yM5byA5aeL5paw55Sf5rS7
+77yM5LiN5YaN5b2T5YW144CCDQoNCuWmguaenOaCqOaEv+aEj+iwqOaFjuWkhOeQhu+8jOivt+Wb
+nuWkjeaIkeOAguaIkeS8muWRiuivieS9oOaOpeS4i+adpeeahOa1geeoi++8jOW5tue7meS9oOWP
+kemAgeabtOWkmuWFs+S6juWfuumHkeWtmOWFpemTtuihjOeahOS/oeaBr+OAguS7peWPiumTtuih
+jOWwhuWmguS9leW4ruWKqeaIkeS7rOmAmui/h+eUteaxh+Wwhui1hOmHkei9rOenu+WIsOaCqOea
+hOWbveWutu+8jOeUteaxh+S5n+aYr+mTtuihjOWIsOmTtuihjOeahOi9rOW4kOOAguiLpeacieWF
+tOi2o+ivt+iBlOezu+acrOS6uuOAgg0K
