@@ -2,119 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B75B9538A11
-	for <lists+stable@lfdr.de>; Tue, 31 May 2022 05:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D7B538DDA
+	for <lists+stable@lfdr.de>; Tue, 31 May 2022 11:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbiEaDAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 23:00:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
+        id S238680AbiEaJiE convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 31 May 2022 05:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243683AbiEaDAt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 23:00:49 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9303B8D6B6;
-        Mon, 30 May 2022 20:00:48 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id l84so15971105oif.10;
-        Mon, 30 May 2022 20:00:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:content-language:to
-         :cc:references:from:subject:in-reply-to:content-transfer-encoding;
-        bh=8BIreXk3wL1LJw946Ou89DmLJVLJs/jGntsglTvUFQg=;
-        b=lkbD9Dadr9MY5HqqYtdh1FcLBc2tH21uRMxhC5aQ7D1+mWohFQVcBKPBu9ixwh4xWs
-         RvXuaLexiRZ98t6R7rHlHhW3RIZ4m6MzBosTaEWqi9W3gpeq0Mf6l3G6aqPS+V5rTC6U
-         JBcq/kAjhTf6err2hL0SPJWw+H87WOPF5W2HURL73c1346xgAQsnRuEXzaBaHwLxu9/T
-         PBM/FPOW4Tunwn33ASZFBHMecJd0XI8XLQ/II+MNtgH7e6L9u1QDxRdu3dQMuhzLvyGb
-         HdL9Vm78fKADWkCxuwNOg18fxxD3km3mqntO1pcrTx9cK2+GDVuNy+dihcmTwEe5RvFA
-         +6fA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=8BIreXk3wL1LJw946Ou89DmLJVLJs/jGntsglTvUFQg=;
-        b=cWrSXp27kk+mRgQY9ncvU9FPsAnUP569XUwy7XErbnIUQu68nvs2uOfA5B+aCbmXLx
-         aAKbX8rb7SEDuuUcfRoXUEH7BjLqfDz7H4Zwzhl34cLgSIddRO6GOOUSMQpNDEEfuJuF
-         LVgVXmNVkao8Z5Hm2ebZH8q4qWK0SLqANMcNbkKW7ZTy6D9JhOl9kRTeWvJVYGql7SZn
-         VofQVnG0KtHu+XpB7/P/F4oavS8PmaeLHYcqb4lP7wITnbaAuS5AH9f1nCPEf0fRxkjD
-         g4UpKB/A6fhtcggwfL9oZem3siUu/CIjbl83X7QW1NaEX6MAgcR0Y040CxX3u7xnTjsM
-         Ilmw==
-X-Gm-Message-State: AOAM532aegsqi0iTiF7rctdbst7mvOZfuRc6MK9WCRimX9X+Qc1XmrAg
-        kHG+4LkaMfxGyljgZpR04io=
-X-Google-Smtp-Source: ABdhPJze+8ikEd4rEh5cdrC7HE9r0/4shG98AJcym/MoFLEV4A6NrrLYdiVFJgOT5x2K3PcTX0FuGA==
-X-Received: by 2002:a05:6808:2394:b0:326:d5d6:a4ba with SMTP id bp20-20020a056808239400b00326d5d6a4bamr11184575oib.67.1653966047822;
-        Mon, 30 May 2022 20:00:47 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id gc4-20020a056870678400b000f325409614sm2823192oab.13.2022.05.30.20.00.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 May 2022 20:00:46 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <927a9461-0488-7bf7-3c9f-c5cd3629f05d@roeck-us.net>
-Date:   Mon, 30 May 2022 20:00:44 -0700
+        with ESMTP id S233250AbiEaJiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 May 2022 05:38:03 -0400
+X-Greylist: delayed 6533 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 31 May 2022 02:38:01 PDT
+Received: from mail.schule.luebeck.de (mail.schule.luebeck.de [62.214.78.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1197750068
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 02:38:01 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by ucssl-05.schule.luebeck.de (Postfix) with ESMTP id 7DBCC928561
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 09:19:30 +0200 (CEST)
+X-Virus-Scanned: by amavisd-new-2.10.1 (20141025) (Debian) at
+        schule.luebeck.de
+Received: from mail.schule.luebeck.de ([127.0.0.1])
+        by localhost (ucssl-05.schule.luebeck.de [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id zOaJm0T7XSas for <stable@vger.kernel.org>;
+        Tue, 31 May 2022 09:19:30 +0200 (CEST)
+Received: from johnlewiss.com (ec2-34-214-85-249.us-west-2.compute.amazonaws.com [34.214.85.249])
+        by ucssl-05.schule.luebeck.de (Postfix) with ESMTPSA id 86B21928556
+        for <stable@vger.kernel.org>; Tue, 31 May 2022 09:19:28 +0200 (CEST)
+Reply-To: robert_turner@johnlewis-trades.com
+From:   JOHN LEWIS & PARTNERS <robert_turner89@johnlewiss.com>
+To:     stable@vger.kernel.org
+Subject: Pre Order Inquiry 05-31-2022
+Date:   31 May 2022 17:19:25 +1000
+Message-ID: <20220531161140.8ADFCDAC1F582D2B@johnlewiss.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Content-Language: en-US
-To:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     jdelvare@suse.com, corbet@lwn.net, linux-hwmon@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220530133133.1931716-1-sashal@kernel.org>
- <20220530133133.1931716-128-sashal@kernel.org>
- <dddc2b53-62eb-fda7-4425-afdd179a7037@roeck-us.net>
- <1344ac58-f019-03ef-fab8-6e1d910514e2@gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH AUTOSEL 5.17 128/135] hwmon: Make chip parameter for
- with_info API mandatory
-In-Reply-To: <1344ac58-f019-03ef-fab8-6e1d910514e2@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=4.3 required=5.0 tests=ADVANCE_FEE_3_NEW,BAYES_50,
+        SPF_FAIL,SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/30/22 19:38, Bagas Sanjaya wrote:
-> On 5/30/22 21:27, Guenter Roeck wrote:
->> On 5/30/22 06:31, Sasha Levin wrote:
->>> From: Guenter Roeck <linux@roeck-us.net>
->>>
->>> [ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
->>>
->>> Various attempts were made recently to "convert" the old
->>> hwmon_device_register() API to devm_hwmon_device_register_with_info()
->>> by just changing the function name without actually converting the
->>> driver. Prevent this from happening by making the 'chip' parameter of
->>> devm_hwmon_device_register_with_info() mandatory.
->>>
->>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> This patch should not be backported. It is only relevant for new
->> kernel releases, and may have adverse affect if applied to older
->> kernels.
-> 
-> So this patch is meant to be backported to 5.18 only, right?
-> 
+Dear stable
 
-I said "do not backport". I specifically asked not to backport
-this patch. It does not include Cc: stable, and it does not
-include a Fixes: tag. I even said "... may have adverse affect
-if applied to older kernels".
+ 
+The world famous brand John Lewis & Partners, is UK's largest 
+multi-channel retailer with over 126 shops and multiple expansion 
+in Africa furnished by European/Asian/American products. We are
+sourcing new products to attract new customers and also retain 
+our existing ones, create new partnerships with companies dealing 
+with different kinds of goods globally.
+ 
+Your company's products are of interest to our market as we have 
+an amazing market for your products.Provide us your current 
+catalog through email to review more. We hope to be able to order 
+with you and start a long-term friendly, respectable and solid 
+business partnership. Please we would appreciate it if you could 
+send us your stock availability via email if any.
 
-I have no idea how that can be interpreted as "backport to 5.18".
-Did I miss the explicit "do not backport to 5.18 ?" If so, my bad.
+ 
+Our payment terms are 15 days net in Europe, 30 days Net in UK 
+and 30 days net in Asia/USA as we have operated with over 5297 
+suppliers around the globe for the past 50 years now. For
+immediate response Send your reply to "robert_turner@johnlewis-
+trades.com" for us to be able to treat with care and urgency.
+ 
 
-Ok, here it is a more explicit request:
-
-Do not backport this patch to 5.18.y, 5.17.y, 5.15.y, 5.10.y, 5.4.y,
-4.19.y, 4.14.y, 4.9.y, or any other stable release.
-
-Guenter
+ 
+Best Regards
+Rob Turner
+Head Of Procurement Operations
+John Lewis & Partners.
+robert_turner@johnlewis-trades.com
+Tel: +44-7451-274090
+WhatsApp: +447497483925
+www.johnlewis.com
+REGISTERED OFFICE: 171 VICTORIA STREET, LONDON SW1E 5NN
