@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C292353A77E
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA9253A778
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354124AbiFAOCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
+        id S1354096AbiFAOB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:01:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354363AbiFAOAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C81A3090;
-        Wed,  1 Jun 2022 06:56:37 -0700 (PDT)
+        with ESMTP id S1354483AbiFAOA1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA95ADF3A;
+        Wed,  1 Jun 2022 06:56:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4B26B81AE6;
-        Wed,  1 Jun 2022 13:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 573D6C36AE2;
-        Wed,  1 Jun 2022 13:55:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A3C61555;
+        Wed,  1 Jun 2022 13:55:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FF4C385A5;
+        Wed,  1 Jun 2022 13:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091730;
-        bh=84IfR7RwwFTk8qrcm0SBcSTrKK/dW3sr/Vog+1TxXdk=;
+        s=k20201202; t=1654091735;
+        bh=a4qFuWEqZC0lHRCkY7Blx87Le22rwe0ztnrHoEFNJ4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KD7A1BQj0Znb0a+Qz+G0D565/InzpnzruRaISypvksWt0j036JtDt+Cw4TJ/eWUa8
-         PoeF4+KykuUoR92W+80dLabV8lMLL4Z2v2K/IqpZiwK2lI+lUbV02a9W7MnAxSyBUf
-         JDlNaTRGFCRgvz+hhAX99hGqWhubVB9B9YqI+8TtdqvjljdWTxYxu8QQa7Bp3+2jY2
-         zbn+yrnJKhDhTT/VNoHj/64L8fnRk9yL/oAMjbyy8UCs6iclBOWRwokpAreRf1iRlz
-         cFXkw2MDRpH6XnIlGpthDU3wq8Vi+aVLIzL8OR+T7CvkWBIz9/zt8p566qnbVu8ssc
-         iimLsParL0cTw==
+        b=UsZbOLhaa3NCelbzPOc5toVLk8MqyQgbeCvpb58TCq00xqyZT409nltGmHIiULjji
+         TxvlE+G2BBrk3b4dHopiZzW6Mt7RKezCiz8diGSUgo8l9pwJGMi495tq6n3pgBytrY
+         ThEH062aaPw9ybKIq/EWwki0dYTM+wikEEzr0sLB0gSEnpBoUtbxWhcogIHmOcAKpq
+         Xcv7kXJn1YjuC0jvSK2fByyaajElg0td7yQpswgRc9uSnQFaHwd49Qt7XTzbZSt0Iq
+         9R9hW2iIvG0jAEjNF300oXkWDj3f2udw5DVPJWRxHe4W7bwpdrPbx0HZMLDNtk0GDv
+         c/rA3DhMdRHig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Parshuram Thombare <pthombar@cadence.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, kishon@ti.com,
-        tjoseph@cadence.com, bhelgaas@google.com,
-        linux-omap@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 31/48] PCI: cadence: Clear FLR in device capabilities register
-Date:   Wed,  1 Jun 2022 09:54:04 -0400
-Message-Id: <20220601135421.2003328-31-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, aik@ozlabs.ru, clg@kaod.org,
+        bharata@linux.ibm.com, seanjc@google.com,
+        maciej.szmigiero@oracle.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.17 32/48] KVM: PPC: Book3S HV Nested: L2 LPCR should inherit L1 LPES setting
+Date:   Wed,  1 Jun 2022 09:54:05 -0400
+Message-Id: <20220601135421.2003328-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -59,122 +59,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parshuram Thombare <pthombar@cadence.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 95b00f68209e2bc9f2ee9126afcebab451e0e9d8 ]
+[ Upstream commit 2852ebfa10afdcefff35ec72c8da97141df9845c ]
 
-Clear FLR (Function Level Reset) from device capabilities
-registers for all physical functions.
+The L1 should not be able to adjust LPES mode for the L2. Setting LPES
+if the L0 needs it clear would cause external interrupts to be sent to
+L2 and missed by the L0.
 
-During FLR, the Margining Lane Status and Margining Lane Control
-registers should not be reset, as per PCIe specification.
-However, the controller incorrectly resets these registers upon FLR.
-This causes PCISIG compliance FLR test to fail. Hence preventing
-all functions from advertising FLR support if flag quirk_disable_flr
-is set.
+Clearing LPES when it may be set, as typically happens with XIVE enabled
+could cause a performance issue despite having no native XIVE support in
+the guest, because it will cause mediated interrupts for the L2 to be
+taken in HV mode, which then have to be injected.
 
-Link: https://lore.kernel.org/r/1635165075-89864-1-git-send-email-pthombar@cadence.com
-Signed-off-by: Parshuram Thombare <pthombar@cadence.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220303053315.1056880-7-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pci-j721e.c     |  3 +++
- .../pci/controller/cadence/pcie-cadence-ep.c   | 18 +++++++++++++++++-
- drivers/pci/controller/cadence/pcie-cadence.h  |  3 +++
- 3 files changed, 23 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_hv.c        | 4 ++++
+ arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
-index 768d33f9ebc8..a82f845cc4b5 100644
---- a/drivers/pci/controller/cadence/pci-j721e.c
-+++ b/drivers/pci/controller/cadence/pci-j721e.c
-@@ -69,6 +69,7 @@ struct j721e_pcie_data {
- 	enum j721e_pcie_mode	mode;
- 	unsigned int		quirk_retrain_flag:1;
- 	unsigned int		quirk_detect_quiet_flag:1;
-+	unsigned int		quirk_disable_flr:1;
- 	u32			linkdown_irq_regfield;
- 	unsigned int		byte_access_allowed:1;
- };
-@@ -307,6 +308,7 @@ static const struct j721e_pcie_data j7200_pcie_rc_data = {
- static const struct j721e_pcie_data j7200_pcie_ep_data = {
- 	.mode = PCI_MODE_EP,
- 	.quirk_detect_quiet_flag = true,
-+	.quirk_disable_flr = true,
- };
- 
- static const struct j721e_pcie_data am64_pcie_rc_data = {
-@@ -405,6 +407,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 			return -ENOMEM;
- 
- 		ep->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
-+		ep->quirk_disable_flr = data->quirk_disable_flr;
- 
- 		cdns_pcie = &ep->pcie;
- 		cdns_pcie->dev = dev;
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-index 88e05b9c2e5b..4b1c4bc4e003 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-@@ -565,7 +565,8 @@ static int cdns_pcie_ep_start(struct pci_epc *epc)
- 	struct cdns_pcie_ep *ep = epc_get_drvdata(epc);
- 	struct cdns_pcie *pcie = &ep->pcie;
- 	struct device *dev = pcie->dev;
--	int ret;
-+	int max_epfs = sizeof(epc->function_num_map) * 8;
-+	int ret, value, epf;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 316f61a4cb59..0da8c0df768d 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -5289,6 +5289,10 @@ static int kvmppc_core_init_vm_hv(struct kvm *kvm)
+ 		kvm->arch.host_lpcr = lpcr = mfspr(SPRN_LPCR);
+ 		lpcr &= LPCR_PECE | LPCR_LPES;
+ 	} else {
++		/*
++		 * The L2 LPES mode will be set by the L0 according to whether
++		 * or not it needs to take external interrupts in HV mode.
++		 */
+ 		lpcr = 0;
+ 	}
+ 	lpcr |= (4UL << LPCR_DPFD_SH) | LPCR_HDICE |
+diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
+index 9d373f8963ee..58e05a9122ac 100644
+--- a/arch/powerpc/kvm/book3s_hv_nested.c
++++ b/arch/powerpc/kvm/book3s_hv_nested.c
+@@ -261,8 +261,7 @@ static void load_l2_hv_regs(struct kvm_vcpu *vcpu,
+ 	/*
+ 	 * Don't let L1 change LPCR bits for the L2 except these:
+ 	 */
+-	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD |
+-		LPCR_LPES | LPCR_MER;
++	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD | LPCR_MER;
  
  	/*
- 	 * BIT(0) is hardwired to 1, hence function 0 is always enabled
-@@ -573,6 +574,21 @@ static int cdns_pcie_ep_start(struct pci_epc *epc)
- 	 */
- 	cdns_pcie_writel(pcie, CDNS_PCIE_LM_EP_FUNC_CFG, epc->function_num_map);
- 
-+	if (ep->quirk_disable_flr) {
-+		for (epf = 0; epf < max_epfs; epf++) {
-+			if (!(epc->function_num_map & BIT(epf)))
-+				continue;
-+
-+			value = cdns_pcie_ep_fn_readl(pcie, epf,
-+					CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET +
-+					PCI_EXP_DEVCAP);
-+			value &= ~PCI_EXP_DEVCAP_FLR;
-+			cdns_pcie_ep_fn_writel(pcie, epf,
-+					CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET +
-+					PCI_EXP_DEVCAP, value);
-+		}
-+	}
-+
- 	ret = cdns_pcie_start_link(pcie);
- 	if (ret) {
- 		dev_err(dev, "Failed to start link\n");
-diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
-index c8a27b6290ce..d9c785365da3 100644
---- a/drivers/pci/controller/cadence/pcie-cadence.h
-+++ b/drivers/pci/controller/cadence/pcie-cadence.h
-@@ -123,6 +123,7 @@
- 
- #define CDNS_PCIE_EP_FUNC_MSI_CAP_OFFSET	0x90
- #define CDNS_PCIE_EP_FUNC_MSIX_CAP_OFFSET	0xb0
-+#define CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET	0xc0
- #define CDNS_PCIE_EP_FUNC_SRIOV_CAP_OFFSET	0x200
- 
- /*
-@@ -357,6 +358,7 @@ struct cdns_pcie_epf {
-  *        minimize time between read and write
-  * @epf: Structure to hold info about endpoint function
-  * @quirk_detect_quiet_flag: LTSSM Detect Quiet min delay set as quirk
-+ * @quirk_disable_flr: Disable FLR (Function Level Reset) quirk flag
-  */
- struct cdns_pcie_ep {
- 	struct cdns_pcie	pcie;
-@@ -372,6 +374,7 @@ struct cdns_pcie_ep {
- 	spinlock_t		lock;
- 	struct cdns_pcie_epf	*epf;
- 	unsigned int		quirk_detect_quiet_flag:1;
-+	unsigned int		quirk_disable_flr:1;
- };
- 
- 
+ 	 * Additional filtering is required depending on hardware
 -- 
 2.35.1
 
