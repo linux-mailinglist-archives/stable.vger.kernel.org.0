@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6459653A8A1
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C1B53A8A8
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353237AbiFAOLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:11:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50670 "EHLO
+        id S235811AbiFAOLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:11:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354480AbiFAOJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15461E0A8;
+        with ESMTP id S1354519AbiFAOJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9272AE0C2;
         Wed,  1 Jun 2022 07:01:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A87B8B81985;
-        Wed,  1 Jun 2022 14:01:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3142EC385A5;
-        Wed,  1 Jun 2022 14:01:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EA69615B9;
+        Wed,  1 Jun 2022 14:01:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E5CC3411E;
+        Wed,  1 Jun 2022 14:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654092068;
-        bh=KJhUKllErRJpBntBCZwKFWW3K3q4jqc9MvCVLYA5Vgo=;
+        s=k20201202; t=1654092069;
+        bh=lvbxb7mAlb7/kG5niCqFw2s1N/0n9eUI4WHhmjAKwLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIBL4gg4Oah5wGKnj11rbA64WY1ZTPrkNQzN8k6189bS06FOsjkey0D7u3EuK6R0I
-         e4nZxvUoh252crCayCHTkfPGhfhyolgxNHZY8IESRWru6wYufn2hENOEiKqaKl0Xkk
-         OBTeNyGP+GW+Okup1wDX1gxv/JvS0vA21rWCot4HNuF8YiX7SUc1Y/15XPCMWl0q8B
-         GsooTaT6WwbuWFY0OHhDPvsE+WM1MAk2DlCN21QHf9pgLGJ+9sAtmiRiOgm9eKFDAm
-         ukl2DYrxwJa6BDntnrHo8jgAiLIu+pqbyMyIzPtu3DsAw1eRi2gCSLCMcLeJ/l/hDD
-         Yi3FA8bxG1Swg==
+        b=UoMyXqYrws9knblX7Q5cgD+Tmapuqvjh985E03Hd9q53OksrBeCwxAVKpoP7dq61I
+         tVfo/6d/pgJwBg3hKXnJCl7u4BHknGL6LD+PfZbA4I3Jk6WumFjqXAzmpGSlLeYZt1
+         w7jYhAJW0tzscxb4u5OIm8toXK4KqqNL4qcmEbl5MUqWtrudlqrAl1iGGnMXuLlJov
+         1l7AX72r7a1LX+WGGo6F9KHuQffQzQr/bnOQDS66KImub0Qtx0SVuUwNTpHqZCtD28
+         dm4JI0SWQwxC3PbYfMOszaPdMY+0oqJa1NjQLaxPm38BPzYGaivxKexFvreQMxolcW
+         gGQpMu8PowMfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/11] selftests/resctrl: Change the default limited time to 120 seconds
-Date:   Wed,  1 Jun 2022 10:00:52 -0400
-Message-Id: <20220601140100.2005469-3-sashal@kernel.org>
+Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        qianfan <qianfanguijin@163.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/11] fat: add ratelimit to fat*_ent_bread()
+Date:   Wed,  1 Jun 2022 10:00:53 -0400
+Message-Id: <20220601140100.2005469-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601140100.2005469-1-sashal@kernel.org>
 References: <20220601140100.2005469-1-sashal@kernel.org>
@@ -59,37 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-[ Upstream commit e2e3fb6ef0d6548defbe0be6e092397aaa92f3a1 ]
+[ Upstream commit 183c3237c928109d2008c0456dff508baf692b20 ]
 
-When testing on a Intel(R) Xeon(R) Gold 6254 CPU @ 3.10GHz the resctrl
-selftests fail due to timeout after exceeding the default time limit of
-45 seconds. On this system the test takes about 68 seconds.
-Since the failing test by default accesses a fixed size of memory, the
-execution time should not vary significantly between different environment.
-A new default of 120 seconds should be sufficient yet easy to customize
-with the introduction of the "settings" file for reference.
+fat*_ent_bread() can be the cause of too many report on I/O error path.
+So use fat_msg_ratelimit() instead.
 
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/87bkxogfeq.fsf@mail.parknet.co.jp
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Reported-by: qianfan <qianfanguijin@163.com>
+Tested-by: qianfan <qianfanguijin@163.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/settings | 3 +++
- 1 file changed, 3 insertions(+)
- create mode 100644 tools/testing/selftests/resctrl/settings
+ fs/fat/fatent.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/resctrl/settings b/tools/testing/selftests/resctrl/settings
-new file mode 100644
-index 000000000000..a383f3d4565b
---- /dev/null
-+++ b/tools/testing/selftests/resctrl/settings
-@@ -0,0 +1,3 @@
-+# If running time is longer than 120 seconds when new tests are added in
-+# the future, increase timeout here.
-+timeout=120
+diff --git a/fs/fat/fatent.c b/fs/fat/fatent.c
+index 0129d4d07a54..b0b1a71c07b7 100644
+--- a/fs/fat/fatent.c
++++ b/fs/fat/fatent.c
+@@ -92,7 +92,8 @@ static int fat12_ent_bread(struct super_block *sb, struct fat_entry *fatent,
+ err_brelse:
+ 	brelse(bhs[0]);
+ err:
+-	fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)", (llu)blocknr);
++	fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
++			  (llu)blocknr);
+ 	return -EIO;
+ }
+ 
+@@ -105,8 +106,8 @@ static int fat_ent_bread(struct super_block *sb, struct fat_entry *fatent,
+ 	fatent->fat_inode = MSDOS_SB(sb)->fat_inode;
+ 	fatent->bhs[0] = sb_bread(sb, blocknr);
+ 	if (!fatent->bhs[0]) {
+-		fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
+-		       (llu)blocknr);
++		fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
++				  (llu)blocknr);
+ 		return -EIO;
+ 	}
+ 	fatent->nr_bhs = 1;
 -- 
 2.35.1
 
