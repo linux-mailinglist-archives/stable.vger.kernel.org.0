@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B53D653A723
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:58:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C59453A726
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353897AbiFAN6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:58:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33262 "EHLO
+        id S1351646AbiFAN6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:58:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353997AbiFAN6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE6428D6B5;
-        Wed,  1 Jun 2022 06:55:14 -0700 (PDT)
+        with ESMTP id S1353908AbiFAN6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC6F9E9DF;
+        Wed,  1 Jun 2022 06:55:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D842615C7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FFA8615D3;
+        Wed,  1 Jun 2022 13:55:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6907AC385B8;
         Wed,  1 Jun 2022 13:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21CEEC3411D;
-        Wed,  1 Jun 2022 13:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091714;
-        bh=MzavRj9nrP27S+bq6CPB0yuwsmyvhj3CJKBoxHtwgwM=;
+        s=k20201202; t=1654091715;
+        bh=3bFFMwh7UcBdAXXdvobbtik2xvYHlP3q36CF7S5HcJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3nplUO8UlARphvSGW6+OHmMXzgrLfPQ/SdQU5qK7tOYQWtyr3iTKIbV7al4b6/cn
-         WQynQ8Xi+OUOplxQJJ7O7R5VkNubqNYZnfcf/0jLcZ1vJEd6tVConW6WLxjFBdxK5/
-         iUqD4IFyEXJ7xryd4dFPk7vD5Cla7UJy/FXs2MAlOif12shLh28hMzvEHgdmC0madM
-         q7NBDBlFscg/QkenAJy6L2XvDo+nUIgDn9yk18Eu4WElQ93erq3nh6FOnqrr4QJfvq
-         ImUdqS+xTJ0dKnZtBFFglom+soCvaRjOLAxTHpi5ywdwu4Cmlfm0bdw/43ej01InPU
-         qwyQ3Nz5kZiwA==
+        b=IQ2vU1D+V6i9g9b0LzpRP534jFihEPQCLAK1d0m/BYsJecLvK8feZuYZi88wdNE3M
+         axiRQI3E7JXNfv7BK7QZmwgk4tFX9pJo7pN7CNd16mI1zNEiRM0e+3HdhTeNBZ/5xE
+         FbcgK/nYw+LbKq3BPnGju5MH8urNUuqgtLBMplDf/tFdHSCR7bzhBZ89eCbltX4Yci
+         7KvY5c1mpz3/XaJ4hd3uc+gWDNOMoYzjVn/Gwad9CqGDlOUdL/zLHqujR+qqwryvAL
+         i8KdFBXZsc+cVKAufA7Z5kz9HCrO2PtTK55Cb0SE2SCdB4W3RpfSZ11F6C4EiszPy9
+         5kfqvBNL7QtGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
-        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 22/48] pinctrl: renesas: rzn1: Fix possible null-ptr-deref in sh_pfc_map_resources()
-Date:   Wed,  1 Jun 2022 09:53:55 -0400
-Message-Id: <20220601135421.2003328-22-sashal@kernel.org>
+Cc:     Peng Wu <wupeng58@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        liviu.dudau@arm.com, sudeep.holla@arm.com,
+        lorenzo.pieralisi@arm.com, linux@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 23/48] ARM: versatile: Add missing of_node_put in dcscb_init
+Date:   Wed,  1 Jun 2022 09:53:56 -0400
+Message-Id: <20220601135421.2003328-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -57,49 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Peng Wu <wupeng58@huawei.com>
 
-[ Upstream commit 2f661477c2bb8068194dbba9738d05219f111c6e ]
+[ Upstream commit 23b44f9c649bbef10b45fa33080cd8b4166800ae ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+The device_node pointer is returned by of_find_compatible_node
+with refcount incremented. We should use of_node_put() to avoid
+the refcount leak.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220429082637.1308182-2-yangyingliang@huawei.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Peng Wu <wupeng58@huawei.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220428230356.69418-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/pinctrl-rzn1.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/arm/mach-vexpress/dcscb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/renesas/pinctrl-rzn1.c b/drivers/pinctrl/renesas/pinctrl-rzn1.c
-index ef5fb25b6016..849d091205d4 100644
---- a/drivers/pinctrl/renesas/pinctrl-rzn1.c
-+++ b/drivers/pinctrl/renesas/pinctrl-rzn1.c
-@@ -865,17 +865,15 @@ static int rzn1_pinctrl_probe(struct platform_device *pdev)
- 	ipctl->mdio_func[0] = -1;
- 	ipctl->mdio_func[1] = -1;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ipctl->lev1_protect_phys = (u32)res->start + 0x400;
--	ipctl->lev1 = devm_ioremap_resource(&pdev->dev, res);
-+	ipctl->lev1 = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(ipctl->lev1))
- 		return PTR_ERR(ipctl->lev1);
-+	ipctl->lev1_protect_phys = (u32)res->start + 0x400;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	ipctl->lev2_protect_phys = (u32)res->start + 0x400;
--	ipctl->lev2 = devm_ioremap_resource(&pdev->dev, res);
-+	ipctl->lev2 = devm_platform_get_and_ioremap_resource(pdev, 1, &res);
- 	if (IS_ERR(ipctl->lev2))
- 		return PTR_ERR(ipctl->lev2);
-+	ipctl->lev2_protect_phys = (u32)res->start + 0x400;
- 
- 	ipctl->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(ipctl->clk))
+diff --git a/arch/arm/mach-vexpress/dcscb.c b/arch/arm/mach-vexpress/dcscb.c
+index a0554d7d04f7..e1adc098f89a 100644
+--- a/arch/arm/mach-vexpress/dcscb.c
++++ b/arch/arm/mach-vexpress/dcscb.c
+@@ -144,6 +144,7 @@ static int __init dcscb_init(void)
+ 	if (!node)
+ 		return -ENODEV;
+ 	dcscb_base = of_iomap(node, 0);
++	of_node_put(node);
+ 	if (!dcscb_base)
+ 		return -EADDRNOTAVAIL;
+ 	cfg = readl_relaxed(dcscb_base + DCS_CFG_R);
 -- 
 2.35.1
 
