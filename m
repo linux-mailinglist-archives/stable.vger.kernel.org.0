@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DE1E53A64E
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D3C53A656
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353458AbiFANw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53830 "EHLO
+        id S1344166AbiFANwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:52:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353442AbiFANww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:52:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8865A33345;
-        Wed,  1 Jun 2022 06:52:37 -0700 (PDT)
+        with ESMTP id S1353437AbiFANwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:52:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A173287215;
+        Wed,  1 Jun 2022 06:52:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4E99B81AE7;
-        Wed,  1 Jun 2022 13:52:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD20C34119;
-        Wed,  1 Jun 2022 13:52:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BFED615C6;
+        Wed,  1 Jun 2022 13:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2EA3C385B8;
+        Wed,  1 Jun 2022 13:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091554;
-        bh=3a8gxMHCDSeL/R2EhuktrXzbJmCqXw0BGoZqVqZ6DYA=;
+        s=k20201202; t=1654091555;
+        bh=VZt2nOdWMwFzurUHIONWPqfBKwllbRhQspuztDZ+FDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOf8WjufH+jJga0hQx2IzLZ0qcNYlV8BYXq9+231bD3J7a3kWgublXUQt/cItRjv8
-         nSjN/YYe6+hY73Qwhn4BTnJRt4yV2RmFSjD9FMT6ARk2xsTTPI7j75Dmvazib4Ol6K
-         bhPiyuJukkXnMLDPY02/Gi1nOKomnHptS3bfqv4m/3/sC3ntxPLM5F1VDgej4wvHAT
-         N7BaArVyGx4bvsXQz0eKZwp1BXJarHndg+Eayw4sUuVJw0h26HXxumWr6aJYux2VzM
-         LRWkuSoCuRjtUa5JsK8LY/0qkUur7p3uXKFOwDaDV86EcZj2InfKC7byOJEnYPF8cT
-         VN8k3CF1QQ/Ww==
+        b=QVtqUJfIZ8lBO+ODRVtvetoDHICBz1+yi9kTTcHSSNKQJjbonmGm4uvowopCwIew0
+         iy25/L5li0jCcCbtY6TnXYrMlKcgN+g4owE2Y218r/IFXQPBVBSI3SveDDByu0KYGH
+         /cHWFGkz1ywJLn9XBGQg/S0z8RzWlPpCd8zNGozg85IRb0Xg4IR9cOLCPqSJNxViZr
+         pwuw4rsTY7m7tSsfZvBoU9Qz+NOMJZG/7SG+h8SYHDtHDQAfmuujCG7bnMgTZXmbIc
+         geYwKPhrP1k+5urxhM9WCiY9+pyrPOlFxcIbVWNGH/LoTK378SAZ2waqmqpnCDIe1F
+         oLTe4NLVftKQQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Norris <briannorris@chromium.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>, myungjoo.ham@samsung.com,
-        kyungmin.park@samsung.com, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 09/49] PM / devfreq: rk3399_dmc: Disable edev on remove()
-Date:   Wed,  1 Jun 2022 09:51:33 -0400
-Message-Id: <20220601135214.2002647-9-sashal@kernel.org>
+Cc:     Gilad Ben-Yossef <gilad@benyossef.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 10/49] crypto: ccree - use fine grained DMA mapping dir
+Date:   Wed,  1 Jun 2022 09:51:34 -0400
+Message-Id: <20220601135214.2002647-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135214.2002647-1-sashal@kernel.org>
 References: <20220601135214.2002647-1-sashal@kernel.org>
@@ -57,62 +58,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-[ Upstream commit 2fccf9e6050e0e3b8b4cd275d41daf7f7fa22804 ]
+[ Upstream commit a260436c98171cd825955a84a7f6e62bc8f4f00d ]
 
-Otherwise we hit an unablanced enable-count when unbinding the DFI
-device:
+Use a fine grained specification of DMA mapping directions
+in certain cases, allowing both a more optimized operation
+as well as shushing out a harmless, though persky
+dma-debug warning.
 
-[ 1279.659119] ------------[ cut here ]------------
-[ 1279.659179] WARNING: CPU: 2 PID: 5638 at drivers/devfreq/devfreq-event.c:360 devfreq_event_remove_edev+0x84/0x8c
-...
-[ 1279.659352] Hardware name: Google Kevin (DT)
-[ 1279.659363] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
-[ 1279.659371] pc : devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659380] lr : devm_devfreq_event_release+0x1c/0x28
-...
-[ 1279.659571] Call trace:
-[ 1279.659582]  devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659590]  devm_devfreq_event_release+0x1c/0x28
-[ 1279.659602]  release_nodes+0x1cc/0x244
-[ 1279.659611]  devres_release_all+0x44/0x60
-[ 1279.659621]  device_release_driver_internal+0x11c/0x1ac
-[ 1279.659629]  device_driver_detach+0x20/0x2c
-[ 1279.659641]  unbind_store+0x7c/0xb0
-[ 1279.659650]  drv_attr_store+0x2c/0x40
-[ 1279.659663]  sysfs_kf_write+0x44/0x58
-[ 1279.659672]  kernfs_fop_write_iter+0xf4/0x190
-[ 1279.659684]  vfs_write+0x2b0/0x2e4
-[ 1279.659693]  ksys_write+0x80/0xec
-[ 1279.659701]  __arm64_sys_write+0x24/0x30
-[ 1279.659714]  el0_svc_common+0xf0/0x1d8
-[ 1279.659724]  do_el0_svc_compat+0x28/0x3c
-[ 1279.659738]  el0_svc_compat+0x10/0x1c
-[ 1279.659746]  el0_sync_compat_handler+0xa8/0xcc
-[ 1279.659758]  el0_sync_compat+0x188/0x1c0
-[ 1279.659768] ---[ end trace cec200e5094155b4 ]---
-
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/rk3399_dmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/ccree/cc_buffer_mgr.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
-index 293857ebfd75..538e8dc74f40 100644
---- a/drivers/devfreq/rk3399_dmc.c
-+++ b/drivers/devfreq/rk3399_dmc.c
-@@ -477,6 +477,8 @@ static int rk3399_dmcfreq_remove(struct platform_device *pdev)
- {
- 	struct rk3399_dmcfreq *dmcfreq = dev_get_drvdata(&pdev->dev);
+diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
+index 11e0278c8631..6140e4927322 100644
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -356,12 +356,14 @@ void cc_unmap_cipher_request(struct device *dev, void *ctx,
+ 			      req_ctx->mlli_params.mlli_dma_addr);
+ 	}
  
-+	devfreq_event_disable_edev(dmcfreq->edev);
-+
- 	/*
- 	 * Before remove the opp table we need to unregister the opp notifier.
- 	 */
+-	dma_unmap_sg(dev, src, req_ctx->in_nents, DMA_BIDIRECTIONAL);
+-	dev_dbg(dev, "Unmapped req->src=%pK\n", sg_virt(src));
+-
+ 	if (src != dst) {
+-		dma_unmap_sg(dev, dst, req_ctx->out_nents, DMA_BIDIRECTIONAL);
++		dma_unmap_sg(dev, src, req_ctx->in_nents, DMA_TO_DEVICE);
++		dma_unmap_sg(dev, dst, req_ctx->out_nents, DMA_FROM_DEVICE);
+ 		dev_dbg(dev, "Unmapped req->dst=%pK\n", sg_virt(dst));
++		dev_dbg(dev, "Unmapped req->src=%pK\n", sg_virt(src));
++	} else {
++		dma_unmap_sg(dev, src, req_ctx->in_nents, DMA_BIDIRECTIONAL);
++		dev_dbg(dev, "Unmapped req->src=%pK\n", sg_virt(src));
+ 	}
+ }
+ 
+@@ -377,6 +379,7 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
+ 	u32 dummy = 0;
+ 	int rc = 0;
+ 	u32 mapped_nents = 0;
++	int src_direction = (src != dst ? DMA_TO_DEVICE : DMA_BIDIRECTIONAL);
+ 
+ 	req_ctx->dma_buf_type = CC_DMA_BUF_DLLI;
+ 	mlli_params->curr_pool = NULL;
+@@ -399,7 +402,7 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
+ 	}
+ 
+ 	/* Map the src SGL */
+-	rc = cc_map_sg(dev, src, nbytes, DMA_BIDIRECTIONAL, &req_ctx->in_nents,
++	rc = cc_map_sg(dev, src, nbytes, src_direction, &req_ctx->in_nents,
+ 		       LLI_MAX_NUM_OF_DATA_ENTRIES, &dummy, &mapped_nents);
+ 	if (rc)
+ 		goto cipher_exit;
+@@ -416,7 +419,7 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
+ 		}
+ 	} else {
+ 		/* Map the dst sg */
+-		rc = cc_map_sg(dev, dst, nbytes, DMA_BIDIRECTIONAL,
++		rc = cc_map_sg(dev, dst, nbytes, DMA_FROM_DEVICE,
+ 			       &req_ctx->out_nents, LLI_MAX_NUM_OF_DATA_ENTRIES,
+ 			       &dummy, &mapped_nents);
+ 		if (rc)
+@@ -456,6 +459,7 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
+ 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
++	int src_direction = (req->src != req->dst ? DMA_TO_DEVICE : DMA_BIDIRECTIONAL);
+ 
+ 	if (areq_ctx->mac_buf_dma_addr) {
+ 		dma_unmap_single(dev, areq_ctx->mac_buf_dma_addr,
+@@ -514,13 +518,11 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
+ 		sg_virt(req->src), areq_ctx->src.nents, areq_ctx->assoc.nents,
+ 		areq_ctx->assoclen, req->cryptlen);
+ 
+-	dma_unmap_sg(dev, req->src, areq_ctx->src.mapped_nents,
+-		     DMA_BIDIRECTIONAL);
++	dma_unmap_sg(dev, req->src, areq_ctx->src.mapped_nents, src_direction);
+ 	if (req->src != req->dst) {
+ 		dev_dbg(dev, "Unmapping dst sgl: req->dst=%pK\n",
+ 			sg_virt(req->dst));
+-		dma_unmap_sg(dev, req->dst, areq_ctx->dst.mapped_nents,
+-			     DMA_BIDIRECTIONAL);
++		dma_unmap_sg(dev, req->dst, areq_ctx->dst.mapped_nents, DMA_FROM_DEVICE);
+ 	}
+ 	if (drvdata->coherent &&
+ 	    areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_DECRYPT &&
+@@ -843,7 +845,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
+ 		else
+ 			size_for_map -= authsize;
+ 
+-		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_BIDIRECTIONAL,
++		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_FROM_DEVICE,
+ 			       &areq_ctx->dst.mapped_nents,
+ 			       LLI_MAX_NUM_OF_DATA_ENTRIES, &dst_last_bytes,
+ 			       &dst_mapped_nents);
+@@ -1056,7 +1058,8 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
+ 		size_to_map += authsize;
+ 	}
+ 
+-	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
++	rc = cc_map_sg(dev, req->src, size_to_map,
++		       (req->src != req->dst ? DMA_TO_DEVICE : DMA_BIDIRECTIONAL),
+ 		       &areq_ctx->src.mapped_nents,
+ 		       (LLI_MAX_NUM_OF_ASSOC_DATA_ENTRIES +
+ 			LLI_MAX_NUM_OF_DATA_ENTRIES),
 -- 
 2.35.1
 
