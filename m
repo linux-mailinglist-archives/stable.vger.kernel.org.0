@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C7E53A666
+	by mail.lfdr.de (Postfix) with ESMTP id 2950B53A664
 	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353545AbiFANxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56546 "EHLO
+        id S1350649AbiFANxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353514AbiFANxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:53:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A68880D2;
-        Wed,  1 Jun 2022 06:52:46 -0700 (PDT)
+        with ESMTP id S1353537AbiFANxY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:53:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE356EC7B;
+        Wed,  1 Jun 2022 06:52:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3939C615CD;
-        Wed,  1 Jun 2022 13:52:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8304CC34119;
-        Wed,  1 Jun 2022 13:52:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 73D01CE1A1E;
+        Wed,  1 Jun 2022 13:52:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE0D7C385B8;
+        Wed,  1 Jun 2022 13:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091565;
-        bh=EbLXjcLRXtxb0jXjdZtiVIGjSd5602C1FKsy5V+dTeA=;
+        s=k20201202; t=1654091568;
+        bh=+iw9H9HE5DC6fgpz+aGX4rOtBTIwTitF/Aqy17elXPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwfpGTXA9PyLdUVe/2blOyxVNDlWpeT7hwnUCHfgGQAdeCOtrbZy9ib6Yzni9EreJ
-         dEtS7SmAg2hZzkQ67ItlwzLuV3xq8YNPzt46s/dpJdjpMn29xsc6snKb6xWChjPMWU
-         HXIC3jMXWwZmbiBlDoiwFcdq0NN/Zvu26IBcv0r8UTxPSvWYLBrPAHxhDYn6cjtINY
-         8uNh38JiOZ7bd2+MhQUxvg+zMBsSfiQa3sQ60ID7q7lxbdu6Wyl9Qw5gcDGv8BHgd2
-         eC4XO3QhW01WUYscgXhYFODos0PYn+B+L7xvWzTmzJPEG4AoqgRvCH5FYQ0o8hpAtC
-         E4qTyjaXefEOw==
+        b=LCDTaN5Lk8EZ2utdYKT9ixowYY0GnEKplgvUze8a7iCnOF8LiOlB03fwfbRBmxbFy
+         7DxyJP3n1RcVPV3zw/71TgUN55o2fw9xCUCaf1hgMQBF92tyDydc0fUIzj3ECmcYHT
+         9k3Nh2rnB3ugdVXXjyyl9KONDE1KcYugljCfGUkqtlhAiu8NwN0GKzTU/94LBx2P0Y
+         ZMZ8OwBhOsFKH3xKOPBoQJIMEY+lWkEtZdAGI1u5498dirmZE6gQ5NJxR7Z11PJZpi
+         Djnlz8MFIUlEVciv6o10D3jLvANwCSlSpoCi21u3btkVRYYf61OuE7dvrfsIsUaxSn
+         7FHkYWZ/vr6Kg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joel Selvaraj <jo@jsfamily.in>,
-        Caleb Connolly <caleb@connolly.tech>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 14/49] arm64: dts: qcom: sdm845-xiaomi-beryllium: fix typo in panel's vddio-supply property
-Date:   Wed,  1 Jun 2022 09:51:38 -0400
-Message-Id: <20220601135214.2002647-14-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Joey Gouly <joey.gouly@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>, will@kernel.org,
+        broonie@kernel.org, alexandru.elisei@arm.com, mark.rutland@arm.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 15/49] arm64: Expand ESR_ELx_WFx_ISS_TI to match its ARMv8.7 definition
+Date:   Wed,  1 Jun 2022 09:51:39 -0400
+Message-Id: <20220601135214.2002647-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135214.2002647-1-sashal@kernel.org>
 References: <20220601135214.2002647-1-sashal@kernel.org>
@@ -59,33 +58,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Selvaraj <jo@jsfamily.in>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 1f1c494082a1f10d03ce4ee1485ee96d212e22ff ]
+[ Upstream commit 6a437208cb942a2dd98f7e1c3fd347ed3d425ffc ]
 
-vddio is misspelled with a "0" instead of "o". Fix it.
+Starting with FEAT_WFXT in ARMv8.7, the TI field in the ISS
+that is reported on a WFx trap is expanded by one bit to
+allow the description of WFET and WFIT.
 
-Signed-off-by: Joel Selvaraj <jo@jsfamily.in>
-Reviewed-by: Caleb Connolly <caleb@connolly.tech>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/BY5PR02MB7009901651E6A8D5ACB0425ED91F9@BY5PR02MB7009.namprd02.prod.outlook.com
+Special care is taken to exclude the WFxT bit from the mask
+used to match WFI so that it also matches WFIT when trapped from
+EL0.
+
+Reviewed-by: Joey Gouly <joey.gouly@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220419182755.601427-2-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/esr.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium.dts b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium.dts
-index 367389526b41..a97f5e89e1d0 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium.dts
-@@ -218,7 +218,7 @@ &dsi0 {
- 	panel@0 {
- 		compatible = "tianma,fhd-video";
- 		reg = <0>;
--		vddi0-supply = <&vreg_l14a_1p8>;
-+		vddio-supply = <&vreg_l14a_1p8>;
- 		vddpos-supply = <&lab>;
- 		vddneg-supply = <&ibb>;
+diff --git a/arch/arm64/include/asm/esr.h b/arch/arm64/include/asm/esr.h
+index d52a0b269ee8..65c2201b11b2 100644
+--- a/arch/arm64/include/asm/esr.h
++++ b/arch/arm64/include/asm/esr.h
+@@ -133,7 +133,8 @@
+ #define ESR_ELx_CV		(UL(1) << 24)
+ #define ESR_ELx_COND_SHIFT	(20)
+ #define ESR_ELx_COND_MASK	(UL(0xF) << ESR_ELx_COND_SHIFT)
+-#define ESR_ELx_WFx_ISS_TI	(UL(1) << 0)
++#define ESR_ELx_WFx_ISS_TI	(UL(3) << 0)
++#define ESR_ELx_WFx_ISS_WFxT	(UL(2) << 0)
+ #define ESR_ELx_WFx_ISS_WFI	(UL(0) << 0)
+ #define ESR_ELx_WFx_ISS_WFE	(UL(1) << 0)
+ #define ESR_ELx_xVC_IMM_MASK	((1UL << 16) - 1)
+@@ -146,7 +147,8 @@
+ #define DISR_EL1_ESR_MASK	(ESR_ELx_AET | ESR_ELx_EA | ESR_ELx_FSC)
+ 
+ /* ESR value templates for specific events */
+-#define ESR_ELx_WFx_MASK	(ESR_ELx_EC_MASK | ESR_ELx_WFx_ISS_TI)
++#define ESR_ELx_WFx_MASK	(ESR_ELx_EC_MASK |			\
++				 (ESR_ELx_WFx_ISS_TI & ~ESR_ELx_WFx_ISS_WFxT))
+ #define ESR_ELx_WFx_WFI_VAL	((ESR_ELx_EC_WFx << ESR_ELx_EC_SHIFT) |	\
+ 				 ESR_ELx_WFx_ISS_WFI)
  
 -- 
 2.35.1
