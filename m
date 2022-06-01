@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F21E53A7A8
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C317C53A74A
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344158AbiFAOCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51752 "EHLO
+        id S1353955AbiFAN7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:59:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354208AbiFAOAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88308A3382;
-        Wed,  1 Jun 2022 06:56:23 -0700 (PDT)
+        with ESMTP id S1354050AbiFAN64 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12588A0058;
+        Wed,  1 Jun 2022 06:55:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB629615CD;
-        Wed,  1 Jun 2022 13:55:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5E8C385A5;
-        Wed,  1 Jun 2022 13:55:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 70EFDCE1AF2;
+        Wed,  1 Jun 2022 13:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67E9C3411E;
+        Wed,  1 Jun 2022 13:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091748;
-        bh=kGzeiVBfGM4Xs0vqQEuCoPASUVQyswjYSK386OEbxt8=;
+        s=k20201202; t=1654091755;
+        bh=ynjdX7sqIzj3XGbBUvL+J2pZWNuexzQpo7a/4F/yD1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyeZZbxy7Kf9b6e4S+0Kz0Xcf2Ul+X4r5s5syuWOR8GYMd3ZgukhRUoWb1wNyxNBN
-         inGF945w1NIb0Ak21UX6wfG8JhStHxNtPOCfTYGq015seNHnq/mCQPHcuAFJpLxnjw
-         37+Cx/ZYe9fgUS8gc2Xlr2rgIgkHsH3fC9LA3N6i2FK7OewoOSUZCovp67XhXXyIE5
-         JzMBn5dc1iNUYTDAQlbaMoTRZe2z8DVtWO2LPbBouS8hGe5NsHwmNe9VZDRm33kKRI
-         vbtu2V8AGeogZRp6buqjQvqSq3a4M47/5BNATFAxkOY8MA1xNpVenLMbz1UbwkxbCn
-         sPtat+iOPIZ3Q==
+        b=tJU6CMFqK+JBfaDiWNzVhvkaJSjREMOeUTZSeCoMAO9lNzsBfFVKt3reLwfvl2Bdk
+         1e7yzX6dVJfnjlIVeCMYCu1Jz62SFMAhoKtOJv8FsLnq5pyKdwVa0NFJfSd2pH8dXr
+         4IPUpzg24d1SGRm4KHOxpSkRMM6u9qlSrR/BsERn1up6z5R7Avx1egj+g2SKouorli
+         W/B3vIE2ZZ/m6f8BVp4WisYgRC5jPMEnCs738bSTFtIhpIq+daXIF0QneoaGOqX3xD
+         M4kLgDl4x1P3zStT0oT0gdUsWVmCfZZbtFCPfKmiLrmapOhvPftJJIQq906IxY4wxb
+         XelbwRgNMrl4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Enzo Matsumiya <ematsumiya@suse.de>, Paulo Alcantara <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.17 37/48] cifs: return ENOENT for DFS lookup_cache_entry()
-Date:   Wed,  1 Jun 2022 09:54:10 -0400
-Message-Id: <20220601135421.2003328-37-sashal@kernel.org>
+Cc:     Haren Myneni <haren@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        npiggin@gmail.com, linuxppc-dev@lists.ozlabs.org,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 38/48] powerpc/powernv/vas: Assign real address to rx_fifo in vas_rx_win_attr
+Date:   Wed,  1 Jun 2022 09:54:11 -0400
+Message-Id: <20220601135421.2003328-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -57,105 +58,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enzo Matsumiya <ematsumiya@suse.de>
+From: Haren Myneni <haren@linux.ibm.com>
 
-[ Upstream commit 337b8b0e4343567221ef8d88aac5e418208d4ac1 ]
+[ Upstream commit c127d130f6d59fa81701f6b04023cf7cd1972fb3 ]
 
-EEXIST didn't make sense to use when dfs_cache_find() couldn't find a
-cache entry nor retrieve a referral target.
+In init_winctx_regs(), __pa() is called on winctx->rx_fifo and this
+function is called to initialize registers for receive and fault
+windows. But the real address is passed in winctx->rx_fifo for
+receive windows and the virtual address for fault windows which
+causes errors with DEBUG_VIRTUAL enabled. Fixes this issue by
+assigning only real address to rx_fifo in vas_rx_win_attr struct
+for both receive and fault windows.
 
-It also doesn't make sense cifs_dfs_query_info_nonascii_quirk() to
-emulate ENOENT anymore.
-
-Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Haren Myneni <haren@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/338e958c7ab8f3b266fa794a1f80f99b9671829e.camel@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c   | 6 ++++--
- fs/cifs/dfs_cache.c | 6 +++---
- fs/cifs/misc.c      | 6 +-----
- 3 files changed, 8 insertions(+), 10 deletions(-)
+ arch/powerpc/include/asm/vas.h              | 2 +-
+ arch/powerpc/platforms/powernv/vas-fault.c  | 2 +-
+ arch/powerpc/platforms/powernv/vas-window.c | 4 ++--
+ arch/powerpc/platforms/powernv/vas.h        | 2 +-
+ drivers/crypto/nx/nx-common-powernv.c       | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index c3a26f06fdaa..1ec77ebc71a0 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3420,8 +3420,9 @@ cifs_are_all_path_components_accessible(struct TCP_Server_Info *server,
- }
- 
- /*
-- * Check if path is remote (e.g. a DFS share). Return -EREMOTE if it is,
-- * otherwise 0.
-+ * Check if path is remote (i.e. a DFS share).
-+ *
-+ * Return -EREMOTE if it is, otherwise 0 or -errno.
+diff --git a/arch/powerpc/include/asm/vas.h b/arch/powerpc/include/asm/vas.h
+index 57573d9c1e09..56834a8a1465 100644
+--- a/arch/powerpc/include/asm/vas.h
++++ b/arch/powerpc/include/asm/vas.h
+@@ -112,7 +112,7 @@ static inline void vas_user_win_add_mm_context(struct vas_user_win_ref *ref)
+  * Receive window attributes specified by the (in-kernel) owner of window.
   */
- static int is_path_remote(struct mount_ctx *mnt_ctx)
- {
-@@ -3703,6 +3704,7 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb3_fs_context *ctx)
- 	if (!isdfs)
- 		goto out;
+ struct vas_rx_win_attr {
+-	void *rx_fifo;
++	u64 rx_fifo;
+ 	int rx_fifo_size;
+ 	int wcreds_max;
  
-+	/* proceed as DFS mount */
- 	uuid_gen(&mnt_ctx.mount_id);
- 	rc = connect_dfs_root(&mnt_ctx, &tl);
- 	dfs_cache_free_tgts(&tl);
-diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
-index 956f8e5cf3e7..c5dd6f7305bd 100644
---- a/fs/cifs/dfs_cache.c
-+++ b/fs/cifs/dfs_cache.c
-@@ -654,7 +654,7 @@ static struct cache_entry *__lookup_cache_entry(const char *path, unsigned int h
- 			return ce;
- 		}
+diff --git a/arch/powerpc/platforms/powernv/vas-fault.c b/arch/powerpc/platforms/powernv/vas-fault.c
+index a7aabc18039e..c1bfad56447d 100644
+--- a/arch/powerpc/platforms/powernv/vas-fault.c
++++ b/arch/powerpc/platforms/powernv/vas-fault.c
+@@ -216,7 +216,7 @@ int vas_setup_fault_window(struct vas_instance *vinst)
+ 	vas_init_rx_win_attr(&attr, VAS_COP_TYPE_FAULT);
+ 
+ 	attr.rx_fifo_size = vinst->fault_fifo_size;
+-	attr.rx_fifo = vinst->fault_fifo;
++	attr.rx_fifo = __pa(vinst->fault_fifo);
+ 
+ 	/*
+ 	 * Max creds is based on number of CRBs can fit in the FIFO.
+diff --git a/arch/powerpc/platforms/powernv/vas-window.c b/arch/powerpc/platforms/powernv/vas-window.c
+index 0f8d39fbf2b2..0072682531d8 100644
+--- a/arch/powerpc/platforms/powernv/vas-window.c
++++ b/arch/powerpc/platforms/powernv/vas-window.c
+@@ -404,7 +404,7 @@ static void init_winctx_regs(struct pnv_vas_window *window,
+ 	 *
+ 	 * See also: Design note in function header.
+ 	 */
+-	val = __pa(winctx->rx_fifo);
++	val = winctx->rx_fifo;
+ 	val = SET_FIELD(VAS_PAGE_MIGRATION_SELECT, val, 0);
+ 	write_hvwc_reg(window, VREG(LFIFO_BAR), val);
+ 
+@@ -739,7 +739,7 @@ static void init_winctx_for_rxwin(struct pnv_vas_window *rxwin,
+ 		 */
+ 		winctx->fifo_disable = true;
+ 		winctx->intr_disable = true;
+-		winctx->rx_fifo = NULL;
++		winctx->rx_fifo = 0;
  	}
--	return ERR_PTR(-EEXIST);
-+	return ERR_PTR(-ENOENT);
- }
  
- /*
-@@ -662,7 +662,7 @@ static struct cache_entry *__lookup_cache_entry(const char *path, unsigned int h
-  *
-  * Use whole path components in the match.  Must be called with htable_rw_lock held.
-  *
-- * Return ERR_PTR(-EEXIST) if the entry is not found.
-+ * Return ERR_PTR(-ENOENT) if the entry is not found.
+ 	winctx->lnotify_lpid = rxattr->lnotify_lpid;
+diff --git a/arch/powerpc/platforms/powernv/vas.h b/arch/powerpc/platforms/powernv/vas.h
+index 8bb08e395de0..08d9d3d5a22b 100644
+--- a/arch/powerpc/platforms/powernv/vas.h
++++ b/arch/powerpc/platforms/powernv/vas.h
+@@ -376,7 +376,7 @@ struct pnv_vas_window {
+  * is a container for the register fields in the window context.
   */
- static struct cache_entry *lookup_cache_entry(const char *path)
- {
-@@ -710,7 +710,7 @@ static struct cache_entry *lookup_cache_entry(const char *path)
- 		while (e > s && *e != sep)
- 			e--;
- 	}
--	return ERR_PTR(-EEXIST);
-+	return ERR_PTR(-ENOENT);
- }
+ struct vas_winctx {
+-	void *rx_fifo;
++	u64 rx_fifo;
+ 	int rx_fifo_size;
+ 	int wcreds_max;
+ 	int rsvd_txbuf_count;
+diff --git a/drivers/crypto/nx/nx-common-powernv.c b/drivers/crypto/nx/nx-common-powernv.c
+index 32a036ada5d0..f418817c0f43 100644
+--- a/drivers/crypto/nx/nx-common-powernv.c
++++ b/drivers/crypto/nx/nx-common-powernv.c
+@@ -827,7 +827,7 @@ static int __init vas_cfg_coproc_info(struct device_node *dn, int chip_id,
+ 		goto err_out;
  
- /**
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
-index afaf59c22193..a5b5b15e658a 100644
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -1309,7 +1309,7 @@ int cifs_update_super_prepath(struct cifs_sb_info *cifs_sb, char *prefix)
-  * for "\<server>\<dfsname>\<linkpath>" DFS reference,
-  * where <dfsname> contains non-ASCII unicode symbols.
-  *
-- * Check such DFS reference and emulate -ENOENT if it is actual.
-+ * Check such DFS reference.
-  */
- int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
- 				       struct cifs_tcon *tcon,
-@@ -1341,10 +1341,6 @@ int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
- 		cifs_dbg(FYI, "DFS ref '%s' is found, emulate -EREMOTE\n",
- 			 dfspath);
- 		rc = -EREMOTE;
--	} else if (rc == -EEXIST) {
--		cifs_dbg(FYI, "DFS ref '%s' is not found, emulate -ENOENT\n",
--			 dfspath);
--		rc = -ENOENT;
- 	} else {
- 		cifs_dbg(FYI, "%s: dfs_cache_find returned %d\n", __func__, rc);
- 	}
+ 	vas_init_rx_win_attr(&rxattr, coproc->ct);
+-	rxattr.rx_fifo = (void *)rx_fifo;
++	rxattr.rx_fifo = rx_fifo;
+ 	rxattr.rx_fifo_size = fifo_size;
+ 	rxattr.lnotify_lpid = lpid;
+ 	rxattr.lnotify_pid = pid;
 -- 
 2.35.1
 
