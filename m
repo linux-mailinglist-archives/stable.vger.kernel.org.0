@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E89753A7B7
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F45053A768
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354259AbiFAOCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
+        id S1354038AbiFAOBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:01:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354846AbiFAOA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE21443DE;
-        Wed,  1 Jun 2022 06:57:23 -0700 (PDT)
+        with ESMTP id S1355217AbiFAOBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:01:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBBA1A5A8F;
+        Wed,  1 Jun 2022 06:57:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21484615F3;
-        Wed,  1 Jun 2022 13:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 714A0C385A5;
-        Wed,  1 Jun 2022 13:56:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D064B81AE6;
+        Wed,  1 Jun 2022 13:56:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01553C3411E;
+        Wed,  1 Jun 2022 13:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091812;
-        bh=0AATGhPKUXP8RHSIHly1sLcQzI8B/0tKl/5Mevs/1vk=;
+        s=k20201202; t=1654091814;
+        bh=XHRtkpxftbgTm/PySu+8nLF6MiAvmFtE9vRGXyrzS1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8TmanAmNkHNpe2QaVMiOY2Ft2p7ed5+R5e7XObR4XMrn2meQxD8FCdRiKwcGGCXu
-         c2qmj2U2DJzxa5lxbT9bpyFpUrKx4O+g9e0xn3mUxaQ23eQEMjWglQdZ3LIpuIyJ7w
-         y/5Pa7aI7qWPbwG1bkctt/IRHqHBDFx+Hm9vamU0Y9vL1GexJLQsf7kfNe4b+utbJg
-         2p1J2xQakq0JmykkBrEBwx7gCDiRlnajzfvn1ep/w9rnaSD66QwW3GGoEqrEHzgpfg
-         HZth68W6+11Dj/MhoyiVEJieE/CyW0O/K3lb/xqOEMWjOFfDtQpXPGGOEVBRu7Ety9
-         hQhbKhJ9dTOnA==
+        b=uxWTGPHt5aAIkLKc33FF38Bvd7o+Yw/TJ5GFP6eNVOj9XFNfrlTr3X6jnnX2MEP9D
+         diIHxZJWHxV3ZJmDGYassdsdDO4ZBIvnmTuCpaM/vi3OFxCVhuCRdRBq15USl8U1qM
+         gYY6Kn/dfcni5IHocWmCcErSN/VKeopzHB3/uNXNUgR01j1RyWsifvtkrkd1Ra3DvN
+         /gQiypdQkkQiSZdJ6lXxmdetlkWanwXf/XhunQQcNxmdd6u+qO3AML4I5eu+qYMP3+
+         9bFvgyTLeWBelfFDagKrV8WyI9F1do2F0LusT4wiZjf24qR37G2h7NIDwX/Iv73RyK
+         rgRgtnfkJhsHQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, geraldogabriel@gmail.com,
-        matteomartelli3@gmail.com, alexander@tsoy.me,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 14/37] ALSA: usb-audio: Move generic implicit fb quirk entries into quirks.c
-Date:   Wed,  1 Jun 2022 09:55:59 -0400
-Message-Id: <20220601135622.2003939-14-sashal@kernel.org>
+Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        paul@pwsan.com, aaro.koskinen@iki.fi, linux@armlinux.org.uk,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 15/37] ARM: OMAP1: clock: Fix UART rate reporting algorithm
+Date:   Wed,  1 Jun 2022 09:56:00 -0400
+Message-Id: <20220601135622.2003939-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135622.2003939-1-sashal@kernel.org>
 References: <20220601135622.2003939-1-sashal@kernel.org>
@@ -57,61 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit 67d64069bc0867e52e73a1e255b17462005ca9b4 ]
+[ Upstream commit 338d5d476cde853dfd97378d20496baabc2ce3c0 ]
 
-Use the new quirk bits to manage the generic implicit fb quirk
-entries.  This makes easier to compare with other devices.
+Since its introduction to the mainline kernel, omap1_uart_recalc() helper
+makes incorrect use of clk->enable_bit as a ready to use bitmap mask while
+it only provides the bit number.  Fix it.
 
-Link: https://lore.kernel.org/r/20220421064101.12456-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/implicit.c | 5 -----
- sound/usb/quirks.c   | 6 ++++++
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ arch/arm/mach-omap1/clock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/implicit.c b/sound/usb/implicit.c
-index 1fd087128538..e1bf1b5da423 100644
---- a/sound/usb/implicit.c
-+++ b/sound/usb/implicit.c
-@@ -45,11 +45,6 @@ struct snd_usb_implicit_fb_match {
+diff --git a/arch/arm/mach-omap1/clock.c b/arch/arm/mach-omap1/clock.c
+index 9d4a0ab50a46..d63d5eb8d8fd 100644
+--- a/arch/arm/mach-omap1/clock.c
++++ b/arch/arm/mach-omap1/clock.c
+@@ -41,7 +41,7 @@ static DEFINE_SPINLOCK(clockfw_lock);
+ unsigned long omap1_uart_recalc(struct clk *clk)
+ {
+ 	unsigned int val = __raw_readl(clk->enable_reg);
+-	return val & clk->enable_bit ? 48000000 : 12000000;
++	return val & 1 << clk->enable_bit ? 48000000 : 12000000;
+ }
  
- /* Implicit feedback quirk table for playback */
- static const struct snd_usb_implicit_fb_match playback_implicit_fb_quirks[] = {
--	/* Generic matching */
--	IMPLICIT_FB_GENERIC_DEV(0x0499, 0x1509), /* Steinberg UR22 */
--	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2030), /* M-Audio Fast Track C400 */
--	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2031), /* M-Audio Fast Track C600 */
--
- 	/* Fixed EP */
- 	/* FIXME: check the availability of generic matching */
- 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2080, 0x81, 2), /* M-Audio FastTrack Ultra */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index ab9f3da49941..5461cdf907e2 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1793,6 +1793,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x046d, 0x09a4, /* Logitech QuickCam E 3500 */
- 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
-+	DEVICE_FLG(0x0499, 0x1509, /* Steinberg UR22 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x04d8, 0xfeea, /* Benchmark DAC1 Pre */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x04e8, 0xa051, /* Samsung USBC Headset (AKG) */
-@@ -1824,6 +1826,10 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x0763, 0x2030, /* M-Audio Fast Track C400 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x0763, 0x2031, /* M-Audio Fast Track C600 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x0951, 0x16ad, /* Kingston HyperX */
+ unsigned long omap1_sossi_recalc(struct clk *clk)
 -- 
 2.35.1
 
