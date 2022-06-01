@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C116553A7BB
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D66E53A794
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354256AbiFAOCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56538 "EHLO
+        id S1351095AbiFAOCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:02:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354546AbiFAOAl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609AD10FF5;
-        Wed,  1 Jun 2022 06:57:00 -0700 (PDT)
+        with ESMTP id S1354627AbiFAOAp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECBB12AAE;
+        Wed,  1 Jun 2022 06:57:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE15E6160E;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 71A1CCE1C0A;
+        Wed,  1 Jun 2022 13:56:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D183BC341C0;
         Wed,  1 Jun 2022 13:56:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F4E2C3411D;
-        Wed,  1 Jun 2022 13:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091785;
-        bh=Io4HhJb+Cz16sRUnVJbOtBv6IWiQnhJuRY59WG07j+s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=I7A5nLZMKYXpbZb1QJHxcS049h13VY7fF5Osn/gcBujNd/KTWMGy9116J5GNSej7c
-         fX0Y4jrwckeiTZkLTJtWCBCL8jSRC71XdVk+6wxGghto6tYLgzTvjCRPSkLOP4KIZ6
-         pO3Svcj+ejPwYiOa+2AKe9O/iQx+Wv+qaPlroUYpiatvphlV7ERU9UvpYt/V2pRFUT
-         cio1toR1hGV/F6i5OiNwXqYNe6QVn+rtlaJgf0WhYZxOd64cie5jFAKDthoJS2ZbEQ
-         Byar09f2LvajKJ88obyDaYCm4U1qBnOeECsPgPjYTX5q78oeOzMXPE+jsvGx2JnfFL
-         CsRCqcNUO/z4w==
+        s=k20201202; t=1654091786;
+        bh=meEEYYb4Q/Zwm6saccKdiTfafAQE+aqAUob7xdy2nqM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Xxs+paFeRaBnnb4ePsrWtRwFWTriKFJLA58Bzz8rOYWkDoCE9b6qa+fQiHkXkOtEI
+         Nq/+rph0Sv98+2ZjpKrjr/CvyG5PmrF8j8UjxgRk17yyk5ns24kCTsNJkiSGd4//jS
+         pA0LZMrL3GJ6mJs+47SzuxkUilZKfMn2Vx3lwuP0lkpjazrQiy+m0gGS+lhYdZRRAf
+         T8SidftQ9TpTnOacsvy8BqcWfbePjjipHGyZu7tT2Hc6Zk2ZlB5YPnLMjHAaUQuysN
+         O1x6EaEHzkcLCwLOT9JMG3MjDC+mL3UfbkS0DMocOSJOA8OK7k+OdfxbKcuA00Z/Z+
+         Xver3eaOFv9cQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Niels Dossche <dossche.niels@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dennis.dalessandro@cornelisnetworks.com, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/37] IB/rdmavt: add missing locks in rvt_ruc_loopback
-Date:   Wed,  1 Jun 2022 09:55:46 -0400
-Message-Id: <20220601135622.2003939-1-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/37] ARM: dts: ox820: align interrupt controller node name with dtschema
+Date:   Wed,  1 Jun 2022 09:55:47 -0400
+Message-Id: <20220601135622.2003939-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220601135622.2003939-1-sashal@kernel.org>
+References: <20220601135622.2003939-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,62 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 22cbc6c2681a0a4fe76150270426e763d52353a4 ]
+[ Upstream commit fbcd5ad7a419ad40644a0bb8b4152bc660172d8a ]
 
-The documentation of the function rvt_error_qp says both r_lock and
-s_lock need to be held when calling that function.
-It also asserts using lockdep that both of those locks are held.
-rvt_error_qp is called form rvt_send_cq, which is called from
-rvt_qp_complete_swqe, which is called from rvt_send_complete, which is
-called from rvt_ruc_loopback in two places. Both of these places do not
-hold r_lock. Fix this by acquiring a spin_lock of r_lock in both of
-these places.
-The r_lock acquiring cannot be added in rvt_qp_complete_swqe because
-some of its other callers already have r_lock acquired.
+Fixes dtbs_check warnings like:
 
-Link: https://lore.kernel.org/r/20220228195144.71946-1-dossche.niels@gmail.com
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+  gic@1000: $nodename:0: 'gic@1000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220317115705.450427-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rdmavt/qp.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/ox820.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
-index 8ef112f883a7..3acab569fbb9 100644
---- a/drivers/infiniband/sw/rdmavt/qp.c
-+++ b/drivers/infiniband/sw/rdmavt/qp.c
-@@ -2775,7 +2775,7 @@ void rvt_qp_iter(struct rvt_dev_info *rdi,
- EXPORT_SYMBOL(rvt_qp_iter);
+diff --git a/arch/arm/boot/dts/ox820.dtsi b/arch/arm/boot/dts/ox820.dtsi
+index 90846a7655b4..dde4364892bf 100644
+--- a/arch/arm/boot/dts/ox820.dtsi
++++ b/arch/arm/boot/dts/ox820.dtsi
+@@ -287,7 +287,7 @@ local-timer@600 {
+ 				clocks = <&armclk>;
+ 			};
  
- /*
-- * This should be called with s_lock held.
-+ * This should be called with s_lock and r_lock held.
-  */
- void rvt_send_complete(struct rvt_qp *qp, struct rvt_swqe *wqe,
- 		       enum ib_wc_status status)
-@@ -3134,7 +3134,9 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
- 	rvp->n_loop_pkts++;
- flush_send:
- 	sqp->s_rnr_retry = sqp->s_rnr_retry_cnt;
-+	spin_lock(&sqp->r_lock);
- 	rvt_send_complete(sqp, wqe, send_status);
-+	spin_unlock(&sqp->r_lock);
- 	if (local_ops) {
- 		atomic_dec(&sqp->local_ops_pending);
- 		local_ops = 0;
-@@ -3188,7 +3190,9 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
- 	spin_unlock_irqrestore(&qp->r_lock, flags);
- serr_no_r_lock:
- 	spin_lock_irqsave(&sqp->s_lock, flags);
-+	spin_lock(&sqp->r_lock);
- 	rvt_send_complete(sqp, wqe, send_status);
-+	spin_unlock(&sqp->r_lock);
- 	if (sqp->ibqp.qp_type == IB_QPT_RC) {
- 		int lastwqe;
- 
+-			gic: gic@1000 {
++			gic: interrupt-controller@1000 {
+ 				compatible = "arm,arm11mp-gic";
+ 				interrupt-controller;
+ 				#interrupt-cells = <3>;
 -- 
 2.35.1
 
