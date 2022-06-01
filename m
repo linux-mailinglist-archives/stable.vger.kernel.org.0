@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B295A53A739
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D08253A72F
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354111AbiFAN66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:58:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
+        id S1354000AbiFAN67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:58:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348857AbiFAN6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E407B8B09A;
-        Wed,  1 Jun 2022 06:55:36 -0700 (PDT)
+        with ESMTP id S1354007AbiFAN6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704298CCF7;
+        Wed,  1 Jun 2022 06:55:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3084B615AA;
-        Wed,  1 Jun 2022 13:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60812C34119;
-        Wed,  1 Jun 2022 13:55:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BBE6B81806;
+        Wed,  1 Jun 2022 13:55:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBB2C385B8;
+        Wed,  1 Jun 2022 13:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091721;
-        bh=r3DLkc6jEcY3i0/3z56pH0qiShiXBiSeWD+DV9othKc=;
+        s=k20201202; t=1654091722;
+        bh=Q2EBRsgfT+PTS/7GnCfPNIMf+eKY8QMFmv+If5+/aew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0ebd9xcNqA4OfVMnzL50KZPsqCIVRy6Wo+QTq5OD1YNzhDBxFFD4N0t9ZsfG8igv
-         zI0sKfpFLe5nBrOFvE6xmbUX0CivY5GnEq4q4yMXRoy9GPI5VaAruNiF5DgP7syKEA
-         Qj6gS8/zvfRCEohvUwr1qSS6MFIleKS1HBlWCEWag2eFmwXqSSh5b+5xdhvmgZFoyI
-         y44XmtChJ5iB2Yy2qWqIm0aj9EhtzlDXvSQ97gNybF+npv8J/56AO7WNNiYhgBWKdZ
-         9Di53AeGYGvNyPg7RpQV3qmaDnx6mLadBcKVhome2zWPjVDlqiH887NYjxCo+N11U0
-         lWX4MIT6suG7A==
+        b=pPGOcDBrmtPkOyFFBAqT+QoCG6sM91xQmGq0ZYx9KvQcCz6RlZYoNAfvoJLlwc3oC
+         9u8zeC2Ev/7/nWX1/LMV83yjLLCvyRM9oXcJ835zSvfZ4Zog+EhhjFiyoIkN3XxNuf
+         oTRw4+QJNzW/5q9ICW+XcjoYD12o/sWxFGm3G5roOsc5a8AG/Uk05UNSx3Za8OdY91
+         5DqNBkM70c7sBQtRNyxB21NVlJ1ywOsbNlAvfsXo0VXH3KP3u2AtqY9jpgXUiVR7HS
+         XzSOFcuayqciMlR563bn3YICFLrViV2uZNTK5hkn+W/ZYGCNbwMJ9S0exe0HlXrtd9
+         duGBA9Smwwdmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Jia-wei Chang <jia-wei.chang@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 27/48] cpufreq: Avoid unnecessary frequency updates due to mismatch
-Date:   Wed,  1 Jun 2022 09:54:00 -0400
-Message-Id: <20220601135421.2003328-27-sashal@kernel.org>
+Cc:     Conor Dooley <conor.dooley@microchip.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>, daire.mcnamara@microchip.com,
+        bhelgaas@google.com, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 28/48] PCI: microchip: Add missing chained_irq_enter()/exit() calls
+Date:   Wed,  1 Jun 2022 09:54:01 -0400
+Message-Id: <20220601135421.2003328-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -61,60 +57,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit f55ae08c89873e140c7cac2a7fa161d31a0d60cf ]
+[ Upstream commit 30097efa334a706f9021b9aee6efcddcfa44a78a ]
 
-For some platforms, the frequency returned by hardware may be slightly
-different from what is provided in the frequency table. For example,
-hardware may return 499 MHz instead of 500 MHz. In such cases it is
-better to avoid getting into unnecessary frequency updates, as we may
-end up switching policy->cur between the two and sending unnecessary
-pre/post update notifications, etc.
+Two of the chained IRQ handlers miss their
+chained_irq_enter()/chained_irq_exit() calls, so add them in to avoid
+potentially lost interrupts.
 
-This patch has chosen allows the hardware frequency and table frequency
-to deviate by 1 MHz for now, we may want to increase it a bit later on
-if someone still complains.
-
-Reported-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Tested-by: Jia-wei Chang <jia-wei.chang@mediatek.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/linux-pci/87h76b8nxc.wl-maz@kernel.org
+Link: https://lore.kernel.org/r/20220511095504.2273799-1-conor.dooley@microchip.com
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/pci/controller/pcie-microchip-host.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 80f535cc8a75..fbaa8e6c7d23 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -28,6 +28,7 @@
- #include <linux/suspend.h>
- #include <linux/syscore_ops.h>
- #include <linux/tick.h>
-+#include <linux/units.h>
- #include <trace/events/power.h>
+diff --git a/drivers/pci/controller/pcie-microchip-host.c b/drivers/pci/controller/pcie-microchip-host.c
+index 29d8e81e4181..8175abed0f05 100644
+--- a/drivers/pci/controller/pcie-microchip-host.c
++++ b/drivers/pci/controller/pcie-microchip-host.c
+@@ -406,6 +406,7 @@ static void mc_pcie_enable_msi(struct mc_pcie *port, void __iomem *base)
+ static void mc_handle_msi(struct irq_desc *desc)
+ {
+ 	struct mc_pcie *port = irq_desc_get_handler_data(desc);
++	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	struct device *dev = port->dev;
+ 	struct mc_msi *msi = &port->msi;
+ 	void __iomem *bridge_base_addr =
+@@ -414,6 +415,8 @@ static void mc_handle_msi(struct irq_desc *desc)
+ 	u32 bit;
+ 	int ret;
  
- static LIST_HEAD(cpufreq_policy_list);
-@@ -1707,6 +1708,16 @@ static unsigned int cpufreq_verify_current_freq(struct cpufreq_policy *policy, b
- 		return new_freq;
- 
- 	if (policy->cur != new_freq) {
-+		/*
-+		 * For some platforms, the frequency returned by hardware may be
-+		 * slightly different from what is provided in the frequency
-+		 * table, for example hardware may return 499 MHz instead of 500
-+		 * MHz. In such cases it is better to avoid getting into
-+		 * unnecessary frequency updates.
-+		 */
-+		if (abs(policy->cur - new_freq) < HZ_PER_MHZ)
-+			return policy->cur;
++	chained_irq_enter(chip, desc);
 +
- 		cpufreq_out_of_sync(policy, new_freq);
- 		if (update)
- 			schedule_work(&policy->update);
+ 	status = readl_relaxed(bridge_base_addr + ISTATUS_LOCAL);
+ 	if (status & PM_MSI_INT_MSI_MASK) {
+ 		status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
+@@ -424,6 +427,8 @@ static void mc_handle_msi(struct irq_desc *desc)
+ 						    bit);
+ 		}
+ 	}
++
++	chained_irq_exit(chip, desc);
+ }
+ 
+ static void mc_msi_bottom_irq_ack(struct irq_data *data)
+@@ -563,6 +568,7 @@ static int mc_allocate_msi_domains(struct mc_pcie *port)
+ static void mc_handle_intx(struct irq_desc *desc)
+ {
+ 	struct mc_pcie *port = irq_desc_get_handler_data(desc);
++	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	struct device *dev = port->dev;
+ 	void __iomem *bridge_base_addr =
+ 		port->axi_base_addr + MC_PCIE_BRIDGE_ADDR;
+@@ -570,6 +576,8 @@ static void mc_handle_intx(struct irq_desc *desc)
+ 	u32 bit;
+ 	int ret;
+ 
++	chained_irq_enter(chip, desc);
++
+ 	status = readl_relaxed(bridge_base_addr + ISTATUS_LOCAL);
+ 	if (status & PM_MSI_INT_INTX_MASK) {
+ 		status &= PM_MSI_INT_INTX_MASK;
+@@ -581,6 +589,8 @@ static void mc_handle_intx(struct irq_desc *desc)
+ 						    bit);
+ 		}
+ 	}
++
++	chained_irq_exit(chip, desc);
+ }
+ 
+ static void mc_ack_intx_irq(struct irq_data *data)
 -- 
 2.35.1
 
