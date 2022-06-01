@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F6953A8B5
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6040653A76A
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355156AbiFAOLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:11:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
+        id S1354048AbiFAOBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:01:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243688AbiFAOJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF47CFD01;
-        Wed,  1 Jun 2022 07:01:15 -0700 (PDT)
+        with ESMTP id S1354110AbiFAN7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:59:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6EBA207E;
+        Wed,  1 Jun 2022 06:56:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F574B81AF7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB87A6160E;
         Wed,  1 Jun 2022 13:56:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11912C385A5;
-        Wed,  1 Jun 2022 13:56:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6F1C3411E;
+        Wed,  1 Jun 2022 13:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091772;
-        bh=SvxtK91i3xQESf6tbSBGHp7J+Iwy+arLxPKjfKCQuOg=;
+        s=k20201202; t=1654091774;
+        bh=N3kTbKDGhwPcAfEWlQX4qmpBTCC5UMNdyrw/bUyv9r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxezu5f4IBcWrsDUXlDTBSF7d51XPHuJtZa+q7kpqztFiyvt/Mrtrowf2RdHoD0Tf
-         JgS0t1IxU8zEeuxEFbrXVw4snK4aWp/jkKZzTDjSm17LsDmM9EEGT9XanMutTaARCJ
-         wESv3p2O7bLMph2MEuaTHTcL4N4YApDL1qvDLMNV9r0D7Z5S8IX85HRYYYOUif/EKB
-         9n5CRcNWnyXT/l1AxF30VehFB5etOpSc8DBOfniCoZ2D5ywuctH40vfneQqtv9c/sR
-         9kv708DUu0JhK4cHWp0jEeI290t/rJP6raaAxJqDHDMddzvplRglP+NkuPTMILBPuo
-         twS+AVPcUjQSQ==
+        b=OthGHI4g6zkm37uqh/sV4DjKevPfdX4XizvZu2/ZsZdc5T4e9y7o3iNSQCMC0w7Y1
+         a9ASBIMaHcHTo4cABWGx+4/Zsmr2t2uQ4pIKRuc8D179nseeUVfKsW+qy3tmqLZnS8
+         RrVvkXYYlmtNjCesSj+UoA5Y15jKsyWFE2PepVyRldMWkEjIN9LXrJS2iGk65VEF3l
+         zW/cDsmzI32A6WVRYtIv9Soj4Nhp223t4Mo7H7FZYNEg10e/co7+cM7vyUICL4ZMJR
+         4xTn0Qi7Yru5GIqhNfWp4VfyuL53XgrYpoxvvjMOD8xiN3nNpMhjJ5k7sYegPlHEPh
+         N1DzIH756bblA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@openvz.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 43/48] fanotify: fix incorrect fmode_t casts
-Date:   Wed,  1 Jun 2022 09:54:16 -0400
-Message-Id: <20220601135421.2003328-43-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.17 44/48] smb3: check for null tcon
+Date:   Wed,  1 Jun 2022 09:54:17 -0400
+Message-Id: <20220601135421.2003328-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -57,51 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@openvz.org>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit dccd855771b37820b6d976a99729c88259549f85 ]
+[ Upstream commit bbdf6cf56c88845fb0b713cbf5c6623c53fe40d8 ]
 
-Fixes sparce warnings:
-fs/notify/fanotify/fanotify_user.c:267:63: sparse:
- warning: restricted fmode_t degrades to integer
-fs/notify/fanotify/fanotify_user.c:1351:28: sparse:
- warning: restricted fmode_t degrades to integer
+Although unlikely to be null, it is confusing to use a pointer
+before checking for it to be null so move the use down after
+null check.
 
-FMODE_NONTIFY have bitwise fmode_t type and requires __force attribute
-for any casts.
-
-Signed-off-by: Vasily Averin <vvs@openvz.org>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/9adfd6ac-1b89-791e-796b-49ada3293985@openvz.org
+Addresses-Coverity: 1517586 ("Null pointer dereferences  (REVERSE_INULL)")
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/notify/fanotify/fanotify_user.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/smb2ops.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
-index f2a1947ec5ee..ead37db01ab5 100644
---- a/fs/notify/fanotify/fanotify_user.c
-+++ b/fs/notify/fanotify/fanotify_user.c
-@@ -264,7 +264,7 @@ static int create_fd(struct fsnotify_group *group, struct path *path,
- 	 * originally opened O_WRONLY.
- 	 */
- 	new_file = dentry_open(path,
--			       group->fanotify_data.f_flags | FMODE_NONOTIFY,
-+			       group->fanotify_data.f_flags | __FMODE_NONOTIFY,
- 			       current_cred());
- 	if (IS_ERR(new_file)) {
- 		/*
-@@ -1329,7 +1329,7 @@ SYSCALL_DEFINE2(fanotify_init, unsigned int, flags, unsigned int, event_f_flags)
- 	    (!(fid_mode & FAN_REPORT_NAME) || !(fid_mode & FAN_REPORT_FID)))
- 		return -EINVAL;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 13080d6a140b..584b78d88db6 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -757,8 +757,8 @@ int open_cached_dir(unsigned int xid, struct cifs_tcon *tcon,
+ 		struct cifs_sb_info *cifs_sb,
+ 		struct cached_fid **cfid)
+ {
+-	struct cifs_ses *ses = tcon->ses;
+-	struct TCP_Server_Info *server = ses->server;
++	struct cifs_ses *ses;
++	struct TCP_Server_Info *server;
+ 	struct cifs_open_parms oparms;
+ 	struct smb2_create_rsp *o_rsp = NULL;
+ 	struct smb2_query_info_rsp *qi_rsp = NULL;
+@@ -776,6 +776,9 @@ int open_cached_dir(unsigned int xid, struct cifs_tcon *tcon,
+ 	if (tcon->nohandlecache)
+ 		return -ENOTSUPP;
  
--	f_flags = O_RDWR | FMODE_NONOTIFY;
-+	f_flags = O_RDWR | __FMODE_NONOTIFY;
- 	if (flags & FAN_CLOEXEC)
- 		f_flags |= O_CLOEXEC;
- 	if (flags & FAN_NONBLOCK)
++	ses = tcon->ses;
++	server = ses->server;
++
+ 	if (cifs_sb->root == NULL)
+ 		return -ENOENT;
+ 
 -- 
 2.35.1
 
