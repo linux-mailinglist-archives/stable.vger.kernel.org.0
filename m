@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD1653A853
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3057653A873
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354767AbiFAOHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:07:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
+        id S1354579AbiFAOJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:09:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355837AbiFAOG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:06:29 -0400
+        with ESMTP id S1355826AbiFAOG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:06:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 883C2BA9A2;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88675BA9A4;
         Wed,  1 Jun 2022 07:00:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AE46615AA;
-        Wed,  1 Jun 2022 13:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E38C3411F;
-        Wed,  1 Jun 2022 13:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4FDB6162F;
+        Wed,  1 Jun 2022 13:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00388C385B8;
+        Wed,  1 Jun 2022 13:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091988;
-        bh=OrmCgyrADCQvNNfgQB2Hra1RezhD/GsfwcYi2XWqsis=;
+        s=k20201202; t=1654091990;
+        bh=+Sg44/L0M+G9n0ENnHsUVMZlZ9N783aU8Lc2N6fwMW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qx2WYyfEvSjso1+bRVg0+9wAELYbrLm4L5crq9NWgkgU7SHjG7jBWKcePZyjqY0Z2
-         2yWrx1hdkwcRJy120vCvz4CrQcd896prHJUMWiQ9Bg9aU7GmHwhgoIGp5ocKnr6RCA
-         9LlTzPLtOxR9js1kPztySri6odgvg1bSFwLf4BnvZPuKVk4lkw6Rvjk+cu+h68FmQp
-         7a0onenWXlJbN1ke5s4QTSCQ7K56WF9p9vJVcPaIM9HEC1JmH1Q6hnWckkSBNIedfC
-         sylwCXymiXYKgtDz7NlV3jOdDeUKJAd97LD0PKqaTUNvIoOlUVZFWa0cJi0htx0Kks
-         5ydS9fO+AnbLQ==
+        b=Uf1VhnmggQ1P1KmyoCECxYZ24jyWEBVyNh6ZsWLsjZQdfXSA1CzBTgO9XlJ1iG+Ji
+         w0qR8zpG8ducBOAOSVliW6VZsJrnaJsclF3vzfnQd0GJw0v81+Xgu84RTDe9XShj1z
+         nYq1g5QacKVL6jExESJRxPOFFg1nX1XRBxFNTA8GFmL7d291C781Okd2qUoZZd6hca
+         XtXdtenLZoO16lH2484qUzDv//bBEiv74J6xo3GPdtg35YEMMq3VS5ynGRtLCEtGyU
+         LsEGrJ78pikl2NCBUfMxB6iFh6rbb5NyZsVlZEfFmnqMOwPoz6kMRF5530pmsBsh2v
+         wn7GtslBJjC3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Miller <doug.miller@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 19/20] RDMA/hfi1: Prevent panic when SDMA is disabled
-Date:   Wed,  1 Jun 2022 09:59:01 -0400
-Message-Id: <20220601135902.2004823-19-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 20/20] drm: fix EDID struct for old ARM OABI format
+Date:   Wed,  1 Jun 2022 09:59:02 -0400
+Message-Id: <20220601135902.2004823-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135902.2004823-1-sashal@kernel.org>
 References: <20220601135902.2004823-1-sashal@kernel.org>
@@ -57,48 +63,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <doug.miller@cornelisnetworks.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 629e052d0c98e46dde9f0824f0aa437f678d9b8f ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-If the hfi1 module is loaded with HFI1_CAP_SDMA off, a call to
-hfi1_write_iter() will dereference a NULL pointer and panic. A typical
-stack frame is:
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-  sdma_select_user_engine [hfi1]
-  hfi1_user_sdma_process_request [hfi1]
-  hfi1_write_iter [hfi1]
-  do_iter_readv_writev
-  do_iter_write
-  vfs_writev
-  do_writev
-  do_syscall_64
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
 
-The fix is to test for SDMA in hfi1_write_iter() and fail the I/O with
-EINVAL.
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
 
-Link: https://lore.kernel.org/r/20220520183706.48973.79803.stgit@awfm-01.cornelisnetworks.com
-Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/file_ops.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
-index 89e1dfd07a1b..8c7ba7bad42b 100644
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -308,6 +308,8 @@ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
- 	unsigned long dim = from->nr_segs;
- 	int idx;
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index b9719418c3d2..f40a97417b68 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -116,7 +116,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
  
-+	if (!HFI1_CAP_IS_KSET(SDMA))
-+		return -EINVAL;
- 	idx = srcu_read_lock(&fd->pq_srcu);
- 	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
- 	if (!cq || !pq) {
+ struct detailed_data_wpindex {
+@@ -149,7 +149,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -167,7 +167,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
