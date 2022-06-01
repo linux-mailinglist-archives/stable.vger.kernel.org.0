@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E3453A804
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B67353A82A
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237014AbiFAOHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47608 "EHLO
+        id S1354331AbiFAOHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:07:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355695AbiFAOGU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:06:20 -0400
+        with ESMTP id S1355012AbiFAOF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:05:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D38EB41D1;
-        Wed,  1 Jun 2022 06:59:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D01AE47A;
+        Wed,  1 Jun 2022 06:59:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F536B81AE7;
-        Wed,  1 Jun 2022 13:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83187C3411E;
-        Wed,  1 Jun 2022 13:59:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2796EB81A79;
+        Wed,  1 Jun 2022 13:59:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A558EC36AE2;
+        Wed,  1 Jun 2022 13:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091962;
-        bh=H4I09whxsh8ywfnFdOqNSd9DPvOqk92y/LG+KTeXnp4=;
+        s=k20201202; t=1654091963;
+        bh=uue5EE1JeN8GGNUFiqBSIhubZNl+E5Jqm/EiHbqvVJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0ZH5224CAY/7SXROKyOC7vYIXtqneBEjoUVMVd7uqwBA+16KZcnn5I5thFD5ihS0
-         TGaDaD+mi79KEfHWUjUgapdaV3MRyo7vOROaD/MqOvxmhPOSpSqHcZoIqrVdh87hx6
-         NZNzczlaFDXZZ/HHT0lUTbMQiBjRxUj4yFnlCpwsWD2WASBeogtKTdjBiRmNv8z6RP
-         3fnYMu8gZSFUS46JzRO52HTua9MCgeAO5MbyAbZWbQ5LYmaHuX9Vm6ohrl3KpOiEIJ
-         cnzSWd02z3tHPrOFFV61jZhe1+H2iicZbCAq17HJnvoTiSh6UPiKloZWdFuGYibdyl
-         aoJKM8k60Wh+g==
+        b=A8axB6gvgoAxuuORcvfnET23ascrUHYZlb3nBL1rR0p5l/VKQ49xuFqwFpmBwtf9z
+         Hk2OyXSPg0DWlQy6gI+HZ+cu2lCrPKvwkbmpMq2o2aDBopSyL8BIQwnmphh22ffbK8
+         8IWSyT7QX9Sllt/F/GHl+wiv2NZ/yPLdKPk4UJkdXCeRiSezpKSigoUELgpCSMHtEU
+         GdsMvCGDypaoqFxNR6cHgn8JeScvwVu6kpPm+vjxBxpLHoYuph/2blprtuDC7Ly/5L
+         FbxA+tVMZq553t6j/DLUaTmAyU5SC1vbmmsrozWO+Ag6L4YkJmT/khfXn4my+Cae/M
+         q4Fv4oMjq7byw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        qianfan <qianfanguijin@163.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 09/20] fat: add ratelimit to fat*_ent_bread()
-Date:   Wed,  1 Jun 2022 09:58:51 -0400
-Message-Id: <20220601135902.2004823-9-sashal@kernel.org>
+Cc:     Peng Wu <wupeng58@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        liviu.dudau@arm.com, sudeep.holla@arm.com,
+        lorenzo.pieralisi@arm.com, linux@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 10/20] ARM: versatile: Add missing of_node_put in dcscb_init
+Date:   Wed,  1 Jun 2022 09:58:52 -0400
+Message-Id: <20220601135902.2004823-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135902.2004823-1-sashal@kernel.org>
 References: <20220601135902.2004823-1-sashal@kernel.org>
@@ -57,48 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Peng Wu <wupeng58@huawei.com>
 
-[ Upstream commit 183c3237c928109d2008c0456dff508baf692b20 ]
+[ Upstream commit 23b44f9c649bbef10b45fa33080cd8b4166800ae ]
 
-fat*_ent_bread() can be the cause of too many report on I/O error path.
-So use fat_msg_ratelimit() instead.
+The device_node pointer is returned by of_find_compatible_node
+with refcount incremented. We should use of_node_put() to avoid
+the refcount leak.
 
-Link: https://lkml.kernel.org/r/87bkxogfeq.fsf@mail.parknet.co.jp
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reported-by: qianfan <qianfanguijin@163.com>
-Tested-by: qianfan <qianfanguijin@163.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Peng Wu <wupeng58@huawei.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220428230356.69418-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fat/fatent.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/mach-vexpress/dcscb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/fat/fatent.c b/fs/fat/fatent.c
-index 3647c65a0f48..0191eb1dc7f6 100644
---- a/fs/fat/fatent.c
-+++ b/fs/fat/fatent.c
-@@ -93,7 +93,8 @@ static int fat12_ent_bread(struct super_block *sb, struct fat_entry *fatent,
- err_brelse:
- 	brelse(bhs[0]);
- err:
--	fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)", (llu)blocknr);
-+	fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
-+			  (llu)blocknr);
- 	return -EIO;
- }
- 
-@@ -106,8 +107,8 @@ static int fat_ent_bread(struct super_block *sb, struct fat_entry *fatent,
- 	fatent->fat_inode = MSDOS_SB(sb)->fat_inode;
- 	fatent->bhs[0] = sb_bread(sb, blocknr);
- 	if (!fatent->bhs[0]) {
--		fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
--		       (llu)blocknr);
-+		fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
-+				  (llu)blocknr);
- 		return -EIO;
- 	}
- 	fatent->nr_bhs = 1;
+diff --git a/arch/arm/mach-vexpress/dcscb.c b/arch/arm/mach-vexpress/dcscb.c
+index 46a903c88c6a..f553cde614f9 100644
+--- a/arch/arm/mach-vexpress/dcscb.c
++++ b/arch/arm/mach-vexpress/dcscb.c
+@@ -143,6 +143,7 @@ static int __init dcscb_init(void)
+ 	if (!node)
+ 		return -ENODEV;
+ 	dcscb_base = of_iomap(node, 0);
++	of_node_put(node);
+ 	if (!dcscb_base)
+ 		return -EADDRNOTAVAIL;
+ 	cfg = readl_relaxed(dcscb_base + DCS_CFG_R);
 -- 
 2.35.1
 
