@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D3F53A8C3
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A987253A7A2
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355180AbiFAOL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45026 "EHLO
+        id S1349102AbiFAOCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:02:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354765AbiFAOJf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:35 -0400
+        with ESMTP id S1354200AbiFAOAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:06 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8DCB4A8;
-        Wed,  1 Jun 2022 07:01:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3593CA30B9;
+        Wed,  1 Jun 2022 06:56:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 966E1CE1C23;
-        Wed,  1 Jun 2022 13:55:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B48DBC385B8;
-        Wed,  1 Jun 2022 13:55:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1BD45CE1A24;
+        Wed,  1 Jun 2022 13:55:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A13C341C0;
+        Wed,  1 Jun 2022 13:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091742;
-        bh=jePdNX0EfcO7Gm4KTYdBeSyuCnF+gYdC8iKD6gEPixU=;
+        s=k20201202; t=1654091743;
+        bh=8jW+wbclhVLRiL+4mYuuTKPY9fQZfW+0lZRvZfuv6to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgkyxWNmr8WQc5ABsxbYzeTaZgaBp/MbeCmzY2jBn/1anPBsPga4KODLgnDbnwAl0
-         9k+59u3gppNbuhGgAHDAaX/u/BT5NGzBagExtcujS5JqNbleIo7gvqI/RXXy1ye8es
-         t1ZaGhb7EpgUwdNhxDyCzP46JuqjmqLz07cHe33j3lRGiaVw1DG/5K0iLV78qlpGbR
-         JhvOz7jcFMcQGBHG0LOp1WgvhQKKpnfBjjrfUZFNXFWMKA6KaG+LAgMBelLbUcFdn/
-         Qwb8C8aANjCGsm4gM7rEwv2qKDwc4iwTJdEnzkSjP0aRCkDAtIH2NwhPMBJ7Q7LKxa
-         gZa2xoiL3H76w==
+        b=RGoGxXd+W/SE6jVbGzEBkmZUCNtRP1RYh8o+IeLNceTISQJmSq2ElVgyhfW+yzrmw
+         J3LtKddvevoWAl2fWgx0U8c8Kfpx6TTcrGgL1oYZh+5SuqLjO7mG6u9+l+mx3+5HvD
+         IAJpkGeTk7F7CcmznHov2aoXlfZ/f3c5zLc0wCcayq8I47S40/XU3VybPRlyuclaA/
+         PFEJHshIw9/a3GBfqVvt2jeZCy9fz/27hx6humQGiHmRVZJaKA6OmwwaySGCC7283l
+         64ipRu+fpf/JNKQA0arsGGOflb05nQ9GiM3AOT/LX5LFbw+VHb1+V6Sg75NMjFhr14
+         2k/hg5F0LEZ5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Koller <ricarkol@google.com>,
-        Oliver Upton <oupton@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        catalin.marinas@arm.com, will@kernel.org, eric.auger@redhat.com,
-        justin.he@arm.com, yuzhe@nfschina.com,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
-Subject: [PATCH AUTOSEL 5.17 34/48] KVM: arm64: vgic: Do not ignore vgic_its_restore_cte failures
-Date:   Wed,  1 Jun 2022 09:54:07 -0400
-Message-Id: <20220601135421.2003328-34-sashal@kernel.org>
+Cc:     Paulo Alcantara <pc@cjr.nz>, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.17 35/48] cifs: fix signed integer overflow when fl_end is OFFSET_MAX
+Date:   Wed,  1 Jun 2022 09:54:08 -0400
+Message-Id: <20220601135421.2003328-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -59,102 +57,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Koller <ricarkol@google.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit a1ccfd6f6e06eceb632cc29c4f15a32860f05a7e ]
+[ Upstream commit d80c69846ddfddf437167b31ab4cd0de12f61001 ]
 
-Restoring a corrupted collection entry (like an out of range ID) is
-being ignored and treated as success. More specifically, a
-vgic_its_restore_cte failure is treated as success by
-vgic_its_restore_collection_table.  vgic_its_restore_cte uses positive
-and negative numbers to return error, and +1 to return success.  The
-caller then uses "ret > 0" to check for success.
+This fixes the following when running xfstests generic/504:
 
-Fix this by having vgic_its_restore_cte only return negative numbers on
-error.  Do this by changing alloc_collection return codes to only return
-negative numbers on error.
+[  134.394698] CIFS: Attempting to mount \\win16.vm.test\Share
+[  134.420905] CIFS: VFS: generate_smb3signingkey: dumping generated
+AES session keys
+[  134.420911] CIFS: VFS: Session Id    05 00 00 00 00 c4 00 00
+[  134.420914] CIFS: VFS: Cipher type   1
+[  134.420917] CIFS: VFS: Session Key   ea 0b d9 22 2e af 01 69 30 1b
+15 74 bf 87 41 11
+[  134.420920] CIFS: VFS: Signing Key   59 28 43 5c f0 b6 b1 6f f5 7b
+65 f2 9f 9e 58 7d
+[  134.420923] CIFS: VFS: ServerIn Key  eb aa 58 c8 95 01 9a f7 91 98
+e4 fa bc d8 74 f1
+[  134.420926] CIFS: VFS: ServerOut Key 08 5b 21 e5 2e 4e 86 f6 05 c2
+58 e0 af 53 83 e7
+[  134.771946]
+================================================================================
+[  134.771953] UBSAN: signed-integer-overflow in fs/cifs/file.c:1706:19
+[  134.771957] 9223372036854775807 + 1 cannot be represented in type
+'long long int'
+[  134.771960] CPU: 4 PID: 2773 Comm: flock Not tainted 5.11.22 #1
+[  134.771964] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[  134.771966] Call Trace:
+[  134.771970]  dump_stack+0x8d/0xb5
+[  134.771981]  ubsan_epilogue+0x5/0x50
+[  134.771988]  handle_overflow+0xa3/0xb0
+[  134.771997]  ? lockdep_hardirqs_on_prepare+0xe8/0x1b0
+[  134.772006]  cifs_setlk+0x63c/0x680 [cifs]
+[  134.772085]  ? _get_xid+0x5f/0xa0 [cifs]
+[  134.772085]  cifs_flock+0x131/0x400 [cifs]
+[  134.772085]  __x64_sys_flock+0xfc/0x120
+[  134.772085]  do_syscall_64+0x33/0x40
+[  134.772085]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  134.772085] RIP: 0033:0x7fea4f83b3fb
+[  134.772085] Code: ff 48 8b 15 8f 1a 0d 00 f7 d8 64 89 02 b8 ff ff
+ff ff eb da e8 16 0b 02 00 66 0f 1f 44 00 00 f3 0f 1e fa b8 49 00 00
+00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 5d 1a 0d 00 f7 d8 64 89
+01 48
 
-Signed-off-by: Ricardo Koller <ricarkol@google.com>
-Reviewed-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220510001633.552496-4-ricarkol@google.com
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/vgic/vgic-its.c | 27 +++++++++++++++++++++++----
- 1 file changed, 23 insertions(+), 4 deletions(-)
+ fs/cifs/cifsglob.h | 5 +++++
+ fs/cifs/cifssmb.c  | 3 ++-
+ fs/cifs/file.c     | 8 ++++----
+ 3 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/kvm/vgic/vgic-its.c b/arch/arm64/kvm/vgic/vgic-its.c
-index 089fc2ffcb43..d4b849364d07 100644
---- a/arch/arm64/kvm/vgic/vgic-its.c
-+++ b/arch/arm64/kvm/vgic/vgic-its.c
-@@ -976,15 +976,16 @@ static bool vgic_its_check_id(struct vgic_its *its, u64 baser, u32 id,
- 	return ret;
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index 560ecc4ad87d..3c7865186e5e 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1983,4 +1983,9 @@ static inline bool cifs_is_referral_server(struct cifs_tcon *tcon,
+ 	return is_tcon_dfs(tcon) || (ref && (ref->flags & DFSREF_REFERRAL_SERVER));
  }
  
-+/*
-+ * Add a new collection into the ITS collection table.
-+ * Returns 0 on success, and a negative error value for generic errors.
-+ */
- static int vgic_its_alloc_collection(struct vgic_its *its,
- 				     struct its_collection **colp,
- 				     u32 coll_id)
++static inline u64 cifs_flock_len(struct file_lock *fl)
++{
++	return fl->fl_end == OFFSET_MAX ? 0 : fl->fl_end - fl->fl_start + 1;
++}
++
+ #endif	/* _CIFS_GLOB_H */
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index aca9338b0877..83820205d644 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -2558,7 +2558,8 @@ CIFSSMBPosixLock(const unsigned int xid, struct cifs_tcon *tcon,
+ 
+ 			pLockData->fl_start = le64_to_cpu(parm_data->start);
+ 			pLockData->fl_end = pLockData->fl_start +
+-					le64_to_cpu(parm_data->length) - 1;
++				(le64_to_cpu(parm_data->length) ?
++				 le64_to_cpu(parm_data->length) - 1 : 0);
+ 			pLockData->fl_pid = -le32_to_cpu(parm_data->pid);
+ 		}
+ 	}
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index a2723f7cb5e9..b8a4b43870fe 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1395,7 +1395,7 @@ cifs_push_posix_locks(struct cifsFileInfo *cfile)
+ 			cifs_dbg(VFS, "Can't push all brlocks!\n");
+ 			break;
+ 		}
+-		length = 1 + flock->fl_end - flock->fl_start;
++		length = cifs_flock_len(flock);
+ 		if (flock->fl_type == F_RDLCK || flock->fl_type == F_SHLCK)
+ 			type = CIFS_RDLCK;
+ 		else
+@@ -1511,7 +1511,7 @@ cifs_getlk(struct file *file, struct file_lock *flock, __u32 type,
+ 	   bool wait_flag, bool posix_lck, unsigned int xid)
  {
- 	struct its_collection *collection;
+ 	int rc = 0;
+-	__u64 length = 1 + flock->fl_end - flock->fl_start;
++	__u64 length = cifs_flock_len(flock);
+ 	struct cifsFileInfo *cfile = (struct cifsFileInfo *)file->private_data;
+ 	struct cifs_tcon *tcon = tlink_tcon(cfile->tlink);
+ 	struct TCP_Server_Info *server = tcon->ses->server;
+@@ -1609,7 +1609,7 @@ cifs_unlock_range(struct cifsFileInfo *cfile, struct file_lock *flock,
+ 	struct cifs_tcon *tcon = tlink_tcon(cfile->tlink);
+ 	struct cifsInodeInfo *cinode = CIFS_I(d_inode(cfile->dentry));
+ 	struct cifsLockInfo *li, *tmp;
+-	__u64 length = 1 + flock->fl_end - flock->fl_start;
++	__u64 length = cifs_flock_len(flock);
+ 	struct list_head tmp_llist;
  
--	if (!vgic_its_check_id(its, its->baser_coll_table, coll_id, NULL))
--		return E_ITS_MAPC_COLLECTION_OOR;
--
- 	collection = kzalloc(sizeof(*collection), GFP_KERNEL_ACCOUNT);
- 	if (!collection)
- 		return -ENOMEM;
-@@ -1078,7 +1079,12 @@ static int vgic_its_cmd_handle_mapi(struct kvm *kvm, struct vgic_its *its,
- 
- 	collection = find_collection(its, coll_id);
- 	if (!collection) {
--		int ret = vgic_its_alloc_collection(its, &collection, coll_id);
-+		int ret;
-+
-+		if (!vgic_its_check_id(its, its->baser_coll_table, coll_id, NULL))
-+			return E_ITS_MAPC_COLLECTION_OOR;
-+
-+		ret = vgic_its_alloc_collection(its, &collection, coll_id);
- 		if (ret)
- 			return ret;
- 		new_coll = collection;
-@@ -1233,6 +1239,10 @@ static int vgic_its_cmd_handle_mapc(struct kvm *kvm, struct vgic_its *its,
- 		if (!collection) {
- 			int ret;
- 
-+			if (!vgic_its_check_id(its, its->baser_coll_table,
-+						coll_id, NULL))
-+				return E_ITS_MAPC_COLLECTION_OOR;
-+
- 			ret = vgic_its_alloc_collection(its, &collection,
- 							coll_id);
- 			if (ret)
-@@ -2461,6 +2471,11 @@ static int vgic_its_save_cte(struct vgic_its *its,
- 	return kvm_write_guest_lock(its->dev->kvm, gpa, &val, esz);
- }
- 
-+/*
-+ * Restore a collection entry into the ITS collection table.
-+ * Return +1 on success, 0 if the entry was invalid (which should be
-+ * interpreted as end-of-table), and a negative error value for generic errors.
-+ */
- static int vgic_its_restore_cte(struct vgic_its *its, gpa_t gpa, int esz)
+ 	INIT_LIST_HEAD(&tmp_llist);
+@@ -1713,7 +1713,7 @@ cifs_setlk(struct file *file, struct file_lock *flock, __u32 type,
+ 	   unsigned int xid)
  {
- 	struct its_collection *collection;
-@@ -2487,6 +2502,10 @@ static int vgic_its_restore_cte(struct vgic_its *its, gpa_t gpa, int esz)
- 	collection = find_collection(its, coll_id);
- 	if (collection)
- 		return -EEXIST;
-+
-+	if (!vgic_its_check_id(its, its->baser_coll_table, coll_id, NULL))
-+		return -EINVAL;
-+
- 	ret = vgic_its_alloc_collection(its, &collection, coll_id);
- 	if (ret)
- 		return ret;
+ 	int rc = 0;
+-	__u64 length = 1 + flock->fl_end - flock->fl_start;
++	__u64 length = cifs_flock_len(flock);
+ 	struct cifsFileInfo *cfile = (struct cifsFileInfo *)file->private_data;
+ 	struct cifs_tcon *tcon = tlink_tcon(cfile->tlink);
+ 	struct TCP_Server_Info *server = tcon->ses->server;
 -- 
 2.35.1
 
