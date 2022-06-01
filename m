@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7AA53A699
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B92B153A6A3
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353590AbiFANyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
+        id S1353607AbiFANzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:55:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353705AbiFANyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:54:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 537AC8AE7A;
-        Wed,  1 Jun 2022 06:54:03 -0700 (PDT)
+        with ESMTP id S1353783AbiFANyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:54:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC79880D2;
+        Wed,  1 Jun 2022 06:54:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93994B81806;
-        Wed,  1 Jun 2022 13:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE64EC385A5;
-        Wed,  1 Jun 2022 13:53:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 350A261577;
+        Wed,  1 Jun 2022 13:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47836C385B8;
+        Wed,  1 Jun 2022 13:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091616;
-        bh=p/08dZfZ7CBeLXRE9nPAnm/+jHFflppoG/BYqplNPyk=;
+        s=k20201202; t=1654091619;
+        bh=/j62wDdCZ6jM4TCnRCrFXNWm9VQZyd9sGMYL8iWTtiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwB1cGNLE/Wa7MV4TpB5uKF82EVi0n62RMTjcnAZf7kvIQ8XkrBpJVlTMQKEjVbKx
-         bo/x3q1UYx3mgkQ7WsfiVT4PiDfqO2ZsO6cpgRBwVomAA6MYcjmvwXKegor47E0wt6
-         pb9m2Oqq+2tMbkofz3iWOc7iW9X15ooa1Jcx0KFOpLdxMy0cyGDZUkEYv7egJsETTL
-         poE+B4MjDOuAjzPUHjYW/uJOuB5syxAuolbCz3e/lS6KQlNuAL1Px3s89/78VLimsd
-         v6/fPneJN5W5CzxKL104jOYEgg26j/IJaj/RfoQWHvITmGGRxehE9i9gIXvNYVTvkX
-         Lek0WX3nwq8RA==
+        b=P9zYJWWvQ+FBaK14Wy6gQOzaYNrXveC8PpiPmk8tHPgtuzb8kpIglG0ypwx4Mw/IX
+         Ui3BPrkZUZfEgR8/vbGMw7IPN22hCgN2X+IBG0Vso7gngRyW2qg51LNhHyY73kikUz
+         zI9IPqzRWlgsQ/1vU4uwlZKkDdqM9fd52kHzT2TBOLMYUjQjQ+T1DL/yjvXoS6UB50
+         UQ9g+ZIGw5uq1jVSHbpdmdUh5BQ1YJnutmFLlU/icFTBdzAlshz67FQaHbuTDesnPl
+         NBBInGDnTXDyQpIhizFg0ICbg1oRgbZ/e2OuLX5KH6dLi23JyLJ+5Gko28Rd5092jH
+         NEodPqzCsf0uA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, rth@twiddle.net,
-        ink@jurassic.park.msu.ru, mattst88@gmail.com,
-        catalin.marinas@arm.com, pcc@google.com, will@kernel.org,
-        linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 34/49] alpha: fix alloc_zeroed_user_highpage_movable()
-Date:   Wed,  1 Jun 2022 09:51:58 -0400
-Message-Id: <20220601135214.2002647-34-sashal@kernel.org>
+Cc:     Ricardo Koller <ricarkol@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        catalin.marinas@arm.com, will@kernel.org, eric.auger@redhat.com,
+        yuzhe@nfschina.com, justin.he@arm.com,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.18 35/49] KVM: arm64: vgic: Do not ignore vgic_its_restore_cte failures
+Date:   Wed,  1 Jun 2022 09:51:59 -0400
+Message-Id: <20220601135214.2002647-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135214.2002647-1-sashal@kernel.org>
 References: <20220601135214.2002647-1-sashal@kernel.org>
@@ -61,37 +59,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+From: Ricardo Koller <ricarkol@google.com>
 
-[ Upstream commit f9c668d281aa20e38c9bda3b7b0adeb8891aa15e ]
+[ Upstream commit a1ccfd6f6e06eceb632cc29c4f15a32860f05a7e ]
 
-Due to a typo, the final argument to alloc_page_vma() didn't refer to a
-real variable.  This only affected CONFIG_NUMA, which was marked BROKEN in
-2006 and removed from alpha in 2021.  Found due to a refactoring patch.
+Restoring a corrupted collection entry (like an out of range ID) is
+being ignored and treated as success. More specifically, a
+vgic_its_restore_cte failure is treated as success by
+vgic_its_restore_collection_table.  vgic_its_restore_cte uses positive
+and negative numbers to return error, and +1 to return success.  The
+caller then uses "ret > 0" to check for success.
 
-Link: https://lkml.kernel.org/r/20220504182857.4013401-4-willy@infradead.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fix this by having vgic_its_restore_cte only return negative numbers on
+error.  Do this by changing alloc_collection return codes to only return
+negative numbers on error.
+
+Signed-off-by: Ricardo Koller <ricarkol@google.com>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220510001633.552496-4-ricarkol@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/page.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kvm/vgic/vgic-its.c | 27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
 
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 18f48a6f2ff6..8f3f5eecba28 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -18,7 +18,7 @@ extern void clear_page(void *page);
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
+diff --git a/arch/arm64/kvm/vgic/vgic-its.c b/arch/arm64/kvm/vgic/vgic-its.c
+index 2e13402be3bd..eeee272729dd 100644
+--- a/arch/arm64/kvm/vgic/vgic-its.c
++++ b/arch/arm64/kvm/vgic/vgic-its.c
+@@ -976,15 +976,16 @@ static bool vgic_its_check_id(struct vgic_its *its, u64 baser, u32 id,
+ 	return ret;
+ }
  
- #define alloc_zeroed_user_highpage_movable(vma, vaddr) \
--	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vmaddr)
-+	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vaddr)
- #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE_MOVABLE
++/*
++ * Add a new collection into the ITS collection table.
++ * Returns 0 on success, and a negative error value for generic errors.
++ */
+ static int vgic_its_alloc_collection(struct vgic_its *its,
+ 				     struct its_collection **colp,
+ 				     u32 coll_id)
+ {
+ 	struct its_collection *collection;
  
- extern void copy_page(void * _to, void * _from);
+-	if (!vgic_its_check_id(its, its->baser_coll_table, coll_id, NULL))
+-		return E_ITS_MAPC_COLLECTION_OOR;
+-
+ 	collection = kzalloc(sizeof(*collection), GFP_KERNEL_ACCOUNT);
+ 	if (!collection)
+ 		return -ENOMEM;
+@@ -1078,7 +1079,12 @@ static int vgic_its_cmd_handle_mapi(struct kvm *kvm, struct vgic_its *its,
+ 
+ 	collection = find_collection(its, coll_id);
+ 	if (!collection) {
+-		int ret = vgic_its_alloc_collection(its, &collection, coll_id);
++		int ret;
++
++		if (!vgic_its_check_id(its, its->baser_coll_table, coll_id, NULL))
++			return E_ITS_MAPC_COLLECTION_OOR;
++
++		ret = vgic_its_alloc_collection(its, &collection, coll_id);
+ 		if (ret)
+ 			return ret;
+ 		new_coll = collection;
+@@ -1233,6 +1239,10 @@ static int vgic_its_cmd_handle_mapc(struct kvm *kvm, struct vgic_its *its,
+ 		if (!collection) {
+ 			int ret;
+ 
++			if (!vgic_its_check_id(its, its->baser_coll_table,
++						coll_id, NULL))
++				return E_ITS_MAPC_COLLECTION_OOR;
++
+ 			ret = vgic_its_alloc_collection(its, &collection,
+ 							coll_id);
+ 			if (ret)
+@@ -2461,6 +2471,11 @@ static int vgic_its_save_cte(struct vgic_its *its,
+ 	return kvm_write_guest_lock(its->dev->kvm, gpa, &val, esz);
+ }
+ 
++/*
++ * Restore a collection entry into the ITS collection table.
++ * Return +1 on success, 0 if the entry was invalid (which should be
++ * interpreted as end-of-table), and a negative error value for generic errors.
++ */
+ static int vgic_its_restore_cte(struct vgic_its *its, gpa_t gpa, int esz)
+ {
+ 	struct its_collection *collection;
+@@ -2487,6 +2502,10 @@ static int vgic_its_restore_cte(struct vgic_its *its, gpa_t gpa, int esz)
+ 	collection = find_collection(its, coll_id);
+ 	if (collection)
+ 		return -EEXIST;
++
++	if (!vgic_its_check_id(its, its->baser_coll_table, coll_id, NULL))
++		return -EINVAL;
++
+ 	ret = vgic_its_alloc_collection(its, &collection, coll_id);
+ 	if (ret)
+ 		return ret;
 -- 
 2.35.1
 
