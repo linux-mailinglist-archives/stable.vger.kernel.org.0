@@ -2,69 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C060953AEEF
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 00:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5782F53ADC1
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 22:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231240AbiFAVQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 17:16:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46070 "EHLO
+        id S229871AbiFAUqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 16:46:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231207AbiFAVQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 17:16:30 -0400
-Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47E1E3B
-        for <stable@vger.kernel.org>; Wed,  1 Jun 2022 14:16:29 -0700 (PDT)
-Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-f2a4c51c45so4368550fac.9
-        for <stable@vger.kernel.org>; Wed, 01 Jun 2022 14:16:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to;
-        bh=Gk4nfCem3ECRa7Gml0J0mN/3RZoOAdfGaQAqyHPKtiI=;
-        b=DxxMd4k8tG1Z+DI+JxuL9225Cp+S+uInl/poXMcuMZiTQV1c8XJNPCuJB0EN9Fm1lJ
-         tjqO15tZbiRtkiZc869kqZb+gTGwGsofr4Ks/EzA24HoqZkeukApCRLbeWaJgYbzN6Uj
-         DJcyUaN0vgzLiaJiK8SKJwd17XWuJUN7X4OrSO+zy2q+txFdEpb8ifoCAb/ECnGeqxQV
-         22+OgKU21rrXICCeKXN25GVJHEIOuX810V30PW3f8Y111fShlwSlQkBARV9N87g0aoLJ
-         wQNCoaF08Ng768jLDvSBCHYHS21HkQkWfLc+tM30B/O2SgLendb0dLrFE3BY6UlGqUm0
-         gBYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
-         :from:date:message-id:subject:to;
-        bh=Gk4nfCem3ECRa7Gml0J0mN/3RZoOAdfGaQAqyHPKtiI=;
-        b=7qrupOFtPoNlyP1tFaW4EUYX1Yx3W25/vBbgqKzU7BEpA3/AaLtKa9ehxnnLIQNBvN
-         LfePbcoALkJ+WKzAWDvAabNee2YoXfLBd13xicTAAGjqm5ySDXMji3NxHtoZ1DO06IDu
-         pbJE08rA/9AIgnMohBXR/Advt2bqbdt98ecwhbKiUjHbftKylSZcObzOUfxUtHih3+Vu
-         e/Xya8sPgCLOUS9JoXL2w/i59sGDaamlfJ+l7IdHpOyFVV8i7tL/pHa04ko/q1YbZRMn
-         Taq51kyUHli+QwZR67BIVhHSx+nn/bcfHMdTpUPpxeQrufxHxwQyFo9C6fTREHERBEI3
-         2l6w==
-X-Gm-Message-State: AOAM532uL6stloIyN+F3d+ODoZbKzWFN8FUrRqAXGKlvHjKjI6nDuHoz
-        NFLo5UrYXkKShUQoiqPtfYnNXSHUGlZXkXTY6+ARLMhmSDQ=
-X-Google-Smtp-Source: ABdhPJxRHJ7PowqzwP8FVf7Pao2siL9+mp8F+vsKwg9Hvlld1uXwEH8+vzJyu5zLQk9d57eu+g6BtXkHW1P4ce0P3TA=
-X-Received: by 2002:a05:6870:4619:b0:f1:e78d:fd54 with SMTP id
- z25-20020a056870461900b000f1e78dfd54mr18175523oao.195.1654111088174; Wed, 01
- Jun 2022 12:18:08 -0700 (PDT)
+        with ESMTP id S230152AbiFAUqD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 16:46:03 -0400
+Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92CA51EE6CD;
+        Wed,  1 Jun 2022 13:37:18 -0700 (PDT)
+Received: from [192.168.0.175] (ip5f5aeccf.dynamic.kabel-deutschland.de [95.90.236.207])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: buczek)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 5C50761EA1929;
+        Wed,  1 Jun 2022 21:58:24 +0200 (CEST)
+Message-ID: <4895d5a4-f763-a52e-c7f1-ce25f27e4d54@molgen.mpg.de>
+Date:   Wed, 1 Jun 2022 21:58:23 +0200
 MIME-Version: 1.0
-Received: by 2002:a05:6358:3601:b0:a3:2139:251d with HTTP; Wed, 1 Jun 2022
- 12:18:07 -0700 (PDT)
-Reply-To: johnwinery@online.ee
-In-Reply-To: <CAFqHCSSUC0MpbjYK8d-GCxOG4b6Qbk2uH3+xQDZte6cPBsxLGA@mail.gmail.com>
-References: <CAFqHCSSUC0MpbjYK8d-GCxOG4b6Qbk2uH3+xQDZte6cPBsxLGA@mail.gmail.com>
-From:   johnwinery <alicejohnson8974@gmail.com>
-Date:   Wed, 1 Jun 2022 12:18:07 -0700
-Message-ID: <CAFqHCSTLW5uHwBqcyU-qn7_jF2jtwt2-CjgdN8-B9nAn9yi+vg@mail.gmail.com>
-Subject: Re:
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH] block: fix bio_clone_blkg_association() to associate with
+ proper blkcg_gq
+Content-Language: en-US
+To:     Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Tejun Heo <tj@kernel.org>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Logan Gunthorpe <logang@deltatee.com>, stable@vger.kernel.org
+References: <20220601163405.29478-1-jack@suse.cz>
+From:   Donald Buczek <buczek@molgen.mpg.de>
+In-Reply-To: <20220601163405.29478-1-jack@suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greeting ,I had written an earlier mail to you but without response
+On 01.06.22 18:34, Jan Kara wrote:
+> Commit d92c370a16cb ("block: really clone the block cgroup in
+> bio_clone_blkg_association") changed bio_clone_blkg_association() to
+> just clone bio->bi_blkg reference from source to destination bio. This
+> is however wrong if the source and destination bios are against
+> different block devices because struct blkcg_gq is different for each
+> bdev-blkcg pair. This will result in IOs being accounted (and throttled
+> as a result) multiple times against the same device (src bdev) while
+> throttling of the other device (dst bdev) is ignored. In case of BFQ the
+> inconsistency can even result in crashes in bfq_bic_update_cgroup().
+> Fix the problem by looking up correct blkcg_gq for the cloned bio.
+> 
+> Reported-by: Logan Gunthorpe <logang@deltatee.com>
+> Reported-by: Donald Buczek <buczek@molgen.mpg.de>
+> Fixes: d92c370a16cb ("block: really clone the block cgroup in bio_clone_blkg_association")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> ---
+>   block/blk-cgroup.c | 7 +++----
+>   1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+> index 40161a3f68d0..ecb4eaff6817 100644
+> --- a/block/blk-cgroup.c
+> +++ b/block/blk-cgroup.c
+> @@ -1975,10 +1975,9 @@ EXPORT_SYMBOL_GPL(bio_associate_blkg);
+>   void bio_clone_blkg_association(struct bio *dst, struct bio *src)
+>   {
+>   	if (src->bi_blkg) {
+> -		if (dst->bi_blkg)
+> -			blkg_put(dst->bi_blkg);
+> -		blkg_get(src->bi_blkg);
+> -		dst->bi_blkg = src->bi_blkg;
+> +		rcu_read_lock();
+> +		bio_associate_blkg_from_css(dst, bio_blkcg_css(src));
+> +		rcu_read_unlock();
+>   	}
+>   }
+>   EXPORT_SYMBOL_GPL(bio_clone_blkg_association);
+
+
+Great. Fixed the problem for me. Thanks to you, also to Logan.
+
+Tested-By: Donald Buczek <buczek@molgen.mpg.de>
+
+
+
+-- 
+Donald Buczek
+buczek@molgen.mpg.de
+Tel: +49 30 8413 1433
