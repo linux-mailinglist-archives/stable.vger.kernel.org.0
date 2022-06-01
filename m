@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE3553A8CC
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E533E53A773
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355190AbiFAOMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50072 "EHLO
+        id S1354080AbiFAOB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355216AbiFAOMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:12:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20098369ED;
-        Wed,  1 Jun 2022 07:02:10 -0700 (PDT)
+        with ESMTP id S1355090AbiFAOBR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:01:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65D4292D1C;
+        Wed,  1 Jun 2022 06:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F111BCE1C30;
-        Wed,  1 Jun 2022 13:57:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56F56C34119;
-        Wed,  1 Jun 2022 13:57:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F2836149F;
+        Wed,  1 Jun 2022 13:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4927C36AE2;
+        Wed,  1 Jun 2022 13:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091825;
-        bh=3bFFMwh7UcBdAXXdvobbtik2xvYHlP3q36CF7S5HcJs=;
+        s=k20201202; t=1654091826;
+        bh=TincU48qiU403YeYmoXveeSxoB8H+arboGKvNQg07k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbz/hQt1Rka7WmRf3RVsZOYVWZZJyrfMAVQeydApNepX8larBQTfFHme2K5YwYBTV
-         R3Bj0u9qs9U6v0zVb4nVkgUiFtjh8xs81UozFjcV7QLSNt+q1cPvADeRgvZ+ZAkQrt
-         pFXuts5sKNed1TJoIHJPTL4Y1ixP/Fk5DUvurVDS9DweFNDM8wYTX9k1QJnK/yu17w
-         psCLeFwIAeeFfnnCAAxo+GUV3P2ugBrdna5EBi1RGxjFBUS3LQu9aWioBekBQ9C28j
-         o6IdIaQh9RIU3mVwQixSwKWcEnzCIi8glcLnFAnVBsRi4Uy+bV5/dEniQSmBHLNs94
-         Pgkxv3TxS3Icw==
+        b=p45MNYyfVZwXCTLeiItR2Bzyq22V6kj/KvSfWCK3rYmQRXkAV4cWdkkIqGDn4D68l
+         BRjoh95ugxNAoJ9+MzzNs5fzHYaECxFylEQAtP57nuQOHP1BHVyIUXxgtS6xaYnPUq
+         fI5+OHJd3uvZJ4d420OTU5Ba8slEwBRoZfBsGEhVW6AeCcFWpx7nK18D1p8jKjCR6b
+         qmIuitHveS/YnEtMlyhIpvZgwMK17FnHPp0JOkc4bv1W1frPhDvpBikF8P8x+dINOQ
+         J4ebQqUb2jsKNA+/TXtcXGpEZI2Iu584Tv5XUzleDQizyl6jzeUWEEvYqJUzGLBSQx
+         XPlUllhVM/h9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Wu <wupeng58@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        liviu.dudau@arm.com, sudeep.holla@arm.com,
-        lorenzo.pieralisi@arm.com, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 20/37] ARM: versatile: Add missing of_node_put in dcscb_init
-Date:   Wed,  1 Jun 2022 09:56:05 -0400
-Message-Id: <20220601135622.2003939-20-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 21/37] ARM: dts: exynos: add atmel,24c128 fallback to Samsung EEPROM
+Date:   Wed,  1 Jun 2022 09:56:06 -0400
+Message-Id: <20220601135622.2003939-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135622.2003939-1-sashal@kernel.org>
 References: <20220601135622.2003939-1-sashal@kernel.org>
@@ -59,35 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Wu <wupeng58@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 23b44f9c649bbef10b45fa33080cd8b4166800ae ]
+[ Upstream commit f038e8186fbc5723d7d38c6fa1d342945107347e ]
 
-The device_node pointer is returned by of_find_compatible_node
-with refcount incremented. We should use of_node_put() to avoid
-the refcount leak.
+The Samsung s524ad0xd1 EEPROM should use atmel,24c128 fallback,
+according to the AT24 EEPROM bindings.
 
-Signed-off-by: Peng Wu <wupeng58@huawei.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220428230356.69418-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220426183443.243113-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-vexpress/dcscb.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-vexpress/dcscb.c b/arch/arm/mach-vexpress/dcscb.c
-index a0554d7d04f7..e1adc098f89a 100644
---- a/arch/arm/mach-vexpress/dcscb.c
-+++ b/arch/arm/mach-vexpress/dcscb.c
-@@ -144,6 +144,7 @@ static int __init dcscb_init(void)
- 	if (!node)
- 		return -ENODEV;
- 	dcscb_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!dcscb_base)
- 		return -EADDRNOTAVAIL;
- 	cfg = readl_relaxed(dcscb_base + DCS_CFG_R);
+diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+index f042954bdfa5..e4861415a0fe 100644
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -129,7 +129,7 @@ &i2c_0 {
+ 	samsung,i2c-max-bus-freq = <20000>;
+ 
+ 	eeprom@50 {
+-		compatible = "samsung,s524ad0xd1";
++		compatible = "samsung,s524ad0xd1", "atmel,24c128";
+ 		reg = <0x50>;
+ 	};
+ 
+@@ -289,7 +289,7 @@ &i2c_1 {
+ 	samsung,i2c-max-bus-freq = <20000>;
+ 
+ 	eeprom@51 {
+-		compatible = "samsung,s524ad0xd1";
++		compatible = "samsung,s524ad0xd1", "atmel,24c128";
+ 		reg = <0x51>;
+ 	};
+ 
 -- 
 2.35.1
 
