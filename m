@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5522653A20E
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 12:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD39353A20D
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 12:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350824AbiFAKLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 06:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54332 "EHLO
+        id S1348665AbiFAKK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 06:10:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352044AbiFAKKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 06:10:00 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33B85AEF4;
-        Wed,  1 Jun 2022 03:07:21 -0700 (PDT)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2519YQih004560;
-        Wed, 1 Jun 2022 10:06:58 GMT
+        with ESMTP id S1352394AbiFAKKe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 06:10:34 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128DF303;
+        Wed,  1 Jun 2022 03:10:22 -0700 (PDT)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2519ZP92022518;
+        Wed, 1 Jun 2022 10:09:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=corp-2021-07-09;
- bh=KPTpxwpefYVv5ysqWKaz5Z+/bKkSteAjdrAheGXnVO0=;
- b=LD5d7cUySrho8ClrlmQHHhe2IoOFTwAWRFYrkUXWybu4CzHTfMsFU/C0MhbCA6f2fHPk
- fUKIuMGsvJ/1ff6MP2B0VaWBnmU1MWarCCZpqbJGVogSMzg1R8+ebTEole5QtpihOJ8M
- AfrrNJi10J2Vyf3j0+E+9z9BAmAI8bZzFB2bC8XlwwUXnisJNGtsYlI8dvK7BniqO7V6
- 4JrG30lNDXNl9KAWB/evUZypWmlSgl0j/4YbTgPYxZz7qWP7T+JZcCxjdQ8D2eq0m+/T
- BotsSC55EzeNwRi7h3a+tchaIW3UeP1wTNBGj6Iry2OErCdM9+7FioKmJOt2McbEwC5E 7A== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gbc6x7d4e-1
+ bh=1cBsXF30SKlnex84x05Ujxeu15q8/iwZ2bkoaVDadmg=;
+ b=huIeKacQy1oSQR0ETJGJqMR7WMzNyCZgl0FdPUBd4twQ3yKqYSonlSlwM4CcWfotvEwQ
+ ny3EkfhBUjNixJJl5+i3wmZE9MRNTuYLOpV8cEkmMNB9acMQ2vbcaUhvp3Yw+LWpKROu
+ pW4R9SS5NTQEvwQ3nHNKiZ4MEoXBw8Gz7e86SDpeGGEYbnRIOCXS65YYFfO1ci2ZJpke
+ 2mOr9CRr5fE+D32cEukxnN5TryLGwswF54OIIWIpH7QRA4p/ALW5rWFXrMb6I7VKukVh
+ Aw8cYoECpdl6C8h1EHSX8h7ryZ+TbX5BAAfcVJLBiNBjaEsoGL4jNdbaKIBi/w5zzE8K SQ== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gbcauqfjn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 01 Jun 2022 10:06:58 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 251A5g4k004893;
-        Wed, 1 Jun 2022 10:06:57 GMT
+        Wed, 01 Jun 2022 10:09:58 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 251A6Nig024485;
+        Wed, 1 Jun 2022 10:09:58 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3gc8kgwvwt-1
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8p3rg3t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 01 Jun 2022 10:06:57 +0000
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 251A6v0O008065;
-        Wed, 1 Jun 2022 10:06:57 GMT
+        Wed, 01 Jun 2022 10:09:58 +0000
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 251A9vNJ030481;
+        Wed, 1 Jun 2022 10:09:57 GMT
 Received: from t460.home (dhcp-10-175-24-90.vpn.oracle.com [10.175.24.90])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3gc8kgwvv9-1;
-        Wed, 01 Jun 2022 10:06:56 +0000
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8p3rg29-1;
+        Wed, 01 Jun 2022 10:09:56 +0000
 From:   Vegard Nossum <vegard.nossum@oracle.com>
 To:     stable@vger.kernel.org
 Cc:     Kees Cook <keescook@chromium.org>,
@@ -55,16 +55,16 @@ Cc:     Kees Cook <keescook@chromium.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-fsdevel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
         Vegard Nossum <vegard.nossum@oracle.com>
-Subject: [PATCH 5.4.y] exec: Force single empty string when argv is empty
-Date:   Wed,  1 Jun 2022 12:02:20 +0200
-Message-Id: <20220601100220.653-1-vegard.nossum@oracle.com>
+Subject: [PATCH 4.19.y] exec: Force single empty string when argv is empty
+Date:   Wed,  1 Jun 2022 12:09:00 +0200
+Message-Id: <20220601100900.1282-1-vegard.nossum@oracle.com>
 X-Mailer: git-send-email 2.35.1.46.g38062e73e0
-In-Reply-To: <164890338512664@kroah.com>
-References: <164890338512664@kroah.com>
+In-Reply-To: <16489033844956@kroah.com>
+References: <16489033844956@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: xoSF8dkxbA69HzVOoDEXM9KGRDQkvw95
-X-Proofpoint-ORIG-GUID: xoSF8dkxbA69HzVOoDEXM9KGRDQkvw95
+X-Proofpoint-ORIG-GUID: tQiVT8-6C5FjFr8HHlVbddVyEk8tYeEq
+X-Proofpoint-GUID: tQiVT8-6C5FjFr8HHlVbddVyEk8tYeEq
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
@@ -139,11 +139,12 @@ Acked-by: Andy Lutomirski <luto@kernel.org>
 Link: https://lore.kernel.org/r/20220201000947.2453721-1-keescook@chromium.org
 [vegard: fixed conflicts due to missing
  886d7de631da71e30909980fdbf318f7caade262^- and
- 3950e975431bc914f7e81b8f2a2dbdf2064acb0f^-]
+ 3950e975431bc914f7e81b8f2a2dbdf2064acb0f^- and
+ 655c16a8ce9c15842547f40ce23fd148aeccc074]
 Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 ---
- fs/exec.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ fs/exec.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 This has been tested in both argc == 0 and argc >= 1 cases, but I would
 still appreciate a review given the differences with mainline. If it's
@@ -152,36 +153,20 @@ make sure this didn't fall through the cracks, as it does block a real
 (albeit old by now) exploit.
 
 diff --git a/fs/exec.c b/fs/exec.c
-index 098de820abcc9..a7d78241082a2 100644
+index e87e3c020c61e..28e3b5eb2f4a1 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -454,6 +454,9 @@ static int prepare_arg_pages(struct linux_binprm *bprm,
- 	unsigned long limit, ptr_size;
+@@ -1805,6 +1805,9 @@ static int __do_execve_file(int fd, struct filename *filename,
+ 		goto out_unmark;
  
  	bprm->argc = count(argv, MAX_ARG_STRINGS);
 +	if (bprm->argc == 0)
 +		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
 +			     current->comm, bprm->filename);
- 	if (bprm->argc < 0)
- 		return bprm->argc;
+ 	if ((retval = bprm->argc) < 0)
+ 		goto out;
  
-@@ -482,8 +485,14 @@ static int prepare_arg_pages(struct linux_binprm *bprm,
- 	 * the stack. They aren't stored until much later when we can't
- 	 * signal to the parent that the child has run out of stack space.
- 	 * Instead, calculate it here so it's possible to fail gracefully.
-+	 *
-+	 * In the case of argc = 0, make sure there is space for adding a
-+	 * empty string (which will bump argc to 1), to ensure confused
-+	 * userspace programs don't start processing from argv[1], thinking
-+	 * argc can never be 0, to keep them from walking envp by accident.
-+	 * See do_execveat_common().
- 	 */
--	ptr_size = (bprm->argc + bprm->envc) * sizeof(void *);
-+	ptr_size = (max(bprm->argc, 1) + bprm->envc) * sizeof(void *);
- 	if (limit <= ptr_size)
- 		return -E2BIG;
- 	limit -= ptr_size;
-@@ -1848,6 +1857,20 @@ static int __do_execve_file(int fd, struct filename *filename,
+@@ -1829,6 +1832,20 @@ static int __do_execve_file(int fd, struct filename *filename,
  	if (retval < 0)
  		goto out;
  
