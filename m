@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C4053A7BC
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F6953A8B5
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352622AbiFAOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51658 "EHLO
+        id S1355156AbiFAOLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:11:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354493AbiFAOA1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:27 -0400
+        with ESMTP id S243688AbiFAOJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC449FEC;
-        Wed,  1 Jun 2022 06:56:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF47CFD01;
+        Wed,  1 Jun 2022 07:01:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B2DFB81AEB;
-        Wed,  1 Jun 2022 13:56:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD738C385B8;
-        Wed,  1 Jun 2022 13:56:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F574B81AF7;
+        Wed,  1 Jun 2022 13:56:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11912C385A5;
+        Wed,  1 Jun 2022 13:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091771;
-        bh=nDm+GwDgvJjU1T4VnyQabcgcfISjgZ8P6P4og/v0WJM=;
+        s=k20201202; t=1654091772;
+        bh=SvxtK91i3xQESf6tbSBGHp7J+Iwy+arLxPKjfKCQuOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ciXorsq/j5BUJXS6d+DSumEhj5DMokVbwg66ViZ0NAwuw9dGG4J586ZvdG9Ji3jiW
-         i84c+N+AgT3pNI7x5f0VbuaoSQbcoD4o6vT8ehTY1QEfHg7OVJvmd6ybYrvSxTe2e/
-         zQM+KPsXEjgQTQyrvItGk9ZWXpLdtmKXWQt/qhJLPLIPm+YcrSdSD6STqwaibD6L9L
-         wjeucKI9qAEOP9BolM8DpraOmYquO9jwWknS2dhLQvZLSuzcBjrgCR1yPsK4q8vtXf
-         ZmuMO5ckKSqLGHagZL5LmvpIRzoM/L0SsQSa5++WgIdL3lLi7HesBIsTIEHN+59dY+
-         z6GCsqceD5X6g==
+        b=bxezu5f4IBcWrsDUXlDTBSF7d51XPHuJtZa+q7kpqztFiyvt/Mrtrowf2RdHoD0Tf
+         JgS0t1IxU8zEeuxEFbrXVw4snK4aWp/jkKZzTDjSm17LsDmM9EEGT9XanMutTaARCJ
+         wESv3p2O7bLMph2MEuaTHTcL4N4YApDL1qvDLMNV9r0D7Z5S8IX85HRYYYOUif/EKB
+         9n5CRcNWnyXT/l1AxF30VehFB5etOpSc8DBOfniCoZ2D5ywuctH40vfneQqtv9c/sR
+         9kv708DUu0JhK4cHWp0jEeI290t/rJP6raaAxJqDHDMddzvplRglP+NkuPTMILBPuo
+         twS+AVPcUjQSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Wu <wupeng58@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, nick.child@ibm.com,
-        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.17 42/48] powerpc/iommu: Add missing of_node_put in iommu_init_early_dart
-Date:   Wed,  1 Jun 2022 09:54:15 -0400
-Message-Id: <20220601135421.2003328-42-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@openvz.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 43/48] fanotify: fix incorrect fmode_t casts
+Date:   Wed,  1 Jun 2022 09:54:16 -0400
+Message-Id: <20220601135421.2003328-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -57,47 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Wu <wupeng58@huawei.com>
+From: Vasily Averin <vvs@openvz.org>
 
-[ Upstream commit 57b742a5b8945118022973e6416b71351df512fb ]
+[ Upstream commit dccd855771b37820b6d976a99729c88259549f85 ]
 
-The device_node pointer is returned by of_find_compatible_node
-with refcount incremented. We should use of_node_put() to avoid
-the refcount leak.
+Fixes sparce warnings:
+fs/notify/fanotify/fanotify_user.c:267:63: sparse:
+ warning: restricted fmode_t degrades to integer
+fs/notify/fanotify/fanotify_user.c:1351:28: sparse:
+ warning: restricted fmode_t degrades to integer
 
-Signed-off-by: Peng Wu <wupeng58@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220425081245.21705-1-wupeng58@huawei.com
+FMODE_NONTIFY have bitwise fmode_t type and requires __force attribute
+for any casts.
+
+Signed-off-by: Vasily Averin <vvs@openvz.org>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/9adfd6ac-1b89-791e-796b-49ada3293985@openvz.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dart_iommu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/notify/fanotify/fanotify_user.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
-index be6b99b1b352..9a02aed886a0 100644
---- a/arch/powerpc/sysdev/dart_iommu.c
-+++ b/arch/powerpc/sysdev/dart_iommu.c
-@@ -404,9 +404,10 @@ void __init iommu_init_early_dart(struct pci_controller_ops *controller_ops)
- 	}
+diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+index f2a1947ec5ee..ead37db01ab5 100644
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -264,7 +264,7 @@ static int create_fd(struct fsnotify_group *group, struct path *path,
+ 	 * originally opened O_WRONLY.
+ 	 */
+ 	new_file = dentry_open(path,
+-			       group->fanotify_data.f_flags | FMODE_NONOTIFY,
++			       group->fanotify_data.f_flags | __FMODE_NONOTIFY,
+ 			       current_cred());
+ 	if (IS_ERR(new_file)) {
+ 		/*
+@@ -1329,7 +1329,7 @@ SYSCALL_DEFINE2(fanotify_init, unsigned int, flags, unsigned int, event_f_flags)
+ 	    (!(fid_mode & FAN_REPORT_NAME) || !(fid_mode & FAN_REPORT_FID)))
+ 		return -EINVAL;
  
- 	/* Initialize the DART HW */
--	if (dart_init(dn) != 0)
-+	if (dart_init(dn) != 0) {
-+		of_node_put(dn);
- 		return;
--
-+	}
- 	/*
- 	 * U4 supports a DART bypass, we use it for 64-bit capable devices to
- 	 * improve performance.  However, that only works for devices connected
-@@ -419,6 +420,7 @@ void __init iommu_init_early_dart(struct pci_controller_ops *controller_ops)
- 
- 	/* Setup pci_dma ops */
- 	set_pci_dma_ops(&dma_iommu_ops);
-+	of_node_put(dn);
- }
- 
- #ifdef CONFIG_PM
+-	f_flags = O_RDWR | FMODE_NONOTIFY;
++	f_flags = O_RDWR | __FMODE_NONOTIFY;
+ 	if (flags & FAN_CLOEXEC)
+ 		f_flags |= O_CLOEXEC;
+ 	if (flags & FAN_NONBLOCK)
 -- 
 2.35.1
 
