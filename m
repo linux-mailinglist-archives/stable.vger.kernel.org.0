@@ -2,107 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FDB53AB16
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 18:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B545C53AB3A
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 18:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355285AbiFAQeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 12:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51414 "EHLO
+        id S1353473AbiFAQpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 12:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356124AbiFAQeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 12:34:19 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E9866ACA;
-        Wed,  1 Jun 2022 09:34:17 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 73AC81F938;
-        Wed,  1 Jun 2022 16:34:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1654101256; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=cFhOhGTkWOdWt0QDJ4fs9W4sHYX2lYn7+ibFFbNYJyQ=;
-        b=cm5KNBn7DCZzV+joGwMLKRjBP0czN0uMJmaAB3x4SrpgJB3sPwvCoaLbZ2+Wed7cwI67kb
-        3iy4B/JME2TaCJhdNppEdnmJL0UHl03qd2yH5j1P5nWqrXqZNWP3AHEvE1brC5Hx5SrZ1m
-        ByxKN3a4zo6UafM/cDN8Dkk5qCItw+0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1654101256;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=cFhOhGTkWOdWt0QDJ4fs9W4sHYX2lYn7+ibFFbNYJyQ=;
-        b=A1r4sS/rCAep8NYncDlK4u6dVSaqVg2VQ0WhYu7dgfYnCY00VWfNSsoT0qXmEFUN7Yhbvi
-        /uHsxi073Y17OaDA==
-Received: from quack3.suse.cz (unknown [10.163.28.18])
+        with ESMTP id S1350860AbiFAQpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 12:45:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 898D29D07B;
+        Wed,  1 Jun 2022 09:45:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 56B5D2C141;
-        Wed,  1 Jun 2022 16:34:16 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 6F9D6A0633; Wed,  1 Jun 2022 18:34:10 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     <linux-block@vger.kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Tejun Heo <tj@kernel.org>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Donald Buczek <buczek@molgen.mpg.de>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH] block: fix bio_clone_blkg_association() to associate with proper blkcg_gq
-Date:   Wed,  1 Jun 2022 18:34:05 +0200
-Message-Id: <20220601163405.29478-1-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1641; h=from:subject; bh=u9pcp5UoDXQxoj3ZLRxhk9+TbpWRpxKK60xlgA8lMSI=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBil5TyMyUsMh/fbgu37NGo92nB19CiU4LXI6JYwS11 MFgzuRCJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYpeU8gAKCRCcnaoHP2RA2dOoCA DnfrA2cy6qkYowi2KyLKJ63v496xyBIJpICXnEfFTUaJoymJgrj+M5sUTpFvk2+WdYc1HKJZo918Hd lGTd0De4fJh6eoYkswcYXfPfwuvQGQMBAg5Mn3VysD0amh4SU0t3aC1m4iqzYWjixX8GK+XBhkbj14 5r1AUd+/HX3wJhCjeUgcWWBsVQ0CVey+hKnHhKFq3Zk2qeYcsItadggzguInv0nQkH/WwMOHoXGHuq 8QTKCEdhH0bfTYSc6XIxlEI+UX6TQEJpJBNq04YS2+WkH4tn59Sak9kMOT1yOsTZyPVjxtv8t/hN3e 1X5R+DwHgpr3k/v0aPcBAyb3fmwMuZ
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24538615CD;
+        Wed,  1 Jun 2022 16:45:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78EB2C385B8;
+        Wed,  1 Jun 2022 16:45:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654101913;
+        bh=Tk8FjEHF1VQW21T/3UF5gV/iXWDoIO9vTAu9SOy0ugA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=K+FGoPNJRMr4EldsD6jixjcNPuQ/jeQqke066Hxk/77kIyy2IVZTp+t+1N5R+gaLZ
+         oDw68sktsv7IGzfCZr15yqx7F/7MDC1L04DqFbTDqNuiBv4jyM4vuu4wPdHOe2ljFe
+         pbpzoiaLIYZGTzVFeVSYo63OtmCMxWcFNcZVmsZaOFMDz6LtBU/S+/xgPSTcWRBJ0D
+         5aQQweihftbPu8/W2sBrPnAfVXpt5AIRBqtUeWMP7dMayhrDteEp4Ubetic091PiLh
+         /ZzeG2gOU+x21elQ6kKKARKrP4Wlu7y5hQdf8yyfHqZ9FfaEUV65W5eZ8ph/evsms3
+         dDCVdbdxND9Rg==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1nwRT5-00F29s-2q; Wed, 01 Jun 2022 17:45:11 +0100
+Date:   Wed, 01 Jun 2022 17:45:10 +0100
+Message-ID: <875ylk5o4p.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ricardo Koller <ricarkol@google.com>,
+        Oliver Upton <oupton@google.com>, catalin.marinas@arm.com,
+        will@kernel.org, eric.auger@redhat.com, yuzhe@nfschina.com,
+        justin.he@arm.com, linux-arm-kernel@lists.infradead.org,
+        kvmarm@lists.cs.columbia.edu
+Subject: Re: [PATCH AUTOSEL 5.18 35/49] KVM: arm64: vgic: Do not ignore vgic_its_restore_cte failures
+In-Reply-To: <20220601135214.2002647-35-sashal@kernel.org>
+References: <20220601135214.2002647-1-sashal@kernel.org>
+        <20220601135214.2002647-35-sashal@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: sashal@kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, ricarkol@google.com, oupton@google.com, catalin.marinas@arm.com, will@kernel.org, eric.auger@redhat.com, yuzhe@nfschina.com, justin.he@arm.com, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit d92c370a16cb ("block: really clone the block cgroup in
-bio_clone_blkg_association") changed bio_clone_blkg_association() to
-just clone bio->bi_blkg reference from source to destination bio. This
-is however wrong if the source and destination bios are against
-different block devices because struct blkcg_gq is different for each
-bdev-blkcg pair. This will result in IOs being accounted (and throttled
-as a result) multiple times against the same device (src bdev) while
-throttling of the other device (dst bdev) is ignored. In case of BFQ the
-inconsistency can even result in crashes in bfq_bic_update_cgroup().
-Fix the problem by looking up correct blkcg_gq for the cloned bio.
+On Wed, 01 Jun 2022 14:51:59 +0100,
+Sasha Levin <sashal@kernel.org> wrote:
+> 
+> From: Ricardo Koller <ricarkol@google.com>
+> 
+> [ Upstream commit a1ccfd6f6e06eceb632cc29c4f15a32860f05a7e ]
+> 
+> Restoring a corrupted collection entry (like an out of range ID) is
+> being ignored and treated as success. More specifically, a
+> vgic_its_restore_cte failure is treated as success by
+> vgic_its_restore_collection_table.  vgic_its_restore_cte uses positive
+> and negative numbers to return error, and +1 to return success.  The
+> caller then uses "ret > 0" to check for success.
+> 
+> Fix this by having vgic_its_restore_cte only return negative numbers on
+> error.  Do this by changing alloc_collection return codes to only return
+> negative numbers on error.
+> 
+> Signed-off-by: Ricardo Koller <ricarkol@google.com>
+> Reviewed-by: Oliver Upton <oupton@google.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Link: https://lore.kernel.org/r/20220510001633.552496-4-ricarkol@google.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Reported-by: Logan Gunthorpe <logang@deltatee.com>
-Reported-by: Donald Buczek <buczek@molgen.mpg.de>
-Fixes: d92c370a16cb ("block: really clone the block cgroup in bio_clone_blkg_association")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- block/blk-cgroup.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+Same thing here. This wasn't tagged for stable. I don't think there is
+much value in taking this in isolation.
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 40161a3f68d0..ecb4eaff6817 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1975,10 +1975,9 @@ EXPORT_SYMBOL_GPL(bio_associate_blkg);
- void bio_clone_blkg_association(struct bio *dst, struct bio *src)
- {
- 	if (src->bi_blkg) {
--		if (dst->bi_blkg)
--			blkg_put(dst->bi_blkg);
--		blkg_get(src->bi_blkg);
--		dst->bi_blkg = src->bi_blkg;
-+		rcu_read_lock();
-+		bio_associate_blkg_from_css(dst, bio_blkcg_css(src));
-+		rcu_read_unlock();
- 	}
- }
- EXPORT_SYMBOL_GPL(bio_clone_blkg_association);
+Thanks,
+
+	M.
+
 -- 
-2.35.3
-
+Without deviation from the norm, progress is not possible.
