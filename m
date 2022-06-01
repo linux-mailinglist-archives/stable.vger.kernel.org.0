@@ -2,191 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03BAE53A25A
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 12:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B994A53A2A7
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 12:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349589AbiFAKP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 06:15:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48498 "EHLO
+        id S1351902AbiFAKd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 06:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351809AbiFAKNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 06:13:08 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC2CD40902;
-        Wed,  1 Jun 2022 03:13:06 -0700 (PDT)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2519YR9u015047;
-        Wed, 1 Jun 2022 10:12:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2021-07-09;
- bh=K/JXqMSw9IVGQX/OE7W6gaU/6+6KGhZnsZUiKASkkW4=;
- b=Me58JIm1KMZI2zc+7UsEbcfS2VU6e4wZA+Uq2IstTR/DNQQyjj+zZiux97PXRbdBUR2q
- wNux81Pkot++zUmFSWlTNM3jTNA2XWRKtHhXHXVicNjsFLd+tGX4tuhJ9eGVY7tAp9cQ
- 2cn2y+VAjDCLu3B/mZxuvK6Ujw1LIZ7VBJMQ9JTq4bWFHRd6+ce/4LAS87qCsWJYeKk8
- +bijOs9CtAQWQ5+L/Ve+eZlrDfHrYgPfANofEpHR+6sV9hf3plD/XvUYSolD9BVAPBul
- f9omi8wRh6AxoKwAfRt2A2TL1lOE7yho4BQbUY1Ks8b2Qn8ggQKzPu6nPykk+Vl21a0K qg== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gbc7kq72t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 01 Jun 2022 10:12:48 +0000
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 251A675Y030657;
-        Wed, 1 Jun 2022 10:12:47 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8hty6sg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 01 Jun 2022 10:12:47 +0000
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 251ACk66007729;
-        Wed, 1 Jun 2022 10:12:46 GMT
-Received: from t460.home (dhcp-10-175-24-90.vpn.oracle.com [10.175.24.90])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8hty6ra-1;
-        Wed, 01 Jun 2022 10:12:45 +0000
-From:   Vegard Nossum <vegard.nossum@oracle.com>
-To:     stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Rich Felker <dalias@libc.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Vegard Nossum <vegard.nossum@oracle.com>
-Subject: [PATCH 4.9.y] exec: Force single empty string when argv is empty
-Date:   Wed,  1 Jun 2022 12:12:26 +0200
-Message-Id: <20220601101226.1498-1-vegard.nossum@oracle.com>
-X-Mailer: git-send-email 2.35.1.46.g38062e73e0
-In-Reply-To: <164890338266171@kroah.com>
-References: <164890338266171@kroah.com>
+        with ESMTP id S1345504AbiFAKdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 06:33:54 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2455F6C546
+        for <stable@vger.kernel.org>; Wed,  1 Jun 2022 03:33:48 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id B7DC61F8C6;
+        Wed,  1 Jun 2022 10:33:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1654079626; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=LTh5ATYU++zqMeYunecFwsJt3zReEUPuinehpFDM0oo=;
+        b=OF1CIKIJp4DkGEKxLE4TTgZbY1vj4qT0nuTyLeAlFhp15dXCVRXzBaOnJQwUPFwCbQRB8m
+        2jo0IwxxS8F7dg8TZFHF/oRImkaHGnlbsrYPNt+bhR1oG0hVCZmqI0IjW9RjOjH/zQUbAb
+        pcFC5KUc2wG6wr1E5dDML04N5lVjTOE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1654079626;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=LTh5ATYU++zqMeYunecFwsJt3zReEUPuinehpFDM0oo=;
+        b=LlxosNjzGW+ZB8mymHFZIGQM4LMGQeVqPmOA7BcvIbkn25MHd6HKHK+qxdjiH3N3b2ewB/
+        Wp+E56wzjZSsxQDA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 95B881330F;
+        Wed,  1 Jun 2022 10:33:46 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id GVh5I4pAl2L7EwAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Wed, 01 Jun 2022 10:33:46 +0000
+Message-ID: <6e9f84f9-dc97-9ff4-57c8-97fbffd3a996@suse.de>
+Date:   Wed, 1 Jun 2022 12:33:46 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: 8xu_4WoOYqdBuKT59kW2tPBBohAGW4pi
-X-Proofpoint-ORIG-GUID: 8xu_4WoOYqdBuKT59kW2tPBBohAGW4pi
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [REGRESSION] VGA output with AST 2600 graphics.
+Content-Language: en-US
+To:     Jocelyn Falempe <jfalempe@redhat.com>,
+        dri-devel@lists.freedesktop.org, kuohsiang_chou@aspeedtech.com,
+        David Airlie <airlied@redhat.com>
+Cc:     regressions@lists.linux.dev, stable@vger.kernel.org
+References: <d84ba981-d907-f942-6b05-67c836580542@redhat.com>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <d84ba981-d907-f942-6b05-67c836580542@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------rs0qKD0lZDFSRDxuai27ujQX"
+X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------rs0qKD0lZDFSRDxuai27ujQX
+Content-Type: multipart/mixed; boundary="------------OBMFmimlMR3yrMffjWCIcytN";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Jocelyn Falempe <jfalempe@redhat.com>, dri-devel@lists.freedesktop.org,
+ kuohsiang_chou@aspeedtech.com, David Airlie <airlied@redhat.com>
+Cc: regressions@lists.linux.dev, stable@vger.kernel.org
+Message-ID: <6e9f84f9-dc97-9ff4-57c8-97fbffd3a996@suse.de>
+Subject: Re: [REGRESSION] VGA output with AST 2600 graphics.
+References: <d84ba981-d907-f942-6b05-67c836580542@redhat.com>
+In-Reply-To: <d84ba981-d907-f942-6b05-67c836580542@redhat.com>
 
-commit dcd46d897adb70d63e025f175a00a89797d31a43 upstream.
+--------------OBMFmimlMR3yrMffjWCIcytN
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Quoting[1] Ariadne Conill:
+SGkgSm9jZWx5biwNCg0KdGhhbmtzIGZvciByZXBvcnRpbmcgdGhpcyBidWcuDQoNCkFtIDAx
+LjA2LjIyIHVtIDExOjMzIHNjaHJpZWIgSm9jZWx5biBGYWxlbXBlOg0KPiBIaSwNCj4gDQo+
+IEkndmUgZm91bmQgYSByZWdyZXNzaW9uIGluIHRoZSBhc3QgZHJpdmVyLCBmb3IgQVNUMjYw
+MCBoYXJkd2FyZS4NCj4gDQo+IGJlZm9yZSB0aGUgdXBzdHJlYW0gY29tbWl0IGY5YmQwMGUw
+ZWE5ZA0KPiBodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dp
+dC9zdGFibGUvbGludXguZ2l0L2NvbW1pdC8/aWQ9ZjliZDAwZTBlYTlkOWIwNDE0MGFhOTY5
+YTlhMTNhZDM1OTdhMWU0ZSANCj4gDQo+IA0KPiBUaGUgYXN0IGRyaXZlciBoYW5kbGVkIEFT
+VCAyNjAwIGNoaXAgbGlrZSBhbiBBU1QgMjUwMC4NCj4gDQo+IEFmdGVyIHRoaXMgY29tbWl0
+LCBpdCB1c2VzIHNvbWUgZGVmYXVsdCB2YWx1ZXMsIG1vcmUgbGlrZSB0aGUgb2xkZXIgQVNU
+IA0KPiBjaGlwLg0KPiANCj4gVGhlcmUgYXJlIGEgbG90IG9mIHBsYWNlcyBpbiB0aGUgZHJp
+dmVyIGxpa2UgdGhpczoNCj4gaHR0cHM6Ly9lbGl4aXIuYm9vdGxpbi5jb20vbGludXgvdjUu
+MTguMS9zb3VyY2UvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfcG9zdC5jI0w4MiANCj4gDQo+
+IHdoZXJlIGl0IGNoZWNrcyBmb3IgKEFTVDIzMDAgfHwgQVNUMjQwMCB8fCBBU1QyNTAwKSBi
+dXQgbm90IGZvciBBU1QyNjAwLg0KPiANCj4gVGhpcyBtYWtlcyB0aGUgVkdBIG91dHB1dCwg
+dG8gYmUgYmx1cnJlZCBhbmQgZmxpY2tlcmVkIHdpdGggd2hpdGVzIGxpbmVzIA0KPiBvbiBB
+U1QyNjAwLg0KPiANCj4gVGhlIGlzc3VlIGlzIHByZXNlbnQgc2luY2UgdjUuMTENCj4gDQo+
+IEZvciB2NS4xMX52NS4xNyBJIHByb3Bvc2UgYSBzaW1wbGUgd29ya2Fyb3VuZCAoYXMgdGhl
+cmUgYXJlIG5vIG90aGVyIA0KPiByZWZlcmVuY2UgdG8gQVNUMjYwMCBpbiB0aGUgZHJpdmVy
+KToNCj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfbWFpbi5jDQo+ICsrKyBiL2Ry
+aXZlcnMvZ3B1L2RybS9hc3QvYXN0X21haW4uYw0KPiBAQCAtMTQ2LDcgKzE0Niw4IEBAIHN0
+YXRpYyBpbnQgYXN0X2RldGVjdF9jaGlwKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIA0KPiBi
+b29sICpuZWVkX3Bvc3QpDQo+IA0KPiAgwqDCoMKgwqAgLyogSWRlbnRpZnkgY2hpcHNldCAq
+Lw0KPiAgwqDCoMKgwqAgaWYgKHBkZXYtPnJldmlzaW9uID49IDB4NTApIHsNCj4gLcKgwqDC
+oMKgwqDCoMKgIGFzdC0+Y2hpcCA9IEFTVDI2MDA7DQo+ICvCoMKgwqDCoMKgwqDCoCAvKiBX
+b3JrYXJvdW5kIHRvIHVzZSB0aGUgc2FtZSBjb2RlcGF0aCBmb3IgQVNUMjYwMCAqLw0KPiAr
+wqDCoMKgwqDCoMKgwqAgYXN0LT5jaGlwID0gQVNUMjUwMDsNCg0KVGhlIHdob2xlIGhhbmRs
+aW5nIG9mIGRpZmZlcmVudCBtb2RlbHMgaW4gdGhpcyBkcml2ZXIgaXMgYnJva2VuIGJ5IA0K
+ZGVzaWduIGFuZCBuZWVkcyB0byBiZSByZXBsYWNlZC4gIEkgZG9uJ3QgaGF2ZSBtdWNoIG9m
+IHRoZSBhZmZlY3RlZCANCmhhcmR3YXJlLCBzbyBzdWNoIHRoaW5ncyBhcmUgZ29pbmcgc2xv
+d2x5LiA6KA0KDQpGb3IgYW4gaW50ZXJtZWRpYXRlIGZpeCwgaXQgd291bGQgYmUgYmV0dGVy
+IHRvIGNoYW5nZSBhbGwgdGVzdHMgZm9yIA0KQVNUMjUwMCB0byBpbmNsdWRlIEFTVDI2MDAg
+YXMgd2VsbC4gVGhlcmUgYXJlbid0IHRvbyBtYW55IElJUkMuDQoNCkJlc3QgcmVnYXJkcw0K
+VGhvbWFzDQoNCj4gIMKgwqDCoMKgwqDCoMKgwqAgZHJtX2luZm8oZGV2LCAiQVNUIDI2MDAg
+ZGV0ZWN0ZWRcbiIpOw0KPiAgwqDCoMKgwqAgfSBlbHNlIGlmIChwZGV2LT5yZXZpc2lvbiA+
+PSAweDQwKSB7DQo+ICDCoMKgwqDCoMKgwqDCoMKgIGFzdC0+Y2hpcCA9IEFTVDI1MDA7DQo+
+IA0KPiBzdGFydGluZyBmcm9tIHY1LjE4LCB0aGVyZSBpcyBhbm90aGVyIHJlZmVyZW5jZSB0
+byBBU1QyNjAwIGluIHRoZSBjb2RlDQo+IGh0dHBzOi8vZWxpeGlyLmJvb3RsaW4uY29tL2xp
+bnV4L3Y1LjE4L3NvdXJjZS9kcml2ZXJzL2dwdS9kcm0vYXN0L2FzdF9tYWluLmMjTDIxMiAN
+Cj4gDQo+IA0KPiBTbyBJIHRoaW5rIHNvbWVvbmUgd2l0aCBnb29kIGFzcGVlZCBrbm93bGVk
+Z2Ugc2hvdWxkIHJldmlldyBhbGwgDQo+IGxvY2F0aW9ucyB3aGVyZSB0aGVyZSBpcyBhIHRl
+c3QgZm9yIEFTVDI1MDAsIGFuZCBmaWd1cmUgb3V0IHdoYXQgc2hvdWxkIA0KPiBiZSBkb25l
+IGZvciBBU1QyNjAwDQo+IA0KPiBUaGFua3MsDQo+IA0KDQotLSANClRob21hcyBaaW1tZXJt
+YW5uDQpHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyDQpTVVNFIFNvZnR3YXJlIFNvbHV0aW9u
+cyBHZXJtYW55IEdtYkgNCk1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJuYmVyZywgR2VybWFu
+eQ0KKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJnKQ0KR2VzY2jDpGZ0c2bDvGhyZXI6IEl2byBU
+b3Rldg0K
 
-"In several other operating systems, it is a hard requirement that the
-second argument to execve(2) be the name of a program, thus prohibiting
-a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-but it is not an explicit requirement[2]:
+--------------OBMFmimlMR3yrMffjWCIcytN--
 
-    The argument arg0 should point to a filename string that is
-    associated with the process being started by one of the exec
-    functions.
-...
-Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
-but there was no consensus to support fixing this issue then.
-Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
-of this bug in a shellcode, we can reconsider.
+--------------rs0qKD0lZDFSRDxuai27ujQX
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-This issue is being tracked in the KSPP issue tracker[5]."
+-----BEGIN PGP SIGNATURE-----
 
-While the initial code searches[6][7] turned up what appeared to be
-mostly corner case tests, trying to that just reject argv == NULL
-(or an immediately terminated pointer list) quickly started tripping[8]
-existing userspace programs.
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmKXQIoFAwAAAAAACgkQlh/E3EQov+BV
+Zg//bEkLNw9E9Tz8bxTCi29rWi9JLUdjtY7nuxLM3D64T7WEwOdFpslQYe0YQ/7H+q4j4wwR/Pk1
+ImF834b5/MJ8CVosP7wRtQPWRUoPE+wOO/tBL949FZbTSzp0fGfSl+rGllBHkMLS9w9QPMr11rSV
+fDldbNAPC7L1voO7xWvhlA2TtC9h33lGo31PozA1A3Czn611/WGsqeVzC4EuTTUuBguRXO10ZfWL
+dSc9yZZEU5BC/PvV2cAbIhc1S0VLQZcWFsScWVKSRXBipCZ+RgJx96WYR/Q8XHX/iNnuWvq/8DiK
+rYQIpM5hvKTwBHmxCQviKWaze7qG/GhG0BjpsYhLIDN7Sq22tJkp/8rPOodiEwFYCyNi/2vSnimL
+P+aSN6mK1WjO6DZLpH0xkYbnfOsOHsJTl0d0Hb+QZA7vGxu3MKKlaGnYhKOEzd751JCdqAGDWMsw
+dpwjqmS5bI3uzzvYX5DfPiNXNAmt8lJBmJ8XdDFlUNmPBPX1J7UA/X71e4m9Fx94YV7ymGyrIv7A
+wfgn9tkRc+UuuIIFBhIu4ikB86VlDNLvBZqDyxIjVAlKucd1oU7vlJob1UT4992S5/0X0kmTxB7q
+Sm3i9zHjFovvb8LsPxlVRUZdm/bjsNjQ+n0GUDfSmflIS2+hdE5bcqpIEQIRUekoBGJxxDrDFnt1
+6GE=
+=q6Sa
+-----END PGP SIGNATURE-----
 
-The next best approach is forcing a single empty string into argv and
-adjusting argc to match. The number of programs depending on argc == 0
-seems a smaller set than those calling execve with a NULL argv.
-
-Account for the additional stack space in bprm_stack_limits(). Inject an
-empty string when argc == 0 (and set argc = 1). Warn about the case so
-userspace has some notice about the change:
-
-    process './argc0' launched './argc0' with NULL argv: empty string added
-
-Additionally WARN() and reject NULL argv usage for kernel threads.
-
-[1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
-[2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-[3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
-[4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-[5] https://github.com/KSPP/linux/issues/176
-[6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-[7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
-[8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
-
-Reported-by: Ariadne Conill <ariadne@dereferenced.org>
-Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Acked-by: Ariadne Conill <ariadne@dereferenced.org>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Link: https://lore.kernel.org/r/20220201000947.2453721-1-keescook@chromium.org
-[vegard: fixed conflicts due to missing
- 886d7de631da71e30909980fdbf318f7caade262^- and
- 3950e975431bc914f7e81b8f2a2dbdf2064acb0f^- and
- 655c16a8ce9c15842547f40ce23fd148aeccc074]
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
----
- fs/exec.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
-
-This has been tested in both argc == 0 and argc >= 1 cases, but I would
-still appreciate a review given the differences with mainline. If it's
-considered too risky I'm also fine with dropping it -- just wanted to
-make sure this didn't fall through the cracks, as it does block a real
-(albeit old by now) exploit.
-
-diff --git a/fs/exec.c b/fs/exec.c
-index 482a8b4f41a5b..19f8b075d3b6b 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1758,6 +1758,9 @@ static int do_execveat_common(int fd, struct filename *filename,
- 		goto out_unmark;
- 
- 	bprm->argc = count(argv, MAX_ARG_STRINGS);
-+	if (bprm->argc == 0)
-+		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
-+			     current->comm, bprm->filename);
- 	if ((retval = bprm->argc) < 0)
- 		goto out;
- 
-@@ -1782,6 +1785,20 @@ static int do_execveat_common(int fd, struct filename *filename,
- 	if (retval < 0)
- 		goto out;
- 
-+	/*
-+	 * When argv is empty, add an empty string ("") as argv[0] to
-+	 * ensure confused userspace programs that start processing
-+	 * from argv[1] won't end up walking envp. See also
-+	 * bprm_stack_limits().
-+	 */
-+	if (bprm->argc == 0) {
-+		const char *argv[] = { "", NULL };
-+		retval = copy_strings_kernel(1, argv, bprm);
-+		if (retval < 0)
-+			goto out;
-+		bprm->argc = 1;
-+	}
-+
- 	retval = exec_binprm(bprm);
- 	if (retval < 0)
- 		goto out;
--- 
-2.35.1.46.g38062e73e0
-
+--------------rs0qKD0lZDFSRDxuai27ujQX--
