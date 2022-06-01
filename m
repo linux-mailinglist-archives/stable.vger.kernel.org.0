@@ -2,92 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B7953AC67
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 20:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C060953AEEF
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 00:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241064AbiFASAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 14:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
+        id S231240AbiFAVQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 17:16:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240470AbiFASAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 14:00:44 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCBD9CCBC;
-        Wed,  1 Jun 2022 11:00:42 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id e2so3424529wrc.1;
-        Wed, 01 Jun 2022 11:00:42 -0700 (PDT)
+        with ESMTP id S231207AbiFAVQa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 17:16:30 -0400
+Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47E1E3B
+        for <stable@vger.kernel.org>; Wed,  1 Jun 2022 14:16:29 -0700 (PDT)
+Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-f2a4c51c45so4368550fac.9
+        for <stable@vger.kernel.org>; Wed, 01 Jun 2022 14:16:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=CoU8GVZ5QzWnprLeTKVABcCEkI0ltZArlMqYKwDo3Jk=;
-        b=eiGrPPMO/FkatlkjR2iOWoIe0VCkBmffsNhWiePJUaROY4DpBokMA1QM8e3CbKZDOI
-         p98M92aROj5kXxOugBb/2hyur2hIhpter+GHtvfFSdYwwOenmpLDsznSzfQhBsblstii
-         UYUTjWU2a1K7MlqtaZUvn9sdMECwHXrmXR3E6WyLLKNDvmseRSW5y+3cFdYgLrUOjQrC
-         GevQ3WXd6YbGgmB/fYpquaIpn/hhf7BQ4+UWXLgn0AdmMxcWSBNv8/A3mBdbI3TeFWVD
-         T6CSZjEtqcq+sc+3G491IASex6sLNTcofM0m2MQiA3rkK7KDr7Ayi/TT/jZvmTVmakvM
-         t4Mw==
+        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
+         :subject:to;
+        bh=Gk4nfCem3ECRa7Gml0J0mN/3RZoOAdfGaQAqyHPKtiI=;
+        b=DxxMd4k8tG1Z+DI+JxuL9225Cp+S+uInl/poXMcuMZiTQV1c8XJNPCuJB0EN9Fm1lJ
+         tjqO15tZbiRtkiZc869kqZb+gTGwGsofr4Ks/EzA24HoqZkeukApCRLbeWaJgYbzN6Uj
+         DJcyUaN0vgzLiaJiK8SKJwd17XWuJUN7X4OrSO+zy2q+txFdEpb8ifoCAb/ECnGeqxQV
+         22+OgKU21rrXICCeKXN25GVJHEIOuX810V30PW3f8Y111fShlwSlQkBARV9N87g0aoLJ
+         wQNCoaF08Ng768jLDvSBCHYHS21HkQkWfLc+tM30B/O2SgLendb0dLrFE3BY6UlGqUm0
+         gBYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=CoU8GVZ5QzWnprLeTKVABcCEkI0ltZArlMqYKwDo3Jk=;
-        b=xvwbh1xPenQrWxxu4V/9I5ToYKJfHjemznVMtITQcN24caEvVP2u4A2X3Vw0iLtohh
-         UsC/XVOqIApw4rCASdHxVnQEZye0y2itzQo6dPOzGt9Vi8b8ZE6gSa7F1Gx509xom9Lv
-         5U5/Wjj/eRWZiA/Cw3rn4FeYegD+6aUoETMEmCshj2yWe8cA16lrJ/qWXySbWRT746/M
-         MhIwbuCh8ISRIJAFZ2y1/xLh9RtCiU5cRoxHvQ6BhRvIwXDKeVRdpL4C2yqrVyoHIrIi
-         lws7Qsteq8ZB/ycDRL1yj2RSqAuPu5f5IifMIyVl2pp4cu7QtOB+LTte4P5eLJkagFBk
-         jpzA==
-X-Gm-Message-State: AOAM533hN5p2YbYeh/wGitap1waUl7uGJZGt3KBDL9RbpeJ4DlWQr6rC
-        4/AqBT1klsbOxBBrDUuWKL4=
-X-Google-Smtp-Source: ABdhPJzBsvEb5f2h37s48HV3fj6wUsJ0ac7NlXfHiaHg103/YAhIvUdHAYW2wVLlFLLz/9dmYaUl0Q==
-X-Received: by 2002:a5d:5181:0:b0:20f:fc49:6b88 with SMTP id k1-20020a5d5181000000b0020ffc496b88mr512525wrv.596.1654106441043;
-        Wed, 01 Jun 2022 11:00:41 -0700 (PDT)
-Received: from elementary ([94.73.36.128])
-        by smtp.gmail.com with ESMTPSA id t17-20020adfeb91000000b0021031c894d3sm2480739wrn.94.2022.06.01.11.00.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jun 2022 11:00:40 -0700 (PDT)
-Date:   Wed, 1 Jun 2022 20:00:37 +0200
-From:   =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>, linux-doc@vger.kernel.org,
-        kernel test robot <lkp@intel.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        llvm@lists.linux.dev, stable@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: uclogic: properly format kernel-doc comment for
- hid_dbg() wrappers
-Message-ID: <20220601180037.GA26165@elementary>
-References: <20220531092817.13894-1-bagasdotme@gmail.com>
- <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
- <YpcU7qeOtShFx8xR@debian.me>
- <053f756b-fafa-e07a-4308-0a5de8dda595@infradead.org>
+        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
+         :from:date:message-id:subject:to;
+        bh=Gk4nfCem3ECRa7Gml0J0mN/3RZoOAdfGaQAqyHPKtiI=;
+        b=7qrupOFtPoNlyP1tFaW4EUYX1Yx3W25/vBbgqKzU7BEpA3/AaLtKa9ehxnnLIQNBvN
+         LfePbcoALkJ+WKzAWDvAabNee2YoXfLBd13xicTAAGjqm5ySDXMji3NxHtoZ1DO06IDu
+         pbJE08rA/9AIgnMohBXR/Advt2bqbdt98ecwhbKiUjHbftKylSZcObzOUfxUtHih3+Vu
+         e/Xya8sPgCLOUS9JoXL2w/i59sGDaamlfJ+l7IdHpOyFVV8i7tL/pHa04ko/q1YbZRMn
+         Taq51kyUHli+QwZR67BIVhHSx+nn/bcfHMdTpUPpxeQrufxHxwQyFo9C6fTREHERBEI3
+         2l6w==
+X-Gm-Message-State: AOAM532uL6stloIyN+F3d+ODoZbKzWFN8FUrRqAXGKlvHjKjI6nDuHoz
+        NFLo5UrYXkKShUQoiqPtfYnNXSHUGlZXkXTY6+ARLMhmSDQ=
+X-Google-Smtp-Source: ABdhPJxRHJ7PowqzwP8FVf7Pao2siL9+mp8F+vsKwg9Hvlld1uXwEH8+vzJyu5zLQk9d57eu+g6BtXkHW1P4ce0P3TA=
+X-Received: by 2002:a05:6870:4619:b0:f1:e78d:fd54 with SMTP id
+ z25-20020a056870461900b000f1e78dfd54mr18175523oao.195.1654111088174; Wed, 01
+ Jun 2022 12:18:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <053f756b-fafa-e07a-4308-0a5de8dda595@infradead.org>
+Received: by 2002:a05:6358:3601:b0:a3:2139:251d with HTTP; Wed, 1 Jun 2022
+ 12:18:07 -0700 (PDT)
+Reply-To: johnwinery@online.ee
+In-Reply-To: <CAFqHCSSUC0MpbjYK8d-GCxOG4b6Qbk2uH3+xQDZte6cPBsxLGA@mail.gmail.com>
+References: <CAFqHCSSUC0MpbjYK8d-GCxOG4b6Qbk2uH3+xQDZte6cPBsxLGA@mail.gmail.com>
+From:   johnwinery <alicejohnson8974@gmail.com>
+Date:   Wed, 1 Jun 2022 12:18:07 -0700
+Message-ID: <CAFqHCSTLW5uHwBqcyU-qn7_jF2jtwt2-CjgdN8-B9nAn9yi+vg@mail.gmail.com>
+Subject: Re:
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
         FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> On 6/1/22 00:27, Bagas Sanjaya wrote:
-> Running kernel-doc script on drivers/hid/hid-uclogic-params.c, it found
-> 6 warnings for hid_dbg() wrapper functions below:
-> [...]
-
-Hi Bagas,
-
-Thanks a lot for fixing these warnings. I compiled it and I can
-confirm that the sparse warning is also fixed.
-
-Tested-by: José Expósito <jose.exposito89@gmail.com>
+Greeting ,I had written an earlier mail to you but without response
