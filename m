@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D3C53A656
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7540753A665
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344166AbiFANwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
+        id S1353502AbiFANxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:53:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353437AbiFANwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:52:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A173287215;
-        Wed,  1 Jun 2022 06:52:36 -0700 (PDT)
+        with ESMTP id S1350649AbiFANxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:53:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B904A87A07;
+        Wed,  1 Jun 2022 06:52:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BFED615C6;
-        Wed,  1 Jun 2022 13:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2EA3C385B8;
-        Wed,  1 Jun 2022 13:52:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DBCB615C4;
+        Wed,  1 Jun 2022 13:52:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AC00C385B8;
+        Wed,  1 Jun 2022 13:52:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091555;
-        bh=VZt2nOdWMwFzurUHIONWPqfBKwllbRhQspuztDZ+FDA=;
+        s=k20201202; t=1654091561;
+        bh=etlSzNB3grrboXbbp7K/HPtPiQ3/vS9tQOuqaVtCEwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVtqUJfIZ8lBO+ODRVtvetoDHICBz1+yi9kTTcHSSNKQJjbonmGm4uvowopCwIew0
-         iy25/L5li0jCcCbtY6TnXYrMlKcgN+g4owE2Y218r/IFXQPBVBSI3SveDDByu0KYGH
-         /cHWFGkz1ywJLn9XBGQg/S0z8RzWlPpCd8zNGozg85IRb0Xg4IR9cOLCPqSJNxViZr
-         pwuw4rsTY7m7tSsfZvBoU9Qz+NOMJZG/7SG+h8SYHDtHDQAfmuujCG7bnMgTZXmbIc
-         geYwKPhrP1k+5urxhM9WCiY9+pyrPOlFxcIbVWNGH/LoTK378SAZ2waqmqpnCDIe1F
-         oLTe4NLVftKQQ==
+        b=eROl3brhj6D+yyafLxLkPiR1lDbIZLhdEayYSUq+dodEvGongv0wdyj5NZej8vUXJ
+         Ee6v48at3u/NSycilIH+G2kMnxWXpAzNfWz8JuAooLJtDSR2mSK5zYlLU/BhXObRrk
+         3HAt3OyUlvlKIgBC7OC4uxE8yjTv0spXp4vuBgxwC/PBjPFXOdNB2NdObA849oKWxd
+         rtyN5PIwgNM+OdqhYz9K6Na++0asrbk1eH0PKzvTUtVB85kucGZ7fwbvNsAl+rd2ur
+         v63ZxztA0OnBDKpFW2qz00/2bK+rhQlYOBrEweMIrtAVK9OW7k4qNfVTiZazzdcWKX
+         Yv67DslQkzhng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gilad Ben-Yossef <gilad@benyossef.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
+Cc:     Marco Chiappero <marco.chiappero@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        fiona.trahe@intel.com, qat-linux@intel.com,
         linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 10/49] crypto: ccree - use fine grained DMA mapping dir
-Date:   Wed,  1 Jun 2022 09:51:34 -0400
-Message-Id: <20220601135214.2002647-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 11/49] crypto: qat - fix off-by-one error in PFVF debug print
+Date:   Wed,  1 Jun 2022 09:51:35 -0400
+Message-Id: <20220601135214.2002647-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135214.2002647-1-sashal@kernel.org>
 References: <20220601135214.2002647-1-sashal@kernel.org>
@@ -58,115 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Marco Chiappero <marco.chiappero@intel.com>
 
-[ Upstream commit a260436c98171cd825955a84a7f6e62bc8f4f00d ]
+[ Upstream commit dd3d081b7ea6754913222ed0313fcf644edcc7e6 ]
 
-Use a fine grained specification of DMA mapping directions
-in certain cases, allowing both a more optimized operation
-as well as shushing out a harmless, though persky
-dma-debug warning.
+PFVF Block Message requests for CRC use 0-based values to indicate
+amounts, which have to be remapped to 1-based values on the receiving
+side.
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+This patch fixes one debug print which was however using the wire value.
+
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
-index 11e0278c8631..6140e4927322 100644
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -356,12 +356,14 @@ void cc_unmap_cipher_request(struct device *dev, void *ctx,
- 			      req_ctx->mlli_params.mlli_dma_addr);
- 	}
+diff --git a/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c b/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
+index 588352de1ef0..d17318d3f63a 100644
+--- a/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
++++ b/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
+@@ -154,7 +154,7 @@ static struct pfvf_message handle_blkmsg_req(struct adf_accel_vf_info *vf_info,
+ 	if (FIELD_GET(ADF_VF2PF_BLOCK_CRC_REQ_MASK, req.data)) {
+ 		dev_dbg(&GET_DEV(vf_info->accel_dev),
+ 			"BlockMsg of type %d for CRC over %d bytes received from VF%d\n",
+-			blk_type, blk_byte, vf_info->vf_nr);
++			blk_type, blk_byte + 1, vf_info->vf_nr);
  
--	dma_unmap_sg(dev, src, req_ctx->in_nents, DMA_BIDIRECTIONAL);
--	dev_dbg(dev, "Unmapped req->src=%pK\n", sg_virt(src));
--
- 	if (src != dst) {
--		dma_unmap_sg(dev, dst, req_ctx->out_nents, DMA_BIDIRECTIONAL);
-+		dma_unmap_sg(dev, src, req_ctx->in_nents, DMA_TO_DEVICE);
-+		dma_unmap_sg(dev, dst, req_ctx->out_nents, DMA_FROM_DEVICE);
- 		dev_dbg(dev, "Unmapped req->dst=%pK\n", sg_virt(dst));
-+		dev_dbg(dev, "Unmapped req->src=%pK\n", sg_virt(src));
-+	} else {
-+		dma_unmap_sg(dev, src, req_ctx->in_nents, DMA_BIDIRECTIONAL);
-+		dev_dbg(dev, "Unmapped req->src=%pK\n", sg_virt(src));
- 	}
- }
- 
-@@ -377,6 +379,7 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
- 	u32 dummy = 0;
- 	int rc = 0;
- 	u32 mapped_nents = 0;
-+	int src_direction = (src != dst ? DMA_TO_DEVICE : DMA_BIDIRECTIONAL);
- 
- 	req_ctx->dma_buf_type = CC_DMA_BUF_DLLI;
- 	mlli_params->curr_pool = NULL;
-@@ -399,7 +402,7 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
- 	}
- 
- 	/* Map the src SGL */
--	rc = cc_map_sg(dev, src, nbytes, DMA_BIDIRECTIONAL, &req_ctx->in_nents,
-+	rc = cc_map_sg(dev, src, nbytes, src_direction, &req_ctx->in_nents,
- 		       LLI_MAX_NUM_OF_DATA_ENTRIES, &dummy, &mapped_nents);
- 	if (rc)
- 		goto cipher_exit;
-@@ -416,7 +419,7 @@ int cc_map_cipher_request(struct cc_drvdata *drvdata, void *ctx,
- 		}
- 	} else {
- 		/* Map the dst sg */
--		rc = cc_map_sg(dev, dst, nbytes, DMA_BIDIRECTIONAL,
-+		rc = cc_map_sg(dev, dst, nbytes, DMA_FROM_DEVICE,
- 			       &req_ctx->out_nents, LLI_MAX_NUM_OF_DATA_ENTRIES,
- 			       &dummy, &mapped_nents);
- 		if (rc)
-@@ -456,6 +459,7 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
- 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
- 	unsigned int hw_iv_size = areq_ctx->hw_iv_size;
- 	struct cc_drvdata *drvdata = dev_get_drvdata(dev);
-+	int src_direction = (req->src != req->dst ? DMA_TO_DEVICE : DMA_BIDIRECTIONAL);
- 
- 	if (areq_ctx->mac_buf_dma_addr) {
- 		dma_unmap_single(dev, areq_ctx->mac_buf_dma_addr,
-@@ -514,13 +518,11 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
- 		sg_virt(req->src), areq_ctx->src.nents, areq_ctx->assoc.nents,
- 		areq_ctx->assoclen, req->cryptlen);
- 
--	dma_unmap_sg(dev, req->src, areq_ctx->src.mapped_nents,
--		     DMA_BIDIRECTIONAL);
-+	dma_unmap_sg(dev, req->src, areq_ctx->src.mapped_nents, src_direction);
- 	if (req->src != req->dst) {
- 		dev_dbg(dev, "Unmapping dst sgl: req->dst=%pK\n",
- 			sg_virt(req->dst));
--		dma_unmap_sg(dev, req->dst, areq_ctx->dst.mapped_nents,
--			     DMA_BIDIRECTIONAL);
-+		dma_unmap_sg(dev, req->dst, areq_ctx->dst.mapped_nents, DMA_FROM_DEVICE);
- 	}
- 	if (drvdata->coherent &&
- 	    areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_DECRYPT &&
-@@ -843,7 +845,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
- 		else
- 			size_for_map -= authsize;
- 
--		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_BIDIRECTIONAL,
-+		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_FROM_DEVICE,
- 			       &areq_ctx->dst.mapped_nents,
- 			       LLI_MAX_NUM_OF_DATA_ENTRIES, &dst_last_bytes,
- 			       &dst_mapped_nents);
-@@ -1056,7 +1058,8 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
- 		size_to_map += authsize;
- 	}
- 
--	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
-+	rc = cc_map_sg(dev, req->src, size_to_map,
-+		       (req->src != req->dst ? DMA_TO_DEVICE : DMA_BIDIRECTIONAL),
- 		       &areq_ctx->src.mapped_nents,
- 		       (LLI_MAX_NUM_OF_ASSOC_DATA_ENTRIES +
- 			LLI_MAX_NUM_OF_DATA_ENTRIES),
+ 		if (!adf_pf2vf_blkmsg_get_data(vf_info, blk_type, blk_byte,
+ 					       byte_max, &resp_data,
 -- 
 2.35.1
 
