@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 672EA53A7C5
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E01F153A7A5
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353158AbiFAOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51896 "EHLO
+        id S1354220AbiFAOCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:02:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354525AbiFAOA3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7652511A06;
-        Wed,  1 Jun 2022 06:57:03 -0700 (PDT)
+        with ESMTP id S1354825AbiFAOAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459D93CA4D;
+        Wed,  1 Jun 2022 06:57:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5729AB81B07;
-        Wed,  1 Jun 2022 13:56:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F37F6C385A5;
-        Wed,  1 Jun 2022 13:56:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92C4F615E9;
+        Wed,  1 Jun 2022 13:56:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29608C385B8;
+        Wed,  1 Jun 2022 13:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091776;
-        bh=0ao9rCtXzF+E1mhOIXSzAMgWHTlay5M9C7gXZhzBtCg=;
+        s=k20201202; t=1654091780;
+        bh=a3fmYRNmxmmGtW2qncH+A1b8hXxAu7cfiYtmX5DV0eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y5P/g24FoPmBzO63+/rkOSUwdOFEYOQrl3ea2BXlizbkSJ7b5yIqiVjCl+Wd6wPzR
-         lvKIaw2idaa58VowoVkpHy7BHhEtuf5OC2eWBOg1T4PxmRVico6f9F6Yjw9fIaxq8P
-         054fwl5RR0Vb/HUINO19dPEU8c02laArckEdrViPRHaUOky4ZfZzTYs5Kv3zj/imGq
-         4C44XP/E0l0VBZtGtwhWutG5+4r+qLSSAgiUZ0qG+JDlWaPqPqh5+r6AoUuwxtoWrH
-         xtr93NtuhRnOD8Ei4/dQHswePnVGqGmWmHDkCml4v2JyAj9PHu9DNWR95ji70YkmUT
-         bZ2788vPQI70w==
+        b=c6em7LRMzb66z9RkB3ZcR5IBrW7nl3Nx8yHcbP2TNRPH8izmDjz/Zz6Q935EplwSF
+         CaUMWzT4DDUyz/j1l4bazQhEqabORy6QjGSD0l5f/qbrXhMDRSMlyiz9DGgSWuRGC+
+         rdtFVsRpyhv/nuddq1Xt+0HvGDKMQJbn3xzb2kAHtYty3iVf+zlAeXfGcXgTuTWaDq
+         YpWVO1tIVdu7LFbk4fhkGnEjuj7+/Hr+3BFg0HyfK+JvYkibSmUooRLjAhP3tFCeT0
+         AH57csHoFUI3ZqcBIpNAYSvFcE1vzX/Cph46Cx5p7774ZH797qXjY51TiXvZc8QePz
+         puT8FTy+Th5Rg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.17 46/48] cifs: do not use tcpStatus after negotiate completes
-Date:   Wed,  1 Jun 2022 09:54:19 -0400
-Message-Id: <20220601135421.2003328-46-sashal@kernel.org>
+Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, paul@crapouillou.net,
+        christophe.jaillet@wanadoo.fr, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 47/48] Input: gpio-keys - cancel delayed work only in case of GPIO
+Date:   Wed,  1 Jun 2022 09:54:20 -0400
+Message-Id: <20220601135421.2003328-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -57,114 +57,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 1a6a41d4cedd9b302e2200e6f0e3c44dbbe13689 ]
+[ Upstream commit cee409bbba0d1bd3fb73064fb480ff365f453b5d ]
 
-Recent changes to multichannel to allow channel reconnects to
-work in parallel and independent of each other did so by
-making use of tcpStatus for the connection, and status for the
-session. However, this did not take into account the multiuser
-scenario, where same connection is used by multiple connections.
+gpio_keys module can either accept gpios or interrupts. The module
+initializes delayed work in case of gpios only and is only used if
+debounce timer is not used, so make sure cancel_delayed_work_sync()
+is called only when its gpio-backed and debounce_use_hrtimer is false.
 
-However, tcpStatus should be tracked only till the end of
-negotiate exchange, and not used for session setup. This change
-fixes this.
+This fixes the issue seen below when the gpio_keys module is unloaded and
+an interrupt pin is used instead of GPIO:
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+[  360.297569] ------------[ cut here ]------------
+[  360.302303] WARNING: CPU: 0 PID: 237 at kernel/workqueue.c:3066 __flush_work+0x414/0x470
+[  360.310531] Modules linked in: gpio_keys(-)
+[  360.314797] CPU: 0 PID: 237 Comm: rmmod Not tainted 5.18.0-rc5-arm64-renesas-00116-g73636105874d-dirty #166
+[  360.324662] Hardware name: Renesas SMARC EVK based on r9a07g054l2 (DT)
+[  360.331270] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  360.338318] pc : __flush_work+0x414/0x470
+[  360.342385] lr : __cancel_work_timer+0x140/0x1b0
+[  360.347065] sp : ffff80000a7fba00
+[  360.350423] x29: ffff80000a7fba00 x28: ffff000012b9c5c0 x27: 0000000000000000
+[  360.357664] x26: ffff80000a7fbb80 x25: ffff80000954d0a8 x24: 0000000000000001
+[  360.364904] x23: ffff800009757000 x22: 0000000000000000 x21: ffff80000919b000
+[  360.372143] x20: ffff00000f5974e0 x19: ffff00000f5974e0 x18: ffff8000097fcf48
+[  360.379382] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000053f40
+[  360.386622] x14: ffff800009850e88 x13: 0000000000000002 x12: 000000000000a60c
+[  360.393861] x11: 000000000000a610 x10: 0000000000000000 x9 : 0000000000000008
+[  360.401100] x8 : 0101010101010101 x7 : 00000000a473c394 x6 : 0080808080808080
+[  360.408339] x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffff80000919b458
+[  360.415578] x2 : ffff8000097577f0 x1 : 0000000000000001 x0 : 0000000000000000
+[  360.422818] Call trace:
+[  360.425299]  __flush_work+0x414/0x470
+[  360.429012]  __cancel_work_timer+0x140/0x1b0
+[  360.433340]  cancel_delayed_work_sync+0x10/0x18
+[  360.437931]  gpio_keys_quiesce_key+0x28/0x58 [gpio_keys]
+[  360.443327]  devm_action_release+0x10/0x18
+[  360.447481]  release_nodes+0x8c/0x1a0
+[  360.451194]  devres_release_all+0x90/0x100
+[  360.455346]  device_unbind_cleanup+0x14/0x60
+[  360.459677]  device_release_driver_internal+0xe8/0x168
+[  360.464883]  driver_detach+0x4c/0x90
+[  360.468509]  bus_remove_driver+0x54/0xb0
+[  360.472485]  driver_unregister+0x2c/0x58
+[  360.476462]  platform_driver_unregister+0x10/0x18
+[  360.481230]  gpio_keys_exit+0x14/0x828 [gpio_keys]
+[  360.486088]  __arm64_sys_delete_module+0x1e0/0x270
+[  360.490945]  invoke_syscall+0x40/0xf8
+[  360.494661]  el0_svc_common.constprop.3+0xf0/0x110
+[  360.499515]  do_el0_svc+0x20/0x78
+[  360.502877]  el0_svc+0x48/0xf8
+[  360.505977]  el0t_64_sync_handler+0x88/0xb0
+[  360.510216]  el0t_64_sync+0x148/0x14c
+[  360.513930] irq event stamp: 4306
+[  360.517288] hardirqs last  enabled at (4305): [<ffff8000080b0300>] __cancel_work_timer+0x130/0x1b0
+[  360.526359] hardirqs last disabled at (4306): [<ffff800008d194fc>] el1_dbg+0x24/0x88
+[  360.534204] softirqs last  enabled at (4278): [<ffff8000080104a0>] _stext+0x4a0/0x5e0
+[  360.542133] softirqs last disabled at (4267): [<ffff8000080932ac>] irq_exit_rcu+0x18c/0x1b0
+[  360.550591] ---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220524135822.14764-1-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c       | 23 +++++++++++------------
- fs/cifs/smb2pdu.c       |  3 ++-
- fs/cifs/smb2transport.c |  3 ++-
- 3 files changed, 15 insertions(+), 14 deletions(-)
+ drivers/input/keyboard/gpio_keys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 1ec77ebc71a0..9aae410a17f8 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3962,7 +3962,7 @@ cifs_negotiate_protocol(const unsigned int xid, struct cifs_ses *ses,
- 	if (rc == 0) {
- 		spin_lock(&cifs_tcp_ses_lock);
- 		if (server->tcpStatus == CifsInNegotiate)
--			server->tcpStatus = CifsNeedSessSetup;
-+			server->tcpStatus = CifsGood;
- 		else
- 			rc = -EHOSTDOWN;
- 		spin_unlock(&cifs_tcp_ses_lock);
-@@ -3985,19 +3985,18 @@ cifs_setup_session(const unsigned int xid, struct cifs_ses *ses,
- 	bool is_binding = false;
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index d75a8b179a8a..a5dc4ab87fa1 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -131,7 +131,7 @@ static void gpio_keys_quiesce_key(void *data)
  
- 	/* only send once per connect */
-+	spin_lock(&ses->chan_lock);
-+	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
-+	spin_unlock(&ses->chan_lock);
-+
- 	spin_lock(&cifs_tcp_ses_lock);
--	if ((server->tcpStatus != CifsNeedSessSetup) &&
--	    (ses->status == CifsGood)) {
-+	if (ses->status == CifsExiting) {
- 		spin_unlock(&cifs_tcp_ses_lock);
- 		return 0;
- 	}
--	server->tcpStatus = CifsInSessSetup;
-+	ses->status = CifsInSessSetup;
- 	spin_unlock(&cifs_tcp_ses_lock);
- 
--	spin_lock(&ses->chan_lock);
--	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
--	spin_unlock(&ses->chan_lock);
--
- 	if (!is_binding) {
- 		ses->capabilities = server->capabilities;
- 		if (!linuxExtEnabled)
-@@ -4021,13 +4020,13 @@ cifs_setup_session(const unsigned int xid, struct cifs_ses *ses,
- 	if (rc) {
- 		cifs_server_dbg(VFS, "Send error in SessSetup = %d\n", rc);
- 		spin_lock(&cifs_tcp_ses_lock);
--		if (server->tcpStatus == CifsInSessSetup)
--			server->tcpStatus = CifsNeedSessSetup;
-+		if (ses->status == CifsInSessSetup)
-+			ses->status = CifsNeedSessSetup;
- 		spin_unlock(&cifs_tcp_ses_lock);
- 	} else {
- 		spin_lock(&cifs_tcp_ses_lock);
--		if (server->tcpStatus == CifsInSessSetup)
--			server->tcpStatus = CifsGood;
-+		if (ses->status == CifsInSessSetup)
-+			ses->status = CifsGood;
- 		/* Even if one channel is active, session is in good state */
- 		ses->status = CifsGood;
- 		spin_unlock(&cifs_tcp_ses_lock);
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 1704fd358b85..55e6879ef18b 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3904,7 +3904,8 @@ SMB2_echo(struct TCP_Server_Info *server)
- 	cifs_dbg(FYI, "In echo request for conn_id %lld\n", server->conn_id);
- 
- 	spin_lock(&cifs_tcp_ses_lock);
--	if (server->tcpStatus == CifsNeedNegotiate) {
-+	if (server->ops->need_neg &&
-+	    server->ops->need_neg(server)) {
- 		spin_unlock(&cifs_tcp_ses_lock);
- 		/* No need to send echo on newly established connections */
- 		mod_delayed_work(cifsiod_wq, &server->reconnect, 0);
-diff --git a/fs/cifs/smb2transport.c b/fs/cifs/smb2transport.c
-index 2af79093b78b..01b732641edb 100644
---- a/fs/cifs/smb2transport.c
-+++ b/fs/cifs/smb2transport.c
-@@ -641,7 +641,8 @@ smb2_sign_rqst(struct smb_rqst *rqst, struct TCP_Server_Info *server)
- 	if (!is_signed)
- 		return 0;
- 	spin_lock(&cifs_tcp_ses_lock);
--	if (server->tcpStatus == CifsNeedNegotiate) {
-+	if (server->ops->need_neg &&
-+	    server->ops->need_neg(server)) {
- 		spin_unlock(&cifs_tcp_ses_lock);
- 		return 0;
- 	}
+ 	if (!bdata->gpiod)
+ 		hrtimer_cancel(&bdata->release_timer);
+-	if (bdata->debounce_use_hrtimer)
++	else if (bdata->debounce_use_hrtimer)
+ 		hrtimer_cancel(&bdata->debounce_timer);
+ 	else
+ 		cancel_delayed_work_sync(&bdata->work);
 -- 
 2.35.1
 
