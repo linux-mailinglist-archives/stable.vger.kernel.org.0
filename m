@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6EC53A7BA
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF9B53A766
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354275AbiFAOCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54186 "EHLO
+        id S1354033AbiFAOBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:01:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354366AbiFAOAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FAD7A5A81;
-        Wed,  1 Jun 2022 06:56:38 -0700 (PDT)
+        with ESMTP id S1354385AbiFAOAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC01565DD;
+        Wed,  1 Jun 2022 06:56:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E9D4B81B00;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09DB061598;
+        Wed,  1 Jun 2022 13:56:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6287C385A5;
         Wed,  1 Jun 2022 13:56:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1172C385B8;
-        Wed,  1 Jun 2022 13:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091758;
-        bh=ctIJdYl0vlNt157giC31wNXX7wsg81SlduRBQ1uUmGs=;
+        s=k20201202; t=1654091761;
+        bh=y5FpsC0QGeen2RQowSl2Y0D8H3xk4G0Akqg3acr5AMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJshEiw/3+jYDvv5cfVRZcJeHeNeLXgb1ieK8E+jq1O0JNeGa57OZIy8eUiysm+HH
-         5yI4znc848QiX5zlzp4UXtPfp9k4O+fGPkRgEUr0GzYz7nt0OCTknaH+YBHuXYyaPe
-         oKNtWcKQRMWfa2fvKizP5zvMLidJ0iXLj+zllT1eswhtmsoGTRcHB7k+2yxXNfDzPj
-         qDJTkAo61L15mQV/oXKaRfa+nFpA8N1EVmTiwOKREQTu2iagRFesdLHRwbsNGGzgAN
-         VZnuCcyXvn7VBXFgd4X9la7nUnPqp3/FjTb8SEa1AagSblLZx2d3V/JXKtb6XoLG8+
-         IkXJIl8zpOisw==
+        b=rC5xw9AacO68sIbAATblEmaRPUppMPVwafsKQrxUHPAwv9hC+PolBj02mYLgi2ndI
+         hVczVtg8SctYwg/5Ndd4teBuOYYbpdWFqNJ/sgD7WmUNyYeZk6XR185SPxtD4S3Ms/
+         54BCtCebi9LI4dsHDj2PR6Gc4OlQknhZkTxjUuENKiJ65xdLGqy1boPv5S8My9VHwh
+         s7pge3FdwIuUxJYagGcsQ7qybq3vwA2U+X1R42NW+cGgBQ9pSbwO05DJzPqT+xz3Zj
+         jS3Pal0ha8Gz1v+NPQaQRTRCX9FeYfstWUM0hsK7EKoIP9UJ7sN+Wa8fEZnpn6Prc8
+         bYqMy11DVmVrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Lv Ruyi <lv.ruyi@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, maz@kernel.org,
-        nick.child@ibm.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.17 39/48] powerpc/xics: fix refcount leak in icp_opal_init()
-Date:   Wed,  1 Jun 2022 09:54:12 -0400
-Message-Id: <20220601135421.2003328-39-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.17 40/48] powerpc/powernv: fix missing of_node_put in uv_init()
+Date:   Wed,  1 Jun 2022 09:54:13 -0400
+Message-Id: <20220601135421.2003328-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -59,31 +58,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 5dd9e27ea4a39f7edd4bf81e9e70208e7ac0b7c9 ]
+[ Upstream commit 3ffa9fd471f57f365bc54fc87824c530422f64a5 ]
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, use of_node_put() on it when done.
+of_find_compatible_node() returns node pointer with refcount incremented,
+use of_node_put() on it when done.
 
 Reported-by: Zeal Robot <zealci@zte.com.cn>
 Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220402013419.2410298-1-lv.ruyi@zte.com.cn
+Link: https://lore.kernel.org/r/20220407090043.2491854-1-lv.ruyi@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xics/icp-opal.c | 1 +
+ arch/powerpc/platforms/powernv/ultravisor.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/sysdev/xics/icp-opal.c b/arch/powerpc/sysdev/xics/icp-opal.c
-index bda4c32582d9..4dae624b9f2f 100644
---- a/arch/powerpc/sysdev/xics/icp-opal.c
-+++ b/arch/powerpc/sysdev/xics/icp-opal.c
-@@ -196,6 +196,7 @@ int __init icp_opal_init(void)
+diff --git a/arch/powerpc/platforms/powernv/ultravisor.c b/arch/powerpc/platforms/powernv/ultravisor.c
+index e4a00ad06f9d..67c8c4b2d8b1 100644
+--- a/arch/powerpc/platforms/powernv/ultravisor.c
++++ b/arch/powerpc/platforms/powernv/ultravisor.c
+@@ -55,6 +55,7 @@ static int __init uv_init(void)
+ 		return -ENODEV;
  
- 	printk("XICS: Using OPAL ICP fallbacks\n");
- 
-+	of_node_put(np);
- 	return 0;
- }
+ 	uv_memcons = memcons_init(node, "memcons");
++	of_node_put(node);
+ 	if (!uv_memcons)
+ 		return -ENOENT;
  
 -- 
 2.35.1
