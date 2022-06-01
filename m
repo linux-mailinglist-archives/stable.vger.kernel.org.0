@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D259653A85F
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C24553A7CE
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354194AbiFAOIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55240 "EHLO
+        id S1354311AbiFAODB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354126AbiFAOEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:04:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C5738D691;
-        Wed,  1 Jun 2022 06:58:37 -0700 (PDT)
+        with ESMTP id S1355409AbiFAOBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:01:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BC7DA5AB2;
+        Wed,  1 Jun 2022 06:58:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40172B81B38;
-        Wed,  1 Jun 2022 13:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0953C385A5;
-        Wed,  1 Jun 2022 13:57:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 153816149F;
+        Wed,  1 Jun 2022 13:57:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40456C3411F;
+        Wed,  1 Jun 2022 13:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091876;
-        bh=vQUwpjNBc2/uBCLZmEOyoUfx/E7nhiAOOMBOrT/b+Xs=;
+        s=k20201202; t=1654091878;
+        bh=4EVzbzWqHyf7kWhin1yXV+6G6KJBC9n2werDa8N1hEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJsg5VfMnOWe8vM+IHV0+bqDnbXy0EuSYJzHc//v2nOANzAZ3VzMGK13dIXx1imYR
-         nhukfJjWiD0WWeX8k9RHaNsCsrOa32MM2ckccua5GZgytsDSpMq3UIlTy9knpDzJEs
-         7BEGxSd5KOTwKV/bf/U57tyV53BI2d8fLVezs1fvQNRhD6NJwoDk7XYKYhARas477a
-         v4WXTytYnwMdAb3DAkOmolLJIbn0eDPTDYgq7TvbkTFx++NRgKPlbMPxhhLY2EQ1yT
-         STQxpdzXTtwVQ/Ph/bFpIKjvWQQOKztWzWuybWz1eBj3Zi0oQ7T+31VkzNsZurMgBB
-         UFQhGhtf1txAA==
+        b=gZn5LCSz+6/saPTnrPifzciwmeX1XrEkcz4901L1S+pAo4JNRhhVAHJIkbCqdM+Tn
+         UyuxEDcq5a8Id5ajvpTIV9k0OW/gnaCDGohyAaxVPIsS17PZ7URPKnxoF96Ya8ocsN
+         veVoab92x6FvozmwTUuBRJ7t/3KDZu0pVK3KCNcN2ErvABDVEq/J2D3frXTvf11DtJ
+         WsrSzbDiI4j+wU/fazD/UE6K+ahsgausi1v2vAOklfoCSkVN2/p74fV2gcaQp0iBi+
+         9GuzNQ14502PX8ETxL+UsSlk+6jmrBiGIFBMSfqIchrxLSqQrTi/xeHBBy6vFs8Z/p
+         F9bHNgfSBc5HA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, christophe.jaillet@wanadoo.fr,
-        paul@crapouillou.net, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 36/37] Input: gpio-keys - cancel delayed work only in case of GPIO
-Date:   Wed,  1 Jun 2022 09:56:21 -0400
-Message-Id: <20220601135622.2003939-36-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 37/37] drm: fix EDID struct for old ARM OABI format
+Date:   Wed,  1 Jun 2022 09:56:22 -0400
+Message-Id: <20220601135622.2003939-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135622.2003939-1-sashal@kernel.org>
 References: <20220601135622.2003939-1-sashal@kernel.org>
@@ -57,87 +63,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit cee409bbba0d1bd3fb73064fb480ff365f453b5d ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-gpio_keys module can either accept gpios or interrupts. The module
-initializes delayed work in case of gpios only and is only used if
-debounce timer is not used, so make sure cancel_delayed_work_sync()
-is called only when its gpio-backed and debounce_use_hrtimer is false.
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-This fixes the issue seen below when the gpio_keys module is unloaded and
-an interrupt pin is used instead of GPIO:
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
 
-[  360.297569] ------------[ cut here ]------------
-[  360.302303] WARNING: CPU: 0 PID: 237 at kernel/workqueue.c:3066 __flush_work+0x414/0x470
-[  360.310531] Modules linked in: gpio_keys(-)
-[  360.314797] CPU: 0 PID: 237 Comm: rmmod Not tainted 5.18.0-rc5-arm64-renesas-00116-g73636105874d-dirty #166
-[  360.324662] Hardware name: Renesas SMARC EVK based on r9a07g054l2 (DT)
-[  360.331270] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  360.338318] pc : __flush_work+0x414/0x470
-[  360.342385] lr : __cancel_work_timer+0x140/0x1b0
-[  360.347065] sp : ffff80000a7fba00
-[  360.350423] x29: ffff80000a7fba00 x28: ffff000012b9c5c0 x27: 0000000000000000
-[  360.357664] x26: ffff80000a7fbb80 x25: ffff80000954d0a8 x24: 0000000000000001
-[  360.364904] x23: ffff800009757000 x22: 0000000000000000 x21: ffff80000919b000
-[  360.372143] x20: ffff00000f5974e0 x19: ffff00000f5974e0 x18: ffff8000097fcf48
-[  360.379382] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000053f40
-[  360.386622] x14: ffff800009850e88 x13: 0000000000000002 x12: 000000000000a60c
-[  360.393861] x11: 000000000000a610 x10: 0000000000000000 x9 : 0000000000000008
-[  360.401100] x8 : 0101010101010101 x7 : 00000000a473c394 x6 : 0080808080808080
-[  360.408339] x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffff80000919b458
-[  360.415578] x2 : ffff8000097577f0 x1 : 0000000000000001 x0 : 0000000000000000
-[  360.422818] Call trace:
-[  360.425299]  __flush_work+0x414/0x470
-[  360.429012]  __cancel_work_timer+0x140/0x1b0
-[  360.433340]  cancel_delayed_work_sync+0x10/0x18
-[  360.437931]  gpio_keys_quiesce_key+0x28/0x58 [gpio_keys]
-[  360.443327]  devm_action_release+0x10/0x18
-[  360.447481]  release_nodes+0x8c/0x1a0
-[  360.451194]  devres_release_all+0x90/0x100
-[  360.455346]  device_unbind_cleanup+0x14/0x60
-[  360.459677]  device_release_driver_internal+0xe8/0x168
-[  360.464883]  driver_detach+0x4c/0x90
-[  360.468509]  bus_remove_driver+0x54/0xb0
-[  360.472485]  driver_unregister+0x2c/0x58
-[  360.476462]  platform_driver_unregister+0x10/0x18
-[  360.481230]  gpio_keys_exit+0x14/0x828 [gpio_keys]
-[  360.486088]  __arm64_sys_delete_module+0x1e0/0x270
-[  360.490945]  invoke_syscall+0x40/0xf8
-[  360.494661]  el0_svc_common.constprop.3+0xf0/0x110
-[  360.499515]  do_el0_svc+0x20/0x78
-[  360.502877]  el0_svc+0x48/0xf8
-[  360.505977]  el0t_64_sync_handler+0x88/0xb0
-[  360.510216]  el0t_64_sync+0x148/0x14c
-[  360.513930] irq event stamp: 4306
-[  360.517288] hardirqs last  enabled at (4305): [<ffff8000080b0300>] __cancel_work_timer+0x130/0x1b0
-[  360.526359] hardirqs last disabled at (4306): [<ffff800008d194fc>] el1_dbg+0x24/0x88
-[  360.534204] softirqs last  enabled at (4278): [<ffff8000080104a0>] _stext+0x4a0/0x5e0
-[  360.542133] softirqs last disabled at (4267): [<ffff8000080932ac>] irq_exit_rcu+0x18c/0x1b0
-[  360.550591] ---[ end trace 0000000000000000 ]---
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
 
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Link: https://lore.kernel.org/r/20220524135822.14764-1-prabhakar.mahadev-lad.rj@bp.renesas.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/gpio_keys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 8dbf1e69c90a..22a91db645b8 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -131,7 +131,7 @@ static void gpio_keys_quiesce_key(void *data)
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index deccfd39e6db..c24559f5329d 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -121,7 +121,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
  
- 	if (!bdata->gpiod)
- 		hrtimer_cancel(&bdata->release_timer);
--	if (bdata->debounce_use_hrtimer)
-+	else if (bdata->debounce_use_hrtimer)
- 		hrtimer_cancel(&bdata->debounce_timer);
- 	else
- 		cancel_delayed_work_sync(&bdata->work);
+ struct detailed_data_wpindex {
+@@ -154,7 +154,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -172,7 +172,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
