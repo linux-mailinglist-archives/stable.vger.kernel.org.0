@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8461853A822
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5511253A7FE
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354323AbiFAOGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47834 "EHLO
+        id S1354440AbiFAOGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354881AbiFAOFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:05:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92CF0AE44B;
-        Wed,  1 Jun 2022 06:59:17 -0700 (PDT)
+        with ESMTP id S1354965AbiFAOFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:05:23 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B995AE45E;
+        Wed,  1 Jun 2022 06:59:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39F856163D;
-        Wed,  1 Jun 2022 13:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D55EC385B8;
-        Wed,  1 Jun 2022 13:59:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8170CE1C2E;
+        Wed,  1 Jun 2022 13:59:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1A3C385A5;
+        Wed,  1 Jun 2022 13:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091956;
-        bh=KJhUKllErRJpBntBCZwKFWW3K3q4jqc9MvCVLYA5Vgo=;
+        s=k20201202; t=1654091961;
+        bh=OeEP+b3n5EBTdkeIhjlx+ijmmEKEnTv2oLhL8LoOT2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMyy3HzkUA3LNCZfh2catNm3ksielIkc7CsIDPT0BJrPjkf8+uhpMBvUGiXDiZHxf
-         +UfY71B5xnELiKiNXGRVxlxiCEGo+rOobAEizwkAlJbhFhO7grEGKqiuSWL7zZKqvO
-         QZ/Rpy9PvWyURXUa1kZF7hRpYyZ4TqjDAF48JYOV7Kek73KZkwJ1eFAUAyiom1GkUX
-         yAYM/sELA+SHHa1fEzqtfPOTnofqr2oKtDH1M61t+iUXq77nS01wwsu2i7pviZZAg4
-         MzgJ85bTbLhrAVK4rxXNyD+IRxeHIJ/OSvdmrHEJvUwL9cXwh9k9QQvex3mvGPaALo
-         YsdDp6qCmSRIw==
+        b=Y2oWHFvHc6dBrlLQCeONvA1Qq7yn0NnqBrHMbBxl20slSK+yoGbbkC2sv3P9wgaOt
+         ymaCU5Jf6fbvRdnchJx+g6Ni8a3V8hD9s5hQ8/q15DV0QrAaX95K3r9Ejo5XmcSXJ3
+         INwsoNwChKGtsJfyGwzUq0sON1Qiwauqq9eGd9q9DmRGvLqjmXGmZ9JGKSppXRvFLZ
+         u0Q294+hy3XZRHvbpbN6oXr7AhHHlWHXOM4Pdw8Np1nvBVYoka9gyZsSuscpKcwPdq
+         7Rfr+cRwS2Jb5Y8hs7zFpWhaM2m8zXIQvk/KXonCVK95vuVgwjISJvNZQB314wPfdl
+         /d1G+NRBSgRLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/20] selftests/resctrl: Change the default limited time to 120 seconds
-Date:   Wed,  1 Jun 2022 09:58:49 -0400
-Message-Id: <20220601135902.2004823-7-sashal@kernel.org>
+Cc:     Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, nick.child@ibm.com,
+        Julia.Lawall@inria.fr, joel@jms.id.au,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 08/20] powerpc/fadump: Fix fadump to work with a different endian capture kernel
+Date:   Wed,  1 Jun 2022 09:58:50 -0400
+Message-Id: <20220601135902.2004823-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135902.2004823-1-sashal@kernel.org>
 References: <20220601135902.2004823-1-sashal@kernel.org>
@@ -59,37 +58,315 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-[ Upstream commit e2e3fb6ef0d6548defbe0be6e092397aaa92f3a1 ]
+[ Upstream commit b74196af372f7cb4902179009265fe63ac81824f ]
 
-When testing on a Intel(R) Xeon(R) Gold 6254 CPU @ 3.10GHz the resctrl
-selftests fail due to timeout after exceeding the default time limit of
-45 seconds. On this system the test takes about 68 seconds.
-Since the failing test by default accesses a fixed size of memory, the
-execution time should not vary significantly between different environment.
-A new default of 120 seconds should be sufficient yet easy to customize
-with the introduction of the "settings" file for reference.
+Dump capture would fail if capture kernel is not of the endianess as the
+production kernel, because the in-memory data structure (struct
+opal_fadump_mem_struct) shared across production kernel and capture
+kernel assumes the same endianess for both the kernels, which doesn't
+have to be true always. Fix it by having a well-defined endianess for
+struct opal_fadump_mem_struct.
 
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/161902744901.86147.14719228311655123526.stgit@hbathini
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/settings | 3 +++
- 1 file changed, 3 insertions(+)
- create mode 100644 tools/testing/selftests/resctrl/settings
+ arch/powerpc/platforms/powernv/opal-fadump.c | 94 +++++++++++---------
+ arch/powerpc/platforms/powernv/opal-fadump.h | 10 +--
+ 2 files changed, 57 insertions(+), 47 deletions(-)
 
-diff --git a/tools/testing/selftests/resctrl/settings b/tools/testing/selftests/resctrl/settings
-new file mode 100644
-index 000000000000..a383f3d4565b
---- /dev/null
-+++ b/tools/testing/selftests/resctrl/settings
-@@ -0,0 +1,3 @@
-+# If running time is longer than 120 seconds when new tests are added in
-+# the future, increase timeout here.
-+timeout=120
+diff --git a/arch/powerpc/platforms/powernv/opal-fadump.c b/arch/powerpc/platforms/powernv/opal-fadump.c
+index d361d37d975f..f5cea068f0bd 100644
+--- a/arch/powerpc/platforms/powernv/opal-fadump.c
++++ b/arch/powerpc/platforms/powernv/opal-fadump.c
+@@ -60,7 +60,7 @@ void __init opal_fadump_dt_scan(struct fw_dump *fadump_conf, u64 node)
+ 	addr = be64_to_cpu(addr);
+ 	pr_debug("Kernel metadata addr: %llx\n", addr);
+ 	opal_fdm_active = (void *)addr;
+-	if (opal_fdm_active->registered_regions == 0)
++	if (be16_to_cpu(opal_fdm_active->registered_regions) == 0)
+ 		return;
+ 
+ 	ret = opal_mpipl_query_tag(OPAL_MPIPL_TAG_BOOT_MEM, &addr);
+@@ -95,17 +95,17 @@ static int opal_fadump_unregister(struct fw_dump *fadump_conf);
+ static void opal_fadump_update_config(struct fw_dump *fadump_conf,
+ 				      const struct opal_fadump_mem_struct *fdm)
+ {
+-	pr_debug("Boot memory regions count: %d\n", fdm->region_cnt);
++	pr_debug("Boot memory regions count: %d\n", be16_to_cpu(fdm->region_cnt));
+ 
+ 	/*
+ 	 * The destination address of the first boot memory region is the
+ 	 * destination address of boot memory regions.
+ 	 */
+-	fadump_conf->boot_mem_dest_addr = fdm->rgn[0].dest;
++	fadump_conf->boot_mem_dest_addr = be64_to_cpu(fdm->rgn[0].dest);
+ 	pr_debug("Destination address of boot memory regions: %#016llx\n",
+ 		 fadump_conf->boot_mem_dest_addr);
+ 
+-	fadump_conf->fadumphdr_addr = fdm->fadumphdr_addr;
++	fadump_conf->fadumphdr_addr = be64_to_cpu(fdm->fadumphdr_addr);
+ }
+ 
+ /*
+@@ -126,9 +126,9 @@ static void opal_fadump_get_config(struct fw_dump *fadump_conf,
+ 	fadump_conf->boot_memory_size = 0;
+ 
+ 	pr_debug("Boot memory regions:\n");
+-	for (i = 0; i < fdm->region_cnt; i++) {
+-		base = fdm->rgn[i].src;
+-		size = fdm->rgn[i].size;
++	for (i = 0; i < be16_to_cpu(fdm->region_cnt); i++) {
++		base = be64_to_cpu(fdm->rgn[i].src);
++		size = be64_to_cpu(fdm->rgn[i].size);
+ 		pr_debug("\t[%03d] base: 0x%lx, size: 0x%lx\n", i, base, size);
+ 
+ 		fadump_conf->boot_mem_addr[i] = base;
+@@ -143,7 +143,7 @@ static void opal_fadump_get_config(struct fw_dump *fadump_conf,
+ 	 * Start address of reserve dump area (permanent reservation) for
+ 	 * re-registering FADump after dump capture.
+ 	 */
+-	fadump_conf->reserve_dump_area_start = fdm->rgn[0].dest;
++	fadump_conf->reserve_dump_area_start = be64_to_cpu(fdm->rgn[0].dest);
+ 
+ 	/*
+ 	 * Rarely, but it can so happen that system crashes before all
+@@ -155,13 +155,14 @@ static void opal_fadump_get_config(struct fw_dump *fadump_conf,
+ 	 * Hope the memory that could not be preserved only has pages
+ 	 * that are usually filtered out while saving the vmcore.
+ 	 */
+-	if (fdm->region_cnt > fdm->registered_regions) {
++	if (be16_to_cpu(fdm->region_cnt) > be16_to_cpu(fdm->registered_regions)) {
+ 		pr_warn("Not all memory regions were saved!!!\n");
+ 		pr_warn("  Unsaved memory regions:\n");
+-		i = fdm->registered_regions;
+-		while (i < fdm->region_cnt) {
++		i = be16_to_cpu(fdm->registered_regions);
++		while (i < be16_to_cpu(fdm->region_cnt)) {
+ 			pr_warn("\t[%03d] base: 0x%llx, size: 0x%llx\n",
+-				i, fdm->rgn[i].src, fdm->rgn[i].size);
++				i, be64_to_cpu(fdm->rgn[i].src),
++				be64_to_cpu(fdm->rgn[i].size));
+ 			i++;
+ 		}
+ 
+@@ -170,7 +171,7 @@ static void opal_fadump_get_config(struct fw_dump *fadump_conf,
+ 	}
+ 
+ 	fadump_conf->boot_mem_top = (fadump_conf->boot_memory_size + hole_size);
+-	fadump_conf->boot_mem_regs_cnt = fdm->region_cnt;
++	fadump_conf->boot_mem_regs_cnt = be16_to_cpu(fdm->region_cnt);
+ 	opal_fadump_update_config(fadump_conf, fdm);
+ }
+ 
+@@ -178,35 +179,38 @@ static void opal_fadump_get_config(struct fw_dump *fadump_conf,
+ static void opal_fadump_init_metadata(struct opal_fadump_mem_struct *fdm)
+ {
+ 	fdm->version = OPAL_FADUMP_VERSION;
+-	fdm->region_cnt = 0;
+-	fdm->registered_regions = 0;
+-	fdm->fadumphdr_addr = 0;
++	fdm->region_cnt = cpu_to_be16(0);
++	fdm->registered_regions = cpu_to_be16(0);
++	fdm->fadumphdr_addr = cpu_to_be64(0);
+ }
+ 
+ static u64 opal_fadump_init_mem_struct(struct fw_dump *fadump_conf)
+ {
+ 	u64 addr = fadump_conf->reserve_dump_area_start;
++	u16 reg_cnt;
+ 	int i;
+ 
+ 	opal_fdm = __va(fadump_conf->kernel_metadata);
+ 	opal_fadump_init_metadata(opal_fdm);
+ 
+ 	/* Boot memory regions */
++	reg_cnt = be16_to_cpu(opal_fdm->region_cnt);
+ 	for (i = 0; i < fadump_conf->boot_mem_regs_cnt; i++) {
+-		opal_fdm->rgn[i].src	= fadump_conf->boot_mem_addr[i];
+-		opal_fdm->rgn[i].dest	= addr;
+-		opal_fdm->rgn[i].size	= fadump_conf->boot_mem_sz[i];
++		opal_fdm->rgn[i].src	= cpu_to_be64(fadump_conf->boot_mem_addr[i]);
++		opal_fdm->rgn[i].dest	= cpu_to_be64(addr);
++		opal_fdm->rgn[i].size	= cpu_to_be64(fadump_conf->boot_mem_sz[i]);
+ 
+-		opal_fdm->region_cnt++;
++		reg_cnt++;
+ 		addr += fadump_conf->boot_mem_sz[i];
+ 	}
++	opal_fdm->region_cnt = cpu_to_be16(reg_cnt);
+ 
+ 	/*
+ 	 * Kernel metadata is passed to f/w and retrieved in capture kerenl.
+ 	 * So, use it to save fadump header address instead of calculating it.
+ 	 */
+-	opal_fdm->fadumphdr_addr = (opal_fdm->rgn[0].dest +
+-				    fadump_conf->boot_memory_size);
++	opal_fdm->fadumphdr_addr = cpu_to_be64(be64_to_cpu(opal_fdm->rgn[0].dest) +
++					       fadump_conf->boot_memory_size);
+ 
+ 	opal_fadump_update_config(fadump_conf, opal_fdm);
+ 
+@@ -269,18 +273,21 @@ static u64 opal_fadump_get_bootmem_min(void)
+ static int opal_fadump_register(struct fw_dump *fadump_conf)
+ {
+ 	s64 rc = OPAL_PARAMETER;
++	u16 registered_regs;
+ 	int i, err = -EIO;
+ 
+-	for (i = 0; i < opal_fdm->region_cnt; i++) {
++	registered_regs = be16_to_cpu(opal_fdm->registered_regions);
++	for (i = 0; i < be16_to_cpu(opal_fdm->region_cnt); i++) {
+ 		rc = opal_mpipl_update(OPAL_MPIPL_ADD_RANGE,
+-				       opal_fdm->rgn[i].src,
+-				       opal_fdm->rgn[i].dest,
+-				       opal_fdm->rgn[i].size);
++				       be64_to_cpu(opal_fdm->rgn[i].src),
++				       be64_to_cpu(opal_fdm->rgn[i].dest),
++				       be64_to_cpu(opal_fdm->rgn[i].size));
+ 		if (rc != OPAL_SUCCESS)
+ 			break;
+ 
+-		opal_fdm->registered_regions++;
++		registered_regs++;
+ 	}
++	opal_fdm->registered_regions = cpu_to_be16(registered_regs);
+ 
+ 	switch (rc) {
+ 	case OPAL_SUCCESS:
+@@ -291,7 +298,8 @@ static int opal_fadump_register(struct fw_dump *fadump_conf)
+ 	case OPAL_RESOURCE:
+ 		/* If MAX regions limit in f/w is hit, warn and proceed. */
+ 		pr_warn("%d regions could not be registered for MPIPL as MAX limit is reached!\n",
+-			(opal_fdm->region_cnt - opal_fdm->registered_regions));
++			(be16_to_cpu(opal_fdm->region_cnt) -
++			 be16_to_cpu(opal_fdm->registered_regions)));
+ 		fadump_conf->dump_registered = 1;
+ 		err = 0;
+ 		break;
+@@ -312,7 +320,7 @@ static int opal_fadump_register(struct fw_dump *fadump_conf)
+ 	 * If some regions were registered before OPAL_MPIPL_ADD_RANGE
+ 	 * OPAL call failed, unregister all regions.
+ 	 */
+-	if ((err < 0) && (opal_fdm->registered_regions > 0))
++	if ((err < 0) && (be16_to_cpu(opal_fdm->registered_regions) > 0))
+ 		opal_fadump_unregister(fadump_conf);
+ 
+ 	return err;
+@@ -328,7 +336,7 @@ static int opal_fadump_unregister(struct fw_dump *fadump_conf)
+ 		return -EIO;
+ 	}
+ 
+-	opal_fdm->registered_regions = 0;
++	opal_fdm->registered_regions = cpu_to_be16(0);
+ 	fadump_conf->dump_registered = 0;
+ 	return 0;
+ }
+@@ -563,19 +571,20 @@ static void opal_fadump_region_show(struct fw_dump *fadump_conf,
+ 	else
+ 		fdm_ptr = opal_fdm;
+ 
+-	for (i = 0; i < fdm_ptr->region_cnt; i++) {
++	for (i = 0; i < be16_to_cpu(fdm_ptr->region_cnt); i++) {
+ 		/*
+ 		 * Only regions that are registered for MPIPL
+ 		 * would have dump data.
+ 		 */
+ 		if ((fadump_conf->dump_active) &&
+-		    (i < fdm_ptr->registered_regions))
+-			dumped_bytes = fdm_ptr->rgn[i].size;
++		    (i < be16_to_cpu(fdm_ptr->registered_regions)))
++			dumped_bytes = be64_to_cpu(fdm_ptr->rgn[i].size);
+ 
+ 		seq_printf(m, "DUMP: Src: %#016llx, Dest: %#016llx, ",
+-			   fdm_ptr->rgn[i].src, fdm_ptr->rgn[i].dest);
++			   be64_to_cpu(fdm_ptr->rgn[i].src),
++			   be64_to_cpu(fdm_ptr->rgn[i].dest));
+ 		seq_printf(m, "Size: %#llx, Dumped: %#llx bytes\n",
+-			   fdm_ptr->rgn[i].size, dumped_bytes);
++			   be64_to_cpu(fdm_ptr->rgn[i].size), dumped_bytes);
+ 	}
+ 
+ 	/* Dump is active. Show reserved area start address. */
+@@ -624,6 +633,7 @@ void __init opal_fadump_dt_scan(struct fw_dump *fadump_conf, u64 node)
+ {
+ 	const __be32 *prop;
+ 	unsigned long dn;
++	__be64 be_addr;
+ 	u64 addr = 0;
+ 	int i, len;
+ 	s64 ret;
+@@ -680,13 +690,13 @@ void __init opal_fadump_dt_scan(struct fw_dump *fadump_conf, u64 node)
+ 	if (!prop)
+ 		return;
+ 
+-	ret = opal_mpipl_query_tag(OPAL_MPIPL_TAG_KERNEL, &addr);
+-	if ((ret != OPAL_SUCCESS) || !addr) {
++	ret = opal_mpipl_query_tag(OPAL_MPIPL_TAG_KERNEL, &be_addr);
++	if ((ret != OPAL_SUCCESS) || !be_addr) {
+ 		pr_err("Failed to get Kernel metadata (%lld)\n", ret);
+ 		return;
+ 	}
+ 
+-	addr = be64_to_cpu(addr);
++	addr = be64_to_cpu(be_addr);
+ 	pr_debug("Kernel metadata addr: %llx\n", addr);
+ 
+ 	opal_fdm_active = __va(addr);
+@@ -697,14 +707,14 @@ void __init opal_fadump_dt_scan(struct fw_dump *fadump_conf, u64 node)
+ 	}
+ 
+ 	/* Kernel regions not registered with f/w for MPIPL */
+-	if (opal_fdm_active->registered_regions == 0) {
++	if (be16_to_cpu(opal_fdm_active->registered_regions) == 0) {
+ 		opal_fdm_active = NULL;
+ 		return;
+ 	}
+ 
+-	ret = opal_mpipl_query_tag(OPAL_MPIPL_TAG_CPU, &addr);
+-	if (addr) {
+-		addr = be64_to_cpu(addr);
++	ret = opal_mpipl_query_tag(OPAL_MPIPL_TAG_CPU, &be_addr);
++	if (be_addr) {
++		addr = be64_to_cpu(be_addr);
+ 		pr_debug("CPU metadata addr: %llx\n", addr);
+ 		opal_cpu_metadata = __va(addr);
+ 	}
+diff --git a/arch/powerpc/platforms/powernv/opal-fadump.h b/arch/powerpc/platforms/powernv/opal-fadump.h
+index f1e9ecf548c5..3f715efb0aa6 100644
+--- a/arch/powerpc/platforms/powernv/opal-fadump.h
++++ b/arch/powerpc/platforms/powernv/opal-fadump.h
+@@ -31,14 +31,14 @@
+  * OPAL FADump kernel metadata
+  *
+  * The address of this structure will be registered with f/w for retrieving
+- * and processing during crash dump.
++ * in the capture kernel to process the crash dump.
+  */
+ struct opal_fadump_mem_struct {
+ 	u8	version;
+ 	u8	reserved[3];
+-	u16	region_cnt;		/* number of regions */
+-	u16	registered_regions;	/* Regions registered for MPIPL */
+-	u64	fadumphdr_addr;
++	__be16	region_cnt;		/* number of regions */
++	__be16	registered_regions;	/* Regions registered for MPIPL */
++	__be64	fadumphdr_addr;
+ 	struct opal_mpipl_region	rgn[FADUMP_MAX_MEM_REGS];
+ } __packed;
+ 
+@@ -135,7 +135,7 @@ static inline void opal_fadump_read_regs(char *bufp, unsigned int regs_cnt,
+ 	for (i = 0; i < regs_cnt; i++, bufp += reg_entry_size) {
+ 		reg_entry = (struct hdat_fadump_reg_entry *)bufp;
+ 		val = (cpu_endian ? be64_to_cpu(reg_entry->reg_val) :
+-		       reg_entry->reg_val);
++		       (u64)(reg_entry->reg_val));
+ 		opal_fadump_set_regval_regnum(regs,
+ 					      be32_to_cpu(reg_entry->reg_type),
+ 					      be32_to_cpu(reg_entry->reg_num),
 -- 
 2.35.1
 
