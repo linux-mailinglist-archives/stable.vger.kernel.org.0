@@ -2,92 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 860D5539E0D
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 09:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A1E5539E30
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 09:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350307AbiFAHTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 03:19:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37122 "EHLO
+        id S1348774AbiFAH1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 03:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350323AbiFAHTq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 03:19:46 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B5C4BBBB;
-        Wed,  1 Jun 2022 00:19:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
-        Resent-Message-ID:In-Reply-To:References;
-        bh=gMGWTaI8TuzmxxnKJACjMmqrnSBgJQ1mqmrPulLBg5g=; t=1654067984; x=1655277584; 
-        b=oAEMrxFBWGoguN8uht39YyDRvFmcuiCjaz7mwCJp2YmVdcVeeB5cYwyNSHPd319eYgT6hKE88Xa
-        9iGR752+Gd7QHX4HQiSsKf4SobvU0Ooinh9crQIK/lgwq0VHsVqp05w6TXjicnTuXkNAa5PtV6qsE
-        1xcV/ma1p/HtWg6e8Bi4BOISUVCotBOYSQlh9skv1Jrqc3hBJ/R9l1Wk6mEsma6Sl8Xn8Fuvf7eLU
-        dA2BbTrTCIth7Zsgr6Ln41rqGXRp37zUG8UUqhzaHhRUZPUywJyFSPN5TpEIGGXtC62ddI4cr2TE2
-        Imh1eaq7j1OjnljLpHGTYgmC3aj8mGR9oUxg==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1nwIdo-00AIjQ-Ry;
-        Wed, 01 Jun 2022 09:19:40 +0200
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     linux-wireless@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
-Subject: [PATCH] mac80211: fix use-after-free in chanctx code
-Date:   Wed,  1 Jun 2022 09:19:36 +0200
-Message-Id: <20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S1344886AbiFAH1r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 03:27:47 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6995E174;
+        Wed,  1 Jun 2022 00:27:46 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id c196so1201764pfb.1;
+        Wed, 01 Jun 2022 00:27:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=eMeA/fqvYZU6vrSiCnNJA0sstC2+T/rmbcmFof3BR34=;
+        b=Ve/MDQjVQ36HEHc3RKBr36SX9I68T1b4706XRvOHxHRgDsEzn3JOnjpOjtHXaFBlaE
+         5sKBR5xf0pwoFavEKOjpPGC+XjnBihHNbZG+Shi+XCMgIzx6OXcZAAqI9y/pFOAv6OJk
+         TYwI4uyqOG/3HWq0jJQ3LeYVHTfwsp/ylK+2Fvn9+AQTOFCCVboUB2IldBbynyw5F+68
+         1Lkz3GjBIqDCp2v04ZbG9Eh5biTPgCosHS2Kv3LvfXxCabp2AxUB60JM3j6HTz4UhJpd
+         B9Tq8YCUVg0SaKQI9UeErLNPGiL7bjX8DaO9Yp5sDidUQ+RsNOytfGbCqOD90Zi8gCk+
+         /ovg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=eMeA/fqvYZU6vrSiCnNJA0sstC2+T/rmbcmFof3BR34=;
+        b=HYrEk30N/RNCZERlsTzh4oWloZH5ykH8XWqyRUUjInDZD4fZQBkEl1TMdS+KRS167k
+         mw9QNvW3QSxVMqie6OOPZZ9y9/g9Z0dqy+CdhfT7VtWNl4X9+5ufujjIcvhunjjFmqza
+         RrHcD24OGgPzDx0eGH5gc1AQxOVE5kzvaE2ReJNxnCIFqrho1NCkxTj+gk8EJUSRA7vV
+         trBjWEi3oZmwQuxyrwzOXYr2FODVfDTgMUtCWp95BTh7X9QmsYtUQZON+y5+C7osolZd
+         xW8xC5kYb3wAiO2A5WLFubaDJEzDq+ZE9ko8eJPMog1EwfUO5U0/HfPwZDXa6yqjyH+n
+         VbGA==
+X-Gm-Message-State: AOAM532WMBjx9qx4iiZZkOG0by0I12iQzEx64DrS69pu8M5Cgmv4Cv7a
+        PtyjPPJDOooTsy/veUsMsY9yVZwvwIUPxA==
+X-Google-Smtp-Source: ABdhPJzncNVm9JEdvzWZ/WJX8rZD6Uc3eyRjjE+e9aLdBHmlkh2N+ra6ix7Phl7ZYouz3tV5tJAaCQ==
+X-Received: by 2002:a05:6a00:1d8e:b0:518:87e7:db00 with SMTP id z14-20020a056a001d8e00b0051887e7db00mr52648703pfw.84.1654068465543;
+        Wed, 01 Jun 2022 00:27:45 -0700 (PDT)
+Received: from localhost (subs02-180-214-232-26.three.co.id. [180.214.232.26])
+        by smtp.gmail.com with ESMTPSA id gn1-20020a17090ac78100b001df82551cf2sm650434pjb.44.2022.06.01.00.27.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jun 2022 00:27:44 -0700 (PDT)
+Date:   Wed, 1 Jun 2022 14:27:42 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-doc@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Nikolai Kondrashov <spbnick@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        =?utf-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>,
+        llvm@lists.linux.dev, stable@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] HID: uclogic: properly format kernel-doc comment for
+ hid_dbg() wrappers
+Message-ID: <YpcU7qeOtShFx8xR@debian.me>
+References: <20220531092817.13894-1-bagasdotme@gmail.com>
+ <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+> One note (nit) below:
+> 
+> >  drivers/hid/hid-uclogic-params.c | 24 ++++++++++++++----------
+> >  1 file changed, 14 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+> > index db838f16282d64..647bbd3e000e2f 100644
+> > --- a/drivers/hid/hid-uclogic-params.c
+> > +++ b/drivers/hid/hid-uclogic-params.c
+> > @@ -23,11 +23,11 @@
+> >  /**
+> >   * uclogic_params_pen_inrange_to_str() - Convert a pen in-range reporting type
+> >   *                                       to a string.
+> > - *
+> >   * @inrange:	The in-range reporting type to convert.
+> >   *
+> > - * Returns:
+> > - *	The string representing the type, or NULL if the type is unknown.
+> > + * Return:
+> > + * * The string representing the type, or
+> > + * * NULL if the type is unknown.
+> 
+>         %NULL
+> would be better here, but not required.
+> 
 
-In ieee80211_vif_use_reserved_context(), when we have an
-old context and the new context's replace_state is set to
-IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
-in ieee80211_vif_use_reserved_reassign(). Therefore, we
-cannot check the old_ctx anymore, so we should set it to
-NULL after this point.
+Hi Randy,
 
-However, since the new_ctx replace state is clearly not
-IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
-anything else in this function and can just return to
-avoid accessing the freed old_ctx.
+I don't see %NULL in Documentation/ (I git-grep-ed it but none found).
+What should I do when I have to explain NULL in Return: section of
+kernel-doc comment?
 
-Cc: stable@vger.kernel.org
-Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
----
- net/mac80211/chan.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/net/mac80211/chan.c b/net/mac80211/chan.c
-index 7b249264af09..5d8b49f20198 100644
---- a/net/mac80211/chan.c
-+++ b/net/mac80211/chan.c
-@@ -1750,12 +1750,9 @@ int ieee80211_vif_use_reserved_context(struct ieee80211_sub_if_data *sdata)
- 
- 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
- 		if (old_ctx)
--			err = ieee80211_vif_use_reserved_reassign(sdata);
--		else
--			err = ieee80211_vif_use_reserved_assign(sdata);
-+			return ieee80211_vif_use_reserved_reassign(sdata);
- 
--		if (err)
--			return err;
-+		return ieee80211_vif_use_reserved_assign(sdata);
- 	}
- 
- 	/*
 -- 
-2.36.1
-
+An old man doll... just what I always wanted! - Clara
