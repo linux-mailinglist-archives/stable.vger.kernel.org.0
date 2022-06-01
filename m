@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1A553A85E
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5220753A836
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354347AbiFAOIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:08:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47616 "EHLO
+        id S1352648AbiFAOGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:06:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354558AbiFAOEs (ORCPT
+        with ESMTP id S1354561AbiFAOEs (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:04:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73EC880CB;
-        Wed,  1 Jun 2022 06:58:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 917248A32D;
+        Wed,  1 Jun 2022 06:58:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 710D6B81AF8;
-        Wed,  1 Jun 2022 13:58:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6953DC34119;
-        Wed,  1 Jun 2022 13:58:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFB88B81AEB;
+        Wed,  1 Jun 2022 13:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80A8CC3411D;
+        Wed,  1 Jun 2022 13:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091905;
-        bh=iyThD/MBHbgXsTFdOZBbPX0irFoHYzqWmNcfYxFjHWY=;
+        s=k20201202; t=1654091906;
+        bh=MzavRj9nrP27S+bq6CPB0yuwsmyvhj3CJKBoxHtwgwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikTZzfd4XcdpJa8VMVtLwWWOk3iWQVOxNYAN1+XO3okAIplVm5Xl+nhXoKBiCShZN
-         syrJk71KIKHkRkGZv112VO7Jh9pLb8jdEOrtAPgQ674exPzmr0h6M83vamxXTGG7Zn
-         0PJOGGykObXrHNbOC2bgrL+vzcSmYs1HxkmhemyRualTINOuzav6UPB2MHcdFx1/ve
-         NzEsm5WRn0Oh8pUIz+5pR532MHlcLxp9eH6SfzG3HbX6Oybcbfmccwz/Ft073oC6T0
-         4VTvEJJIZyexCyL+9bbuqzl6fBVDjy3gi8+5/f9mqbO6IEwBUYvGdnIHh4RxO6ftXC
-         BysCk1zfJlU9g==
+        b=Mnq5S6Miz2r2BxpqEfS296Uxk6k4zJWsg/jaMJma6SAwJBV4CS1xk4Ff3H33fZID7
+         x/d3HzbGSsTrOuoIHRl3SriprlFBV7B1AGpFKfrfArkP96JAZ0FZdkb4PIXDl2zHqr
+         IzeRROAm5zux77D3jdrOJp/IHNWP066E75cbJcyqqSGYNR440HapkaeFz6gINEAWAQ
+         QLfShzjte+FZHBqyfZM4eG8Ew+3PrDSaSVpD/MMn9bSn3TdceFJDpBug15o73zJKdM
+         VBmSIbiIbXxzcPwJrW9hqL6hWe/WcqSo/F12AaQEBdmGGlZVM3Z/6a+qSGg1GHXlRo
+         I1Ml9iUcZvmVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        qianfan <qianfanguijin@163.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 13/26] fat: add ratelimit to fat*_ent_bread()
-Date:   Wed,  1 Jun 2022 09:57:46 -0400
-Message-Id: <20220601135759.2004435-13-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/26] pinctrl: renesas: rzn1: Fix possible null-ptr-deref in sh_pfc_map_resources()
+Date:   Wed,  1 Jun 2022 09:57:47 -0400
+Message-Id: <20220601135759.2004435-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135759.2004435-1-sashal@kernel.org>
 References: <20220601135759.2004435-1-sashal@kernel.org>
@@ -57,48 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 183c3237c928109d2008c0456dff508baf692b20 ]
+[ Upstream commit 2f661477c2bb8068194dbba9738d05219f111c6e ]
 
-fat*_ent_bread() can be the cause of too many report on I/O error path.
-So use fat_msg_ratelimit() instead.
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Link: https://lkml.kernel.org/r/87bkxogfeq.fsf@mail.parknet.co.jp
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reported-by: qianfan <qianfanguijin@163.com>
-Tested-by: qianfan <qianfanguijin@163.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220429082637.1308182-2-yangyingliang@huawei.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fat/fatent.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/pinctrl/renesas/pinctrl-rzn1.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/fs/fat/fatent.c b/fs/fat/fatent.c
-index f7e3304b7802..353735032947 100644
---- a/fs/fat/fatent.c
-+++ b/fs/fat/fatent.c
-@@ -93,7 +93,8 @@ static int fat12_ent_bread(struct super_block *sb, struct fat_entry *fatent,
- err_brelse:
- 	brelse(bhs[0]);
- err:
--	fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)", (llu)blocknr);
-+	fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
-+			  (llu)blocknr);
- 	return -EIO;
- }
+diff --git a/drivers/pinctrl/renesas/pinctrl-rzn1.c b/drivers/pinctrl/renesas/pinctrl-rzn1.c
+index ef5fb25b6016..849d091205d4 100644
+--- a/drivers/pinctrl/renesas/pinctrl-rzn1.c
++++ b/drivers/pinctrl/renesas/pinctrl-rzn1.c
+@@ -865,17 +865,15 @@ static int rzn1_pinctrl_probe(struct platform_device *pdev)
+ 	ipctl->mdio_func[0] = -1;
+ 	ipctl->mdio_func[1] = -1;
  
-@@ -106,8 +107,8 @@ static int fat_ent_bread(struct super_block *sb, struct fat_entry *fatent,
- 	fatent->fat_inode = MSDOS_SB(sb)->fat_inode;
- 	fatent->bhs[0] = sb_bread(sb, blocknr);
- 	if (!fatent->bhs[0]) {
--		fat_msg(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
--		       (llu)blocknr);
-+		fat_msg_ratelimit(sb, KERN_ERR, "FAT read failed (blocknr %llu)",
-+				  (llu)blocknr);
- 		return -EIO;
- 	}
- 	fatent->nr_bhs = 1;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	ipctl->lev1_protect_phys = (u32)res->start + 0x400;
+-	ipctl->lev1 = devm_ioremap_resource(&pdev->dev, res);
++	ipctl->lev1 = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 	if (IS_ERR(ipctl->lev1))
+ 		return PTR_ERR(ipctl->lev1);
++	ipctl->lev1_protect_phys = (u32)res->start + 0x400;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	ipctl->lev2_protect_phys = (u32)res->start + 0x400;
+-	ipctl->lev2 = devm_ioremap_resource(&pdev->dev, res);
++	ipctl->lev2 = devm_platform_get_and_ioremap_resource(pdev, 1, &res);
+ 	if (IS_ERR(ipctl->lev2))
+ 		return PTR_ERR(ipctl->lev2);
++	ipctl->lev2_protect_phys = (u32)res->start + 0x400;
+ 
+ 	ipctl->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(ipctl->clk))
 -- 
 2.35.1
 
