@@ -2,111 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A1E5539E30
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 09:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFF353A079
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 11:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348774AbiFAH1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 03:27:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49076 "EHLO
+        id S236040AbiFAJdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 05:33:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344886AbiFAH1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 03:27:47 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6995E174;
-        Wed,  1 Jun 2022 00:27:46 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id c196so1201764pfb.1;
-        Wed, 01 Jun 2022 00:27:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=eMeA/fqvYZU6vrSiCnNJA0sstC2+T/rmbcmFof3BR34=;
-        b=Ve/MDQjVQ36HEHc3RKBr36SX9I68T1b4706XRvOHxHRgDsEzn3JOnjpOjtHXaFBlaE
-         5sKBR5xf0pwoFavEKOjpPGC+XjnBihHNbZG+Shi+XCMgIzx6OXcZAAqI9y/pFOAv6OJk
-         TYwI4uyqOG/3HWq0jJQ3LeYVHTfwsp/ylK+2Fvn9+AQTOFCCVboUB2IldBbynyw5F+68
-         1Lkz3GjBIqDCp2v04ZbG9Eh5biTPgCosHS2Kv3LvfXxCabp2AxUB60JM3j6HTz4UhJpd
-         B9Tq8YCUVg0SaKQI9UeErLNPGiL7bjX8DaO9Yp5sDidUQ+RsNOytfGbCqOD90Zi8gCk+
-         /ovg==
+        with ESMTP id S242772AbiFAJdW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 05:33:22 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7EBCA8AE42
+        for <stable@vger.kernel.org>; Wed,  1 Jun 2022 02:33:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654075999;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=VuuX8qrSGJ4hyfsiDt/rM6t9GO/71AZB53O3hdvqWXI=;
+        b=bdhC3W64gChtxoHObZd7iUZujqSUpNJcWAzohxM3p4miDLAyhzRz3gmGiCcjfvtb5yJZ9x
+        7r/2utIx+uA61BMON2Giq85gauC682+cyglTmiWCxVtPcFdSF4+q39jSSOSi0r96HYWTj7
+        kRQh9YA5nmiXwX2nWOf1lpPhonHvw2Q=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-259-Fc7LbQ6nMR2gtCJqvWNnVg-1; Wed, 01 Jun 2022 05:33:18 -0400
+X-MC-Unique: Fc7LbQ6nMR2gtCJqvWNnVg-1
+Received: by mail-wm1-f69.google.com with SMTP id u12-20020a05600c19cc00b0038ec265155fso3061747wmq.6
+        for <stable@vger.kernel.org>; Wed, 01 Jun 2022 02:33:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=eMeA/fqvYZU6vrSiCnNJA0sstC2+T/rmbcmFof3BR34=;
-        b=HYrEk30N/RNCZERlsTzh4oWloZH5ykH8XWqyRUUjInDZD4fZQBkEl1TMdS+KRS167k
-         mw9QNvW3QSxVMqie6OOPZZ9y9/g9Z0dqy+CdhfT7VtWNl4X9+5ufujjIcvhunjjFmqza
-         RrHcD24OGgPzDx0eGH5gc1AQxOVE5kzvaE2ReJNxnCIFqrho1NCkxTj+gk8EJUSRA7vV
-         trBjWEi3oZmwQuxyrwzOXYr2FODVfDTgMUtCWp95BTh7X9QmsYtUQZON+y5+C7osolZd
-         xW8xC5kYb3wAiO2A5WLFubaDJEzDq+ZE9ko8eJPMog1EwfUO5U0/HfPwZDXa6yqjyH+n
-         VbGA==
-X-Gm-Message-State: AOAM532WMBjx9qx4iiZZkOG0by0I12iQzEx64DrS69pu8M5Cgmv4Cv7a
-        PtyjPPJDOooTsy/veUsMsY9yVZwvwIUPxA==
-X-Google-Smtp-Source: ABdhPJzncNVm9JEdvzWZ/WJX8rZD6Uc3eyRjjE+e9aLdBHmlkh2N+ra6ix7Phl7ZYouz3tV5tJAaCQ==
-X-Received: by 2002:a05:6a00:1d8e:b0:518:87e7:db00 with SMTP id z14-20020a056a001d8e00b0051887e7db00mr52648703pfw.84.1654068465543;
-        Wed, 01 Jun 2022 00:27:45 -0700 (PDT)
-Received: from localhost (subs02-180-214-232-26.three.co.id. [180.214.232.26])
-        by smtp.gmail.com with ESMTPSA id gn1-20020a17090ac78100b001df82551cf2sm650434pjb.44.2022.06.01.00.27.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jun 2022 00:27:44 -0700 (PDT)
-Date:   Wed, 1 Jun 2022 14:27:42 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     linux-doc@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        =?utf-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>,
-        llvm@lists.linux.dev, stable@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: uclogic: properly format kernel-doc comment for
- hid_dbg() wrappers
-Message-ID: <YpcU7qeOtShFx8xR@debian.me>
-References: <20220531092817.13894-1-bagasdotme@gmail.com>
- <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:from:subject:to:cc:content-transfer-encoding;
+        bh=VuuX8qrSGJ4hyfsiDt/rM6t9GO/71AZB53O3hdvqWXI=;
+        b=UrZfMxLXpKeUPv6yM5bRg90DPAzE7ThnZ4OQOUDBP5twGLCmHwi75JJz+45FOD+/bp
+         6mm2AOf5kGRE6OmUtjop/YzeTy1QM8HBuZ5TrmtiBxt5OErsArsCKIuwshZzmNMHbo/M
+         ZNkqr8udqM5eu+vuG5OAaOeIAW66mmUICuGkihv+Q1+cE8zX+F8DN7CqRGagse2qq2FD
+         utnkpa3WlquJqhk5gRaUySp77whRjuMaw9E+1q63nQYdFaSGJAvVe4wGjv5cuU93qOgU
+         OamJ2IeMaIPQ4wY8itOyZ+Uu7AbcWNmL966HAuieAAGb9WniipszObGj0StcDZ4b796K
+         QJ3A==
+X-Gm-Message-State: AOAM533A9MbFvrY8ZBUJI4oHqvFxQtWH9QddmNiqxFR13MzwwloHOc7d
+        Fo9QLk5fHHjyHxG17c+p/qzIO9VehXl09iFu7Pv0E2QasUluNbSrxV6m4ZG6tR47Igy+f07WiwJ
+        YxRE4/FILdlFGwOjq
+X-Received: by 2002:a5d:584b:0:b0:20f:ec17:30b8 with SMTP id i11-20020a5d584b000000b0020fec1730b8mr35520934wrf.461.1654075997558;
+        Wed, 01 Jun 2022 02:33:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyvPKsSO/EFfPQVcpaiIDFTmJhbxQDRZXO4y+u2IxIwew8MR3rn8Ub+0M0Zn3HNAQ5cwMZZdA==
+X-Received: by 2002:a5d:584b:0:b0:20f:ec17:30b8 with SMTP id i11-20020a5d584b000000b0020fec1730b8mr35520919wrf.461.1654075997356;
+        Wed, 01 Jun 2022 02:33:17 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:c:37e0:f4b2:2105:b039:7367? ([2a01:e0a:c:37e0:f4b2:2105:b039:7367])
+        by smtp.gmail.com with ESMTPSA id j22-20020a05600c485600b0039756cdc8e1sm1362865wmo.37.2022.06.01.02.33.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Jun 2022 02:33:16 -0700 (PDT)
+Message-ID: <d84ba981-d907-f942-6b05-67c836580542@redhat.com>
+Date:   Wed, 1 Jun 2022 11:33:16 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+From:   Jocelyn Falempe <jfalempe@redhat.com>
+Subject: [REGRESSION] VGA output with AST 2600 graphics.
+To:     dri-devel@lists.freedesktop.org, kuohsiang_chou@aspeedtech.com,
+        David Airlie <airlied@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Cc:     regressions@lists.linux.dev, stable@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> One note (nit) below:
-> 
-> >  drivers/hid/hid-uclogic-params.c | 24 ++++++++++++++----------
-> >  1 file changed, 14 insertions(+), 10 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-> > index db838f16282d64..647bbd3e000e2f 100644
-> > --- a/drivers/hid/hid-uclogic-params.c
-> > +++ b/drivers/hid/hid-uclogic-params.c
-> > @@ -23,11 +23,11 @@
-> >  /**
-> >   * uclogic_params_pen_inrange_to_str() - Convert a pen in-range reporting type
-> >   *                                       to a string.
-> > - *
-> >   * @inrange:	The in-range reporting type to convert.
-> >   *
-> > - * Returns:
-> > - *	The string representing the type, or NULL if the type is unknown.
-> > + * Return:
-> > + * * The string representing the type, or
-> > + * * NULL if the type is unknown.
-> 
->         %NULL
-> would be better here, but not required.
-> 
+Hi,
 
-Hi Randy,
+I've found a regression in the ast driver, for AST2600 hardware.
 
-I don't see %NULL in Documentation/ (I git-grep-ed it but none found).
-What should I do when I have to explain NULL in Return: section of
-kernel-doc comment?
+before the upstream commit f9bd00e0ea9d
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=f9bd00e0ea9d9b04140aa969a9a13ad3597a1e4e
+
+The ast driver handled AST 2600 chip like an AST 2500.
+
+After this commit, it uses some default values, more like the older AST 
+chip.
+
+There are a lot of places in the driver like this:
+https://elixir.bootlin.com/linux/v5.18.1/source/drivers/gpu/drm/ast/ast_post.c#L82
+where it checks for (AST2300 || AST2400 || AST2500) but not for AST2600.
+
+This makes the VGA output, to be blurred and flickered with whites lines 
+on AST2600.
+
+The issue is present since v5.11
+
+For v5.11~v5.17 I propose a simple workaround (as there are no other 
+reference to AST2600 in the driver):
+--- a/drivers/gpu/drm/ast/ast_main.c
++++ b/drivers/gpu/drm/ast/ast_main.c
+@@ -146,7 +146,8 @@ static int ast_detect_chip(struct drm_device *dev, 
+bool *need_post)
+
+  	/* Identify chipset */
+  	if (pdev->revision >= 0x50) {
+-		ast->chip = AST2600;
++		/* Workaround to use the same codepath for AST2600 */
++		ast->chip = AST2500;
+  		drm_info(dev, "AST 2600 detected\n");
+  	} else if (pdev->revision >= 0x40) {
+  		ast->chip = AST2500;
+
+starting from v5.18, there is another reference to AST2600 in the code
+https://elixir.bootlin.com/linux/v5.18/source/drivers/gpu/drm/ast/ast_main.c#L212
+
+So I think someone with good aspeed knowledge should review all 
+locations where there is a test for AST2500, and figure out what should 
+be done for AST2600
+
+Thanks,
 
 -- 
-An old man doll... just what I always wanted! - Clara
+
+Jocelyn
+
