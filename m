@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 399D453A7F4
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:04:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070D353A835
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354500AbiFAOEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:04:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54330 "EHLO
+        id S1348140AbiFAOGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354429AbiFAOEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:04:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A5D880C7;
-        Wed,  1 Jun 2022 06:58:39 -0700 (PDT)
+        with ESMTP id S1354624AbiFAOFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:05:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B96729E9EB;
+        Wed,  1 Jun 2022 06:58:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 368C1CE1A1F;
-        Wed,  1 Jun 2022 13:58:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D23E3C34119;
-        Wed,  1 Jun 2022 13:58:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A698B81A79;
+        Wed,  1 Jun 2022 13:58:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19230C36AF9;
+        Wed,  1 Jun 2022 13:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091910;
-        bh=AztLQTwV6c2/ORAaTr9VKJzhEhFLOmaLcCN74dgSRZc=;
+        s=k20201202; t=1654091911;
+        bh=PInb+dUPQKGb+cDWT7JHyl16dOt/brmkR8T/Z09YEmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V84uAh+aNF9OnqZY7BuwqaarKVEUqQq8Z+Jal/C6aXZwb0nUesG/aWR+dMk172QFR
-         xJ2/5alg57emxQSTDfuuD5f6HvQPtB3zkjtzSOJJI7IPGW8cGSxzKYyFz6P9kMFbaS
-         6YpWvyvo1GYl/kDkEmSUpvU68QglzAB0UprekPAvTMTVkM/O30hMUghtPOLIN0QO3F
-         HYWQwAXT8I6H67DMcOXz3jnOSx3tZy9doSknzvMNK3NSsUH0b2RIe7T7fSNLeACL4O
-         89fErLKTdSGtBKRg7X3hoPJwjvtl3i9FrC2llOpj9bI47kit0hFdxO7qc21LdUf932
-         240tCAx+qW/eg==
+        b=feUlrnZLEZSDt4firXU5OGbcRfh1/q/YKGJh7jN+cO8m2JtMNvQ80TdP4lsO5luzd
+         Ra6E2gUDZBsdBtrRCvWY/VmxRHyey/XQtVRspjEulv9G17OwMhtLsuQJxF1OopCHSF
+         TEscKnsB340OpaVc8ZaouBFgXMP3prqQZLBCf9OZnZxvTXzUXVnL2BXTpzH7nWGuxg
+         M0bRzz+TKbHs6QNpdN1/3F1TBzAueE8dKgso54Qrw3KrDIr9Ct/ctzT9E1Ro0+xF+K
+         DRjz+jDwQZU7XUZuuRc6W3mvTBuLye8VUORASNR9wdnwgfCG9vaoOUe3Pd8ED+751o
+         MiqJuvELaIrTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Wu <wupeng58@huawei.com>, Wei Xu <xuwei5@hisilicon.com>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 17/26] ARM: hisi: Add missing of_node_put after of_find_compatible_node
-Date:   Wed,  1 Jun 2022 09:57:50 -0400
-Message-Id: <20220601135759.2004435-17-sashal@kernel.org>
+Cc:     Yicong Yang <yangyicong@hisilicon.com>,
+        Jay Zhou <jianjay.zhou@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 18/26] PCI: Avoid pci_dev_lock() AB/BA deadlock with sriov_numvfs_store()
+Date:   Wed,  1 Jun 2022 09:57:51 -0400
+Message-Id: <20220601135759.2004435-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135759.2004435-1-sashal@kernel.org>
 References: <20220601135759.2004435-1-sashal@kernel.org>
@@ -56,50 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Wu <wupeng58@huawei.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 9bc72e47d4630d58a840a66a869c56b29554cfe4 ]
+[ Upstream commit a91ee0e9fca9d7501286cfbced9b30a33e52740a ]
 
-of_find_compatible_node  will increment the refcount of the returned
-device_node. Calling of_node_put() to avoid the refcount leak
+The sysfs sriov_numvfs_store() path acquires the device lock before the
+config space access lock:
 
-Signed-off-by: Peng Wu <wupeng58@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+  sriov_numvfs_store
+    device_lock                 # A (1) acquire device lock
+    sriov_configure
+      vfio_pci_sriov_configure  # (for example)
+        vfio_pci_core_sriov_configure
+          pci_disable_sriov
+            sriov_disable
+              pci_cfg_access_lock
+                pci_wait_cfg    # B (4) wait for dev->block_cfg_access == 0
+
+Previously, pci_dev_lock() acquired the config space access lock before the
+device lock:
+
+  pci_dev_lock
+    pci_cfg_access_lock
+      dev->block_cfg_access = 1 # B (2) set dev->block_cfg_access = 1
+    device_lock                 # A (3) wait for device lock
+
+Any path that uses pci_dev_lock(), e.g., pci_reset_function(), may
+deadlock with sriov_numvfs_store() if the operations occur in the sequence
+(1) (2) (3) (4).
+
+Avoid the deadlock by reversing the order in pci_dev_lock() so it acquires
+the device lock before the config space access lock, the same as the
+sriov_numvfs_store() path.
+
+[bhelgaas: combined and adapted commit log from Jay Zhou's independent
+subsequent posting:
+https://lore.kernel.org/r/20220404062539.1710-1-jianjay.zhou@huawei.com]
+Link: https://lore.kernel.org/linux-pci/1583489997-17156-1-git-send-email-yangyicong@hisilicon.com/
+Also-posted-by: Jay Zhou <jianjay.zhou@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-hisi/platsmp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/pci.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mach-hisi/platsmp.c b/arch/arm/mach-hisi/platsmp.c
-index da7a09c1dae5..1cd1d9b0aabf 100644
---- a/arch/arm/mach-hisi/platsmp.c
-+++ b/arch/arm/mach-hisi/platsmp.c
-@@ -67,14 +67,17 @@ static void __init hi3xxx_smp_prepare_cpus(unsigned int max_cpus)
- 		}
- 		ctrl_base = of_iomap(np, 0);
- 		if (!ctrl_base) {
-+			of_node_put(np);
- 			pr_err("failed to map address\n");
- 			return;
- 		}
- 		if (of_property_read_u32(np, "smp-offset", &offset) < 0) {
-+			of_node_put(np);
- 			pr_err("failed to find smp-offset property\n");
- 			return;
- 		}
- 		ctrl_base += offset;
-+		of_node_put(np);
- 	}
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index cda17c615148..6ebbe06f0b08 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -4975,18 +4975,18 @@ static int pci_dev_reset_slot_function(struct pci_dev *dev, int probe)
+ 
+ static void pci_dev_lock(struct pci_dev *dev)
+ {
+-	pci_cfg_access_lock(dev);
+ 	/* block PM suspend, driver probe, etc. */
+ 	device_lock(&dev->dev);
++	pci_cfg_access_lock(dev);
  }
  
-@@ -160,6 +163,7 @@ static int hip01_boot_secondary(unsigned int cpu, struct task_struct *idle)
- 	if (WARN_ON(!node))
- 		return -1;
- 	ctrl_base = of_iomap(node, 0);
-+	of_node_put(node);
+ /* Return 1 on successful lock, 0 on contention */
+ static int pci_dev_trylock(struct pci_dev *dev)
+ {
+-	if (pci_cfg_access_trylock(dev)) {
+-		if (device_trylock(&dev->dev))
++	if (device_trylock(&dev->dev)) {
++		if (pci_cfg_access_trylock(dev))
+ 			return 1;
+-		pci_cfg_access_unlock(dev);
++		device_unlock(&dev->dev);
+ 	}
  
- 	/* set the secondary core boot from DDR */
- 	remap_reg_value = readl_relaxed(ctrl_base + REG_SC_CTRL);
+ 	return 0;
+@@ -4994,8 +4994,8 @@ static int pci_dev_trylock(struct pci_dev *dev)
+ 
+ static void pci_dev_unlock(struct pci_dev *dev)
+ {
+-	device_unlock(&dev->dev);
+ 	pci_cfg_access_unlock(dev);
++	device_unlock(&dev->dev);
+ }
+ 
+ static void pci_dev_save_and_disable(struct pci_dev *dev)
 -- 
 2.35.1
 
