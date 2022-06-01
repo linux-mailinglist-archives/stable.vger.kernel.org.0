@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0BE53A7C8
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E30D53A798
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354248AbiFAOCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51658 "EHLO
+        id S233337AbiFAOCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:02:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355299AbiFAOB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:01:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2B7A76CD;
-        Wed,  1 Jun 2022 06:58:07 -0700 (PDT)
+        with ESMTP id S1355213AbiFAOBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:01:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9EBA5A8E;
+        Wed,  1 Jun 2022 06:57:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06827B81AEB;
-        Wed,  1 Jun 2022 13:57:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C04C385A5;
-        Wed,  1 Jun 2022 13:57:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF799615D2;
+        Wed,  1 Jun 2022 13:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA32C34119;
+        Wed,  1 Jun 2022 13:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091847;
-        bh=xiosbQ3dqXuaSmj0NX/VTl2BDbWRN7u4dUYBLUvr4r4=;
+        s=k20201202; t=1654091855;
+        bh=ynjdX7sqIzj3XGbBUvL+J2pZWNuexzQpo7a/4F/yD1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzIbv3uWRUGu8dAbEHwLWMNGypCXyJYOrhvepJIVeIcP3CBAOPJZZn0u/KxcqmXsC
-         laZ5Vu9EJfnlM3dvXcLG/P156YX1qf0Co0PV7OfFVfiDTrho/o7tIkP5mURlrZvMN1
-         viE1vUU4QdAyQBMERmUlOw/kLnUXWEronp4j59KqMW+BOkoOKSEYjJMq08FnlA0n4s
-         vVteSra3oJc9eQlU6dUdHr/gVSyFVk4WX8DQmw2FoY7WVyrrDwlTdfGB0TWgW0OFox
-         x6CskwCMG3Oni/aBdeSvNxcGx6xZSD0Iu6Xw3tG/tHYH6pzEnnhad+uErcVtOZdbDU
-         xw3LheFe7tBng==
+        b=uOOJeQQtulqsZ/hjs0NwuVi4i4tQ5A4nH09sw7anAEOYAFUuWw4UZI4X6JOTR5rKS
+         MQjz0dL4rXnLzBY4IE/PW8YTcHdriqzXiGeN0mdkBKhQSnv39cJlXZ+bRI+Trp7irr
+         cYJwZhpuhOfXlqhdSCSQHopOcWKBbGZ16l0hfMz44qT0/t38NIdhW6WNH+1W+9eY4D
+         W5/6/Nvx7QRRX05Yh1YjZPXCRcKe+iQky6e9QPgRQxgGvnDeLhZN5gCbiZ2ijFA/2+
+         lVC25raEjFIHkhLQLEmGwQtYjigPLEQb7GhX9mQBWhBsJXjp3hHFa7oiWzsRNbdXcP
+         BIZjjSvBh+P4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@openvz.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        mgorman@techsingularity.net, vbabka@suse.cz,
-        vasily.averin@linux.dev, willy@infradead.org,
-        vincent.whitchurch@axis.com, yuzhao@google.com
-Subject: [PATCH AUTOSEL 5.15 28/37] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
-Date:   Wed,  1 Jun 2022 09:56:13 -0400
-Message-Id: <20220601135622.2003939-28-sashal@kernel.org>
+Cc:     Haren Myneni <haren@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        npiggin@gmail.com, linuxppc-dev@lists.ozlabs.org,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 29/37] powerpc/powernv/vas: Assign real address to rx_fifo in vas_rx_win_attr
+Date:   Wed,  1 Jun 2022 09:56:14 -0400
+Message-Id: <20220601135622.2003939-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135622.2003939-1-sashal@kernel.org>
 References: <20220601135622.2003939-1-sashal@kernel.org>
@@ -60,52 +58,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@openvz.org>
+From: Haren Myneni <haren@linux.ibm.com>
 
-[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
+[ Upstream commit c127d130f6d59fa81701f6b04023cf7cd1972fb3 ]
 
-Fixes following sparse warnings:
+In init_winctx_regs(), __pa() is called on winctx->rx_fifo and this
+function is called to initialize registers for receive and fault
+windows. But the real address is passed in winctx->rx_fifo for
+receive windows and the virtual address for fault windows which
+causes errors with DEBUG_VIRTUAL enabled. Fixes this issue by
+assigning only real address to rx_fifo in vas_rx_win_attr struct
+for both receive and fault windows.
 
-  CHECK   mm/vmscan.c
-mm/vmscan.c: note: in included file (through
-include/trace/trace_events.h, include/trace/define_trace.h,
-include/trace/events/vmscan.h):
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- cast to restricted isolate_mode_t
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- restricted isolate_mode_t degrades to integer
-
-Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
-Signed-off-by: Vasily Averin <vvs@openvz.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Haren Myneni <haren@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/338e958c7ab8f3b266fa794a1f80f99b9671829e.camel@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/vmscan.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/vas.h              | 2 +-
+ arch/powerpc/platforms/powernv/vas-fault.c  | 2 +-
+ arch/powerpc/platforms/powernv/vas-window.c | 4 ++--
+ arch/powerpc/platforms/powernv/vas.h        | 2 +-
+ drivers/crypto/nx/nx-common-powernv.c       | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
-index 88faf2400ec2..b2eeeb080012 100644
---- a/include/trace/events/vmscan.h
-+++ b/include/trace/events/vmscan.h
-@@ -283,7 +283,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__field(unsigned long, nr_scanned)
- 		__field(unsigned long, nr_skipped)
- 		__field(unsigned long, nr_taken)
--		__field(isolate_mode_t, isolate_mode)
-+		__field(unsigned int, isolate_mode)
- 		__field(int, lru)
- 	),
+diff --git a/arch/powerpc/include/asm/vas.h b/arch/powerpc/include/asm/vas.h
+index 57573d9c1e09..56834a8a1465 100644
+--- a/arch/powerpc/include/asm/vas.h
++++ b/arch/powerpc/include/asm/vas.h
+@@ -112,7 +112,7 @@ static inline void vas_user_win_add_mm_context(struct vas_user_win_ref *ref)
+  * Receive window attributes specified by the (in-kernel) owner of window.
+  */
+ struct vas_rx_win_attr {
+-	void *rx_fifo;
++	u64 rx_fifo;
+ 	int rx_fifo_size;
+ 	int wcreds_max;
  
-@@ -294,7 +294,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__entry->nr_scanned = nr_scanned;
- 		__entry->nr_skipped = nr_skipped;
- 		__entry->nr_taken = nr_taken;
--		__entry->isolate_mode = isolate_mode;
-+		__entry->isolate_mode = (__force unsigned int)isolate_mode;
- 		__entry->lru = lru;
- 	),
+diff --git a/arch/powerpc/platforms/powernv/vas-fault.c b/arch/powerpc/platforms/powernv/vas-fault.c
+index a7aabc18039e..c1bfad56447d 100644
+--- a/arch/powerpc/platforms/powernv/vas-fault.c
++++ b/arch/powerpc/platforms/powernv/vas-fault.c
+@@ -216,7 +216,7 @@ int vas_setup_fault_window(struct vas_instance *vinst)
+ 	vas_init_rx_win_attr(&attr, VAS_COP_TYPE_FAULT);
  
+ 	attr.rx_fifo_size = vinst->fault_fifo_size;
+-	attr.rx_fifo = vinst->fault_fifo;
++	attr.rx_fifo = __pa(vinst->fault_fifo);
+ 
+ 	/*
+ 	 * Max creds is based on number of CRBs can fit in the FIFO.
+diff --git a/arch/powerpc/platforms/powernv/vas-window.c b/arch/powerpc/platforms/powernv/vas-window.c
+index 0f8d39fbf2b2..0072682531d8 100644
+--- a/arch/powerpc/platforms/powernv/vas-window.c
++++ b/arch/powerpc/platforms/powernv/vas-window.c
+@@ -404,7 +404,7 @@ static void init_winctx_regs(struct pnv_vas_window *window,
+ 	 *
+ 	 * See also: Design note in function header.
+ 	 */
+-	val = __pa(winctx->rx_fifo);
++	val = winctx->rx_fifo;
+ 	val = SET_FIELD(VAS_PAGE_MIGRATION_SELECT, val, 0);
+ 	write_hvwc_reg(window, VREG(LFIFO_BAR), val);
+ 
+@@ -739,7 +739,7 @@ static void init_winctx_for_rxwin(struct pnv_vas_window *rxwin,
+ 		 */
+ 		winctx->fifo_disable = true;
+ 		winctx->intr_disable = true;
+-		winctx->rx_fifo = NULL;
++		winctx->rx_fifo = 0;
+ 	}
+ 
+ 	winctx->lnotify_lpid = rxattr->lnotify_lpid;
+diff --git a/arch/powerpc/platforms/powernv/vas.h b/arch/powerpc/platforms/powernv/vas.h
+index 8bb08e395de0..08d9d3d5a22b 100644
+--- a/arch/powerpc/platforms/powernv/vas.h
++++ b/arch/powerpc/platforms/powernv/vas.h
+@@ -376,7 +376,7 @@ struct pnv_vas_window {
+  * is a container for the register fields in the window context.
+  */
+ struct vas_winctx {
+-	void *rx_fifo;
++	u64 rx_fifo;
+ 	int rx_fifo_size;
+ 	int wcreds_max;
+ 	int rsvd_txbuf_count;
+diff --git a/drivers/crypto/nx/nx-common-powernv.c b/drivers/crypto/nx/nx-common-powernv.c
+index 32a036ada5d0..f418817c0f43 100644
+--- a/drivers/crypto/nx/nx-common-powernv.c
++++ b/drivers/crypto/nx/nx-common-powernv.c
+@@ -827,7 +827,7 @@ static int __init vas_cfg_coproc_info(struct device_node *dn, int chip_id,
+ 		goto err_out;
+ 
+ 	vas_init_rx_win_attr(&rxattr, coproc->ct);
+-	rxattr.rx_fifo = (void *)rx_fifo;
++	rxattr.rx_fifo = rx_fifo;
+ 	rxattr.rx_fifo_size = fifo_size;
+ 	rxattr.lnotify_lpid = lpid;
+ 	rxattr.lnotify_pid = pid;
 -- 
 2.35.1
 
