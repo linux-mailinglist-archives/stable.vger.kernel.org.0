@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4F053A81B
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 364D753A850
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:08:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354595AbiFAOHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:07:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51298 "EHLO
+        id S1354512AbiFAOGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355406AbiFAOFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:05:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD51DB0435;
-        Wed,  1 Jun 2022 06:59:46 -0700 (PDT)
+        with ESMTP id S1355130AbiFAOFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:05:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F62EAE475;
+        Wed,  1 Jun 2022 06:59:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69135615B2;
-        Wed,  1 Jun 2022 13:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A02AC385B8;
-        Wed,  1 Jun 2022 13:59:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D20DD615BF;
+        Wed,  1 Jun 2022 13:59:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D54DCC385B8;
+        Wed,  1 Jun 2022 13:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091967;
-        bh=xry6IlibLXy31UeppTQTdRP7qqE+LKAPoRAOS75hzqo=;
+        s=k20201202; t=1654091971;
+        bh=cKRrTbnI+d4+LE1Ydfu6A33V3P+MWNPCyFbzbhkVuKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVQQZGcrzfF9xJ1ErTuPlQL77iAG3uyz6QVQkpd3TK4mOSMgbDCIRlbK611KkmurM
-         Gfyw1QO8XyhSw81vQ5bVOSevgHfj53GP88qCm9hve+x3QEShemfpOoih1F7n/r5bFW
-         1uV0l2lm3qfH8zx3EANeixgFmvUC8fAexYCYGu3CkLX9AF647u2H8VarieU+B8/pWJ
-         8z3B5lHxEbEhLAXgj4YvdtQTGtg7SdasMjXv21gRZvBpdFgSGMSfQxDKHD7THGNpnj
-         GgxOAgtWV3YyvnvLh2bJQnzZ/u+jQD+i4JEa8cBxiiz51Ml2M96e13Wvvd81mwgjsV
-         KZZQqmtK4kZuQ==
+        b=fO/MyFwK+MPUP2CpmFo6Ge7cHzXhcmWvkvzeu/V33WotfQsGZdf2itsfhI/ExwmLM
+         Gi+n/7EHO0bBXOhMtzc4JCikyVFqezNeke8YvZVFyj8mVvUYuJIk2E3idI5BATdv+t
+         Dm/knXZ/hR3w2uUq8Ub4A4QLYuBILg0fRbLYjHsiIjokDXQqYHZFhS8FN4WRUDWJ2I
+         jFeA4na5+jq1ElTaG1eID6sd9daP+1gvpsvFrU/nc2qBLb45WD+C8ecjlDObpjSjRQ
+         KfcT72q5HvS9gQlWhQZsO8TBcuLAamRJhnEyYIlLayIBis2qtblMf2GI8RbsLw7/2k
+         tzXB/HVborIkw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yicong Yang <yangyicong@hisilicon.com>,
-        Jay Zhou <jianjay.zhou@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/20] PCI: Avoid pci_dev_lock() AB/BA deadlock with sriov_numvfs_store()
-Date:   Wed,  1 Jun 2022 09:58:55 -0400
-Message-Id: <20220601135902.2004823-13-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@openvz.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        mgorman@techsingularity.net, vbabka@suse.cz,
+        vasily.averin@linux.dev, hannes@cmpxchg.org, yuzhao@google.com,
+        willy@infradead.org, vincent.whitchurch@axis.com
+Subject: [PATCH AUTOSEL 5.4 14/20] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
+Date:   Wed,  1 Jun 2022 09:58:56 -0400
+Message-Id: <20220601135902.2004823-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135902.2004823-1-sashal@kernel.org>
 References: <20220601135902.2004823-1-sashal@kernel.org>
@@ -57,88 +60,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Vasily Averin <vvs@openvz.org>
 
-[ Upstream commit a91ee0e9fca9d7501286cfbced9b30a33e52740a ]
+[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
 
-The sysfs sriov_numvfs_store() path acquires the device lock before the
-config space access lock:
+Fixes following sparse warnings:
 
-  sriov_numvfs_store
-    device_lock                 # A (1) acquire device lock
-    sriov_configure
-      vfio_pci_sriov_configure  # (for example)
-        vfio_pci_core_sriov_configure
-          pci_disable_sriov
-            sriov_disable
-              pci_cfg_access_lock
-                pci_wait_cfg    # B (4) wait for dev->block_cfg_access == 0
+  CHECK   mm/vmscan.c
+mm/vmscan.c: note: in included file (through
+include/trace/trace_events.h, include/trace/define_trace.h,
+include/trace/events/vmscan.h):
+./include/trace/events/vmscan.h:281:1: sparse: warning:
+ cast to restricted isolate_mode_t
+./include/trace/events/vmscan.h:281:1: sparse: warning:
+ restricted isolate_mode_t degrades to integer
 
-Previously, pci_dev_lock() acquired the config space access lock before the
-device lock:
-
-  pci_dev_lock
-    pci_cfg_access_lock
-      dev->block_cfg_access = 1 # B (2) set dev->block_cfg_access = 1
-    device_lock                 # A (3) wait for device lock
-
-Any path that uses pci_dev_lock(), e.g., pci_reset_function(), may
-deadlock with sriov_numvfs_store() if the operations occur in the sequence
-(1) (2) (3) (4).
-
-Avoid the deadlock by reversing the order in pci_dev_lock() so it acquires
-the device lock before the config space access lock, the same as the
-sriov_numvfs_store() path.
-
-[bhelgaas: combined and adapted commit log from Jay Zhou's independent
-subsequent posting:
-https://lore.kernel.org/r/20220404062539.1710-1-jianjay.zhou@huawei.com]
-Link: https://lore.kernel.org/linux-pci/1583489997-17156-1-git-send-email-yangyicong@hisilicon.com/
-Also-posted-by: Jay Zhou <jianjay.zhou@huawei.com>
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
+Signed-off-by: Vasily Averin <vvs@openvz.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/trace/events/vmscan.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d539eb379743..c988aa425ac9 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4915,18 +4915,18 @@ static int pci_dev_reset_slot_function(struct pci_dev *dev, int probe)
+diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
+index a5ab2973e8dc..57184c02e3b9 100644
+--- a/include/trace/events/vmscan.h
++++ b/include/trace/events/vmscan.h
+@@ -283,7 +283,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
+ 		__field(unsigned long, nr_scanned)
+ 		__field(unsigned long, nr_skipped)
+ 		__field(unsigned long, nr_taken)
+-		__field(isolate_mode_t, isolate_mode)
++		__field(unsigned int, isolate_mode)
+ 		__field(int, lru)
+ 	),
  
- static void pci_dev_lock(struct pci_dev *dev)
- {
--	pci_cfg_access_lock(dev);
- 	/* block PM suspend, driver probe, etc. */
- 	device_lock(&dev->dev);
-+	pci_cfg_access_lock(dev);
- }
+@@ -294,7 +294,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
+ 		__entry->nr_scanned = nr_scanned;
+ 		__entry->nr_skipped = nr_skipped;
+ 		__entry->nr_taken = nr_taken;
+-		__entry->isolate_mode = isolate_mode;
++		__entry->isolate_mode = (__force unsigned int)isolate_mode;
+ 		__entry->lru = lru;
+ 	),
  
- /* Return 1 on successful lock, 0 on contention */
- static int pci_dev_trylock(struct pci_dev *dev)
- {
--	if (pci_cfg_access_trylock(dev)) {
--		if (device_trylock(&dev->dev))
-+	if (device_trylock(&dev->dev)) {
-+		if (pci_cfg_access_trylock(dev))
- 			return 1;
--		pci_cfg_access_unlock(dev);
-+		device_unlock(&dev->dev);
- 	}
- 
- 	return 0;
-@@ -4934,8 +4934,8 @@ static int pci_dev_trylock(struct pci_dev *dev)
- 
- static void pci_dev_unlock(struct pci_dev *dev)
- {
--	device_unlock(&dev->dev);
- 	pci_cfg_access_unlock(dev);
-+	device_unlock(&dev->dev);
- }
- 
- static void pci_dev_save_and_disable(struct pci_dev *dev)
 -- 
 2.35.1
 
