@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6040653A76A
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C9253A7CD
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354048AbiFAOBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:01:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56538 "EHLO
+        id S1354285AbiFAOCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:02:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354110AbiFAN7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:59:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6EBA207E;
-        Wed,  1 Jun 2022 06:56:15 -0700 (PDT)
+        with ESMTP id S1354545AbiFAOAl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575C4EE3D;
+        Wed,  1 Jun 2022 06:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB87A6160E;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 00189CE1AF2;
+        Wed,  1 Jun 2022 13:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A857DC34119;
         Wed,  1 Jun 2022 13:56:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6F1C3411E;
-        Wed,  1 Jun 2022 13:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091774;
-        bh=N3kTbKDGhwPcAfEWlQX4qmpBTCC5UMNdyrw/bUyv9r4=;
+        s=k20201202; t=1654091775;
+        bh=Ir0V9XdICgoZ/GLaYLNxw9Lpqttbk/iKdMQZZJbOrvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OthGHI4g6zkm37uqh/sV4DjKevPfdX4XizvZu2/ZsZdc5T4e9y7o3iNSQCMC0w7Y1
-         a9ASBIMaHcHTo4cABWGx+4/Zsmr2t2uQ4pIKRuc8D179nseeUVfKsW+qy3tmqLZnS8
-         RrVvkXYYlmtNjCesSj+UoA5Y15jKsyWFE2PepVyRldMWkEjIN9LXrJS2iGk65VEF3l
-         zW/cDsmzI32A6WVRYtIv9Soj4Nhp223t4Mo7H7FZYNEg10e/co7+cM7vyUICL4ZMJR
-         4xTn0Qi7Yru5GIqhNfWp4VfyuL53XgrYpoxvvjMOD8xiN3nNpMhjJ5k7sYegPlHEPh
-         N1DzIH756bblA==
+        b=lfvWVuYT+2675AZASbRvzBV88zXDuMEPMUh7CzxiTez+lRK1iDN6QaMv2FnvF7VCk
+         3tDCTE1/1NFX6FqbPO0gOCIAAaPVYKr5K5nPLuUbOWpxXLTgaMr9bRZOpaUpVUNmAB
+         B0nFSleFKveMgtTX6IjeVUe4Wc1Jr8oijwthkSrQ7IuwkSB1JUgyuOlBn43A5mAI1a
+         yh6EosQLeq0u/oBhfEPu79qsumScfgAz7khTtVXYdUgcPsv7MU7IQNw8xGetxbOhEM
+         Ju06bHFa0xEOZIP9L/HFidmqier5xGBcoFf2y0L4zpJ75Ht6JF65Vj9chrvF6gWWCL
+         IdxfuHyktpxBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.17 44/48] smb3: check for null tcon
-Date:   Wed,  1 Jun 2022 09:54:17 -0400
-Message-Id: <20220601135421.2003328-44-sashal@kernel.org>
+Cc:     Douglas Miller <doug.miller@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 45/48] RDMA/hfi1: Prevent panic when SDMA is disabled
+Date:   Wed,  1 Jun 2022 09:54:18 -0400
+Message-Id: <20220601135421.2003328-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -57,47 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Douglas Miller <doug.miller@cornelisnetworks.com>
 
-[ Upstream commit bbdf6cf56c88845fb0b713cbf5c6623c53fe40d8 ]
+[ Upstream commit 629e052d0c98e46dde9f0824f0aa437f678d9b8f ]
 
-Although unlikely to be null, it is confusing to use a pointer
-before checking for it to be null so move the use down after
-null check.
+If the hfi1 module is loaded with HFI1_CAP_SDMA off, a call to
+hfi1_write_iter() will dereference a NULL pointer and panic. A typical
+stack frame is:
 
-Addresses-Coverity: 1517586 ("Null pointer dereferences  (REVERSE_INULL)")
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+  sdma_select_user_engine [hfi1]
+  hfi1_user_sdma_process_request [hfi1]
+  hfi1_write_iter [hfi1]
+  do_iter_readv_writev
+  do_iter_write
+  vfs_writev
+  do_writev
+  do_syscall_64
+
+The fix is to test for SDMA in hfi1_write_iter() and fail the I/O with
+EINVAL.
+
+Link: https://lore.kernel.org/r/20220520183706.48973.79803.stgit@awfm-01.cornelisnetworks.com
+Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/file_ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 13080d6a140b..584b78d88db6 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -757,8 +757,8 @@ int open_cached_dir(unsigned int xid, struct cifs_tcon *tcon,
- 		struct cifs_sb_info *cifs_sb,
- 		struct cached_fid **cfid)
- {
--	struct cifs_ses *ses = tcon->ses;
--	struct TCP_Server_Info *server = ses->server;
-+	struct cifs_ses *ses;
-+	struct TCP_Server_Info *server;
- 	struct cifs_open_parms oparms;
- 	struct smb2_create_rsp *o_rsp = NULL;
- 	struct smb2_query_info_rsp *qi_rsp = NULL;
-@@ -776,6 +776,9 @@ int open_cached_dir(unsigned int xid, struct cifs_tcon *tcon,
- 	if (tcon->nohandlecache)
- 		return -ENOTSUPP;
+diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
+index 1783a6ea5427..3ebdd42fec36 100644
+--- a/drivers/infiniband/hw/hfi1/file_ops.c
++++ b/drivers/infiniband/hw/hfi1/file_ops.c
+@@ -265,6 +265,8 @@ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
+ 	unsigned long dim = from->nr_segs;
+ 	int idx;
  
-+	ses = tcon->ses;
-+	server = ses->server;
-+
- 	if (cifs_sb->root == NULL)
- 		return -ENOENT;
- 
++	if (!HFI1_CAP_IS_KSET(SDMA))
++		return -EINVAL;
+ 	idx = srcu_read_lock(&fd->pq_srcu);
+ 	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
+ 	if (!cq || !pq) {
 -- 
 2.35.1
 
