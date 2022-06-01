@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2B1053A78B
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E89753A7B7
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:03:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354175AbiFAOCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:02:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
+        id S1354259AbiFAOCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:02:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354917AbiFAOBG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:01:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65A434E3A0;
-        Wed,  1 Jun 2022 06:57:34 -0700 (PDT)
+        with ESMTP id S1354846AbiFAOA4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:00:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE21443DE;
+        Wed,  1 Jun 2022 06:57:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D67B615B9;
-        Wed,  1 Jun 2022 13:56:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AAB2C385A5;
-        Wed,  1 Jun 2022 13:56:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21484615F3;
+        Wed,  1 Jun 2022 13:56:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 714A0C385A5;
+        Wed,  1 Jun 2022 13:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091807;
-        bh=fDG575ttLgWbeLrePzoV7rDswfiDL4S0LUn1GVNsufA=;
+        s=k20201202; t=1654091812;
+        bh=0AATGhPKUXP8RHSIHly1sLcQzI8B/0tKl/5Mevs/1vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQ3ibUjysyhYFRwV0Xdo/ZvgJW06POU12BPuSAqHblDT8U4+u+qwnk1MeWGFyuQIH
-         eJIl5oJBWB8OYelPoS2crGdR0Tz5/MjP/g5eVu/MlCTyIPQFXc7ae2IQ3zXTdqkQnU
-         CPRuI5c9RtEBKgh0cMhwkYnU3EAmCcVWOpEVuGBVkpbzn3pMXwPJt3upolw8Ov1idB
-         Z5YEhqHze6YorwWPsPw1mRIlnyFgX+owRw1kztDTCeC4FX9pkqKJNZCdiUJYvMy23R
-         WsVFnOSO+2A0oMwQjnFHeeOUyRj9baC9FkagqQukVDbz/P7A8gF/GdtM8Vx2SUBgPz
-         ruXI8LWO6YIsg==
+        b=f8TmanAmNkHNpe2QaVMiOY2Ft2p7ed5+R5e7XObR4XMrn2meQxD8FCdRiKwcGGCXu
+         c2qmj2U2DJzxa5lxbT9bpyFpUrKx4O+g9e0xn3mUxaQ23eQEMjWglQdZ3LIpuIyJ7w
+         y/5Pa7aI7qWPbwG1bkctt/IRHqHBDFx+Hm9vamU0Y9vL1GexJLQsf7kfNe4b+utbJg
+         2p1J2xQakq0JmykkBrEBwx7gCDiRlnajzfvn1ep/w9rnaSD66QwW3GGoEqrEHzgpfg
+         HZth68W6+11Dj/MhoyiVEJieE/CyW0O/K3lb/xqOEMWjOFfDtQpXPGGOEVBRu7Ety9
+         hQhbKhJ9dTOnA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, corbet@lwn.net,
-        geraldogabriel@gmail.com, matteomartelli3@gmail.com, bp@suse.de,
-        alsa-devel@alsa-project.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/37] ALSA: usb-audio: Add quirk bits for enabling/disabling generic implicit fb
-Date:   Wed,  1 Jun 2022 09:55:58 -0400
-Message-Id: <20220601135622.2003939-13-sashal@kernel.org>
+        perex@perex.cz, tiwai@suse.com, geraldogabriel@gmail.com,
+        matteomartelli3@gmail.com, alexander@tsoy.me,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 14/37] ALSA: usb-audio: Move generic implicit fb quirk entries into quirks.c
+Date:   Wed,  1 Jun 2022 09:55:59 -0400
+Message-Id: <20220601135622.2003939-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135622.2003939-1-sashal@kernel.org>
 References: <20220601135622.2003939-1-sashal@kernel.org>
@@ -59,91 +59,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 0f1f7a6661394fe4a53db254c346d6aa2dd64397 ]
+[ Upstream commit 67d64069bc0867e52e73a1e255b17462005ca9b4 ]
 
-For making easier to test, add the new quirk_flags bits 17 and 18 to
-enable and disable the generic implicit feedback mode.  The bit 17 is
-equivalent with implicit_fb=1 option, applying the generic implicit
-feedback sync mode.  OTOH, the bit 18 disables the implicit fb mode
-forcibly.
+Use the new quirk bits to manage the generic implicit fb quirk
+entries.  This makes easier to compare with other devices.
 
-Link: https://lore.kernel.org/r/20220421064101.12456-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220421064101.12456-2-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sound/alsa-configuration.rst | 4 +++-
- sound/usb/implicit.c                       | 5 ++++-
- sound/usb/usbaudio.h                       | 6 ++++++
- 3 files changed, 13 insertions(+), 2 deletions(-)
+ sound/usb/implicit.c | 5 -----
+ sound/usb/quirks.c   | 6 ++++++
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/sound/alsa-configuration.rst b/Documentation/sound/alsa-configuration.rst
-index 65f61695f561..5d093fb4896b 100644
---- a/Documentation/sound/alsa-configuration.rst
-+++ b/Documentation/sound/alsa-configuration.rst
-@@ -2237,7 +2237,7 @@ implicit_fb
-     Apply the generic implicit feedback sync mode.  When this is set
-     and the playback stream sync mode is ASYNC, the driver tries to
-     tie an adjacent ASYNC capture stream as the implicit feedback
--    source.
-+    source.  This is equivalent with quirk_flags bit 17.
- use_vmalloc
-     Use vmalloc() for allocations of the PCM buffers (default: yes).
-     For architectures with non-coherent memory like ARM or MIPS, the
-@@ -2279,6 +2279,8 @@ quirk_flags
-         * bit 14: Ignore errors for mixer access
-         * bit 15: Support generic DSD raw U32_BE format
-         * bit 16: Set up the interface at first like UAC1
-+        * bit 17: Apply the generic implicit feedback sync mode
-+        * bit 18: Don't apply implicit feedback sync mode
- 
- This module supports multiple devices, autoprobe and hotplugging.
- 
 diff --git a/sound/usb/implicit.c b/sound/usb/implicit.c
-index 2d444ec74202..1fd087128538 100644
+index 1fd087128538..e1bf1b5da423 100644
 --- a/sound/usb/implicit.c
 +++ b/sound/usb/implicit.c
-@@ -350,7 +350,8 @@ static int audioformat_implicit_fb_quirk(struct snd_usb_audio *chip,
- 	}
+@@ -45,11 +45,6 @@ struct snd_usb_implicit_fb_match {
  
- 	/* Try the generic implicit fb if available */
--	if (chip->generic_implicit_fb)
-+	if (chip->generic_implicit_fb ||
-+	    (chip->quirk_flags & QUIRK_FLAG_GENERIC_IMPLICIT_FB))
- 		return add_generic_implicit_fb(chip, fmt, alts);
- 
- 	/* No quirk */
-@@ -387,6 +388,8 @@ int snd_usb_parse_implicit_fb_quirk(struct snd_usb_audio *chip,
- 				    struct audioformat *fmt,
- 				    struct usb_host_interface *alts)
- {
-+	if (chip->quirk_flags & QUIRK_FLAG_SKIP_IMPLICIT_FB)
-+		return 0;
- 	if (fmt->endpoint & USB_DIR_IN)
- 		return audioformat_capture_quirk(chip, fmt, alts);
- 	else
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index b8359a0aa008..044cd7ab27cb 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -164,6 +164,10 @@ extern bool snd_usb_skip_validation;
-  *  Support generic DSD raw U32_BE format
-  * QUIRK_FLAG_SET_IFACE_FIRST:
-  *  Set up the interface at first like UAC1
-+ * QUIRK_FLAG_GENERIC_IMPLICIT_FB
-+ *  Apply the generic implicit feedback sync mode (same as implicit_fb=1 option)
-+ * QUIRK_FLAG_SKIP_IMPLICIT_FB
-+ *  Don't apply implicit feedback sync mode
-  */
- 
- #define QUIRK_FLAG_GET_SAMPLE_RATE	(1U << 0)
-@@ -183,5 +187,7 @@ extern bool snd_usb_skip_validation;
- #define QUIRK_FLAG_IGNORE_CTL_ERROR	(1U << 14)
- #define QUIRK_FLAG_DSD_RAW		(1U << 15)
- #define QUIRK_FLAG_SET_IFACE_FIRST	(1U << 16)
-+#define QUIRK_FLAG_GENERIC_IMPLICIT_FB	(1U << 17)
-+#define QUIRK_FLAG_SKIP_IMPLICIT_FB	(1U << 18)
- 
- #endif /* __USBAUDIO_H */
+ /* Implicit feedback quirk table for playback */
+ static const struct snd_usb_implicit_fb_match playback_implicit_fb_quirks[] = {
+-	/* Generic matching */
+-	IMPLICIT_FB_GENERIC_DEV(0x0499, 0x1509), /* Steinberg UR22 */
+-	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2030), /* M-Audio Fast Track C400 */
+-	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2031), /* M-Audio Fast Track C600 */
+-
+ 	/* Fixed EP */
+ 	/* FIXME: check the availability of generic matching */
+ 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2080, 0x81, 2), /* M-Audio FastTrack Ultra */
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index ab9f3da49941..5461cdf907e2 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1793,6 +1793,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x046d, 0x09a4, /* Logitech QuickCam E 3500 */
+ 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
++	DEVICE_FLG(0x0499, 0x1509, /* Steinberg UR22 */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 	DEVICE_FLG(0x04d8, 0xfeea, /* Benchmark DAC1 Pre */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
+ 	DEVICE_FLG(0x04e8, 0xa051, /* Samsung USBC Headset (AKG) */
+@@ -1824,6 +1826,10 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
++	DEVICE_FLG(0x0763, 0x2030, /* M-Audio Fast Track C400 */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
++	DEVICE_FLG(0x0763, 0x2031, /* M-Audio Fast Track C600 */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
+ 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x0951, 0x16ad, /* Kingston HyperX */
 -- 
 2.35.1
 
