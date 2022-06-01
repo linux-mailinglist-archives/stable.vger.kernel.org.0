@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD85A53A6D2
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1244953A710
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353855AbiFAN4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
+        id S1354042AbiFAN6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:58:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353764AbiFANzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:55:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433E38FD77;
-        Wed,  1 Jun 2022 06:54:40 -0700 (PDT)
+        with ESMTP id S1353915AbiFAN52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:57:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD71C326F4;
+        Wed,  1 Jun 2022 06:55:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AC04615AA;
+        by sin.source.kernel.org (Postfix) with ESMTPS id D363BCE1C22;
+        Wed,  1 Jun 2022 13:54:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 554A7C36AE2;
         Wed,  1 Jun 2022 13:54:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFC9C36AF8;
-        Wed,  1 Jun 2022 13:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091674;
-        bh=ysGPMCEE6zTrrAwWhMonkdrC5EuSx87LJP4/nYS+s1I=;
+        s=k20201202; t=1654091676;
+        bh=Zr7YC4rgbso/fpVcgH8HKP6qnO/dpBaDX89+uXZI+Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oytYFRzq5R4OuWbwLD5cdAmY7s3jXvTMTVUK6jm+/sk4Lq0ZLPGDzbt0exCu3qKFJ
-         9gNq/ZjOyluK6HnpXyCZSiLDL3qvHd4gt1UxaJTDIjoMTLqDY/+BDytb3Z4qDX9U+9
-         Xxakqu2IKEc/2WMzcQ3j8+NA5/RxlSGFSMtYkVfLagKx2iXt3/sv/ugCyNK2jenf8g
-         sz+X4ZE4iHAMDNWWpJEJqRGcoy9biQNcyG9gHfnbGPZq+aIUv6eOJGVZnD+3jOlLNS
-         r00d3q77O8L9eoUmpRwbMmVx3c1p14FKe8ZXiuLHKdwP8KFqZIfDzVXUWYHqolt3tM
-         v6hIz3OyNuanw==
+        b=pu7rP2OhIdt0E8C1A3plR74qgX+LfiSdC5DQciPQmODJNnFihb+JKb2dubjxWG2Ax
+         gEHuWPDv/BnY0O7dbdTHbEq1ogRTQQG6DKuNCHEyIe050MQVF7hjwH6FDX9qb6cDlX
+         ybmtOmDzGNmtXJOO29Gw+OAILavItjgZ+yXxUPQKcQTgioqS19Sb9/TR05d0a8bI9P
+         7oLJLyLaxP1HnRgxFuyAhacI9IyRtWAqmUadvUyIRkn9scaM1JCVI+hzZuEyuD9re4
+         C5MaIEQCZVY21WfLqHa7GAuxDUkdynUU3NvPepxoZ0YvnZffUuXGgNz3rlmoHcmoab
+         8nsAv1KEQckdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, Vijendar.Mukunda@amd.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 06/48] ASoC: amd: Add driver data to acp6x machine driver
-Date:   Wed,  1 Jun 2022 09:53:39 -0400
-Message-Id: <20220601135421.2003328-6-sashal@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 07/48] arm64: dts: qcom: msm8994: Fix the cont_splash_mem address
+Date:   Wed,  1 Jun 2022 09:53:40 -0400
+Message-Id: <20220601135421.2003328-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -58,182 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit e521f087780d07731e8c950f2f34d08358c86bc9 ]
+[ Upstream commit 049c46f31a726bf8d202ff1681661513447fac84 ]
 
-Currently all of the quirked systems use the same card and so the
-DMI quirk list doesn't contain driver data.
+The default memory map places cont_splash_mem at 3401000, which was
+overlooked.. Fix it!
 
-Add driver data to these quirks and then check the data was present
-or not.  This will allow potentially setting quirks for systems with
-faulty firmware that claims to have a DMIC but doesn't really.
-
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20220411134532.13538-2-mario.limonciello@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220319174645.340379-9-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 9a767f47b89f..959b70e8baf2 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -45,108 +45,126 @@ static struct snd_soc_card acp6x_card = {
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index 215f56daa26c..480bc686e8e8 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -183,8 +183,8 @@ dfps_data_mem: dfps_data_mem@3400000 {
+ 			no-map;
+ 		};
  
- static const struct dmi_system_id yc_acp_quirk_table[] = {
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D2"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D3"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D4"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D5"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CF"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CG"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CQ"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CR"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21AW"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21AX"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21BN"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21BQ"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CH"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CJ"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CK"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CL"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D8"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D9"),
-@@ -157,18 +175,21 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+-		cont_splash_mem: memory@3800000 {
+-			reg = <0 0x03800000 0 0x2400000>;
++		cont_splash_mem: memory@3401000 {
++			reg = <0 0x03401000 0 0x2200000>;
+ 			no-map;
+ 		};
  
- static int acp6x_probe(struct platform_device *pdev)
- {
-+	const struct dmi_system_id *dmi_id;
- 	struct acp6x_pdm *machine = NULL;
- 	struct snd_soc_card *card;
- 	int ret;
--	const struct dmi_system_id *dmi_id;
- 
-+	/* check for any DMI overrides */
- 	dmi_id = dmi_first_match(yc_acp_quirk_table);
--	if (!dmi_id)
-+	if (dmi_id)
-+		platform_set_drvdata(pdev, dmi_id->driver_data);
-+
-+	card = platform_get_drvdata(pdev);
-+	if (!card)
- 		return -ENODEV;
--	card = &acp6x_card;
- 	acp6x_card.dev = &pdev->dev;
- 
--	platform_set_drvdata(pdev, card);
- 	snd_soc_card_set_drvdata(card, machine);
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 	if (ret) {
 -- 
 2.35.1
 
