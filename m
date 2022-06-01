@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E530853A88F
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A14F353A88C
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 16:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354608AbiFAOJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 10:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46588 "EHLO
+        id S1354380AbiFAOLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 10:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354540AbiFAOJC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691D1A33BC;
-        Wed,  1 Jun 2022 07:00:34 -0700 (PDT)
+        with ESMTP id S1354217AbiFAOJU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 10:09:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E29A5024;
+        Wed,  1 Jun 2022 07:00:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2564615B2;
-        Wed,  1 Jun 2022 14:00:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42DA6C385B8;
-        Wed,  1 Jun 2022 14:00:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7453FB8175B;
+        Wed,  1 Jun 2022 14:00:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47FCBC385B8;
+        Wed,  1 Jun 2022 14:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654092033;
-        bh=262NN7HEnh2igmL4l1gAU+SUwZl24FoHE7oXfKo85Lc=;
+        s=k20201202; t=1654092036;
+        bh=KJhUKllErRJpBntBCZwKFWW3K3q4jqc9MvCVLYA5Vgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moLi92bSuYX0K0vQJCqPmP82cjG+8ezhbwe98k/JjFMln9TfP4AZYVeMHX2V2BlE4
-         UHRqAnOK+B3zDGu5VcPQLdafBIvA714IYjULTQ3Q0ObO7U77WvLSuDOXoZKlaqusNw
-         syhqUwomVr8Q6GhfuBgMGX1lagyHhpFE3EmYxgQ6fO/O7IX4Hj3HsbKy6/lFrc857C
-         wnYydn1vzOuRV0EDLcP2HJN2C3Kf+2JSh+6yP6EuN+hlUWqUAcfXG2dRzQ3uq6DTBv
-         NUmr4VWv6oU3G9AsdizxtzJM/+0oGqErsN/xeCO0NlIiSdA9sicvpYueN23LGpv8TJ
-         Qm2RAVs4GSs0g==
+        b=ACm97y0OHY5pc7wINFmLlzKz5i7crbJ3HVWo9kQXaCqBAnZfRadNwtR/d0q+o9Q7L
+         dhctCfPkS8nbbqm1YCrFGck/WhMwk+jXg+NnaK6WeEeiM+KB8QMmGKDateje9TRyz0
+         6KoMHLOPuNZuTD5sEcxJzRh8oxrBF9/6/fNxvY4QcRUUUoE39AJA4qwYof5uCFmDd1
+         JErVygfyp5zMs/x5znnNxBUGoRHfyVXMdEr+l7ZreDqOQakaRN06honA8ZmG26CPfm
+         +MsVHPQKH4ZeUgg89+cnPBIcQJE+OtI1l5v6zV7tJ6IMIKNPDm12dtjzekXTmRNSIV
+         d3MO2Noh30xsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        paul@pwsan.com, aaro.koskinen@iki.fi, linux@armlinux.org.uk,
-        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 03/14] ARM: OMAP1: clock: Fix UART rate reporting algorithm
-Date:   Wed,  1 Jun 2022 10:00:16 -0400
-Message-Id: <20220601140027.2005280-3-sashal@kernel.org>
+Cc:     Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/14] selftests/resctrl: Change the default limited time to 120 seconds
+Date:   Wed,  1 Jun 2022 10:00:17 -0400
+Message-Id: <20220601140027.2005280-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601140027.2005280-1-sashal@kernel.org>
 References: <20220601140027.2005280-1-sashal@kernel.org>
@@ -58,35 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>
 
-[ Upstream commit 338d5d476cde853dfd97378d20496baabc2ce3c0 ]
+[ Upstream commit e2e3fb6ef0d6548defbe0be6e092397aaa92f3a1 ]
 
-Since its introduction to the mainline kernel, omap1_uart_recalc() helper
-makes incorrect use of clk->enable_bit as a ready to use bitmap mask while
-it only provides the bit number.  Fix it.
+When testing on a Intel(R) Xeon(R) Gold 6254 CPU @ 3.10GHz the resctrl
+selftests fail due to timeout after exceeding the default time limit of
+45 seconds. On this system the test takes about 68 seconds.
+Since the failing test by default accesses a fixed size of memory, the
+execution time should not vary significantly between different environment.
+A new default of 120 seconds should be sufficient yet easy to customize
+with the introduction of the "settings" file for reference.
 
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/clock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/resctrl/settings | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 tools/testing/selftests/resctrl/settings
 
-diff --git a/arch/arm/mach-omap1/clock.c b/arch/arm/mach-omap1/clock.c
-index fa512413a471..b277409f303a 100644
---- a/arch/arm/mach-omap1/clock.c
-+++ b/arch/arm/mach-omap1/clock.c
-@@ -44,7 +44,7 @@ static DEFINE_SPINLOCK(clockfw_lock);
- unsigned long omap1_uart_recalc(struct clk *clk)
- {
- 	unsigned int val = __raw_readl(clk->enable_reg);
--	return val & clk->enable_bit ? 48000000 : 12000000;
-+	return val & 1 << clk->enable_bit ? 48000000 : 12000000;
- }
- 
- unsigned long omap1_sossi_recalc(struct clk *clk)
+diff --git a/tools/testing/selftests/resctrl/settings b/tools/testing/selftests/resctrl/settings
+new file mode 100644
+index 000000000000..a383f3d4565b
+--- /dev/null
++++ b/tools/testing/selftests/resctrl/settings
+@@ -0,0 +1,3 @@
++# If running time is longer than 120 seconds when new tests are added in
++# the future, increase timeout here.
++timeout=120
 -- 
 2.35.1
 
