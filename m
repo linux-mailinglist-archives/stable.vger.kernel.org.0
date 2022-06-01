@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CD353A212
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 12:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BAE53A25A
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 12:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344629AbiFAKLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 06:11:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42966 "EHLO
+        id S1349589AbiFAKP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 06:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243370AbiFAKLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 06:11:47 -0400
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2C8C59;
-        Wed,  1 Jun 2022 03:11:43 -0700 (PDT)
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2519Zari021330;
-        Wed, 1 Jun 2022 10:11:32 GMT
+        with ESMTP id S1351809AbiFAKNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 06:13:08 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC2CD40902;
+        Wed,  1 Jun 2022 03:13:06 -0700 (PDT)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2519YR9u015047;
+        Wed, 1 Jun 2022 10:12:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=corp-2021-07-09;
- bh=PFqsgDODRutnZnH/ytyt010z6LTknpYaxp4FdX4a1XE=;
- b=okF8ZYX/zCpbUa3zypfiddEHHwBd4FqhtKkg3HI4rOsw+gtvibm9+GBrWmFUelFU2Kkh
- NJ4+8/39vA9/w/qLX3hVSbucTuaIy1XXxqNmeCwYJyskU7Kdtb+XT8SvT08Ha884Wt1g
- 1QPlHJiCzawoLz/79jsIGMUTb3RVTzgw01Nus7JD45DKMC4tr/OTBXhYMqKupS4ak5bc
- x3vyeLevM/0Q4gHqH6OIOMYDGyPZKbBS2yENq57IEgdDI77A3VFMxwJjzr5j7yOGWS2r
- xmP1lkqMBqn2ZHSGHCpItPxTLUiFnOraOsGPhoy/4LxaKJWPHwJvSMK0BvnY+DWdBO2o cg== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gbcahqeaw-1
+ bh=K/JXqMSw9IVGQX/OE7W6gaU/6+6KGhZnsZUiKASkkW4=;
+ b=Me58JIm1KMZI2zc+7UsEbcfS2VU6e4wZA+Uq2IstTR/DNQQyjj+zZiux97PXRbdBUR2q
+ wNux81Pkot++zUmFSWlTNM3jTNA2XWRKtHhXHXVicNjsFLd+tGX4tuhJ9eGVY7tAp9cQ
+ 2cn2y+VAjDCLu3B/mZxuvK6Ujw1LIZ7VBJMQ9JTq4bWFHRd6+ce/4LAS87qCsWJYeKk8
+ +bijOs9CtAQWQ5+L/Ve+eZlrDfHrYgPfANofEpHR+6sV9hf3plD/XvUYSolD9BVAPBul
+ f9omi8wRh6AxoKwAfRt2A2TL1lOE7yho4BQbUY1Ks8b2Qn8ggQKzPu6nPykk+Vl21a0K qg== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gbc7kq72t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 01 Jun 2022 10:11:32 +0000
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 251A6Nkg024445;
-        Wed, 1 Jun 2022 10:11:31 GMT
+        Wed, 01 Jun 2022 10:12:48 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 251A675Y030657;
+        Wed, 1 Jun 2022 10:12:47 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8p3rhhp-1
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8hty6sg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 01 Jun 2022 10:11:31 +0000
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 251A9vNL030481;
-        Wed, 1 Jun 2022 10:11:31 GMT
+        Wed, 01 Jun 2022 10:12:47 +0000
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 251ACk66007729;
+        Wed, 1 Jun 2022 10:12:46 GMT
 Received: from t460.home (dhcp-10-175-24-90.vpn.oracle.com [10.175.24.90])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8p3rhff-1;
-        Wed, 01 Jun 2022 10:11:30 +0000
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gc8hty6ra-1;
+        Wed, 01 Jun 2022 10:12:45 +0000
 From:   Vegard Nossum <vegard.nossum@oracle.com>
 To:     stable@vger.kernel.org
 Cc:     Kees Cook <keescook@chromium.org>,
@@ -55,16 +55,16 @@ Cc:     Kees Cook <keescook@chromium.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-fsdevel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
         Vegard Nossum <vegard.nossum@oracle.com>
-Subject: [PATCH 4.14.y] exec: Force single empty string when argv is empty
-Date:   Wed,  1 Jun 2022 12:10:48 +0200
-Message-Id: <20220601101048.1405-1-vegard.nossum@oracle.com>
+Subject: [PATCH 4.9.y] exec: Force single empty string when argv is empty
+Date:   Wed,  1 Jun 2022 12:12:26 +0200
+Message-Id: <20220601101226.1498-1-vegard.nossum@oracle.com>
 X-Mailer: git-send-email 2.35.1.46.g38062e73e0
-In-Reply-To: <16489033838249@kroah.com>
-References: <16489033838249@kroah.com>
+In-Reply-To: <164890338266171@kroah.com>
+References: <164890338266171@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: Wd9ZcUFXNtfV41KlEdBRI_YNZNFrQeUv
-X-Proofpoint-GUID: Wd9ZcUFXNtfV41KlEdBRI_YNZNFrQeUv
+X-Proofpoint-GUID: 8xu_4WoOYqdBuKT59kW2tPBBohAGW4pi
+X-Proofpoint-ORIG-GUID: 8xu_4WoOYqdBuKT59kW2tPBBohAGW4pi
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
@@ -153,10 +153,10 @@ make sure this didn't fall through the cracks, as it does block a real
 (albeit old by now) exploit.
 
 diff --git a/fs/exec.c b/fs/exec.c
-index c72ccfa49f541..2e26ba4ff47e5 100644
+index 482a8b4f41a5b..19f8b075d3b6b 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -1788,6 +1788,9 @@ static int do_execveat_common(int fd, struct filename *filename,
+@@ -1758,6 +1758,9 @@ static int do_execveat_common(int fd, struct filename *filename,
  		goto out_unmark;
  
  	bprm->argc = count(argv, MAX_ARG_STRINGS);
@@ -166,7 +166,7 @@ index c72ccfa49f541..2e26ba4ff47e5 100644
  	if ((retval = bprm->argc) < 0)
  		goto out;
  
-@@ -1812,6 +1815,20 @@ static int do_execveat_common(int fd, struct filename *filename,
+@@ -1782,6 +1785,20 @@ static int do_execveat_common(int fd, struct filename *filename,
  	if (retval < 0)
  		goto out;
  
