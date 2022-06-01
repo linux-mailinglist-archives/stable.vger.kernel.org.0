@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BC0A53A73B
-	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:59:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 448C953A73D
+	for <lists+stable@lfdr.de>; Wed,  1 Jun 2022 15:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353923AbiFAN7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jun 2022 09:59:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33000 "EHLO
+        id S1354101AbiFAN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jun 2022 09:58:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354033AbiFAN6X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DBF0880F5;
-        Wed,  1 Jun 2022 06:55:27 -0700 (PDT)
+        with ESMTP id S1353735AbiFAN6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jun 2022 09:58:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 994068B08F;
+        Wed,  1 Jun 2022 06:55:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 432C4615F3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66E9DB81A79;
+        Wed,  1 Jun 2022 13:55:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26267C385B8;
         Wed,  1 Jun 2022 13:55:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89CF2C3411E;
-        Wed,  1 Jun 2022 13:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654091718;
-        bh=+7YLbsPjf0ff3HxBonzNas5xwXxkNQMQ7rDT4NH7mHI=;
+        s=k20201202; t=1654091719;
+        bh=djdQ9S61mfxn5Qroahz8b0fLg9sK1orzkaSB+oH7BUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlTavO1YRo+vtZlQJrf2h+5sU8IPwYJLVRZOVEMz1gVv4wiUOyRY1ROnzEswQRrgY
-         G0YwF0F3BuBeDE1QdyEvkbP9ExZ6Uhl5dvWwDfvpHQZljtCdDCtd3nW/4b74s5eR4T
-         BXhNbqEXDZVA+0sdh9taJe2o1Izj+/qcqO05mbOkie7+AxVFfPnuUW6M7CTrMVtRun
-         rIRFUkR5dDBKEnbj2lt2krFcYiOcrhCdrdutPhcFbdhfAgJA+7NsP3OQJdQ2m6dC9C
-         w58RSbW0d9c3dZmCgGBWFw4oArZuYnDn5qGiiVotGCl6uES95JTi9KBHJq1KdnxXzF
-         WFyekSd3gMxiA==
+        b=a081PHeC0TmLzkQNVH/ESkXWm+FyQOkAvFUmF2nzrJXIDUPYAObnGPVpZf/tNX2xP
+         z9Jlgp6+rcOkUlelo+9uDUcMzbvdBi7QEYYIaIwrxGOQtGXZMii8Y6yoSvGUljh+UV
+         na7Zp5NfAhFL9XWrF3AtKQR8ikXaRPMUeB8iul9+KWCAaNcLkXWOnfXohY0XxpLa9h
+         VjgIGo/rMy6+YtIjDkrd96mhPFPdYEUbXkRRBqHKQ//tYJCgcLVW5znVrqc006yeLh
+         3W64fNihVmNInVFK5YJc6wamVHmIwNQa8+4Thc/3O9ammBgSodDwtHvWiOYk3BxBue
+         EbVteIoA36IPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vijaya Krishna Nivarthi <quic_vnivarth@quicinc.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 25/48] arm64: dts: qcom: sc7280-idp: Configure CTS pin to bias-bus-hold for bluetooth
-Date:   Wed,  1 Jun 2022 09:53:58 -0400
-Message-Id: <20220601135421.2003328-25-sashal@kernel.org>
+Cc:     Peng Wu <wupeng58@huawei.com>, Wei Xu <xuwei5@hisilicon.com>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 26/48] ARM: hisi: Add missing of_node_put after of_find_compatible_node
+Date:   Wed,  1 Jun 2022 09:53:59 -0400
+Message-Id: <20220601135421.2003328-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220601135421.2003328-1-sashal@kernel.org>
 References: <20220601135421.2003328-1-sashal@kernel.org>
@@ -59,60 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijaya Krishna Nivarthi <quic_vnivarth@quicinc.com>
+From: Peng Wu <wupeng58@huawei.com>
 
-[ Upstream commit 497b272759986af1aa5a25b5e903d082c67bd8f6 ]
+[ Upstream commit 9bc72e47d4630d58a840a66a869c56b29554cfe4 ]
 
-WLAN rail was leaking power during RBSC/sleep even after turning BT off.
-Change active and sleep pinctrl configurations to handle same.
+of_find_compatible_node  will increment the refcount of the returned
+device_node. Calling of_node_put() to avoid the refcount leak
 
-Signed-off-by: Vijaya Krishna Nivarthi <quic_vnivarth@quicinc.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1650556567-4995-2-git-send-email-quic_vnivarth@quicinc.com
+Signed-off-by: Peng Wu <wupeng58@huawei.com>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280-idp.dtsi | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/arm/mach-hisi/platsmp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-index d623d71d8bd4..dd6dac0e1784 100644
---- a/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280-idp.dtsi
-@@ -462,10 +462,13 @@ &qup_uart5_rx {
+diff --git a/arch/arm/mach-hisi/platsmp.c b/arch/arm/mach-hisi/platsmp.c
+index a56cc64deeb8..9ce93e0b6cdc 100644
+--- a/arch/arm/mach-hisi/platsmp.c
++++ b/arch/arm/mach-hisi/platsmp.c
+@@ -67,14 +67,17 @@ static void __init hi3xxx_smp_prepare_cpus(unsigned int max_cpus)
+ 		}
+ 		ctrl_base = of_iomap(np, 0);
+ 		if (!ctrl_base) {
++			of_node_put(np);
+ 			pr_err("failed to map address\n");
+ 			return;
+ 		}
+ 		if (of_property_read_u32(np, "smp-offset", &offset) < 0) {
++			of_node_put(np);
+ 			pr_err("failed to find smp-offset property\n");
+ 			return;
+ 		}
+ 		ctrl_base += offset;
++		of_node_put(np);
+ 	}
+ }
  
- &qup_uart7_cts {
- 	/*
--	 * Configure a pull-down on CTS to match the pull of
--	 * the Bluetooth module.
-+	 * Configure a bias-bus-hold on CTS to lower power
-+	 * usage when Bluetooth is turned off. Bus hold will
-+	 * maintain a low power state regardless of whether
-+	 * the Bluetooth module drives the pin in either
-+	 * direction or leaves the pin fully unpowered.
- 	 */
--	bias-pull-down;
-+	bias-bus-hold;
- };
+@@ -160,6 +163,7 @@ static int hip01_boot_secondary(unsigned int cpu, struct task_struct *idle)
+ 	if (WARN_ON(!node))
+ 		return -1;
+ 	ctrl_base = of_iomap(node, 0);
++	of_node_put(node);
  
- &qup_uart7_rts {
-@@ -516,10 +519,13 @@ qup_uart7_sleep_cts: qup-uart7-sleep-cts {
- 		pins = "gpio28";
- 		function = "gpio";
- 		/*
--		 * Configure a pull-down on CTS to match the pull of
--		 * the Bluetooth module.
-+		 * Configure a bias-bus-hold on CTS to lower power
-+		 * usage when Bluetooth is turned off. Bus hold will
-+		 * maintain a low power state regardless of whether
-+		 * the Bluetooth module drives the pin in either
-+		 * direction or leaves the pin fully unpowered.
- 		 */
--		bias-pull-down;
-+		bias-bus-hold;
- 	};
- 
- 	qup_uart7_sleep_rts: qup-uart7-sleep-rts {
+ 	/* set the secondary core boot from DDR */
+ 	remap_reg_value = readl_relaxed(ctrl_base + REG_SC_CTRL);
 -- 
 2.35.1
 
