@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A0453BFB3
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 22:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E37C553BFB1
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 22:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238732AbiFBUXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 16:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50384 "EHLO
+        id S238830AbiFBUXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 16:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238830AbiFBUXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 16:23:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BB41B8
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 13:23:36 -0700 (PDT)
+        with ESMTP id S238845AbiFBUXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 16:23:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC5DC3B3
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 13:23:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1586E6185C
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 20:23:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3017BC385A5;
-        Thu,  2 Jun 2022 20:23:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BA1FB82188
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 20:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C11F2C34114;
+        Thu,  2 Jun 2022 20:23:37 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="YQKSwAvB"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="dDhP+chs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1654201413;
+        t=1654201417;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=5ckN0HhlyXq4wHEoHaQUzOmtPCElc8NpK0x+1pEobTw=;
-        b=YQKSwAvBJpKuoLWXNeS8P9/Mx7bMBfJTlnupOMcX9vuLwJYvWEG8dhYmqSwPve/xVtk1So
-        GScDhjignjimvSMyQ8J/Wu1SDGzjOENkTcZVHuJjG+4O7rGnrfLPgdYpH31qDnkeaLyxTY
-        KVCGGj6gmz3ElDxcqr8h7gtbviZx3c4=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id cadc0c47 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Thu, 2 Jun 2022 20:23:33 +0000 (UTC)
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=tSK40bmwp6QDrLQvS8etTpcMDF5byZxE2A98WOPq+gU=;
+        b=dDhP+chsAE5Gze4HjBAnGs6wqf3R6AF0hIqSjLRP+7X28ZH28sLx91CArOsz85TlwcvzVg
+        I3ltlgx5+F1TFCA4vdXcVm+TRInsWfO1Gry8O6/XMq/c72c521y4W0JOK4eLTSG7ujtLJq
+        kylUgK1aqBdN9JikjHTbsxqQV53xaTg=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id c448d8fc (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Thu, 2 Jun 2022 20:23:36 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: [PATCH stable 5.15.y 0/5] missing random.c-related stable patches
-Date:   Thu,  2 Jun 2022 22:23:22 +0200
-Message-Id: <20220602202327.281510-1-Jason@zx2c4.com>
+Subject: [PATCH stable 5.15.y 1/5] lib/crypto: add prompts back to crypto libraries
+Date:   Thu,  2 Jun 2022 22:23:23 +0200
+Message-Id: <20220602202327.281510-2-Jason@zx2c4.com>
+In-Reply-To: <20220602202327.281510-1-Jason@zx2c4.com>
+References: <20220602202327.281510-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -52,41 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+From: "Justin M. Forbes" <jforbes@fedoraproject.org>
 
-I forgot two things when doing the 5.15 backport. The first is a patch
-from Justin fixing a bug in some of the lib/crypto Kconfig changes,
-which Pablo (CC'd) pointed out was missed. The second is that the
-backport of 5acd35487dc9 ("random: replace custom notifier chain with
-standard one") isn't quite right without Nicolai's patches there too,
-since the drbg module is removable.
+commit e56e18985596617ae426ed5997fb2e737cffb58b upstream.
 
-I'll continue to monitor all the channels I possibly can for chatter
-about problems, but so far this is all I've run into.
+Commit 6048fdcc5f269 ("lib/crypto: blake2s: include as built-in") took
+away a number of prompt texts from other crypto libraries. This makes
+values flip from built-in to module when oldconfig runs, and causes
+problems when these crypto libs need to be built in for thingslike
+BIG_KEYS.
 
-Jason
+Fixes: 6048fdcc5f269 ("lib/crypto: blake2s: include as built-in")
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-crypto@vger.kernel.org
+Signed-off-by: Justin M. Forbes <jforbes@fedoraproject.org>
+[Jason: - moved menu into submenu of lib/ instead of root menu
+        - fixed chacha sub-dependencies for CONFIG_CRYPTO]
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ crypto/Kconfig     |  2 --
+ lib/Kconfig        |  2 ++
+ lib/crypto/Kconfig | 17 ++++++++++++-----
+ 3 files changed, 14 insertions(+), 7 deletions(-)
 
-Cc: Pablo Greco <pgreco@centosproject.org>
-
-Justin M. Forbes (1):
-  lib/crypto: add prompts back to crypto libraries
-
-Nicolai Stange (4):
-  crypto: drbg - prepare for more fine-grained tracking of seeding state
-  crypto: drbg - track whether DRBG was seeded with
-    !rng_is_initialized()
-  crypto: drbg - move dynamic ->reseed_threshold adjustments to
-    __drbg_seed()
-  crypto: drbg - make reseeding from get_random_bytes() synchronous
-
- crypto/Kconfig        |   2 -
- crypto/drbg.c         | 110 +++++++++++++++++-------------------------
- drivers/char/random.c |   2 -
- include/crypto/drbg.h |  10 ++--
- lib/Kconfig           |   2 +
- lib/crypto/Kconfig    |  17 +++++--
- 6 files changed, 65 insertions(+), 78 deletions(-)
-
+diff --git a/crypto/Kconfig b/crypto/Kconfig
+index 55718de56137..a346b6f74bb3 100644
+--- a/crypto/Kconfig
++++ b/crypto/Kconfig
+@@ -1924,5 +1924,3 @@ source "crypto/asymmetric_keys/Kconfig"
+ source "certs/Kconfig"
+ 
+ endif	# if CRYPTO
+-
+-source "lib/crypto/Kconfig"
+diff --git a/lib/Kconfig b/lib/Kconfig
+index fa4b10322efc..e052f843afed 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -121,6 +121,8 @@ config INDIRECT_IOMEM_FALLBACK
+ 	  mmio accesses when the IO memory address is not a registered
+ 	  emulated region.
+ 
++source "lib/crypto/Kconfig"
++
+ config CRC_CCITT
+ 	tristate "CRC-CCITT functions"
+ 	help
+diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
+index 8620f38e117c..e8e525650cf2 100644
+--- a/lib/crypto/Kconfig
++++ b/lib/crypto/Kconfig
+@@ -1,5 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
++menu "Crypto library routines"
++
+ config CRYPTO_LIB_AES
+ 	tristate
+ 
+@@ -31,7 +33,7 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
+ 
+ config CRYPTO_LIB_CHACHA_GENERIC
+ 	tristate
+-	select CRYPTO_ALGAPI
++	select XOR_BLOCKS
+ 	help
+ 	  This symbol can be depended upon by arch implementations of the
+ 	  ChaCha library interface that require the generic code as a
+@@ -40,7 +42,8 @@ config CRYPTO_LIB_CHACHA_GENERIC
+ 	  of CRYPTO_LIB_CHACHA.
+ 
+ config CRYPTO_LIB_CHACHA
+-	tristate
++	tristate "ChaCha library interface"
++	depends on CRYPTO
+ 	depends on CRYPTO_ARCH_HAVE_LIB_CHACHA || !CRYPTO_ARCH_HAVE_LIB_CHACHA
+ 	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
+ 	help
+@@ -65,7 +68,7 @@ config CRYPTO_LIB_CURVE25519_GENERIC
+ 	  of CRYPTO_LIB_CURVE25519.
+ 
+ config CRYPTO_LIB_CURVE25519
+-	tristate
++	tristate "Curve25519 scalar multiplication library"
+ 	depends on CRYPTO_ARCH_HAVE_LIB_CURVE25519 || !CRYPTO_ARCH_HAVE_LIB_CURVE25519
+ 	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
+ 	help
+@@ -100,7 +103,7 @@ config CRYPTO_LIB_POLY1305_GENERIC
+ 	  of CRYPTO_LIB_POLY1305.
+ 
+ config CRYPTO_LIB_POLY1305
+-	tristate
++	tristate "Poly1305 library interface"
+ 	depends on CRYPTO_ARCH_HAVE_LIB_POLY1305 || !CRYPTO_ARCH_HAVE_LIB_POLY1305
+ 	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
+ 	help
+@@ -109,14 +112,18 @@ config CRYPTO_LIB_POLY1305
+ 	  is available and enabled.
+ 
+ config CRYPTO_LIB_CHACHA20POLY1305
+-	tristate
++	tristate "ChaCha20-Poly1305 AEAD support (8-byte nonce library version)"
+ 	depends on CRYPTO_ARCH_HAVE_LIB_CHACHA || !CRYPTO_ARCH_HAVE_LIB_CHACHA
+ 	depends on CRYPTO_ARCH_HAVE_LIB_POLY1305 || !CRYPTO_ARCH_HAVE_LIB_POLY1305
++	depends on CRYPTO
+ 	select CRYPTO_LIB_CHACHA
+ 	select CRYPTO_LIB_POLY1305
++	select CRYPTO_ALGAPI
+ 
+ config CRYPTO_LIB_SHA256
+ 	tristate
+ 
+ config CRYPTO_LIB_SM4
+ 	tristate
++
++endmenu
 -- 
 2.35.1
 
