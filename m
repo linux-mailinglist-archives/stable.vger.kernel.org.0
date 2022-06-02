@@ -2,118 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7616753C055
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 23:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22E0853C063
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 23:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239410AbiFBVW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 17:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42888 "EHLO
+        id S230034AbiFBVc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 17:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229852AbiFBVWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 17:22:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09CC26587;
-        Thu,  2 Jun 2022 14:22:55 -0700 (PDT)
+        with ESMTP id S229634AbiFBVcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 17:32:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 722897641
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 14:32:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9E7BB82180;
-        Thu,  2 Jun 2022 21:22:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F940C385A5;
-        Thu,  2 Jun 2022 21:22:51 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="E0HF5nn8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1654204969;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=dxLGBl7v8u3rcLNq9XWqGXvKeMQ71NgT/hcJ68hc2Bs=;
-        b=E0HF5nn8Q4o/4PCKJOR/T2UbSHr1ys+MqXv+zrUF3ppx9pYapyKM595NthI5ZPIeiMndZS
-        XpMRoLy/51DolGDKqm58VLkplQJBSsFcNtE+FEEbVWJAAmI1NpzVHZv2D8T8RyGOAItwdE
-        100k8aRo2+flhQEawoDkt4YJXj/kngQ=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 4bb1c12f (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Thu, 2 Jun 2022 21:22:49 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linux@armlinux.org.uk, rmk+kernel@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        catalin.marinas@arm.com
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] ARM: initialize jump labels before setup_machine_fdt()
-Date:   Thu,  2 Jun 2022 23:22:34 +0200
-Message-Id: <20220602212234.344394-1-Jason@zx2c4.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 379D0B82187
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 21:32:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC5AC3411F;
+        Thu,  2 Jun 2022 21:32:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654205568;
+        bh=wOVpPMTaeCWzLWlQlyLICMuR27ac7M4fqukyOaNMa/o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=By9uMGgi4i+gQXQ95wFY7zu31RH5abf6M0xZ7L7TMjtB+50aYnGMw/7vJzOMB5Uwz
+         UVfzyLLITxA0WDSAXAJybdgwd1/CsMzOuuihDBElRPmQYakVNIU4mX6pTMyeI3KENz
+         8P+qBtKr4fcAhSyrW8ecLyDDqg4fFRltMGZzD0wN+X0A0Sdsl6b0uy4SmTtwEnSs4P
+         ixwO0Zw9vN4GBofKV1g6fpN55sDt/daCZHMVG1QJ3gCKY4l3wuD4Up4Rh91Sfg3SVx
+         bV4UwGzWnl2ipKk0DhgmjhWaP3PL83lCp3oHlWffin3ymyDhKV1t5glJdOT/iU/jks
+         tSM0A/0NbI6gg==
+Date:   Thu, 2 Jun 2022 14:32:46 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Thomas Sattler <sattler@med.uni-frankfurt.de>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+Subject: Re: boot loop since 5.17.6
+Message-ID: <YpksflOG2Y1Xng89@dev-arch.thelio-3990X>
+References: <11495172-41dd-5c44-3ef6-8d3ff3ebd1b2@med.uni-frankfurt.de>
+ <c3b370a8-193e-329b-c73a-1371bd62edf3@med.uni-frankfurt.de>
+ <181a6369-e373-b020-2059-33fb5161d8d3@med.uni-frankfurt.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <181a6369-e373-b020-2059-33fb5161d8d3@med.uni-frankfurt.de>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stephen reported that a static key warning splat appears during early
-boot on arm64 systems that credit randomness from device trees that
-contain an "rng-seed" property, because setup_machine_fdt() is called
-before jump_label_init() during setup_arch(), which was fixed by
-73e2d827a501 ("arm64: Initialize jump labels before
-setup_machine_fdt()").
+On Thu, Jun 02, 2022 at 09:24:18PM +0200, Thomas Sattler wrote:
+> with these three diffs reverted, I was able to boot
+> all affected 5.17.x kernels (x={6,7,8,9,10,11,12})
+> 
+> 
+> 
+> Am 02.06.22 um 18:42 schrieb Thomas Sattler:
+> > some more information:
+> > 
+> > $ cat /proc/version
+> > Linux version 5.17.5 (root@dragon) (x86_64-pc-linux-gnu-gcc (Gentoo
+> > 11.2.1_p20220115 p4) 11.2.1 20220115, GNU ld (Gentoo 2.37_p1 p2) 2.37)
+> > #130 SMP PREEMPT Thu Apr 28 10:50:24 CEST 2022
+> > 
+> > $ uname -mi
+> > x86_64 GenuineIntel
+> > 
+> > 
+> > I tried to compile 5.17.6 without the three mentioned diffs which
+> > modify the following files:
+> > 
+> >     tools/objtool/check.c   and
+> >     tools/objtool/elf.c      and
+> >     tools/objtool/include/objtool/elf.h
+> > 
+> > and was then able to successfully boot 5.17.6.
 
-Upon cursory inspection, the same basic issue appears to apply to arm32
-as well. In this case, we reorder setup_arch() to do things in the same
-order as is now the case on arm64.
+5.17.6 has commit 60d2b0b1018a ("objtool: Fix code relocs vs weak
+symbols"), which has a known issue that is fixed with commit
+ead165fa1042 ("objtool: Fix symbol creation"). If you apply ead165fa1042
+on 5.17.6 or newer, does that resolve your issue?
 
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- arch/arm/kernel/setup.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ead165fa1042 is tagged for stable but I don't think Greg picks up
+patches from mainline until they are in a tagged -rc release.
 
-diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-index 1e8a50a97edf..ef40d9f5d5a7 100644
---- a/arch/arm/kernel/setup.c
-+++ b/arch/arm/kernel/setup.c
-@@ -1097,10 +1097,15 @@ void __init setup_arch(char **cmdline_p)
- 	const struct machine_desc *mdesc = NULL;
- 	void *atags_vaddr = NULL;
- 
-+	setup_initial_init_mm(_text, _etext, _edata, _end);
-+	setup_processor();
-+	early_fixmap_init();
-+	early_ioremap_init();
-+	jump_label_init();
-+
- 	if (__atags_pointer)
- 		atags_vaddr = FDT_VIRT_BASE(__atags_pointer);
- 
--	setup_processor();
- 	if (atags_vaddr) {
- 		mdesc = setup_machine_fdt(atags_vaddr);
- 		if (mdesc)
-@@ -1125,15 +1130,10 @@ void __init setup_arch(char **cmdline_p)
- 	if (mdesc->reboot_mode != REBOOT_HARD)
- 		reboot_mode = mdesc->reboot_mode;
- 
--	setup_initial_init_mm(_text, _etext, _edata, _end);
--
- 	/* populate cmd_line too for later use, preserving boot_command_line */
- 	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
- 	*cmdline_p = cmd_line;
- 
--	early_fixmap_init();
--	early_ioremap_init();
--
- 	parse_early_param();
- 
- #ifdef CONFIG_MMU
--- 
-2.35.1
-
+Cheers,
+Nathan
