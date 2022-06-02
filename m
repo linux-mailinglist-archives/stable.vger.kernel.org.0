@@ -2,42 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 755AD53BCDF
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 18:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9541553BC78
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 18:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237299AbiFBQxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 12:53:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53156 "EHLO
+        id S237011AbiFBQZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 12:25:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237314AbiFBQxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 12:53:08 -0400
-Received: from mailout.rz.uni-frankfurt.de (mailout.rz.uni-frankfurt.de [141.2.22.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5942C280B0D
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 09:53:07 -0700 (PDT)
-Received: from smtpauth1.cluster.uni-frankfurt.de ([10.1.1.45])
-        by mailout.rz.uni-frankfurt.de with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <sattler@med.uni-frankfurt.de>)
-        id 1nwnT9-0003CR-VS; Thu, 02 Jun 2022 18:14:43 +0200
-Received: from p57bcf53e.dip0.t-ipconnect.de ([87.188.245.62] helo=[192.168.2.17])
-        by smtpauth1.cluster.uni-frankfurt.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <sattler@med.uni-frankfurt.de>)
-        id 1nwnT9-0001EX-Th; Thu, 02 Jun 2022 18:14:43 +0200
-Message-ID: <11495172-41dd-5c44-3ef6-8d3ff3ebd1b2@med.uni-frankfurt.de>
-Date:   Thu, 2 Jun 2022 18:14:43 +0200
+        with ESMTP id S232191AbiFBQZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 12:25:40 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393C12B07CC
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 09:25:39 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id y187so5179557pgd.3
+        for <stable@vger.kernel.org>; Thu, 02 Jun 2022 09:25:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=Ptx9nKuMpe8cN9LSrB99oPepT7glRBTRuC8F0mpobtI=;
+        b=lwvLwCAZxW7Mdhe4b1idijTXLUAFniIA9oZKU3gDrHbAxJd4wggZo64h6tFIy7Zz9Q
+         wfD5yoHw6l7pVDROPmOfmHIgLwUIi3vlPGWI+AI8ncEjfpAYvZI2TMvVblW7XMFmRcQS
+         8HV4A8zcaFG4yzbLO9ze7Rxw3rkbl50ayvbeLFWSKc9x7nDGULudHGKdre4slZDhkKgF
+         KCOoT/jM/j89jF3YEGm5bvfppYFA/aL7mFodejrqSN8QZlJ2bi7+coTTqGRQQzzcRK1/
+         t0OKjBnmDJD0aiahy4xHvFpYlMOxz08ng2dpsBCndlWR966fT4Zr+Ic9U6o6190N+1W3
+         8K4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Ptx9nKuMpe8cN9LSrB99oPepT7glRBTRuC8F0mpobtI=;
+        b=HGwJJL4j/+X0HJpllLV9oo519T9dw5M8GhpNlDJ5SWwCFXGATBp+rv1ZmhdEJKJmuU
+         myC9laZ2dY32cQYWrIb/kqZSyMXZOoomsTdsH5VBokMYbDHQewygB8C1CRNao8V89gYF
+         9J3y9DJwzW5QBV/vW6bq7TwPUGfIMqU6dLu+yqdJ19n9rvkj76L4CD0j3vcAYKBjaLiy
+         hDNcUYiCA74DhvyUsOQJcjYdLN3ZwyiWgs92JZbQI4bNHLE3sr9i/prAEbfYss5myBEj
+         17vAwoT73umUHq6q9Ky2FWcoB3c4qrY/OYjMaxb3xdJuvyryiV2DDf00ZhaJtjQSBd/T
+         W4ow==
+X-Gm-Message-State: AOAM531cyQdc3mNaPWfCRaMPt31wcI0Z3LWqwxrqnAfdGUps+Z/zoaCj
+        vr8qjr3TYElt10Mr8RPqdMVQDA==
+X-Google-Smtp-Source: ABdhPJxCddjwyZ/cieUSoYmXsNWRjbeIQnp5P/tjSr/RKCa3xx43k+5umY+pgkmw0EF1j2qWMMBhtw==
+X-Received: by 2002:a63:4822:0:b0:3fa:8a91:267e with SMTP id v34-20020a634822000000b003fa8a91267emr4892371pga.240.1654187138793;
+        Thu, 02 Jun 2022 09:25:38 -0700 (PDT)
+Received: from [192.168.254.36] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id e17-20020a17090301d100b0015e8d4eb237sm3731554plh.129.2022.06.02.09.25.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Jun 2022 09:25:38 -0700 (PDT)
+Message-ID: <21780d7b-2fe0-e6b8-6b4c-7053ec7b99ef@linaro.org>
+Date:   Thu, 2 Jun 2022 09:25:37 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.10.0
+Subject: Re: [PATCH v4] bpf: Fix KASAN use-after-free Read in
+ compute_effective_progs
 Content-Language: en-US
-To:     stable@vger.kernel.org
-From:   Thomas Sattler <sattler@med.uni-frankfurt.de>
-Subject: boot loop since 5.17.6
-Cc:     regressions@lists.linux.dev
+To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Networking <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
+References: <CAEf4BzY-p13huoqo6N7LJRVVj8rcjPeP3Cp=KDX4N2x9BkC9Zw@mail.gmail.com>
+ <20220517180420.87954-1-tadeusz.struk@linaro.org>
+ <7949d722-86e8-8122-e607-4b09944b76ae@linaro.org>
+ <CAEf4BzaD1Z6uOZwbquPYWB0_Z0+CkEKiXQ6zS2imiSHpTgX3pg@mail.gmail.com>
+ <41265f4d-45b4-a3a6-e0c0-5460d2a06377@linaro.org>
+ <CAEf4Bza-fp-9j+dzwdJQagxVNseNofxY2aJV0E6eHw+eQyyeaQ@mail.gmail.com>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <CAEf4Bza-fp-9j+dzwdJQagxVNseNofxY2aJV0E6eHw+eQyyeaQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -45,44 +88,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi there ...
+On 6/2/22 09:11, Andrii Nakryiko wrote:
+>> Did you get a chance to look at this yet?
+>>
+> Hm.. I've applied it two days ago, but for some reason there was no
+> notification from the bot. It's now c89c79fda9b6 ("bpf: Fix KASAN
+> use-after-free Read in compute_effective_progs").
 
-summary: boot loop after upgrading from 5.17.5 to 5.17.6
+Great! Thank you.
 
-I have a Gentoo Desktop where I was successfully running a self
-compiled vanilla 5.17.5 kernel. After upgrading to 5.17.12 the
-machine was unable to boot: lilo loads the kernel and the intel
-microcode 20220510_p20220508 (/boot/intel-uc.img) as an initrd.
-Then the monitor turns black and a few moments later the BIOS
-logo is shown, followed by lilo.
-
-
-As there was a recent microcode upgrade I first tried to boot
-without it. But that didn't help.
-
-Then I tried to boot other already compiled but not yet booted
-kernels 5.17.9 and 5.17.6 without any success. Booting the old
-5.17.5 still worked. So I compiled 5.18.1 but that also was
-unable to boot.
-
-
-Then I tried to do a "manual bisecting" with patch-5.17.5-6
-and found that the machine is still booting with 197 of 209
-diffs applied.
-
-After applying "patch-5.17.5-6.part198.patch" compilation is
-broken. Still after applying "patch-5.17.5-6.part199.patch".
-After applying "patch-5.17.5-6.part200.patch", compilation
-works again but the resulting kernel now fails to boot.
-
-
-It is an (up to date) Gentoo System, installed ~15 years
-ago, running a 64Bit kernel with a 32Bit userland. The
-hardware is newer then the installation (i5-7400).
-
-I have to mention that the machine is in a remote location.
-With lilo allowing a "default kernel" as well as a kernel
-to be booted "just once", I was able to try the above from
-remote.
-
-Thomas
+-- 
+Thanks,
+Tadeusz
