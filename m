@@ -2,287 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0086453BFAE
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 22:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5182553BFFE
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 22:42:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238845AbiFBUX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 16:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51810 "EHLO
+        id S238386AbiFBUmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 16:42:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238934AbiFBUXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 16:23:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D91958D
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 13:23:54 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D91ACB8218A
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 20:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 532AFC385A5;
-        Thu,  2 Jun 2022 20:23:51 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="ByVHtkQL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1654201430;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SNaiiHUmd1A2yaW8T2Bvlva+7HZOhUdFmD1E6aVbeTI=;
-        b=ByVHtkQL3edKa0zNwBCZ1UqiQRjFSP4wEAUPRdL8zUx+Mk1/ofHUE+bYUr6lIK2xmb4sr6
-        Nvmk0hLetNB9sj6orv9W9XJxrAFURrZHk+dH0VvzCVRUFcDiFnqA5VrUlYEeA/by1XTKR+
-        2ZhZKs0TR1IVRyDWFbK56zt3AdmDPls=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e86822db (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Thu, 2 Jun 2022 20:23:50 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: [PATCH stable 5.15.y 5/5] crypto: drbg - make reseeding from get_random_bytes() synchronous
-Date:   Thu,  2 Jun 2022 22:23:27 +0200
-Message-Id: <20220602202327.281510-6-Jason@zx2c4.com>
-In-Reply-To: <20220602202327.281510-1-Jason@zx2c4.com>
-References: <20220602202327.281510-1-Jason@zx2c4.com>
+        with ESMTP id S237619AbiFBUmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 16:42:09 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D3339B;
+        Thu,  2 Jun 2022 13:42:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1654202528; x=1685738528;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=Sok3m5diANN7wooonIOw/1EsMvSV7BlM/zWiPdcGKEg=;
+  b=FqDNb9xaRKNP5v8k/PK81gpwvvqck16TYWih0EqXMeFlIU3sJaoFY6Wy
+   frn+8/hdWNk7tdXKse2MhXLGM0mW9qnHFcV4UkTHXXxQk7cn+5S3CLY0I
+   yCHLLFH8VSSs8ipUIo5zO4NFdjxS9ljRh3BYoHqICJkLIqI2ziftBVTWH
+   juxNMg0Pu8RMI/9/VMEjXyaBeURSQFKVE6UHZmlGTtXiyq4fAK9zVdrL/
+   ldtL+uvJ0ojuGuDI2IccZZTAHbh5+Oy1lV6MMlm8YolMgQtATZ/ueIC5h
+   5hg6l8GGcULP/kPZtIslrPHejn15u5Qe4AGgflNSR1rQDcwRdwA/TrHra
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10366"; a="339122134"
+X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; 
+   d="scan'208";a="339122134"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2022 13:42:07 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; 
+   d="scan'208";a="607038074"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.163])
+  by orsmga008.jf.intel.com with SMTP; 02 Jun 2022 13:42:03 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 02 Jun 2022 23:42:02 +0300
+Date:   Thu, 2 Jun 2022 23:42:02 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Imran Khan <imran.f.khan@oracle.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Fangzhi Zuo <Jerry.Zuo@amd.com>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] drm/display/dp_mst: Fix
+ drm_atomic_get_mst_topology_state()
+Message-ID: <YpkgmvBeX6L7Bs5y@intel.com>
+References: <20220602201757.30431-1-lyude@redhat.com>
+ <20220602201757.30431-3-lyude@redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220602201757.30431-3-lyude@redhat.com>
+X-Patchwork-Hint: comment
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+On Thu, Jun 02, 2022 at 04:17:56PM -0400, Lyude Paul wrote:
+> I noticed a rather surprising issue here while working on removing all of
+> the non-atomic MST code: drm_atomic_get_mst_topology_state() doesn't check
+> the return value of drm_atomic_get_private_obj_state() and instead just
+> passes it directly to to_dp_mst_topology_state(). This means that if we
+> hit a deadlock or something else which would return an error code pointer,
+> we'll likely segfault the kernel.
+> 
+> This is definitely another one of those fixes where I'm astonished we
+> somehow managed never to discover this issue until now…
 
-commit 074bcd4000e0d812bc253f86fedc40f81ed59ccc upstream.
+It has been discussed before.
 
-get_random_bytes() usually hasn't full entropy available by the time DRBG
-instances are first getting seeded from it during boot. Thus, the DRBG
-implementation registers random_ready_callbacks which would in turn
-schedule some work for reseeding the DRBGs once get_random_bytes() has
-sufficient entropy available.
+struct drm_dp_mst_topology_state {
+	struct drm_private_state base;
+	...
+}
 
-For reference, the relevant history around handling DRBG (re)seeding in
-the context of a not yet fully seeded get_random_bytes() is:
+so offsetof(base)==0.
 
-  commit 16b369a91d0d ("random: Blocking API for accessing
-                        nonblocking_pool")
-  commit 4c7879907edd ("crypto: drbg - add async seeding operation")
+> 
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Fixes: a4370c777406 ("drm/atomic: Make private objs proper objects")
+> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v4.14+
+> ---
+>  drivers/gpu/drm/display/drm_dp_mst_topology.c | 2 +-
+>  include/drm/display/drm_dp_mst_helper.h       | 2 ++
+>  2 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> index d84673b3294b..d6e595b95f07 100644
+> --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> @@ -5468,7 +5468,7 @@ EXPORT_SYMBOL(drm_dp_mst_topology_state_funcs);
+>  struct drm_dp_mst_topology_state *drm_atomic_get_mst_topology_state(struct drm_atomic_state *state,
+>  								    struct drm_dp_mst_topology_mgr *mgr)
+>  {
+> -	return to_dp_mst_topology_state(drm_atomic_get_private_obj_state(state, &mgr->base));
+> +	return to_dp_mst_topology_state_safe(drm_atomic_get_private_obj_state(state, &mgr->base));
+>  }
+>  EXPORT_SYMBOL(drm_atomic_get_mst_topology_state);
+>  
+> diff --git a/include/drm/display/drm_dp_mst_helper.h b/include/drm/display/drm_dp_mst_helper.h
+> index 10adec068b7f..fe7577e7f305 100644
+> --- a/include/drm/display/drm_dp_mst_helper.h
+> +++ b/include/drm/display/drm_dp_mst_helper.h
+> @@ -541,6 +541,8 @@ struct drm_dp_payload {
+>  };
+>  
+>  #define to_dp_mst_topology_state(x) container_of(x, struct drm_dp_mst_topology_state, base)
+> +#define to_dp_mst_topology_state_safe(x) \
+> +	container_of_safe(x, struct drm_dp_mst_topology_state, base)
 
-  commit 205a525c3342 ("random: Add callback API for random pool
-                        readiness")
-  commit 57225e679788 ("crypto: drbg - Use callback API for random
-                        readiness")
-  commit c2719503f5e1 ("random: Remove kernel blocking API")
+Wasn't aware of container_of_safe(). I suppose no real harm 
+in using it. Not sure why we'd even keep the non-safe version
+around?
 
-However, some time later, the initialization state of get_random_bytes()
-has been made queryable via rng_is_initialized() introduced with commit
-9a47249d444d ("random: Make crng state queryable"). This primitive now
-allows for streamlining the DRBG reseeding from get_random_bytes() by
-replacing that aforementioned asynchronous work scheduling from
-random_ready_callbacks with some simpler, synchronous code in
-drbg_generate() next to the related logic already present therein. Apart
-from improving overall code readability, this change will also enable DRBG
-users to rely on wait_for_random_bytes() for ensuring that the initial
-seeding has completed, if desired.
+Though the use of container_of_safe() everywhere won't help
+when "casting" the other way (&foo->base, when foo==NULL/errptr).
+In order to make that work for non-zero offsets we'd have to
+introduce a casting macro for that direction as well.
 
-The previous patches already laid the grounds by making drbg_seed() to
-record at each DRBG instance whether it was being seeded at a time when
-rng_is_initialized() still had been false as indicated by
-->seeded == DRBG_SEED_STATE_PARTIAL.
+>  
+>  struct drm_dp_vcpi_allocation {
+>  	struct drm_dp_mst_port *port;
+> -- 
+> 2.35.3
 
-All that remains to be done now is to make drbg_generate() check for this
-condition, determine whether rng_is_initialized() has flipped to true in
-the meanwhile and invoke a reseed from get_random_bytes() if so.
-
-Make this move:
-- rename the former drbg_async_seed() work handler, i.e. the one in charge
-  of reseeding a DRBG instance from get_random_bytes(), to
-  "drbg_seed_from_random()",
-- change its signature as appropriate, i.e. make it take a struct
-  drbg_state rather than a work_struct and change its return type from
-  "void" to "int" in order to allow for passing error information from
-  e.g. its __drbg_seed() invocation onwards to callers,
-- make drbg_generate() invoke this drbg_seed_from_random() once it
-  encounters a DRBG instance with ->seeded == DRBG_SEED_STATE_PARTIAL by
-  the time rng_is_initialized() has flipped to true and
-- prune everything related to the former, random_ready_callback based
-  mechanism.
-
-As drbg_seed_from_random() is now getting invoked from drbg_generate() with
-the ->drbg_mutex being held, it must not attempt to recursively grab it
-once again. Remove the corresponding mutex operations from what is now
-drbg_seed_from_random(). Furthermore, as drbg_seed_from_random() can now
-report errors directly to its caller, there's no need for it to temporarily
-switch the DRBG's ->seeded state to DRBG_SEED_STATE_UNSEEDED so that a
-failure of the subsequently invoked __drbg_seed() will get signaled to
-drbg_generate(). Don't do it then.
-
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[Jason: for stable, undid the modifications for the backport of 5acd3548.]
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- crypto/drbg.c         | 61 ++++++++-----------------------------------
- drivers/char/random.c |  2 --
- include/crypto/drbg.h |  2 --
- 3 files changed, 11 insertions(+), 54 deletions(-)
-
-diff --git a/crypto/drbg.c b/crypto/drbg.c
-index 84b489fd4251..761104e93d44 100644
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1087,12 +1087,10 @@ static inline int drbg_get_random_bytes(struct drbg_state *drbg,
- 	return 0;
- }
- 
--static void drbg_async_seed(struct work_struct *work)
-+static int drbg_seed_from_random(struct drbg_state *drbg)
- {
- 	struct drbg_string data;
- 	LIST_HEAD(seedlist);
--	struct drbg_state *drbg = container_of(work, struct drbg_state,
--					       seed_work);
- 	unsigned int entropylen = drbg_sec_strength(drbg->core->flags);
- 	unsigned char entropy[32];
- 	int ret;
-@@ -1103,23 +1101,15 @@ static void drbg_async_seed(struct work_struct *work)
- 	drbg_string_fill(&data, entropy, entropylen);
- 	list_add_tail(&data.list, &seedlist);
- 
--	mutex_lock(&drbg->drbg_mutex);
--
- 	ret = drbg_get_random_bytes(drbg, entropy, entropylen);
- 	if (ret)
--		goto unlock;
--
--	/* Reset ->seeded so that if __drbg_seed fails the next
--	 * generate call will trigger a reseed.
--	 */
--	drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
--
--	__drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
-+		goto out;
- 
--unlock:
--	mutex_unlock(&drbg->drbg_mutex);
-+	ret = __drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
- 
-+out:
- 	memzero_explicit(entropy, entropylen);
-+	return ret;
- }
- 
- /*
-@@ -1422,6 +1412,11 @@ static int drbg_generate(struct drbg_state *drbg,
- 			goto err;
- 		/* 9.3.1 step 7.4 */
- 		addtl = NULL;
-+	} else if (rng_is_initialized() &&
-+		   drbg->seeded == DRBG_SEED_STATE_PARTIAL) {
-+		len = drbg_seed_from_random(drbg);
-+		if (len)
-+			goto err;
- 	}
- 
- 	if (addtl && 0 < addtl->len)
-@@ -1514,44 +1509,15 @@ static int drbg_generate_long(struct drbg_state *drbg,
- 	return 0;
- }
- 
--static int drbg_schedule_async_seed(struct notifier_block *nb, unsigned long action, void *data)
--{
--	struct drbg_state *drbg = container_of(nb, struct drbg_state,
--					       random_ready);
--
--	schedule_work(&drbg->seed_work);
--	return 0;
--}
--
- static int drbg_prepare_hrng(struct drbg_state *drbg)
- {
--	int err;
--
- 	/* We do not need an HRNG in test mode. */
- 	if (list_empty(&drbg->test_data.list))
- 		return 0;
- 
- 	drbg->jent = crypto_alloc_rng("jitterentropy_rng", 0, 0);
- 
--	INIT_WORK(&drbg->seed_work, drbg_async_seed);
--
--	drbg->random_ready.notifier_call = drbg_schedule_async_seed;
--	err = register_random_ready_notifier(&drbg->random_ready);
--
--	switch (err) {
--	case 0:
--		break;
--
--	case -EALREADY:
--		err = 0;
--		fallthrough;
--
--	default:
--		drbg->random_ready.notifier_call = NULL;
--		return err;
--	}
--
--	return err;
-+	return 0;
- }
- 
- /*
-@@ -1645,11 +1611,6 @@ static int drbg_instantiate(struct drbg_state *drbg, struct drbg_string *pers,
-  */
- static int drbg_uninstantiate(struct drbg_state *drbg)
- {
--	if (drbg->random_ready.notifier_call) {
--		unregister_random_ready_notifier(&drbg->random_ready);
--		cancel_work_sync(&drbg->seed_work);
--	}
--
- 	if (!IS_ERR_OR_NULL(drbg->jent))
- 		crypto_free_rng(drbg->jent);
- 	drbg->jent = NULL;
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index ca17a658c214..e2f1fce8dc97 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -163,7 +163,6 @@ int __cold register_random_ready_notifier(struct notifier_block *nb)
- 	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
- 	return ret;
- }
--EXPORT_SYMBOL(register_random_ready_notifier);
- 
- /*
-  * Delete a previously registered readiness callback function.
-@@ -178,7 +177,6 @@ int __cold unregister_random_ready_notifier(struct notifier_block *nb)
- 	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
- 	return ret;
- }
--EXPORT_SYMBOL(unregister_random_ready_notifier);
- 
- static void __cold process_random_ready_list(void)
- {
-diff --git a/include/crypto/drbg.h b/include/crypto/drbg.h
-index 01caab5e65de..a6c3b8e7deb6 100644
---- a/include/crypto/drbg.h
-+++ b/include/crypto/drbg.h
-@@ -137,12 +137,10 @@ struct drbg_state {
- 	bool pr;		/* Prediction resistance enabled? */
- 	bool fips_primed;	/* Continuous test primed? */
- 	unsigned char *prev;	/* FIPS 140-2 continuous test value */
--	struct work_struct seed_work;	/* asynchronous seeding support */
- 	struct crypto_rng *jent;
- 	const struct drbg_state_ops *d_ops;
- 	const struct drbg_core *core;
- 	struct drbg_string test_data;
--	struct notifier_block random_ready;
- };
- 
- static inline __u8 drbg_statelen(struct drbg_state *drbg)
 -- 
-2.35.1
-
+Ville Syrjälä
+Intel
