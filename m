@@ -2,66 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6255B53B66B
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 11:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF7B53B694
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 12:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233238AbiFBJyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 05:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38124 "EHLO
+        id S233398AbiFBKHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 06:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbiFBJyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 05:54:37 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A457F33E3E;
-        Thu,  2 Jun 2022 02:54:36 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 629321F99A;
-        Thu,  2 Jun 2022 09:54:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1654163675; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Y+zb1z8ZfmyQ511e2hgXKSEcDrjipQXOzf/DXU4KCD0=;
-        b=ueLr4R7P6F8mSupk6/9LCgD2EOYMRBSix21XvcnqViBp0f+DsmdJUtdEewZyd2pyH+2kA/
-        9yRO4QtuWGtXHsKPjvzzK6lVYLzl56AXvU3L0SaQjsbc/HTSuRO8QDIbX/ozD7ZL/5UU5/
-        sd3+ZF/iUeB3a2JCHNagwzYEscCKyPw=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1A114134F3;
-        Thu,  2 Jun 2022 09:54:35 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id hxLpBNuImGJpUAAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 02 Jun 2022 09:54:35 +0000
-Message-ID: <f4c96c08-9f87-e0d1-9b07-b8d654f36e2d@suse.com>
-Date:   Thu, 2 Jun 2022 11:54:34 +0200
+        with ESMTP id S233387AbiFBKHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 06:07:30 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BEEE1D5198
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 03:07:29 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id q1so4713406ljb.5
+        for <stable@vger.kernel.org>; Thu, 02 Jun 2022 03:07:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kvaser.com; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=C8Q+8pGq2/N/nHrd03FaGOpzHue5p6EytlJ7o2yBFlI=;
+        b=b1cwUjh00MoFVhuTXi6r5VoEZ/11cJUWkx1zF8MOrmYipAe6j94727JrUpA8TB0yMI
+         e95TrO/f+WebYROunc36sKlqvDgdN+Ie3y1m9g37ChmUgrog1ja0qkYF+JvuxsrRy2iL
+         s1g2U12uCRmZVTnsgXIdcX6UmN3SENzCxG3De4XegZM4UYKHaik1ZMgpMAnE1qFsctbl
+         Y3cx3s5O7p04bsTaOVWFWY9K3BGZGTRO7lCEh8qcgLRgYME3YCCL9i3I9M11bvW9Q1MR
+         71qOfpeldFeI/30IMK3DJtYkGpltuNKEqDlfm/BfAHNr1qCM2VBFqtmlIpVhEmGL9GSu
+         PbFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=C8Q+8pGq2/N/nHrd03FaGOpzHue5p6EytlJ7o2yBFlI=;
+        b=N14l0wcLWz8GA307zeaDnzDj/ENhnNAykPnANC6WHX+Ec/GFyUH8kPdw2U4TlATsfA
+         g4coH5DRpRCP6qc/nbYuW9T+ixo3DnigR/C9Oqw4p+bgiCAv0EWrhv1+l1MlucD9D7t4
+         fOschTAmsaRKl7WGVi7p/ro1uGmJ0Dy2xqj3vl6lKtmfuueFwTjiGt140umKlLyY8mZV
+         XSDRbpXKwamgMPbySAtRUIJu0zgIjECUIe1z/roXVqF6MIgqP+NHTRHc9a+hspGSIe0k
+         YHTBsNi6tLMiiu6/zVgWfIj49W4pUvSwyPsb0AHpXqoWcW0EHBSnNAPr5mJEb0jnmDv0
+         xFEQ==
+X-Gm-Message-State: AOAM531CP451r/TuKRqyPNhWHCQqulw7WseerQGKXFEmCxpFK4tlojeq
+        ySfqCfM5KqDsrG+c6dw6SdR9qg==
+X-Google-Smtp-Source: ABdhPJwIF9DiGF4LZaiVt7OG7puN0eKw4ymbjs3SOADoHEarvcvYRotIckAq/zfNrg0j64m0k83GvA==
+X-Received: by 2002:a05:651c:2326:b0:253:cd05:55bc with SMTP id bi38-20020a05651c232600b00253cd0555bcmr42029638ljb.374.1654164447617;
+        Thu, 02 Jun 2022 03:07:27 -0700 (PDT)
+Received: from [192.168.16.143] (h-155-4-68-234.A785.priv.bahnhof.se. [155.4.68.234])
+        by smtp.gmail.com with ESMTPSA id f14-20020ac2508e000000b00478d3369261sm963199lfm.7.2022.06.02.03.07.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Jun 2022 03:07:27 -0700 (PDT)
+Message-ID: <03414303-1235-e9fd-a644-cf0eb8d0debd@kvaser.com>
+Date:   Thu, 2 Jun 2022 12:07:45 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v2] xen/gntdev: Avoid blocking in unmap_grant_pages()
+ Thunderbird/91.5.1
+Subject: Re: [PATCH 1/2] can: kvaser_usb: kvaser_usb_leaf: Fix CAN clock
+ frequency regression
 Content-Language: en-US
-To:     Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Jennifer Herbert <jennifer.herbert@citrix.com>,
-        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>
-Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     linux-can@vger.kernel.org,
+        Jimmy Assarsson <jimmyassarsson@gmail.com>,
         stable@vger.kernel.org
-References: <20220525184153.6059-1-demi@invisiblethingslab.com>
- <00c0b10c-a35d-6729-5b4f-424febd9d5a3@suse.com> <YpUD3PnPoGj84jMq@itl-email>
-From:   Juergen Gross <jgross@suse.com>
-In-Reply-To: <YpUD3PnPoGj84jMq@itl-email>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------y5L0b7i63kwPIVxx9zNZmi1G"
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+References: <20220602063031.415858-1-extja@kvaser.com>
+ <20220602063031.415858-2-extja@kvaser.com>
+ <20220602080257.243x4brmkjgve5kr@pengutronix.de>
+ <a4866c5a-5516-06cb-fa1a-83e5014f6d36@kvaser.com>
+ <20220602095409.2ytxs4y6o7ctbcp7@pengutronix.de>
+From:   Jimmy Assarsson <extja@kvaser.com>
+In-Reply-To: <20220602095409.2ytxs4y6o7ctbcp7@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,168 +79,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------y5L0b7i63kwPIVxx9zNZmi1G
-Content-Type: multipart/mixed; boundary="------------u5JGZ2POLcDttpEs0aSKpENK";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Demi Marie Obenour <demi@invisiblethingslab.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>,
- Jennifer Herbert <jennifer.herbert@citrix.com>,
- =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= <marmarek@invisiblethingslab.com>
-Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-Message-ID: <f4c96c08-9f87-e0d1-9b07-b8d654f36e2d@suse.com>
-Subject: Re: [PATCH v2] xen/gntdev: Avoid blocking in unmap_grant_pages()
-References: <20220525184153.6059-1-demi@invisiblethingslab.com>
- <00c0b10c-a35d-6729-5b4f-424febd9d5a3@suse.com> <YpUD3PnPoGj84jMq@itl-email>
-In-Reply-To: <YpUD3PnPoGj84jMq@itl-email>
+On 6/2/22 11:54, Marc Kleine-Budde wrote:
+> On 02.06.2022 11:22:31, Jimmy Assarsson wrote:
+>>>> diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+>>>> index e67658b53d02..5880e9719c9d 100644
+>>>> --- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+>>>> +++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+>>>> @@ -94,10 +94,14 @@
+>>>>    static inline bool kvaser_is_leaf(const struct usb_device_id *id)
+>>>>    {
+>>>> -	return (id->idProduct >= USB_LEAF_DEVEL_PRODUCT_ID &&
+>>>> -		id->idProduct <= USB_CAN_R_PRODUCT_ID) ||
+>>>> -		(id->idProduct >= USB_LEAF_LITE_V2_PRODUCT_ID &&
+>>>> -		 id->idProduct <= USB_LEAF_PRODUCT_ID_END);
+>>>> +	return id->idProduct >= USB_LEAF_DEVEL_PRODUCT_ID &&
+>>>> +	       id->idProduct <= USB_CAN_R_PRODUCT_ID;
+>>>> +}
+>>>> +
+>>>> +static inline bool kvaser_is_leafimx(const struct usb_device_id *id)
+>>>> +{
+>>>> +	return id->idProduct >= USB_LEAF_LITE_V2_PRODUCT_ID &&
+>>>> +	       id->idProduct <= USB_LEAF_PRODUCT_ID_END;
+>>>>    }
+>>>
+>>> Is this getting a bit complicated now?
+>>> In this driver we have:
+>>>
+>>> 1) struct usb_device_id::driver_info
+>>> 2) kvaser_is_*()
+>>>
+>>> which is used to set
+>>>
+>>> 3) dev->card_data.leaf.family
+>>> 4) dev->ops
+>>>
+>>> and now you're adding:
+>>>
+>>> 5) dev->card_data.quirks
+>>>
+>>> which then affects
+>>>
+>>> 6) dev->cfg
+>>>
+>>> The straight forward way would be to define a struct that describes the
+>>> a device completely:
+>>>
+>>> struct kvaser_driver_info {
+>>>          u32 quirks;        /* KVASER_USB_HAS_ */
+>>>          enum kvaser_usb_leaf_family;
+>>>          const struct kvaser_usb_dev_*ops;
+>>>          const struct kvaser_usb_dev_*cfg;
+>>> };
+>>>
+>>> and then assign that to every device listed in the kvaser_usb_table.
+>>
+>> Thanks for the feedback!
+>> I agree, but I prefer if we can keep assigning dev->cfg based on the
+>> information that we get from the device.
+> 
+> Ok, if you cannot tell from the USB product ID.
 
---------------u5JGZ2POLcDttpEs0aSKpENK
-Content-Type: multipart/mixed; boundary="------------etPTrSgLchsz5EqajCsT55hr"
+It should be possible, but it will eliminate the risk of me setting
+wrong cfg. I don't got access to all the different devices, especially
+not the old ones.
 
---------------etPTrSgLchsz5EqajCsT55hr
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+>> So we get:
+>> struct kvaser_driver_info {
+>>          u32 quirks;        /* KVASER_USB_HAS_ */
+> 
+> That holds the existing quirks and the new one.
 
-T24gMzAuMDUuMjIgMTk6NTAsIERlbWkgTWFyaWUgT2Jlbm91ciB3cm90ZToNCj4gT24gTW9u
-LCBNYXkgMzAsIDIwMjIgYXQgMDg6NDE6MjBBTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90
-ZToNCj4+IE9uIDI1LjA1LjIyIDIwOjQxLCBEZW1pIE1hcmllIE9iZW5vdXIgd3JvdGU6DQo+
-Pj4gdW5tYXBfZ3JhbnRfcGFnZXMoKSBjdXJyZW50bHkgd2FpdHMgZm9yIHRoZSBwYWdlcyB0
-byBubyBsb25nZXIgYmUgdXNlZC4NCj4+PiBJbiBodHRwczovL2dpdGh1Yi5jb20vUXViZXNP
-Uy9xdWJlcy1pc3N1ZXMvaXNzdWVzLzc0ODEsIHRoaXMgbGVhZCB0byBhDQo+Pj4gZGVhZGxv
-Y2sgYWdhaW5zdCBpOTE1OiBpOTE1IHdhcyB3YWl0aW5nIGZvciBnbnRkZXYncyBNTVUgbm90
-aWZpZXIgdG8NCj4+PiBmaW5pc2gsIHdoaWxlIGdudGRldiB3YXMgd2FpdGluZyBmb3IgaTkx
-NSB0byBmcmVlIGl0cyBwYWdlcy4gIEkgYWxzbw0KPj4+IGJlbGlldmUgdGhpcyBpcyByZXNw
-b25zaWJsZSBmb3IgdmFyaW91cyBkZWFkbG9ja3MgSSBoYXZlIGV4cGVyaWVuY2VkIGluDQo+
-Pj4gdGhlIHBhc3QuDQo+Pj4NCj4+PiBBdm9pZCB0aGVzZSBwcm9ibGVtcyBieSBtYWtpbmcg
-dW5tYXBfZ3JhbnRfcGFnZXMgYXN5bmMuICBUaGlzIHJlcXVpcmVzDQo+Pj4gbWFraW5nIGl0
-IHJldHVybiB2b2lkLCBhcyBhbnkgZXJyb3JzIHdpbGwgbm90IGJlIGF2YWlsYWJsZSB3aGVu
-IHRoZQ0KPj4+IGZ1bmN0aW9uIHJldHVybnMuICBGb3J0dW5hdGVseSwgdGhlIG9ubHkgdXNl
-IG9mIHRoZSByZXR1cm4gdmFsdWUgaXMgYQ0KPj4+IFdBUk5fT04oKSwgd2hpY2ggY2FuIGJl
-IHJlcGxhY2VkIGJ5IGEgV0FSTl9PTiB3aGVuIHRoZSBlcnJvciBpcw0KPj4+IGRldGVjdGVk
-LiAgQWRkaXRpb25hbGx5LCBhIGZhaWxlZCBjYWxsIHdpbGwgbm90IHByZXZlbnQgZnVydGhl
-ciBjYWxscw0KPj4+IGZyb20gYmVpbmcgbWFkZSwgYnV0IHRoaXMgaXMgaGFybWxlc3MuDQo+
-Pj4NCj4+PiBCZWNhdXNlIHVubWFwX2dyYW50X3BhZ2VzIGlzIG5vdyBhc3luYywgdGhlIGdy
-YW50IGhhbmRsZSB3aWxsIGJlIHNlbnQgdG8NCj4+PiBJTlZBTElEX0dSQU5UX0hBTkRMRSB0
-b28gbGF0ZSB0byBwcmV2ZW50IG11bHRpcGxlIHVubWFwcyBvZiB0aGUgc2FtZQ0KPj4+IGhh
-bmRsZS4gIEluc3RlYWQsIGEgc2VwYXJhdGUgYm9vbCBhcnJheSBpcyBhbGxvY2F0ZWQgZm9y
-IHRoaXMgcHVycG9zZS4NCj4+PiBUaGlzIHdhc3RlcyBtZW1vcnksIGJ1dCBzdHVmZmluZyB0
-aGlzIGluZm9ybWF0aW9uIGluIHBhZGRpbmcgYnl0ZXMgaXMNCj4+PiB0b28gZnJhZ2lsZS4g
-IEZ1cnRoZXJtb3JlLCBpdCBpcyBuZWNlc3NhcnkgdG8gZ3JhYiBhIHJlZmVyZW5jZSB0byB0
-aGUNCj4+PiBtYXAgYmVmb3JlIG1ha2luZyB0aGUgYXN5bmNocm9ub3VzIGNhbGwsIGFuZCBy
-ZWxlYXNlIHRoZSByZWZlcmVuY2Ugd2hlbg0KPj4+IHRoZSBjYWxsIHJldHVybnMuDQo+Pg0K
-Pj4gSSB0aGluayB0aGVyZSBpcyBldmVuIG1vcmUgc3luY2luZyBuZWVkZWQ6DQo+Pg0KPj4g
-LSBJbiB0aGUgZXJyb3IgcGF0aCBvZiBnbnRkZXZfbW1hcCgpIHVubWFwX2dyYW50X3BhZ2Vz
-KCkgaXMgYmVpbmcgY2FsbGVkIGFuZA0KPj4gICAgaXQgaXMgYXNzdW1lZCwgbWFwIGlzIGF2
-YWlsYWJsZSBhZnRlcndhcmRzIGFnYWluLiBUaGlzIHNob3VsZCBiZSByYXRoZXIgZWFzeQ0K
-Pj4gICAgdG8gYXZvaWQgYnkgYWRkaW5nIGEgY291bnRlciBvZiBhY3RpdmUgbWFwcGluZ3Mg
-dG8gc3RydWN0IGdudGRldl9ncmFudF9tYXANCj4+ICAgIChudW1iZXIgb2YgcGFnZXMgbm90
-IGJlaW5nIHVubWFwcGVkIHlldCkuIEluIGNhc2UgdGhpcyBjb3VudGVyIGlzIG5vdCB6ZXJv
-DQo+PiAgICBnbnRkZXZfbW1hcCgpIHNob3VsZCBiYWlsIG91dCBlYXJseS4NCj4gDQo+IElz
-IGl0IHBvc3NpYmxlIHRvIGp1c3QgdW5tYXAgdGhlIHBhZ2VzIGRpcmVjdGx5IGhlcmU/ICBJ
-IGRvbuKAmXQgdGhpbmsNCj4gdGhlcmUgY2FuIGJlIGFueSBvdGhlciB1c2VycyBvZiB0aGVz
-ZSBwYWdlcyB5ZXQuICBVc2Vyc3BhY2UgY291bGQgcmFjZQ0KPiBhZ2FpbnN0IHRoZSB1bm1h
-cCBhbmQgY2F1c2UgYSBwYWdlIGZhdWx0LCBidXQgdGhhdCBzaG91bGQganVzdCBjYXVzZQ0K
-PiB1c2Vyc3BhY2UgdG8gZ2V0IFNJR1NFR1Ygb3IgU0lHQlVTLiAgSW4gYW55IGNhc2UgdGhp
-cyBjb2RlIGNhbiB1c2UgdGhlDQo+IHN5bmMgdmVyc2lvbjsgaWYgaXQgZ2V0cyBibG9ja2Vk
-IHRoYXTigJlzIHVzZXJzcGFjZeKAmXMgcHJvYmxlbS4NCj4gDQo+PiAtIGdudGRldl9wdXRf
-bWFwKCkgaXMgY2FsbGluZyB1bm1hcF9ncmFudF9wYWdlcygpIGluIGNhc2UgdGhlIHJlZmNv
-dW50IGhhcw0KPj4gICAgZHJvcHBlZCB0byB6ZXJvLiBUaGlzIGNhbGwgY2FuIHNldCB0aGUg
-cmVmY291bnQgdG8gMSBhZ2Fpbiwgc28gdGhlcmUgaXMNCj4+ICAgIGFub3RoZXIgZGVsYXkg
-bmVlZGVkIGJlZm9yZSBmcmVlaW5nIG1hcC4gSSB0aGluayB1bm1hcF9ncmFudF9wYWdlcygp
-IHNob3VsZA0KPj4gICAgcmV0dXJuIGluIGNhc2UgdGhlIGNvdW50IG9mIG1hcHBlZCBwYWdl
-cyBpcyB6ZXJvIChzZWUgYWJvdmUpLCB0aHVzIGF2b2lkaW5nDQo+PiAgICB0byBpbmNyZW1l
-bnQgdGhlIHJlZmNvdW50IG9mIG1hcCBpZiBub3RoaW5nIGlzIHRvIGJlIGRvbmUuIFRoaXMg
-d291bGQgZW5hYmxlDQo+PiAgICBnbnRkZXZfcHV0X21hcCgpIHRvIGp1c3QgcmV0dXJuIGFm
-dGVyIHRoZSBjYWxsIG9mIHVubWFwX2dyYW50X3BhZ2VzKCkgaW4gY2FzZQ0KPj4gICAgdGhl
-IHJlZmNvdW50IGhhcyBiZWVuIGluY3JlbWVudGVkIGFnYWluLg0KPiANCj4gSSB3aWxsIGNo
-YW5nZSB0aGlzIGluIHYzLCBidXQgSSBkbyB3b25kZXIgaWYgZ250ZGV2IGlzIHVzaW5nIHRo
-ZSB3cm9uZw0KPiBNTVUgbm90aWZpZXIgY2FsbGJhY2suICBJdCBzZWVtcyB0aGF0IHRoZSBh
-cHByb3ByaWF0ZSBjYWxsYmFjayBpcw0KPiBhY3R1YWxseSByZWxlYXNlKCk6IGlmIEkgdW5k
-ZXJzdGFuZCBjb3JyZWN0bHksIHJlbGVhc2UoKSBpcyBjYWxsZWQNCj4gcHJlY2lzZWx5IHdo
-ZW4gdGhlIHJlZmNvdW50IG9uIHRoZSBwaHlzaWNhbCBwYWdlIGlzIGFib3V0IHRvIGRyb3Ag
-dG8gMCwNCj4gYW5kIHRoYXQgaXMgd2hhdCB3ZSB3YW50Lg0KDQpObywgSSBkb24ndCB0aGlu
-ayB0aGlzIGlzIGNvcnJlY3QuDQoNCnJlbGVhc2UoKSBpcyBiZWluZyBjYWxsZWQgd2hlbiB0
-aGUgcmVmY291bnQgb2YgdGhlIGFkZHJlc3Mgc3BhY2UgaXMgYWJvdXQNCnRvIGRyb3AgdG8g
-MC4gSXQgaGFzIG5vIHBhZ2UgZ3JhbnVsYXJpdHkuDQoNCg0KSnVlcmdlbg0K
---------------etPTrSgLchsz5EqajCsT55hr
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+Yep!
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+>>          enum kvaser_usb_leaf_family;
+>>          const struct kvaser_usb_dev_*ops;
+>> };
+>> And quirks and family still affect dev->cfg.
+> 
+> ...as is depends on sw_options read from the device?
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+Correct.
 
---------------etPTrSgLchsz5EqajCsT55hr--
-
---------------u5JGZ2POLcDttpEs0aSKpENK--
-
---------------y5L0b7i63kwPIVxx9zNZmi1G
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmKYiNoFAwAAAAAACgkQsN6d1ii/Ey+q
-7ggAkvIDKvAzNM5SG+gjnxFkbxikvZcBfjkneXTiYxO+IKXD67Wbrw+mqQAN5geOpUeYyNKCZVJV
-zdDedKrY25LpR0LT1U/LGWesrxjw2dVLIkNL0IOe5X1DHuVtGDbbgjrfp7qqZPNHvFEsQRohNbox
-oij9GZMWxAIuHmfCBK+kYttp7BAqtTTFmJ/3SnT20IjZHzL8hfBJ8vaJ4sM4eteN62PdMCN/5Jg8
-2dY0rdFCYvjG0VHjvg3E3b0WhGEPhW4etZQwVCcTaNBbOiOQZelNXvncrz8HTdAi8wPYhuU21v9C
-sHGuUNh6KROfz49dA2tjfb3a8cm6JRASNoW4kIEDNw==
-=qnL6
------END PGP SIGNATURE-----
-
---------------y5L0b7i63kwPIVxx9zNZmi1G--
+Best regards,
+jimmy
