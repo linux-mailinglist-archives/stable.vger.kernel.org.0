@@ -2,147 +2,440 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6065853C104
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 00:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A036953C119
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 00:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239776AbiFBWrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 18:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52804 "EHLO
+        id S239834AbiFBWyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 18:54:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239757AbiFBWrM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 18:47:12 -0400
-Received: from esa.hc4959-67.iphmx.com (esa.hc4959-67.iphmx.com [216.71.153.94])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7988DD11A
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 15:47:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=seagate.com; i=@seagate.com; q=dns/txt; s=stxiport;
-  t=1654210031; x=1685746031;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=fESTwgSp9C8M5iY9KkxqZ4tyQHRpyxysp1kFdG542fU=;
-  b=QHbWEfy9VAggvLagiKG/O67mOK1k0mknh4FBF14aCg+YANBriDDw/oLV
-   Fv49LhLDP4u5UGuQL4DqfT75ZA+n0ISxpZcCwTwxzXtlfOjki4hoZlkGv
-   lvqAuEZrebAEhtI5kFvt72KnB5VlEHOEfYqPthrQnGFS1Y/bpvAdcBsYp
-   k=;
-Received: from mail-bn7nam10lp2105.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.105])
-  by ob1.hc4959-67.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2022 15:46:07 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ct4g74Ce+P4O1xgA0fLMkk2xM6qFKg9HtCD0P9LbpnaLQKyS6vdM+kRtyYegjEs02WE1DDNguOq1+LLgoBjHN7qdDaK10+dgPd0iG9RWqIcda4oVch7f67Ovocs3LtR0LBzKPtEo4onusM9InnSLbfwYGW9LP/GbXtRFDWpWXGAsJL5kPzQPaG/wkH7orM/nE6AACx2A+7X3uPhdmdgZ1dH/QFKNnhpUkIcatV9X1f05mYvBOi3hpTbnxYNTRSzcu7ZY9IlzvCuXdZ3T3iwS2+G2b0DGkRt9bB3vx6c5dF2J9eVrUcO5k/mZ+9Cfvzg2cIwWUrJZA0LEADihBz2mfg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6uYAp+BBT4Z/mQY35yc+yn8WHaPxzZeF158FLYfZdas=;
- b=F+MGbbWAUeDcU8gmTT2CtB6zz4BKOIQVEcrQIHSzMkog9OEy/PzyB9FjTB9JesoBz/0IahXKPtabaq6V9JHkPhnyeQcjdIqkFE9tmReUfbsWX2fvoPiEoDcjzSV+1hfRclQb3/bqI66MiwCvNpKnobTJbRgsYpXBRB+de8GU6TyFRZHyMzw3mHNgdm7O6gGBf37WUwiWKlh3UVqKCV8eH2c0jbbWlqOZM2HND0MzKbgnGHQAueswfg6IRFtvvfDl8iHHPSSc3TMlW6zOni4bYGSXAz47OGgY359xkNIl5pvdWP/RGk9zgMBO4QoosJql/Zg1tzAKC1yJIvVyaMlA+g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
- is 192.55.16.51) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=seagate.com;
- dmarc=fail (p=reject sp=reject pct=100) action=oreject
- header.from=seagate.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seagate.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6uYAp+BBT4Z/mQY35yc+yn8WHaPxzZeF158FLYfZdas=;
- b=D5aiGwSEUWvP6f5na+/cNU7P298ntis1x/Y71YnwMGoUuYHqJ3/YlLsoRuQMMz25D+QmcSoxMlR20AZj4LrhwvvzKL1YMrqFLMc1YKR4+K66GUSkLqYDIcvzhmqsLxgzKHWhL0Y5uS9Rg2vsTaetDPx3LnwoqqXikgQKl8hcW0k=
-Received: from DM5PR05CA0007.namprd05.prod.outlook.com (2603:10b6:3:d4::17) by
- PH7PR20MB5081.namprd20.prod.outlook.com (2603:10b6:510:1f2::5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5314.13; Thu, 2 Jun 2022 22:46:05 +0000
-Received: from DM6NAM10FT060.eop-nam10.prod.protection.outlook.com
- (2603:10b6:3:d4:cafe::31) by DM5PR05CA0007.outlook.office365.com
- (2603:10b6:3:d4::17) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.14 via Frontend
- Transport; Thu, 2 Jun 2022 22:46:05 +0000
-X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is 192.55.16.51)
- smtp.mailfrom=seagate.com; dkim=none (message not signed)
- header.d=none;dmarc=fail action=oreject header.from=seagate.com;
-Received: from sgspzesaa002.seagate.com (192.55.16.51) by
- DM6NAM10FT060.mail.protection.outlook.com (10.13.152.107) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5314.12 via Frontend Transport; Thu, 2 Jun 2022 22:46:04 +0000
-Received: from sgspiesaa002.seagate.com ([10.4.144.53])
-  by sgspzesaa002.seagate.com with ESMTP; 02 Jun 2022 15:48:39 -0700
-X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; 
-   d="scan'208";a="62195127"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-STX-Internal-Mailhost: TRUE
-Received: from unknown (HELO tyler-ubuntu.colo.seagate.com) ([10.4.50.15])
-  by sgspiesaa002.seagate.com with ESMTP; 02 Jun 2022 15:33:34 -0700
-From:   Tyler Erickson <tyler.erickson@seagate.com>
-To:     damien.lemoal@opensource.wdc.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
-        muhammad.ahmad@seagate.com, tyler.erickson@seagate.com,
+        with ESMTP id S239131AbiFBWyP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 18:54:15 -0400
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2242A258;
+        Thu,  2 Jun 2022 15:54:13 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 441855C023B;
+        Thu,  2 Jun 2022 18:54:10 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Thu, 02 Jun 2022 18:54:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
+        :date:from:from:in-reply-to:message-id:mime-version:reply-to
+        :sender:subject:subject:to:to; s=fm1; t=1654210450; x=
+        1654296850; bh=MRGhsRZXeF/lnjLM/zzVqIm8xqV/+/8mPjK0qPm3CQw=; b=a
+        g/TBKdA2UctNTjQ2euW+1J0DMxccU/toTBCoeCdlhI4E7r3RYs9O2QdO+D8umFiW
+        /RbbgXwj+zE/X2GQjqJcdBH3Uaagp+TdrzdWMFCpFyYkE1LOwi6I3QiKc032e0IB
+        DQv3huQlFPNw/gaiTLps3EDrIo0njdhdRvYDvkdo8dkZ8CMNhhmVpVj+Khf/Ad7h
+        kzfrVP+hkF8H/xq/b5HGlqkP51y5V6+SLSMVYyzi8G/frNDExqjVpHuFaiRcakP8
+        Ag8bjhkkCmKVuKcW34F9NP8sF8LsXrB5Ao4jqdefVm0wBcP5u1r5TMShHm0TSW/Z
+        D05iKLQY1+Q9oMatsbFZA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+        1654210450; x=1654296850; bh=MRGhsRZXeF/lnjLM/zzVqIm8xqV/+/8mPjK
+        0qPm3CQw=; b=LSEv6Dzkf7oNE3OFW6NUYG5sj1K0v2Nof3qim1YszUBX2kzpAN6
+        GrjKm4Q44hQlTBqIBXmSSsFKycO3Wg9QeT5vU6TV20Q6jpsMBl+typg6xLgu5pK1
+        A3weZcN/I56JRDzohGjfhL7szuog9qYAhjj25uYEiRA+5osgLDq2c/8HJKejmbNF
+        mqf6X0foCRqgVIIZkT0QpKmkFpUU2OBG9wzNFTwqbzxR1c8QcsP3FNU+aMC48gmA
+        L0dysPLKpQtjwyhV/EgzB6xdjGclxYbx8RdIPhk+0RCOVNeZfejPdK0mjUohd7dT
+        BoGqqlnYwUBvIbR1W80HH1en/Z3xAfhmg0w==
+X-ME-Sender: <xms:kT-ZYlRdfjIC7-XofoF2xBY_hsZHnGC2n7uNZpInUw3Sz7rmfAj-hg>
+    <xme:kT-ZYuxQDTGQrVuj3ZzS8TEyWxfwyK35TmVwE5ltx2zvae9-CMymDkCaCpriSYP_K
+    mcJnFYsGNPqkgg>
+X-ME-Received: <xmr:kT-ZYq3UTxLN5_I0Li-aifoDPxW9nGyHNdB41TXdwLxiEeDzD4GDn8MRY6qRnopppEnXWddPGKcc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrleehgddugecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeffvghmihcuofgr
+    rhhivgcuqfgsvghnohhurhcuoeguvghmihesihhnvhhishhisghlvghthhhinhhgshhlrg
+    gsrdgtohhmqeenucggtffrrghtthgvrhhnpeeijeegudefueekieejudekgfeukedvgeei
+    tddufefhtdffheffueevfedvgfelgfenucffohhmrghinhepghhithhhuhgsrdgtohhmne
+    cuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepuggvmhhi
+    sehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomh
+X-ME-Proxy: <xmx:kT-ZYtBncN_-y1LVql4CO2Y8pBXTIAtzBPnJrUD4SRVA-U4T-w_biQ>
+    <xmx:kT-ZYujXJHC4G6j22lIjPGNhp-5uOmRHMcrYxOuAikhvYIuBqGZ8KA>
+    <xmx:kT-ZYhr6cJRXZQ6hXFusYsJ7RBqItRky7sxhpBijcc3czqqwdeMLdg>
+    <xmx:kj-ZYgZQ9EeyEAcPpxWUWz8WbhjJ0Acu3-LM4wkJLHjfY8FMnjV8kw>
+Feedback-ID: iac594737:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 2 Jun 2022 18:54:09 -0400 (EDT)
+From:   Demi Marie Obenour <demi@invisiblethingslab.com>
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Jennifer Herbert <jennifer.herbert@citrix.com>
+Cc:     Demi Marie Obenour <demi@invisiblethingslab.com>,
+        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH v2 3/3] scsi: sd: Fix interpretation of VPD B9h length
-Date:   Thu,  2 Jun 2022 16:51:13 -0600
-Message-Id: <20220602225113.10218-4-tyler.erickson@seagate.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220602225113.10218-1-tyler.erickson@seagate.com>
-References: <20220602225113.10218-1-tyler.erickson@seagate.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
+Subject: [PATCH v3] xen/gntdev: Avoid blocking in unmap_grant_pages()
+Date:   Thu,  2 Jun 2022 18:53:52 -0400
+Message-Id: <20220602225352.3201-1-demi@invisiblethingslab.com>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: e58074f4-1008-4b38-35b0-08da44e9ad68
-X-MS-TrafficTypeDiagnostic: PH7PR20MB5081:EE_
-X-Microsoft-Antispam-PRVS: <PH7PR20MB50811F187728F8FF0FBDB7D889DE9@PH7PR20MB5081.namprd20.prod.outlook.com>
-STX-Hosted-IronPort-Oubound: True
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Z/jmal5t0Anu063zPd3IPiWoTrOT4f0NBj7/Uq2REDa9ktQEMy3c3ICby9Y0Zr8VJOdiQ/mnvN++t88zXhmiHEUWvktMuJT/UZwx6isuC04VR4B4bq/kllQfMVFh0ayZoVWOA7iY/sSJGNp79EktZJO7XzEQW/cV2BL1XGN0g5P1kMuuhtb4MhThPGTpq71Nl0sHBPdBDMAvo6bDBqito/upDlHYHglFzLci1jFurOZS+fKatZRCBD8sd6SDx5xfZ2cdzgrOxgj0JLR9ucKFCnREo1IyIG1xk35FcE44g/yehHREZ0lbeThprvuIeye6e6BOrFWzJl0DI8XgRmlzb9bA6ZTiGOBo671dQbRcHSKdv6jWgkvMi9V6SNbSsWr7Vi4DydcKDQH1DBkwgI6TsvMtsdz609kGOz+Wg+G/SoFDHkPWKD0spcMNTwe1vd4q7DA+DtfA3rzTYMWzInFYATFvMNkTHTABvXFGpwLrxLsHD3RM/TbA1GFbCoy/sgJAgrh5N8gY28gl2m4lPgfUDOLj5o2scMYQVxEVxt1+bsbnTJz2i0CJGETqMJH3aknsm8UQ7TY8P5tEAR8NzMKtN2tJsp8ZcORSjecJI6fVXb8T58XnHvc9ArqqC7NSqtQWqSS13fQF+mhHJeYfhCWohw+TRTYceqZT93fXsAN7qqtN5Mt6P5S6Iz/fY7zluz7p1WwEl+Lctf4oaQ5kMBFr+Q==
-X-Forefront-Antispam-Report: CIP:192.55.16.51;CTRY:SG;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:sgspzesaa002.seagate.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(46966006)(40470700004)(36840700001)(86362001)(47076005)(336012)(1076003)(186003)(426003)(508600001)(83380400001)(81166007)(356005)(36860700001)(316002)(2616005)(82310400005)(5660300002)(450100002)(8936002)(40460700003)(4326008)(70586007)(8676002)(70206006)(6666004)(2906002)(26005)(7696005)(44832011)(36756003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: seagate.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jun 2022 22:46:04.1672
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e58074f4-1008-4b38-35b0-08da44e9ad68
-X-MS-Exchange-CrossTenant-Id: d466216a-c643-434a-9c2e-057448c17cbe
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d466216a-c643-434a-9c2e-057448c17cbe;Ip=[192.55.16.51];Helo=[sgspzesaa002.seagate.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM10FT060.eop-nam10.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR20MB5081
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fixing the interpretation of the length of the B9h VPD page
-(concurrent positioning ranges). Adding 4 is necessary as
-the first 4 bytes of the page is the header with page number
-and length information. Adding 3 was likely a misinterpretation
-of the SBC-5 specification which sets all offsets starting at zero.
+unmap_grant_pages() currently waits for the pages to no longer be used.
+In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
+deadlock against i915: i915 was waiting for gntdev's MMU notifier to
+finish, while gntdev was waiting for i915 to free its pages.  I also
+believe this is responsible for various deadlocks I have experienced in
+the past.
 
-This fixes the error in dmesg:
-[ 9.014456] sd 1:0:0:0: [sda] Invalid Concurrent Positioning Ranges VPD page
+Avoid these problems by making unmap_grant_pages async.  This requires
+making it return void, as any errors will not be available when the
+function returns.  Fortunately, the only use of the return value is a
+WARN_ON(), which can be replaced by a WARN_ON when the error is
+detected.  Additionally, a failed call will not prevent further calls
+from being made, but this is harmless.
 
+Because unmap_grant_pages is now async, the grant handle will be sent to
+INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
+handle.  Instead, a separate bool array is allocated for this purpose.
+This wastes memory, but stuffing this information in padding bytes is
+too fragile.  Furthermore, it is necessary to grab a reference to the
+map before making the asynchronous call, and release the reference when
+the call returns.
+
+It is also necessary to guard against reentrancy in gntdev_map_put(),
+and to handle the case where userspace tries to map a mapping whose
+contents have not all been freed yet.
+
+Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case they are still in use")
 Cc: stable@vger.kernel.org
-Fixes: e815d36548f0 ("scsi: sd: add concurrent positioning ranges support")
-Signed-off-by: Tyler Erickson <tyler.erickson@seagate.com>
-Reviewed-by: Muhammad Ahmad <muhammad.ahmad@seagate.com>
-Tested-by: Michael English <michael.english@seagate.com>
+Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
 ---
- drivers/scsi/sd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/gntdev-common.h |   7 ++
+ drivers/xen/gntdev.c        | 153 ++++++++++++++++++++++++------------
+ 2 files changed, 109 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 749316462075..f25b0cc5dd21 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3072,7 +3072,7 @@ static void sd_read_cpr(struct scsi_disk *sdkp)
- 		goto out;
+diff --git a/drivers/xen/gntdev-common.h b/drivers/xen/gntdev-common.h
+index 20d7d059dadb..15c2e3afcc2b 100644
+--- a/drivers/xen/gntdev-common.h
++++ b/drivers/xen/gntdev-common.h
+@@ -16,6 +16,7 @@
+ #include <linux/mmu_notifier.h>
+ #include <linux/types.h>
+ #include <xen/interface/event_channel.h>
++#include <xen/grant_table.h>
  
- 	/* We must have at least a 64B header and one 32B range descriptor */
--	vpd_len = get_unaligned_be16(&buffer[2]) + 3;
-+	vpd_len = get_unaligned_be16(&buffer[2]) + 4;
- 	if (vpd_len > buf_len || vpd_len < 64 + 32 || (vpd_len & 31)) {
- 		sd_printk(KERN_ERR, sdkp,
- 			  "Invalid Concurrent Positioning Ranges VPD page\n");
+ struct gntdev_dmabuf_priv;
+ 
+@@ -56,6 +57,7 @@ struct gntdev_grant_map {
+ 	struct gnttab_unmap_grant_ref *unmap_ops;
+ 	struct gnttab_map_grant_ref   *kmap_ops;
+ 	struct gnttab_unmap_grant_ref *kunmap_ops;
++	bool *being_removed;
+ 	struct page **pages;
+ 	unsigned long pages_vm_start;
+ 
+@@ -73,6 +75,11 @@ struct gntdev_grant_map {
+ 	/* Needed to avoid allocation in gnttab_dma_free_pages(). */
+ 	xen_pfn_t *frames;
+ #endif
++
++	/* Number of live grants */
++	atomic_long_t live_grants;
++	/* Needed to avoid allocation in __unmap_grant_pages */
++	struct gntab_unmap_queue_data unmap_data;
+ };
+ 
+ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index 59ffea800079..e8b83ea1eacd 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -35,6 +35,7 @@
+ #include <linux/slab.h>
+ #include <linux/highmem.h>
+ #include <linux/refcount.h>
++#include <linux/workqueue.h>
+ 
+ #include <xen/xen.h>
+ #include <xen/grant_table.h>
+@@ -60,10 +61,11 @@ module_param(limit, uint, 0644);
+ MODULE_PARM_DESC(limit,
+ 	"Maximum number of grants that may be mapped by one mapping request");
+ 
++/* True in PV mode, false otherwise */
+ static int use_ptemod;
+ 
+-static int unmap_grant_pages(struct gntdev_grant_map *map,
+-			     int offset, int pages);
++static void unmap_grant_pages(struct gntdev_grant_map *map,
++			      int offset, int pages);
+ 
+ static struct miscdevice gntdev_miscdev;
+ 
+@@ -120,6 +122,7 @@ static void gntdev_free_map(struct gntdev_grant_map *map)
+ 	kvfree(map->unmap_ops);
+ 	kvfree(map->kmap_ops);
+ 	kvfree(map->kunmap_ops);
++	kvfree(map->being_removed);
+ 	kfree(map);
+ }
+ 
+@@ -140,10 +143,13 @@ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
+ 	add->unmap_ops = kvmalloc_array(count, sizeof(add->unmap_ops[0]),
+ 					GFP_KERNEL);
+ 	add->pages     = kvcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
++	add->being_removed =
++		kvcalloc(count, sizeof(add->being_removed[0]), GFP_KERNEL);
+ 	if (NULL == add->grants    ||
+ 	    NULL == add->map_ops   ||
+ 	    NULL == add->unmap_ops ||
+-	    NULL == add->pages)
++	    NULL == add->pages     ||
++	    NULL == add->being_removed)
+ 		goto err;
+ 	if (use_ptemod) {
+ 		add->kmap_ops   = kvmalloc_array(count, sizeof(add->kmap_ops[0]),
+@@ -250,9 +256,34 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
+ 	if (!refcount_dec_and_test(&map->users))
+ 		return;
+ 
+-	if (map->pages && !use_ptemod)
++	if (map->pages && !use_ptemod) {
++		/*
++		 * Increment the reference count.  This ensures that the
++		 * subsequent call to unmap_grant_pages() will not wind up
++		 * re-entering itself.  It *can* wind up calling
++		 * gntdev_put_map() recursively, but such calls will be with a
++		 * nonzero reference count, so they will return before this code
++		 * is reached.  The recursion depth is thus limited to 1.
++		 */
++		refcount_inc(&map->users);
++
++		/*
++		 * Unmap the grants.  This may or may not be asynchronous, so it
++		 * is possible that the reference count is 1 on return, but it
++		 * could also be greater than 1.
++		 */
+ 		unmap_grant_pages(map, 0, map->count);
+ 
++		/* Check if the memory now needs to be freed */
++		if (!refcount_dec_and_test(&map->users))
++			return;
++
++		/*
++		 * All pages have been returned to the hypervisor, so free the
++		 * map.  FIXME: this is far too complex.
++		 */
++	}
++
+ 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
+ 		notify_remote_via_evtchn(map->notify.event);
+ 		evtchn_put(map->notify.event);
+@@ -283,6 +314,7 @@ static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
+ 
+ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+ {
++	size_t alloced = 0;
+ 	int i, err = 0;
+ 
+ 	if (!use_ptemod) {
+@@ -331,97 +363,114 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+ 			map->count);
+ 
+ 	for (i = 0; i < map->count; i++) {
+-		if (map->map_ops[i].status == GNTST_okay)
++		if (map->map_ops[i].status == GNTST_okay) {
+ 			map->unmap_ops[i].handle = map->map_ops[i].handle;
+-		else if (!err)
++			if (!use_ptemod)
++				alloced++;
++		} else if (!err)
+ 			err = -EINVAL;
+ 
+ 		if (map->flags & GNTMAP_device_map)
+ 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
+ 
+ 		if (use_ptemod) {
+-			if (map->kmap_ops[i].status == GNTST_okay)
++			if (map->kmap_ops[i].status == GNTST_okay) {
++				if (map->map_ops[i].status == GNTST_okay)
++					alloced++;
+ 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
+-			else if (!err)
++			} else if (!err) {
++				/* FIXME: should this be a WARN()? */
+ 				err = -EINVAL;
++			}
+ 		}
+ 	}
++	atomic_long_add(alloced, &map->live_grants);
+ 	return err;
+ }
+ 
+-static int __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
+-			       int pages)
++static void __unmap_grant_pages_done(int result,
++		struct gntab_unmap_queue_data *data)
+ {
+-	int i, err = 0;
+-	struct gntab_unmap_queue_data unmap_data;
+-
+-	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
+-		int pgno = (map->notify.addr >> PAGE_SHIFT);
+-		if (pgno >= offset && pgno < offset + pages) {
+-			/* No need for kmap, pages are in lowmem */
+-			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
+-			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
+-			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
+-		}
+-	}
+-
+-	unmap_data.unmap_ops = map->unmap_ops + offset;
+-	unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
+-	unmap_data.pages = map->pages + offset;
+-	unmap_data.count = pages;
+-
+-	err = gnttab_unmap_refs_sync(&unmap_data);
+-	if (err)
+-		return err;
++	unsigned int i;
++	struct gntdev_grant_map *map = data->data;
++	unsigned int offset = data->unmap_ops - map->unmap_ops;
++	atomic_long_sub(data->count, &map->live_grants);
+ 
+-	for (i = 0; i < pages; i++) {
+-		if (map->unmap_ops[offset+i].status)
+-			err = -EINVAL;
++	for (i = 0; i < data->count; i++) {
++		WARN_ON(map->unmap_ops[offset+i].status);
+ 		pr_debug("unmap handle=%d st=%d\n",
+ 			map->unmap_ops[offset+i].handle,
+ 			map->unmap_ops[offset+i].status);
+ 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		if (use_ptemod) {
+-			if (map->kunmap_ops[offset+i].status)
+-				err = -EINVAL;
++			WARN_ON(map->kunmap_ops[offset+i].status);
+ 			pr_debug("kunmap handle=%u st=%d\n",
+ 				 map->kunmap_ops[offset+i].handle,
+ 				 map->kunmap_ops[offset+i].status);
+ 			map->kunmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
+ 		}
+ 	}
+-	return err;
++
++	/* Release reference taken by __unmap_grant_pages */
++	gntdev_put_map(NULL, map);
+ }
+ 
+-static int unmap_grant_pages(struct gntdev_grant_map *map, int offset,
+-			     int pages)
++static void __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
++			       int pages)
+ {
+-	int range, err = 0;
++	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
++		int pgno = (map->notify.addr >> PAGE_SHIFT);
++
++		if (pgno >= offset && pgno < offset + pages) {
++			/* No need for kmap, pages are in lowmem */
++			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
++
++			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
++			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
++		}
++	}
++
++	map->unmap_data.unmap_ops = map->unmap_ops + offset;
++	map->unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
++	map->unmap_data.pages = map->pages + offset;
++	map->unmap_data.count = pages;
++	map->unmap_data.done = __unmap_grant_pages_done;
++	map->unmap_data.data = map;
++	refcount_inc(&map->users); /* to keep map alive during async call below */
++
++	gnttab_unmap_refs_async(&map->unmap_data);
++}
++
++static void unmap_grant_pages(struct gntdev_grant_map *map, int offset,
++			      int pages)
++{
++	int range;
++
++	if (atomic_long_read(&map->live_grants) == 0)
++		return; /* Nothing to do */
+ 
+ 	pr_debug("unmap %d+%d [%d+%d]\n", map->index, map->count, offset, pages);
+ 
+ 	/* It is possible the requested range will have a "hole" where we
+ 	 * already unmapped some of the grants. Only unmap valid ranges.
+ 	 */
+-	while (pages && !err) {
+-		while (pages &&
+-		       map->unmap_ops[offset].handle == INVALID_GRANT_HANDLE) {
++	while (pages) {
++		while (pages && map->being_removed[offset]) {
+ 			offset++;
+ 			pages--;
+ 		}
+ 		range = 0;
+ 		while (range < pages) {
+-			if (map->unmap_ops[offset + range].handle ==
+-			    INVALID_GRANT_HANDLE)
++			if (map->being_removed[offset + range])
+ 				break;
++			map->being_removed[offset + range] = true;
+ 			range++;
+ 		}
+-		err = __unmap_grant_pages(map, offset, range);
++		if (range)
++			__unmap_grant_pages(map, offset, range);
+ 		offset += range;
+ 		pages -= range;
+ 	}
+-
+-	return err;
+ }
+ 
+ /* ------------------------------------------------------------------ */
+@@ -473,7 +522,6 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
+ 	struct gntdev_grant_map *map =
+ 		container_of(mn, struct gntdev_grant_map, notifier);
+ 	unsigned long mstart, mend;
+-	int err;
+ 
+ 	if (!mmu_notifier_range_blockable(range))
+ 		return false;
+@@ -494,10 +542,9 @@ static bool gntdev_invalidate(struct mmu_interval_notifier *mn,
+ 			map->index, map->count,
+ 			map->vma->vm_start, map->vma->vm_end,
+ 			range->start, range->end, mstart, mend);
+-	err = unmap_grant_pages(map,
++	unmap_grant_pages(map,
+ 				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
+ 				(mend - mstart) >> PAGE_SHIFT);
+-	WARN_ON(err);
+ 
+ 	return true;
+ }
+@@ -985,6 +1032,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
+ 		goto unlock_out;
+ 	if (use_ptemod && map->vma)
+ 		goto unlock_out;
++	if (atomic_long_read(&map->live_grants)) {
++		err = -EAGAIN;
++		goto unlock_out;
++	}
+ 	refcount_inc(&map->users);
+ 
+ 	vma->vm_ops = &gntdev_vmops;
 -- 
-2.17.1
-
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+Invisible Things Lab
