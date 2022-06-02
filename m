@@ -2,83 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 987C853BB0D
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 16:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E975553BBB1
+	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 17:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236007AbiFBOiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 10:38:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
+        id S236480AbiFBPlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 11:41:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236006AbiFBOh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 10:37:58 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BAF131229
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 07:37:56 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id c196so4941205pfb.1
-        for <stable@vger.kernel.org>; Thu, 02 Jun 2022 07:37:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=Sk/LpREl6lCpYUK3sh4dhIYv+NwXzY+EQFNtou9uNgg=;
-        b=WU//QHTddMEmbobKV3WmcaFVCVlqESjL4yadeBcxJG2Ehcb0sSYTsZ2ImwxNeLk/vm
-         MlQdDacFExr4Y4YHDdLlFOOS1UjdqOIrJFDkP/uhF4qxxtDHANzfd/1htrEsoDczNBt9
-         pbsUknttci1Qm1XuPwq7iten0RYvQ3EgZAPklHaWN5NWPnYBt1zpZrUUMCnLDduM4fQZ
-         Jf+eiPYLSvXYm/5oFexTJemCClME2J4GAt69BjH4gRvnso9TSvpmG5pJdtSKY1ajWgPO
-         24aLoQGMyZ221R2i8b0wtiAv/IeG1ozi7UfMDcsGOIeD7POBBFykhNSQ7/+AHwBJdikp
-         NLMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Sk/LpREl6lCpYUK3sh4dhIYv+NwXzY+EQFNtou9uNgg=;
-        b=A88+qx9udRf3c5n8Jze9SJ6IivTwhX5Cb41xEXJIVyEpBAQfkbWB87zzCmxM6HHGON
-         EkwChKTtwgabxQg+znYph5Qj4aWa0L406LLAV3emLRMtIUjaZcfTX0GhYjZ6OHM0nSwe
-         6nX/eR97FBJF3McEvlnBKlxLaI/hzVhoZuj67hThIc0Tsaqa2PaXIiBeVnqz3gRKbdI6
-         XhutdY+GMbIXL1ELQR4wpem01hctZHokalRG00lhS2jxZiS+I/HXLHKkk0pzPnQGYSy4
-         Icx4OKtoLhMgUHA3zOO4TIcSvFNboVuiVEMi3RafG+VI8AKIpxLP1r7ebBD5SvoSmKT1
-         ID1w==
-X-Gm-Message-State: AOAM530cTDZ7pnftEYVbV72JcXiKVK37d8DzASCvMqUb9sjQ72iYwFmo
-        kFPnPQ2GzmBiP8BWk6SFe0s68g==
-X-Google-Smtp-Source: ABdhPJylye22XZAN19kga/OK9TT4aEC7VNrMVwD8tJrhsly5C9WmEfLmW7j0si2yIeXqk24ffGKw0Q==
-X-Received: by 2002:a63:f955:0:b0:3fc:cf92:cd26 with SMTP id q21-20020a63f955000000b003fccf92cd26mr4494997pgk.137.1654180675640;
-        Thu, 02 Jun 2022 07:37:55 -0700 (PDT)
-Received: from [192.168.254.36] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id z14-20020a17090a170e00b001df239bab14sm3440275pjd.46.2022.06.02.07.37.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Jun 2022 07:37:54 -0700 (PDT)
-Message-ID: <41265f4d-45b4-a3a6-e0c0-5460d2a06377@linaro.org>
-Date:   Thu, 2 Jun 2022 07:37:53 -0700
+        with ESMTP id S232621AbiFBPlW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 11:41:22 -0400
+Received: from mail1.wrs.com (unknown-3-146.windriver.com [147.11.3.146])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 649A8279E75;
+        Thu,  2 Jun 2022 08:41:20 -0700 (PDT)
+Received: from ala-exchng01.corp.ad.wrs.com (ala-exchng01.corp.ad.wrs.com [147.11.82.252])
+        by mail1.wrs.com (8.15.2/8.15.2) with ESMTPS id 252EnJEW009792
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 2 Jun 2022 07:49:19 -0700
+Received: from otp-dpanait-l2.corp.ad.wrs.com (128.224.125.150) by
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Thu, 2 Jun 2022 07:49:17 -0700
+From:   Dragos-Marian Panait <dragos.panait@windriver.com>
+To:     <stable@vger.kernel.org>
+CC:     Haimin Zhang <tcs.kernel@gmail.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.19 0/1] block-map: backport fix for CVE-2022-0494
+Date:   Thu, 2 Jun 2022 17:49:07 +0300
+Message-ID: <20220602144908.2250166-1-dragos.panait@windriver.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v4] bpf: Fix KASAN use-after-free Read in
- compute_effective_progs
-Content-Language: en-US
-To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Networking <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
-References: <CAEf4BzY-p13huoqo6N7LJRVVj8rcjPeP3Cp=KDX4N2x9BkC9Zw@mail.gmail.com>
- <20220517180420.87954-1-tadeusz.struk@linaro.org>
- <7949d722-86e8-8122-e607-4b09944b76ae@linaro.org>
- <CAEf4BzaD1Z6uOZwbquPYWB0_Z0+CkEKiXQ6zS2imiSHpTgX3pg@mail.gmail.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-In-Reply-To: <CAEf4BzaD1Z6uOZwbquPYWB0_Z0+CkEKiXQ6zS2imiSHpTgX3pg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [128.224.125.150]
+X-ClientProxiedBy: ala-exchng01.corp.ad.wrs.com (147.11.82.252) To
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252)
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
+        SPF_HELO_NONE,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -86,18 +48,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrii,
-On 5/23/22 15:47, Andrii Nakryiko wrote:
->> Hi Andrii,
->> Do you have any more feedback? Does it look better to you now?
-> Hi, this is on my TODO list, but I need a bit more focused time to
-> think all this through and I haven't managed to get it in last week.
-> I'm worried about the percpu_ref_is_zero(&desc->bpf.refcnt) portion
-> and whether it can cause some skew in the calculated array index, I
-> need to look at this a bit more in depth. Sorry for the delay.
+The following commit is needed to fix CVE-2022-0494:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cc8f7fe1f5eab010191aa4570f27641876fa1267
 
-Did you get a chance to look at this yet?
+Haimin Zhang (1):
+  block-map: add __GFP_ZERO flag for alloc_page in function
+    bio_copy_kern
 
+ block/bio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+
+base-commit: 06d93c33da2cc9c3ca79f5ba757e08306455d9d6
 -- 
-Thanks,
-Tadeusz
+2.36.1
+
