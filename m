@@ -2,107 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B182D53C073
-	for <lists+stable@lfdr.de>; Thu,  2 Jun 2022 23:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48BF053C0EC
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 00:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239458AbiFBVoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jun 2022 17:44:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
+        id S236696AbiFBWo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jun 2022 18:44:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239443AbiFBVoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 17:44:06 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C58BC2B
-        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 14:44:05 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id s188so8192355oie.4
-        for <stable@vger.kernel.org>; Thu, 02 Jun 2022 14:44:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=6R+uLvt2zENhJ20bF38rSFpcNPlFFquKcUJgsnEjZHI=;
-        b=SHytMutaULQkijKuqpxclZGgB3QZAGMt9TNnXsprB6mh3ai2VsaORW/DEbJBx2vMFI
-         frZSi86LGhTWvldR+3crC8zqe8Ei+NXSv/RONSO2J4YcmfrjQaFjMgEKAmU/CfWsgNEk
-         rY2zrvqh1byf0eXUoiAgcwL6UR3ESaGdtEFVJCTWia3QfYOimj/4SIOU2N8vrTr/FFUs
-         VMlAhs24r50lboQWJMmHuXuFYsdXma6Tz9SIkdxqf0uBDodfVGwfFDFYoZGXK61YOl2R
-         K8GEGwFmUUNvSVZk1Ax4VkLEBEG7dMT/FsNw2zacjvpR2uFxUF1go0gixRHGNl7r8vnC
-         UEPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=6R+uLvt2zENhJ20bF38rSFpcNPlFFquKcUJgsnEjZHI=;
-        b=afHNDaPCXdb67sMeUQnBalqbHQOHGiAWIJfkeRZCmGFlEEo5TH1use9BTS8hhUDmaN
-         0NiPEvLVltB8Mns5SbYFhLQZV7o9dHLDdH5ez5BIJXRIgI5rGU2Q5P/++kQ5r55hkJpf
-         WJqlWmHNfOAUs8wbbQck6yTV8FbPqo6b/UdwyOTT5NMs8weEf1IChdUiw06WqlkZ7iRD
-         Ab9AGJEpYDwGDs+PWjaAjnATYC6gfp4+RcykIsZkPy/ChYo9pXFNs2KF13RdZADxtrgu
-         cMOlLp0dhqGGwoQLgSERI0qUO1u4po6C9O3TEc53VvWeyvY2a7NyzO9c5TSJKG5ldfey
-         zYqw==
-X-Gm-Message-State: AOAM532wsBuEoh0gz+Z9RkP/nQRRIYZ3rxloym5jlLoxqx+QgM+G+oIq
-        ZDY2QlKGH/AzbrLOZYTn2M2Iy1JlVieLyIxBPGE=
-X-Google-Smtp-Source: ABdhPJxuQvhN68lFpd1sKFZ3jZhxtjW9SdwR8Dn0KBogl9aSsXQGOWacSrZbGTeX6CYa2uwyx/5XPFMDmmH/PQp/Okg=
-X-Received: by 2002:a05:6808:10ce:b0:32b:9c75:28a8 with SMTP id
- s14-20020a05680810ce00b0032b9c7528a8mr19697001ois.69.1654206244664; Thu, 02
- Jun 2022 14:44:04 -0700 (PDT)
+        with ESMTP id S237041AbiFBWo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jun 2022 18:44:27 -0400
+Received: from mailout.rz.uni-frankfurt.de (mailout.rz.uni-frankfurt.de [141.2.22.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7717537A81
+        for <stable@vger.kernel.org>; Thu,  2 Jun 2022 15:44:25 -0700 (PDT)
+Received: from smtpauth1.cluster.uni-frankfurt.de ([10.1.1.45])
+        by mailout.rz.uni-frankfurt.de with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <sattler@med.uni-frankfurt.de>)
+        id 1nwtYF-0000KT-C4; Fri, 03 Jun 2022 00:44:23 +0200
+Received: from p57bcf53e.dip0.t-ipconnect.de ([87.188.245.62] helo=[192.168.2.17])
+        by smtpauth1.cluster.uni-frankfurt.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <sattler@med.uni-frankfurt.de>)
+        id 1nwtYF-0006fs-AO; Fri, 03 Jun 2022 00:44:23 +0200
+Message-ID: <1f8a4bec-53bd-aaaa-49a7-b5ed4fc5ae34@med.uni-frankfurt.de>
+Date:   Fri, 3 Jun 2022 00:44:22 +0200
 MIME-Version: 1.0
-Sender: madoxman376@gmail.com
-Received: by 2002:a4a:558b:0:0:0:0:0 with HTTP; Thu, 2 Jun 2022 14:44:04 -0700 (PDT)
-From:   agnesgeorge <agnesmrsgeorge@gmail.com>
-Date:   Thu, 2 Jun 2022 21:44:04 +0000
-X-Google-Sender-Auth: ZoqRcDy3K1TTutp4OburGUnf0B8
-Message-ID: <CAH7dDN=rPx+8dS3aNG10y7ivc9dWtYe_BjH4ckBGVWuejestNA@mail.gmail.com>
-Subject: Dearest beloved in the Lord,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_99,BAYES_999,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,LOTS_OF_MONEY,MILLION_HUNDRED,MONEY_FORM_SHORT,
-        MONEY_FRAUD_3,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: boot loop since 5.17.6
+Content-Language: en-US
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+References: <11495172-41dd-5c44-3ef6-8d3ff3ebd1b2@med.uni-frankfurt.de>
+ <c3b370a8-193e-329b-c73a-1371bd62edf3@med.uni-frankfurt.de>
+ <181a6369-e373-b020-2059-33fb5161d8d3@med.uni-frankfurt.de>
+ <YpksflOG2Y1Xng89@dev-arch.thelio-3990X>
+From:   Thomas Sattler <sattler@med.uni-frankfurt.de>
+In-Reply-To: <YpksflOG2Y1Xng89@dev-arch.thelio-3990X>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dearest beloved in the Lord,
+Am 02.06.22 um 23:32 schrieb Nathan Chancellor:
+>> Am 02.06.22 um 18:42 schrieb Thomas Sattler:
+>>>
+>>> I tried to compile 5.17.6 without the three mentioned diffs which
+>>> modify the following files:
+>>>
+>>>      tools/objtool/check.c   and
+>>>      tools/objtool/elf.c      and
+>>>      tools/objtool/include/objtool/elf.h
+>>>
+>>> and was then able to successfully boot 5.17.6.
+> 
+> 5.17.6 has commit 60d2b0b1018a ("objtool: Fix code relocs vs weak
+> symbols"), which has a known issue that is fixed with commit
+> ead165fa1042 ("objtool: Fix symbol creation"). If you apply ead165fa1042
+> on 5.17.6 or newer, does that resolve your issue?
 
+I applied ead165fa1042 ontop of 5.17.12, but that did not make
+my system boot that kernel.
 
-I am Ms. Agnes George,  a 75 year old British woman. I was born an orphan
-and GOD blessed me abundantly with riches but no children nor husband which
-makes me an unhappy woman. Now I am affected with cancer of the lung and
-breast with a partial stroke which has affected my speech. I can no longer
-talk well and half of my body is paralyzed, I sent this email to you with
-the help of my private female nurse.
+Thomas
 
-
-My condition is really deteriorating day by day and it is really giving me
-lots to think about.  This has prompted my decision to donate all I have
-for charity; I have made numerous donations all over the world. After going
-through your profile, I decided to make my last donation of Ten Million
-Five Hundred Thousand United Kingdom Pounds  (UK=C2=A310.500, 000, 00) to y=
-ou as
-my investment manager. I want you to build an Orphanage home with my name (
-Agnes George  ) in your country.
-
-
-If you are willing and able to do this task for the sake of humanity then
-send me below information for more details to receive the funds.
-
-
-1. Name...................................................
-
-
-2. Phone number...............................
-
-
-3. Address.............................................
-
-
-4. Country of Origin and residence
-
-
-Ms. Agnes George.
