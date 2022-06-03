@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E35C853D05F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64D453CFE2
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346444AbiFCSDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40290 "EHLO
+        id S239592AbiFCR5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:57:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346102AbiFCSBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:01:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95304A906;
-        Fri,  3 Jun 2022 10:57:41 -0700 (PDT)
+        with ESMTP id S1345777AbiFCR4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:56:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8427456F97;
+        Fri,  3 Jun 2022 10:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7F38B8241E;
-        Fri,  3 Jun 2022 17:56:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F6B7C385A9;
-        Fri,  3 Jun 2022 17:56:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4209DB82430;
+        Fri,  3 Jun 2022 17:54:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C942C341C0;
+        Fri,  3 Jun 2022 17:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279018;
-        bh=visI1TTHwmCqbAwL6UAvfvNG1u2FwYk4D+zDUFCK6Sc=;
+        s=korg; t=1654278841;
+        bh=u3IpJg7f52QEmZoiTs+geEPRmnLMhe+3HVFYgwUxjcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEH0YNuEdLVBssrhhbFCr5rqdcryulFM1vz0YfY4NkeF9JlReHJ8rIsp3Z5wlwh6M
-         TTu7PSxVRQBT0TdWVUDMe4UJssQ8qjJ9nSdOcmQlY5etXmexusyQVgGvOnoScWoYmj
-         ltKR5YbQwwj09I14+mjfuuDauhgZZgZ2XbbhD2Pw=
+        b=NfplIdH5VWQBNcX7nAjS2H99ntgDNP6ofPHzSkCTJpJqpXugim9Elr15L1haOCzv+
+         2PHc32p9XFXsPy8buVugH552s69xDnDZQ4frZBUncc793UcjLpEtKN41j2ADeg5/6M
+         ND7OoYns9TBHE+TA1eZo+302S+SSVgn2EoKyh+KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenyi Qiang <chenyi.qiang@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 26/67] KVM: x86: Drop WARNs that assert a triple fault never "escapes" from L2
-Date:   Fri,  3 Jun 2022 19:43:27 +0200
-Message-Id: <20220603173821.478797713@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Maris Abele <maris7abele@gmail.com>
+Subject: [PATCH 5.17 44/75] ALSA: usb-audio: Workaround for clock setup on TEAC devices
+Date:   Fri,  3 Jun 2022 19:43:28 +0200
+Message-Id: <20220603173822.998263429@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 45846661d10422ce9e22da21f8277540b29eca22 upstream.
+commit 5ce0b06ae5e69e23142e73c5c3c0260e9f2ccb4b upstream.
 
-Remove WARNs that sanity check that KVM never lets a triple fault for L2
-escape and incorrectly end up in L1.  In normal operation, the sanity
-check is perfectly valid, but it incorrectly assumes that it's impossible
-for userspace to induce KVM_REQ_TRIPLE_FAULT without bouncing through
-KVM_RUN (which guarantees kvm_check_nested_state() will see and handle
-the triple fault).
+Maris reported that TEAC UD-501 (0644:8043) doesn't work with the
+typical "clock source 41 is not valid, cannot use" errors on the
+recent kernels.  The currently known workaround so far is to restore
+(partially) what we've done unconditionally at the clock setup;
+namely, re-setup the USB interface immediately after the clock is
+changed.  This patch re-introduces the behavior conditionally for TEAC
+devices.
 
-The WARN can currently be triggered if userspace injects a machine check
-while L2 is active and CR4.MCE=0.  And a future fix to allow save/restore
-of KVM_REQ_TRIPLE_FAULT, e.g. so that a synthesized triple fault isn't
-lost on migration, will make it trivially easy for userspace to trigger
-the WARN.
+Further notes:
+- The USB interface shall be set later in
+  snd_usb_endpoint_configure(), but this seems to be too late.
+- Even calling  usb_set_interface() right after
+  sne_usb_init_sample_rate() doesn't help; so this must be related
+  with the clock validation, too.
+- The device may still spew the "clock source 41 is not valid" error
+  at the first clock setup.  This seems happening at the very first
+  try of clock setup, but it disappears at later attempts.
+  The error is likely harmless because the driver retries the clock
+  setup (such an error is more or less expected on some devices).
 
-Clearing KVM_REQ_TRIPLE_FAULT when forcibly leaving guest mode is
-tempting, but wrong, especially if/when the request is saved/restored,
-e.g. if userspace restores events (including a triple fault) and then
-restores nested state (which may forcibly leave guest mode).  Ignoring
-the fact that KVM doesn't currently provide the necessary APIs, it's
-userspace's responsibility to manage pending events during save/restore.
-
-  ------------[ cut here ]------------
-  WARNING: CPU: 7 PID: 1399 at arch/x86/kvm/vmx/nested.c:4522 nested_vmx_vmexit+0x7fe/0xd90 [kvm_intel]
-  Modules linked in: kvm_intel kvm irqbypass
-  CPU: 7 PID: 1399 Comm: state_test Not tainted 5.17.0-rc3+ #808
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:nested_vmx_vmexit+0x7fe/0xd90 [kvm_intel]
-  Call Trace:
-   <TASK>
-   vmx_leave_nested+0x30/0x40 [kvm_intel]
-   vmx_set_nested_state+0xca/0x3e0 [kvm_intel]
-   kvm_arch_vcpu_ioctl+0xf49/0x13e0 [kvm]
-   kvm_vcpu_ioctl+0x4b9/0x660 [kvm]
-   __x64_sys_ioctl+0x83/0xb0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
-  ---[ end trace 0000000000000000 ]---
-
-Fixes: cb6a32c2b877 ("KVM: x86: Handle triple fault in L2 without killing L1")
-Cc: stable@vger.kernel.org
-Cc: Chenyi Qiang <chenyi.qiang@intel.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220407002315.78092-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
+Reported-and-tested-by: Maris Abele <maris7abele@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220521064627.29292-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/nested.c |    3 ---
- arch/x86/kvm/vmx/nested.c |    3 ---
- 2 files changed, 6 deletions(-)
+ sound/usb/clock.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -819,9 +819,6 @@ int nested_svm_vmexit(struct vcpu_svm *s
- 	struct kvm_host_map map;
- 	int rc;
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -572,6 +572,13 @@ static int set_sample_rate_v2v3(struct s
+ 		/* continue processing */
+ 	}
  
--	/* Triple faults in L2 should never escape. */
--	WARN_ON_ONCE(kvm_check_request(KVM_REQ_TRIPLE_FAULT, vcpu));
--
- 	rc = kvm_vcpu_map(vcpu, gpa_to_gfn(svm->nested.vmcb12_gpa), &map);
- 	if (rc) {
- 		if (rc == -EINVAL)
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4518,9 +4518,6 @@ void nested_vmx_vmexit(struct kvm_vcpu *
- 	/* trying to cancel vmlaunch/vmresume is a bug */
- 	WARN_ON_ONCE(vmx->nested.nested_run_pending);
- 
--	/* Similarly, triple faults in L2 should never escape. */
--	WARN_ON_ONCE(kvm_check_request(KVM_REQ_TRIPLE_FAULT, vcpu));
--
- 	if (kvm_check_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu)) {
- 		/*
- 		 * KVM_REQ_GET_NESTED_STATE_PAGES is also used to map
++	/* FIXME - TEAC devices require the immediate interface setup */
++	if (rate != prev_rate && USB_ID_VENDOR(chip->usb_id) == 0x0644) {
++		usb_set_interface(chip->dev, fmt->iface, fmt->altsetting);
++		if (chip->quirk_flags & QUIRK_FLAG_IFACE_DELAY)
++			msleep(50);
++	}
++
+ validation:
+ 	/* validate clock after rate change */
+ 	if (!uac_clock_source_is_valid(chip, fmt, clock))
 
 
