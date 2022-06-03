@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CC453CE62
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC75553CEA8
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344844AbiFCRlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:41:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
+        id S1344852AbiFCRpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:45:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344847AbiFCRlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:12 -0400
+        with ESMTP id S1345146AbiFCRov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:44:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A80453E15;
-        Fri,  3 Jun 2022 10:40:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB23C55363;
+        Fri,  3 Jun 2022 10:42:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18A3C61AFE;
-        Fri,  3 Jun 2022 17:40:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E7A3C385B8;
-        Fri,  3 Jun 2022 17:40:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 525FD61B48;
+        Fri,  3 Jun 2022 17:42:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A6CCC385A9;
+        Fri,  3 Jun 2022 17:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278055;
-        bh=DZ/F7hfto6+zZNrsEDnnEnfL6SgqUExG+EhCpoew7Y8=;
+        s=korg; t=1654278160;
+        bh=av2qwQPk8Q+62nOvRzPKh+Ovja46k5PlRTy59g/6TXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kIX1UJtaWGGgKvsg6MtCPut/5WFE1mh9emK1oYuNhHSLID0iV6gm+jk/1OWRCrWgX
-         6/XQlTdZrg/MAgN7ObFyIHEAAUOeBA1PietGg0LclySRCWYSIZjj4LpIlzRMlKkLNk
-         MGmk9QSlFJ4fcTCX/X7kgxtGrVChSXTjWp+LNKi4=
+        b=vWftvVJ84vimYvT/1dW1riM7eg6s1k0jjQZTLNBn431Y0mfKO3iaT6Cq2dXjENepG
+         gvTM92rQpuREI9EfuqqTM8utynDtMB+9HW1e31rIb/AjA8iEzzMGApQGqM2vg6Oj92
+         iEgBeY0/+92lL5W/99gLDAk1kyUJq66LKBgNK4XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Joel Stanley <joel@jms.id.au>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/23] net: ftgmac100: Disable hardware checksum on AST2600
-Date:   Fri,  3 Jun 2022 19:39:35 +0200
-Message-Id: <20220603173814.619431272@linuxfoundation.org>
+Subject: [PATCH 4.19 08/30] net: ftgmac100: Disable hardware checksum on AST2600
+Date:   Fri,  3 Jun 2022 19:39:36 +0200
+Message-Id: <20220603173815.338586291@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
-References: <20220603173814.362515009@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -125,10 +125,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
-index f35c5dbe54ee..a1caca6accf3 100644
+index 964407deca35..23c019d1278c 100644
 --- a/drivers/net/ethernet/faraday/ftgmac100.c
 +++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1845,6 +1845,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
+@@ -1869,6 +1869,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
  	/* AST2400  doesn't have working HW checksum generation */
  	if (np && (of_device_is_compatible(np, "aspeed,ast2400-mac")))
  		netdev->hw_features &= ~NETIF_F_HW_CSUM;
