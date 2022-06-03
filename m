@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F93D53CE8A
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6EE553CE8D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344918AbiFCRnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:43:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56932 "EHLO
+        id S239627AbiFCRny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:43:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240604AbiFCRni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B00554019;
-        Fri,  3 Jun 2022 10:42:00 -0700 (PDT)
+        with ESMTP id S1345020AbiFCRnj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF7854BED;
+        Fri,  3 Jun 2022 10:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97E3961AFD;
-        Fri,  3 Jun 2022 17:41:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7735C385A9;
-        Fri,  3 Jun 2022 17:41:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49EF0B8241E;
+        Fri,  3 Jun 2022 17:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4C0FC385A9;
+        Fri,  3 Jun 2022 17:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278119;
-        bh=lD/i58mJ1mzC0KR7f+afWNEDoc7pInkWcARBKYxsdxQ=;
+        s=korg; t=1654278122;
+        bh=0alvOT1vkFZ0mVurB7FvRHC52wHIVzspOCufxHyjTq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUue1vL/BQpj1XszhTlwhozgFGlVOE7B32QtHefLOI9/cmXzmMysskx6WZ1Wk6s/f
-         TNipghOMy3PXK2IZLWubRiXaepGlV4mwqTN65l7kLuvB4uLDXKk0qzpvN0FyaXTJcz
-         vk62u1tGwdzKf7OfDUK+d4s1uw8GQQKGZyDiMh0o=
+        b=bU8WqOAVmj0ODDfgr+X3uHyPLk3NyMYFHKPzTG0Nb8PTZ+Nz3RGDmINyAdAITEV9H
+         0wl4aa3He7J6JPM3KsdkA+pce+w7qllytOXoROSgYVKxd0+5e9X83vGnHdghqm44D8
+         RGT5HP4w4aU6+QReTKkofprys9Ww+I3LSCVtnhMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: [PATCH 4.19 16/30] drm/i915: Fix -Wstringop-overflow warning in call to intel_read_wm_latency()
-Date:   Fri,  3 Jun 2022 19:39:44 +0200
-Message-Id: <20220603173815.574880171@linuxfoundation.org>
+        stable@vger.kernel.org, Haimin Zhang <tcs.kernel@gmail.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Dragos-Marian Panait <dragos.panait@windriver.com>
+Subject: [PATCH 4.19 17/30] block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
+Date:   Fri,  3 Jun 2022 19:39:45 +0200
+Message-Id: <20220603173815.603005664@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
 References: <20220603173815.088143764@linuxfoundation.org>
@@ -53,54 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Haimin Zhang <tcs.kernel@gmail.com>
 
-commit 336feb502a715909a8136eb6a62a83d7268a353b upstream.
+commit cc8f7fe1f5eab010191aa4570f27641876fa1267 upstream.
 
-Fix the following -Wstringop-overflow warnings when building with GCC-11:
+Add __GFP_ZERO flag for alloc_page in function bio_copy_kern to initialize
+the buffer of a bio.
 
-drivers/gpu/drm/i915/intel_pm.c:3106:9: warning: ‘intel_read_wm_latency’ accessing 16 bytes in a region of size 10 [-Wstringop-overflow=]
- 3106 |         intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
-      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/i915/intel_pm.c:3106:9: note: referencing argument 2 of type ‘u16 *’ {aka ‘short unsigned int *’}
-drivers/gpu/drm/i915/intel_pm.c:2861:13: note: in a call to function ‘intel_read_wm_latency’
- 2861 | static void intel_read_wm_latency(struct drm_i915_private *dev_priv,
-      |             ^~~~~~~~~~~~~~~~~~~~~
-
-by removing the over-specified array size from the argument declarations.
-
-It seems that this code is actually safe because the size of the
-array depends on the hardware generation, and the function checks
-for that.
-
-Notice that wm can be an array of 5 elements:
-drivers/gpu/drm/i915/intel_pm.c:3109:   intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
-
-or an array of 8 elements:
-drivers/gpu/drm/i915/intel_pm.c:3131:   intel_read_wm_latency(dev_priv, dev_priv->wm.skl_latency);
-
-and the compiler legitimately complains about that.
-
-This helps with the ongoing efforts to globally enable
--Wstringop-overflow.
-
-Link: https://github.com/KSPP/linux/issues/181
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220216084038.15635-1-tcs.kernel@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[DP: Backported to 4.19: Manually added __GFP_ZERO flag]
+Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |    2 +-
+ block/bio.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -2814,7 +2814,7 @@ hsw_compute_linetime_wm(const struct int
- }
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1528,7 +1528,7 @@ struct bio *bio_copy_kern(struct request
+ 		if (bytes > len)
+ 			bytes = len;
  
- static void intel_read_wm_latency(struct drm_i915_private *dev_priv,
--				  uint16_t wm[8])
-+				  uint16_t wm[])
- {
- 	if (INTEL_GEN(dev_priv) >= 9) {
- 		uint32_t val;
+-		page = alloc_page(q->bounce_gfp | gfp_mask);
++		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
+ 		if (!page)
+ 			goto cleanup;
+ 
 
 
