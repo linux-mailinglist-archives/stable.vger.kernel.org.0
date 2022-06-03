@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A867953CE58
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9C7653CE53
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344714AbiFCRlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:41:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57686 "EHLO
+        id S1344719AbiFCRlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344768AbiFCRlG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6778C53A5C;
-        Fri,  3 Jun 2022 10:40:46 -0700 (PDT)
+        with ESMTP id S1344716AbiFCRlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F073C53A74;
+        Fri,  3 Jun 2022 10:40:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0276B82432;
-        Fri,  3 Jun 2022 17:40:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD77C385A9;
-        Fri,  3 Jun 2022 17:40:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AC9E61AFD;
+        Fri,  3 Jun 2022 17:40:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23179C385B8;
+        Fri,  3 Jun 2022 17:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278043;
-        bh=sN7wRxbdbo9D8Yq5WNQYC5GLQgZO7z+fJyeL/zVH8sU=;
+        s=korg; t=1654278046;
+        bh=2/eUY5HJlBIAAIiHk2QQP+pGXmnFeSwcIppQN6JtJJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGFxvmWsawjoPC+rWMmlYnhYzVzCyC1McIlJUX/zCOLnyYpBfZBcuoNPOJVDba0gC
-         EgR4THwCAopYI8CScr1Oh4q1UmDhszGJJ9h0qh9b/YJXWh4vW48XEvkEpowHt7v5WC
-         NJiHUJHtvuFOcz3jwy7gsqeyc2C5MGGtyMPEG8RY=
+        b=AVCNc8WZRydYfOz5ZqEXeyRPzNB08bkFofmGTQjwO1BJohUf3kRcHSIaUj4CXIK8/
+         JRJrpJadDrBwmd64veC2F1nqjQYKYwI7Lwh+ZXOnw8lXqFw5eH+Jvg/jJKuTJ9mW9F
+         +Iy4I23rAD8Hme2m0JJxjoFtlvJdieYaVMEypbNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 4.14 04/23] secure_seq: use the 64 bits of the siphash for port offset calculation
-Date:   Fri,  3 Jun 2022 19:39:31 +0200
-Message-Id: <20220603173814.498717948@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 4.14 05/23] ACPI: sysfs: Make sparse happy about address space in use
+Date:   Fri,  3 Jun 2022 19:39:32 +0200
+Message-Id: <20220603173814.528641585@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
 References: <20220603173814.362515009@linuxfoundation.org>
@@ -58,139 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit b2d057560b8107c633b39aabe517ff9d93f285e3 upstream.
+commit bdd56d7d8931e842775d2e5b93d426a8d1940e33 upstream.
 
-SipHash replaced MD5 in secure_ipv{4,6}_port_ephemeral() via commit
-7cd23e5300c1 ("secure_seq: use SipHash in place of MD5"), but the output
-remained truncated to 32-bit only. In order to exploit more bits from the
-hash, let's make the functions return the full 64-bit of siphash_3u32().
-We also make sure the port offset calculation in __inet_hash_connect()
-remains done on 32-bit to avoid the need for div_u64_rem() and an extra
-cost on 32-bit systems.
+Sparse is not happy about address space in use in acpi_data_show():
 
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[SG: Adjusted context]
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+drivers/acpi/sysfs.c:428:14: warning: incorrect type in assignment (different address spaces)
+drivers/acpi/sysfs.c:428:14:    expected void [noderef] __iomem *base
+drivers/acpi/sysfs.c:428:14:    got void *
+drivers/acpi/sysfs.c:431:59: warning: incorrect type in argument 4 (different address spaces)
+drivers/acpi/sysfs.c:431:59:    expected void const *from
+drivers/acpi/sysfs.c:431:59:    got void [noderef] __iomem *base
+drivers/acpi/sysfs.c:433:30: warning: incorrect type in argument 1 (different address spaces)
+drivers/acpi/sysfs.c:433:30:    expected void *logical_address
+drivers/acpi/sysfs.c:433:30:    got void [noderef] __iomem *base
+
+Indeed, acpi_os_map_memory() returns a void pointer with dropped specific
+address space. Hence, we don't need to carry out __iomem in acpi_data_show().
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_hashtables.h |    2 +-
- include/net/secure_seq.h      |    4 ++--
- net/core/secure_seq.c         |    4 ++--
- net/ipv4/inet_hashtables.c    |   10 ++++++----
- net/ipv6/inet6_hashtables.c   |    4 ++--
- 5 files changed, 13 insertions(+), 11 deletions(-)
+ drivers/acpi/sysfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/inet_hashtables.h
-+++ b/include/net/inet_hashtables.h
-@@ -390,7 +390,7 @@ static inline void sk_rcv_saddr_set(stru
- }
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--			struct sock *sk, u32 port_offset,
-+			struct sock *sk, u64 port_offset,
- 			int (*check_established)(struct inet_timewait_death_row *,
- 						 struct sock *, __u16,
- 						 struct inet_timewait_sock **));
---- a/include/net/secure_seq.h
-+++ b/include/net/secure_seq.h
-@@ -4,8 +4,8 @@
- 
- #include <linux/types.h>
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport);
- u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
- 		   __be16 sport, __be16 dport);
---- a/net/core/secure_seq.c
-+++ b/net/core/secure_seq.c
-@@ -96,7 +96,7 @@ u32 secure_tcpv6_seq(const __be32 *saddr
- }
- EXPORT_SYMBOL(secure_tcpv6_seq);
- 
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport)
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -435,7 +435,7 @@ static ssize_t acpi_data_show(struct fil
+ 			      loff_t offset, size_t count)
  {
- 	const struct {
-@@ -145,7 +145,7 @@ u32 secure_tcp_seq(__be32 saddr, __be32
- 	return seq_scale(hash);
- }
+ 	struct acpi_data_attr *data_attr;
+-	void __iomem *base;
++	void *base;
+ 	ssize_t rc;
  
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
- {
- 	net_secret_init();
- 	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -389,7 +389,7 @@ not_unique:
- 	return -EADDRNOTAVAIL;
- }
- 
--static u32 inet_sk_port_offset(const struct sock *sk)
-+static u64 inet_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
- 
-@@ -599,7 +599,7 @@ EXPORT_SYMBOL_GPL(inet_unhash);
- static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--		struct sock *sk, u32 port_offset,
-+		struct sock *sk, u64 port_offset,
- 		int (*check_established)(struct inet_timewait_death_row *,
- 			struct sock *, __u16, struct inet_timewait_sock **))
- {
-@@ -639,7 +639,9 @@ int __inet_hash_connect(struct inet_time
- 	net_get_random_once(table_perturb, sizeof(table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
--	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
-+	offset = READ_ONCE(table_perturb[index]) + port_offset;
-+	offset %= remaining;
-+
- 	/* In first pass we try ports of @low parity.
- 	 * inet_csk_get_port() does the opposite choice.
- 	 */
-@@ -715,7 +717,7 @@ ok:
- int inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		      struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet_sk_port_offset(sk);
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -248,7 +248,7 @@ not_unique:
- 	return -EADDRNOTAVAIL;
- }
- 
--static u32 inet6_sk_port_offset(const struct sock *sk)
-+static u64 inet6_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
- 
-@@ -260,7 +260,7 @@ static u32 inet6_sk_port_offset(const st
- int inet6_hash_connect(struct inet_timewait_death_row *death_row,
- 		       struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet6_sk_port_offset(sk);
+ 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
 
 
