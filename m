@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CDF53D020
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A5453CF35
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346142AbiFCR76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:59:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51502 "EHLO
+        id S1345458AbiFCRxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346136AbiFCR7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:59:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F30C580E1;
-        Fri,  3 Jun 2022 10:55:15 -0700 (PDT)
+        with ESMTP id S1347162AbiFCRwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6C0580C7;
+        Fri,  3 Jun 2022 10:50:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFE9B60F3B;
-        Fri,  3 Jun 2022 17:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFA7C385B8;
-        Fri,  3 Jun 2022 17:55:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F946B8241E;
+        Fri,  3 Jun 2022 17:50:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A35FC385B8;
+        Fri,  3 Jun 2022 17:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278914;
-        bh=4s/qfcd7m36IGhRpyGgRTOHB6EW2VRul4AL6adni7zI=;
+        s=korg; t=1654278605;
+        bh=L9NL8cfQm4uBAI+EBhlVPB/EEPK4z9XyUAwqdOPAGPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFNgrqn51QsTSKdLgxhYJXk5fVsdrjGFUXOoRIPM2XsAa2T/1lgrtuM6TZBeFbXBx
-         9MME6Yf4ai+ePJmkvckHI3Kzl+racSXgza3CBc2CEMAgL3QP/f6JNh0TKK/0pJy/i6
-         +DKVMZk+LbIwwxs424Btqfl4xo9BvFSQNYcjz9JE=
+        b=wp3Wju6qe6pxG3XXramIEwdjjFD1VxRz3zVTVNlEM+MRsgt4Pe5iiAZuMDrOmWGJc
+         nC3dK6+dF4+NmQh21Y2Utjs3HbzYTx661GEnu5btIv0T50kDxqPdHk7sK1q/U3/f+L
+         x0P+S2I9W5F0/hntf/nGzynGWsl4GCcu5cVwtPyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zdenek Kaspar <zkaspar82@gmail.com>,
-        "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.17 27/75] x86/fpu: KVM: Set the base guest FPU uABI size to sizeof(struct kvm_xsave)
-Date:   Fri,  3 Jun 2022 19:43:11 +0200
-Message-Id: <20220603173822.519255815@linuxfoundation.org>
+        stable@vger.kernel.org, Chenyi Qiang <chenyi.qiang@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 32/66] KVM: x86: Drop WARNs that assert a triple fault never "escapes" from L2
+Date:   Fri,  3 Jun 2022 19:43:12 +0200
+Message-Id: <20220603173821.581325065@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,111 +56,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit d187ba5312307d51818beafaad87d28a7d939adf upstream.
+commit 45846661d10422ce9e22da21f8277540b29eca22 upstream.
 
-Set the starting uABI size of KVM's guest FPU to 'struct kvm_xsave',
-i.e. to KVM's historical uABI size.  When saving FPU state for usersapce,
-KVM (well, now the FPU) sets the FP+SSE bits in the XSAVE header even if
-the host doesn't support XSAVE.  Setting the XSAVE header allows the VM
-to be migrated to a host that does support XSAVE without the new host
-having to handle FPU state that may or may not be compatible with XSAVE.
+Remove WARNs that sanity check that KVM never lets a triple fault for L2
+escape and incorrectly end up in L1.  In normal operation, the sanity
+check is perfectly valid, but it incorrectly assumes that it's impossible
+for userspace to induce KVM_REQ_TRIPLE_FAULT without bouncing through
+KVM_RUN (which guarantees kvm_check_nested_state() will see and handle
+the triple fault).
 
-Setting the uABI size to the host's default size results in out-of-bounds
-writes (setting the FP+SSE bits) and data corruption (that is thankfully
-caught by KASAN) when running on hosts without XSAVE, e.g. on Core2 CPUs.
+The WARN can currently be triggered if userspace injects a machine check
+while L2 is active and CR4.MCE=0.  And a future fix to allow save/restore
+of KVM_REQ_TRIPLE_FAULT, e.g. so that a synthesized triple fault isn't
+lost on migration, will make it trivially easy for userspace to trigger
+the WARN.
 
-WARN if the default size is larger than KVM's historical uABI size; all
-features that can push the FPU size beyond the historical size must be
-opt-in.
+Clearing KVM_REQ_TRIPLE_FAULT when forcibly leaving guest mode is
+tempting, but wrong, especially if/when the request is saved/restored,
+e.g. if userspace restores events (including a triple fault) and then
+restores nested state (which may forcibly leave guest mode).  Ignoring
+the fact that KVM doesn't currently provide the necessary APIs, it's
+userspace's responsibility to manage pending events during save/restore.
 
-  ==================================================================
-  BUG: KASAN: slab-out-of-bounds in fpu_copy_uabi_to_guest_fpstate+0x86/0x130
-  Read of size 8 at addr ffff888011e33a00 by task qemu-build/681
-  CPU: 1 PID: 681 Comm: qemu-build Not tainted 5.18.0-rc5-KASAN-amd64 #1
-  Hardware name:  /DG35EC, BIOS ECG3510M.86A.0118.2010.0113.1426 01/13/2010
+  ------------[ cut here ]------------
+  WARNING: CPU: 7 PID: 1399 at arch/x86/kvm/vmx/nested.c:4522 nested_vmx_vmexit+0x7fe/0xd90 [kvm_intel]
+  Modules linked in: kvm_intel kvm irqbypass
+  CPU: 7 PID: 1399 Comm: state_test Not tainted 5.17.0-rc3+ #808
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:nested_vmx_vmexit+0x7fe/0xd90 [kvm_intel]
   Call Trace:
    <TASK>
-   dump_stack_lvl+0x34/0x45
-   print_report.cold+0x45/0x575
-   kasan_report+0x9b/0xd0
-   fpu_copy_uabi_to_guest_fpstate+0x86/0x130
-   kvm_arch_vcpu_ioctl+0x72a/0x1c50 [kvm]
-   kvm_vcpu_ioctl+0x47f/0x7b0 [kvm]
-   __x64_sys_ioctl+0x5de/0xc90
-   do_syscall_64+0x31/0x50
+   vmx_leave_nested+0x30/0x40 [kvm_intel]
+   vmx_set_nested_state+0xca/0x3e0 [kvm_intel]
+   kvm_arch_vcpu_ioctl+0xf49/0x13e0 [kvm]
+   kvm_vcpu_ioctl+0x4b9/0x660 [kvm]
+   __x64_sys_ioctl+0x83/0xb0
+   do_syscall_64+0x3b/0xc0
    entry_SYSCALL_64_after_hwframe+0x44/0xae
    </TASK>
-  Allocated by task 0:
-  (stack is not available)
-  The buggy address belongs to the object at ffff888011e33800
-   which belongs to the cache kmalloc-512 of size 512
-  The buggy address is located 0 bytes to the right of
-   512-byte region [ffff888011e33800, ffff888011e33a00)
-  The buggy address belongs to the physical page:
-  page:0000000089cd4adb refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x11e30
-  head:0000000089cd4adb order:2 compound_mapcount:0 compound_pincount:0
-  flags: 0x4000000000010200(slab|head|zone=1)
-  raw: 4000000000010200 dead000000000100 dead000000000122 ffff888001041c80
-  raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
-  page dumped because: kasan: bad access detected
-  Memory state around the buggy address:
-   ffff888011e33900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   ffff888011e33980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  >ffff888011e33a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                     ^
-   ffff888011e33a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-   ffff888011e33b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ==================================================================
-  Disabling lock debugging due to kernel taint
+  ---[ end trace 0000000000000000 ]---
 
-Fixes: be50b2065dfa ("kvm: x86: Add support for getting/setting expanded xstate buffer")
-Fixes: c60427dd50ba ("x86/fpu: Add uabi_size to guest_fpu")
-Reported-by: Zdenek Kaspar <zkaspar82@gmail.com>
-Cc: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org
+Fixes: cb6a32c2b877 ("KVM: x86: Handle triple fault in L2 without killing L1")
 Cc: stable@vger.kernel.org
+Cc: Chenyi Qiang <chenyi.qiang@intel.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Tested-by: Zdenek Kaspar <zkaspar82@gmail.com>
-Message-Id: <20220504001219.983513-1-seanjc@google.com>
+Message-Id: <20220407002315.78092-2-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/core.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/nested.c |    3 ---
+ arch/x86/kvm/vmx/nested.c |    3 ---
+ 2 files changed, 6 deletions(-)
 
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -14,6 +14,8 @@
- #include <asm/traps.h>
- #include <asm/irq_regs.h>
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -750,9 +750,6 @@ int nested_svm_vmexit(struct vcpu_svm *s
+ 	struct kvm_host_map map;
+ 	int rc;
  
-+#include <uapi/asm/kvm.h>
-+
- #include <linux/hardirq.h>
- #include <linux/pkeys.h>
- #include <linux/vmalloc.h>
-@@ -232,7 +234,20 @@ bool fpu_alloc_guest_fpstate(struct fpu_
- 	gfpu->fpstate		= fpstate;
- 	gfpu->xfeatures		= fpu_user_cfg.default_features;
- 	gfpu->perm		= fpu_user_cfg.default_features;
--	gfpu->uabi_size		= fpu_user_cfg.default_size;
-+
-+	/*
-+	 * KVM sets the FP+SSE bits in the XSAVE header when copying FPU state
-+	 * to userspace, even when XSAVE is unsupported, so that restoring FPU
-+	 * state on a different CPU that does support XSAVE can cleanly load
-+	 * the incoming state using its natural XSAVE.  In other words, KVM's
-+	 * uABI size may be larger than this host's default size.  Conversely,
-+	 * the default size should never be larger than KVM's base uABI size;
-+	 * all features that can expand the uABI size must be opt-in.
-+	 */
-+	gfpu->uabi_size		= sizeof(struct kvm_xsave);
-+	if (WARN_ON_ONCE(fpu_user_cfg.default_size > gfpu->uabi_size))
-+		gfpu->uabi_size = fpu_user_cfg.default_size;
-+
- 	fpu_init_guest_permissions(gfpu);
+-	/* Triple faults in L2 should never escape. */
+-	WARN_ON_ONCE(kvm_check_request(KVM_REQ_TRIPLE_FAULT, vcpu));
+-
+ 	rc = kvm_vcpu_map(vcpu, gpa_to_gfn(svm->nested.vmcb12_gpa), &map);
+ 	if (rc) {
+ 		if (rc == -EINVAL)
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4501,9 +4501,6 @@ void nested_vmx_vmexit(struct kvm_vcpu *
+ 	/* trying to cancel vmlaunch/vmresume is a bug */
+ 	WARN_ON_ONCE(vmx->nested.nested_run_pending);
  
- 	return true;
+-	/* Similarly, triple faults in L2 should never escape. */
+-	WARN_ON_ONCE(kvm_check_request(KVM_REQ_TRIPLE_FAULT, vcpu));
+-
+ 	if (kvm_check_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu)) {
+ 		/*
+ 		 * KVM_REQ_GET_NESTED_STATE_PAGES is also used to map
 
 
