@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE4C53CAA3
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 15:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B771C53CAA4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 15:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243751AbiFCNZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 09:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60572 "EHLO
+        id S237619AbiFCNZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 09:25:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237619AbiFCNZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 09:25:30 -0400
+        with ESMTP id S244590AbiFCNZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 09:25:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33A35369C1
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 06:25:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3D436B7A
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 06:25:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E201EB822CE
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 13:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D500C385A9;
-        Fri,  3 Jun 2022 13:25:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EF07B822CE
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 13:25:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891A2C385A9;
+        Fri,  3 Jun 2022 13:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654262726;
-        bh=YRkNXcTOjepyhaP779xqcAZPMEJoUZnOzMUAlk7Izso=;
+        s=korg; t=1654262733;
+        bh=VZYWoHfxcI5kGCyq1Pk+cOY5dqtF9B1zpDElK5vO1QM=;
         h=Subject:To:Cc:From:Date:From;
-        b=EVqjSll5LkYF9w6pBc0gPK+1w0bNWwP5EhHlW69XfedGGVhPe/7v1r1D65Mi5L9ws
-         yTEiq2Fiez/g0BpbYlXIOjOWe4pYWBCdcY3nTAvXFlhwDjWqYm7+N7MiUaLXrYjFr2
-         4SkqGmm+I6h2qCcoWCjrs8irBTFJCcnm9ySQt2AY=
-Subject: FAILED: patch "[PATCH] netfilter: nf_tables: disallow non-stateful expression in" failed to apply to 4.14-stable tree
+        b=VxDgQ7+7zoQv4D7AT+rc45D21a0UmFZDZD64mIHtsPkNXw32EtS22k73sUOBYnWI/
+         oHoTBhNdNTesXec9Hh3jnlTs2c2lFMqdeHym0l0Lnso31N54Vr2DOBXHBvNxaI7COV
+         RIEG8cy2ygwASCwCiBKQWKWs6k01gNXrJrfAZ1FY=
+Subject: FAILED: patch "[PATCH] netfilter: nf_tables: disallow non-stateful expression in" failed to apply to 4.9-stable tree
 To:     pablo@netfilter.org, edg-e@nccgroup.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 15:25:13 +0200
-Message-ID: <1654262713169129@kroah.com>
+Date:   Fri, 03 Jun 2022 15:25:14 +0200
+Message-ID: <1654262714204234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
