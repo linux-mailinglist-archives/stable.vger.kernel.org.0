@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AE453CF9C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 537F653CFCA
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345802AbiFCRzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
+        id S237799AbiFCR4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:56:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346589AbiFCRvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B1A5713A;
-        Fri,  3 Jun 2022 10:48:47 -0700 (PDT)
+        with ESMTP id S1345733AbiFCR4R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:56:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F6C56423;
+        Fri,  3 Jun 2022 10:53:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A90B960F4E;
-        Fri,  3 Jun 2022 17:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B257FC385A9;
-        Fri,  3 Jun 2022 17:48:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76E79B82419;
+        Fri,  3 Jun 2022 17:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDF54C385A9;
+        Fri,  3 Jun 2022 17:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278526;
-        bh=Lht8QSy6hA4TSjRiwmuGl45bCsuNlAPJMnkNYDOgl4Q=;
+        s=korg; t=1654278820;
+        bh=Ig21DrWcYMhGZvJLpvkh2ETAM6uWDNlNzd6CvlZgm+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SwYyg7s9S9Kfs5oLQvNc+RPngBKYkNXqdz4iOBRi51f5b/dV8rIsrXcM66j5Hlqk2
-         eGf5ZYBHXyDVhRmPvJLzXM5v7UTftVxZN4q2tz3fjxeJ1kHvJUUvyk35Y8wibw0Ilk
-         dbHKq1gxqDG+bZ/qpWNSyiKM3/G+oQ/66W0I6Dps=
+        b=KPbSnEDvXCI4dMy5FXWpOsJzX68G3ftFjSvsBd4Z+dw7/dPLA0TF+JwGOIkkm61Q8
+         1w0tmWyCUHFgE1VUrIc1pYi7pgiA3m13m3JCUnoY6D/aOG8LgtC6jzRdYWmW+8ti8H
+         /csEx4tbO9XpMf0Xkyp9fuOYLn5oVfbGbSP4ELF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zlang@redhat.com,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 18/53] xfs: fix the forward progress assertion in xfs_iwalk_run_callbacks
-Date:   Fri,  3 Jun 2022 19:43:03 +0200
-Message-Id: <20220603173819.252657254@linuxfoundation.org>
+        stable@vger.kernel.org, Yuezhang Mo <Yuezhang.Mo@sony.com>,
+        Andy Wu <Andy.Wu@sony.com>,
+        Aoyama Wataru <wataru.aoyama@sony.com>,
+        Daniel Palmer <daniel.palmer@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 5.17 20/75] exfat: fix referencing wrong parent directory information after renaming
+Date:   Fri,  3 Jun 2022 19:43:04 +0200
+Message-Id: <20220603173822.321388602@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +57,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Yuezhang Mo <Yuezhang.Mo@sony.com>
 
-commit a5336d6bb2d02d0e9d4d3c8be04b80b8b68d56c8 upstream.
+commit d8dad2588addd1d861ce19e7df3b702330f0c7e3 upstream.
 
-In commit 27c14b5daa82 we started tracking the last inode seen during an
-inode walk to avoid infinite loops if a corrupt inobt record happens to
-have a lower ir_startino than the record preceeding it.  Unfortunately,
-the assertion trips over the case where there are completely empty inobt
-records (which can happen quite easily on 64k page filesystems) because
-we advance the tracking cursor without actually putting the empty record
-into the processing buffer.  Fix the assert to allow for this case.
+During renaming, the parent directory information maybe
+updated. But the file/directory still references to the
+old parent directory information.
 
-Reported-by: zlang@redhat.com
-Fixes: 27c14b5daa82 ("xfs: ensure inobt record walks always make forward progress")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Zorro Lang <zlang@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+This bug will cause 2 problems.
+
+(1) The renamed file can not be written.
+
+    [10768.175172] exFAT-fs (sda1): error, failed to bmap (inode : 7afd50e4 iblock : 0, err : -5)
+    [10768.184285] exFAT-fs (sda1): Filesystem has been set read-only
+    ash: write error: Input/output error
+
+(2) Some dentries of the renamed file/directory are not set
+    to deleted after removing the file/directory.
+
+exfat_update_parent_info() is a workaround for the wrong parent
+directory information being used after renaming. Now that bug is
+fixed, this is no longer needed, so remove it.
+
+Fixes: 5f2aa075070c ("exfat: add inode operations")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Reviewed-by: Andy Wu <Andy.Wu@sony.com>
+Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
+Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_iwalk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exfat/namei.c |   27 +--------------------------
+ 1 file changed, 1 insertion(+), 26 deletions(-)
 
---- a/fs/xfs/xfs_iwalk.c
-+++ b/fs/xfs/xfs_iwalk.c
-@@ -363,7 +363,7 @@ xfs_iwalk_run_callbacks(
- 	/* Delete cursor but remember the last record we cached... */
- 	xfs_iwalk_del_inobt(tp, curpp, agi_bpp, 0);
- 	irec = &iwag->recs[iwag->nr_recs - 1];
--	ASSERT(next_agino == irec->ir_startino + XFS_INODES_PER_CHUNK);
-+	ASSERT(next_agino >= irec->ir_startino + XFS_INODES_PER_CHUNK);
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -1062,6 +1062,7 @@ static int exfat_rename_file(struct inod
  
- 	error = xfs_iwalk_ag_recs(iwag);
- 	if (error)
+ 		exfat_remove_entries(inode, p_dir, oldentry, 0,
+ 			num_old_entries);
++		ei->dir = *p_dir;
+ 		ei->entry = newentry;
+ 	} else {
+ 		if (exfat_get_entry_type(epold) == TYPE_FILE) {
+@@ -1149,28 +1150,6 @@ static int exfat_move_file(struct inode
+ 	return 0;
+ }
+ 
+-static void exfat_update_parent_info(struct exfat_inode_info *ei,
+-		struct inode *parent_inode)
+-{
+-	struct exfat_sb_info *sbi = EXFAT_SB(parent_inode->i_sb);
+-	struct exfat_inode_info *parent_ei = EXFAT_I(parent_inode);
+-	loff_t parent_isize = i_size_read(parent_inode);
+-
+-	/*
+-	 * the problem that struct exfat_inode_info caches wrong parent info.
+-	 *
+-	 * because of flag-mismatch of ei->dir,
+-	 * there is abnormal traversing cluster chain.
+-	 */
+-	if (unlikely(parent_ei->flags != ei->dir.flags ||
+-		     parent_isize != EXFAT_CLU_TO_B(ei->dir.size, sbi) ||
+-		     parent_ei->start_clu != ei->dir.dir)) {
+-		exfat_chain_set(&ei->dir, parent_ei->start_clu,
+-			EXFAT_B_TO_CLU_ROUND_UP(parent_isize, sbi),
+-			parent_ei->flags);
+-	}
+-}
+-
+ /* rename or move a old file into a new file */
+ static int __exfat_rename(struct inode *old_parent_inode,
+ 		struct exfat_inode_info *ei, struct inode *new_parent_inode,
+@@ -1201,8 +1180,6 @@ static int __exfat_rename(struct inode *
+ 		return -ENOENT;
+ 	}
+ 
+-	exfat_update_parent_info(ei, old_parent_inode);
+-
+ 	exfat_chain_dup(&olddir, &ei->dir);
+ 	dentry = ei->entry;
+ 
+@@ -1223,8 +1200,6 @@ static int __exfat_rename(struct inode *
+ 			goto out;
+ 		}
+ 
+-		exfat_update_parent_info(new_ei, new_parent_inode);
+-
+ 		p_dir = &(new_ei->dir);
+ 		new_entry = new_ei->entry;
+ 		ep = exfat_get_dentry(sb, p_dir, new_entry, &new_bh);
 
 
