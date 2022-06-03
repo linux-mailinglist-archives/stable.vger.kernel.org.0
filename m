@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEF753CD7E
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD3F53CD7F
 	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 18:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344081AbiFCQsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 12:48:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51606 "EHLO
+        id S1344079AbiFCQsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 12:48:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344079AbiFCQsg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 12:48:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7707517FF
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 09:48:34 -0700 (PDT)
+        with ESMTP id S1344080AbiFCQsh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 12:48:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321A64D62F
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 09:48:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71CE9B82373
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 16:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9463C385A9;
-        Fri,  3 Jun 2022 16:48:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C131E61A09
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 16:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC09C385A9;
+        Fri,  3 Jun 2022 16:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654274912;
-        bh=1i3cQeBeuwym6p4NDsOntWc5eYI1/xH5zIam8Asg2lU=;
+        s=korg; t=1654274915;
+        bh=0muBpUxhpn37m6z9nLe+lObyNYs1DEYvr/xXZEBzw3I=;
         h=Subject:To:Cc:From:Date:From;
-        b=xKnyZNz0No31wmJvLDaYvrkJV8utcpN5Po2siaOFOYrqiF15lVZQqkS+nqtmz562U
-         cDPR4daA1dsB2LCD/jxNwZhZbVKP+cTrB823/4tU8n1G94lGtCLaq31Es1BRwId7Nh
-         0SV9zdeUNtwbTLpxoRWkZBAhWxELcSLyVMea/B1A=
-Subject: FAILED: patch "[PATCH] nfsd: Fix null-ptr-deref in nfsd_fill_super()" failed to apply to 5.10-stable tree
+        b=Io63WkPaslDdnnG5zy5dK9O4JRLHHAbYIIy/NyIuI1VbSC7QuTKjrtHxEmWdXDjxP
+         mz1R9wltktHqfMXxE/VYgJ4xFyaze0aTLU4XakAiIF8cin5tzcAyBjAb+h0wtUCJKo
+         34mx1LJCEMS8iqDMW46m3dKtrCD3rtb/XvhF8Mh4=
+Subject: FAILED: patch "[PATCH] nfsd: Fix null-ptr-deref in nfsd_fill_super()" failed to apply to 5.15-stable tree
 To:     zhangxiaoxu5@huawei.com, chuck.lever@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 03 Jun 2022 18:48:18 +0200
-Message-ID: <1654274898175247@kroah.com>
+Message-ID: <165427489815131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
