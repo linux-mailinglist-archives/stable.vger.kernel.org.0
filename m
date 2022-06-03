@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F07B853CF93
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DCD53D04D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345767AbiFCRyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
+        id S1346217AbiFCSCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:02:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346895AbiFCRvm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA05F5A2C0;
-        Fri,  3 Jun 2022 10:49:40 -0700 (PDT)
+        with ESMTP id S1346597AbiFCSA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F7E59322;
+        Fri,  3 Jun 2022 10:56:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60F2BB8241D;
-        Fri,  3 Jun 2022 17:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC04CC385A9;
-        Fri,  3 Jun 2022 17:49:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C26CD615DE;
+        Fri,  3 Jun 2022 17:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B71F8C385A9;
+        Fri,  3 Jun 2022 17:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278578;
-        bh=3pOtbOQ8N6t6Rw8X0QXHDepYORdmz7gTCpQzOAuGKFw=;
+        s=korg; t=1654279000;
+        bh=YWUFwpqGOmVXmiw7aGglaLnf0+DjQhPIXhsvaJzq574=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xm6i/q4Vejn9VTe96rfn4svdWLV1V2Wq/9LUWvyyPEa/UV+dIK571ZOwBbPePjNJU
-         hK9EJQmNnJgSrU4BhTZXteY8Wpuj9y2FpbVE+Id/hdlal4q8HTSmgtJuTTqpIj7nId
-         yVFKJJN/vyrlzNi2yFSP5sUYnNgNjQCZ9MFHN0oM=
+        b=FC//Ktoeldo3W9M4U8YakPmiID9VdFWdFRNoTEKmmK6yfpxFnLuv3jKS8ZFkthkLe
+         A3xxsQES4wsunO3gWuKp99lc3e0mX4hyK4JpAUkw8YnJB/yWNWbTe72xdIlTNfStLN
+         tfYHcjBkoxgeMrnmk8YRKT5fMdwOcCZN6flfQDfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhangziming.zzm@antgroup.com,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 24/66] netfilter: nf_tables: sanitize nft_set_desc_concat_parse()
+        stable@vger.kernel.org,
+        Stephen Brennan <stephen.s.brennan@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        keyrings@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.18 03/67] assoc_array: Fix BUG_ON during garbage collect
 Date:   Fri,  3 Jun 2022 19:43:04 +0200
-Message-Id: <20220603173821.358045008@linuxfoundation.org>
+Message-Id: <20220603173820.831718616@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +57,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
 
-commit fecf31ee395b0295f2d7260aa29946b7605f7c85 upstream.
+commit d1dc87763f406d4e67caf16dbe438a5647692395 upstream.
 
-Add several sanity checks for nft_set_desc_concat_parse():
+A rare BUG_ON triggered in assoc_array_gc:
 
-- validate desc->field_count not larger than desc->field_len array.
-- field length cannot be larger than desc->field_len (ie. U8_MAX)
-- total length of the concatenation cannot be larger than register array.
+    [3430308.818153] kernel BUG at lib/assoc_array.c:1609!
 
-Joint work with Florian Westphal.
+Which corresponded to the statement currently at line 1593 upstream:
 
-Fixes: f3a2181e16f1 ("netfilter: nf_tables: Support for sets with multiple ranged fields")
-Reported-by: <zhangziming.zzm@antgroup.com>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+    BUG_ON(assoc_array_ptr_is_meta(p));
+
+Using the data from the core dump, I was able to generate a userspace
+reproducer[1] and determine the cause of the bug.
+
+[1]: https://github.com/brenns10/kernel_stuff/tree/master/assoc_array_gc
+
+After running the iterator on the entire branch, an internal tree node
+looked like the following:
+
+    NODE (nr_leaves_on_branch: 3)
+      SLOT [0] NODE (2 leaves)
+      SLOT [1] NODE (1 leaf)
+      SLOT [2..f] NODE (empty)
+
+In the userspace reproducer, the pr_devel output when compressing this
+node was:
+
+    -- compress node 0x5607cc089380 --
+    free=0, leaves=0
+    [0] retain node 2/1 [nx 0]
+    [1] fold node 1/1 [nx 0]
+    [2] fold node 0/1 [nx 2]
+    [3] fold node 0/2 [nx 2]
+    [4] fold node 0/3 [nx 2]
+    [5] fold node 0/4 [nx 2]
+    [6] fold node 0/5 [nx 2]
+    [7] fold node 0/6 [nx 2]
+    [8] fold node 0/7 [nx 2]
+    [9] fold node 0/8 [nx 2]
+    [10] fold node 0/9 [nx 2]
+    [11] fold node 0/10 [nx 2]
+    [12] fold node 0/11 [nx 2]
+    [13] fold node 0/12 [nx 2]
+    [14] fold node 0/13 [nx 2]
+    [15] fold node 0/14 [nx 2]
+    after: 3
+
+At slot 0, an internal node with 2 leaves could not be folded into the
+node, because there was only one available slot (slot 0). Thus, the
+internal node was retained. At slot 1, the node had one leaf, and was
+able to be folded in successfully. The remaining nodes had no leaves,
+and so were removed. By the end of the compression stage, there were 14
+free slots, and only 3 leaf nodes. The tree was ascended and then its
+parent node was compressed. When this node was seen, it could not be
+folded, due to the internal node it contained.
+
+The invariant for compression in this function is: whenever
+nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT, the node should contain all
+leaf nodes. The compression step currently cannot guarantee this, given
+the corner case shown above.
+
+To fix this issue, retry compression whenever we have retained a node,
+and yet nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT. This second
+compression will then allow the node in slot 1 to be folded in,
+satisfying the invariant. Below is the output of the reproducer once the
+fix is applied:
+
+    -- compress node 0x560e9c562380 --
+    free=0, leaves=0
+    [0] retain node 2/1 [nx 0]
+    [1] fold node 1/1 [nx 0]
+    [2] fold node 0/1 [nx 2]
+    [3] fold node 0/2 [nx 2]
+    [4] fold node 0/3 [nx 2]
+    [5] fold node 0/4 [nx 2]
+    [6] fold node 0/5 [nx 2]
+    [7] fold node 0/6 [nx 2]
+    [8] fold node 0/7 [nx 2]
+    [9] fold node 0/8 [nx 2]
+    [10] fold node 0/9 [nx 2]
+    [11] fold node 0/10 [nx 2]
+    [12] fold node 0/11 [nx 2]
+    [13] fold node 0/12 [nx 2]
+    [14] fold node 0/13 [nx 2]
+    [15] fold node 0/14 [nx 2]
+    internal nodes remain despite enough space, retrying
+    -- compress node 0x560e9c562380 --
+    free=14, leaves=1
+    [0] fold node 2/15 [nx 0]
+    after: 3
+
+Changes
+=======
+DH:
+ - Use false instead of 0.
+ - Reorder the inserted lines in a couple of places to put retained before
+   next_slot.
+
+ver #2)
+ - Fix typo in pr_devel, correct comparison to "<="
+
+Fixes: 3cb989501c26 ("Add a generic associative array implementation.")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@linux-foundation.org>
+cc: keyrings@vger.kernel.org
+Link: https://lore.kernel.org/r/20220511225517.407935-1-stephen.s.brennan@oracle.com/ # v1
+Link: https://lore.kernel.org/r/20220512215045.489140-1-stephen.s.brennan@oracle.com/ # v2
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ lib/assoc_array.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -4151,6 +4151,9 @@ static int nft_set_desc_concat_parse(con
- 	u32 len;
- 	int err;
+--- a/lib/assoc_array.c
++++ b/lib/assoc_array.c
+@@ -1461,6 +1461,7 @@ int assoc_array_gc(struct assoc_array *a
+ 	struct assoc_array_ptr *cursor, *ptr;
+ 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
+ 	unsigned long nr_leaves_on_tree;
++	bool retained;
+ 	int keylen, slot, nr_free, next_slot, i;
  
-+	if (desc->field_count >= ARRAY_SIZE(desc->field_len))
-+		return -E2BIG;
-+
- 	err = nla_parse_nested_deprecated(tb, NFTA_SET_FIELD_MAX, attr,
- 					  nft_concat_policy, NULL);
- 	if (err < 0)
-@@ -4160,9 +4163,8 @@ static int nft_set_desc_concat_parse(con
- 		return -EINVAL;
- 
- 	len = ntohl(nla_get_be32(tb[NFTA_SET_FIELD_LEN]));
--
--	if (len * BITS_PER_BYTE / 32 > NFT_REG32_COUNT)
--		return -E2BIG;
-+	if (!len || len > U8_MAX)
-+		return -EINVAL;
- 
- 	desc->field_len[desc->field_count++] = len;
- 
-@@ -4173,7 +4175,8 @@ static int nft_set_desc_concat(struct nf
- 			       const struct nlattr *nla)
- {
- 	struct nlattr *attr;
--	int rem, err;
-+	u32 num_regs = 0;
-+	int rem, err, i;
- 
- 	nla_for_each_nested(attr, nla, rem) {
- 		if (nla_type(attr) != NFTA_LIST_ELEM)
-@@ -4184,6 +4187,12 @@ static int nft_set_desc_concat(struct nf
- 			return err;
+ 	pr_devel("-->%s()\n", __func__);
+@@ -1536,6 +1537,7 @@ continue_node:
+ 		goto descend;
  	}
  
-+	for (i = 0; i < desc->field_count; i++)
-+		num_regs += DIV_ROUND_UP(desc->field_len[i], sizeof(u32));
-+
-+	if (num_regs > NFT_REG32_COUNT)
-+		return -E2BIG;
-+
- 	return 0;
- }
++retry_compress:
+ 	pr_devel("-- compress node %p --\n", new_n);
  
+ 	/* Count up the number of empty slots in this node and work out the
+@@ -1553,6 +1555,7 @@ continue_node:
+ 	pr_devel("free=%d, leaves=%lu\n", nr_free, new_n->nr_leaves_on_branch);
+ 
+ 	/* See what we can fold in */
++	retained = false;
+ 	next_slot = 0;
+ 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
+ 		struct assoc_array_shortcut *s;
+@@ -1602,9 +1605,14 @@ continue_node:
+ 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
+ 				 slot, child->nr_leaves_on_branch, nr_free + 1,
+ 				 next_slot);
++			retained = true;
+ 		}
+ 	}
+ 
++	if (retained && new_n->nr_leaves_on_branch <= ASSOC_ARRAY_FAN_OUT) {
++		pr_devel("internal nodes remain despite enough space, retrying\n");
++		goto retry_compress;
++	}
+ 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
+ 
+ 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
 
 
