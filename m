@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40AAB53CF0B
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F2953CF4C
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345377AbiFCRwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
+        id S1345379AbiFCRxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345379AbiFCRsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98155523B;
-        Fri,  3 Jun 2022 10:45:43 -0700 (PDT)
+        with ESMTP id S1346940AbiFCRvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A70755358;
+        Fri,  3 Jun 2022 10:49:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6D21B82435;
-        Fri,  3 Jun 2022 17:45:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 197E8C385A9;
-        Fri,  3 Jun 2022 17:45:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE5B2B82189;
+        Fri,  3 Jun 2022 17:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 280B0C385A9;
+        Fri,  3 Jun 2022 17:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278341;
-        bh=+8/rSL0dktqyZfvWABToCYxgk0Wct5z+yxpZFfy6gak=;
+        s=korg; t=1654278587;
+        bh=+jKGu2m+qotB5j1a1TjLLakeDpMh01+5nUzTVxMt6Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIIxnuG0XPIsjGoqLbBJnOPu0z/HducjIYpHWMU2nn0KVJ67MDdnll/fbAAEEWUi3
-         3t15U0+GR2yfBWZEjcmUVjguvrozc9yp3xCzVxi5kHSTA2Awrs/Fc/CvPDkh7NEauO
-         XpcBs6S5YtRfleAuHsKzjralnRhoWO2MwQDJ7uV8=
+        b=fVo1AST0GB+siLT2VRa+Jbm61BM0AUH5uenkMDum0ff5vOQRQ5wM88B3YFQRXFYXP
+         XXxJvhpc+W48nAifstTfZWk9LknaI8bNTLnsvr6VtE5t2BIytdg4Qg8DIDPW0m50Na
+         Gv3MdZwcIWYraavW+UVLR4ohWQtWPnF3BGUhzHys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, IotaHydrae <writeforever@foxmail.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/34] pinctrl: sunxi: fix f1c100s uart2 function
+        stable@vger.kernel.org,
+        syzbot+793a590957d9c1b96620@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 27/66] netfilter: conntrack: re-fetch conntrack after insertion
 Date:   Fri,  3 Jun 2022 19:43:07 +0200
-Message-Id: <20220603173816.325039941@linuxfoundation.org>
+Message-Id: <20220603173821.441752761@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: IotaHydrae <writeforever@foxmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit fa8785e5931367e2b43f2c507f26bcf3e281c0ca ]
+commit 56b14ecec97f39118bf85c9ac2438c5a949509ed upstream.
 
-Change suniv f1c100s pinctrl,PD14 multiplexing function lvds1 to uart2
+In case the conntrack is clashing, insertion can free skb->_nfct and
+set skb->_nfct to the already-confirmed entry.
 
-When the pin PD13 and PD14 is setting up to uart2 function in dts,
-there's an error occurred:
-1c20800.pinctrl: unsupported function uart2 on pin PD14
+This wasn't found before because the conntrack entry and the extension
+space used to free'd after an rcu grace period, plus the race needs
+events enabled to trigger.
 
-Because 'uart2' is not any one multiplexing option of PD14,
-and pinctrl don't know how to configure it.
-
-So change the pin PD14 lvds1 function to uart2.
-
-Signed-off-by: IotaHydrae <writeforever@foxmail.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/tencent_70C1308DDA794C81CAEF389049055BACEC09@qq.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: <syzbot+793a590957d9c1b96620@syzkaller.appspotmail.com>
+Fixes: 71d8c47fc653 ("netfilter: conntrack: introduce clash resolution on insertion race")
+Fixes: 2ad9d7747c10 ("netfilter: conntrack: free extension area immediately")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/netfilter/nf_conntrack_core.h |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-index 2801ca706273..68a5b627fb9b 100644
---- a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-@@ -204,7 +204,7 @@ static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
- 		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
--		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
-+		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
- 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
--- 
-2.35.1
-
+--- a/include/net/netfilter/nf_conntrack_core.h
++++ b/include/net/netfilter/nf_conntrack_core.h
+@@ -58,8 +58,13 @@ static inline int nf_conntrack_confirm(s
+ 	int ret = NF_ACCEPT;
+ 
+ 	if (ct) {
+-		if (!nf_ct_is_confirmed(ct))
++		if (!nf_ct_is_confirmed(ct)) {
+ 			ret = __nf_conntrack_confirm(skb);
++
++			if (ret == NF_ACCEPT)
++				ct = (struct nf_conn *)skb_nfct(skb);
++		}
++
+ 		if (likely(ret == NF_ACCEPT))
+ 			nf_ct_deliver_cached_events(ct);
+ 	}
 
 
