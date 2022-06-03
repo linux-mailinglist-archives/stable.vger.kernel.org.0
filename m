@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B310A53CC17
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 453EF53CC19
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235751AbiFCPOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 11:14:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38788 "EHLO
+        id S244377AbiFCPOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 11:14:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245397AbiFCPOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:14:06 -0400
+        with ESMTP id S245397AbiFCPOR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:14:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E38506C3
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:14:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECB85047D
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:14:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E679EB82260
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:14:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A35FC385A9;
-        Fri,  3 Jun 2022 15:14:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B0ACB82260
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD1AC385B8;
+        Fri,  3 Jun 2022 15:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654269242;
-        bh=Jx55rPuaLEu0cCTi/ZYkD/6BQgNAPk8ZHu+8rCbzbmE=;
+        s=korg; t=1654269252;
+        bh=Awjiktg07V03lXYeNtW3nU6JOuHwB33Xk6jD3ZpFt58=;
         h=Subject:To:Cc:From:Date:From;
-        b=l75EmPyXaPgtp5cOKJXx1GETADWkLXygP4x0Qs2XtWvC9ju72+qe82ODenEw75KK6
-         RlhXu5oC8WutBpCfrTEU76rbdsuqwhUFqMTbd2Z3PYyJGzAUK/3HUjIUp0gs2pZqPQ
-         xDdzmTAApl9WCI924L1YSFGRgbApZovGc5ew+y7I=
-Subject: FAILED: patch "[PATCH] KVM: x86: avoid loading a vCPU after .vm_destroy was called" failed to apply to 5.10-stable tree
+        b=qSZq6tVqFRtYy9DHTP2AxgQFKUj4GFX0OwV+jFrrRpYRCdmX1DggKbU5A+LYO3sNe
+         QeCy1AicsPxxH1qway2tr/Y0FPdRhtJl7xcBcp6JlUFs/LUMGjwnbWdvlyrwjbZbaa
+         5Mj9T25Oj4+3r6iStW9YxKbAvDdLkL/5/apbPlKg=
+Subject: FAILED: patch "[PATCH] KVM: x86: avoid loading a vCPU after .vm_destroy was called" failed to apply to 4.19-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 17:13:51 +0200
-Message-ID: <1654269231148210@kroah.com>
+Date:   Fri, 03 Jun 2022 17:13:52 +0200
+Message-ID: <16542692329670@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
