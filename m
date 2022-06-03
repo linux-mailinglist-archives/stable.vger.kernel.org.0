@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 077C553D09C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA9A53D0CB
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230405AbiFCSHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:07:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
+        id S237861AbiFCSIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346320AbiFCSEz (ORCPT
+        with ESMTP id S238830AbiFCSEz (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:04:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E135712F;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CE2A57111;
         Fri,  3 Jun 2022 10:58:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 366A5B82189;
-        Fri,  3 Jun 2022 17:57:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FB2C385B8;
-        Fri,  3 Jun 2022 17:57:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C080B8241D;
+        Fri,  3 Jun 2022 17:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB87C385A9;
+        Fri,  3 Jun 2022 17:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279025;
-        bh=wTV5cVFc5rKLzg7MqcEFuVDlN6PsOXkUdWpdiX9W7qI=;
+        s=korg; t=1654279027;
+        bh=tSQXz/ZFbI2pYTh4TigjjrPwJuuXCKdaX9A7q3dypck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XLDvkMc/Bq4S5SvdIZCQ4GpGJxuUhdFFKrMHdTxTokL/G9HZ3MYKRK1sJgtt60Hga
-         qMJbc6vmDaov765QYnsRTe9GuHHCMkffsGFlDxaBte99WHRXu9oPUiOb+44u9MaiUM
-         gZUT/veLR3/hG1A/vChceoU2IRHPbeyU4ugirBtM=
+        b=CIqgM5bzOWqa5VptNCzQD9VdXr45N0olLKqaLNocTIOjNiB5rq6sSiMWCntiJ63Gv
+         0t5f6Nh2t+FjF4/QWuJdJVA4dAJXuDcgo9GmERTksHIhDuPA1PQDlqQhz07O+zr/Z8
+         Ko8USy7XCVE1K8lmrZG0L0luQUeEboqpkbL8G7m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Nguyen <theflow@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Peter Gonda <pgonda@google.com>, kvm@vger.kernel.org,
-        Ashish Kalra <ashish.kalra@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 28/67] KVM: SVM: Use kzalloc for sev ioctl interfaces to prevent kernel data leak
-Date:   Fri,  3 Jun 2022 19:43:29 +0200
-Message-Id: <20220603173821.535586563@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Vabhav Sharma <vabhav.sharma@nxp.com>,
+        Gaurav Jain <gaurav.jain@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.18 29/67] crypto: caam - fix i.MX6SX entropy delay value
+Date:   Fri,  3 Jun 2022 19:43:30 +0200
+Message-Id: <20220603173821.563313170@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
 References: <20220603173820.731531504@linuxfoundation.org>
@@ -56,88 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashish Kalra <ashish.kalra@amd.com>
+From: Fabio Estevam <festevam@denx.de>
 
-commit d22d2474e3953996f03528b84b7f52cc26a39403 upstream.
+commit 4ee4cdad368a26de3967f2975806a9ee2fa245df upstream.
 
-For some sev ioctl interfaces, the length parameter that is passed maybe
-less than or equal to SEV_FW_BLOB_MAX_SIZE, but larger than the data
-that PSP firmware returns. In this case, kmalloc will allocate memory
-that is the size of the input rather than the size of the data.
-Since PSP firmware doesn't fully overwrite the allocated buffer, these
-sev ioctl interface may return uninitialized kernel slab memory.
+Since commit 358ba762d9f1 ("crypto: caam - enable prediction resistance
+in HRWNG") the following CAAM errors can be seen on i.MX6SX:
 
-Reported-by: Andy Nguyen <theflow@google.com>
-Suggested-by: David Rientjes <rientjes@google.com>
-Suggested-by: Peter Gonda <pgonda@google.com>
-Cc: kvm@vger.kernel.org
-Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Fixes: eaf78265a4ab3 ("KVM: SVM: Move SEV code to separate file")
-Fixes: 2c07ded06427d ("KVM: SVM: add support for SEV attestation command")
-Fixes: 4cfdd47d6d95a ("KVM: SVM: Add KVM_SEV SEND_START command")
-Fixes: d3d1af85e2c75 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
-Fixes: eba04b20e4861 ("KVM: x86: Account a variety of miscellaneous allocations")
-Signed-off-by: Ashish Kalra <ashish.kalra@amd.com>
-Reviewed-by: Peter Gonda <pgonda@google.com>
-Message-Id: <20220516154310.3685678-1-Ashish.Kalra@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+caam_jr 2101000.jr: 20003c5b: CCB: desc idx 60: RNG: Hardware error
+hwrng: no data available
+
+This error is due to an incorrect entropy delay for i.MX6SX.
+
+Fix it by increasing the minimum entropy delay for i.MX6SX
+as done in U-Boot:
+https://patchwork.ozlabs.org/project/uboot/patch/20220415111049.2565744-1-gaurav.jain@nxp.com/
+
+As explained in the U-Boot patch:
+
+"RNG self tests are run to determine the correct entropy delay.
+Such tests are executed with different voltages and temperatures to identify
+the worst case value for the entropy delay. For i.MX6SX, it was determined
+that after adding a margin value of 1000 the minimum entropy delay should be
+at least 12000."
+
+Cc: <stable@vger.kernel.org>
+Fixes: 358ba762d9f1 ("crypto: caam - enable prediction resistance in HRWNG")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Reviewed-by: Vabhav Sharma <vabhav.sharma@nxp.com>
+Reviewed-by: Gaurav Jain <gaurav.jain@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/sev.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/crypto/caam/ctrl.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -688,7 +688,7 @@ static int sev_launch_measure(struct kvm
- 		if (params.len > SEV_FW_BLOB_MAX_SIZE)
- 			return -EINVAL;
+--- a/drivers/crypto/caam/ctrl.c
++++ b/drivers/crypto/caam/ctrl.c
+@@ -609,6 +609,13 @@ static bool check_version(struct fsl_mc_
+ }
+ #endif
  
--		blob = kmalloc(params.len, GFP_KERNEL_ACCOUNT);
-+		blob = kzalloc(params.len, GFP_KERNEL_ACCOUNT);
- 		if (!blob)
- 			return -ENOMEM;
- 
-@@ -808,7 +808,7 @@ static int __sev_dbg_decrypt_user(struct
- 	if (!IS_ALIGNED(dst_paddr, 16) ||
- 	    !IS_ALIGNED(paddr,     16) ||
- 	    !IS_ALIGNED(size,      16)) {
--		tpage = (void *)alloc_page(GFP_KERNEL);
-+		tpage = (void *)alloc_page(GFP_KERNEL | __GFP_ZERO);
- 		if (!tpage)
- 			return -ENOMEM;
- 
-@@ -1094,7 +1094,7 @@ static int sev_get_attestation_report(st
- 		if (params.len > SEV_FW_BLOB_MAX_SIZE)
- 			return -EINVAL;
- 
--		blob = kmalloc(params.len, GFP_KERNEL_ACCOUNT);
-+		blob = kzalloc(params.len, GFP_KERNEL_ACCOUNT);
- 		if (!blob)
- 			return -ENOMEM;
- 
-@@ -1176,7 +1176,7 @@ static int sev_send_start(struct kvm *kv
- 		return -EINVAL;
- 
- 	/* allocate the memory to hold the session data blob */
--	session_data = kmalloc(params.session_len, GFP_KERNEL_ACCOUNT);
-+	session_data = kzalloc(params.session_len, GFP_KERNEL_ACCOUNT);
- 	if (!session_data)
- 		return -ENOMEM;
- 
-@@ -1300,11 +1300,11 @@ static int sev_send_update_data(struct k
- 
- 	/* allocate memory for header and transport buffer */
- 	ret = -ENOMEM;
--	hdr = kmalloc(params.hdr_len, GFP_KERNEL_ACCOUNT);
-+	hdr = kzalloc(params.hdr_len, GFP_KERNEL_ACCOUNT);
- 	if (!hdr)
- 		goto e_unpin;
- 
--	trans_data = kmalloc(params.trans_len, GFP_KERNEL_ACCOUNT);
-+	trans_data = kzalloc(params.trans_len, GFP_KERNEL_ACCOUNT);
- 	if (!trans_data)
- 		goto e_free_hdr;
- 
++static bool needs_entropy_delay_adjustment(void)
++{
++	if (of_machine_is_compatible("fsl,imx6sx"))
++		return true;
++	return false;
++}
++
+ /* Probe routine for CAAM top (controller) level */
+ static int caam_probe(struct platform_device *pdev)
+ {
+@@ -855,6 +862,8 @@ static int caam_probe(struct platform_de
+ 			 * Also, if a handle was instantiated, do not change
+ 			 * the TRNG parameters.
+ 			 */
++			if (needs_entropy_delay_adjustment())
++				ent_delay = 12000;
+ 			if (!(ctrlpriv->rng4_sh_init || inst_handles)) {
+ 				dev_info(dev,
+ 					 "Entropy delay = %u\n",
+@@ -871,6 +880,15 @@ static int caam_probe(struct platform_de
+ 			 */
+ 			ret = instantiate_rng(dev, inst_handles,
+ 					      gen_sk);
++			/*
++			 * Entropy delay is determined via TRNG characterization.
++			 * TRNG characterization is run across different voltages
++			 * and temperatures.
++			 * If worst case value for ent_dly is identified,
++			 * the loop can be skipped for that platform.
++			 */
++			if (needs_entropy_delay_adjustment())
++				break;
+ 			if (ret == -EAGAIN)
+ 				/*
+ 				 * if here, the loop will rerun,
 
 
