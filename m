@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF2F53CE89
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46AA53CE71
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345058AbiFCRnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:43:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56010 "EHLO
+        id S1344898AbiFCRm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344995AbiFCRnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:17 -0400
+        with ESMTP id S238609AbiFCRlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C4B532EC;
-        Fri,  3 Jun 2022 10:41:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6E4F5370A;
+        Fri,  3 Jun 2022 10:41:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0F8161B0F;
-        Fri,  3 Jun 2022 17:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02ADC3411D;
-        Fri,  3 Jun 2022 17:41:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84A4461AFE;
+        Fri,  3 Jun 2022 17:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7E2C385A9;
+        Fri,  3 Jun 2022 17:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278116;
-        bh=4pC3B+B9HGnfVRgy18c8/h6OnNw9NHaafYHGd+R1Q6E=;
+        s=korg; t=1654278077;
+        bh=QqEwCMdb8k+N56RTMdbQ30Qz5GEWkNdJwW97pvrjALU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PUHDNFAowmaT05rQNUUiaRXj5GUE+C8D2qJ33sUjfL/TMVpQ8DExa6EOUhDWn61l
-         E1KXx9xNtfVocQxj32H2ZVFXPJ4oL7chlpsnDS7e2koLI0hCrbXuwkObC/lE+w2AoG
-         jOGzJOV9V9HL9d/M7H2P6bS4eZaF3I0RdJi8GuvI=
+        b=bFLmh8bMp7Vcxr3gyY+Os9984JAghrf0b0FwIWA4QxeskF7VAdvl1aJOYTF4xBHND
+         sE5l0n4b+MHApdyJLX0Qv5rokn1dfDed5yx8p1lv8zPEIbSHIu1B4qygrd0KSr+PMG
+         AF/HLpBjyfhwVg7X26zaxqLLKiaZviqczKuCFWqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>
-Subject: [PATCH 4.19 15/30] perf tests bp_account: Make global variable static
-Date:   Fri,  3 Jun 2022 19:39:43 +0200
-Message-Id: <20220603173815.543846863@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Milan Broz <gmazyland@gmail.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.14 17/23] dm crypt: make printing of the key constant-time
+Date:   Fri,  3 Jun 2022 19:39:44 +0200
+Message-Id: <20220603173814.885694090@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
+References: <20220603173814.362515009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit cff20b3151ccab690715cb6cf0f5da5cccb32adf ]
+commit 567dd8f34560fa221a6343729474536aa7ede4fd upstream.
 
-To fix the build with newer gccs, that without this patch exit with:
+The device mapper dm-crypt target is using scnprintf("%02x", cc->key[i]) to
+report the current key to userspace. However, this is not a constant-time
+operation and it may leak information about the key via timing, via cache
+access patterns or via the branch predictor.
 
-    LD       /tmp/build/perf/tests/perf-in.o
-  ld: /tmp/build/perf/tests/bp_account.o:/git/perf/tools/perf/tests/bp_account.c:22: multiple definition of `the_var'; /tmp/build/perf/tests/bp_signal.o:/git/perf/tools/perf/tests/bp_signal.c:38: first defined here
-  make[4]: *** [/git/perf/tools/build/Makefile.build:145: /tmp/build/perf/tests/perf-in.o] Error 1
+Change dm-crypt's key printing to use "%c" instead of "%02x". Also
+introduce hex2asc() that carefully avoids any branching or memory
+accesses when converting a number in the range 0 ... 15 to an ascii
+character.
 
-First noticed in fedora:rawhide/32 with:
-
-  [perfbuilder@a5ff49d6e6e4 ~]$ gcc --version
-  gcc (GCC) 10.0.1 20200216 (Red Hat 10.0.1-0.8)
-
-Reported-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Tested-by: Milan Broz <gmazyland@gmail.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/tests/bp_account.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-crypt.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/tools/perf/tests/bp_account.c
-+++ b/tools/perf/tests/bp_account.c
-@@ -22,7 +22,7 @@
- #include "perf.h"
- #include "cloexec.h"
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2942,6 +2942,11 @@ static int crypt_map(struct dm_target *t
+ 	return DM_MAPIO_SUBMITTED;
+ }
  
--volatile long the_var;
-+static volatile long the_var;
- 
- static noinline int test_function(void)
++static char hex2asc(unsigned char c)
++{
++	return c + '0' + ((unsigned)(9 - c) >> 4 & 0x27);
++}
++
+ static void crypt_status(struct dm_target *ti, status_type_t type,
+ 			 unsigned status_flags, char *result, unsigned maxlen)
  {
+@@ -2960,9 +2965,12 @@ static void crypt_status(struct dm_targe
+ 		if (cc->key_size > 0) {
+ 			if (cc->key_string)
+ 				DMEMIT(":%u:%s", cc->key_size, cc->key_string);
+-			else
+-				for (i = 0; i < cc->key_size; i++)
+-					DMEMIT("%02x", cc->key[i]);
++			else {
++				for (i = 0; i < cc->key_size; i++) {
++					DMEMIT("%c%c", hex2asc(cc->key[i] >> 4),
++					       hex2asc(cc->key[i] & 0xf));
++				}
++			}
+ 		} else
+ 			DMEMIT("-");
+ 
 
 
