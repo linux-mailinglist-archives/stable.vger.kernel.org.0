@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D86B753CF98
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AF753CFD4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345796AbiFCRzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58162 "EHLO
+        id S1345753AbiFCR5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346609AbiFCRvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C765A53E07;
-        Fri,  3 Jun 2022 10:48:54 -0700 (PDT)
+        with ESMTP id S1345049AbiFCRyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:54:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105BE43ED9;
+        Fri,  3 Jun 2022 10:52:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AF9BB82433;
-        Fri,  3 Jun 2022 17:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC5E4C385A9;
-        Fri,  3 Jun 2022 17:48:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20119611F3;
+        Fri,  3 Jun 2022 17:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12DD7C385A9;
+        Fri,  3 Jun 2022 17:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278532;
-        bh=HIPwxM3SG7OAggDsq+SZEhp1UA+7mDVc78vPygtLu9M=;
+        s=korg; t=1654278771;
+        bh=003EFPVAWAtkcipXIjXUvRz6XdQ5O2kKi9sJjDH1Xkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMo1ffA+T/LDLtx34sNZxXjtLc5oQ8nOyPVYVxqYmQd9rtT1NQwG7HwEMPwxqempa
-         nf3Tn0R8pt+vjeCjPBYpDByd0Y513RFYpUM8Ln6Bth+4TBf2hCPKI03pRZsRKoCMR5
-         93GK86NvT6WPJumv3Mq1ZVqxos51gZ+NHQTlG3/E=
+        b=ZtHGhe2iIKTDd3jIhHQr1LI3hoSvKp7kDv8F/M839pWE0yvfLggbxXrICQ284IVbJ
+         VO8OVJaRjI6z/OCVans1dER/fd+Jmq7NQ19JjTlq9dN7PQSM1jCIeBTWsbMBvxob/9
+         EXyQogBJY81TBGGpf1ozf6nESiUQj2D07FN2scWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Aaron Adams <edg-e@nccgroup.com>
-Subject: [PATCH 5.15 10/66] netfilter: nf_tables: disallow non-stateful expression in sets earlier
+        stable@vger.kernel.org,
+        syzbot+5b1e53987f858500ec00@syzkaller.appspotmail.com,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 06/75] percpu_ref_init(): clean ->percpu_count_ref on failure
 Date:   Fri,  3 Jun 2022 19:42:50 +0200
-Message-Id: <20220603173820.961939465@linuxfoundation.org>
+Message-Id: <20220603173821.931147182@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
+[ Upstream commit a91714312eb16f9ecd1f7f8b3efe1380075f28d4 ]
 
-Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
-instantiation"), it is possible to attach stateful expressions to set
-elements.
+That way percpu_ref_exit() is safe after failing percpu_ref_init().
+At least one user (cgroup_create()) had a double-free that way;
+there might be other similar bugs.  Easier to fix in percpu_ref_init(),
+rather than playing whack-a-mole in sloppy users...
 
-cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
-and destroy phase") introduces conditional destruction on the object to
-accomodate transaction semantics.
+Usual symptoms look like a messed refcounting in one of subsystems
+that use percpu allocations (might be percpu-refcount, might be
+something else).  Having refcounts for two different objects share
+memory is Not Nice(tm)...
 
-nft_expr_init() calls expr->ops->init() first, then check for
-NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
-lookup expressions which points to a set, which might lead to UAF since
-the set is not properly detached from the set->binding for this case.
-Anyway, this combination is non-sense from nf_tables perspective.
-
-This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
-expr->ops->init() is called.
-
-The reporter provides a KASAN splat and a poc reproducer (similar to
-those autogenerated by syzbot to report use-after-free errors). It is
-unknown to me if they are using syzbot or if they use similar automated
-tool to locate the bug that they are reporting.
-
-For the record, this is the KASAN splat.
-
-[   85.431824] ==================================================================
-[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
-[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
-[   85.434756]
-[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
-[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-
-Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
-Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+5b1e53987f858500ec00@syzkaller.appspotmail.com
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ lib/percpu-refcount.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2778,27 +2778,31 @@ static struct nft_expr *nft_expr_init(co
+diff --git a/lib/percpu-refcount.c b/lib/percpu-refcount.c
+index af9302141bcf..e5c5315da274 100644
+--- a/lib/percpu-refcount.c
++++ b/lib/percpu-refcount.c
+@@ -76,6 +76,7 @@ int percpu_ref_init(struct percpu_ref *ref, percpu_ref_func_t *release,
+ 	data = kzalloc(sizeof(*ref->data), gfp);
+ 	if (!data) {
+ 		free_percpu((void __percpu *)ref->percpu_count_ptr);
++		ref->percpu_count_ptr = 0;
+ 		return -ENOMEM;
+ 	}
  
- 	err = nf_tables_expr_parse(ctx, nla, &expr_info);
- 	if (err < 0)
--		goto err1;
-+		goto err_expr_parse;
-+
-+	err = -EOPNOTSUPP;
-+	if (!(expr_info.ops->type->flags & NFT_EXPR_STATEFUL))
-+		goto err_expr_stateful;
- 
- 	err = -ENOMEM;
- 	expr = kzalloc(expr_info.ops->size, GFP_KERNEL);
- 	if (expr == NULL)
--		goto err2;
-+		goto err_expr_stateful;
- 
- 	err = nf_tables_newexpr(ctx, &expr_info, expr);
- 	if (err < 0)
--		goto err3;
-+		goto err_expr_new;
- 
- 	return expr;
--err3:
-+err_expr_new:
- 	kfree(expr);
--err2:
-+err_expr_stateful:
- 	owner = expr_info.ops->type->owner;
- 	if (expr_info.ops->type->release_ops)
- 		expr_info.ops->type->release_ops(expr_info.ops);
- 
- 	module_put(owner);
--err1:
-+err_expr_parse:
- 	return ERR_PTR(err);
- }
- 
-@@ -5318,9 +5322,6 @@ struct nft_expr *nft_set_elem_expr_alloc
- 		return expr;
- 
- 	err = -EOPNOTSUPP;
--	if (!(expr->ops->type->flags & NFT_EXPR_STATEFUL))
--		goto err_set_elem_expr;
--
- 	if (expr->ops->type->flags & NFT_EXPR_GC) {
- 		if (set->flags & NFT_SET_TIMEOUT)
- 			goto err_set_elem_expr;
+-- 
+2.35.1
+
 
 
