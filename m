@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D5853CF1F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2904153CF45
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345477AbiFCRwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
+        id S1345581AbiFCRxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345974AbiFCRui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:38 -0400
+        with ESMTP id S1346665AbiFCRvZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8B3B48E;
-        Fri,  3 Jun 2022 10:46:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8515418F;
+        Fri,  3 Jun 2022 10:49:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 619CCB82189;
-        Fri,  3 Jun 2022 17:46:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC5A1C385A9;
-        Fri,  3 Jun 2022 17:46:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFAF9B8241E;
+        Fri,  3 Jun 2022 17:49:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28899C385A9;
+        Fri,  3 Jun 2022 17:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278410;
-        bh=oCsNTIo7XIHOw1ACzIhZHujD4nUnDMytpJVQ7UrnWnA=;
+        s=korg; t=1654278541;
+        bh=Lsl4MGIj+lFgH3ZgJ+tEmOVp6Tpf+jsCIrpUeJnyOnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aLc58uG5zZk0mAt9sAZkTKLoliHoBhPukHCbgE6MQFz+13Kw99K/YqtxL3DDK9mG
-         pIri2neqls+LEeoWmzRlGilR7Lx5BOuSNtP888aGxwnwAcviG+MFFKgvIEfGJ2WZiL
-         bVvk9xpMzjt4aXpLpHAkMDgIHBGeQEmQIjfBLb9E=
+        b=pVaUuKpeLNRf41/hnxvQ0i/KTsc2GlfT6bWKOQs59Iip7cfR0nLPlBEgYME/5jb/F
+         D2/H3HoeXdJQITk4IkqvXOiwoV40S6/UWc2WVYs0Vv74AbkJgKYuAki6MlVvNkq4hA
+         faMHqE2dlwkK1OulGbQd5+kfwG7xBg5IyGAXLaq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Aaron Adams <edg-e@nccgroup.com>
-Subject: [PATCH 5.10 08/53] netfilter: nf_tables: disallow non-stateful expression in sets earlier
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        Alexander Duyck <alexander.h.duyck@intel.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Kuniyuki Iwashima <kuni1840@gmail.com>,
+        "Soheil Hassas Yeganeh" <soheil@google.com>,
+        "Sridhar Samudrala" <sridhar.samudrala@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 13/66] pipe: make poll_usage boolean and annotate its access
 Date:   Fri,  3 Jun 2022 19:42:53 +0200
-Message-Id: <20220603173818.961780902@linuxfoundation.org>
+Message-Id: <20220603173821.046674861@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +59,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
+commit f485922d8fe4e44f6d52a5bb95a603b7c65554bb upstream.
 
-Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
-instantiation"), it is possible to attach stateful expressions to set
-elements.
+Patch series "Fix data-races around epoll reported by KCSAN."
 
-cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
-and destroy phase") introduces conditional destruction on the object to
-accomodate transaction semantics.
+This series suppresses a false positive KCSAN's message and fixes a real
+data-race.
 
-nft_expr_init() calls expr->ops->init() first, then check for
-NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
-lookup expressions which points to a set, which might lead to UAF since
-the set is not properly detached from the set->binding for this case.
-Anyway, this combination is non-sense from nf_tables perspective.
 
-This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
-expr->ops->init() is called.
+This patch (of 2):
 
-The reporter provides a KASAN splat and a poc reproducer (similar to
-those autogenerated by syzbot to report use-after-free errors). It is
-unknown to me if they are using syzbot or if they use similar automated
-tool to locate the bug that they are reporting.
+pipe_poll() runs locklessly and assigns 1 to poll_usage.  Once poll_usage
+is set to 1, it never changes in other places.  However, concurrent writes
+of a value trigger KCSAN, so let's make KCSAN happy.
 
-For the record, this is the KASAN splat.
+BUG: KCSAN: data-race in pipe_poll / pipe_poll
 
-[   85.431824] ==================================================================
-[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
-[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
-[   85.434756]
-[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
-[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+write to 0xffff8880042f6678 of 4 bytes by task 174 on cpu 3:
+ pipe_poll (fs/pipe.c:656)
+ ep_item_poll.isra.0 (./include/linux/poll.h:88 fs/eventpoll.c:853)
+ do_epoll_wait (fs/eventpoll.c:1692 fs/eventpoll.c:1806 fs/eventpoll.c:2234)
+ __x64_sys_epoll_wait (fs/eventpoll.c:2246 fs/eventpoll.c:2241 fs/eventpoll.c:2241)
+ do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+ entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:113)
 
-Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
-Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+write to 0xffff8880042f6678 of 4 bytes by task 177 on cpu 1:
+ pipe_poll (fs/pipe.c:656)
+ ep_item_poll.isra.0 (./include/linux/poll.h:88 fs/eventpoll.c:853)
+ do_epoll_wait (fs/eventpoll.c:1692 fs/eventpoll.c:1806 fs/eventpoll.c:2234)
+ __x64_sys_epoll_wait (fs/eventpoll.c:2246 fs/eventpoll.c:2241 fs/eventpoll.c:2241)
+ do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+ entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:113)
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 177 Comm: epoll_race Not tainted 5.17.0-58927-gf443e374ae13 #6
+Hardware name: Red Hat KVM, BIOS 1.11.0-2.amzn2 04/01/2014
+
+Link: https://lkml.kernel.org/r/20220322002653.33865-1-kuniyu@amazon.co.jp
+Link: https://lkml.kernel.org/r/20220322002653.33865-2-kuniyu@amazon.co.jp
+Fixes: 3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal loads")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
+Cc: "Soheil Hassas Yeganeh" <soheil@google.com>
+Cc: "Sridhar Samudrala" <sridhar.samudrala@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ fs/pipe.c                 |    2 +-
+ include/linux/pipe_fs_i.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2679,27 +2679,31 @@ static struct nft_expr *nft_expr_init(co
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -652,7 +652,7 @@ pipe_poll(struct file *filp, poll_table
+ 	unsigned int head, tail;
  
- 	err = nf_tables_expr_parse(ctx, nla, &info);
- 	if (err < 0)
--		goto err1;
-+		goto err_expr_parse;
-+
-+	err = -EOPNOTSUPP;
-+	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
-+		goto err_expr_stateful;
+ 	/* Epoll has some historical nasty semantics, this enables them */
+-	pipe->poll_usage = 1;
++	WRITE_ONCE(pipe->poll_usage, true);
  
- 	err = -ENOMEM;
- 	expr = kzalloc(info.ops->size, GFP_KERNEL);
- 	if (expr == NULL)
--		goto err2;
-+		goto err_expr_stateful;
- 
- 	err = nf_tables_newexpr(ctx, &info, expr);
- 	if (err < 0)
--		goto err3;
-+		goto err_expr_new;
- 
- 	return expr;
--err3:
-+err_expr_new:
- 	kfree(expr);
--err2:
-+err_expr_stateful:
- 	owner = info.ops->type->owner;
- 	if (info.ops->type->release_ops)
- 		info.ops->type->release_ops(info.ops);
- 
- 	module_put(owner);
--err1:
-+err_expr_parse:
- 	return ERR_PTR(err);
- }
- 
-@@ -5055,9 +5059,6 @@ struct nft_expr *nft_set_elem_expr_alloc
- 		return expr;
- 
- 	err = -EOPNOTSUPP;
--	if (!(expr->ops->type->flags & NFT_EXPR_STATEFUL))
--		goto err_set_elem_expr;
--
- 	if (expr->ops->type->flags & NFT_EXPR_GC) {
- 		if (set->flags & NFT_SET_TIMEOUT)
- 			goto err_set_elem_expr;
+ 	/*
+ 	 * Reading pipe state only -- no need for acquiring the semaphore.
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -71,7 +71,7 @@ struct pipe_inode_info {
+ 	unsigned int files;
+ 	unsigned int r_counter;
+ 	unsigned int w_counter;
+-	unsigned int poll_usage;
++	bool poll_usage;
+ 	struct page *tmp_page;
+ 	struct fasync_struct *fasync_readers;
+ 	struct fasync_struct *fasync_writers;
 
 
