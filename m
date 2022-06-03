@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E4E53CE54
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D0353CE91
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241702AbiFCRlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
+        id S1344939AbiFCRoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:44:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344700AbiFCRkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C535372D;
-        Fri,  3 Jun 2022 10:40:43 -0700 (PDT)
+        with ESMTP id S1344950AbiFCRnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9594B54FA7;
+        Fri,  3 Jun 2022 10:42:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 944DFB8242C;
-        Fri,  3 Jun 2022 17:40:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F0FC385A9;
-        Fri,  3 Jun 2022 17:40:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32819B82431;
+        Fri,  3 Jun 2022 17:42:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891D3C385B8;
+        Fri,  3 Jun 2022 17:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278040;
-        bh=eF2T/R2PDmwwBUaMI5JwQMzYr3QAKHOO0+H9xpsrUZQ=;
+        s=korg; t=1654278130;
+        bh=lXvYUp4TtvE4d7NzCJv0+s1hxA+8BpW3New4PeeJTXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+ZVsOPkdmbsHjHgtXuLQ5VvEJQrymWhjKYyumthem56JcU3gI6azNkbGHaC9ioOV
-         Q26VsM/vuO2YA7lxStU8aN46XmzBJlTkOa5R+P6VcFEsMi/CUXYX3E9NmfypatqbKq
-         7L0+4c3sK3bHclgNV7JYwOX65oAHiydY7va0uCDw=
+        b=pTTLIJmBidaTo1xSFTmfgktIJzYg47zAz1OGGVai4POeibEQg2sb5wnI31yqPecIa
+         mllY+4JAYlEjuRsUIM9rlwRToI91dxpXrcb7bzsWxz9+7qyk0pyvqV4fk6+laFcTMj
+         WnXsyhq4eNRsgUpfwJcsNp0vbwHZnaDYJc5Hos5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Dworken <ddworken@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 4.14 03/23] tcp: change source port randomizarion at connect() time
+        stable@vger.kernel.org,
+        "Denis Efremov (Oracle)" <efremov@linux.com>
+Subject: [PATCH 4.19 02/30] staging: rtl8723bs: prevent ->Ssid overflow in rtw_wx_set_scan()
 Date:   Fri,  3 Jun 2022 19:39:30 +0200
-Message-Id: <20220603173814.469899201@linuxfoundation.org>
+Message-Id: <20220603173815.162277565@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
-References: <20220603173814.362515009@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,98 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: "Denis Efremov (Oracle)" <efremov@linux.com>
 
-commit 190cc82489f46f9d88e73c81a47e14f80a791e1a upstream.
+This code has a check to prevent read overflow but it needs another
+check to prevent writing beyond the end of the ->Ssid[] array.
 
-RFC 6056 (Recommendations for Transport-Protocol Port Randomization)
-provides good summary of why source selection needs extra care.
-
-David Dworken reminded us that linux implements Algorithm 3
-as described in RFC 6056 3.3.3
-
-Quoting David :
-   In the context of the web, this creates an interesting info leak where
-   websites can count how many TCP connections a user's computer is
-   establishing over time. For example, this allows a website to count
-   exactly how many subresources a third party website loaded.
-   This also allows:
-   - Distinguishing between different users behind a VPN based on
-       distinct source port ranges.
-   - Tracking users over time across multiple networks.
-   - Covert communication channels between different browsers/browser
-       profiles running on the same computer
-   - Tracking what applications are running on a computer based on
-       the pattern of how fast source ports are getting incremented.
-
-Section 3.3.4 describes an enhancement, that reduces
-attackers ability to use the basic information currently
-stored into the shared 'u32 hint'.
-
-This change also decreases collision rate when
-multiple applications need to connect() to
-different destinations.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: David Dworken <ddworken@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[SG: Adjusted context]
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov (Oracle) <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -587,6 +587,17 @@ void inet_unhash(struct sock *sk)
- }
- EXPORT_SYMBOL_GPL(inet_unhash);
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -1359,9 +1359,11 @@ static int rtw_wx_set_scan(struct net_de
  
-+/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
-+ * Note that we use 32bit integers (vs RFC 'short integers')
-+ * because 2^16 is not a multiple of num_ephemeral and this
-+ * property might be used by clever attacker.
-+ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
-+ * we use 256 instead to really give more isolation and
-+ * privacy, this only consumes 1 KB of kernel memory.
-+ */
-+#define INET_TABLE_PERTURB_SHIFT 8
-+static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
-+
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		struct sock *sk, u32 port_offset,
- 		int (*check_established)(struct inet_timewait_death_row *,
-@@ -600,7 +611,7 @@ int __inet_hash_connect(struct inet_time
- 	struct inet_bind_bucket *tb;
- 	u32 remaining, offset;
- 	int ret, i, low, high;
--	static u32 hint;
-+	u32 index;
+ 					sec_len = *(pos++); len-= 1;
  
- 	if (port) {
- 		head = &hinfo->bhash[inet_bhashfn(net, port,
-@@ -625,7 +636,10 @@ int __inet_hash_connect(struct inet_time
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	offset = (hint + port_offset) % remaining;
-+	net_get_random_once(table_perturb, sizeof(table_perturb));
-+	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
-+
-+	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
- 	/* In first pass we try ports of @low parity.
- 	 * inet_csk_get_port() does the opposite choice.
- 	 */
-@@ -678,7 +692,7 @@ next_port:
- 	return -EADDRNOTAVAIL;
- 
- ok:
--	hint += i + 2;
-+	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
- 
- 	/* Head lock still held and bh's disabled */
- 	inet_bind_hash(sk, tb, port);
+-					if (sec_len>0 && sec_len<=len) {
++					if (sec_len > 0 &&
++					    sec_len <= len &&
++					    sec_len <= 32) {
+ 						ssid[ssid_index].SsidLength = sec_len;
+-						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
++						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
+ 						/* DBG_871X("%s COMBO_SCAN with specific ssid:%s, %d\n", __func__ */
+ 						/* 	, ssid[ssid_index].Ssid, ssid[ssid_index].SsidLength); */
+ 						ssid_index++;
 
 
