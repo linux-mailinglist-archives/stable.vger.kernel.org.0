@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DAB653CEE1
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D094053CF10
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345179AbiFCRsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:48:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45970 "EHLO
+        id S1345389AbiFCRwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:52:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345258AbiFCRsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9400957994;
-        Fri,  3 Jun 2022 10:44:32 -0700 (PDT)
+        with ESMTP id S1345843AbiFCRu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CAA759098;
+        Fri,  3 Jun 2022 10:46:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5AC61B38;
-        Fri,  3 Jun 2022 17:44:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DD11C341C0;
-        Fri,  3 Jun 2022 17:44:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37550B82419;
+        Fri,  3 Jun 2022 17:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A558AC385A9;
+        Fri,  3 Jun 2022 17:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278271;
-        bh=atzWDr3Jf2Jp/XXbxcAVp3pEhbI+lZ1uviGA5cgwK2I=;
+        s=korg; t=1654278383;
+        bh=6QoHrvU2xYQ1erhdoXN7xFpKRR4cBbfChEisOA3+u3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojoOvXXQOGMPpUtr9h7PR/gXZTbEWNZA/XQ8t5ejMu62jMPCZl+81QL73i/B8gypy
-         E4zAkUMuxP1cnGKEgdYnVw+zIYziWlCkTBoAjwhqDHWI4H7X09uUR+R6I0hAsg9zJq
-         Bu/yuxo1cQ0tCYg9MP9A3uHG1HUR4L1bekzJfXT4=
+        b=oEyl2562yXzhy97oE46KROJFxm4YpmfJ7X8D7y9Xa5R2nWI0poiecxMEtpNCpVY9L
+         UMvYf5SmKOf6qrb1aM14cYA4HmG0Qn2eZqsuLwKx7I+nSt2t+rmUW5GbD+v2wRFJxJ
+         A86qNAWVXB7iATwXa1T29aEIh4vv+MNIUxcekK4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Mastykin <dmastykin@astralinux.ru>,
-        Bastien Nocera <hadess@hadess.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 5.4 04/34] Input: goodix - fix spurious key release events
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 15/53] net: ipa: compute proper aggregation limit
 Date:   Fri,  3 Jun 2022 19:43:00 +0200
-Message-Id: <20220603173816.122230068@linuxfoundation.org>
+Message-Id: <20220603173819.166285071@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Mastykin <dmastykin@astralinux.ru>
+From: Alex Elder <elder@linaro.org>
 
-commit 24ef83f6e31d20fc121a7cd732b04b498475fca3 upstream.
+commit c5794097b269f15961ed78f7f27b50e51766dec9 upstream.
 
-The goodix panel sends spurious interrupts after a 'finger up' event,
-which always cause a timeout.
-We were exiting the interrupt handler by reporting touch_num == 0, but
-this was still processed as valid and caused the code to use the
-uninitialised point_data, creating spurious key release events.
+The aggregation byte limit for an endpoint is currently computed
+based on the endpoint's receive buffer size.
 
-Report an error from the interrupt handler so as to avoid processing
-invalid point_data further.
+However, some bytes at the front of each receive buffer are reserved
+on the assumption that--as with SKBs--it might be useful to insert
+data (such as headers) before what lands in the buffer.
 
-Signed-off-by: Dmitry Mastykin <dmastykin@astralinux.ru>
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Link: https://lore.kernel.org/r/20200316075302.3759-2-dmastykin@astralinux.ru
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Fabio Estevam <festevam@gmail.com>
+The aggregation byte limit currently doesn't take into account that
+reserved space, and as a result, aggregation could require space
+past that which is available in the buffer.
+
+Fix this by reducing the size used to compute the aggregation byte
+limit by the NET_SKB_PAD offset reserved for each receive buffer.
+
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/goodix.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ipa/ipa_endpoint.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -335,7 +335,7 @@ static int goodix_ts_read_input_report(s
- 	 * The Goodix panel will send spurious interrupts after a
- 	 * 'finger up' event, which will always cause a timeout.
- 	 */
--	return 0;
-+	return -ENOMSG;
- }
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -610,12 +610,14 @@ static void ipa_endpoint_init_aggr(struc
  
- static void goodix_ts_report_touch_8b(struct goodix_ts_data *ts, u8 *coor_data)
+ 	if (endpoint->data->aggregation) {
+ 		if (!endpoint->toward_ipa) {
++			u32 buffer_size;
+ 			u32 limit;
+ 
+ 			val |= u32_encode_bits(IPA_ENABLE_AGGR, AGGR_EN_FMASK);
+ 			val |= u32_encode_bits(IPA_GENERIC, AGGR_TYPE_FMASK);
+ 
+-			limit = ipa_aggr_size_kb(IPA_RX_BUFFER_SIZE);
++			buffer_size = IPA_RX_BUFFER_SIZE - NET_SKB_PAD;
++			limit = ipa_aggr_size_kb(buffer_size);
+ 			val |= u32_encode_bits(limit, AGGR_BYTE_LIMIT_FMASK);
+ 
+ 			limit = IPA_AGGR_TIME_LIMIT_DEFAULT;
 
 
