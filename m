@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 972F453CFC2
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1546953CF3D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345736AbiFCR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58138 "EHLO
+        id S1345605AbiFCRxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345914AbiFCRz1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D79D532F8;
-        Fri,  3 Jun 2022 10:53:03 -0700 (PDT)
+        with ESMTP id S1346664AbiFCRvZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98810544C7;
+        Fri,  3 Jun 2022 10:49:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8B23B8241D;
-        Fri,  3 Jun 2022 17:53:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F234C385A9;
-        Fri,  3 Jun 2022 17:52:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 338F660F3B;
+        Fri,  3 Jun 2022 17:49:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37334C385A9;
+        Fri,  3 Jun 2022 17:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278780;
-        bh=B0fbzs5NVpRoXeOmEKHVbepGaopA9N/slql/ABvPCnI=;
+        s=korg; t=1654278544;
+        bh=QdzVgy+7LC1eSGiAnX9qGElIAQugWzv77O5yVZ37v+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHSE+2TGVksUbFZcSqksbHiqTZc86MDd7b4N8yEw/QE+WXJVCm8L9pr7zbiIyY8jj
-         85RRbTNvnJ6FOBXYedS5LBURltmEVsVsep6jUZaprP74o21+L5THAjnI0qrh+uFPSX
-         y/ToxzzpAQhTJkMh7cx2vKjIDi/aQJIb379jkiJI=
+        b=bJFUVTLa98eKqQC+bPkhR67o8+fzgiEWKXOn5ue1f9QmMnRA9wP3SZddZNnfP2vfT
+         bNE2MeCZrGRtbMwA3tU/Gx2QWtwxnKK1ak0mxizOchniJpBHrVRLbFc6nwGUL8/26Y
+         BP7kRX/KKnU4hQ62siIFK1XRYAfDxZc1NoOspdCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wilder <wilder@us.ibm.com>,
-        Dylan Hung <dylan_hung@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 09/75] net: ftgmac100: Disable hardware checksum on AST2600
-Date:   Fri,  3 Jun 2022 19:42:53 +0200
-Message-Id: <20220603173822.014589048@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.15 14/66] pipe: Fix missing lock in pipe_resize_ring()
+Date:   Fri,  3 Jun 2022 19:42:54 +0200
+Message-Id: <20220603173821.075314499@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 6fd45e79e8b93b8d22fb8fe22c32fbad7e9190bd ]
+commit 189b0ddc245139af81198d1a3637cac74f96e13a upstream.
 
-The AST2600 when using the i210 NIC over NC-SI has been observed to
-produce incorrect checksum results with specific MTU values. This was
-first observed when sending data across a long distance set of networks.
+pipe_resize_ring() needs to take the pipe->rd_wait.lock spinlock to
+prevent post_one_notification() from trying to insert into the ring
+whilst the ring is being replaced.
 
-On a local network, the following test was performed using a 1MB file of
-random data.
+The occupancy check must be done after the lock is taken, and the lock
+must be taken after the new ring is allocated.
 
-On the receiver run this script:
+The bug can lead to an oops looking something like:
 
- #!/bin/bash
- while [ 1 ]; do
-        # Zero the stats
-        nstat -r  > /dev/null
-        nc -l 9899 > test-file
-        # Check for checksum errors
-        TcpInCsumErrors=$(nstat | grep TcpInCsumErrors)
-        if [ -z "$TcpInCsumErrors" ]; then
-                echo No TcpInCsumErrors
-        else
-                echo TcpInCsumErrors = $TcpInCsumErrors
-        fi
- done
+ BUG: KASAN: use-after-free in post_one_notification.isra.0+0x62e/0x840
+ Read of size 4 at addr ffff88801cc72a70 by task poc/27196
+ ...
+ Call Trace:
+  post_one_notification.isra.0+0x62e/0x840
+  __post_watch_notification+0x3b7/0x650
+  key_create_or_update+0xb8b/0xd20
+  __do_sys_add_key+0x175/0x340
+  __x64_sys_add_key+0xbe/0x140
+  do_syscall_64+0x5c/0xc0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-On an AST2600 system:
+Reported by Selim Enes Karaduman @Enesdex working with Trend Micro Zero
+Day Initiative.
 
- # nc <IP of  receiver host> 9899 < test-file
-
-The test was repeated with various MTU values:
-
- # ip link set mtu 1410 dev eth0
-
-The observed results:
-
- 1500 - good
- 1434 - bad
- 1400 - good
- 1410 - bad
- 1420 - good
-
-The test was repeated after disabling tx checksumming:
-
- # ethtool -K eth0 tx-checksumming off
-
-And all MTU values tested resulted in transfers without error.
-
-An issue with the driver cannot be ruled out, however there has been no
-bug discovered so far.
-
-David has done the work to take the original bug report of slow data
-transfer between long distance connections and triaged it down to this
-test case.
-
-The vendor suspects this this is a hardware issue when using NC-SI. The
-fixes line refers to the patch that introduced AST2600 support.
-
-Reported-by: David Wilder <wilder@us.ibm.com>
-Reviewed-by: Dylan Hung <dylan_hung@aspeedtech.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17291
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/pipe.c |   31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
-index caf48023f8ea..5231818943c6 100644
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1928,6 +1928,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
- 	/* AST2400  doesn't have working HW checksum generation */
- 	if (np && (of_device_is_compatible(np, "aspeed,ast2400-mac")))
- 		netdev->hw_features &= ~NETIF_F_HW_CSUM;
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -1244,30 +1244,33 @@ unsigned int round_pipe_size(unsigned lo
+ 
+ /*
+  * Resize the pipe ring to a number of slots.
++ *
++ * Note the pipe can be reduced in capacity, but only if the current
++ * occupancy doesn't exceed nr_slots; if it does, EBUSY will be
++ * returned instead.
+  */
+ int pipe_resize_ring(struct pipe_inode_info *pipe, unsigned int nr_slots)
+ {
+ 	struct pipe_buffer *bufs;
+ 	unsigned int head, tail, mask, n;
+ 
+-	/*
+-	 * We can shrink the pipe, if arg is greater than the ring occupancy.
+-	 * Since we don't expect a lot of shrink+grow operations, just free and
+-	 * allocate again like we would do for growing.  If the pipe currently
+-	 * contains more buffers than arg, then return busy.
+-	 */
+-	mask = pipe->ring_size - 1;
+-	head = pipe->head;
+-	tail = pipe->tail;
+-	n = pipe_occupancy(pipe->head, pipe->tail);
+-	if (nr_slots < n)
+-		return -EBUSY;
+-
+ 	bufs = kcalloc(nr_slots, sizeof(*bufs),
+ 		       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
+ 	if (unlikely(!bufs))
+ 		return -ENOMEM;
+ 
++	spin_lock_irq(&pipe->rd_wait.lock);
++	mask = pipe->ring_size - 1;
++	head = pipe->head;
++	tail = pipe->tail;
 +
-+	/* AST2600 tx checksum with NCSI is broken */
-+	if (priv->use_ncsi && of_device_is_compatible(np, "aspeed,ast2600-mac"))
-+		netdev->hw_features &= ~NETIF_F_HW_CSUM;
++	n = pipe_occupancy(head, tail);
++	if (nr_slots < n) {
++		spin_unlock_irq(&pipe->rd_wait.lock);
++		kfree(bufs);
++		return -EBUSY;
++	}
 +
- 	if (np && of_get_property(np, "no-hw-checksum", NULL))
- 		netdev->hw_features &= ~(NETIF_F_HW_CSUM | NETIF_F_RXCSUM);
- 	netdev->features |= netdev->hw_features;
--- 
-2.35.1
-
+ 	/*
+ 	 * The pipe array wraps around, so just start the new one at zero
+ 	 * and adjust the indices.
+@@ -1299,6 +1302,8 @@ int pipe_resize_ring(struct pipe_inode_i
+ 	pipe->tail = tail;
+ 	pipe->head = head;
+ 
++	spin_unlock_irq(&pipe->rd_wait.lock);
++
+ 	/* This might have made more room for writers */
+ 	wake_up_interruptible(&pipe->wr_wait);
+ 	return 0;
 
 
