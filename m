@@ -2,109 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE6653CECA
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955FC53CFAC
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344414AbiFCRrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:47:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45664 "EHLO
+        id S1345597AbiFCRz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345237AbiFCRqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:46:37 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C79453E1B;
-        Fri,  3 Jun 2022 10:43:39 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id q123so7735591pgq.6;
-        Fri, 03 Jun 2022 10:43:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=8+0I0SHfG0zz73fJ2FA496i9DVz96wphBCcvxAp0CpA=;
-        b=jrSpzUpvJysLpcT9KHdN7iayPW+qGXtismb/MpiHJ4iwHbhvt8rqzRYT6SbrTWeqc/
-         YwnYqal4iKzgyLCRZ2eq16OSCGI9KR2FOYp2/mL49VYyw2kG2ESxtUDZQ1GTJCa+2zxZ
-         Eyt9DyriY4MDVfJ/XCe/1Qcgli+v5ZJmPjiqjn/0hCg9+NljxcnqQwKB17bJ+pR6JZZi
-         oIZME0vToFc843ET4DfemOaCs/B++i3HMR8jlJWAEYiCg106Acu5yCtbhPHQmMoO1GD9
-         IUs6wg3Qk6Ek7E/4choP/99ZpjsSyORfugIfIogwVkW29+pJ1y/RKFkc8G6mPsIIgQY/
-         Mk+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=8+0I0SHfG0zz73fJ2FA496i9DVz96wphBCcvxAp0CpA=;
-        b=m80nKyzaumRkqaNZ7FglihvgLKXtc5SBBz1b75v7rjkDZ4lHNYpOCW6t+aPcjk0eBO
-         xrn6px4/ASGM1TxpTqOOCXdSO0PcaDrCsr8WdBYEZRIUoyl2l2sS6IfjUe3iQQP0SA1e
-         Z/Gd65MOlJyZJfWXKZS3zFNvpMEQePMhrc9Wbqr3lXnkjUitSUSt+KbnQcZBRqau1QZA
-         X4f9dBFcvmnfe8H7S8mSiI0K+kP94n5RQREWtjNMfUKLDcmcpJnqU6GPhn6Ame6Zo509
-         VHUwQ/ddxJ1LAkry1rpBO6Jr7Q357Jl2Db3OP2JDtpdB0dkF2ddhIKX6GbR2vg9dreOj
-         8Epg==
-X-Gm-Message-State: AOAM532n9nz7Hkn+7RIJQZsdz4jsrOtgzDRe5uapnC8YcOmsSqRkhfT8
-        CXCx0pjhsKGiplPpsVF7LBJwolxtOcE=
-X-Google-Smtp-Source: ABdhPJxSR4y3U82TXHppiIHKpM/WM/aE1pZqWV9Ge54biKSoSKUXkjnLcBXsIS4XRYb5dtT3aJKEyw==
-X-Received: by 2002:a63:f955:0:b0:3fc:cf92:cd26 with SMTP id q21-20020a63f955000000b003fccf92cd26mr9767628pgk.137.1654278218432;
-        Fri, 03 Jun 2022 10:43:38 -0700 (PDT)
-Received: from localhost.localdomain (ip174-67-196-173.oc.oc.cox.net. [174.67.196.173])
-        by smtp.gmail.com with ESMTPSA id a13-20020a170902710d00b0015e8d4eb1d2sm5705047pll.28.2022.06.03.10.43.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jun 2022 10:43:38 -0700 (PDT)
-From:   James Smart <jsmart2021@gmail.com>
-To:     linux-scsi@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>, stable@vger.kernel.org,
-        Justin Tee <justin.tee@broadcom.com>
-Subject: [PATCH 4/9] lpfc: Address null pointer dereference after starget_to_rport()
-Date:   Fri,  3 Jun 2022 10:43:24 -0700
-Message-Id: <20220603174329.63777-5-jsmart2021@gmail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20220603174329.63777-1-jsmart2021@gmail.com>
-References: <20220603174329.63777-1-jsmart2021@gmail.com>
+        with ESMTP id S1346343AbiFCRvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064A054BCD;
+        Fri,  3 Jun 2022 10:47:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B25E0B82189;
+        Fri,  3 Jun 2022 17:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CE0C385A9;
+        Fri,  3 Jun 2022 17:47:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654278459;
+        bh=40Dw1jN3ldvZgbMeHGnjn/t9svfNtIvS+9qMXPFOHNc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SQya78MlU0wu7LbWDhutTnASZq08De7xJLN7sAR37N7yX9drSEeVGM8UlWQg/1yeg
+         fSwDsxJ+gwsiDZ3ax27jFEsaR8mh+Z6schqYCjN14LJHJHDR2GaFNdNciTrmU5RtSA
+         l+HpIp85eeT15T7vutL45JcIIYKdXJA1VXAvAHDE=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 5.10 39/53] ARM: dts: s5pv210: Correct interrupt name for bluetooth in Aries
+Date:   Fri,  3 Jun 2022 19:43:24 +0200
+Message-Id: <20220603173819.858782061@linuxfoundation.org>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Calls to starget_to_rport() may return null.  Add check for null rport
-before dereference.
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-Fixes: bb21fc9911ee ("scsi: lpfc: Use fc_block_rport()")
-Cc: <stable@vger.kernel.org> # v5.18
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+commit 3f5e3d3a8b895c8a11da8b0063ba2022dd9e2045 upstream.
+
+Correct the name of the bluetooth interrupt from host-wake to
+host-wakeup.
+
+Fixes: 1c65b6184441b ("ARM: dts: s5pv210: Correct BCM4329 bluetooth node")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/CY4PR04MB0567495CFCBDC8D408D44199CB1C9@CY4PR04MB0567.namprd04.prod.outlook.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/s5pv210-aries.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index f5f4409e24cd..cb5e4e63ac44 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -6060,6 +6060,9 @@ lpfc_device_reset_handler(struct scsi_cmnd *cmnd)
- 	int status;
- 	u32 logit = LOG_FCP;
+--- a/arch/arm/boot/dts/s5pv210-aries.dtsi
++++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
+@@ -896,7 +896,7 @@
+ 		device-wakeup-gpios = <&gpg3 4 GPIO_ACTIVE_HIGH>;
+ 		interrupt-parent = <&gph2>;
+ 		interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "host-wake";
++		interrupt-names = "host-wakeup";
+ 	};
+ };
  
-+	if (!rport)
-+		return FAILED;
-+
- 	rdata = rport->dd_data;
- 	if (!rdata || !rdata->pnode) {
- 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
-@@ -6138,6 +6141,9 @@ lpfc_target_reset_handler(struct scsi_cmnd *cmnd)
- 	unsigned long flags;
- 	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(waitq);
- 
-+	if (!rport)
-+		return FAILED;
-+
- 	rdata = rport->dd_data;
- 	if (!rdata || !rdata->pnode) {
- 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
--- 
-2.26.2
+
 
