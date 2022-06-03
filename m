@@ -2,85 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E8B853CB87
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 16:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1507E53CBAE
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 16:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245079AbiFCOdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 10:33:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49496 "EHLO
+        id S245139AbiFCOlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 10:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244009AbiFCOdE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 10:33:04 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A3728E20;
-        Fri,  3 Jun 2022 07:33:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 82E02CE23A2;
-        Fri,  3 Jun 2022 14:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E9DC385A9;
-        Fri,  3 Jun 2022 14:32:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654266778;
-        bh=9g1TkF5RXob++DVAvJ+Q08Uj4F4cigdkgziPEkQcNKI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PaEBXFLkd999DgjHojB5rIBkxN4fShXq0Axh7Mm2K4brW7abK+50HFo38AXe8Ehup
-         Fah9YLt8V+rYQR483J44HuACH1IlnN6wJSl55HB5fR+RKynEOJLauxOTd9rMoQ0HHC
-         26TswkItKoiwukThReV7kWA2h5/I7mLCDRZgK3C0=
-Date:   Fri, 3 Jun 2022 16:32:55 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Dave Chinner <david@fromorbit.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Theodore Ts'o <tytso@mit.edu>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        Adam Manzanares <a.manzanares@samsung.com>,
-        Tyler Hicks <code@tyhicks.com>, Jan Kara <jack@suse.cz>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 v2 0/5] xfs fixes for 5.10.y (part 1)
-Message-ID: <Ypoblx9ilQOGh50E@kroah.com>
-References: <20220527130219.3110260-1-amir73il@gmail.com>
+        with ESMTP id S245138AbiFCOle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 10:41:34 -0400
+Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0252548E59;
+        Fri,  3 Jun 2022 07:41:33 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 1B1BD32002F9;
+        Fri,  3 Jun 2022 10:41:30 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Fri, 03 Jun 2022 10:41:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1654267289; x=1654353689; bh=bdf6OG8oFg
+        5pHlwH19Dh8WKLl53MNJOfNyG8ctdsTPE=; b=IRzI1rPr6whBdIr4f0KDz5ySgi
+        61E6CobQ6wtp/ALq+hKXOs3Z3gmveqRd9eCo6G8YXEjcv7FTyduDPFWugrX7vFqR
+        Lx8NeiNCo9nVtBRkvctl5VEmYmEtMEAuA3G5nzwA4C766x1ynBOrnLw9tlG0MQ48
+        CSF9Y07A20TMNnouD9dMgKBzUrj0F+1JjGGeptJb4mCFyNBNyDSEztqU3E2uz7h7
+        0WvDG98dWCPHu2euSjcEscdXa5m5Uw4dfDyO58a9fvHcvoYqGyAeUMFjA4PU/J3Z
+        ufoOEEhaglzUFXFCdzoMrXwG/LSGzhJOWxEWgSTeI7AhR4D6A5xNc9xJbn+Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1654267289; x=1654353689; bh=bdf6OG8oFg5pHlwH19Dh8WKLl53M
+        NJOfNyG8ctdsTPE=; b=qkkmEqlP9gly5Q/6/GTas1xz5w2pLrlXYrBDqofuGTHc
+        DytNF5JR88bbrp/wxmh4TRhokUPWvhxl0WoH2BSvb6tnmQyWi9U+/vcWXp+LltdO
+        5orrp4PTpKwhrEL2/LL5ecOMHxrU5ohxcAaGT52XhMTiTQFMsr18TO8H2tjX7sHs
+        +HJRchymTQ8r7oN6XpLZEK4in5YCnvryW95mODDHBXTKMRENe0PHfh3b0tXp+Yg9
+        VpTevF/9qcWnadCTZoKRawgP9/ctY8vChTBy44Gk9qdrfqPpZc/blt4MzFxFiwmz
+        twC9w0R24quSp1VvnW5W4CVa1oAurt0NB8n29O6rSw==
+X-ME-Sender: <xms:mB2aYnRqFiONT56wPlEps55qr7nSOw4f6CExJyWWejU65jZachJYmw>
+    <xme:mB2aYoynFRfDKSMnqL63Z5Ub0uD_nzJwaEdWMqCRZd8saW494U0kPj4CfcNd2ugW3
+    ddwZZv2OA6nEw>
+X-ME-Received: <xmr:mB2aYs12MB3d-ivPgqkpXyFW7tJn6acOICiS6PkO3Qll_D0vCccQTr9DOqTPC4FVACmU9pJ9j57lVIF4dMR4-nHH89dBZjen>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrleeigdejjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeejhfelff
+    ejkeejheetgfeigeekueeuuddvveekjeekueeggfdvhfefteelgefgvdenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:mB2aYnAvPoi_6SzwgLfr6RRS1LObp-nQ3_LFuARIT0uefuq_zjBOEQ>
+    <xmx:mB2aYgiXnPhQb0TXjwjpRTibBSvk-eE4N6dZZupmuqWRt8wshKQqUg>
+    <xmx:mB2aYroapDY1r3p7hJy2itf2eZQSF6nnv3GJcn-pmSteZgKEQGaLdA>
+    <xmx:mR2aYpWszrYW25vfK1QZ1W2UiAyAmirlfO_IsDBuvchQulxZ6MVWOg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 3 Jun 2022 10:41:28 -0400 (EDT)
+Date:   Fri, 3 Jun 2022 16:41:26 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: exfat: check if cluster num is valid
+Message-ID: <YpodliEhKuIPEowh@kroah.com>
+References: <b6ca08bb-2275-ab66-1a78-d4ac9e87057c@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220527130219.3110260-1-amir73il@gmail.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <b6ca08bb-2275-ab66-1a78-d4ac9e87057c@linaro.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 27, 2022 at 04:02:14PM +0300, Amir Goldstein wrote:
-> Hi Greg and Shasha!
-> 
-> It has been a while since you heard from xfs team.
-> 
-> We are trying to change things and get xfs fixes flowing to stable
-> again. Crossing my fingers that we will make this last this time :)
-> 
-> Please see this message from Darrick [4] about xfs stable plans.
-> My team will be focusing on 5.10.y and Ted and Leah's team will be
-> focusing on 5.15.y at this time.
-> 
-> This v2 is being sent to stable after testing and after v1 was sent
-> for review of the xfs list [5].
-> 
-> v2 includes an extra patch that Christoph has backported and tested
-> and was going to send to stable.
-> 
-> Please see my cover letter to xfs with more details about my plans
-> for 5.10.y below:
+On Tue, May 31, 2022 at 08:53:40AM -0700, Tadeusz Struk wrote:
+> Hi,
+> Please apply upstream commit: 64ba4b15e5c0 ("exfat: check if cluster num is valid")
+> to stable 5.18.y and 5.17.y
+> Backports for 5.15.y and 5.10.y will follow soon.
 
-All now queued up, thanks for doing this and I look forward to more xfs
-patches being sent to us!
+All now queued up, thanks.
 
 greg k-h
