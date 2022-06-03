@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EAF53CF71
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE19B53CF8D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345248AbiFCRxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57836 "EHLO
+        id S1345693AbiFCRyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346493AbiFCRvN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:13 -0400
+        with ESMTP id S1347256AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDDA5401D;
-        Fri,  3 Jun 2022 10:48:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40FAA469;
+        Fri,  3 Jun 2022 10:51:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB3EC604EF;
-        Fri,  3 Jun 2022 17:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE43C385B8;
-        Fri,  3 Jun 2022 17:48:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 823B760EE9;
+        Fri,  3 Jun 2022 17:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 950EAC385A9;
+        Fri,  3 Jun 2022 17:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278505;
-        bh=kN0AN2TNyRTIymjPqzTViSmge+OvDBcFe42A1QKtWv8=;
+        s=korg; t=1654278679;
+        bh=x5kV3Z+YxJqaxbkJ5fOTbYmq3aXHfxYboSUuniNqq7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h259kxfL0y/1tng/akEao4zN33LBygStLc/I0vkMq34DkpcJ9PRV2nfyNxBw1tRG5
-         cTpwX0Rj9wO6+p/Nb+LWRuC04RjUdF1HN/RZ5gYyQZY+5ipr9eX82Tao9o4nqC6s+2
-         HCADGxmm07eFFb+NZPvUnEk4jaVvjsZDd+tkR8x4=
+        b=rbOzVWFVStBCbI440evV/eWVd7vbH9ek2tT3r8ffF7CYl4f6r6t4EkigQxNpQWH37
+         jS1grldjbV7UQLvg7H2fKt1ETFCYI51818bwCoMMjuorDCH33+W0XYfhOz1L++u9ga
+         bgUg+GM1KaHXaEy9t6726P5ukCFwiUgKhbGHY1wA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.10 53/53] bpf: Enlarge offset check value to INT_MAX in bpf_skb_{load,store}_bytes
+        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.15 58/66] tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
 Date:   Fri,  3 Jun 2022 19:43:38 +0200
-Message-Id: <20220603173820.259753943@linuxfoundation.org>
+Message-Id: <20220603173822.334457186@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-commit 45969b4152c1752089351cd6836a42a566d49bcf upstream.
+commit d0dc1a7100f19121f6e7450f9cdda11926aa3838 upstream.
 
-The data length of skb frags + frag_list may be greater than 0xffff, and
-skb_header_pointer can not handle negative offset. So, here INT_MAX is used
-to check the validity of offset. Add the same change to the related function
-skb_store_bytes.
+Currently it returns zero when CRQ response timed out, it should return
+an error code instead.
 
-Fixes: 05c74e5e53f6 ("bpf: add bpf_skb_load_bytes helper")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20220416105801.88708-2-liujian56@huawei.com
+Fixes: d8d74ea3c002 ("tpm: ibmvtpm: Wait for buffer to be set before proceeding")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/tpm/tpm_ibmvtpm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -1687,7 +1687,7 @@ BPF_CALL_5(bpf_skb_store_bytes, struct s
- 
- 	if (unlikely(flags & ~(BPF_F_RECOMPUTE_CSUM | BPF_F_INVALIDATE_HASH)))
- 		return -EINVAL;
--	if (unlikely(offset > 0xffff))
-+	if (unlikely(offset > INT_MAX))
- 		return -EFAULT;
- 	if (unlikely(bpf_try_make_writable(skb, offset + len)))
- 		return -EFAULT;
-@@ -1722,7 +1722,7 @@ BPF_CALL_4(bpf_skb_load_bytes, const str
- {
- 	void *ptr;
- 
--	if (unlikely(offset > 0xffff))
-+	if (unlikely(offset > INT_MAX))
- 		goto err_clear;
- 
- 	ptr = skb_header_pointer(skb, offset, len, to);
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -681,6 +681,7 @@ static int tpm_ibmvtpm_probe(struct vio_
+ 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
+ 				ibmvtpm->rtce_buf != NULL,
+ 				HZ)) {
++		rc = -ENODEV;
+ 		dev_err(dev, "CRQ response timed out\n");
+ 		goto init_irq_cleanup;
+ 	}
 
 
