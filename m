@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF3653CE47
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B5D53CEA4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344602AbiFCRkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:40:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56124 "EHLO
+        id S235044AbiFCRpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:45:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236861AbiFCRkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:21 -0400
+        with ESMTP id S1345126AbiFCRoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:44:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F3535371B;
-        Fri,  3 Jun 2022 10:40:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F254D55203;
+        Fri,  3 Jun 2022 10:42:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD70AB8242F;
-        Fri,  3 Jun 2022 17:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6FBC385B8;
-        Fri,  3 Jun 2022 17:40:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2F92B8242D;
+        Fri,  3 Jun 2022 17:42:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D47AC385A9;
+        Fri,  3 Jun 2022 17:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278017;
-        bh=Osm3N9ED8aEgFeCh/544mUnrHvCIblxB68cGxirIdOQ=;
+        s=korg; t=1654278154;
+        bh=yojwAR4GeocO+V0acQYXPAOcPk/e68dRzRXpL5OJFns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhM8n9Qr8fO30/0iR4FL6qd/By1HcXPTBRgA+dInYG2+OWMJCcZeivnkA/P8cfCKG
-         gCBWQZnPNZyWCWEmJQJ9JdX1o0K32bGwWDVIOtTkfLi4GN6cQfeHiVG0PKW8own5cb
-         d2lix6H2islS1fWnawVRN3hkZsBeRG2s8pwfpyS4=
+        b=eZ3eo7bx5ky5onfl1dUg9rdFnyZ17nSFNbFefMjoDnopUCUuKy28Qnfnfjx5u5Ryf
+         zf2gGj6wLqb2rmD9ik9rrIXblx56uCsuFEVejNFH/d0EZwox+7+JJnj8JcfET2lyW9
+         cY7EbObEGKVLdto+shB0Cy9Tr7slXV7gjOcbYTPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.9 08/12] dm stats: add cond_resched when looping over entries
+        stable@vger.kernel.org,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Veronika Kabatova <vkabatov@redhat.com>,
+        Aristeu Rozanski <aris@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 4.19 06/30] ACPI: sysfs: Fix BERT error region memory mapping
 Date:   Fri,  3 Jun 2022 19:39:34 +0200
-Message-Id: <20220603173812.772452531@linuxfoundation.org>
+Message-Id: <20220603173815.280377951@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
-References: <20220603173812.524184588@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +58,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-commit bfe2b0146c4d0230b68f5c71a64380ff8d361f8b upstream.
+commit 1bbc21785b7336619fb6a67f1fff5afdaf229acc upstream.
 
-dm-stats can be used with a very large number of entries (it is only
-limited by 1/4 of total system memory), so add rescheduling points to
-the loops that iterate over the entries.
+Currently the sysfs interface maps the BERT error region as "memory"
+(through acpi_os_map_memory()) in order to copy the error records into
+memory buffers through memory operations (eg memory_read_from_buffer()).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+The OS system cannot detect whether the BERT error region is part of
+system RAM or it is "device memory" (eg BMC memory) and therefore it
+cannot detect which memory attributes the bus to memory support (and
+corresponding kernel mapping, unless firmware provides the required
+information).
+
+The acpi_os_map_memory() arch backend implementation determines the
+mapping attributes. On arm64, if the BERT error region is not present in
+the EFI memory map, the error region is mapped as device-nGnRnE; this
+triggers alignment faults since memcpy unaligned accesses are not
+allowed in device-nGnRnE regions.
+
+The ACPI sysfs code cannot therefore map by default the BERT error
+region with memory semantics but should use a safer default.
+
+Change the sysfs code to map the BERT error region as MMIO (through
+acpi_os_map_iomem()) and use the memcpy_fromio() interface to read the
+error region into the kernel buffer.
+
+Link: https://lore.kernel.org/linux-arm-kernel/31ffe8fc-f5ee-2858-26c5-0fd8bdd68702@arm.com
+Link: https://lore.kernel.org/linux-acpi/CAJZ5v0g+OVbhuUUDrLUCfX_mVqY_e8ubgLTU98=jfjTeb4t+Pw@mail.gmail.com
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Tested-by: Veronika Kabatova <vkabatov@redhat.com>
+Tested-by: Aristeu Rozanski <aris@redhat.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-stats.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/acpi/sysfs.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/drivers/md/dm-stats.c
-+++ b/drivers/md/dm-stats.c
-@@ -228,6 +228,7 @@ void dm_stats_cleanup(struct dm_stats *s
- 				       atomic_read(&shared->in_flight[READ]),
- 				       atomic_read(&shared->in_flight[WRITE]));
- 			}
-+			cond_resched();
- 		}
- 		dm_stat_free(&s->rcu_head);
- 	}
-@@ -316,6 +317,7 @@ static int dm_stats_create(struct dm_sta
- 	for (ni = 0; ni < n_entries; ni++) {
- 		atomic_set(&s->stat_shared[ni].in_flight[READ], 0);
- 		atomic_set(&s->stat_shared[ni].in_flight[WRITE], 0);
-+		cond_resched();
- 	}
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -438,19 +438,30 @@ static ssize_t acpi_data_show(struct fil
+ 			      loff_t offset, size_t count)
+ {
+ 	struct acpi_data_attr *data_attr;
+-	void *base;
+-	ssize_t rc;
++	void __iomem *base;
++	ssize_t size;
  
- 	if (s->n_histogram_entries) {
-@@ -328,6 +330,7 @@ static int dm_stats_create(struct dm_sta
- 		for (ni = 0; ni < n_entries; ni++) {
- 			s->stat_shared[ni].tmp.histogram = hi;
- 			hi += s->n_histogram_entries + 1;
-+			cond_resched();
- 		}
- 	}
+ 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
++	size = data_attr->attr.size;
  
-@@ -348,6 +351,7 @@ static int dm_stats_create(struct dm_sta
- 			for (ni = 0; ni < n_entries; ni++) {
- 				p[ni].histogram = hi;
- 				hi += s->n_histogram_entries + 1;
-+				cond_resched();
- 			}
- 		}
- 	}
-@@ -477,6 +481,7 @@ static int dm_stats_list(struct dm_stats
- 			}
- 			DMEMIT("\n");
- 		}
-+		cond_resched();
- 	}
- 	mutex_unlock(&stats->mutex);
+-	base = acpi_os_map_memory(data_attr->addr, data_attr->attr.size);
++	if (offset < 0)
++		return -EINVAL;
++
++	if (offset >= size)
++		return 0;
++
++	if (count > size - offset)
++		count = size - offset;
++
++	base = acpi_os_map_iomem(data_attr->addr, size);
+ 	if (!base)
+ 		return -ENOMEM;
+-	rc = memory_read_from_buffer(buf, count, &offset, base,
+-				     data_attr->attr.size);
+-	acpi_os_unmap_memory(base, data_attr->attr.size);
  
-@@ -753,6 +758,7 @@ static void __dm_stat_clear(struct dm_st
- 				local_irq_enable();
- 			}
- 		}
-+		cond_resched();
- 	}
+-	return rc;
++	memcpy_fromio(buf, base + offset, count);
++
++	acpi_os_unmap_iomem(base, size);
++
++	return count;
  }
  
-@@ -868,6 +874,8 @@ static int dm_stats_print(struct dm_stat
- 
- 		if (unlikely(sz + 1 >= maxlen))
- 			goto buffer_overflow;
-+
-+		cond_resched();
- 	}
- 
- 	if (clear)
+ static int acpi_bert_data_init(void *th, struct acpi_data_attr *data_attr)
 
 
