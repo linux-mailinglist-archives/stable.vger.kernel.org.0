@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE73653CF2F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0824053CF9F
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345708AbiFCRyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58166 "EHLO
+        id S1345817AbiFCRzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347061AbiFCRvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8698556218;
-        Fri,  3 Jun 2022 10:50:02 -0700 (PDT)
+        with ESMTP id S1346562AbiFCRvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E7715710D;
+        Fri,  3 Jun 2022 10:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 068A1B8241E;
-        Fri,  3 Jun 2022 17:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7064BC385A9;
-        Fri,  3 Jun 2022 17:49:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9524760F3E;
+        Fri,  3 Jun 2022 17:48:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961DAC385A9;
+        Fri,  3 Jun 2022 17:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278599;
-        bh=HgO/YYUBUaikVJTuqzSnhSDHKguXOeaqQnh/CGNBQlo=;
+        s=korg; t=1654278517;
+        bh=0dps9+gQ/mQziwxK62E4J5kQRKRytCDyJYGrbsF67c8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZIvgJOzdu4vb0oyt6aeTWvLs6FFAoC5G0QEslT9KfsyIXMZUhDmvseyCMSaIpz04
-         B61ct3a4y/Axhj8rR1+Px963Kk2fhnR1XIqSDMGrn3O4fEUwkCJiGnElJBJjBD3XFs
-         zNmr8lbTXGmyZNOTlyFQroUQ+e3V3drfTRB5/Cmo=
+        b=pM0C7UQB28NwFP4LtvYQcZg77wCelOk4eyokdUQ2Q8eHzn7aGa/B4FBUyrbrQr20b
+         5ECFZTyew05aSyWTl90pa//7LGHlxN63UetkN/o4YjGwzm4hAjqCs7I6IvzeQI1vwc
+         zzQTxbJVjX7M2TcvtgfyEfVSova8lfk6EJHDkHUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 30/66] x86, kvm: use correct GFP flags for preemption disabled
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 25/53] crypto: drbg - prepare for more fine-grained tracking of seeding state
 Date:   Fri,  3 Jun 2022 19:43:10 +0200
-Message-Id: <20220603173821.525978571@linuxfoundation.org>
+Message-Id: <20220603173819.458280524@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +55,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Nicolai Stange <nstange@suse.de>
 
-commit baec4f5a018fe2d708fc1022330dba04b38b5fe3 upstream.
+commit ce8ce31b2c5c8b18667784b8c515650c65d57b4e upstream.
 
-Commit ddd7ed842627 ("x86/kvm: Alloc dummy async #PF token outside of
-raw spinlock") leads to the following Smatch static checker warning:
+There are two different randomness sources the DRBGs are getting seeded
+from, namely the jitterentropy source (if enabled) and get_random_bytes().
+At initial DRBG seeding time during boot, the latter might not have
+collected sufficient entropy for seeding itself yet and thus, the DRBG
+implementation schedules a reseed work from a random_ready_callback once
+that has happened. This is particularly important for the !->pr DRBG
+instances, for which (almost) no further reseeds are getting triggered
+during their lifetime.
 
-	arch/x86/kernel/kvm.c:212 kvm_async_pf_task_wake()
-	warn: sleeping in atomic context
+Because collecting data from the jitterentropy source is a rather expensive
+operation, the aforementioned asynchronously scheduled reseed work
+restricts itself to get_random_bytes() only. That is, it in some sense
+amends the initial DRBG seed derived from jitterentropy output at full
+(estimated) entropy with fresh randomness obtained from get_random_bytes()
+once that has been seeded with sufficient entropy itself.
 
-arch/x86/kernel/kvm.c
-    202         raw_spin_lock(&b->lock);
-    203         n = _find_apf_task(b, token);
-    204         if (!n) {
-    205                 /*
-    206                  * Async #PF not yet handled, add a dummy entry for the token.
-    207                  * Allocating the token must be down outside of the raw lock
-    208                  * as the allocator is preemptible on PREEMPT_RT kernels.
-    209                  */
-    210                 if (!dummy) {
-    211                         raw_spin_unlock(&b->lock);
---> 212                         dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
-                                                                ^^^^^^^^^^
-Smatch thinks the caller has preempt disabled.  The `smdb.py preempt
-kvm_async_pf_task_wake` output call tree is:
+With the advent of rng_is_initialized(), there is no real need for doing
+the reseed operation from an asynchronously scheduled work anymore and a
+subsequent patch will make it synchronous by moving it next to related
+logic already present in drbg_generate().
 
-sysvec_kvm_asyncpf_interrupt() <- disables preempt
--> __sysvec_kvm_asyncpf_interrupt()
-   -> kvm_async_pf_task_wake()
+However, for tracking whether a full reseed including the jitterentropy
+source is required or a "partial" reseed involving only get_random_bytes()
+would be sufficient already, the boolean struct drbg_state's ->seeded
+member must become a tristate value.
 
-The caller is this:
+Prepare for this by introducing the new enum drbg_seed_state and change
+struct drbg_state's ->seeded member's type from bool to that type.
 
-arch/x86/kernel/kvm.c
-   290        DEFINE_IDTENTRY_SYSVEC(sysvec_kvm_asyncpf_interrupt)
-   291        {
-   292                struct pt_regs *old_regs = set_irq_regs(regs);
-   293                u32 token;
-   294
-   295                ack_APIC_irq();
-   296
-   297                inc_irq_stat(irq_hv_callback_count);
-   298
-   299                if (__this_cpu_read(apf_reason.enabled)) {
-   300                        token = __this_cpu_read(apf_reason.token);
-   301                        kvm_async_pf_task_wake(token);
-   302                        __this_cpu_write(apf_reason.token, 0);
-   303                        wrmsrl(MSR_KVM_ASYNC_PF_ACK, 1);
-   304                }
-   305
-   306                set_irq_regs(old_regs);
-   307        }
+For facilitating review, enum drbg_seed_state is made to only contain
+two members corresponding to the former ->seeded values of false and true
+resp. at this point: DRBG_SEED_STATE_UNSEEDED and DRBG_SEED_STATE_FULL. A
+third one for tracking the intermediate state of "seeded from jitterentropy
+only" will be introduced with a subsequent patch.
 
-The DEFINE_IDTENTRY_SYSVEC() is a wrapper that calls this function
-from the call_on_irqstack_cond().  It's inside the call_on_irqstack_cond()
-where preempt is disabled (unless it's already disabled).  The
-irq_enter/exit_rcu() functions disable/enable preempt.
+There is no change in behaviour at this point.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Stephan Müller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/drbg.c         |   19 ++++++++++---------
+ include/crypto/drbg.h |    7 ++++++-
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -206,7 +206,7 @@ again:
- 		 */
- 		if (!dummy) {
- 			raw_spin_unlock(&b->lock);
--			dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
-+			dummy = kzalloc(sizeof(*dummy), GFP_ATOMIC);
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -1042,7 +1042,7 @@ static inline int __drbg_seed(struct drb
+ 	if (ret)
+ 		return ret;
  
- 			/*
- 			 * Continue looping on allocation failure, eventually
+-	drbg->seeded = true;
++	drbg->seeded = DRBG_SEED_STATE_FULL;
+ 	/* 10.1.1.2 / 10.1.1.3 step 5 */
+ 	drbg->reseed_ctr = 1;
+ 
+@@ -1087,14 +1087,14 @@ static void drbg_async_seed(struct work_
+ 	if (ret)
+ 		goto unlock;
+ 
+-	/* Set seeded to false so that if __drbg_seed fails the
+-	 * next generate call will trigger a reseed.
++	/* Reset ->seeded so that if __drbg_seed fails the next
++	 * generate call will trigger a reseed.
+ 	 */
+-	drbg->seeded = false;
++	drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 
+ 	__drbg_seed(drbg, &seedlist, true);
+ 
+-	if (drbg->seeded)
++	if (drbg->seeded == DRBG_SEED_STATE_FULL)
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
+ unlock:
+@@ -1385,13 +1385,14 @@ static int drbg_generate(struct drbg_sta
+ 	 * here. The spec is a bit convoluted here, we make it simpler.
+ 	 */
+ 	if (drbg->reseed_threshold < drbg->reseed_ctr)
+-		drbg->seeded = false;
++		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 
+-	if (drbg->pr || !drbg->seeded) {
++	if (drbg->pr || drbg->seeded == DRBG_SEED_STATE_UNSEEDED) {
+ 		pr_devel("DRBG: reseeding before generation (prediction "
+ 			 "resistance: %s, state %s)\n",
+ 			 drbg->pr ? "true" : "false",
+-			 drbg->seeded ? "seeded" : "unseeded");
++			 (drbg->seeded ==  DRBG_SEED_STATE_FULL ?
++			  "seeded" : "unseeded"));
+ 		/* 9.3.1 steps 7.1 through 7.3 */
+ 		len = drbg_seed(drbg, addtl, true);
+ 		if (len)
+@@ -1576,7 +1577,7 @@ static int drbg_instantiate(struct drbg_
+ 	if (!drbg->core) {
+ 		drbg->core = &drbg_cores[coreref];
+ 		drbg->pr = pr;
+-		drbg->seeded = false;
++		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
+ 		ret = drbg_alloc_state(drbg);
+--- a/include/crypto/drbg.h
++++ b/include/crypto/drbg.h
+@@ -105,6 +105,11 @@ struct drbg_test_data {
+ 	struct drbg_string *testentropy; /* TEST PARAMETER: test entropy */
+ };
+ 
++enum drbg_seed_state {
++	DRBG_SEED_STATE_UNSEEDED,
++	DRBG_SEED_STATE_FULL,
++};
++
+ struct drbg_state {
+ 	struct mutex drbg_mutex;	/* lock around DRBG */
+ 	unsigned char *V;	/* internal state 10.1.1.1 1a) */
+@@ -127,7 +132,7 @@ struct drbg_state {
+ 	struct crypto_wait ctr_wait;		/* CTR mode async wait obj */
+ 	struct scatterlist sg_in, sg_out;	/* CTR mode SGLs */
+ 
+-	bool seeded;		/* DRBG fully seeded? */
++	enum drbg_seed_state seeded;		/* DRBG fully seeded? */
+ 	bool pr;		/* Prediction resistance enabled? */
+ 	bool fips_primed;	/* Continuous test primed? */
+ 	unsigned char *prev;	/* FIPS 140-2 continuous test value */
 
 
