@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD95453CE97
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CFA753CE6A
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344378AbiFCRo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:44:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56918 "EHLO
+        id S1344516AbiFCRmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:42:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344895AbiFCRnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA90153A52;
-        Fri,  3 Jun 2022 10:42:20 -0700 (PDT)
+        with ESMTP id S1344832AbiFCRlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B406853710;
+        Fri,  3 Jun 2022 10:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 355C761AE4;
-        Fri,  3 Jun 2022 17:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E13C385A9;
-        Fri,  3 Jun 2022 17:42:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 285E6B8241E;
+        Fri,  3 Jun 2022 17:41:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70706C385A9;
+        Fri,  3 Jun 2022 17:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278139;
-        bh=FtO2RLN9CrpjYCc5A46uz2lhr5W97xly3lDUSs8kygk=;
+        s=korg; t=1654278067;
+        bh=BH80/xrWi3HHDzmncsNTp32aPsRHWdcdKFT71F8XLJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0zOPD0SE6ttI17jl3mYnbwEHdzx/EtveJulRmSexQ0W9OIgHroLk8v6LWuckUF2m3
-         GLNRRNBkXun+wJ4RePFWKaJ5FQviXvl8d18cLjHmLBtt96NrI5wfnw/OoR0tgE1y6/
-         lJFNAYfiXP/WwRDBRqjE+2ohptug72xG1XE5Yiik=
+        b=tlOKGkySvNO8ZEoItxDVtR9ShZqZ+VEAVPqTY+tkwWCMAfod2J0E8HwdTmPPR116o
+         qvkVH+cI/oJcNca4N1Ou1+r4ddOKfFkFDDePLZRuU8DIwSTr1GyZhYSnLznLuE0jW6
+         +q3KUGGHHAwWwjN999RfohrBYTx6ikTDCBAEkwhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Milan Broz <gmazyland@gmail.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.19 22/30] dm crypt: make printing of the key constant-time
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.14 23/23] bpf: Enlarge offset check value to INT_MAX in bpf_skb_{load,store}_bytes
 Date:   Fri,  3 Jun 2022 19:39:50 +0200
-Message-Id: <20220603173815.747049681@linuxfoundation.org>
+Message-Id: <20220603173815.063242055@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
+References: <20220603173814.362515009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit 567dd8f34560fa221a6343729474536aa7ede4fd upstream.
+commit 45969b4152c1752089351cd6836a42a566d49bcf upstream.
 
-The device mapper dm-crypt target is using scnprintf("%02x", cc->key[i]) to
-report the current key to userspace. However, this is not a constant-time
-operation and it may leak information about the key via timing, via cache
-access patterns or via the branch predictor.
+The data length of skb frags + frag_list may be greater than 0xffff, and
+skb_header_pointer can not handle negative offset. So, here INT_MAX is used
+to check the validity of offset. Add the same change to the related function
+skb_store_bytes.
 
-Change dm-crypt's key printing to use "%c" instead of "%02x". Also
-introduce hex2asc() that carefully avoids any branching or memory
-accesses when converting a number in the range 0 ... 15 to an ascii
-character.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Tested-by: Milan Broz <gmazyland@gmail.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 05c74e5e53f6 ("bpf: add bpf_skb_load_bytes helper")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220416105801.88708-2-liujian56@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-crypt.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/core/filter.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -2932,6 +2932,11 @@ static int crypt_map(struct dm_target *t
- 	return DM_MAPIO_SUBMITTED;
- }
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1443,7 +1443,7 @@ BPF_CALL_5(bpf_skb_store_bytes, struct s
  
-+static char hex2asc(unsigned char c)
-+{
-+	return c + '0' + ((unsigned)(9 - c) >> 4 & 0x27);
-+}
-+
- static void crypt_status(struct dm_target *ti, status_type_t type,
- 			 unsigned status_flags, char *result, unsigned maxlen)
+ 	if (unlikely(flags & ~(BPF_F_RECOMPUTE_CSUM | BPF_F_INVALIDATE_HASH)))
+ 		return -EINVAL;
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		return -EFAULT;
+ 	if (unlikely(bpf_try_make_writable(skb, offset + len)))
+ 		return -EFAULT;
+@@ -1478,7 +1478,7 @@ BPF_CALL_4(bpf_skb_load_bytes, const str
  {
-@@ -2950,9 +2955,12 @@ static void crypt_status(struct dm_targe
- 		if (cc->key_size > 0) {
- 			if (cc->key_string)
- 				DMEMIT(":%u:%s", cc->key_size, cc->key_string);
--			else
--				for (i = 0; i < cc->key_size; i++)
--					DMEMIT("%02x", cc->key[i]);
-+			else {
-+				for (i = 0; i < cc->key_size; i++) {
-+					DMEMIT("%c%c", hex2asc(cc->key[i] >> 4),
-+					       hex2asc(cc->key[i] & 0xf));
-+				}
-+			}
- 		} else
- 			DMEMIT("-");
+ 	void *ptr;
  
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		goto err_clear;
+ 
+ 	ptr = skb_header_pointer(skb, offset, len, to);
 
 
