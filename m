@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A41F953CFA3
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54A6853CFEA
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240299AbiFCRzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S1345949AbiFCR6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346411AbiFCRvJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:09 -0400
+        with ESMTP id S1345960AbiFCR5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:57:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E286B56C02;
-        Fri,  3 Jun 2022 10:48:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C5557120;
+        Fri,  3 Jun 2022 10:54:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6037B82419;
-        Fri,  3 Jun 2022 17:48:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 030B8C385A9;
-        Fri,  3 Jun 2022 17:47:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61658B82419;
+        Fri,  3 Jun 2022 17:54:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFAC3C385B8;
+        Fri,  3 Jun 2022 17:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278480;
-        bh=ZIcsYjUnDHt/ILT8b0MIPsTKDV+xT9yctyXLcf5DodE=;
+        s=korg; t=1654278850;
+        bh=tfgjU31NPL+z9713wFziaUtlFoPM/QCEwzK8ujtven8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBCZYn6ePKNJV7xphVwby3jrQ25BoDRVaonMZft4pqCbFJd2HsaIm8mS5Z03ZasGm
-         gSjm0G4qrfDUnQzVio4HV7baKLoD44SwjnB/fhnCgqoV8lI23r2CRJrGFfwiAHAems
-         owaoJxvqLiMEBnWhcSRGs8o7DWXR0QP6eFCWdXRM=
+        b=oHqQAxjOhlJOENyTHYmQu4DXgNNqmfvifhO9o3O/I2CozMqWrQI4GVGmXPFFuz1bJ
+         xEGBGGZwmqxpSL0JqtGjUv99HesoYxOmC6vSZS95pebatldwSbz19sY9jFbhdYKL+g
+         MVMRx++GAMomNAbqYzUj24icopG8gX44KSEqqvCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Jin <tao-j@outlook.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.10 46/53] HID: multitouch: add quirks to enable Lenovo X12 trackpoint
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.17 47/75] Bluetooth: hci_qca: Use del_timer_sync() before freeing
 Date:   Fri,  3 Jun 2022 19:43:31 +0200
-Message-Id: <20220603173820.057457416@linuxfoundation.org>
+Message-Id: <20220603173823.082263892@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Jin <tao-j@outlook.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit 95cd2cdc88c755dcd0a58b951faeb77742c733a4 upstream.
+commit 72ef98445aca568a81c2da050532500a8345ad3a upstream.
 
-This applies the similar quirks used by previous generation devices
-such as X1 tablet for X12 tablet, so that the trackpoint and buttons
-can work.
+While looking at a crash report on a timer list being corrupted, which
+usually happens when a timer is freed while still active. This is
+commonly triggered by code calling del_timer() instead of
+del_timer_sync() just before freeing.
 
-This patch was applied and tested working on 5.17.1 .
+One possible culprit is the hci_qca driver, which does exactly that.
 
-Cc: stable@vger.kernel.org # 5.8+ given that it relies on 40d5bb87377a
-Signed-off-by: Tao Jin <tao-j@outlook.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/CO6PR03MB6241CB276FCDC7F4CEDC34F6E1E29@CO6PR03MB6241.namprd03.prod.outlook.com
+Eric mentioned that wake_retrans_timer could be rearmed via the work
+queue, so also move the destruction of the work queue before
+del_timer_sync().
+
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 0ff252c1976da ("Bluetooth: hciuart: Add support QCA chipset for UART")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h        |    1 +
- drivers/hid/hid-multitouch.c |    6 ++++++
- 2 files changed, 7 insertions(+)
+ drivers/bluetooth/hci_qca.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -743,6 +743,7 @@
- #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
- #define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
- #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
-+#define USB_DEVICE_ID_LENOVO_X12_TAB	0x60fe
- #define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1990,6 +1990,12 @@ static const struct hid_device_id mt_dev
- 			   USB_VENDOR_ID_LENOVO,
- 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -696,9 +696,9 @@ static int qca_close(struct hci_uart *hu
+ 	skb_queue_purge(&qca->tx_wait_q);
+ 	skb_queue_purge(&qca->txq);
+ 	skb_queue_purge(&qca->rx_memdump_q);
+-	del_timer(&qca->tx_idle_timer);
+-	del_timer(&qca->wake_retrans_timer);
+ 	destroy_workqueue(qca->workqueue);
++	del_timer_sync(&qca->tx_idle_timer);
++	del_timer_sync(&qca->wake_retrans_timer);
+ 	qca->hu = NULL;
  
-+	/* Lenovo X12 TAB Gen 1 */
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+			   USB_VENDOR_ID_LENOVO,
-+			   USB_DEVICE_ID_LENOVO_X12_TAB) },
-+
- 	/* MosArt panels */
- 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
+ 	kfree_skb(qca->rx_skb);
 
 
