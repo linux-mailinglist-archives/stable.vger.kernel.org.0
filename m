@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B93B53CFDC
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4BB253D040
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345947AbiFCR53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:57:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
+        id S1346087AbiFCSBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345878AbiFCR41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:56:27 -0400
+        with ESMTP id S1346702AbiFCSAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CAEC1FA65;
-        Fri,  3 Jun 2022 10:53:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EAD41EEC5;
+        Fri,  3 Jun 2022 10:56:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 746D660A54;
-        Fri,  3 Jun 2022 17:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72438C385A9;
-        Fri,  3 Jun 2022 17:53:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B970615DA;
+        Fri,  3 Jun 2022 17:56:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EEDCC385A9;
+        Fri,  3 Jun 2022 17:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278828;
-        bh=tSQXz/ZFbI2pYTh4TigjjrPwJuuXCKdaX9A7q3dypck=;
+        s=korg; t=1654279009;
+        bh=DLAtzt7prpBftpea8sCEQp4LJHuBMCHTk6VeyQOw2DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkTaUJvMiNp+MANtIrszTc/TW3YQZ1D8QYdqHWNBAbVX+N4YL6ozD0ndJyi6Yp1RL
-         5CqirfLC2aSrNpl9NRyli8RFX+otCr3YQKOTFKbXkZ32d8mv4U+uzE9IBMoBpLYWaX
-         jdqWDll4UT8Kxsg6lgSTR3sKg5A+G5IQJ13RQR0g=
+        b=gCNBmnUf2wnxPHF4WvHHHodEeXTvtVejL1ALWV//XizIYjLtCfW+Ief8eyNfKLcTV
+         nzbe2R9JXSdDCeVrllCPeEEGYD+W6Ywm+pgrU4relO/mTgHLQZbUeig6832CE66Tf0
+         1ysj/0lq5bnIZGZqyiSl3W0y8SLNvx6DXaM8fgFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Vabhav Sharma <vabhav.sharma@nxp.com>,
-        Gaurav Jain <gaurav.jain@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.17 40/75] crypto: caam - fix i.MX6SX entropy delay value
+        stable@vger.kernel.org, Qiuhao Li <qiuhao@sysec.org>,
+        Gaoning Pan <pgn@zju.edu.cn>, Yongkang Jia <kangel@zju.edu.cn>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.18 23/67] KVM: x86: avoid calling x86 emulator without a decoded instruction
 Date:   Fri,  3 Jun 2022 19:43:24 +0200
-Message-Id: <20220603173822.883275707@linuxfoundation.org>
+Message-Id: <20220603173821.393616220@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 4ee4cdad368a26de3967f2975806a9ee2fa245df upstream.
+commit fee060cd52d69c114b62d1a2948ea9648b5131f9 upstream.
 
-Since commit 358ba762d9f1 ("crypto: caam - enable prediction resistance
-in HRWNG") the following CAAM errors can be seen on i.MX6SX:
+Whenever x86_decode_emulated_instruction() detects a breakpoint, it
+returns the value that kvm_vcpu_check_breakpoint() writes into its
+pass-by-reference second argument.  Unfortunately this is completely
+bogus because the expected outcome of x86_decode_emulated_instruction
+is an EMULATION_* value.
 
-caam_jr 2101000.jr: 20003c5b: CCB: desc idx 60: RNG: Hardware error
-hwrng: no data available
+Then, if kvm_vcpu_check_breakpoint() does "*r = 0" (corresponding to
+a KVM_EXIT_DEBUG userspace exit), it is misunderstood as EMULATION_OK
+and x86_emulate_instruction() is called without having decoded the
+instruction.  This causes various havoc from running with a stale
+emulation context.
 
-This error is due to an incorrect entropy delay for i.MX6SX.
+The fix is to move the call to kvm_vcpu_check_breakpoint() where it was
+before commit 4aa2691dcbd3 ("KVM: x86: Factor out x86 instruction
+emulation with decoding") introduced x86_decode_emulated_instruction().
+The other caller of the function does not need breakpoint checks,
+because it is invoked as part of a vmexit and the processor has already
+checked those before executing the instruction that #GP'd.
 
-Fix it by increasing the minimum entropy delay for i.MX6SX
-as done in U-Boot:
-https://patchwork.ozlabs.org/project/uboot/patch/20220415111049.2565744-1-gaurav.jain@nxp.com/
+This fixes CVE-2022-1852.
 
-As explained in the U-Boot patch:
-
-"RNG self tests are run to determine the correct entropy delay.
-Such tests are executed with different voltages and temperatures to identify
-the worst case value for the entropy delay. For i.MX6SX, it was determined
-that after adding a margin value of 1000 the minimum entropy delay should be
-at least 12000."
-
-Cc: <stable@vger.kernel.org>
-Fixes: 358ba762d9f1 ("crypto: caam - enable prediction resistance in HRWNG")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Reviewed-by: Vabhav Sharma <vabhav.sharma@nxp.com>
-Reviewed-by: Gaurav Jain <gaurav.jain@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: Qiuhao Li <qiuhao@sysec.org>
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Fixes: 4aa2691dcbd3 ("KVM: x86: Factor out x86 instruction emulation with decoding")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220311032801.3467418-2-seanjc@google.com>
+[Rewrote commit message according to Qiuhao's report, since a patch
+ already existed to fix the bug. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/caam/ctrl.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/x86/kvm/x86.c |   31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
---- a/drivers/crypto/caam/ctrl.c
-+++ b/drivers/crypto/caam/ctrl.c
-@@ -609,6 +609,13 @@ static bool check_version(struct fsl_mc_
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8244,7 +8244,7 @@ int kvm_skip_emulated_instruction(struct
  }
- #endif
+ EXPORT_SYMBOL_GPL(kvm_skip_emulated_instruction);
  
-+static bool needs_entropy_delay_adjustment(void)
-+{
-+	if (of_machine_is_compatible("fsl,imx6sx"))
-+		return true;
-+	return false;
-+}
-+
- /* Probe routine for CAAM top (controller) level */
- static int caam_probe(struct platform_device *pdev)
+-static bool kvm_vcpu_check_breakpoint(struct kvm_vcpu *vcpu, int *r)
++static bool kvm_vcpu_check_code_breakpoint(struct kvm_vcpu *vcpu, int *r)
  {
-@@ -855,6 +862,8 @@ static int caam_probe(struct platform_de
- 			 * Also, if a handle was instantiated, do not change
- 			 * the TRNG parameters.
- 			 */
-+			if (needs_entropy_delay_adjustment())
-+				ent_delay = 12000;
- 			if (!(ctrlpriv->rng4_sh_init || inst_handles)) {
- 				dev_info(dev,
- 					 "Entropy delay = %u\n",
-@@ -871,6 +880,15 @@ static int caam_probe(struct platform_de
- 			 */
- 			ret = instantiate_rng(dev, inst_handles,
- 					      gen_sk);
-+			/*
-+			 * Entropy delay is determined via TRNG characterization.
-+			 * TRNG characterization is run across different voltages
-+			 * and temperatures.
-+			 * If worst case value for ent_dly is identified,
-+			 * the loop can be skipped for that platform.
-+			 */
-+			if (needs_entropy_delay_adjustment())
-+				break;
- 			if (ret == -EAGAIN)
- 				/*
- 				 * if here, the loop will rerun,
+ 	if (unlikely(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP) &&
+ 	    (vcpu->arch.guest_debug_dr7 & DR7_BP_EN_MASK)) {
+@@ -8313,25 +8313,23 @@ static bool is_vmware_backdoor_opcode(st
+ }
+ 
+ /*
+- * Decode to be emulated instruction. Return EMULATION_OK if success.
++ * Decode an instruction for emulation.  The caller is responsible for handling
++ * code breakpoints.  Note, manually detecting code breakpoints is unnecessary
++ * (and wrong) when emulating on an intercepted fault-like exception[*], as
++ * code breakpoints have higher priority and thus have already been done by
++ * hardware.
++ *
++ * [*] Except #MC, which is higher priority, but KVM should never emulate in
++ *     response to a machine check.
+  */
+ int x86_decode_emulated_instruction(struct kvm_vcpu *vcpu, int emulation_type,
+ 				    void *insn, int insn_len)
+ {
+-	int r = EMULATION_OK;
+ 	struct x86_emulate_ctxt *ctxt = vcpu->arch.emulate_ctxt;
++	int r;
+ 
+ 	init_emulate_ctxt(vcpu);
+ 
+-	/*
+-	 * We will reenter on the same instruction since we do not set
+-	 * complete_userspace_io. This does not handle watchpoints yet,
+-	 * those would be handled in the emulate_ops.
+-	 */
+-	if (!(emulation_type & EMULTYPE_SKIP) &&
+-	    kvm_vcpu_check_breakpoint(vcpu, &r))
+-		return r;
+-
+ 	r = x86_decode_insn(ctxt, insn, insn_len, emulation_type);
+ 
+ 	trace_kvm_emulate_insn_start(vcpu);
+@@ -8364,6 +8362,15 @@ int x86_emulate_instruction(struct kvm_v
+ 	if (!(emulation_type & EMULTYPE_NO_DECODE)) {
+ 		kvm_clear_exception_queue(vcpu);
+ 
++		/*
++		 * Return immediately if RIP hits a code breakpoint, such #DBs
++		 * are fault-like and are higher priority than any faults on
++		 * the code fetch itself.
++		 */
++		if (!(emulation_type & EMULTYPE_SKIP) &&
++		    kvm_vcpu_check_code_breakpoint(vcpu, &r))
++			return r;
++
+ 		r = x86_decode_emulated_instruction(vcpu, emulation_type,
+ 						    insn, insn_len);
+ 		if (r != EMULATION_OK)  {
 
 
