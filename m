@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 372AD53CFFD
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8CB53CF3C
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346100AbiFCR7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:59:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S245027AbiFCRyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346030AbiFCR6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:58:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0C7431371;
-        Fri,  3 Jun 2022 10:54:44 -0700 (PDT)
+        with ESMTP id S1347252AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9351E10C6;
+        Fri,  3 Jun 2022 10:51:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D47661583;
-        Fri,  3 Jun 2022 17:54:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 008F9C36AE9;
-        Fri,  3 Jun 2022 17:54:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5544BB82419;
+        Fri,  3 Jun 2022 17:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B189EC385A9;
+        Fri,  3 Jun 2022 17:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278883;
-        bh=HguISO7OMQMK/aMjsZvenlvTT/seMK7a2DTlQSbRj9U=;
+        s=korg; t=1654278688;
+        bh=mB+SpYiPRzPhBV13Cg9C1SHpOxcek38O6FyT0T08+1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZ0cJMW/fBRijDtq0z7B0PZLMkNtODMdvhBbtxcHTWTKSu8hEWTnipGdT0q4LnsDF
-         Tp7e5ZWAgWKY6pSoGh9nediFsh2O7CpyeLrxPQd+XTqIg6Zt11dv2JYbhtLWr/IHeD
-         FBlO6INVOW3Z4cuUVjG7MqH8p2zuo+3rPTkviYcE=
+        b=CsfyqCh0Th0z3gfOMqIyXkQhBEUksFbQ7VnHDqaOARIYUtmcgfr2efiNf8+4edHFx
+         3fZAAdbmUtTjGZCNyGGkf993xFMkAc/BXQieYhnIHymQDeaZSOCkYTm4EM0cObCw5c
+         STvitLqlB1YDZrnROsqlplDWn2Qmp9WSi7qVwelQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Haitao Huang <haitao.huang@intel.com>
-Subject: [PATCH 5.17 57/75] x86/sgx: Disconnect backing page references from dirty status
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.15 61/66] NFSD: Fix possible sleep during nfsd4_release_lockowner()
 Date:   Fri,  3 Jun 2022 19:43:41 +0200
-Message-Id: <20220603173823.356432659@linuxfoundation.org>
+Message-Id: <20220603173822.419864488@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,165 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 6bd429643cc265e94a9d19839c771bcc5d008fa8 upstream.
+commit ce3c4ad7f4ce5db7b4f08a1e237d8dd94b39180b upstream.
 
-SGX uses shmem backing storage to store encrypted enclave pages
-and their crypto metadata when enclave pages are moved out of
-enclave memory. Two shmem backing storage pages are associated with
-each enclave page - one backing page to contain the encrypted
-enclave page data and one backing page (shared by a few
-enclave pages) to contain the crypto metadata used by the
-processor to verify the enclave page when it is loaded back into
-the enclave.
+nfsd4_release_lockowner() holds clp->cl_lock when it calls
+check_for_locks(). However, check_for_locks() calls nfsd_file_get()
+/ nfsd_file_put() to access the backing inode's flc_posix list, and
+nfsd_file_put() can sleep if the inode was recently removed.
 
-sgx_encl_put_backing() is used to release references to the
-backing storage and, optionally, mark both backing store pages
-as dirty.
+Let's instead rely on the stateowner's reference count to gate
+whether the release is permitted. This should be a reliable
+indication of locks-in-use since file lock operations and
+->lm_get_owner take appropriate references, which are released
+appropriately when file locks are removed.
 
-Managing references and dirty status together in this way results
-in both backing store pages marked as dirty, even if only one of
-the backing store pages are changed.
-
-Additionally, waiting until the page reference is dropped to set
-the page dirty risks a race with the page fault handler that
-may load outdated data into the enclave when a page is faulted
-right after it is reclaimed.
-
-Consider what happens if the reclaimer writes a page to the backing
-store and the page is immediately faulted back, before the reclaimer
-is able to set the dirty bit of the page:
-
-sgx_reclaim_pages() {                    sgx_vma_fault() {
-  ...
-  sgx_encl_get_backing();
-  ...                                      ...
-  sgx_reclaimer_write() {
-    mutex_lock(&encl->lock);
-    /* Write data to backing store */
-    mutex_unlock(&encl->lock);
-  }
-                                           mutex_lock(&encl->lock);
-                                           __sgx_encl_eldu() {
-                                             ...
-                                             /*
-                                              * Enclave backing store
-                                              * page not released
-                                              * nor marked dirty -
-                                              * contents may not be
-                                              * up to date.
-                                              */
-                                              sgx_encl_get_backing();
-                                              ...
-                                              /*
-                                               * Enclave data restored
-                                               * from backing store
-                                               * and PCMD pages that
-                                               * are not up to date.
-                                               * ENCLS[ELDU] faults
-                                               * because of MAC or PCMD
-                                               * checking failure.
-                                               */
-                                               sgx_encl_put_backing();
-                                            }
-                                            ...
-  /* set page dirty */
-  sgx_encl_put_backing();
-  ...
-                                            mutex_unlock(&encl->lock);
-}                                        }
-
-Remove the option to sgx_encl_put_backing() to set the backing
-pages as dirty and set the needed pages as dirty right after
-receiving important data while enclave mutex is held. This ensures that
-the page fault handler can get up to date data from a page and prepares
-the code for a following change where only one of the backing pages
-need to be marked as dirty.
-
+Reported-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Cc: stable@vger.kernel.org
-Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Haitao Huang <haitao.huang@intel.com>
-Link: https://lore.kernel.org/linux-sgx/8922e48f-6646-c7cc-6393-7c78dcf23d23@intel.com/
-Link: https://lkml.kernel.org/r/fa9f98986923f43e72ef4c6702a50b2a0b3c42e3.1652389823.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/sgx/encl.c |   10 ++--------
- arch/x86/kernel/cpu/sgx/encl.h |    2 +-
- arch/x86/kernel/cpu/sgx/main.c |    6 ++++--
- 3 files changed, 7 insertions(+), 11 deletions(-)
+ fs/nfsd/nfs4state.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -94,7 +94,7 @@ static int __sgx_encl_eldu(struct sgx_en
- 	kunmap_atomic(pcmd_page);
- 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -7299,16 +7299,12 @@ nfsd4_release_lockowner(struct svc_rqst
+ 		if (sop->so_is_open_owner || !same_owner_str(sop, owner))
+ 			continue;
  
--	sgx_encl_put_backing(&b, false);
-+	sgx_encl_put_backing(&b);
+-		/* see if there are still any locks associated with it */
+-		lo = lockowner(sop);
+-		list_for_each_entry(stp, &sop->so_stateids, st_perstateowner) {
+-			if (check_for_locks(stp->st_stid.sc_file, lo)) {
+-				status = nfserr_locks_held;
+-				spin_unlock(&clp->cl_lock);
+-				return status;
+-			}
++		if (atomic_read(&sop->so_count) != 1) {
++			spin_unlock(&clp->cl_lock);
++			return nfserr_locks_held;
+ 		}
  
- 	sgx_encl_truncate_backing_page(encl, page_index);
- 
-@@ -645,15 +645,9 @@ int sgx_encl_get_backing(struct sgx_encl
- /**
-  * sgx_encl_put_backing() - Unpin the backing storage
-  * @backing:	data for accessing backing storage for the page
-- * @do_write:	mark pages dirty
-  */
--void sgx_encl_put_backing(struct sgx_backing *backing, bool do_write)
-+void sgx_encl_put_backing(struct sgx_backing *backing)
- {
--	if (do_write) {
--		set_page_dirty(backing->pcmd);
--		set_page_dirty(backing->contents);
--	}
--
- 	put_page(backing->pcmd);
- 	put_page(backing->contents);
- }
---- a/arch/x86/kernel/cpu/sgx/encl.h
-+++ b/arch/x86/kernel/cpu/sgx/encl.h
-@@ -107,7 +107,7 @@ void sgx_encl_release(struct kref *ref);
- int sgx_encl_mm_add(struct sgx_encl *encl, struct mm_struct *mm);
- int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
- 			 struct sgx_backing *backing);
--void sgx_encl_put_backing(struct sgx_backing *backing, bool do_write);
-+void sgx_encl_put_backing(struct sgx_backing *backing);
- int sgx_encl_test_and_clear_young(struct mm_struct *mm,
- 				  struct sgx_encl_page *page);
- 
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -191,6 +191,8 @@ static int __sgx_encl_ewb(struct sgx_epc
- 			  backing->pcmd_offset;
- 
- 	ret = __ewb(&pginfo, sgx_get_epc_virt_addr(epc_page), va_slot);
-+	set_page_dirty(backing->pcmd);
-+	set_page_dirty(backing->contents);
- 
- 	kunmap_atomic((void *)(unsigned long)(pginfo.metadata -
- 					      backing->pcmd_offset));
-@@ -320,7 +322,7 @@ static void sgx_reclaimer_write(struct s
- 		sgx_encl_free_epc_page(encl->secs.epc_page);
- 		encl->secs.epc_page = NULL;
- 
--		sgx_encl_put_backing(&secs_backing, true);
-+		sgx_encl_put_backing(&secs_backing);
++		lo = lockowner(sop);
+ 		nfs4_get_stateowner(sop);
+ 		break;
  	}
- 
- out:
-@@ -411,7 +413,7 @@ skip:
- 
- 		encl_page = epc_page->owner;
- 		sgx_reclaimer_write(epc_page, &backing[i]);
--		sgx_encl_put_backing(&backing[i], true);
-+		sgx_encl_put_backing(&backing[i]);
- 
- 		kref_put(&encl_page->encl->refcount, sgx_encl_release);
- 		epc_page->flags &= ~SGX_EPC_PAGE_RECLAIMER_TRACKED;
 
 
