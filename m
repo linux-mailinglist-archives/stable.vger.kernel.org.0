@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E349C53CFA2
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5876F53CF4B
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345577AbiFCRzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
+        id S1345579AbiFCRyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346442AbiFCRvK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F010C54012;
-        Fri,  3 Jun 2022 10:48:16 -0700 (PDT)
+        with ESMTP id S1347244AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE14C6447;
+        Fri,  3 Jun 2022 10:51:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D46C60EE9;
-        Fri,  3 Jun 2022 17:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86BBCC385A9;
-        Fri,  3 Jun 2022 17:48:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60D72B82419;
+        Fri,  3 Jun 2022 17:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C12C385A9;
+        Fri,  3 Jun 2022 17:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278496;
-        bh=KO1ohSc23MpU4JrZTJenIlK69t/iwj/E9M6ULzZ72sA=;
+        s=korg; t=1654278670;
+        bh=Cd2X9X9D1pUtLT7Y22U/EmbcPT8vW5ZoQ885p5Z6CdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Axym0vvp4GwdVKjDoAC16aW1tr3knGvpsDkCRMU1VgKI70DlQENqay8AYmCrf5xMm
-         U9nI2BxST+gtjmFauxvDauuJUZx5xaOXMVm/JM9fcRdjGdgr8YUXIQNmZqbKDzkGI6
-         M4kvzmIEQsh5h2C5IwcXfAIn3PD140hXiB5tU3DI=
+        b=IL56xaMX4vBATDXb5YNy7SfNGubanyD8zImDwk30NWqzuBe0gwcsokPQM5QRFqT3U
+         gB1dS4/IsVPMyjvydHozwgLQXdTKvnPk87dPMauS9J7kaEYEKBEw84F1lVMHbS/m4h
+         Q6bMJ6wS3ruoMlKspwCzswCRx+T3WZ1UBcUXqjpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.10 50/53] NFS: Memory allocation failures are not server fatal errors
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 55/66] media: i2c: imx412: Fix reset GPIO polarity
 Date:   Fri,  3 Jun 2022 19:43:35 +0200
-Message-Id: <20220603173820.173496769@linuxfoundation.org>
+Message-Id: <20220603173822.250099138@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +57,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 452284407c18d8a522c3039339b1860afa0025a8 upstream.
+commit bb25f071fc92d3d227178a45853347c7b3b45a6b upstream.
 
-We need to filter out ENOMEM in nfs_error_is_fatal_on_server(), because
-running out of memory on our client is not a server error.
+The imx412/imx577 sensor has a reset line that is active low not active
+high. Currently the logic for this is inverted.
 
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Fixes: 2dc23afffbca ("NFS: ENOMEM should also be a fatal error.")
+The right way to define the reset line is to declare it active low in the
+DTS and invert the logic currently contained in the driver.
+
+The DTS should represent the hardware does i.e. reset is active low.
+So:
++               reset-gpios = <&tlmm 78 GPIO_ACTIVE_LOW>;
+not:
+-               reset-gpios = <&tlmm 78 GPIO_ACTIVE_HIGH>;
+
+I was a bit reticent about changing this logic since I thought it might
+negatively impact @intel.com users. Googling a bit though I believe this
+sensor is used on "Keem Bay" which is clearly a DTS based system and is not
+upstream yet.
+
+Fixes: 9214e86c0cc1 ("media: i2c: Add imx412 camera sensor driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/internal.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/i2c/imx412.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -832,6 +832,7 @@ static inline bool nfs_error_is_fatal_on
- 	case 0:
- 	case -ERESTARTSYS:
- 	case -EINTR:
-+	case -ENOMEM:
- 		return false;
- 	}
- 	return nfs_error_is_fatal(err);
+--- a/drivers/media/i2c/imx412.c
++++ b/drivers/media/i2c/imx412.c
+@@ -1011,7 +1011,7 @@ static int imx412_power_on(struct device
+ 	struct imx412 *imx412 = to_imx412(sd);
+ 	int ret;
+ 
+-	gpiod_set_value_cansleep(imx412->reset_gpio, 1);
++	gpiod_set_value_cansleep(imx412->reset_gpio, 0);
+ 
+ 	ret = clk_prepare_enable(imx412->inclk);
+ 	if (ret) {
+@@ -1024,7 +1024,7 @@ static int imx412_power_on(struct device
+ 	return 0;
+ 
+ error_reset:
+-	gpiod_set_value_cansleep(imx412->reset_gpio, 0);
++	gpiod_set_value_cansleep(imx412->reset_gpio, 1);
+ 
+ 	return ret;
+ }
+@@ -1040,7 +1040,7 @@ static int imx412_power_off(struct devic
+ 	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+ 	struct imx412 *imx412 = to_imx412(sd);
+ 
+-	gpiod_set_value_cansleep(imx412->reset_gpio, 0);
++	gpiod_set_value_cansleep(imx412->reset_gpio, 1);
+ 
+ 	clk_disable_unprepare(imx412->inclk);
+ 
 
 
