@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F1A53CFC3
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D13953D049
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345892AbiFCR41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
+        id S1346275AbiFCSCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:02:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346055AbiFCRzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C468B5623A;
-        Fri,  3 Jun 2022 10:53:30 -0700 (PDT)
+        with ESMTP id S1346462AbiFCSAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9787058E62;
+        Fri,  3 Jun 2022 10:56:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F405B8241E;
-        Fri,  3 Jun 2022 17:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821C9C385B8;
-        Fri,  3 Jun 2022 17:53:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37ADDB82369;
+        Fri,  3 Jun 2022 17:56:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 904DFC3411D;
+        Fri,  3 Jun 2022 17:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278807;
-        bh=zl9q+HrObQosjO53rzGM89EWPGvgC/SPVWGg6pjEeQA=;
+        s=korg; t=1654278988;
+        bh=27qRdN9GYw3QvnqkwODMdfeM7nT6M1uBHq5TeeLhpEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcpbT0syfD8bxwc5fSVJPeuaOwH3feyuZnQpDUjqq8AKf0R47WkGeJUzBXVHNgWHg
-         PACRioeQof/PtIJs/jGMzUFncD6k+ItQ3zZJL0nBHop0LHXAcjMl1wIEfrrA/O8uEV
-         8GfzLOeqzQB/53E/Fc6c3UphrEmsHEHEhVbroZ9s=
+        b=hyF6EdNmW3C8Y1keFd14Q/lX747yyvcKwmvDlyo1bpjBnBcWlIDTZKbXIk5sFttTL
+         dVN7XpX1T5C30/zqSF7Tk6QasXQfqEBKmoj/9FrcDtjzpwVn0dt3HgEcQ/TfH3vMcg
+         GYq8itlex3FxjpprseKHcq6sB6Kbp/mnjp70LZGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiuhao Li <qiuhao@sysec.org>,
-        Gaoning Pan <pgn@zju.edu.cn>, Yongkang Jia <kangel@zju.edu.cn>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 34/75] KVM: x86: avoid calling x86 emulator without a decoded instruction
+Subject: [PATCH 5.18 17/67] x86/kvm: Alloc dummy async #PF token outside of raw spinlock
 Date:   Fri,  3 Jun 2022 19:43:18 +0200
-Message-Id: <20220603173822.713126410@linuxfoundation.org>
+Message-Id: <20220603173821.226881426@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,105 +56,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit fee060cd52d69c114b62d1a2948ea9648b5131f9 upstream.
+commit 0547758a6de3cc71a0cfdd031a3621a30db6a68b upstream.
 
-Whenever x86_decode_emulated_instruction() detects a breakpoint, it
-returns the value that kvm_vcpu_check_breakpoint() writes into its
-pass-by-reference second argument.  Unfortunately this is completely
-bogus because the expected outcome of x86_decode_emulated_instruction
-is an EMULATION_* value.
+Drop the raw spinlock in kvm_async_pf_task_wake() before allocating the
+the dummy async #PF token, the allocator is preemptible on PREEMPT_RT
+kernels and must not be called from truly atomic contexts.
 
-Then, if kvm_vcpu_check_breakpoint() does "*r = 0" (corresponding to
-a KVM_EXIT_DEBUG userspace exit), it is misunderstood as EMULATION_OK
-and x86_emulate_instruction() is called without having decoded the
-instruction.  This causes various havoc from running with a stale
-emulation context.
+Opportunistically document why it's ok to loop on allocation failure,
+i.e. why the function won't get stuck in an infinite loop.
 
-The fix is to move the call to kvm_vcpu_check_breakpoint() where it was
-before commit 4aa2691dcbd3 ("KVM: x86: Factor out x86 instruction
-emulation with decoding") introduced x86_decode_emulated_instruction().
-The other caller of the function does not need breakpoint checks,
-because it is invoked as part of a vmexit and the processor has already
-checked those before executing the instruction that #GP'd.
-
-This fixes CVE-2022-1852.
-
-Reported-by: Qiuhao Li <qiuhao@sysec.org>
-Reported-by: Gaoning Pan <pgn@zju.edu.cn>
-Reported-by: Yongkang Jia <kangel@zju.edu.cn>
-Fixes: 4aa2691dcbd3 ("KVM: x86: Factor out x86 instruction emulation with decoding")
+Reported-by: Yajun Deng <yajun.deng@linux.dev>
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220311032801.3467418-2-seanjc@google.com>
-[Rewrote commit message according to Qiuhao's report, since a patch
- already existed to fix the bug. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ arch/x86/kernel/kvm.c |   41 +++++++++++++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8169,7 +8169,7 @@ int kvm_skip_emulated_instruction(struct
- }
- EXPORT_SYMBOL_GPL(kvm_skip_emulated_instruction);
- 
--static bool kvm_vcpu_check_breakpoint(struct kvm_vcpu *vcpu, int *r)
-+static bool kvm_vcpu_check_code_breakpoint(struct kvm_vcpu *vcpu, int *r)
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -191,7 +191,7 @@ void kvm_async_pf_task_wake(u32 token)
  {
- 	if (unlikely(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP) &&
- 	    (vcpu->arch.guest_debug_dr7 & DR7_BP_EN_MASK)) {
-@@ -8238,25 +8238,23 @@ static bool is_vmware_backdoor_opcode(st
- }
+ 	u32 key = hash_32(token, KVM_TASK_SLEEP_HASHBITS);
+ 	struct kvm_task_sleep_head *b = &async_pf_sleepers[key];
+-	struct kvm_task_sleep_node *n;
++	struct kvm_task_sleep_node *n, *dummy = NULL;
  
- /*
-- * Decode to be emulated instruction. Return EMULATION_OK if success.
-+ * Decode an instruction for emulation.  The caller is responsible for handling
-+ * code breakpoints.  Note, manually detecting code breakpoints is unnecessary
-+ * (and wrong) when emulating on an intercepted fault-like exception[*], as
-+ * code breakpoints have higher priority and thus have already been done by
-+ * hardware.
-+ *
-+ * [*] Except #MC, which is higher priority, but KVM should never emulate in
-+ *     response to a machine check.
-  */
- int x86_decode_emulated_instruction(struct kvm_vcpu *vcpu, int emulation_type,
- 				    void *insn, int insn_len)
- {
--	int r = EMULATION_OK;
- 	struct x86_emulate_ctxt *ctxt = vcpu->arch.emulate_ctxt;
-+	int r;
- 
- 	init_emulate_ctxt(vcpu);
- 
--	/*
--	 * We will reenter on the same instruction since we do not set
--	 * complete_userspace_io. This does not handle watchpoints yet,
--	 * those would be handled in the emulate_ops.
--	 */
--	if (!(emulation_type & EMULTYPE_SKIP) &&
--	    kvm_vcpu_check_breakpoint(vcpu, &r))
--		return r;
--
- 	r = x86_decode_insn(ctxt, insn, insn_len, emulation_type);
- 
- 	trace_kvm_emulate_insn_start(vcpu);
-@@ -8289,6 +8287,15 @@ int x86_emulate_instruction(struct kvm_v
- 	if (!(emulation_type & EMULTYPE_NO_DECODE)) {
- 		kvm_clear_exception_queue(vcpu);
- 
-+		/*
-+		 * Return immediately if RIP hits a code breakpoint, such #DBs
-+		 * are fault-like and are higher priority than any faults on
-+		 * the code fetch itself.
-+		 */
-+		if (!(emulation_type & EMULTYPE_SKIP) &&
-+		    kvm_vcpu_check_code_breakpoint(vcpu, &r))
-+			return r;
+ 	if (token == ~0) {
+ 		apf_task_wake_all();
+@@ -203,28 +203,41 @@ again:
+ 	n = _find_apf_task(b, token);
+ 	if (!n) {
+ 		/*
+-		 * async PF was not yet handled.
+-		 * Add dummy entry for the token.
++		 * Async #PF not yet handled, add a dummy entry for the token.
++		 * Allocating the token must be down outside of the raw lock
++		 * as the allocator is preemptible on PREEMPT_RT kernels.
+ 		 */
+-		n = kzalloc(sizeof(*n), GFP_ATOMIC);
+-		if (!n) {
++		if (!dummy) {
++			raw_spin_unlock(&b->lock);
++			dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
 +
- 		r = x86_decode_emulated_instruction(vcpu, emulation_type,
- 						    insn, insn_len);
- 		if (r != EMULATION_OK)  {
+ 			/*
+-			 * Allocation failed! Busy wait while other cpu
+-			 * handles async PF.
++			 * Continue looping on allocation failure, eventually
++			 * the async #PF will be handled and allocating a new
++			 * node will be unnecessary.
++			 */
++			if (!dummy)
++				cpu_relax();
++
++			/*
++			 * Recheck for async #PF completion before enqueueing
++			 * the dummy token to avoid duplicate list entries.
+ 			 */
+-			raw_spin_unlock(&b->lock);
+-			cpu_relax();
+ 			goto again;
+ 		}
+-		n->token = token;
+-		n->cpu = smp_processor_id();
+-		init_swait_queue_head(&n->wq);
+-		hlist_add_head(&n->link, &b->list);
++		dummy->token = token;
++		dummy->cpu = smp_processor_id();
++		init_swait_queue_head(&dummy->wq);
++		hlist_add_head(&dummy->link, &b->list);
++		dummy = NULL;
+ 	} else {
+ 		apf_task_wake_one(n);
+ 	}
+ 	raw_spin_unlock(&b->lock);
+-	return;
++
++	/* A dummy token might be allocated and ultimately not used.  */
++	if (dummy)
++		kfree(dummy);
+ }
+ EXPORT_SYMBOL_GPL(kvm_async_pf_task_wake);
+ 
 
 
