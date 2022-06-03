@@ -2,87 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1C053CABC
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 15:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 251FD53CADA
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 15:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbiFCNhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 09:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51986 "EHLO
+        id S236623AbiFCNqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 09:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230221AbiFCNhF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 09:37:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D29A35FB7
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 06:36:59 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BC90616F8
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 13:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FF18C385B8;
-        Fri,  3 Jun 2022 13:36:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654263418;
-        bh=SugCdCTW1Ig1FhhsV0ICo887swpl2+vElcBTbRm8l4k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ew40EtsHqsf/4++/mUG+pRDZUb1PH6EMv9I+s2OZTD4eH94JNjK+As/kUwLjN+PNp
-         GY8IUeHgUPQEcNsw41GnlwXPLeRX1/6biNvEoPy/B22EuhBWtnzykuNKboE9fLI/te
-         SCjALw2LnnE1NX67AYbbNOKmvlz96Xm0o2zVpPW8=
-Date:   Fri, 3 Jun 2022 15:36:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     sashal@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 0/3] Backports for Kirkstone
-Message-ID: <YpoOdwA3XH2un+93@kroah.com>
-References: <20220530215325.921847-1-daniel.diaz@linaro.org>
+        with ESMTP id S244791AbiFCNqi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 09:46:38 -0400
+Received: from mailout.rz.uni-frankfurt.de (mailout.rz.uni-frankfurt.de [141.2.22.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE83C39B9F
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 06:46:36 -0700 (PDT)
+Received: from smtpauth2.cluster.uni-frankfurt.de ([10.1.1.238])
+        by mailout.rz.uni-frankfurt.de with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <sattler@med.uni-frankfurt.de>)
+        id 1nx7dK-00007R-M8; Fri, 03 Jun 2022 15:46:34 +0200
+Received: from p57bcf3b2.dip0.t-ipconnect.de ([87.188.243.178] helo=[192.168.2.17])
+        by smtpauth2.cluster.uni-frankfurt.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <sattler@med.uni-frankfurt.de>)
+        id 1nx7dK-0004S8-KY; Fri, 03 Jun 2022 15:46:34 +0200
+Message-ID: <21de0fda-0ff0-a553-dae4-193eaec25ca3@med.uni-frankfurt.de>
+Date:   Fri, 3 Jun 2022 15:46:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220530215325.921847-1-daniel.diaz@linaro.org>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: boot loop since 5.17.6
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+References: <11495172-41dd-5c44-3ef6-8d3ff3ebd1b2@med.uni-frankfurt.de>
+ <YpkY0RLWki4PJ49y@kroah.com>
+ <88b0eb42-41eb-af0e-285c-05f86a5c5fea@med.uni-frankfurt.de>
+ <YpoFId6um9GaXKha@kroah.com>
+From:   Thomas Sattler <sattler@med.uni-frankfurt.de>
+In-Reply-To: <YpoFId6um9GaXKha@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 30, 2022 at 04:53:22PM -0500, Daniel Díaz wrote:
-> We recently started building with Poky Kirkstone (quite a leap
-> from our ancient and venerable branch of Sumo) which includes
-> a newer set of tools in the toolchain:
+Am 03.06.22 um 14:57 schrieb Greg KH:
+> On Fri, Jun 03, 2022 at 01:29:26AM +0200, Thomas Sattler wrote:
+>> Am 02.06.22 um 22:08 schrieb Greg KH:
+>>> On Thu, Jun 02, 2022 at 06:14:43PM +0200, Thomas Sattler wrote:
+>>
+>> Now, knowing that they were two patchsets, I compiled 5.17.12
+>> twice, once without 60d2b0b1018a and once without d17f64c29512.
+>>
+>> And it turns out it is 60d2b0b1018a which breaks my system.
 > 
->   binutils   2.30 -> 2.38
->   gcc       7.3.3 -> 11.2.0
->   glibc      2.27 -> 2.35
-> 
-> This uncovered some issues while cross-compiling on the 4.x
-> kernels. The following patches help in building the 4.19
-> branch again.
-> 
-> These backports are already applied all the way down to 5.4.
-> 
-> Arnaldo Carvalho de Melo (2):
->   perf bench: Share some global variables to fix build with gcc 10
->   perf tests bp_account: Make global variable static
-> 
-> Ben Hutchings (1):
->   libtraceevent: Fix build with binutils 2.35
-> 
->  tools/lib/traceevent/Makefile    |  2 +-
->  tools/perf/bench/bench.h         |  4 ++++
->  tools/perf/bench/futex-hash.c    | 12 ++++++------
->  tools/perf/bench/futex-lock-pi.c | 11 +++++------
->  tools/perf/tests/bp_account.c    |  2 +-
->  5 files changed, 17 insertions(+), 14 deletions(-)
-> 
-> -- 
-> 2.32.0
+> Does 5.18.1 also break for you?
 > 
 
-All now queued up, thanks.
+There is no difference between 5.17.6, 5.17.12 and 5.18.1:
 
-greg k-h
+   - they do not boot vanilla
+   - applying ead165fa1042 is no help
+   - reverting 60d2b0b1018a allows booting
+
+Thomas
