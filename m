@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA2353D01B
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D9453CF86
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346188AbiFCSBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:01:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
+        id S1345646AbiFCRyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346581AbiFCSA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154B55908E;
-        Fri,  3 Jun 2022 10:56:39 -0700 (PDT)
+        with ESMTP id S1347274AbiFCRwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B1F15703;
+        Fri,  3 Jun 2022 10:52:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4834BB82369;
-        Fri,  3 Jun 2022 17:56:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC97C385A9;
-        Fri,  3 Jun 2022 17:56:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 92C1DCE247C;
+        Fri,  3 Jun 2022 17:52:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E13DC385A9;
+        Fri,  3 Jun 2022 17:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278997;
-        bh=lNOmLlFQuyuci5IwSKVo0uhTC3PXQ5cfKd6PwOA3j3o=;
+        s=korg; t=1654278719;
+        bh=/EyG57P4jtW4RHdb3WPUV5f8lPpG5g2cOM8KMHmq+5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxtxVgro5XsC1ADaMS7hAUJVUYi12BcG7o0HIWiMPVQKXHdvXoEnhmm3mwJt5eyU1
-         rQg4FfVJyIzx/I5gfGa2kekbfZzd53+emrECgS0ND7sT1AG5rBSrlSjkVWYIHOOs7N
-         2MLwO71322nSpHWo6vHAQ2ZjQNRc+jJHnrcfx+2E=
+        b=PyvNMzbqsFmvp6q52Sk5FBIWuMIT3pcOiVwtaUdBPM25EfEF4eYA0aGj0DD3vlzBU
+         eCbgKkhsNCzAThg6kr+GWrLFWTz35Fw6CPotwq3qHbrV3wDVDNfiDfx/SrNUrVJqrb
+         QIaqLgsWZXMApUk4zw6Ns2B+Oj5+g1IM6K1Pm+2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@linaro.org>,
-        syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 20/67] KVM: x86: Use __try_cmpxchg_user() to update guest PTE A/D bits
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 5.15 41/66] ARM: dts: s5pv210: Correct interrupt name for bluetooth in Aries
 Date:   Fri,  3 Jun 2022 19:43:21 +0200
-Message-Id: <20220603173821.309910746@linuxfoundation.org>
+Message-Id: <20220603173821.858530708@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,84 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-commit f122dfe4476890d60b8c679128cd2259ec96a24c upstream.
+commit 3f5e3d3a8b895c8a11da8b0063ba2022dd9e2045 upstream.
 
-Use the recently introduced __try_cmpxchg_user() to update guest PTE A/D
-bits instead of mapping the PTE into kernel address space.  The VM_PFNMAP
-path is broken as it assumes that vm_pgoff is the base pfn of the mapped
-VMA range, which is conceptually wrong as vm_pgoff is the offset relative
-to the file and has nothing to do with the pfn.  The horrific hack worked
-for the original use case (backing guest memory with /dev/mem), but leads
-to accessing "random" pfns for pretty much any other VM_PFNMAP case.
+Correct the name of the bluetooth interrupt from host-wake to
+host-wakeup.
 
-Fixes: bd53cb35a3e9 ("X86/KVM: Handle PFNs outside of kernel reach when touching GPTEs")
-Debugged-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Tested-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Reported-by: syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220202004945.2540433-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 1c65b6184441b ("ARM: dts: s5pv210: Correct BCM4329 bluetooth node")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/CY4PR04MB0567495CFCBDC8D408D44199CB1C9@CY4PR04MB0567.namprd04.prod.outlook.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/paging_tmpl.h |   38 +-------------------------------------
- 1 file changed, 1 insertion(+), 37 deletions(-)
+ arch/arm/boot/dts/s5pv210-aries.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -144,42 +144,6 @@ static bool FNAME(is_rsvd_bits_set)(stru
- 	       FNAME(is_bad_mt_xwr)(&mmu->guest_rsvd_check, gpte);
- }
- 
--static int FNAME(cmpxchg_gpte)(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
--			       pt_element_t __user *ptep_user, unsigned index,
--			       pt_element_t orig_pte, pt_element_t new_pte)
--{
--	signed char r;
--
--	if (!user_access_begin(ptep_user, sizeof(pt_element_t)))
--		return -EFAULT;
--
--#ifdef CMPXCHG
--	asm volatile("1:" LOCK_PREFIX CMPXCHG " %[new], %[ptr]\n"
--		     "setnz %b[r]\n"
--		     "2:"
--		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %k[r])
--		     : [ptr] "+m" (*ptep_user),
--		       [old] "+a" (orig_pte),
--		       [r] "=q" (r)
--		     : [new] "r" (new_pte)
--		     : "memory");
--#else
--	asm volatile("1:" LOCK_PREFIX "cmpxchg8b %[ptr]\n"
--		     "setnz %b[r]\n"
--		     "2:"
--		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %k[r])
--		     : [ptr] "+m" (*ptep_user),
--		       [old] "+A" (orig_pte),
--		       [r] "=q" (r)
--		     : [new_lo] "b" ((u32)new_pte),
--		       [new_hi] "c" ((u32)(new_pte >> 32))
--		     : "memory");
--#endif
--
--	user_access_end();
--	return r;
--}
--
- static bool FNAME(prefetch_invalid_gpte)(struct kvm_vcpu *vcpu,
- 				  struct kvm_mmu_page *sp, u64 *spte,
- 				  u64 gpte)
-@@ -278,7 +242,7 @@ static int FNAME(update_accessed_dirty_b
- 		if (unlikely(!walker->pte_writable[level - 1]))
- 			continue;
- 
--		ret = FNAME(cmpxchg_gpte)(vcpu, mmu, ptep_user, index, orig_pte, pte);
-+		ret = __try_cmpxchg_user(ptep_user, &orig_pte, pte, fault);
- 		if (ret)
- 			return ret;
+--- a/arch/arm/boot/dts/s5pv210-aries.dtsi
++++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
+@@ -895,7 +895,7 @@
+ 		device-wakeup-gpios = <&gpg3 4 GPIO_ACTIVE_HIGH>;
+ 		interrupt-parent = <&gph2>;
+ 		interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "host-wake";
++		interrupt-names = "host-wakeup";
+ 	};
+ };
  
 
 
