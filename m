@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8147453D0D8
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52EBA53CF60
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241008AbiFCSLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:11:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47106 "EHLO
+        id S1344117AbiFCRx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347033AbiFCSFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:05:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4B05A59B;
-        Fri,  3 Jun 2022 10:58:24 -0700 (PDT)
+        with ESMTP id S1346910AbiFCRvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC63C5A2D3;
+        Fri,  3 Jun 2022 10:49:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E525B82436;
-        Fri,  3 Jun 2022 17:57:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625DCC385A9;
-        Fri,  3 Jun 2022 17:57:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78694B823B0;
+        Fri,  3 Jun 2022 17:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7596C385A9;
+        Fri,  3 Jun 2022 17:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279033;
-        bh=3UL3x2f2WyP8DSvLWX62I8m/JkJuzbJBFvpyHQs11YU=;
+        s=korg; t=1654278581;
+        bh=yIwoTYmHgD13KMGXjAlET+J3WJrNlVW7f/gtREit0J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zz3hAYvK6zI/+slKwbrZHkT+uTVJTqlDQrK3RZcglhbev6fif0gLGijjuKRoYUQ7L
-         EltNwT6FZ4bakOpJ24yzBZndEC/t59qUx35zs9dkPKFBhHzaosBTcxydhNBc0ryVgd
-         aF855MD7kHtZ92taLw4stzZ5J2k7MDbz6Xx+r5HE=
+        b=SvxysiI9hT6hxFhB3/+LKTcMFZbW/3N5IygwGDxCmTp4Jx/B46CU/yAUVrSxo2YYM
+         s21U21GQAnM36Pa+yFuTtwbpp6/aXvjTccr4Jay1M5eXmCHQ1F/rXnz1WRw5oIme8D
+         54nj5TujdYG2O1ZXkqRiecdW9Ra9L5k8ockAqZn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Alexander Duyck <alexander.h.duyck@intel.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Kuniyuki Iwashima <kuni1840@gmail.com>,
-        "Soheil Hassas Yeganeh" <soheil@google.com>,
-        "Sridhar Samudrala" <sridhar.samudrala@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 04/67] pipe: make poll_usage boolean and annotate its access
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 25/66] netfilter: nf_tables: hold mutex on netns pre_exit path
 Date:   Fri,  3 Jun 2022 19:43:05 +0200
-Message-Id: <20220603173820.860166986@linuxfoundation.org>
+Message-Id: <20220603173821.385759263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,82 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit f485922d8fe4e44f6d52a5bb95a603b7c65554bb upstream.
+commit 3923b1e4406680d57da7e873da77b1683035d83f upstream.
 
-Patch series "Fix data-races around epoll reported by KCSAN."
+clean_net() runs in workqueue while walking over the lists, grab mutex.
 
-This series suppresses a false positive KCSAN's message and fixes a real
-data-race.
-
-
-This patch (of 2):
-
-pipe_poll() runs locklessly and assigns 1 to poll_usage.  Once poll_usage
-is set to 1, it never changes in other places.  However, concurrent writes
-of a value trigger KCSAN, so let's make KCSAN happy.
-
-BUG: KCSAN: data-race in pipe_poll / pipe_poll
-
-write to 0xffff8880042f6678 of 4 bytes by task 174 on cpu 3:
- pipe_poll (fs/pipe.c:656)
- ep_item_poll.isra.0 (./include/linux/poll.h:88 fs/eventpoll.c:853)
- do_epoll_wait (fs/eventpoll.c:1692 fs/eventpoll.c:1806 fs/eventpoll.c:2234)
- __x64_sys_epoll_wait (fs/eventpoll.c:2246 fs/eventpoll.c:2241 fs/eventpoll.c:2241)
- do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:113)
-
-write to 0xffff8880042f6678 of 4 bytes by task 177 on cpu 1:
- pipe_poll (fs/pipe.c:656)
- ep_item_poll.isra.0 (./include/linux/poll.h:88 fs/eventpoll.c:853)
- do_epoll_wait (fs/eventpoll.c:1692 fs/eventpoll.c:1806 fs/eventpoll.c:2234)
- __x64_sys_epoll_wait (fs/eventpoll.c:2246 fs/eventpoll.c:2241 fs/eventpoll.c:2241)
- do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:113)
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 177 Comm: epoll_race Not tainted 5.17.0-58927-gf443e374ae13 #6
-Hardware name: Red Hat KVM, BIOS 1.11.0-2.amzn2 04/01/2014
-
-Link: https://lkml.kernel.org/r/20220322002653.33865-1-kuniyu@amazon.co.jp
-Link: https://lkml.kernel.org/r/20220322002653.33865-2-kuniyu@amazon.co.jp
-Fixes: 3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal loads")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
-Cc: "Soheil Hassas Yeganeh" <soheil@google.com>
-Cc: "Sridhar Samudrala" <sridhar.samudrala@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 767d1216bff8 ("netfilter: nftables: fix possible UAF over chains from packet path in netns")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c                 |    2 +-
- include/linux/pipe_fs_i.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -653,7 +653,7 @@ pipe_poll(struct file *filp, poll_table
- 	unsigned int head, tail;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -9746,7 +9746,11 @@ static int __net_init nf_tables_init_net
  
- 	/* Epoll has some historical nasty semantics, this enables them */
--	pipe->poll_usage = 1;
-+	WRITE_ONCE(pipe->poll_usage, true);
+ static void __net_exit nf_tables_pre_exit_net(struct net *net)
+ {
++	struct nftables_pernet *nft_net = nft_pernet(net);
++
++	mutex_lock(&nft_net->commit_mutex);
+ 	__nft_release_hooks(net);
++	mutex_unlock(&nft_net->commit_mutex);
+ }
  
- 	/*
- 	 * Reading pipe state only -- no need for acquiring the semaphore.
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -71,7 +71,7 @@ struct pipe_inode_info {
- 	unsigned int files;
- 	unsigned int r_counter;
- 	unsigned int w_counter;
--	unsigned int poll_usage;
-+	bool poll_usage;
- 	struct page *tmp_page;
- 	struct fasync_struct *fasync_readers;
- 	struct fasync_struct *fasync_writers;
+ static void __net_exit nf_tables_exit_net(struct net *net)
 
 
