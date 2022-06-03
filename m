@@ -2,290 +2,787 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D43C53C6FD
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 10:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6FA53C7C5
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 11:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242713AbiFCIjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 04:39:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51252 "EHLO
+        id S241475AbiFCJmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 05:42:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235243AbiFCIjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 04:39:07 -0400
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF40132EF1
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 01:39:05 -0700 (PDT)
-Received: by mail-lf1-x130.google.com with SMTP id a2so11544827lfc.2
-        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 01:39:05 -0700 (PDT)
+        with ESMTP id S229802AbiFCJmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 05:42:54 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF3F2899F
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 02:42:52 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id d22so6472864plr.9
+        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 02:42:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kvaser.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=VE+yOBZ5b6FGB8bFZDZ4zKAzK/d/aGYeDxgjxDS2P+0=;
-        b=X1NOJ7Gb5VBZlLADGP0fWkBWePJQEGCIPVVfrIbcH+O2nTypPnwvWmdJAkDz6bygFl
-         sYbhgdXRaMYdA2qAiICQqUXTjxysWoKQ6ehfmu9OdzazLU9OV+SfU9cPfDno64zQrdOA
-         pclUet/waVe3SMn/ly9uCycFgPiMcSLnl1vgMaw3PmXrri0y9wANFpO+KevxbaZEozjG
-         8UWLWA3QPdaFsYmtKH8vwAFrWQ1/r25w+qa28+QoCptDyOiFMTJwUV3uH7PQIRuF45ST
-         lsQjhRtdhjdLQ+7oGnR0gM2TLQhTlaQSTqmG5NPifHHBY9Nw1coLjuzT8liLIlKGu62k
-         WB/Q==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3HMZ27NQY42/gdBZMP9Lb9g4UpwMSSUlmAMwm6E+H1g=;
+        b=xrFxbNEeiOO+dUjv1je0NSVsMKo9jLaSo2JzpwfGhmAfvRKH5QGEUpMKDeQK1YsStQ
+         ANW5Hn8ppN8ZENzDZXsxuDEw2/JKiu3/HQxclpDVgQm4w4zhvb3KLB8nCbw9Gt1S7p+6
+         6+PVozHgCbnEiW/AINv/a9n395SaiA0afyMaL2dyc1O/JLmgNJs1JH8jQIqvz3kZ0VBm
+         vm+1RwrgnRZ3LRazfhe2XftdQB8uF7MsL67+AzrVuUC4ZF3JcJeHea0t4K3aEWEJxox1
+         UReNZl2eXRwLbHYhY2aNeFI8eKklYjc/ARt5bywjkutld+/z4SeGdIadpG7JwbF8TMXa
+         O/kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=VE+yOBZ5b6FGB8bFZDZ4zKAzK/d/aGYeDxgjxDS2P+0=;
-        b=URxCeNLOG65csTVfB1aX0VqaLJcTfY2Ch9YhCgdoH6MdP1mAhIag2Rt+WdxZFbijWt
-         gJMBxko4+ngEoBAu66CMm4Ten5IDrrjrTHPvoX2Gq6GtOYhglOo3NC1ljYJ7f02UBahC
-         ZfrOcJ0SGiAnsLDgn/XILSZ1OS6Lpx0Y+BMkxeYhQenwAdhBfeOICfchI0J/x/9m7XfE
-         DmMI3bobNvE54CTyNplC9hQJgkT6fHdEFUxG4jlscpfP9dwsBApK6Vbn4TkeNArg5t5R
-         PR4a2qmPFWf0L6lp8tWRnGxtfjhCWvfqAZusVPy2WP2uy436tS6G49h7AkM8QMdVM/FZ
-         WkdQ==
-X-Gm-Message-State: AOAM531ZcFIkSbz4EMU5QOX0SfobcKXx+dyrzfK3QGF2TIFc2qjNMPtg
-        bpomd80BgNxzd80MY2/OU/cy5A==
-X-Google-Smtp-Source: ABdhPJxDttWt2J1rneIbZ9UTMbZjbWNkPHxWCbvQs16LrORUY0xUeSLiuAe4KA3u341M90cAtTkj0w==
-X-Received: by 2002:ac2:5e6e:0:b0:479:693:eb45 with SMTP id a14-20020ac25e6e000000b004790693eb45mr6442569lfr.582.1654245544051;
-        Fri, 03 Jun 2022 01:39:04 -0700 (PDT)
-Received: from freke.kvaser.se (rota.kvaser.com. [195.22.86.90])
-        by smtp.gmail.com with ESMTPSA id g28-20020a2eb5dc000000b00253dfbe2522sm1169898ljn.100.2022.06.03.01.39.03
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3HMZ27NQY42/gdBZMP9Lb9g4UpwMSSUlmAMwm6E+H1g=;
+        b=7Hbx0vI2ikmSwNF6+3dMFafRxZtcic4mnVnySqGy+WGHjvqxAiH5aQ+GCJvLvBgQu/
+         AYEqsobQOLE0MadJPVRq4+Xiki3G5KdScYQQQzLFbx2bpdTcrVLYUu0AUYPAEUpQL1BT
+         HpIvvZdMGFMdl1llbeAGH95/Hl4tk09FkATJe2EnAxmpQiFcTcQGk5B0iGDnvlYzdjbn
+         mGbCrvKyarXVCnP++aoAysj41O+I1uAgTsAmKkAPDjmTlj2uC01EkCXScHLRdDApvRkI
+         WHRrbNFq+OuHIPpB2zTTi+ylxOoXZCWol4o/SRNorSSCNp40NTDaV5PRBF2+ChhqABTB
+         D/rg==
+X-Gm-Message-State: AOAM531BSscI/1wWzxDo19PL2WKDxebkEpHuFRHHqjj9O7CWPMVCfnFR
+        j3xgMikUdFW41T2fr70gvPaM9RYfsEiLiFjG
+X-Google-Smtp-Source: ABdhPJzCNWBzYwncsyYautd4y5tyOyyTKw8I7LpBFhFieOYyWYDwg6W5MeT1ztk0CaUqV6VZmP6YMA==
+X-Received: by 2002:a17:90b:287:b0:1e3:45c9:9a93 with SMTP id az7-20020a17090b028700b001e345c99a93mr10419603pjb.80.1654249371186;
+        Fri, 03 Jun 2022 02:42:51 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t190-20020a6381c7000000b003db7de758besm4942055pgd.5.2022.06.03.02.42.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jun 2022 01:39:03 -0700 (PDT)
-From:   Jimmy Assarsson <extja@kvaser.com>
-To:     linux-can@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     Jimmy Assarsson <jimmyassarsson@gmail.com>, stable@vger.kernel.org,
-        Jimmy Assarsson <extja@kvaser.com>
-Subject: [PATCH v2 3/3] can: kvaser_usb: kvaser_usb_leaf: Fix bittiming limits
-Date:   Fri,  3 Jun 2022 10:38:20 +0200
-Message-Id: <20220603083820.800246-4-extja@kvaser.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603083820.800246-1-extja@kvaser.com>
-References: <20220603083820.800246-1-extja@kvaser.com>
+        Fri, 03 Jun 2022 02:42:50 -0700 (PDT)
+Message-ID: <6299d79a.1c69fb81.62a26.b7e6@mx.google.com>
+Date:   Fri, 03 Jun 2022 02:42:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.14.281-9-gbd6fa9c98c4dd
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 build: 117 builds: 2 failed, 115 passed,
+ 20 warnings (v4.14.281-9-gbd6fa9c98c4dd)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use correct bittiming limits depending on device.
-For devices based on USBcanII, Leaf M32C or Leaf i.MX28.
+stable-rc/queue/4.14 build: 117 builds: 2 failed, 115 passed, 20 warnings (=
+v4.14.281-9-gbd6fa9c98c4dd)
 
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Fixes: b4f20130af23 ("can: kvaser_usb: add support for Kvaser Leaf v2 and usb mini PCIe")
-Fixes: f5d4abea3ce0 ("can: kvaser_usb: Add support for the USBcan-II family")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.281-9-gbd6fa9c98c4dd/
+
+Tree: stable-rc
+Branch: queue/4.14
+Git Describe: v4.14.281-9-gbd6fa9c98c4dd
+Git Commit: bd6fa9c98c4dd89484cb7b225fba61e6ba9f432e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
+
+Build Failures Detected:
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+    mini2440_defconfig (gcc-10): 1 warning
+    omap1_defconfig (gcc-10): 1 warning
+    s3c2410_defconfig (gcc-10): 1 warning
+
+i386:
+    allnoconfig (gcc-10): 3 warnings
+    i386_defconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
+
+mips:
+    malta_qemu_32r6_defconfig (gcc-10): 1 warning
+    mtx1_defconfig (gcc-10): 3 warnings
+
+x86_64:
+    x86_64_defconfig (gcc-10): 4 warnings
+
+
+Warnings summary:
+
+    4    ld: warning: creating DT_TEXTREL in a PIE
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    drivers/tty/serial/samsung.c:1791:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    {standard input}:30: Warning: macro instruction expanded into mult=
+iple instructions
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
+    1    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    1    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
+
+Warnings:
+    {standard input}:30: Warning: macro instruction expanded into multiple =
+instructions
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1791:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1791:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
 ---
-Changes in v2:
-  - Rebased patch
-
- drivers/net/can/usb/kvaser_usb/kvaser_usb.h   | 13 ++++
- .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 14 +---
- .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 76 +++++++++++--------
- 3 files changed, 57 insertions(+), 46 deletions(-)
-
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-index 383b7144d6b5..2813ec58ae1c 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-@@ -28,6 +28,7 @@
- 
- #include <linux/can.h>
- #include <linux/can/dev.h>
-+#include <linux/can/netlink.h>
- 
- #define KVASER_USB_MAX_RX_URBS			4
- #define KVASER_USB_MAX_TX_URBS			128
-@@ -224,4 +225,16 @@ static const struct kvaser_usb_driver_info kvaser_usb_driver_info_leafimx = {
- 	.quirks = 0,
- 	.ops = &kvaser_usb_leaf_dev_ops,
- };
-+
-+static const struct can_bittiming_const kvaser_usb_flexc_bittiming_const = {
-+	.name = "kvaser_usb_flex",
-+	.tseg1_min = 4,
-+	.tseg1_max = 16,
-+	.tseg2_min = 2,
-+	.tseg2_max = 8,
-+	.sjw_max = 4,
-+	.brp_min = 1,
-+	.brp_max = 256,
-+	.brp_inc = 1,
-+};
- #endif /* KVASER_USB_H */
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-index a26823c5b62a..faf901e7e568 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -375,18 +375,6 @@ static const struct can_bittiming_const kvaser_usb_hydra_kcan_bittiming_c = {
- 	.brp_inc = 1,
- };
- 
--static const struct can_bittiming_const kvaser_usb_hydra_flexc_bittiming_c = {
--	.name = "kvaser_usb_flex",
--	.tseg1_min = 4,
--	.tseg1_max = 16,
--	.tseg2_min = 2,
--	.tseg2_max = 8,
--	.sjw_max = 4,
--	.brp_min = 1,
--	.brp_max = 256,
--	.brp_inc = 1,
--};
--
- static const struct can_bittiming_const kvaser_usb_hydra_rt_bittiming_c = {
- 	.name = "kvaser_usb_rt",
- 	.tseg1_min = 2,
-@@ -2052,7 +2040,7 @@ static const struct kvaser_usb_dev_cfg kvaser_usb_hydra_dev_cfg_flexc = {
- 		.freq = 24 * MEGA /* Hz */,
- 	},
- 	.timestamp_freq = 1,
--	.bittiming_const = &kvaser_usb_hydra_flexc_bittiming_c,
-+	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
- };
- 
- static const struct kvaser_usb_dev_cfg kvaser_usb_hydra_dev_cfg_rt = {
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 957144cee414..cc809ecd1e62 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -101,16 +101,6 @@
- #define USBCAN_ERROR_STATE_RX_ERROR	BIT(1)
- #define USBCAN_ERROR_STATE_BUSERROR	BIT(2)
- 
--/* bittiming parameters */
--#define KVASER_USB_TSEG1_MIN		1
--#define KVASER_USB_TSEG1_MAX		16
--#define KVASER_USB_TSEG2_MIN		1
--#define KVASER_USB_TSEG2_MAX		8
--#define KVASER_USB_SJW_MAX		4
--#define KVASER_USB_BRP_MIN		1
--#define KVASER_USB_BRP_MAX		64
--#define KVASER_USB_BRP_INC		1
--
- /* ctrl modes */
- #define KVASER_CTRL_MODE_NORMAL		1
- #define KVASER_CTRL_MODE_SILENT		2
-@@ -343,48 +333,68 @@ struct kvaser_usb_err_summary {
- 	};
- };
- 
--static const struct can_bittiming_const kvaser_usb_leaf_bittiming_const = {
--	.name = "kvaser_usb",
--	.tseg1_min = KVASER_USB_TSEG1_MIN,
--	.tseg1_max = KVASER_USB_TSEG1_MAX,
--	.tseg2_min = KVASER_USB_TSEG2_MIN,
--	.tseg2_max = KVASER_USB_TSEG2_MAX,
--	.sjw_max = KVASER_USB_SJW_MAX,
--	.brp_min = KVASER_USB_BRP_MIN,
--	.brp_max = KVASER_USB_BRP_MAX,
--	.brp_inc = KVASER_USB_BRP_INC,
-+static const struct can_bittiming_const kvaser_usb_leaf_m16c_bittiming_const = {
-+	.name = "kvaser_usb_ucii",
-+	.tseg1_min = 4,
-+	.tseg1_max = 16,
-+	.tseg2_min = 2,
-+	.tseg2_max = 8,
-+	.sjw_max = 4,
-+	.brp_min = 1,
-+	.brp_max = 16,
-+	.brp_inc = 1,
-+};
-+
-+static const struct can_bittiming_const kvaser_usb_leaf_m32c_bittiming_const = {
-+	.name = "kvaser_usb_leaf",
-+	.tseg1_min = 3,
-+	.tseg1_max = 16,
-+	.tseg2_min = 2,
-+	.tseg2_max = 8,
-+	.sjw_max = 4,
-+	.brp_min = 2,
-+	.brp_max = 128,
-+	.brp_inc = 2,
- };
- 
--static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_8mhz = {
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_usbcan_dev_cfg = {
- 	.clock = {
- 		.freq = 8 * MEGA /* Hz */,
- 	},
- 	.timestamp_freq = 1,
--	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+	.bittiming_const = &kvaser_usb_leaf_m16c_bittiming_const,
-+};
-+
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_m32c_dev_cfg = {
-+	.clock = {
-+		.freq = 16 * MEGA /* Hz */,
-+	},
-+	.timestamp_freq = 1,
-+	.bittiming_const = &kvaser_usb_leaf_m32c_bittiming_const,
- };
- 
--static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_16mhz = {
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_imx_dev_cfg_16mhz = {
- 	.clock = {
- 		.freq = 16 * MEGA /* Hz */,
- 	},
- 	.timestamp_freq = 1,
--	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
- };
- 
--static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_24mhz = {
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_imx_dev_cfg_24mhz = {
- 	.clock = {
- 		.freq = 24 * MEGA /* Hz */,
- 	},
- 	.timestamp_freq = 1,
--	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
- };
- 
--static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_32mhz = {
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_imx_dev_cfg_32mhz = {
- 	.clock = {
- 		.freq = 32 * MEGA /* Hz */,
- 	},
- 	.timestamp_freq = 1,
--	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+	.bittiming_const = &kvaser_usb_flexc_bittiming_const,
- };
- 
- static void *
-@@ -528,17 +538,17 @@ static void kvaser_usb_leaf_get_software_info_leaf(struct kvaser_usb *dev,
- 		/* Firmware expects bittiming parameters calculated for 16MHz
- 		 * clock, regardless of the actual clock
- 		 */
--		dev->cfg = &kvaser_usb_leaf_dev_cfg_16mhz;
-+		dev->cfg = &kvaser_usb_leaf_m32c_dev_cfg;
- 	} else {
- 		switch (sw_options & KVASER_USB_LEAF_SWOPTION_FREQ_MASK) {
- 		case KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK:
--			dev->cfg = &kvaser_usb_leaf_dev_cfg_16mhz;
-+			dev->cfg = &kvaser_usb_leaf_imx_dev_cfg_16mhz;
- 			break;
- 		case KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK:
--			dev->cfg = &kvaser_usb_leaf_dev_cfg_24mhz;
-+			dev->cfg = &kvaser_usb_leaf_imx_dev_cfg_24mhz;
- 			break;
- 		case KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK:
--			dev->cfg = &kvaser_usb_leaf_dev_cfg_32mhz;
-+			dev->cfg = &kvaser_usb_leaf_imx_dev_cfg_32mhz;
- 			break;
- 		}
- 	}
-@@ -565,7 +575,7 @@ static int kvaser_usb_leaf_get_software_info_inner(struct kvaser_usb *dev)
- 		dev->fw_version = le32_to_cpu(cmd.u.usbcan.softinfo.fw_version);
- 		dev->max_tx_urbs =
- 			le16_to_cpu(cmd.u.usbcan.softinfo.max_outstanding_tx);
--		dev->cfg = &kvaser_usb_leaf_dev_cfg_8mhz;
-+		dev->cfg = &kvaser_usb_leaf_usbcan_dev_cfg;
- 		break;
- 	}
- 
--- 
-2.36.1
-
+For more info write to <info@kernelci.org>
