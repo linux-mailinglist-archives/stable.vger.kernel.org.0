@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD9A53CF04
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B21DA53CF9A
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344915AbiFCRwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43606 "EHLO
+        id S1345806AbiFCRzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:55:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345515AbiFCRt5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:49:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C3D57B32;
-        Fri,  3 Jun 2022 10:45:57 -0700 (PDT)
+        with ESMTP id S1346588AbiFCRvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8B457136;
+        Fri,  3 Jun 2022 10:48:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9399E60C52;
-        Fri,  3 Jun 2022 17:45:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A853C385A9;
-        Fri,  3 Jun 2022 17:45:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6AF42B82433;
+        Fri,  3 Jun 2022 17:48:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FD8C385A9;
+        Fri,  3 Jun 2022 17:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278356;
-        bh=ZCDvb/lEcXJjYOpYuWAGBXcbz47R0k27Spe8HvZyXr4=;
+        s=korg; t=1654278523;
+        bh=5472PgeiF25eTzaG8Pxt7MVzcW+2xzwpBTW6xW3eu1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mx8/v7R5X8mZvan7Fs84DM37yXuX2XtZbgW40Jlp3XxovwW7QJeiD9a9G4Dn/QfwM
-         ituBrhymYCvIf5fKpowm8XPmEpDW8KbVSxwjlgOL6/CmJpwfRW5mWBHSFY4sUfmMK7
-         Ww9wmJvqrtzyihhyduimH+9dRwKABkcXBUmdsnUs=
+        b=2oEyj6HP1SEm52fZwWU1Bxgwn+lXT434WV2+0CfJn1o8Ds9wlrbF+6y8+KKJ/4fXi
+         arPN/3/qTVnXtcc3X+5u3dTGoD+vhdhIMaen2JtC2DxDvqwCFBjfmK2F1D0Ca98QfV
+         29UbQc0CThYCOXmJfDWUgrpQr1xceLQa7Jt2gQYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephen Brennan <stephen.s.brennan@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        keyrings@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 16/34] assoc_array: Fix BUG_ON during garbage collect
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 27/53] crypto: drbg - move dynamic ->reseed_threshold adjustments to __drbg_seed()
 Date:   Fri,  3 Jun 2022 19:43:12 +0200
-Message-Id: <20220603173816.467643538@linuxfoundation.org>
+Message-Id: <20220603173819.514319812@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,163 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Brennan <stephen.s.brennan@oracle.com>
+From: Nicolai Stange <nstange@suse.de>
 
-commit d1dc87763f406d4e67caf16dbe438a5647692395 upstream.
+commit 262d83a4290c331cd4f617a457408bdb82fbb738 upstream.
 
-A rare BUG_ON triggered in assoc_array_gc:
+Since commit 42ea507fae1a ("crypto: drbg - reseed often if seedsource is
+degraded"), the maximum seed lifetime represented by ->reseed_threshold
+gets temporarily lowered if the get_random_bytes() source cannot provide
+sufficient entropy yet, as is common during boot, and restored back to
+the original value again once that has changed.
 
-    [3430308.818153] kernel BUG at lib/assoc_array.c:1609!
+More specifically, if the add_random_ready_callback() invoked from
+drbg_prepare_hrng() in the course of DRBG instantiation does not return
+-EALREADY, that is, if get_random_bytes() has not been fully initialized
+at this point yet, drbg_prepare_hrng() will lower ->reseed_threshold
+to a value of 50. The drbg_async_seed() scheduled from said
+random_ready_callback will eventually restore the original value.
 
-Which corresponded to the statement currently at line 1593 upstream:
+A future patch will replace the random_ready_callback based notification
+mechanism and thus, there will be no add_random_ready_callback() return
+value anymore which could get compared to -EALREADY.
 
-    BUG_ON(assoc_array_ptr_is_meta(p));
+However, there's __drbg_seed() which gets invoked in the course of both,
+the DRBG instantiation as well as the eventual reseeding from
+get_random_bytes() in aforementioned drbg_async_seed(), if any. Moreover,
+it knows about the get_random_bytes() initialization state by the time the
+seed data had been obtained from it: the new_seed_state argument introduced
+with the previous patch would get set to DRBG_SEED_STATE_PARTIAL in case
+get_random_bytes() had not been fully initialized yet and to
+DRBG_SEED_STATE_FULL otherwise. Thus, __drbg_seed() provides a convenient
+alternative for managing that ->reseed_threshold lowering and restoring at
+a central place.
 
-Using the data from the core dump, I was able to generate a userspace
-reproducer[1] and determine the cause of the bug.
+Move all ->reseed_threshold adjustment code from drbg_prepare_hrng() and
+drbg_async_seed() respectively to __drbg_seed(). Make __drbg_seed()
+lower the ->reseed_threshold to 50 in case its new_seed_state argument
+equals DRBG_SEED_STATE_PARTIAL and let it restore the original value
+otherwise.
 
-[1]: https://github.com/brenns10/kernel_stuff/tree/master/assoc_array_gc
+There is no change in behaviour.
 
-After running the iterator on the entire branch, an internal tree node
-looked like the following:
-
-    NODE (nr_leaves_on_branch: 3)
-      SLOT [0] NODE (2 leaves)
-      SLOT [1] NODE (1 leaf)
-      SLOT [2..f] NODE (empty)
-
-In the userspace reproducer, the pr_devel output when compressing this
-node was:
-
-    -- compress node 0x5607cc089380 --
-    free=0, leaves=0
-    [0] retain node 2/1 [nx 0]
-    [1] fold node 1/1 [nx 0]
-    [2] fold node 0/1 [nx 2]
-    [3] fold node 0/2 [nx 2]
-    [4] fold node 0/3 [nx 2]
-    [5] fold node 0/4 [nx 2]
-    [6] fold node 0/5 [nx 2]
-    [7] fold node 0/6 [nx 2]
-    [8] fold node 0/7 [nx 2]
-    [9] fold node 0/8 [nx 2]
-    [10] fold node 0/9 [nx 2]
-    [11] fold node 0/10 [nx 2]
-    [12] fold node 0/11 [nx 2]
-    [13] fold node 0/12 [nx 2]
-    [14] fold node 0/13 [nx 2]
-    [15] fold node 0/14 [nx 2]
-    after: 3
-
-At slot 0, an internal node with 2 leaves could not be folded into the
-node, because there was only one available slot (slot 0). Thus, the
-internal node was retained. At slot 1, the node had one leaf, and was
-able to be folded in successfully. The remaining nodes had no leaves,
-and so were removed. By the end of the compression stage, there were 14
-free slots, and only 3 leaf nodes. The tree was ascended and then its
-parent node was compressed. When this node was seen, it could not be
-folded, due to the internal node it contained.
-
-The invariant for compression in this function is: whenever
-nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT, the node should contain all
-leaf nodes. The compression step currently cannot guarantee this, given
-the corner case shown above.
-
-To fix this issue, retry compression whenever we have retained a node,
-and yet nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT. This second
-compression will then allow the node in slot 1 to be folded in,
-satisfying the invariant. Below is the output of the reproducer once the
-fix is applied:
-
-    -- compress node 0x560e9c562380 --
-    free=0, leaves=0
-    [0] retain node 2/1 [nx 0]
-    [1] fold node 1/1 [nx 0]
-    [2] fold node 0/1 [nx 2]
-    [3] fold node 0/2 [nx 2]
-    [4] fold node 0/3 [nx 2]
-    [5] fold node 0/4 [nx 2]
-    [6] fold node 0/5 [nx 2]
-    [7] fold node 0/6 [nx 2]
-    [8] fold node 0/7 [nx 2]
-    [9] fold node 0/8 [nx 2]
-    [10] fold node 0/9 [nx 2]
-    [11] fold node 0/10 [nx 2]
-    [12] fold node 0/11 [nx 2]
-    [13] fold node 0/12 [nx 2]
-    [14] fold node 0/13 [nx 2]
-    [15] fold node 0/14 [nx 2]
-    internal nodes remain despite enough space, retrying
-    -- compress node 0x560e9c562380 --
-    free=14, leaves=1
-    [0] fold node 2/15 [nx 0]
-    after: 3
-
-Changes
-=======
-DH:
- - Use false instead of 0.
- - Reorder the inserted lines in a couple of places to put retained before
-   next_slot.
-
-ver #2)
- - Fix typo in pr_devel, correct comparison to "<="
-
-Fixes: 3cb989501c26 ("Add a generic associative array implementation.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@linux-foundation.org>
-cc: keyrings@vger.kernel.org
-Link: https://lore.kernel.org/r/20220511225517.407935-1-stephen.s.brennan@oracle.com/ # v1
-Link: https://lore.kernel.org/r/20220512215045.489140-1-stephen.s.brennan@oracle.com/ # v2
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Stephan Müller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/assoc_array.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ crypto/drbg.c |   30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
---- a/lib/assoc_array.c
-+++ b/lib/assoc_array.c
-@@ -1462,6 +1462,7 @@ int assoc_array_gc(struct assoc_array *a
- 	struct assoc_array_ptr *cursor, *ptr;
- 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
- 	unsigned long nr_leaves_on_tree;
-+	bool retained;
- 	int keylen, slot, nr_free, next_slot, i;
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -1046,6 +1046,27 @@ static inline int __drbg_seed(struct drb
+ 	/* 10.1.1.2 / 10.1.1.3 step 5 */
+ 	drbg->reseed_ctr = 1;
  
- 	pr_devel("-->%s()\n", __func__);
-@@ -1538,6 +1539,7 @@ continue_node:
- 		goto descend;
- 	}
- 
-+retry_compress:
- 	pr_devel("-- compress node %p --\n", new_n);
- 
- 	/* Count up the number of empty slots in this node and work out the
-@@ -1555,6 +1557,7 @@ continue_node:
- 	pr_devel("free=%d, leaves=%lu\n", nr_free, new_n->nr_leaves_on_branch);
- 
- 	/* See what we can fold in */
-+	retained = false;
- 	next_slot = 0;
- 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
- 		struct assoc_array_shortcut *s;
-@@ -1604,9 +1607,14 @@ continue_node:
- 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
- 				 slot, child->nr_leaves_on_branch, nr_free + 1,
- 				 next_slot);
-+			retained = true;
- 		}
- 	}
- 
-+	if (retained && new_n->nr_leaves_on_branch <= ASSOC_ARRAY_FAN_OUT) {
-+		pr_devel("internal nodes remain despite enough space, retrying\n");
-+		goto retry_compress;
++	switch (drbg->seeded) {
++	case DRBG_SEED_STATE_UNSEEDED:
++		/* Impossible, but handle it to silence compiler warnings. */
++		fallthrough;
++	case DRBG_SEED_STATE_PARTIAL:
++		/*
++		 * Require frequent reseeds until the seed source is
++		 * fully initialized.
++		 */
++		drbg->reseed_threshold = 50;
++		break;
++
++	case DRBG_SEED_STATE_FULL:
++		/*
++		 * Seed source has become fully initialized, frequent
++		 * reseeds no longer required.
++		 */
++		drbg->reseed_threshold = drbg_max_requests(drbg);
++		break;
 +	}
- 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
++
+ 	return ret;
+ }
  
- 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
+@@ -1094,9 +1115,6 @@ static void drbg_async_seed(struct work_
+ 
+ 	__drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
+ 
+-	if (drbg->seeded == DRBG_SEED_STATE_FULL)
+-		drbg->reseed_threshold = drbg_max_requests(drbg);
+-
+ unlock:
+ 	mutex_unlock(&drbg->drbg_mutex);
+ 
+@@ -1532,12 +1550,6 @@ static int drbg_prepare_hrng(struct drbg
+ 		return err;
+ 	}
+ 
+-	/*
+-	 * Require frequent reseeds until the seed source is fully
+-	 * initialized.
+-	 */
+-	drbg->reseed_threshold = 50;
+-
+ 	return err;
+ }
+ 
 
 
