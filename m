@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B5D53CEA4
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170EE53CE5E
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbiFCRpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:45:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56552 "EHLO
+        id S1344706AbiFCRlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:41:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345126AbiFCRoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:44:39 -0400
+        with ESMTP id S1344735AbiFCRlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F254D55203;
-        Fri,  3 Jun 2022 10:42:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C2A53E0C;
+        Fri,  3 Jun 2022 10:40:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2F92B8242D;
-        Fri,  3 Jun 2022 17:42:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D47AC385A9;
-        Fri,  3 Jun 2022 17:42:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2FA6B82437;
+        Fri,  3 Jun 2022 17:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F5FAC385A9;
+        Fri,  3 Jun 2022 17:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278154;
-        bh=yojwAR4GeocO+V0acQYXPAOcPk/e68dRzRXpL5OJFns=;
+        s=korg; t=1654278052;
+        bh=gkk1sG4sOrtrmy6GTWLJGXeGCVo0l+3iQo2TZuJ6t8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ3eo7bx5ky5onfl1dUg9rdFnyZ17nSFNbFefMjoDnopUCUuKy28Qnfnfjx5u5Ryf
-         zf2gGj6wLqb2rmD9ik9rrIXblx56uCsuFEVejNFH/d0EZwox+7+JJnj8JcfET2lyW9
-         cY7EbObEGKVLdto+shB0Cy9Tr7slXV7gjOcbYTPk=
+        b=qrv2nb5rwhuJYyNeyes7G9S7HBmxd8j5Y2cO/r7fHkJ9BoygVyWWlNCBjQhj0Y86b
+         MujJ23j3s1LBeun8A3XFzVqDaMuiQPBiLGANPGMaSYHPvDATsWy3V/62wm2PGjVK6s
+         8fsWrkvdqQVbpAiGJAErXrgA7ZzQAOdY2b/jvUwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Veronika Kabatova <vkabatov@redhat.com>,
-        Aristeu Rozanski <aris@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 4.19 06/30] ACPI: sysfs: Fix BERT error region memory mapping
+        Thomas Bartschies <thomas.bartschies@cvk.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/23] net: af_key: check encryption module availability consistency
 Date:   Fri,  3 Jun 2022 19:39:34 +0200
-Message-Id: <20220603173815.280377951@linuxfoundation.org>
+Message-Id: <20220603173814.588665021@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
+References: <20220603173814.362515009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,85 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+From: Thomas Bartschies <thomas.bartschies@cvk.de>
 
-commit 1bbc21785b7336619fb6a67f1fff5afdaf229acc upstream.
+[ Upstream commit 015c44d7bff3f44d569716117becd570c179ca32 ]
 
-Currently the sysfs interface maps the BERT error region as "memory"
-(through acpi_os_map_memory()) in order to copy the error records into
-memory buffers through memory operations (eg memory_read_from_buffer()).
+Since the recent introduction supporting the SM3 and SM4 hash algos for IPsec, the kernel
+produces invalid pfkey acquire messages, when these encryption modules are disabled. This
+happens because the availability of the algos wasn't checked in all necessary functions.
+This patch adds these checks.
 
-The OS system cannot detect whether the BERT error region is part of
-system RAM or it is "device memory" (eg BMC memory) and therefore it
-cannot detect which memory attributes the bus to memory support (and
-corresponding kernel mapping, unless firmware provides the required
-information).
-
-The acpi_os_map_memory() arch backend implementation determines the
-mapping attributes. On arm64, if the BERT error region is not present in
-the EFI memory map, the error region is mapped as device-nGnRnE; this
-triggers alignment faults since memcpy unaligned accesses are not
-allowed in device-nGnRnE regions.
-
-The ACPI sysfs code cannot therefore map by default the BERT error
-region with memory semantics but should use a safer default.
-
-Change the sysfs code to map the BERT error region as MMIO (through
-acpi_os_map_iomem()) and use the memcpy_fromio() interface to read the
-error region into the kernel buffer.
-
-Link: https://lore.kernel.org/linux-arm-kernel/31ffe8fc-f5ee-2858-26c5-0fd8bdd68702@arm.com
-Link: https://lore.kernel.org/linux-acpi/CAJZ5v0g+OVbhuUUDrLUCfX_mVqY_e8ubgLTU98=jfjTeb4t+Pw@mail.gmail.com
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Tested-by: Veronika Kabatova <vkabatov@redhat.com>
-Tested-by: Aristeu Rozanski <aris@redhat.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: dann frazier <dann.frazier@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Bartschies <thomas.bartschies@cvk.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sysfs.c |   25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ net/key/af_key.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/sysfs.c
-+++ b/drivers/acpi/sysfs.c
-@@ -438,19 +438,30 @@ static ssize_t acpi_data_show(struct fil
- 			      loff_t offset, size_t count)
- {
- 	struct acpi_data_attr *data_attr;
--	void *base;
--	ssize_t rc;
-+	void __iomem *base;
-+	ssize_t size;
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 3d5a46080169..990de0702b79 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2908,7 +2908,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
+ 			break;
+ 		if (!aalg->pfkey_supported)
+ 			continue;
+-		if (aalg_tmpl_set(t, aalg))
++		if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 			sz += sizeof(struct sadb_comb);
+ 	}
+ 	return sz + sizeof(struct sadb_prop);
+@@ -2926,7 +2926,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 		if (!ealg->pfkey_supported)
+ 			continue;
  
- 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
-+	size = data_attr->attr.size;
+-		if (!(ealg_tmpl_set(t, ealg)))
++		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
+ 			continue;
  
--	base = acpi_os_map_memory(data_attr->addr, data_attr->attr.size);
-+	if (offset < 0)
-+		return -EINVAL;
-+
-+	if (offset >= size)
-+		return 0;
-+
-+	if (count > size - offset)
-+		count = size - offset;
-+
-+	base = acpi_os_map_iomem(data_attr->addr, size);
- 	if (!base)
- 		return -ENOMEM;
--	rc = memory_read_from_buffer(buf, count, &offset, base,
--				     data_attr->attr.size);
--	acpi_os_unmap_memory(base, data_attr->attr.size);
+ 		for (k = 1; ; k++) {
+@@ -2937,7 +2937,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 			if (!aalg->pfkey_supported)
+ 				continue;
  
--	return rc;
-+	memcpy_fromio(buf, base + offset, count);
-+
-+	acpi_os_unmap_iomem(base, size);
-+
-+	return count;
- }
- 
- static int acpi_bert_data_init(void *th, struct acpi_data_attr *data_attr)
+-			if (aalg_tmpl_set(t, aalg))
++			if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 				sz += sizeof(struct sadb_comb);
+ 		}
+ 	}
+-- 
+2.35.1
+
 
 
