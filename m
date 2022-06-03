@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6F653CEF1
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D7D53CFE4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345323AbiFCRtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:49:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46420 "EHLO
+        id S240276AbiFCR5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:57:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345325AbiFCRss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E2854684;
-        Fri,  3 Jun 2022 10:45:32 -0700 (PDT)
+        with ESMTP id S243793AbiFCR4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:56:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 877DF21831;
+        Fri,  3 Jun 2022 10:54:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A886B82189;
-        Fri,  3 Jun 2022 17:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6840EC385A9;
-        Fri,  3 Jun 2022 17:45:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E011B82189;
+        Fri,  3 Jun 2022 17:53:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940C5C385A9;
+        Fri,  3 Jun 2022 17:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278329;
-        bh=feL5DhGpFr9fOQ+CVlQslnoobzfhYmtKXTcaAR7THEI=;
+        s=korg; t=1654278838;
+        bh=SO2iA/ugLxU2hCMzSj19M0ZZyZyDnN98h7RUXWq3yko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYPCZ5+9y/g3/Yj233yH0AjuZCvctGhChGIGr4bsjzs8qOXreEd9C1EXeApwkOBja
-         sxTlUc28ifGeIQ3zty69IfDc1v6JWuO2sajftkcHPgra5ExjGd1wh+R3NXG0ty8IXh
-         Fv2osr5MJHvEOaL2qC4WXILCHUv3A6J9AUXpcQLA=
+        b=XOC1CJm58og51k4uF2w+dkT7nycc68wwgpy+UJVW9aT2SfuruNcI8ASpzVLIDxtp0
+         5D/3ldwGg48Y1IxhSOHLEu8KimYb31EhnCcxlqYgkPwM9ZKPjFGM2mBZdhIqzqisE+
+         PwFGtqXIxCThGcouwr88i4LS8PwsUYykdossd37g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.4 31/34] docs: submitting-patches: Fix crossref to The canonical patch format
+        Luc Maranget <luc.maranget@inria.fr>,
+        Jade Alglave <j.alglave@ucl.ac.uk>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.17 43/75] tools/memory-model/README: Update klitmus7 compat table
 Date:   Fri,  3 Jun 2022 19:43:27 +0200
-Message-Id: <20220603173817.085758905@linuxfoundation.org>
+Message-Id: <20220603173822.968867717@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +57,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Akira Yokosawa <akiyks@gmail.com>
 
-commit 6d5aa418b3bd42cdccc36e94ee199af423ef7c84 upstream.
+commit 5b759db44195bb779828a188bad6b745c18dcd55 upstream.
 
-The reference to `explicit_in_reply_to` is pointless as when the
-reference was added in the form of "#15" [1], Section 15) was "The
-canonical patch format".
-The reference of "#15" had not been properly updated in a couple of
-reorganizations during the plain-text SubmittingPatches era.
+EXPORT_SYMBOL of do_exec() was removed in v5.17.  Unfortunately,
+kernel modules from klitmus7 7.56 have do_exec() at the end of
+each kthread.
 
-Fix it by using `the_canonical_patch_format`.
+herdtools7 7.56.1 has addressed the issue.
 
-[1]: 2ae19acaa50a ("Documentation: Add "how to write a good patch summary" to SubmittingPatches")
+Update the compatibility table accordingly.
 
 Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Fixes: 5903019b2a5e ("Documentation/SubmittingPatches: convert it to ReST markup")
-Fixes: 9b2c76777acc ("Documentation/SubmittingPatches: enrich the Sphinx output")
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: stable@vger.kernel.org # v4.9+
-Link: https://lore.kernel.org/r/64e105a5-50be-23f2-6cae-903a2ea98e18@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Cc: Luc Maranget <luc.maranget@inria.fr>
+Cc: Jade Alglave <j.alglave@ucl.ac.uk>
+Cc: stable@vger.kernel.org # v5.17+
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/submitting-patches.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/memory-model/README | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/process/submitting-patches.rst
-+++ b/Documentation/process/submitting-patches.rst
-@@ -133,7 +133,7 @@ as you intend it to.
+diff --git a/tools/memory-model/README b/tools/memory-model/README
+index 9edd402704c4..dab38904206a 100644
+--- a/tools/memory-model/README
++++ b/tools/memory-model/README
+@@ -54,7 +54,8 @@ klitmus7 Compatibility Table
+ 	     -- 4.14  7.48 --
+ 	4.15 -- 4.19  7.49 --
+ 	4.20 -- 5.5   7.54 --
+-	5.6  --       7.56 --
++	5.6  -- 5.16  7.56 --
++	5.17 --       7.56.1 --
+ 	============  ==========
  
- The maintainer will thank you if you write your patch description in a
- form which can be easily pulled into Linux's source code management
--system, ``git``, as a "commit log".  See :ref:`explicit_in_reply_to`.
-+system, ``git``, as a "commit log".  See :ref:`the_canonical_patch_format`.
  
- Solve only one problem per patch.  If your description starts to get
- long, that's a sign that you probably need to split up your patch.
+-- 
+2.36.1
+
 
 
