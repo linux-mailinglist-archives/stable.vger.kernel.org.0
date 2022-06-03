@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1529753CF57
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F1A53CFC3
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344375AbiFCRxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57836 "EHLO
+        id S1345892AbiFCR41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346249AbiFCRuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5395A0A6;
-        Fri,  3 Jun 2022 10:47:19 -0700 (PDT)
+        with ESMTP id S1346055AbiFCRzh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C468B5623A;
+        Fri,  3 Jun 2022 10:53:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0F2B604EF;
-        Fri,  3 Jun 2022 17:47:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD91C385B8;
-        Fri,  3 Jun 2022 17:47:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F405B8241E;
+        Fri,  3 Jun 2022 17:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821C9C385B8;
+        Fri,  3 Jun 2022 17:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278438;
-        bh=HgO/YYUBUaikVJTuqzSnhSDHKguXOeaqQnh/CGNBQlo=;
+        s=korg; t=1654278807;
+        bh=zl9q+HrObQosjO53rzGM89EWPGvgC/SPVWGg6pjEeQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/tl/xCVUs9hBRTAjQhpLrxgh0fGYmYJO/LvNSjN/kkgCZbA4Z7d4zDM6Nh9/KoiS
-         fvmm52hbaZhGjaNV85p0GRHTL+jA6DF0+QasuVJnyOJ6QaIdQgUa8uc9D9UlzI6qaW
-         f4KZ9CLyxVjI/qpmMZXQ50NXfRCqshdyZEx3pVCk=
+        b=TcpbT0syfD8bxwc5fSVJPeuaOwH3feyuZnQpDUjqq8AKf0R47WkGeJUzBXVHNgWHg
+         PACRioeQof/PtIJs/jGMzUFncD6k+ItQ3zZJL0nBHop0LHXAcjMl1wIEfrrA/O8uEV
+         8GfzLOeqzQB/53E/Fc6c3UphrEmsHEHEhVbroZ9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Qiuhao Li <qiuhao@sysec.org>,
+        Gaoning Pan <pgn@zju.edu.cn>, Yongkang Jia <kangel@zju.edu.cn>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 33/53] x86, kvm: use correct GFP flags for preemption disabled
+Subject: [PATCH 5.17 34/75] KVM: x86: avoid calling x86 emulator without a decoded instruction
 Date:   Fri,  3 Jun 2022 19:43:18 +0200
-Message-Id: <20220603173819.687439393@linuxfoundation.org>
+Message-Id: <20220603173822.713126410@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit baec4f5a018fe2d708fc1022330dba04b38b5fe3 upstream.
+commit fee060cd52d69c114b62d1a2948ea9648b5131f9 upstream.
 
-Commit ddd7ed842627 ("x86/kvm: Alloc dummy async #PF token outside of
-raw spinlock") leads to the following Smatch static checker warning:
+Whenever x86_decode_emulated_instruction() detects a breakpoint, it
+returns the value that kvm_vcpu_check_breakpoint() writes into its
+pass-by-reference second argument.  Unfortunately this is completely
+bogus because the expected outcome of x86_decode_emulated_instruction
+is an EMULATION_* value.
 
-	arch/x86/kernel/kvm.c:212 kvm_async_pf_task_wake()
-	warn: sleeping in atomic context
+Then, if kvm_vcpu_check_breakpoint() does "*r = 0" (corresponding to
+a KVM_EXIT_DEBUG userspace exit), it is misunderstood as EMULATION_OK
+and x86_emulate_instruction() is called without having decoded the
+instruction.  This causes various havoc from running with a stale
+emulation context.
 
-arch/x86/kernel/kvm.c
-    202         raw_spin_lock(&b->lock);
-    203         n = _find_apf_task(b, token);
-    204         if (!n) {
-    205                 /*
-    206                  * Async #PF not yet handled, add a dummy entry for the token.
-    207                  * Allocating the token must be down outside of the raw lock
-    208                  * as the allocator is preemptible on PREEMPT_RT kernels.
-    209                  */
-    210                 if (!dummy) {
-    211                         raw_spin_unlock(&b->lock);
---> 212                         dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
-                                                                ^^^^^^^^^^
-Smatch thinks the caller has preempt disabled.  The `smdb.py preempt
-kvm_async_pf_task_wake` output call tree is:
+The fix is to move the call to kvm_vcpu_check_breakpoint() where it was
+before commit 4aa2691dcbd3 ("KVM: x86: Factor out x86 instruction
+emulation with decoding") introduced x86_decode_emulated_instruction().
+The other caller of the function does not need breakpoint checks,
+because it is invoked as part of a vmexit and the processor has already
+checked those before executing the instruction that #GP'd.
 
-sysvec_kvm_asyncpf_interrupt() <- disables preempt
--> __sysvec_kvm_asyncpf_interrupt()
-   -> kvm_async_pf_task_wake()
+This fixes CVE-2022-1852.
 
-The caller is this:
-
-arch/x86/kernel/kvm.c
-   290        DEFINE_IDTENTRY_SYSVEC(sysvec_kvm_asyncpf_interrupt)
-   291        {
-   292                struct pt_regs *old_regs = set_irq_regs(regs);
-   293                u32 token;
-   294
-   295                ack_APIC_irq();
-   296
-   297                inc_irq_stat(irq_hv_callback_count);
-   298
-   299                if (__this_cpu_read(apf_reason.enabled)) {
-   300                        token = __this_cpu_read(apf_reason.token);
-   301                        kvm_async_pf_task_wake(token);
-   302                        __this_cpu_write(apf_reason.token, 0);
-   303                        wrmsrl(MSR_KVM_ASYNC_PF_ACK, 1);
-   304                }
-   305
-   306                set_irq_regs(old_regs);
-   307        }
-
-The DEFINE_IDTENTRY_SYSVEC() is a wrapper that calls this function
-from the call_on_irqstack_cond().  It's inside the call_on_irqstack_cond()
-where preempt is disabled (unless it's already disabled).  The
-irq_enter/exit_rcu() functions disable/enable preempt.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reported-by: Qiuhao Li <qiuhao@sysec.org>
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Fixes: 4aa2691dcbd3 ("KVM: x86: Factor out x86 instruction emulation with decoding")
 Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220311032801.3467418-2-seanjc@google.com>
+[Rewrote commit message according to Qiuhao's report, since a patch
+ already existed to fix the bug. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |   31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -206,7 +206,7 @@ again:
- 		 */
- 		if (!dummy) {
- 			raw_spin_unlock(&b->lock);
--			dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
-+			dummy = kzalloc(sizeof(*dummy), GFP_ATOMIC);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8169,7 +8169,7 @@ int kvm_skip_emulated_instruction(struct
+ }
+ EXPORT_SYMBOL_GPL(kvm_skip_emulated_instruction);
  
- 			/*
- 			 * Continue looping on allocation failure, eventually
+-static bool kvm_vcpu_check_breakpoint(struct kvm_vcpu *vcpu, int *r)
++static bool kvm_vcpu_check_code_breakpoint(struct kvm_vcpu *vcpu, int *r)
+ {
+ 	if (unlikely(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP) &&
+ 	    (vcpu->arch.guest_debug_dr7 & DR7_BP_EN_MASK)) {
+@@ -8238,25 +8238,23 @@ static bool is_vmware_backdoor_opcode(st
+ }
+ 
+ /*
+- * Decode to be emulated instruction. Return EMULATION_OK if success.
++ * Decode an instruction for emulation.  The caller is responsible for handling
++ * code breakpoints.  Note, manually detecting code breakpoints is unnecessary
++ * (and wrong) when emulating on an intercepted fault-like exception[*], as
++ * code breakpoints have higher priority and thus have already been done by
++ * hardware.
++ *
++ * [*] Except #MC, which is higher priority, but KVM should never emulate in
++ *     response to a machine check.
+  */
+ int x86_decode_emulated_instruction(struct kvm_vcpu *vcpu, int emulation_type,
+ 				    void *insn, int insn_len)
+ {
+-	int r = EMULATION_OK;
+ 	struct x86_emulate_ctxt *ctxt = vcpu->arch.emulate_ctxt;
++	int r;
+ 
+ 	init_emulate_ctxt(vcpu);
+ 
+-	/*
+-	 * We will reenter on the same instruction since we do not set
+-	 * complete_userspace_io. This does not handle watchpoints yet,
+-	 * those would be handled in the emulate_ops.
+-	 */
+-	if (!(emulation_type & EMULTYPE_SKIP) &&
+-	    kvm_vcpu_check_breakpoint(vcpu, &r))
+-		return r;
+-
+ 	r = x86_decode_insn(ctxt, insn, insn_len, emulation_type);
+ 
+ 	trace_kvm_emulate_insn_start(vcpu);
+@@ -8289,6 +8287,15 @@ int x86_emulate_instruction(struct kvm_v
+ 	if (!(emulation_type & EMULTYPE_NO_DECODE)) {
+ 		kvm_clear_exception_queue(vcpu);
+ 
++		/*
++		 * Return immediately if RIP hits a code breakpoint, such #DBs
++		 * are fault-like and are higher priority than any faults on
++		 * the code fetch itself.
++		 */
++		if (!(emulation_type & EMULTYPE_SKIP) &&
++		    kvm_vcpu_check_code_breakpoint(vcpu, &r))
++			return r;
++
+ 		r = x86_decode_emulated_instruction(vcpu, emulation_type,
+ 						    insn, insn_len);
+ 		if (r != EMULATION_OK)  {
 
 
