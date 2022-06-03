@@ -2,101 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDDE153C6D6
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 10:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CF553C6F8
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 10:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242778AbiFCISZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 04:18:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49986 "EHLO
+        id S237349AbiFCIik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 04:38:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241021AbiFCISX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 04:18:23 -0400
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CA11A82C
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 01:18:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1654244301; x=1685780301;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=rN3jYN+bhIF4rDip7wHs52ts/z31JHYPnDrXGjiKwDk=;
-  b=hFBmloTxLcDuG3aiCIPymUp5FGzZH3tpVbgT7M3OJyvTe/7ZNIr+uYmS
-   cbCcNygui+kCXoFk+arPazSoXvNTa0IcjbDK75MK6AFV2bHAWLmFyo+/3
-   lk5ZHRI1M1uhCnN8MuhUpVwGb3xKEuOLJPmIJ8bAI91qbAswcz//Yy2SX
-   qV+Sg5uEdmCdoo65Mpz9irZEbqCwxcHinUpRbc5YLKDyNUl0n4z51N5yC
-   LZ44hMeXkMOWUzQT3TWnhgfkJGh6B/gloL0h36ENMIPMJQdox6b/AbO/V
-   rBguALdhNNKEyRFIKbxyIp/dpp/2RhXOQDQn6z8QKdEuwGF/RbqRz9KG2
-   g==;
-X-IronPort-AV: E=Sophos;i="5.91,274,1647273600"; 
-   d="scan'208";a="207039952"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 03 Jun 2022 16:18:17 +0800
-IronPort-SDR: dDjbzj9yhwPOk63vXonpSFD5orETFoL1hke9CkF01nKkDNjj9JgdbN/+UKaNO+f4ZgSCNHa1ho
- VAOar2f9fhIs3ncDIdSwHLmo9WtmD2Cfj6jP8yURxN2AQ1X/Pl0Q+t+XNtzhqLudxp2awB1fM5
- UyVvSmVn8ZBAvFviouG8H3oVV6cOBGuMDq3+xU4tX34tJC7HxeYWePjc0ahZi0eN/et5tfiOMe
- jdl2i6PWSZyGKpmqGoh87qmBOajeXgp+RBuxZtivJf39TXv1lf0rReAvzXddXiDNmbtcbQE3Zm
- mHjZK6hi2aARdtYlETjyqKO9
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 03 Jun 2022 00:37:24 -0700
-IronPort-SDR: GsjAehKkmRvRBcPYdgOVSw9rIHM165PtB1PXc6gAckBDOPNYh5Ft9fCQ4ZPO5k+7gB6mqMYnHJ
- ShzBUkNFIkuC5yi7vj55XE0hK46gvl6ZLTc2TSaiUHnlTRjNmNr0x0e8KWP4NJt+cyUkwb0fhF
- iyYmrIBECfJ55MuzWo+VbrSOoO3VVsduOII/1tW5xzT/SXi86e2Y02XSl/VJ/BM1kQOQOXNXbX
- 2mei1SaLvTfA37x2riucZACGAMK1aM2SBnB3ZXyCNIu03V3j8clZLuhCzOn2CStmFMFNBxwa1V
- kP4=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 03 Jun 2022 01:18:19 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4LDwkL2GxWz1SVp2
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 01:18:18 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1654244297; x=1656836298; bh=rN3jYN+bhIF4rDip7wHs52ts/z31JHYPnDr
-        XGjiKwDk=; b=E+5xtv8vqoW4i2OHh+ZpJmgokqn1QAyaCnh4xzSrNtRdSr3SQwQ
-        nGqk5fnb5b//Ksaf9AYPmwJBplX8fQcjbKR85seCagwjxRSviYKYy7qCG6r31/uu
-        LPSNwPn90uhTOQZ85fnSpMMJMQE89nNTuh6b0+liCLLPBusGKLlwe+SUE/UsUBFu
-        WyqK7B1Le67G//pZGKz3+3PD5LUOr91LnYwCnaUYDUxdhFTsB4WV4D16z6MvboQQ
-        5iYHqEkwwpTdwcuhnawOaZ3x07OABQ7bJfgoveQqNJk3dwWyaUQs5J8sRuYIZkHP
-        lipT2FmPAK4Nql4v/GFpuylOlZIhEebHkzA==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id NJEJN_5VgxQ3 for <stable@vger.kernel.org>;
-        Fri,  3 Jun 2022 01:18:17 -0700 (PDT)
-Received: from [10.225.163.68] (unknown [10.225.163.68])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4LDwkJ1BP7z1Rvlc;
-        Fri,  3 Jun 2022 01:18:15 -0700 (PDT)
-Message-ID: <4d1900cc-0edb-7206-a534-fb8c8cbd25d8@opensource.wdc.com>
-Date:   Fri, 3 Jun 2022 17:18:14 +0900
+        with ESMTP id S229615AbiFCIik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 04:38:40 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A979232EF1
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 01:38:38 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id s6so11499554lfo.13
+        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 01:38:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kvaser.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2TvfjTvRt9uRoKCfxpGhfopJLtmCQ0YbhN1NVB6u/Ek=;
+        b=F8Juj52hJryMaE24yeHbpbbrL1F0D50a24RfjvF0hqLygiIlCX8rV+85tGxzVU9cBq
+         f3/QjWBiJaSSeRrXyWeU+gLOjhiY1sCt3kGsJI+6QI7mXJezaFLlMHRkc9ATmnpl4w73
+         a6OAYJIxJUwgUdxjtAaqmCYYfx9HYqBLl007tCYGZYNUbM/37pav5P4QW7Gvp/+LvXeE
+         nasg8d2G1z2b4CeV2+kz6w8Kus5OHUbr0jDTAzZrpikmzz4bC9nqZQJzv2hCTRmHk0u/
+         b5OqJIh/b9VRtwotNe68/vDw26JNqXQY0SNcatYfRhw5+WHCOjnN14I1Tf7A8gXcaz1/
+         Gxdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2TvfjTvRt9uRoKCfxpGhfopJLtmCQ0YbhN1NVB6u/Ek=;
+        b=T1vJsfMJNen1b2vg6X1/TPaqEl17dh+we02cot8OHyKlIWxSoLw4VczbntDOyfAMzQ
+         OrOxmqDCjq4OjWDZlQPC+BYMV3lPfh+Z1CiJWtOurTjMDi0019laQkndzPEdi5cFjFie
+         akHpcdHs2qpv8VWl27FVnUpdBfE0VlaC3DIjnrwrs+24XuD90Uksm8/1VXqhJdFutsHO
+         fl57eo+/4QvEG5fJTbqIBjJEaL2FXJFajRbnx2KecEB0D+7X2CPU1e6GA4sxbf0C52uf
+         5qbi0/3krmmo/bSM1FdW3R1WewXr+29euStMERR8QntjsJYf5ZIcjVXjYRQhFJ7aAI/1
+         qkbw==
+X-Gm-Message-State: AOAM531JHRC/uXA9Jrin4s/kPjJfY5T8sW4z9pxFurtgzPuSmS3FqKOk
+        GwbMCcLuWBS1fpOwJ6achrOczw==
+X-Google-Smtp-Source: ABdhPJxrI4fSw0964Upbm0C9DnkNJ0Yge4TBiiE6HqMNfddhnRJn4GFPWJaGx0PYuS+3dbL4u2kWzQ==
+X-Received: by 2002:a05:6512:22cf:b0:478:e9b2:7957 with SMTP id g15-20020a05651222cf00b00478e9b27957mr6083444lfu.576.1654245516978;
+        Fri, 03 Jun 2022 01:38:36 -0700 (PDT)
+Received: from freke.kvaser.se (rota.kvaser.com. [195.22.86.90])
+        by smtp.gmail.com with ESMTPSA id g28-20020a2eb5dc000000b00253dfbe2522sm1169898ljn.100.2022.06.03.01.38.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jun 2022 01:38:36 -0700 (PDT)
+From:   Jimmy Assarsson <extja@kvaser.com>
+To:     linux-can@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     Jimmy Assarsson <jimmyassarsson@gmail.com>, stable@vger.kernel.org,
+        Jimmy Assarsson <extja@kvaser.com>
+Subject: [PATCH v2 0/3] can: kvaser_usb: CAN clock frequency regression
+Date:   Fri,  3 Jun 2022 10:38:17 +0200
+Message-Id: <20220603083820.800246-1-extja@kvaser.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v2 1/3] libata: fix reading concurrent positioning ranges
- log
-Content-Language: en-US
-To:     Hannes Reinecke <hare@suse.de>,
-        Tyler Erickson <tyler.erickson@seagate.com>,
-        jejb@linux.ibm.com, martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
-        muhammad.ahmad@seagate.com, stable@vger.kernel.org
-References: <20220602225113.10218-1-tyler.erickson@seagate.com>
- <20220602225113.10218-2-tyler.erickson@seagate.com>
- <071542b5-2269-7c8a-a78c-0cd7299bca99@suse.de>
- <948fc607-af5a-8b80-4f87-297462bb58c4@opensource.wdc.com>
- <b1e5fa91-fd80-a485-efea-ac5339391258@suse.de>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <b1e5fa91-fd80-a485-efea-ac5339391258@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -104,96 +67,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/3/22 16:42, Hannes Reinecke wrote:
-> On 6/3/22 09:07, Damien Le Moal wrote:
->> On 6/3/22 15:17, Hannes Reinecke wrote:
->>> On 6/3/22 00:51, Tyler Erickson wrote:
->>>> The concurrent positioning ranges log is not a fixed size and may depend
->>>> on how many ranges are supported by the device. This patch uses the size
->>>> reported in the GPL directory to determine the number of pages supported
->>>> by the device before attempting to read this log page.
->>>>
->>>> This resolves this error from the dmesg output:
->>>>       ata6.00: Read log 0x47 page 0x00 failed, Emask 0x1
->>>>
->>>> Cc: stable@vger.kernel.org
->>>> Fixes: fe22e1c2f705 ("libata: support concurrent positioning ranges log")
->>>> Signed-off-by: Tyler Erickson <tyler.erickson@seagate.com>
->>>> Reviewed-by: Muhammad Ahmad <muhammad.ahmad@seagate.com>
->>>> Tested-by: Michael English <michael.english@seagate.com>
->>>> ---
->>>>    drivers/ata/libata-core.c | 21 +++++++++++++--------
->>>>    1 file changed, 13 insertions(+), 8 deletions(-)
->>>>
->>>> diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
->>>> index 40e816419f48..3ea10f72cb70 100644
->>>> --- a/drivers/ata/libata-core.c
->>>> +++ b/drivers/ata/libata-core.c
->>>> @@ -2010,16 +2010,16 @@ unsigned int ata_read_log_page(struct ata_device *dev, u8 log,
->>>>    	return err_mask;
->>>>    }
->>>>    
->>>> -static bool ata_log_supported(struct ata_device *dev, u8 log)
->>>> +static int ata_log_supported(struct ata_device *dev, u8 log)
->>>>    {
->>>>    	struct ata_port *ap = dev->link->ap;
->>>>    
->>>>    	if (dev->horkage & ATA_HORKAGE_NO_LOG_DIR)
->>>> -		return false;
->>>> +		return 0;
->>>>    
->>>>    	if (ata_read_log_page(dev, ATA_LOG_DIRECTORY, 0, ap->sector_buf, 1))
->>>> -		return false;
->>>> -	return get_unaligned_le16(&ap->sector_buf[log * 2]) ? true : false;
->>>> +		return 0;
->>>> +	return get_unaligned_le16(&ap->sector_buf[log * 2]);
->>>>    }
->>>>    
->>> Maybe we should change to name of the function here;
->>> 'ata_log_supported()' suggests a bool return.
->>>
->>> ata_check_log_page() ?
->>>
->>>>    static bool ata_identify_page_supported(struct ata_device *dev, u8 page)
->>>> @@ -2455,15 +2455,20 @@ static void ata_dev_config_cpr(struct ata_device *dev)
->>>>    	struct ata_cpr_log *cpr_log = NULL;
->>>>    	u8 *desc, *buf = NULL;
->>>>    
->>>> -	if (ata_id_major_version(dev->id) < 11 ||
->>>> -	    !ata_log_supported(dev, ATA_LOG_CONCURRENT_POSITIONING_RANGES))
->>>> +	if (ata_id_major_version(dev->id) < 11)
->>>> +		goto out;
->>>> +
->>>> +	buf_len = ata_log_supported(dev, ATA_LOG_CONCURRENT_POSITIONING_RANGES);
->>>> +	if (buf_len == 0)
->>>>    		goto out;
->>>>    
->>>>    	/*
->>>>    	 * Read the concurrent positioning ranges log (0x47). We can have at
->>>> -	 * most 255 32B range descriptors plus a 64B header.
->>>> +	 * most 255 32B range descriptors plus a 64B header. This log varies in
->>>> +	 * size, so use the size reported in the GPL directory. Reading beyond
->>>> +	 * the supported length will result in an error.
->>>>    	 */
->>>> -	buf_len = (64 + 255 * 32 + 511) & ~511;
->>>> +	buf_len <<= 9;
->>>>    	buf = kzalloc(buf_len, GFP_KERNEL);
->>>>    	if (!buf)
->>>>    		goto out;
->>>
->>> I don't get it.
->>> You just returned the actual length of the log page from the previous
->>> function. Why do you need to calculate the length here?
->>
->> Calculate ? This is only converting from 512B sectors to bytes.
->> The calculation was mine, a gross error :) This is what this patch is fixing.
->>
-> Sigh. Can't we have a 'bytes_to_sectors' helper? All this shifting by 9 
-> is getting on my nerves ...
+When fixing the CAN clock frequency,
+fb12797ab1fe ("can: kvaser_usb: get CAN clock frequency from device"),
+I introduced a regression.
 
-Haha ! Yes, we can do that. But not in this patch since that is a bug fix.
+For Leaf devices based on M32C, the firmware expects bittiming parameters
+calculated for 16MHz clock. Regardless of the actual clock frequency.
 
+This regression affects M32C based Leaf devices with non-16MHz clock.
+
+Also correct the bittiming constants in kvaser_usb_leaf.c, where the limits
+are different depending on which firmware/device being used.
+
+Once merged to mainline, I'll backport these fixes for the stable kernels.
+
+Changes in v2:
+  - Add struct kvaser_usb_driver_info as suggested by Marc Kleine-Budde [1],
+    instead of adding dev->card_data.quirks.
+
+[1] https://lore.kernel.org/linux-can/20220602063031.415858-1-extja@kvaser.com/T/#maf9cd66c368ce43eb509a27c69d0323cfc776809
+
+Jimmy Assarsson (3):
+  can: kvaser_usb: Replace run-time checks with struct
+    kvaser_usb_driver_info
+  can: kvaser_usb: kvaser_usb_leaf: Fix CAN clock frequency regression
+  can: kvaser_usb: kvaser_usb_leaf: Fix bittiming limits
+
+ drivers/net/can/usb/kvaser_usb/kvaser_usb.h   |  73 ++++-
+ .../net/can/usb/kvaser_usb/kvaser_usb_core.c  | 253 +++++++++---------
+ .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c |  14 +-
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 119 ++++----
+ 4 files changed, 255 insertions(+), 204 deletions(-)
 
 -- 
-Damien Le Moal
-Western Digital Research
+2.36.1
+
