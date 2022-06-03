@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C2F53CE3F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E4E53CE54
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344613AbiFCRkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55494 "EHLO
+        id S241702AbiFCRlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:41:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344618AbiFCRkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E746B532D9;
-        Fri,  3 Jun 2022 10:40:06 -0700 (PDT)
+        with ESMTP id S1344700AbiFCRkp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C535372D;
+        Fri,  3 Jun 2022 10:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FDB561B07;
-        Fri,  3 Jun 2022 17:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9ECC385A9;
-        Fri,  3 Jun 2022 17:40:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 944DFB8242C;
+        Fri,  3 Jun 2022 17:40:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F0FC385A9;
+        Fri,  3 Jun 2022 17:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278005;
-        bh=RM5gSl+cMl2QZdDJzI/fwtxpfOOvE12Z8j70+WDKe5E=;
+        s=korg; t=1654278040;
+        bh=eF2T/R2PDmwwBUaMI5JwQMzYr3QAKHOO0+H9xpsrUZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jp35v6q2TY/vASUNX0DC919Ua3HQd2Gz4MiSQLxCpr+aKmj4ypfAnVmK0TfQRHjO5
-         eU3yCNeKjrpb0FBe8xY2Q238/upuXoVtd+Bo8wwe0nskBwybxLAxfiqngw91pEbHD1
-         kVP5E8FJ35IQr+IT3HtIRYTxGLU6Iv3PhisMAJkM=
+        b=C+ZVsOPkdmbsHjHgtXuLQ5VvEJQrymWhjKYyumthem56JcU3gI6azNkbGHaC9ioOV
+         Q26VsM/vuO2YA7lxStU8aN46XmzBJlTkOa5R+P6VcFEsMi/CUXYX3E9NmfypatqbKq
+         7L0+4c3sK3bHclgNV7JYwOX65oAHiydY7va0uCDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: [PATCH 4.9 04/12] drm/i915: Fix -Wstringop-overflow warning in call to intel_read_wm_latency()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Dworken <ddworken@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Stefan Ghinea <stefan.ghinea@windriver.com>
+Subject: [PATCH 4.14 03/23] tcp: change source port randomizarion at connect() time
 Date:   Fri,  3 Jun 2022 19:39:30 +0200
-Message-Id: <20220603173812.655702135@linuxfoundation.org>
+Message-Id: <20220603173814.469899201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
-References: <20220603173812.524184588@linuxfoundation.org>
+In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
+References: <20220603173814.362515009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 336feb502a715909a8136eb6a62a83d7268a353b upstream.
+commit 190cc82489f46f9d88e73c81a47e14f80a791e1a upstream.
 
-Fix the following -Wstringop-overflow warnings when building with GCC-11:
+RFC 6056 (Recommendations for Transport-Protocol Port Randomization)
+provides good summary of why source selection needs extra care.
 
-drivers/gpu/drm/i915/intel_pm.c:3106:9: warning: ‘intel_read_wm_latency’ accessing 16 bytes in a region of size 10 [-Wstringop-overflow=]
- 3106 |         intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
-      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/i915/intel_pm.c:3106:9: note: referencing argument 2 of type ‘u16 *’ {aka ‘short unsigned int *’}
-drivers/gpu/drm/i915/intel_pm.c:2861:13: note: in a call to function ‘intel_read_wm_latency’
- 2861 | static void intel_read_wm_latency(struct drm_i915_private *dev_priv,
-      |             ^~~~~~~~~~~~~~~~~~~~~
+David Dworken reminded us that linux implements Algorithm 3
+as described in RFC 6056 3.3.3
 
-by removing the over-specified array size from the argument declarations.
+Quoting David :
+   In the context of the web, this creates an interesting info leak where
+   websites can count how many TCP connections a user's computer is
+   establishing over time. For example, this allows a website to count
+   exactly how many subresources a third party website loaded.
+   This also allows:
+   - Distinguishing between different users behind a VPN based on
+       distinct source port ranges.
+   - Tracking users over time across multiple networks.
+   - Covert communication channels between different browsers/browser
+       profiles running on the same computer
+   - Tracking what applications are running on a computer based on
+       the pattern of how fast source ports are getting incremented.
 
-It seems that this code is actually safe because the size of the
-array depends on the hardware generation, and the function checks
-for that.
+Section 3.3.4 describes an enhancement, that reduces
+attackers ability to use the basic information currently
+stored into the shared 'u32 hint'.
 
-Notice that wm can be an array of 5 elements:
-drivers/gpu/drm/i915/intel_pm.c:3109:   intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
+This change also decreases collision rate when
+multiple applications need to connect() to
+different destinations.
 
-or an array of 8 elements:
-drivers/gpu/drm/i915/intel_pm.c:3131:   intel_read_wm_latency(dev_priv, dev_priv->wm.skl_latency);
-
-and the compiler legitimately complains about that.
-
-This helps with the ongoing efforts to globally enable
--Wstringop-overflow.
-
-Link: https://github.com/KSPP/linux/issues/181
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: David Dworken <ddworken@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[SG: Adjusted context]
+Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inet_hashtables.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -2083,7 +2083,7 @@ hsw_compute_linetime_wm(const struct int
- 	       PIPE_WM_LINETIME_TIME(linetime);
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -587,6 +587,17 @@ void inet_unhash(struct sock *sk)
  }
+ EXPORT_SYMBOL_GPL(inet_unhash);
  
--static void intel_read_wm_latency(struct drm_device *dev, uint16_t wm[8])
-+static void intel_read_wm_latency(struct drm_device *dev, uint16_t wm[])
- {
- 	struct drm_i915_private *dev_priv = to_i915(dev);
++/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
++ * Note that we use 32bit integers (vs RFC 'short integers')
++ * because 2^16 is not a multiple of num_ephemeral and this
++ * property might be used by clever attacker.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
++ * we use 256 instead to really give more isolation and
++ * privacy, this only consumes 1 KB of kernel memory.
++ */
++#define INET_TABLE_PERTURB_SHIFT 8
++static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
++
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 		struct sock *sk, u32 port_offset,
+ 		int (*check_established)(struct inet_timewait_death_row *,
+@@ -600,7 +611,7 @@ int __inet_hash_connect(struct inet_time
+ 	struct inet_bind_bucket *tb;
+ 	u32 remaining, offset;
+ 	int ret, i, low, high;
+-	static u32 hint;
++	u32 index;
  
+ 	if (port) {
+ 		head = &hinfo->bhash[inet_bhashfn(net, port,
+@@ -625,7 +636,10 @@ int __inet_hash_connect(struct inet_time
+ 	if (likely(remaining > 1))
+ 		remaining &= ~1U;
+ 
+-	offset = (hint + port_offset) % remaining;
++	net_get_random_once(table_perturb, sizeof(table_perturb));
++	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
++
++	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
+ 	/* In first pass we try ports of @low parity.
+ 	 * inet_csk_get_port() does the opposite choice.
+ 	 */
+@@ -678,7 +692,7 @@ next_port:
+ 	return -EADDRNOTAVAIL;
+ 
+ ok:
+-	hint += i + 2;
++	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
+ 
+ 	/* Head lock still held and bh's disabled */
+ 	inet_bind_hash(sk, tb, port);
 
 
