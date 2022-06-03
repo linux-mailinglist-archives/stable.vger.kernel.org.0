@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC68853CEA5
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A58953CEAB
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343759AbiFCRpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        id S1345075AbiFCRpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:45:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345301AbiFCRpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:45:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566A056203;
-        Fri,  3 Jun 2022 10:43:00 -0700 (PDT)
+        with ESMTP id S1345350AbiFCRpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:45:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAA7854686;
+        Fri,  3 Jun 2022 10:43:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 894FF61B11;
-        Fri,  3 Jun 2022 17:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83A3BC385B8;
-        Fri,  3 Jun 2022 17:42:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 475A3B82430;
+        Fri,  3 Jun 2022 17:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B85BC385A9;
+        Fri,  3 Jun 2022 17:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278179;
-        bh=feL5DhGpFr9fOQ+CVlQslnoobzfhYmtKXTcaAR7THEI=;
+        s=korg; t=1654278182;
+        bh=6QIvA1w7D1nVnT8dKZwTmw5fYgHUVDhCMA2ObrGVwiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7r9C/xD8oMSPIJiYXkVyQ6pM170Uf901c/nsFrw56pNCTcMBxvaM+COspIr/VcLg
-         BS+fbB5pSeIWVTXJ1P1MC+TWM+41i//zrtnAmI8Kr3c4QPwODEGvtCzKUidJ/7b1AE
-         3XegStF92J1/4Le15wSRiUpWMjtueav+iQM/6YJo=
+        b=vUEmU1/h/1nnRXHAj9xmlge20BM4D4+e+ncBed9BTc3xeMHWXA6CaaPODNeOvDYJk
+         0awP8+uIcHkKUObwYSEE9oDh+BMFomwaEUvPscGUb4n5Q2lqtZYwwFWrSFW9HbvONI
+         P5YuS0ZtquDEu5oEMEoF6Ql3C5cpk0UrXgspXVGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 28/30] docs: submitting-patches: Fix crossref to The canonical patch format
-Date:   Fri,  3 Jun 2022 19:39:56 +0200
-Message-Id: <20220603173815.918873241@linuxfoundation.org>
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.19 29/30] NFSD: Fix possible sleep during nfsd4_release_lockowner()
+Date:   Fri,  3 Jun 2022 19:39:57 +0200
+Message-Id: <20220603173815.947907478@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
 References: <20220603173815.088143764@linuxfoundation.org>
@@ -54,43 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Yokosawa <akiyks@gmail.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 6d5aa418b3bd42cdccc36e94ee199af423ef7c84 upstream.
+commit ce3c4ad7f4ce5db7b4f08a1e237d8dd94b39180b upstream.
 
-The reference to `explicit_in_reply_to` is pointless as when the
-reference was added in the form of "#15" [1], Section 15) was "The
-canonical patch format".
-The reference of "#15" had not been properly updated in a couple of
-reorganizations during the plain-text SubmittingPatches era.
+nfsd4_release_lockowner() holds clp->cl_lock when it calls
+check_for_locks(). However, check_for_locks() calls nfsd_file_get()
+/ nfsd_file_put() to access the backing inode's flc_posix list, and
+nfsd_file_put() can sleep if the inode was recently removed.
 
-Fix it by using `the_canonical_patch_format`.
+Let's instead rely on the stateowner's reference count to gate
+whether the release is permitted. This should be a reliable
+indication of locks-in-use since file lock operations and
+->lm_get_owner take appropriate references, which are released
+appropriately when file locks are removed.
 
-[1]: 2ae19acaa50a ("Documentation: Add "how to write a good patch summary" to SubmittingPatches")
-
-Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Fixes: 5903019b2a5e ("Documentation/SubmittingPatches: convert it to ReST markup")
-Fixes: 9b2c76777acc ("Documentation/SubmittingPatches: enrich the Sphinx output")
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: stable@vger.kernel.org # v4.9+
-Link: https://lore.kernel.org/r/64e105a5-50be-23f2-6cae-903a2ea98e18@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Reported-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/submitting-patches.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
---- a/Documentation/process/submitting-patches.rst
-+++ b/Documentation/process/submitting-patches.rst
-@@ -133,7 +133,7 @@ as you intend it to.
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -6401,16 +6401,12 @@ nfsd4_release_lockowner(struct svc_rqst
+ 		if (sop->so_is_open_owner || !same_owner_str(sop, owner))
+ 			continue;
  
- The maintainer will thank you if you write your patch description in a
- form which can be easily pulled into Linux's source code management
--system, ``git``, as a "commit log".  See :ref:`explicit_in_reply_to`.
-+system, ``git``, as a "commit log".  See :ref:`the_canonical_patch_format`.
+-		/* see if there are still any locks associated with it */
+-		lo = lockowner(sop);
+-		list_for_each_entry(stp, &sop->so_stateids, st_perstateowner) {
+-			if (check_for_locks(stp->st_stid.sc_file, lo)) {
+-				status = nfserr_locks_held;
+-				spin_unlock(&clp->cl_lock);
+-				return status;
+-			}
++		if (atomic_read(&sop->so_count) != 1) {
++			spin_unlock(&clp->cl_lock);
++			return nfserr_locks_held;
+ 		}
  
- Solve only one problem per patch.  If your description starts to get
- long, that's a sign that you probably need to split up your patch.
++		lo = lockowner(sop);
+ 		nfs4_get_stateowner(sop);
+ 		break;
+ 	}
 
 
