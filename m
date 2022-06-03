@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0430853CF6C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BC653CF26
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345375AbiFCRyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57792 "EHLO
+        id S1345523AbiFCRxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347275AbiFCRwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2504713E9C;
-        Fri,  3 Jun 2022 10:51:57 -0700 (PDT)
+        with ESMTP id S1346299AbiFCRvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB635400C;
+        Fri,  3 Jun 2022 10:47:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B687D60F3B;
-        Fri,  3 Jun 2022 17:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF593C385B8;
-        Fri,  3 Jun 2022 17:51:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 539E6B823B0;
+        Fri,  3 Jun 2022 17:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 984F5C385A9;
+        Fri,  3 Jun 2022 17:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278716;
-        bh=tfgjU31NPL+z9713wFziaUtlFoPM/QCEwzK8ujtven8=;
+        s=korg; t=1654278444;
+        bh=tSQXz/ZFbI2pYTh4TigjjrPwJuuXCKdaX9A7q3dypck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uV01uIL7yYahrUm1ov4hLIijDLv7R3wkQioVpB1uBQpXeUrN/pMicQQN5+rhELHHb
-         YVBxtUFaGASQb/k3wNBGF7/VWrU1qewwrGXWBxbg+q40OePh7AplRaf78Jwts3RVwl
-         3+hbfckBOXTgtITSFYbMAq0FUs0P0yAFXHKM4r1A=
+        b=AhTTo7nQN7CvEfTPfyXFPoUGlkrlG1T5se+xmQ597i8ZiixEtTD/3qkld6OVX2/j8
+         b6wHAnLXknJtpK5BUidVZ5GJ1qDmy7N4LW0biJZcLUgakUKNqdx4tC38qjDhTy5J+v
+         aKtl6fNzCLWU7SNv36YeN3G0AI/a2tPHkhHVBZFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.15 40/66] Bluetooth: hci_qca: Use del_timer_sync() before freeing
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Vabhav Sharma <vabhav.sharma@nxp.com>,
+        Gaurav Jain <gaurav.jain@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.10 35/53] crypto: caam - fix i.MX6SX entropy delay value
 Date:   Fri,  3 Jun 2022 19:43:20 +0200
-Message-Id: <20220603173821.830759872@linuxfoundation.org>
+Message-Id: <20220603173819.744914090@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Fabio Estevam <festevam@denx.de>
 
-commit 72ef98445aca568a81c2da050532500a8345ad3a upstream.
+commit 4ee4cdad368a26de3967f2975806a9ee2fa245df upstream.
 
-While looking at a crash report on a timer list being corrupted, which
-usually happens when a timer is freed while still active. This is
-commonly triggered by code calling del_timer() instead of
-del_timer_sync() just before freeing.
+Since commit 358ba762d9f1 ("crypto: caam - enable prediction resistance
+in HRWNG") the following CAAM errors can be seen on i.MX6SX:
 
-One possible culprit is the hci_qca driver, which does exactly that.
+caam_jr 2101000.jr: 20003c5b: CCB: desc idx 60: RNG: Hardware error
+hwrng: no data available
 
-Eric mentioned that wake_retrans_timer could be rearmed via the work
-queue, so also move the destruction of the work queue before
-del_timer_sync().
+This error is due to an incorrect entropy delay for i.MX6SX.
 
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: stable@vger.kernel.org
-Fixes: 0ff252c1976da ("Bluetooth: hciuart: Add support QCA chipset for UART")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fix it by increasing the minimum entropy delay for i.MX6SX
+as done in U-Boot:
+https://patchwork.ozlabs.org/project/uboot/patch/20220415111049.2565744-1-gaurav.jain@nxp.com/
+
+As explained in the U-Boot patch:
+
+"RNG self tests are run to determine the correct entropy delay.
+Such tests are executed with different voltages and temperatures to identify
+the worst case value for the entropy delay. For i.MX6SX, it was determined
+that after adding a margin value of 1000 the minimum entropy delay should be
+at least 12000."
+
+Cc: <stable@vger.kernel.org>
+Fixes: 358ba762d9f1 ("crypto: caam - enable prediction resistance in HRWNG")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Reviewed-by: Vabhav Sharma <vabhav.sharma@nxp.com>
+Reviewed-by: Gaurav Jain <gaurav.jain@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/hci_qca.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/caam/ctrl.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -696,9 +696,9 @@ static int qca_close(struct hci_uart *hu
- 	skb_queue_purge(&qca->tx_wait_q);
- 	skb_queue_purge(&qca->txq);
- 	skb_queue_purge(&qca->rx_memdump_q);
--	del_timer(&qca->tx_idle_timer);
--	del_timer(&qca->wake_retrans_timer);
- 	destroy_workqueue(qca->workqueue);
-+	del_timer_sync(&qca->tx_idle_timer);
-+	del_timer_sync(&qca->wake_retrans_timer);
- 	qca->hu = NULL;
+--- a/drivers/crypto/caam/ctrl.c
++++ b/drivers/crypto/caam/ctrl.c
+@@ -609,6 +609,13 @@ static bool check_version(struct fsl_mc_
+ }
+ #endif
  
- 	kfree_skb(qca->rx_skb);
++static bool needs_entropy_delay_adjustment(void)
++{
++	if (of_machine_is_compatible("fsl,imx6sx"))
++		return true;
++	return false;
++}
++
+ /* Probe routine for CAAM top (controller) level */
+ static int caam_probe(struct platform_device *pdev)
+ {
+@@ -855,6 +862,8 @@ static int caam_probe(struct platform_de
+ 			 * Also, if a handle was instantiated, do not change
+ 			 * the TRNG parameters.
+ 			 */
++			if (needs_entropy_delay_adjustment())
++				ent_delay = 12000;
+ 			if (!(ctrlpriv->rng4_sh_init || inst_handles)) {
+ 				dev_info(dev,
+ 					 "Entropy delay = %u\n",
+@@ -871,6 +880,15 @@ static int caam_probe(struct platform_de
+ 			 */
+ 			ret = instantiate_rng(dev, inst_handles,
+ 					      gen_sk);
++			/*
++			 * Entropy delay is determined via TRNG characterization.
++			 * TRNG characterization is run across different voltages
++			 * and temperatures.
++			 * If worst case value for ent_dly is identified,
++			 * the loop can be skipped for that platform.
++			 */
++			if (needs_entropy_delay_adjustment())
++				break;
+ 			if (ret == -EAGAIN)
+ 				/*
+ 				 * if here, the loop will rerun,
 
 
