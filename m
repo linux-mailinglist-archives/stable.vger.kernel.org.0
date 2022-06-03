@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F234153D0A3
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D2F53CF78
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346647AbiFCSIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40992 "EHLO
+        id S233081AbiFCRy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348060AbiFCSGg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:36 -0400
+        with ESMTP id S1347258AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD7D5DD3A;
-        Fri,  3 Jun 2022 10:59:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1543EA478;
+        Fri,  3 Jun 2022 10:51:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44F066158E;
-        Fri,  3 Jun 2022 17:59:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43D1FC385A9;
-        Fri,  3 Jun 2022 17:59:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A552760EE9;
+        Fri,  3 Jun 2022 17:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EF0C385B8;
+        Fri,  3 Jun 2022 17:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279142;
-        bh=jRo0E2UCuPCv1JfLpdMudZFaAv6Om2hSVnmaYr/kXRk=;
+        s=korg; t=1654278685;
+        bh=iVhxgBee0090K+JMRIMNDvagDEz2fQsj8dQrdToLUgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qk5IaJhIWTzVXOVE2jLUKzcnSV4GQOLRO03A1ROtGXU9ukoPnQnn62c3zcZOe4jTz
-         Io9jgAAw8MmoZxfAux5GRtPzbq/o+Y/YEx+rMG9TvfdLXcI0+Ooox1NGDk+2D4cfD2
-         wFbE180SaaSQM7vCLAWe2lu16bVZKZsgLHzhY6bw=
+        b=O4VfgkhrELevKR3zonCy0ElKPG/UkSEOLPh2X1JcNtEqX0BY1HvkVL5oeUTqNXbqW
+         YCuBJMG4UVSIMMsi6vVlmuWMvXb7UOPfXC8JCPSxwMfjD7/0POdyDtuBcTiNkS9+oW
+         Ny+t4ON1ArcqxC5rHpYik3GybWY21jfQqSnejof4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.18 39/67] dm integrity: fix error code in dm_integrity_ctr()
+        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.15 60/66] NFS: Memory allocation failures are not server fatal errors
 Date:   Fri,  3 Jun 2022 19:43:40 +0200
-Message-Id: <20220603173821.860340294@linuxfoundation.org>
+Message-Id: <20220603173822.391111019@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit d3f2a14b8906df913cb04a706367b012db94a6e8 upstream.
+commit 452284407c18d8a522c3039339b1860afa0025a8 upstream.
 
-The "r" variable shadows an earlier "r" that has function scope.  It
-means that we accidentally return success instead of an error code.
-Smatch has a warning for this:
+We need to filter out ENOMEM in nfs_error_is_fatal_on_server(), because
+running out of memory on our client is not a server error.
 
-	drivers/md/dm-integrity.c:4503 dm_integrity_ctr()
-	warn: missing error code 'r'
-
-Fixes: 7eada909bfd7 ("dm: add integrity target")
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 2dc23afffbca ("NFS: ENOMEM should also be a fatal error.")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-integrity.c |    2 --
- 1 file changed, 2 deletions(-)
+ fs/nfs/internal.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -4494,8 +4494,6 @@ try_smaller_buffer:
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -834,6 +834,7 @@ static inline bool nfs_error_is_fatal_on
+ 	case 0:
+ 	case -ERESTARTSYS:
+ 	case -EINTR:
++	case -ENOMEM:
+ 		return false;
  	}
- 
- 	if (should_write_sb) {
--		int r;
--
- 		init_journal(ic, 0, ic->journal_sections, 0);
- 		r = dm_integrity_failed(ic);
- 		if (unlikely(r)) {
+ 	return nfs_error_is_fatal(err);
 
 
