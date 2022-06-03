@@ -2,78 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E32B53CC1E
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:15:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C0E53CC22
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245406AbiFCPPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 11:15:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41194 "EHLO
+        id S241111AbiFCPPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 11:15:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245407AbiFCPO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:14:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59605047D
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:14:56 -0700 (PDT)
+        with ESMTP id S245387AbiFCPPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:15:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19A0E506C1
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:15:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA460B82260
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E7BC385A9;
-        Fri,  3 Jun 2022 15:14:53 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="j1BAf5il"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1654269292;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YYoo0Bfrri5xfzweI7/ZRvrMTAZMKnGsIaLyY7OX2FQ=;
-        b=j1BAf5ildIXmkNoC1a8iIp42PfgBfZxsfMNSxjnlIBTt1SlJQ087M8wh8HwlnYH+jLqlCu
-        o9Wmm/iF4Sp8vsGjvahgdRdcGzHBGLJQ1pHPUKjP0j4wh6bi3U6CfZaXLUzeV7CtbWWo+B
-        x5xUL3rGC3wnKsDt8LS7slwWN45QA4k=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e555d402 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 3 Jun 2022 15:14:51 +0000 (UTC)
-Date:   Fri, 3 Jun 2022 17:14:48 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH stable 5.15.y 0/5] missing random.c-related stable patches
-Message-ID: <YpolaDt+5doc7cOz@zx2c4.com>
-References: <20220602202327.281510-1-Jason@zx2c4.com>
- <YpofLWgbLysxkgb3@kroah.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD8CEB82239
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:15:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2249FC385A9;
+        Fri,  3 Jun 2022 15:15:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654269318;
+        bh=1IkTnaHDLu6ONxu2fkWh0H5e1+8ynAfeJ0449AEC0ec=;
+        h=Subject:To:Cc:From:Date:From;
+        b=g+Xmathh9zUITs4OnOzRowVvcry6aKSC9DygmVZRkzXm0Dbzxq6Mfsz53vwZItB87
+         qRaFVSVpZAhAaNyukNeN12JL2SDz24ZtEF9GTmDdU9QzDHmvQ1GZXHfEbOUGQhv6UR
+         jhA8/so40foDof6kEVvvH3RmQ3YiPQVxZAMOgh94=
+Subject: FAILED: patch "[PATCH] KVM: SVM: Use kzalloc for sev ioctl interfaces to prevent" failed to apply to 5.10-stable tree
+To:     ashish.kalra@amd.com, pbonzini@redhat.com, pgonda@google.com,
+        rientjes@google.com, theflow@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 03 Jun 2022 17:15:15 +0200
+Message-ID: <165426931519389@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YpofLWgbLysxkgb3@kroah.com>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 03, 2022 at 04:48:13PM +0200, Greg KH wrote:
-> On Thu, Jun 02, 2022 at 10:23:22PM +0200, Jason A. Donenfeld wrote:
-> > Hi Greg,
-> > 
-> > I forgot two things when doing the 5.15 backport. The first is a patch
-> > from Justin fixing a bug in some of the lib/crypto Kconfig changes,
-> > which Pablo (CC'd) pointed out was missed. The second is that the
-> > backport of 5acd35487dc9 ("random: replace custom notifier chain with
-> > standard one") isn't quite right without Nicolai's patches there too,
-> > since the drbg module is removable.
-> > 
-> > I'll continue to monitor all the channels I possibly can for chatter
-> > about problems, but so far this is all I've run into.
-> 
-> All now queued up, thanks.
 
-Thanks. Note that the 5.10 patchset I posted is identical to this one,
-except I made sure patch 1/5 applies. Just cherry picking the 5.15 has a
-trivial conflict to fix up.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Jason
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From d22d2474e3953996f03528b84b7f52cc26a39403 Mon Sep 17 00:00:00 2001
+From: Ashish Kalra <ashish.kalra@amd.com>
+Date: Mon, 16 May 2022 15:43:10 +0000
+Subject: [PATCH] KVM: SVM: Use kzalloc for sev ioctl interfaces to prevent
+ kernel data leak
+
+For some sev ioctl interfaces, the length parameter that is passed maybe
+less than or equal to SEV_FW_BLOB_MAX_SIZE, but larger than the data
+that PSP firmware returns. In this case, kmalloc will allocate memory
+that is the size of the input rather than the size of the data.
+Since PSP firmware doesn't fully overwrite the allocated buffer, these
+sev ioctl interface may return uninitialized kernel slab memory.
+
+Reported-by: Andy Nguyen <theflow@google.com>
+Suggested-by: David Rientjes <rientjes@google.com>
+Suggested-by: Peter Gonda <pgonda@google.com>
+Cc: kvm@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Fixes: eaf78265a4ab3 ("KVM: SVM: Move SEV code to separate file")
+Fixes: 2c07ded06427d ("KVM: SVM: add support for SEV attestation command")
+Fixes: 4cfdd47d6d95a ("KVM: SVM: Add KVM_SEV SEND_START command")
+Fixes: d3d1af85e2c75 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
+Fixes: eba04b20e4861 ("KVM: x86: Account a variety of miscellaneous allocations")
+Signed-off-by: Ashish Kalra <ashish.kalra@amd.com>
+Reviewed-by: Peter Gonda <pgonda@google.com>
+Message-Id: <20220516154310.3685678-1-Ashish.Kalra@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index 655770522471..39f3dd005499 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -688,7 +688,7 @@ static int sev_launch_measure(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 		if (params.len > SEV_FW_BLOB_MAX_SIZE)
+ 			return -EINVAL;
+ 
+-		blob = kmalloc(params.len, GFP_KERNEL_ACCOUNT);
++		blob = kzalloc(params.len, GFP_KERNEL_ACCOUNT);
+ 		if (!blob)
+ 			return -ENOMEM;
+ 
+@@ -808,7 +808,7 @@ static int __sev_dbg_decrypt_user(struct kvm *kvm, unsigned long paddr,
+ 	if (!IS_ALIGNED(dst_paddr, 16) ||
+ 	    !IS_ALIGNED(paddr,     16) ||
+ 	    !IS_ALIGNED(size,      16)) {
+-		tpage = (void *)alloc_page(GFP_KERNEL);
++		tpage = (void *)alloc_page(GFP_KERNEL | __GFP_ZERO);
+ 		if (!tpage)
+ 			return -ENOMEM;
+ 
+@@ -1094,7 +1094,7 @@ static int sev_get_attestation_report(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 		if (params.len > SEV_FW_BLOB_MAX_SIZE)
+ 			return -EINVAL;
+ 
+-		blob = kmalloc(params.len, GFP_KERNEL_ACCOUNT);
++		blob = kzalloc(params.len, GFP_KERNEL_ACCOUNT);
+ 		if (!blob)
+ 			return -ENOMEM;
+ 
+@@ -1176,7 +1176,7 @@ static int sev_send_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 		return -EINVAL;
+ 
+ 	/* allocate the memory to hold the session data blob */
+-	session_data = kmalloc(params.session_len, GFP_KERNEL_ACCOUNT);
++	session_data = kzalloc(params.session_len, GFP_KERNEL_ACCOUNT);
+ 	if (!session_data)
+ 		return -ENOMEM;
+ 
+@@ -1300,11 +1300,11 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* allocate memory for header and transport buffer */
+ 	ret = -ENOMEM;
+-	hdr = kmalloc(params.hdr_len, GFP_KERNEL_ACCOUNT);
++	hdr = kzalloc(params.hdr_len, GFP_KERNEL_ACCOUNT);
+ 	if (!hdr)
+ 		goto e_unpin;
+ 
+-	trans_data = kmalloc(params.trans_len, GFP_KERNEL_ACCOUNT);
++	trans_data = kzalloc(params.trans_len, GFP_KERNEL_ACCOUNT);
+ 	if (!trans_data)
+ 		goto e_free_hdr;
+ 
+
