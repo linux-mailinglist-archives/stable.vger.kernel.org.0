@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2DF53CF14
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE2653CEE0
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345406AbiFCRwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:52:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
+        id S1345336AbiFCRsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345775AbiFCRuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D005908A;
-        Fri,  3 Jun 2022 10:46:18 -0700 (PDT)
+        with ESMTP id S1345251AbiFCRsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A701357179;
+        Fri,  3 Jun 2022 10:44:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9CE960A54;
-        Fri,  3 Jun 2022 17:46:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A18C385A9;
-        Fri,  3 Jun 2022 17:46:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54F2FB82436;
+        Fri,  3 Jun 2022 17:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD5D4C385A9;
+        Fri,  3 Jun 2022 17:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278377;
-        bh=7oYHfS1M/s+Jkhydgv6K62l+sh0VCTWVcZ0tPKS1+5w=;
+        s=korg; t=1654278268;
+        bh=JwRn3piZByy6d3OEljMZ0zRxdm1NyDdxdF436yhUpcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUnY8gLc6+hT4+/czs/NubQ+kgjDinwwYcX01aYkKmk0997nEZTaglQslY/ODWS/i
-         lrpd+aYQL/IZ/rKG9SIAQCiA7OQ6/K2KPj4UgJQUPgElKbFx8ldu4nDtGNOgSZegw6
-         YoRyK0ReVaA/dwSS/UdodUrt5I2llqSpaR5RZz9c=
+        b=j78zxaWy9mhr8NO8wkaIcl2FwAK1qpJVde/w7ZPgbgLYxHQxnxdUdGkl9wn8/KPtf
+         iGnIHixFVYpDVfCk6KEPZWo0QpuOIZGW8rAtkCgCqAkVXiZVOW7NM8qOoJlJveU37t
+         FB24kf3tWaB/BoRAhvOGpQGww1PRKVc6wjVOp/E8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.10 13/53] io_uring: dont re-import iovecs from callbacks
-Date:   Fri,  3 Jun 2022 19:42:58 +0200
-Message-Id: <20220603173819.107725914@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Denis Efremov (Oracle)" <efremov@linux.com>
+Subject: [PATCH 5.4 03/34] staging: rtl8723bs: prevent ->Ssid overflow in rtw_wx_set_scan()
+Date:   Fri,  3 Jun 2022 19:42:59 +0200
+Message-Id: <20220603173816.091930554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,70 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: "Denis Efremov (Oracle)" <efremov@linux.com>
 
-We can't re-import or modify iterators from iocb callbacks, it's not
-safe as it might be reverted and/or reexpanded while unwinding stack.
-It's also not safe to resubmit as io-wq thread will race with stack
-undwinding for the iterator and other data.
+This code has a check to prevent read overflow but it needs another
+check to prevent writing beyond the end of the ->Ssid[] array.
 
-Disallow resubmission from callbacks, it can fail some cases that were
-handled before, but the possibility of such a failure was a part of the
-API from the beginning and so it should be fine.
-
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov (Oracle) <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   39 ---------------------------------------
- 1 file changed, 39 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2579,45 +2579,6 @@ static void io_complete_rw_common(struct
- #ifdef CONFIG_BLOCK
- static bool io_resubmit_prep(struct io_kiocb *req, int error)
- {
--	struct iovec inline_vecs[UIO_FASTIOV], *iovec = inline_vecs;
--	ssize_t ret = -ECANCELED;
--	struct iov_iter iter;
--	int rw;
--
--	if (error) {
--		ret = error;
--		goto end_req;
--	}
--
--	switch (req->opcode) {
--	case IORING_OP_READV:
--	case IORING_OP_READ_FIXED:
--	case IORING_OP_READ:
--		rw = READ;
--		break;
--	case IORING_OP_WRITEV:
--	case IORING_OP_WRITE_FIXED:
--	case IORING_OP_WRITE:
--		rw = WRITE;
--		break;
--	default:
--		printk_once(KERN_WARNING "io_uring: bad opcode in resubmit %d\n",
--				req->opcode);
--		goto end_req;
--	}
--
--	if (!req->async_data) {
--		ret = io_import_iovec(rw, req, &iovec, &iter, false);
--		if (ret < 0)
--			goto end_req;
--		ret = io_setup_async_rw(req, iovec, inline_vecs, &iter, false);
--		if (!ret)
--			return true;
--		kfree(iovec);
--	} else {
--		return true;
--	}
--end_req:
- 	req_set_fail_links(req);
- 	return false;
- }
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -1351,9 +1351,11 @@ static int rtw_wx_set_scan(struct net_de
+ 
+ 					sec_len = *(pos++); len-= 1;
+ 
+-					if (sec_len>0 && sec_len<=len) {
++					if (sec_len > 0 &&
++					    sec_len <= len &&
++					    sec_len <= 32) {
+ 						ssid[ssid_index].SsidLength = sec_len;
+-						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
++						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
+ 						/* DBG_871X("%s COMBO_SCAN with specific ssid:%s, %d\n", __func__ */
+ 						/* 	, ssid[ssid_index].Ssid, ssid[ssid_index].SsidLength); */
+ 						ssid_index++;
 
 
