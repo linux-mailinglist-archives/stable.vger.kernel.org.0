@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2542953CFBF
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D5853CF1F
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbiFCR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
+        id S1345477AbiFCRwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345847AbiFCRzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:11 -0400
+        with ESMTP id S1345974AbiFCRui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3CE44A11;
-        Fri,  3 Jun 2022 10:53:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8B3B48E;
+        Fri,  3 Jun 2022 10:46:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D787EB82189;
-        Fri,  3 Jun 2022 17:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E326C385A9;
-        Fri,  3 Jun 2022 17:52:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 619CCB82189;
+        Fri,  3 Jun 2022 17:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC5A1C385A9;
+        Fri,  3 Jun 2022 17:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278777;
-        bh=wHaTodtD45mZ8oITybG8g60oCCAN8kY0JNM8000sTLE=;
+        s=korg; t=1654278410;
+        bh=oCsNTIo7XIHOw1ACzIhZHujD4nUnDMytpJVQ7UrnWnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aG9pRkjuAelzvipGcq8YUYZJd3Mca3rYgty1mMaKl8vwRIa1ZiXBlvuohEm+4Nm/
-         mWAFWYH426UJi7ls3JLUAMt+f5fFiyv3Xiim9qjb5Ehg40ej29KPHuVZ9RNMmPYA2h
-         mgg4oGlqsa6pSw3kPpFZ3GyEz9WFAtr+b6dhRbbQ=
+        b=1aLc58uG5zZk0mAt9sAZkTKLoliHoBhPukHCbgE6MQFz+13Kw99K/YqtxL3DDK9mG
+         pIri2neqls+LEeoWmzRlGilR7Lx5BOuSNtP888aGxwnwAcviG+MFFKgvIEfGJ2WZiL
+         bVvk9xpMzjt4aXpLpHAkMDgIHBGeQEmQIjfBLb9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 08/75] nfc: pn533: Fix buggy cleanup order
-Date:   Fri,  3 Jun 2022 19:42:52 +0200
-Message-Id: <20220603173821.986074977@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Aaron Adams <edg-e@nccgroup.com>
+Subject: [PATCH 5.10 08/53] netfilter: nf_tables: disallow non-stateful expression in sets earlier
+Date:   Fri,  3 Jun 2022 19:42:53 +0200
+Message-Id: <20220603173818.961780902@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit b8cedb7093b2d1394cae9b86494cba4b62d3a30a ]
+commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
 
-When removing the pn533 device (i2c or USB), there is a logic error. The
-original code first cancels the worker (flush_delayed_work) and then
-destroys the workqueue (destroy_workqueue), leaving the timer the last
-one to be deleted (del_timer). This result in a possible race condition
-in a multi-core preempt-able kernel. That is, if the cleanup
-(pn53x_common_clean) is concurrently run with the timer handler
-(pn533_listen_mode_timer), the timer can queue the poll_work to the
-already destroyed workqueue, causing use-after-free.
+Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+instantiation"), it is possible to attach stateful expressions to set
+elements.
 
-This patch reorder the cleanup: it uses the del_timer_sync to make sure
-the handler is finished before the routine will destroy the workqueue.
-Note that the timer cannot be activated by the worker again.
+cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+and destroy phase") introduces conditional destruction on the object to
+accomodate transaction semantics.
 
-static void pn533_wq_poll(struct work_struct *work)
-...
- rc = pn533_send_poll_frame(dev);
- if (rc)
-   return;
+nft_expr_init() calls expr->ops->init() first, then check for
+NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+lookup expressions which points to a set, which might lead to UAF since
+the set is not properly detached from the set->binding for this case.
+Anyway, this combination is non-sense from nf_tables perspective.
 
- if (cur_mod->len == 0 && dev->poll_mod_count > 1)
-   mod_timer(&dev->listen_timer, ...);
+This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+expr->ops->init() is called.
 
-That is, the mod_timer can be called only when pn533_send_poll_frame()
-returns no error, which is impossible because the device is detaching
-and the lower driver should return ENODEV code.
+The reporter provides a KASAN splat and a poc reproducer (similar to
+those autogenerated by syzbot to report use-after-free errors). It is
+unknown to me if they are using syzbot or if they use similar automated
+tool to locate the bug that they are reporting.
 
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For the record, this is the KASAN splat.
+
+[   85.431824] ==================================================================
+[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+[   85.434756]
+[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+
+Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/pn533/pn533.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
-index a491db46e3bd..d9f6367b9993 100644
---- a/drivers/nfc/pn533/pn533.c
-+++ b/drivers/nfc/pn533/pn533.c
-@@ -2787,13 +2787,14 @@ void pn53x_common_clean(struct pn533 *priv)
- {
- 	struct pn533_cmd *cmd, *n;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2679,27 +2679,31 @@ static struct nft_expr *nft_expr_init(co
  
-+	/* delete the timer before cleanup the worker */
-+	del_timer_sync(&priv->listen_timer);
+ 	err = nf_tables_expr_parse(ctx, nla, &info);
+ 	if (err < 0)
+-		goto err1;
++		goto err_expr_parse;
 +
- 	flush_delayed_work(&priv->poll_work);
- 	destroy_workqueue(priv->wq);
++	err = -EOPNOTSUPP;
++	if (!(info.ops->type->flags & NFT_EXPR_STATEFUL))
++		goto err_expr_stateful;
  
- 	skb_queue_purge(&priv->resp_q);
+ 	err = -ENOMEM;
+ 	expr = kzalloc(info.ops->size, GFP_KERNEL);
+ 	if (expr == NULL)
+-		goto err2;
++		goto err_expr_stateful;
  
--	del_timer(&priv->listen_timer);
+ 	err = nf_tables_newexpr(ctx, &info, expr);
+ 	if (err < 0)
+-		goto err3;
++		goto err_expr_new;
+ 
+ 	return expr;
+-err3:
++err_expr_new:
+ 	kfree(expr);
+-err2:
++err_expr_stateful:
+ 	owner = info.ops->type->owner;
+ 	if (info.ops->type->release_ops)
+ 		info.ops->type->release_ops(info.ops);
+ 
+ 	module_put(owner);
+-err1:
++err_expr_parse:
+ 	return ERR_PTR(err);
+ }
+ 
+@@ -5055,9 +5059,6 @@ struct nft_expr *nft_set_elem_expr_alloc
+ 		return expr;
+ 
+ 	err = -EOPNOTSUPP;
+-	if (!(expr->ops->type->flags & NFT_EXPR_STATEFUL))
+-		goto err_set_elem_expr;
 -
- 	list_for_each_entry_safe(cmd, n, &priv->cmd_queue, queue) {
- 		list_del(&cmd->queue);
- 		kfree(cmd);
--- 
-2.35.1
-
+ 	if (expr->ops->type->flags & NFT_EXPR_GC) {
+ 		if (set->flags & NFT_SET_TIMEOUT)
+ 			goto err_set_elem_expr;
 
 
