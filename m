@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED8B53CED0
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A78353CFAF
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345011AbiFCRsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:48:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S1345639AbiFCR4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345149AbiFCRr5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:47:57 -0400
+        with ESMTP id S1345728AbiFCRuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6785715E;
-        Fri,  3 Jun 2022 10:44:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11AEF58E78;
+        Fri,  3 Jun 2022 10:46:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99EB5B823B0;
-        Fri,  3 Jun 2022 17:44:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E82AFC385A9;
-        Fri,  3 Jun 2022 17:44:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 679A7B82433;
+        Fri,  3 Jun 2022 17:46:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA768C385B8;
+        Fri,  3 Jun 2022 17:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278262;
-        bh=p2Kw4t5xphJd3kFvMz9xTPiah3ar/k3FK8fFR1qbuXY=;
+        s=korg; t=1654278374;
+        bh=ZCDvb/lEcXJjYOpYuWAGBXcbz47R0k27Spe8HvZyXr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luBBs7ikW4Ot6JcBvUfYct4uIVUJkkqQkQb53eDNw/F/td/szFZuX+t9sqfwj/Tla
-         lKyJsgCDuGw1oDZynxBwAa5vpc0++CccOa7wulm6CLCC3Ub7oRB6/PrW01/oFPpe42
-         qlMq2E0/Hsr1+hq9T9Qpl9TivlSRBN7zxTYf1Nxk=
+        b=I1CyQyPpD0Guxj2HYmrKJPGb8btQJV/pgg+ZOjg0iDOeL9fjWQwFkBg4gAY8WpWxp
+         y+g+sJycy7THEjUx1vD9cMQTCrq8HEQV39ATzWDbpt34c+XXRtVmJh0HLUW5UC8uPo
+         Fyjnm/XLarHFZ97JuAnRewIQxjWdY6aB8ydxnh5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Stephen Brennan <stephen.s.brennan@oracle.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        David Howells <dhowells@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        keyrings@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 01/34] lockdown: also lock down previous kgdb use
+Subject: [PATCH 5.10 12/53] assoc_array: Fix BUG_ON during garbage collect
 Date:   Fri,  3 Jun 2022 19:42:57 +0200
-Message-Id: <20220603173816.035183151@linuxfoundation.org>
+Message-Id: <20220603173819.078577350@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,196 +57,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
 
-commit eadb2f47a3ced5c64b23b90fd2a3463f63726066 upstream.
+commit d1dc87763f406d4e67caf16dbe438a5647692395 upstream.
 
-KGDB and KDB allow read and write access to kernel memory, and thus
-should be restricted during lockdown.  An attacker with access to a
-serial port (for example, via a hypervisor console, which some cloud
-vendors provide over the network) could trigger the debugger so it is
-important that the debugger respect the lockdown mode when/if it is
-triggered.
+A rare BUG_ON triggered in assoc_array_gc:
 
-Fix this by integrating lockdown into kdb's existing permissions
-mechanism.  Unfortunately kgdb does not have any permissions mechanism
-(although it certainly could be added later) so, for now, kgdb is simply
-and brutally disabled by immediately exiting the gdb stub without taking
-any action.
+    [3430308.818153] kernel BUG at lib/assoc_array.c:1609!
 
-For lockdowns established early in the boot (e.g. the normal case) then
-this should be fine but on systems where kgdb has set breakpoints before
-the lockdown is enacted than "bad things" will happen.
+Which corresponded to the statement currently at line 1593 upstream:
 
-CVE: CVE-2022-21499
-Co-developed-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+    BUG_ON(assoc_array_ptr_is_meta(p));
+
+Using the data from the core dump, I was able to generate a userspace
+reproducer[1] and determine the cause of the bug.
+
+[1]: https://github.com/brenns10/kernel_stuff/tree/master/assoc_array_gc
+
+After running the iterator on the entire branch, an internal tree node
+looked like the following:
+
+    NODE (nr_leaves_on_branch: 3)
+      SLOT [0] NODE (2 leaves)
+      SLOT [1] NODE (1 leaf)
+      SLOT [2..f] NODE (empty)
+
+In the userspace reproducer, the pr_devel output when compressing this
+node was:
+
+    -- compress node 0x5607cc089380 --
+    free=0, leaves=0
+    [0] retain node 2/1 [nx 0]
+    [1] fold node 1/1 [nx 0]
+    [2] fold node 0/1 [nx 2]
+    [3] fold node 0/2 [nx 2]
+    [4] fold node 0/3 [nx 2]
+    [5] fold node 0/4 [nx 2]
+    [6] fold node 0/5 [nx 2]
+    [7] fold node 0/6 [nx 2]
+    [8] fold node 0/7 [nx 2]
+    [9] fold node 0/8 [nx 2]
+    [10] fold node 0/9 [nx 2]
+    [11] fold node 0/10 [nx 2]
+    [12] fold node 0/11 [nx 2]
+    [13] fold node 0/12 [nx 2]
+    [14] fold node 0/13 [nx 2]
+    [15] fold node 0/14 [nx 2]
+    after: 3
+
+At slot 0, an internal node with 2 leaves could not be folded into the
+node, because there was only one available slot (slot 0). Thus, the
+internal node was retained. At slot 1, the node had one leaf, and was
+able to be folded in successfully. The remaining nodes had no leaves,
+and so were removed. By the end of the compression stage, there were 14
+free slots, and only 3 leaf nodes. The tree was ascended and then its
+parent node was compressed. When this node was seen, it could not be
+folded, due to the internal node it contained.
+
+The invariant for compression in this function is: whenever
+nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT, the node should contain all
+leaf nodes. The compression step currently cannot guarantee this, given
+the corner case shown above.
+
+To fix this issue, retry compression whenever we have retained a node,
+and yet nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT. This second
+compression will then allow the node in slot 1 to be folded in,
+satisfying the invariant. Below is the output of the reproducer once the
+fix is applied:
+
+    -- compress node 0x560e9c562380 --
+    free=0, leaves=0
+    [0] retain node 2/1 [nx 0]
+    [1] fold node 1/1 [nx 0]
+    [2] fold node 0/1 [nx 2]
+    [3] fold node 0/2 [nx 2]
+    [4] fold node 0/3 [nx 2]
+    [5] fold node 0/4 [nx 2]
+    [6] fold node 0/5 [nx 2]
+    [7] fold node 0/6 [nx 2]
+    [8] fold node 0/7 [nx 2]
+    [9] fold node 0/8 [nx 2]
+    [10] fold node 0/9 [nx 2]
+    [11] fold node 0/10 [nx 2]
+    [12] fold node 0/11 [nx 2]
+    [13] fold node 0/12 [nx 2]
+    [14] fold node 0/13 [nx 2]
+    [15] fold node 0/14 [nx 2]
+    internal nodes remain despite enough space, retrying
+    -- compress node 0x560e9c562380 --
+    free=14, leaves=1
+    [0] fold node 2/15 [nx 0]
+    after: 3
+
+Changes
+=======
+DH:
+ - Use false instead of 0.
+ - Reorder the inserted lines in a couple of places to put retained before
+   next_slot.
+
+ver #2)
+ - Fix typo in pr_devel, correct comparison to "<="
+
+Fixes: 3cb989501c26 ("Add a generic associative array implementation.")
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@linux-foundation.org>
+cc: keyrings@vger.kernel.org
+Link: https://lore.kernel.org/r/20220511225517.407935-1-stephen.s.brennan@oracle.com/ # v1
+Link: https://lore.kernel.org/r/20220512215045.489140-1-stephen.s.brennan@oracle.com/ # v2
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/security.h     |    2 +
- kernel/debug/debug_core.c    |   24 ++++++++++++++++
- kernel/debug/kdb/kdb_main.c  |   62 ++++++++++++++++++++++++++++++++++++++++---
- security/lockdown/lockdown.c |    2 +
- 4 files changed, 87 insertions(+), 3 deletions(-)
+ lib/assoc_array.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -118,10 +118,12 @@ enum lockdown_reason {
- 	LOCKDOWN_MMIOTRACE,
- 	LOCKDOWN_DEBUGFS,
- 	LOCKDOWN_XMON_WR,
-+	LOCKDOWN_DBG_WRITE_KERNEL,
- 	LOCKDOWN_INTEGRITY_MAX,
- 	LOCKDOWN_KCORE,
- 	LOCKDOWN_KPROBES,
- 	LOCKDOWN_BPF_READ,
-+	LOCKDOWN_DBG_READ_KERNEL,
- 	LOCKDOWN_PERF,
- 	LOCKDOWN_TRACEFS,
- 	LOCKDOWN_XMON_RW,
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -56,6 +56,7 @@
- #include <linux/vmacache.h>
- #include <linux/rcupdate.h>
- #include <linux/irq.h>
-+#include <linux/security.h>
+--- a/lib/assoc_array.c
++++ b/lib/assoc_array.c
+@@ -1462,6 +1462,7 @@ int assoc_array_gc(struct assoc_array *a
+ 	struct assoc_array_ptr *cursor, *ptr;
+ 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
+ 	unsigned long nr_leaves_on_tree;
++	bool retained;
+ 	int keylen, slot, nr_free, next_slot, i;
  
- #include <asm/cacheflush.h>
- #include <asm/byteorder.h>
-@@ -685,6 +686,29 @@ cpu_master_loop:
- 				continue;
- 			kgdb_connected = 0;
- 		} else {
-+			/*
-+			 * This is a brutal way to interfere with the debugger
-+			 * and prevent gdb being used to poke at kernel memory.
-+			 * This could cause trouble if lockdown is applied when
-+			 * there is already an active gdb session. For now the
-+			 * answer is simply "don't do that". Typically lockdown
-+			 * *will* be applied before the debug core gets started
-+			 * so only developers using kgdb for fairly advanced
-+			 * early kernel debug can be biten by this. Hopefully
-+			 * they are sophisticated enough to take care of
-+			 * themselves, especially with help from the lockdown
-+			 * message printed on the console!
-+			 */
-+			if (security_locked_down(LOCKDOWN_DBG_WRITE_KERNEL)) {
-+				if (IS_ENABLED(CONFIG_KGDB_KDB)) {
-+					/* Switch back to kdb if possible... */
-+					dbg_kdb_mode = 1;
-+					continue;
-+				} else {
-+					/* ... otherwise just bail */
-+					break;
-+				}
-+			}
- 			error = gdb_serial_stub(ks);
+ 	pr_devel("-->%s()\n", __func__);
+@@ -1538,6 +1539,7 @@ continue_node:
+ 		goto descend;
+ 	}
+ 
++retry_compress:
+ 	pr_devel("-- compress node %p --\n", new_n);
+ 
+ 	/* Count up the number of empty slots in this node and work out the
+@@ -1555,6 +1557,7 @@ continue_node:
+ 	pr_devel("free=%d, leaves=%lu\n", nr_free, new_n->nr_leaves_on_branch);
+ 
+ 	/* See what we can fold in */
++	retained = false;
+ 	next_slot = 0;
+ 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
+ 		struct assoc_array_shortcut *s;
+@@ -1604,9 +1607,14 @@ continue_node:
+ 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
+ 				 slot, child->nr_leaves_on_branch, nr_free + 1,
+ 				 next_slot);
++			retained = true;
  		}
+ 	}
  
---- a/kernel/debug/kdb/kdb_main.c
-+++ b/kernel/debug/kdb/kdb_main.c
-@@ -45,6 +45,7 @@
- #include <linux/proc_fs.h>
- #include <linux/uaccess.h>
- #include <linux/slab.h>
-+#include <linux/security.h>
- #include "kdb_private.h"
++	if (retained && new_n->nr_leaves_on_branch <= ASSOC_ARRAY_FAN_OUT) {
++		pr_devel("internal nodes remain despite enough space, retrying\n");
++		goto retry_compress;
++	}
+ 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
  
- #undef	MODULE_PARAM_PREFIX
-@@ -198,10 +199,62 @@ struct task_struct *kdb_curr_task(int cp
- }
- 
- /*
-- * Check whether the flags of the current command and the permissions
-- * of the kdb console has allow a command to be run.
-+ * Update the permissions flags (kdb_cmd_enabled) to match the
-+ * current lockdown state.
-+ *
-+ * Within this function the calls to security_locked_down() are "lazy". We
-+ * avoid calling them if the current value of kdb_cmd_enabled already excludes
-+ * flags that might be subject to lockdown. Additionally we deliberately check
-+ * the lockdown flags independently (even though read lockdown implies write
-+ * lockdown) since that results in both simpler code and clearer messages to
-+ * the user on first-time debugger entry.
-+ *
-+ * The permission masks during a read+write lockdown permits the following
-+ * flags: INSPECT, SIGNAL, REBOOT (and ALWAYS_SAFE).
-+ *
-+ * The INSPECT commands are not blocked during lockdown because they are
-+ * not arbitrary memory reads. INSPECT covers the backtrace family (sometimes
-+ * forcing them to have no arguments) and lsmod. These commands do expose
-+ * some kernel state but do not allow the developer seated at the console to
-+ * choose what state is reported. SIGNAL and REBOOT should not be controversial,
-+ * given these are allowed for root during lockdown already.
-+ */
-+static void kdb_check_for_lockdown(void)
-+{
-+	const int write_flags = KDB_ENABLE_MEM_WRITE |
-+				KDB_ENABLE_REG_WRITE |
-+				KDB_ENABLE_FLOW_CTRL;
-+	const int read_flags = KDB_ENABLE_MEM_READ |
-+			       KDB_ENABLE_REG_READ;
-+
-+	bool need_to_lockdown_write = false;
-+	bool need_to_lockdown_read = false;
-+
-+	if (kdb_cmd_enabled & (KDB_ENABLE_ALL | write_flags))
-+		need_to_lockdown_write =
-+			security_locked_down(LOCKDOWN_DBG_WRITE_KERNEL);
-+
-+	if (kdb_cmd_enabled & (KDB_ENABLE_ALL | read_flags))
-+		need_to_lockdown_read =
-+			security_locked_down(LOCKDOWN_DBG_READ_KERNEL);
-+
-+	/* De-compose KDB_ENABLE_ALL if required */
-+	if (need_to_lockdown_write || need_to_lockdown_read)
-+		if (kdb_cmd_enabled & KDB_ENABLE_ALL)
-+			kdb_cmd_enabled = KDB_ENABLE_MASK & ~KDB_ENABLE_ALL;
-+
-+	if (need_to_lockdown_write)
-+		kdb_cmd_enabled &= ~write_flags;
-+
-+	if (need_to_lockdown_read)
-+		kdb_cmd_enabled &= ~read_flags;
-+}
-+
-+/*
-+ * Check whether the flags of the current command, the permissions of the kdb
-+ * console and the lockdown state allow a command to be run.
-  */
--static inline bool kdb_check_flags(kdb_cmdflags_t flags, int permissions,
-+static bool kdb_check_flags(kdb_cmdflags_t flags, int permissions,
- 				   bool no_args)
- {
- 	/* permissions comes from userspace so needs massaging slightly */
-@@ -1188,6 +1241,9 @@ static int kdb_local(kdb_reason_t reason
- 		kdb_curr_task(raw_smp_processor_id());
- 
- 	KDB_DEBUG_STATE("kdb_local 1", reason);
-+
-+	kdb_check_for_lockdown();
-+
- 	kdb_go_count = 0;
- 	if (reason == KDB_REASON_DEBUG) {
- 		/* special case below */
---- a/security/lockdown/lockdown.c
-+++ b/security/lockdown/lockdown.c
-@@ -33,10 +33,12 @@ static const char *const lockdown_reason
- 	[LOCKDOWN_MMIOTRACE] = "unsafe mmio",
- 	[LOCKDOWN_DEBUGFS] = "debugfs access",
- 	[LOCKDOWN_XMON_WR] = "xmon write access",
-+	[LOCKDOWN_DBG_WRITE_KERNEL] = "use of kgdb/kdb to write kernel RAM",
- 	[LOCKDOWN_INTEGRITY_MAX] = "integrity",
- 	[LOCKDOWN_KCORE] = "/proc/kcore access",
- 	[LOCKDOWN_KPROBES] = "use of kprobes",
- 	[LOCKDOWN_BPF_READ] = "use of bpf to read kernel RAM",
-+	[LOCKDOWN_DBG_READ_KERNEL] = "use of kgdb/kdb to read kernel RAM",
- 	[LOCKDOWN_PERF] = "unsafe use of perf",
- 	[LOCKDOWN_TRACEFS] = "use of tracefs",
- 	[LOCKDOWN_XMON_RW] = "xmon read and write access",
+ 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
 
 
