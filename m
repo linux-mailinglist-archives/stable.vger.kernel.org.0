@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A285053CF65
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9A753D007
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243107AbiFCRyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58232 "EHLO
+        id S1345813AbiFCR7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347257AbiFCRwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C19F3B1FB;
-        Fri,  3 Jun 2022 10:51:36 -0700 (PDT)
+        with ESMTP id S1345901AbiFCR6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:58:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D304F31393;
+        Fri,  3 Jun 2022 10:54:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 849C3B823B0;
-        Fri,  3 Jun 2022 17:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E36A1C385A9;
-        Fri,  3 Jun 2022 17:51:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39D49612DA;
+        Fri,  3 Jun 2022 17:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34EA7C385A9;
+        Fri,  3 Jun 2022 17:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278694;
-        bh=szD02mP4YgUH+qF/S0nQ5Cv3/j6NNflP7nUmREGze1E=;
+        s=korg; t=1654278892;
+        bh=h63YL1mZsMLVcspF3UHcpRh8yN21n3CyTPYJb1ZQRIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJMuBc6U1U39ozEuEkFlIAtZNSTNAApYouot8GoKzMNRIy7hJHuFt/ekQn05Kvb/T
-         ZVefy2TZqRAtY6yusR6o8AlhhsjW0FKgvkREkcV47oDxq5ukjLYvdm6hj+uo/duGVy
-         bRFJkoYL6HIPrVRqNnirFPl1IuDNmYCoJHFlSNkE=
+        b=dLAHtNBKSWfDMWKx2a0e+wVJIgb7720AJ7x2XNgysu1OqtmUy34YyvWgj28YN7XVG
+         g2rk45cCpJJDr9oFD5W3LFgvmeIWIpvF9Rs5SP684g1/UbU/Ydma2+SylSRLSBGlb4
+         wbGVPVAzp0Ki/A3PuAokVnVqAMbM5pj9QGw2XUCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.15 63/66] bpf: Enlarge offset check value to INT_MAX in bpf_skb_{load,store}_bytes
+        stable@vger.kernel.org, Haitao Huang <haitao.huang@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.17 59/75] x86/sgx: Obtain backing storage page with enclave mutex held
 Date:   Fri,  3 Jun 2022 19:43:43 +0200
-Message-Id: <20220603173822.476005225@linuxfoundation.org>
+Message-Id: <20220603173823.410844930@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Reinette Chatre <reinette.chatre@intel.com>
 
-commit 45969b4152c1752089351cd6836a42a566d49bcf upstream.
+commit 0e4e729a830c1e7f31d3b3fbf8feb355a402b117 upstream.
 
-The data length of skb frags + frag_list may be greater than 0xffff, and
-skb_header_pointer can not handle negative offset. So, here INT_MAX is used
-to check the validity of offset. Add the same change to the related function
-skb_store_bytes.
+Haitao reported encountering a WARN triggered by the ENCLS[ELDU]
+instruction faulting with a #GP.
 
-Fixes: 05c74e5e53f6 ("bpf: add bpf_skb_load_bytes helper")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20220416105801.88708-2-liujian56@huawei.com
+The WARN is encountered when the reclaimer evicts a range of
+pages from the enclave when the same pages are faulted back
+right away.
+
+The SGX backing storage is accessed on two paths: when there
+are insufficient free pages in the EPC the reclaimer works
+to move enclave pages to the backing storage and as enclaves
+access pages that have been moved to the backing storage
+they are retrieved from there as part of page fault handling.
+
+An oversubscribed SGX system will often run the reclaimer and
+page fault handler concurrently and needs to ensure that the
+backing store is accessed safely between the reclaimer and
+the page fault handler. This is not the case because the
+reclaimer accesses the backing store without the enclave mutex
+while the page fault handler accesses the backing store with
+the enclave mutex.
+
+Consider the scenario where a page is faulted while a page sharing
+a PCMD page with the faulted page is being reclaimed. The
+consequence is a race between the reclaimer and page fault
+handler, the reclaimer attempting to access a PCMD at the
+same time it is truncated by the page fault handler. This
+could result in lost PCMD data. Data may still be
+lost if the reclaimer wins the race, this is addressed in
+the following patch.
+
+The reclaimer accesses pages from the backing storage without
+holding the enclave mutex and runs the risk of concurrently
+accessing the backing storage with the page fault handler that
+does access the backing storage with the enclave mutex held.
+
+In the scenario below a PCMD page is truncated from the backing
+store after all its pages have been loaded in to the enclave
+at the same time the PCMD page is loaded from the backing store
+when one of its pages are reclaimed:
+
+sgx_reclaim_pages() {              sgx_vma_fault() {
+                                     ...
+                                     mutex_lock(&encl->lock);
+                                     ...
+                                     __sgx_encl_eldu() {
+                                       ...
+                                       if (pcmd_page_empty) {
+/*
+ * EPC page being reclaimed              /*
+ * shares a PCMD page with an             * PCMD page truncated
+ * enclave page that is being             * while requested from
+ * faulted in.                            * reclaimer.
+ */                                       */
+sgx_encl_get_backing()  <---------->      sgx_encl_truncate_backing_page()
+                                        }
+                                       mutex_unlock(&encl->lock);
+}                                    }
+
+In this scenario there is a race between the reclaimer and the page fault
+handler when the reclaimer attempts to get access to the same PCMD page
+that is being truncated. This could result in the reclaimer writing to
+the PCMD page that is then truncated, causing the PCMD data to be lost,
+or in a new PCMD page being allocated. The lost PCMD data may still occur
+after protecting the backing store access with the mutex - this is fixed
+in the next patch. By ensuring the backing store is accessed with the mutex
+held the enclave page state can be made accurate with the
+SGX_ENCL_PAGE_BEING_RECLAIMED flag accurately reflecting that a page
+is in the process of being reclaimed.
+
+Consistently protect the reclaimer's backing store access with the
+enclave's mutex to ensure that it can safely run concurrently with the
+page fault handler.
+
+Cc: stable@vger.kernel.org
+Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+Reported-by: Haitao Huang <haitao.huang@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Haitao Huang <haitao.huang@intel.com>
+Link: https://lkml.kernel.org/r/fa2e04c561a8555bfe1f4e7adc37d60efc77387b.1652389823.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/sgx/main.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -1688,7 +1688,7 @@ BPF_CALL_5(bpf_skb_store_bytes, struct s
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -310,6 +310,7 @@ static void sgx_reclaimer_write(struct s
+ 	sgx_encl_ewb(epc_page, backing);
+ 	encl_page->epc_page = NULL;
+ 	encl->secs_child_cnt--;
++	sgx_encl_put_backing(backing);
  
- 	if (unlikely(flags & ~(BPF_F_RECOMPUTE_CSUM | BPF_F_INVALIDATE_HASH)))
- 		return -EINVAL;
--	if (unlikely(offset > 0xffff))
-+	if (unlikely(offset > INT_MAX))
- 		return -EFAULT;
- 	if (unlikely(bpf_try_make_writable(skb, offset + len)))
- 		return -EFAULT;
-@@ -1723,7 +1723,7 @@ BPF_CALL_4(bpf_skb_load_bytes, const str
- {
- 	void *ptr;
+ 	if (!encl->secs_child_cnt && test_bit(SGX_ENCL_INITIALIZED, &encl->flags)) {
+ 		ret = sgx_encl_get_backing(encl, PFN_DOWN(encl->size),
+@@ -381,11 +382,14 @@ static void sgx_reclaim_pages(void)
+ 			goto skip;
  
--	if (unlikely(offset > 0xffff))
-+	if (unlikely(offset > INT_MAX))
- 		goto err_clear;
+ 		page_index = PFN_DOWN(encl_page->desc - encl_page->encl->base);
++
++		mutex_lock(&encl_page->encl->lock);
+ 		ret = sgx_encl_get_backing(encl_page->encl, page_index, &backing[i]);
+-		if (ret)
++		if (ret) {
++			mutex_unlock(&encl_page->encl->lock);
+ 			goto skip;
++		}
  
- 	ptr = skb_header_pointer(skb, offset, len, to);
+-		mutex_lock(&encl_page->encl->lock);
+ 		encl_page->desc |= SGX_ENCL_PAGE_BEING_RECLAIMED;
+ 		mutex_unlock(&encl_page->encl->lock);
+ 		continue;
+@@ -413,7 +417,6 @@ skip:
+ 
+ 		encl_page = epc_page->owner;
+ 		sgx_reclaimer_write(epc_page, &backing[i]);
+-		sgx_encl_put_backing(&backing[i]);
+ 
+ 		kref_put(&encl_page->encl->refcount, sgx_encl_release);
+ 		epc_page->flags &= ~SGX_EPC_PAGE_RECLAIMER_TRACKED;
 
 
