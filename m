@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76EC753CF25
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D39353CFA8
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345539AbiFCRyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58138 "EHLO
+        id S1345359AbiFCRzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347228AbiFCRwI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDBA7B54;
-        Fri,  3 Jun 2022 10:50:46 -0700 (PDT)
+        with ESMTP id S1346361AbiFCRvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A101854BFC;
+        Fri,  3 Jun 2022 10:47:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 979F7B82189;
-        Fri,  3 Jun 2022 17:50:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F54C385A9;
-        Fri,  3 Jun 2022 17:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B4EE604EF;
+        Fri,  3 Jun 2022 17:47:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8A7C385B8;
+        Fri,  3 Jun 2022 17:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278644;
-        bh=EPBHgmukQQ2kavRRx6NFY8j/vcnjOWl5lgESjAPm9W8=;
+        s=korg; t=1654278468;
+        bh=NnEyWjMihEvGC1ycsFdaXgQ+EWmAJe/cwgy1WOjErkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4t7hFXaFvOoLuUOsdcZ2cZ6R001qTr6TsRXR1o+mi9a6rjFrrYg9vkD8wF3zLL2I
-         cTBW1TPqXLxJ5H8EYDRO1dUJEujKeCwCiTa0Ffb2uun531xGrSzfSuHUUkrLBOLMsZ
-         GBr7DsLBNtwgxQkQ8OTYAP7n/60FqOMEytmf59k0=
+        b=IyBYEftoQoio5Z1QwBioYoH6ychr6yVSXGY8SFPwA4FpBep0BSHbrsSB1P41ibZKV
+         IMzmMVzn/ic1E4ixT9fU1TJTTiNvrc8WWn2Vhue3IvkPWPrMTf6hpNeypSI1qGlQnn
+         W4h8OSeW4y9q72n86EBAp7749JbCET1KWnW5ck7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+1631f09646bc214d2e76@syzkaller.appspotmail.com,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Kari Argillander <kari.argillander@stargateuniverse.net>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 47/66] fs/ntfs3: validate BOOT sectors_per_clusters
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.10 42/53] dm stats: add cond_resched when looping over entries
 Date:   Fri,  3 Jun 2022 19:43:27 +0200
-Message-Id: <20220603173822.025720768@linuxfoundation.org>
+Message-Id: <20220603173819.944245381@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,63 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit a3b774342fa752a5290c0de36375289dfcf4a260 upstream.
+commit bfe2b0146c4d0230b68f5c71a64380ff8d361f8b upstream.
 
-When the NTFS BOOT sectors_per_clusters field is > 0x80, it represents a
-shift value.  Make sure that the shift value is not too large before using
-it (NTFS max cluster size is 2MB).  Return -EVINVAL if it too large.
+dm-stats can be used with a very large number of entries (it is only
+limited by 1/4 of total system memory), so add rescheduling points to
+the loops that iterate over the entries.
 
-This prevents negative shift values and shift values that are larger than
-the field size.
-
-Prevents this UBSAN error:
-
- UBSAN: shift-out-of-bounds in ../fs/ntfs3/super.c:673:16
- shift exponent -192 is negative
-
-Link: https://lkml.kernel.org/r/20220502175342.20296-1-rdunlap@infradead.org
-Fixes: 82cae269cfa9 ("fs/ntfs3: Add initialization of super block")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+1631f09646bc214d2e76@syzkaller.appspotmail.com
-Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
-Cc: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Kari Argillander <kari.argillander@stargateuniverse.net>
-Cc: Namjae Jeon <linkinjeon@kernel.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs3/super.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/md/dm-stats.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -668,9 +668,11 @@ static u32 format_size_gb(const u64 byte
+--- a/drivers/md/dm-stats.c
++++ b/drivers/md/dm-stats.c
+@@ -224,6 +224,7 @@ void dm_stats_cleanup(struct dm_stats *s
+ 				       atomic_read(&shared->in_flight[READ]),
+ 				       atomic_read(&shared->in_flight[WRITE]));
+ 			}
++			cond_resched();
+ 		}
+ 		dm_stat_free(&s->rcu_head);
+ 	}
+@@ -313,6 +314,7 @@ static int dm_stats_create(struct dm_sta
+ 	for (ni = 0; ni < n_entries; ni++) {
+ 		atomic_set(&s->stat_shared[ni].in_flight[READ], 0);
+ 		atomic_set(&s->stat_shared[ni].in_flight[WRITE], 0);
++		cond_resched();
+ 	}
  
- static u32 true_sectors_per_clst(const struct NTFS_BOOT *boot)
- {
--	return boot->sectors_per_clusters <= 0x80
--		       ? boot->sectors_per_clusters
--		       : (1u << (0 - boot->sectors_per_clusters));
-+	if (boot->sectors_per_clusters <= 0x80)
-+		return boot->sectors_per_clusters;
-+	if (boot->sectors_per_clusters >= 0xf4) /* limit shift to 2MB max */
-+		return 1U << (0 - boot->sectors_per_clusters);
-+	return -EINVAL;
+ 	if (s->n_histogram_entries) {
+@@ -325,6 +327,7 @@ static int dm_stats_create(struct dm_sta
+ 		for (ni = 0; ni < n_entries; ni++) {
+ 			s->stat_shared[ni].tmp.histogram = hi;
+ 			hi += s->n_histogram_entries + 1;
++			cond_resched();
+ 		}
+ 	}
+ 
+@@ -345,6 +348,7 @@ static int dm_stats_create(struct dm_sta
+ 			for (ni = 0; ni < n_entries; ni++) {
+ 				p[ni].histogram = hi;
+ 				hi += s->n_histogram_entries + 1;
++				cond_resched();
+ 			}
+ 		}
+ 	}
+@@ -474,6 +478,7 @@ static int dm_stats_list(struct dm_stats
+ 			}
+ 			DMEMIT("\n");
+ 		}
++		cond_resched();
+ 	}
+ 	mutex_unlock(&stats->mutex);
+ 
+@@ -750,6 +755,7 @@ static void __dm_stat_clear(struct dm_st
+ 				local_irq_enable();
+ 			}
+ 		}
++		cond_resched();
+ 	}
  }
  
- /*
-@@ -713,6 +715,8 @@ static int ntfs_init_from_boot(struct su
+@@ -865,6 +871,8 @@ static int dm_stats_print(struct dm_stat
  
- 	/* cluster size: 512, 1K, 2K, 4K, ... 2M */
- 	sct_per_clst = true_sectors_per_clst(boot);
-+	if ((int)sct_per_clst < 0)
-+		goto out;
- 	if (!is_power_of_2(sct_per_clst))
- 		goto out;
+ 		if (unlikely(sz + 1 >= maxlen))
+ 			goto buffer_overflow;
++
++		cond_resched();
+ 	}
  
+ 	if (clear)
 
 
