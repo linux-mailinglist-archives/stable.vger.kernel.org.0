@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2EF453CE95
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B79D653CE6F
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344944AbiFCRoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:44:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
+        id S1344700AbiFCRma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:42:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345043AbiFCRnm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971F454F9E;
-        Fri,  3 Jun 2022 10:42:12 -0700 (PDT)
+        with ESMTP id S1344678AbiFCRmL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:42:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4F353B5F;
+        Fri,  3 Jun 2022 10:41:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C393B8242E;
-        Fri,  3 Jun 2022 17:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC996C385A9;
-        Fri,  3 Jun 2022 17:42:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E6E961AFE;
+        Fri,  3 Jun 2022 17:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E8EC385B8;
+        Fri,  3 Jun 2022 17:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278128;
-        bh=+jKGu2m+qotB5j1a1TjLLakeDpMh01+5nUzTVxMt6Vo=;
+        s=korg; t=1654278089;
+        bh=feL5DhGpFr9fOQ+CVlQslnoobzfhYmtKXTcaAR7THEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/0DKgXut34P+/LrimPoK0NvSKq1aUQE6A5GKIYPEVZDx8elOz3D9I9jKp20rP0bM
-         lwSxPCNA86ukGROp+FRbu1grtjA3KMbi74uNNp5+Wk/+05FZj+NJW6aJ0GKIb1ufWt
-         imhL2LK8JZ/T7pEoupUmeWT3+PzQ5pDEibR4GhCQ=
+        b=sXzsdHIdiVA/gaoTBQHGQuHuutIswWRG1oeYy0oBTuPVKEGwO4k34h28jh2OikjNl
+         RWydsKG0zcqImsQLQvJfwN0c2FCqiuR+JlJDnKi7O5lC2I3zSMwceFhIKW/vvw7oS+
+         9GOkucdrtXT4OkZV6vme6Xabrsl2tjM6bL9Jsnkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+793a590957d9c1b96620@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 19/30] netfilter: conntrack: re-fetch conntrack after insertion
-Date:   Fri,  3 Jun 2022 19:39:47 +0200
-Message-Id: <20220603173815.661040365@linuxfoundation.org>
+        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.14 21/23] docs: submitting-patches: Fix crossref to The canonical patch format
+Date:   Fri,  3 Jun 2022 19:39:48 +0200
+Message-Id: <20220603173815.003147792@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
+References: <20220603173814.362515009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Akira Yokosawa <akiyks@gmail.com>
 
-commit 56b14ecec97f39118bf85c9ac2438c5a949509ed upstream.
+commit 6d5aa418b3bd42cdccc36e94ee199af423ef7c84 upstream.
 
-In case the conntrack is clashing, insertion can free skb->_nfct and
-set skb->_nfct to the already-confirmed entry.
+The reference to `explicit_in_reply_to` is pointless as when the
+reference was added in the form of "#15" [1], Section 15) was "The
+canonical patch format".
+The reference of "#15" had not been properly updated in a couple of
+reorganizations during the plain-text SubmittingPatches era.
 
-This wasn't found before because the conntrack entry and the extension
-space used to free'd after an rcu grace period, plus the race needs
-events enabled to trigger.
+Fix it by using `the_canonical_patch_format`.
 
-Reported-by: <syzbot+793a590957d9c1b96620@syzkaller.appspotmail.com>
-Fixes: 71d8c47fc653 ("netfilter: conntrack: introduce clash resolution on insertion race")
-Fixes: 2ad9d7747c10 ("netfilter: conntrack: free extension area immediately")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[1]: 2ae19acaa50a ("Documentation: Add "how to write a good patch summary" to SubmittingPatches")
+
+Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
+Fixes: 5903019b2a5e ("Documentation/SubmittingPatches: convert it to ReST markup")
+Fixes: 9b2c76777acc ("Documentation/SubmittingPatches: enrich the Sphinx output")
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: stable@vger.kernel.org # v4.9+
+Link: https://lore.kernel.org/r/64e105a5-50be-23f2-6cae-903a2ea98e18@gmail.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_conntrack_core.h |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ Documentation/process/submitting-patches.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/netfilter/nf_conntrack_core.h
-+++ b/include/net/netfilter/nf_conntrack_core.h
-@@ -58,8 +58,13 @@ static inline int nf_conntrack_confirm(s
- 	int ret = NF_ACCEPT;
+--- a/Documentation/process/submitting-patches.rst
++++ b/Documentation/process/submitting-patches.rst
+@@ -133,7 +133,7 @@ as you intend it to.
  
- 	if (ct) {
--		if (!nf_ct_is_confirmed(ct))
-+		if (!nf_ct_is_confirmed(ct)) {
- 			ret = __nf_conntrack_confirm(skb);
-+
-+			if (ret == NF_ACCEPT)
-+				ct = (struct nf_conn *)skb_nfct(skb);
-+		}
-+
- 		if (likely(ret == NF_ACCEPT))
- 			nf_ct_deliver_cached_events(ct);
- 	}
+ The maintainer will thank you if you write your patch description in a
+ form which can be easily pulled into Linux's source code management
+-system, ``git``, as a "commit log".  See :ref:`explicit_in_reply_to`.
++system, ``git``, as a "commit log".  See :ref:`the_canonical_patch_format`.
+ 
+ Solve only one problem per patch.  If your description starts to get
+ long, that's a sign that you probably need to split up your patch.
 
 
