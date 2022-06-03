@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCAB853CFB1
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F72853CED6
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345749AbiFCR4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
+        id S1343722AbiFCRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345993AbiFCRzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:33 -0400
+        with ESMTP id S1345237AbiFCRsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F8D654BE2;
-        Fri,  3 Jun 2022 10:53:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3CBE54029;
+        Fri,  3 Jun 2022 10:44:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44C9C60F3B;
-        Fri,  3 Jun 2022 17:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CF95C36AF6;
-        Fri,  3 Jun 2022 17:53:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DA4761B38;
+        Fri,  3 Jun 2022 17:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A56C385A9;
+        Fri,  3 Jun 2022 17:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278792;
-        bh=+eAbAqVQE5DVCKFhG3e268Ipd7JndauGDdwdIiUaX2A=;
+        s=korg; t=1654278289;
+        bh=X+TGgT1zSmpB0nRebXLItJ/4nmBeSj1ttQzmYio8cEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tf6JEorafV7JLBE2nemRjKbFhypsw3Y1Lr2C37+nJ75S6tq3abR23v8rruNMp6Aqn
-         6sNxNSntTgth9boSSmi866Wu7uL2U/URS1zQBHOOln7edFLYGc3R0+cw+fnyzDZRNC
-         f/uIHZMenTRIZpP4ABHoNvqkFCAVanNtIekAIw/o=
+        b=Yk8WJN2fgDlkBhBiEmAw73EbPhWdG47WlnhwHqxesb7HizFUjlTWwLEZwByWzmbbb
+         c6sKnpStkRf9P07BwOmhR+/4lNcbIc+ehEfBsvKfnCjEIi19j/FSw62YXFVYqQWkp5
+         zKCnK4SeOQkeHGy4ZPh+pMRqOgOfeNrJ1Elor0d0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 29/75] x86, kvm: use correct GFP flags for preemption disabled
-Date:   Fri,  3 Jun 2022 19:43:13 +0200
-Message-Id: <20220603173822.575077404@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Subject: [PATCH 5.4 18/34] drm/i915: Fix -Wstringop-overflow warning in call to intel_read_wm_latency()
+Date:   Fri,  3 Jun 2022 19:43:14 +0200
+Message-Id: <20220603173816.524059323@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit baec4f5a018fe2d708fc1022330dba04b38b5fe3 upstream.
+commit 336feb502a715909a8136eb6a62a83d7268a353b upstream.
 
-Commit ddd7ed842627 ("x86/kvm: Alloc dummy async #PF token outside of
-raw spinlock") leads to the following Smatch static checker warning:
+Fix the following -Wstringop-overflow warnings when building with GCC-11:
 
-	arch/x86/kernel/kvm.c:212 kvm_async_pf_task_wake()
-	warn: sleeping in atomic context
+drivers/gpu/drm/i915/intel_pm.c:3106:9: warning: ‘intel_read_wm_latency’ accessing 16 bytes in a region of size 10 [-Wstringop-overflow=]
+ 3106 |         intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/gpu/drm/i915/intel_pm.c:3106:9: note: referencing argument 2 of type ‘u16 *’ {aka ‘short unsigned int *’}
+drivers/gpu/drm/i915/intel_pm.c:2861:13: note: in a call to function ‘intel_read_wm_latency’
+ 2861 | static void intel_read_wm_latency(struct drm_i915_private *dev_priv,
+      |             ^~~~~~~~~~~~~~~~~~~~~
 
-arch/x86/kernel/kvm.c
-    202         raw_spin_lock(&b->lock);
-    203         n = _find_apf_task(b, token);
-    204         if (!n) {
-    205                 /*
-    206                  * Async #PF not yet handled, add a dummy entry for the token.
-    207                  * Allocating the token must be down outside of the raw lock
-    208                  * as the allocator is preemptible on PREEMPT_RT kernels.
-    209                  */
-    210                 if (!dummy) {
-    211                         raw_spin_unlock(&b->lock);
---> 212                         dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
-                                                                ^^^^^^^^^^
-Smatch thinks the caller has preempt disabled.  The `smdb.py preempt
-kvm_async_pf_task_wake` output call tree is:
+by removing the over-specified array size from the argument declarations.
 
-sysvec_kvm_asyncpf_interrupt() <- disables preempt
--> __sysvec_kvm_asyncpf_interrupt()
-   -> kvm_async_pf_task_wake()
+It seems that this code is actually safe because the size of the
+array depends on the hardware generation, and the function checks
+for that.
 
-The caller is this:
+Notice that wm can be an array of 5 elements:
+drivers/gpu/drm/i915/intel_pm.c:3109:   intel_read_wm_latency(dev_priv, dev_priv->wm.pri_latency);
 
-arch/x86/kernel/kvm.c
-   290        DEFINE_IDTENTRY_SYSVEC(sysvec_kvm_asyncpf_interrupt)
-   291        {
-   292                struct pt_regs *old_regs = set_irq_regs(regs);
-   293                u32 token;
-   294
-   295                ack_APIC_irq();
-   296
-   297                inc_irq_stat(irq_hv_callback_count);
-   298
-   299                if (__this_cpu_read(apf_reason.enabled)) {
-   300                        token = __this_cpu_read(apf_reason.token);
-   301                        kvm_async_pf_task_wake(token);
-   302                        __this_cpu_write(apf_reason.token, 0);
-   303                        wrmsrl(MSR_KVM_ASYNC_PF_ACK, 1);
-   304                }
-   305
-   306                set_irq_regs(old_regs);
-   307        }
+or an array of 8 elements:
+drivers/gpu/drm/i915/intel_pm.c:3131:   intel_read_wm_latency(dev_priv, dev_priv->wm.skl_latency);
 
-The DEFINE_IDTENTRY_SYSVEC() is a wrapper that calls this function
-from the call_on_irqstack_cond().  It's inside the call_on_irqstack_cond()
-where preempt is disabled (unless it's already disabled).  The
-irq_enter/exit_rcu() functions disable/enable preempt.
+and the compiler legitimately complains about that.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This helps with the ongoing efforts to globally enable
+-Wstringop-overflow.
+
+Link: https://github.com/KSPP/linux/issues/181
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvm.c |    2 +-
+ drivers/gpu/drm/i915/intel_pm.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -209,7 +209,7 @@ again:
- 		 */
- 		if (!dummy) {
- 			raw_spin_unlock(&b->lock);
--			dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
-+			dummy = kzalloc(sizeof(*dummy), GFP_ATOMIC);
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -2822,7 +2822,7 @@ hsw_compute_linetime_wm(const struct int
+ }
  
- 			/*
- 			 * Continue looping on allocation failure, eventually
+ static void intel_read_wm_latency(struct drm_i915_private *dev_priv,
+-				  u16 wm[8])
++				  u16 wm[])
+ {
+ 	struct intel_uncore *uncore = &dev_priv->uncore;
+ 
 
 
