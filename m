@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37A9E53CF99
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57C053CFD6
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345791AbiFCRzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58256 "EHLO
+        id S1345697AbiFCR5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:57:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346615AbiFCRvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C014854187;
-        Fri,  3 Jun 2022 10:48:57 -0700 (PDT)
+        with ESMTP id S1345703AbiFCRyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:54:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89128443E2;
+        Fri,  3 Jun 2022 10:52:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76E14B82433;
-        Fri,  3 Jun 2022 17:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3CAC36AF6;
-        Fri,  3 Jun 2022 17:48:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F115661255;
+        Fri,  3 Jun 2022 17:52:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA30C385A9;
+        Fri,  3 Jun 2022 17:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278535;
-        bh=K6tYsH8bSgs3PfSjUaakxOh0TLf3zeJAhtERYiKfyYg=;
+        s=korg; t=1654278774;
+        bh=KsUOLGTDYelQAHVm3ByM7FFacF11O4D+xvLcvKIQpWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ORzm4QPYXjNNyfGSqxgckTXm89Rhwbm5oBsW30YuSQGHVdrLhnbYcDDnS6cXfrfZv
-         Q0O/kbuycwOMUXxXsXzqnVSGHcrStWZ88thQDfF2Gt098XlNvH1unu7yyNWtbkGlyN
-         BS+92xLC7t6J4osP6eXZOtmmAgvvKlNBgnLDOETU=
+        b=RYQ7DLQIXcGFmp/4QAn4VnbfkMp3u0BGtuzurITuFCbHCGV4dv44ucKGDctiRBN7l
+         T+BWYAF9+ceIyg25GjQx3Ap61k/Wbp5Ppa6+V2gRTwQo1ubx+6cTGnq4K6do8Go4yP
+         /aBiyDvX4esj/kCTW3JrL2GbLWLmc0Q71AXBSkSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Zheyu Ma <zheyuma97@gmail.com>
-Subject: [PATCH 5.15 11/66] i2c: ismt: prevent memory corruption in ismt_access()
+        stable@vger.kernel.org,
+        Thomas Bartschies <thomas.bartschies@cvk.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 07/75] net: af_key: check encryption module availability consistency
 Date:   Fri,  3 Jun 2022 19:42:51 +0200
-Message-Id: <20220603173820.990767042@linuxfoundation.org>
+Message-Id: <20220603173821.958503450@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Thomas Bartschies <thomas.bartschies@cvk.de>
 
-commit 690b2549b19563ec5ad53e5c82f6a944d910086e upstream.
+[ Upstream commit 015c44d7bff3f44d569716117becd570c179ca32 ]
 
-The "data->block[0]" variable comes from the user and is a number
-between 0-255.  It needs to be capped to prevent writing beyond the end
-of dma_buffer[].
+Since the recent introduction supporting the SM3 and SM4 hash algos for IPsec, the kernel
+produces invalid pfkey acquire messages, when these encryption modules are disabled. This
+happens because the availability of the algos wasn't checked in all necessary functions.
+This patch adds these checks.
 
-Fixes: 5e9a97b1f449 ("i2c: ismt: Adding support for I2C_SMBUS_BLOCK_PROC_CALL")
-Reported-and-tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Bartschies <thomas.bartschies@cvk.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-ismt.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/key/af_key.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -528,6 +528,9 @@ static int ismt_access(struct i2c_adapte
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 92e9d75dba2f..339d95df19d3 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2900,7 +2900,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
+ 			break;
+ 		if (!aalg->pfkey_supported)
+ 			continue;
+-		if (aalg_tmpl_set(t, aalg))
++		if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 			sz += sizeof(struct sadb_comb);
+ 	}
+ 	return sz + sizeof(struct sadb_prop);
+@@ -2918,7 +2918,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 		if (!ealg->pfkey_supported)
+ 			continue;
  
- 	case I2C_SMBUS_BLOCK_PROC_CALL:
- 		dev_dbg(dev, "I2C_SMBUS_BLOCK_PROC_CALL\n");
-+		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+			return -EINVAL;
-+
- 		dma_size = I2C_SMBUS_BLOCK_MAX;
- 		desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, 1);
- 		desc->wr_len_cmd = data->block[0] + 1;
+-		if (!(ealg_tmpl_set(t, ealg)))
++		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
+ 			continue;
+ 
+ 		for (k = 1; ; k++) {
+@@ -2929,7 +2929,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 			if (!aalg->pfkey_supported)
+ 				continue;
+ 
+-			if (aalg_tmpl_set(t, aalg))
++			if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 				sz += sizeof(struct sadb_comb);
+ 		}
+ 	}
+-- 
+2.35.1
+
 
 
