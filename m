@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87EC953CE3B
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2B153CEA2
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244418AbiFCRkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:40:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
+        id S1345013AbiFCRov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344641AbiFCRkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394D152E73;
-        Fri,  3 Jun 2022 10:40:12 -0700 (PDT)
+        with ESMTP id S1344838AbiFCRn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BAC54036;
+        Fri,  3 Jun 2022 10:42:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8E572CE247C;
-        Fri,  3 Jun 2022 17:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75348C385A9;
-        Fri,  3 Jun 2022 17:40:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FD6A61B01;
+        Fri,  3 Jun 2022 17:42:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4576BC36AE5;
+        Fri,  3 Jun 2022 17:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278008;
-        bh=komNFgnS0FqLDSYmW+a2ifBD02kTTJqYIBqeGiPTkEc=;
+        s=korg; t=1654278145;
+        bh=GLAym5QDd84vfdwkI3wAoy6957Q/5/Y62Zd7C3u27Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w07WZQ3HHKLuSE9CBwcHzujbBeIHirwic+tJjie1Yn4QjYAMKq+XLL91GQVv3bwJB
-         x9PC1Pc3hEHeJWLC6078OM53pBVE0gLTjSdLqQaC8YuufrceDXsLCgJwkQOf8HF/Qk
-         EVm1uiuKQ+mxbsj9NBxFL86+O99OMdgq/0Y0LKEM=
+        b=ktcSZbIQdYF80HK79LiSc5zZI+j0ICjGVWa4LAnw0bJoYp2xWYAaMEfWxc0nW7ZUf
+         pZeRy8npw5b5xWLWi9EzgD1cFeYWzD1Z/NV7MozMviBrsB+T134OlmGHRfszLN4pIF
+         KeHuyhm+Bvtn3eOxkQBymdi5+goYlbkuwIi577Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haimin Zhang <tcs.kernel@gmail.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>
-Subject: [PATCH 4.9 05/12] block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Dworken <ddworken@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Stefan Ghinea <stefan.ghinea@windriver.com>
+Subject: [PATCH 4.19 03/30] tcp: change source port randomizarion at connect() time
 Date:   Fri,  3 Jun 2022 19:39:31 +0200
-Message-Id: <20220603173812.684682590@linuxfoundation.org>
+Message-Id: <20220603173815.192639169@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
-References: <20220603173812.524184588@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs.kernel@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit cc8f7fe1f5eab010191aa4570f27641876fa1267 upstream.
+commit 190cc82489f46f9d88e73c81a47e14f80a791e1a upstream.
 
-Add __GFP_ZERO flag for alloc_page in function bio_copy_kern to initialize
-the buffer of a bio.
+RFC 6056 (Recommendations for Transport-Protocol Port Randomization)
+provides good summary of why source selection needs extra care.
 
-Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220216084038.15635-1-tcs.kernel@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[DP: Backported to 4.19: Manually added __GFP_ZERO flag]
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
+David Dworken reminded us that linux implements Algorithm 3
+as described in RFC 6056 3.3.3
+
+Quoting David :
+   In the context of the web, this creates an interesting info leak where
+   websites can count how many TCP connections a user's computer is
+   establishing over time. For example, this allows a website to count
+   exactly how many subresources a third party website loaded.
+   This also allows:
+   - Distinguishing between different users behind a VPN based on
+       distinct source port ranges.
+   - Tracking users over time across multiple networks.
+   - Covert communication channels between different browsers/browser
+       profiles running on the same computer
+   - Tracking what applications are running on a computer based on
+       the pattern of how fast source ports are getting incremented.
+
+Section 3.3.4 describes an enhancement, that reduces
+attackers ability to use the basic information currently
+stored into the shared 'u32 hint'.
+
+This change also decreases collision rate when
+multiple applications need to connect() to
+different destinations.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: David Dworken <ddworken@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[SG: Adjusted context]
+Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inet_hashtables.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1538,7 +1538,7 @@ struct bio *bio_copy_kern(struct request
- 		if (bytes > len)
- 			bytes = len;
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -714,6 +714,17 @@ unlock:
+ }
+ EXPORT_SYMBOL_GPL(inet_unhash);
  
--		page = alloc_page(q->bounce_gfp | gfp_mask);
-+		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
- 		if (!page)
- 			goto cleanup;
++/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
++ * Note that we use 32bit integers (vs RFC 'short integers')
++ * because 2^16 is not a multiple of num_ephemeral and this
++ * property might be used by clever attacker.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
++ * we use 256 instead to really give more isolation and
++ * privacy, this only consumes 1 KB of kernel memory.
++ */
++#define INET_TABLE_PERTURB_SHIFT 8
++static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
++
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 		struct sock *sk, u32 port_offset,
+ 		int (*check_established)(struct inet_timewait_death_row *,
+@@ -727,7 +738,7 @@ int __inet_hash_connect(struct inet_time
+ 	struct inet_bind_bucket *tb;
+ 	u32 remaining, offset;
+ 	int ret, i, low, high;
+-	static u32 hint;
++	u32 index;
  
+ 	if (port) {
+ 		head = &hinfo->bhash[inet_bhashfn(net, port,
+@@ -752,7 +763,10 @@ int __inet_hash_connect(struct inet_time
+ 	if (likely(remaining > 1))
+ 		remaining &= ~1U;
+ 
+-	offset = (hint + port_offset) % remaining;
++	net_get_random_once(table_perturb, sizeof(table_perturb));
++	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
++
++	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
+ 	/* In first pass we try ports of @low parity.
+ 	 * inet_csk_get_port() does the opposite choice.
+ 	 */
+@@ -805,7 +819,7 @@ next_port:
+ 	return -EADDRNOTAVAIL;
+ 
+ ok:
+-	hint += i + 2;
++	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
+ 
+ 	/* Head lock still held and bh's disabled */
+ 	inet_bind_hash(sk, tb, port);
 
 
