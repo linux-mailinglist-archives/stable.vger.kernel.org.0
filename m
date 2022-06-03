@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD3C53D097
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E4D53D0D3
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236740AbiFCSHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:07:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39992 "EHLO
+        id S239488AbiFCSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347900AbiFCSG1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:27 -0400
+        with ESMTP id S1348160AbiFCSGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED905D5F8;
-        Fri,  3 Jun 2022 10:59:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FF8580ED;
+        Fri,  3 Jun 2022 10:59:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3D09B82189;
-        Fri,  3 Jun 2022 17:59:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BAA8C385B8;
-        Fri,  3 Jun 2022 17:58:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28831B82369;
+        Fri,  3 Jun 2022 17:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E9C2C385A9;
+        Fri,  3 Jun 2022 17:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279139;
-        bh=jylEjt/kulbTS7GurMgB9K2xH/8vWaxgWIIDnWNp0L8=;
+        s=korg; t=1654279145;
+        bh=o55eYgmVhHvolPaEPQyRiu/SsiwcIdehGA0DAyJ0Ytw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFqMcWw0VZtKRFds+RBdbUt+Ny7HnlVKzxlunQ1Hqx3ZJyeXfjvkiqzl1WYHYrXYA
-         2GPzqus93laXOFvQE094xrDxwd74Rks2JGPcgYIEXeNCsm/ECAkAbrXWTmsGIDtv3X
-         XUDXGzwbRi/BHu8PMXHPO/6rpf9d2wSbLTFclxkI=
+        b=MSo/r6lklyO2rrJNMUSXsLSfJtd9u2hvqi2vKXurpnuWrC3l6Wggfr8e03BCaXOa2
+         8pBU9+9XCdhhGrOX//gS5dhJlP7syyI2owDvo3RpzODnjQiHO64h3Opxj2gdeSwzTp
+         ExXEAf6Xo9qB1aEDcH2+rX4q6lecXajd+n0dkDtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        stable@vger.kernel.org, Hao Luo <haoluo@google.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.18 65/67] bpf: Reject writes for PTR_TO_MAP_KEY in check_helper_mem_access
-Date:   Fri,  3 Jun 2022 19:44:06 +0200
-Message-Id: <20220603173822.586723850@linuxfoundation.org>
+Subject: [PATCH 5.18 66/67] bpf: Check PTR_TO_MEM | MEM_RDONLY in check_helper_mem_access
+Date:   Fri,  3 Jun 2022 19:44:07 +0200
+Message-Id: <20220603173822.614061520@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
 References: <20220603173820.731531504@linuxfoundation.org>
@@ -55,34 +56,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit 7b3552d3f9f6897851fc453b5131a967167e43c2 upstream.
+commit 97e6d7dab1ca4648821c790a2b7913d6d5d549db upstream.
 
-It is not permitted to write to PTR_TO_MAP_KEY, but the current code in
-check_helper_mem_access would allow for it, reject this case as well, as
-helpers taking ARG_PTR_TO_UNINIT_MEM also take PTR_TO_MAP_KEY.
+The commit being fixed was aiming to disallow users from incorrectly
+obtaining writable pointer to memory that is only meant to be read. This
+is enforced now using a MEM_RDONLY flag.
 
-Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+For instance, in case of global percpu variables, when the BTF type is
+not struct (e.g. bpf_prog_active), the verifier marks register type as
+PTR_TO_MEM | MEM_RDONLY from bpf_this_cpu_ptr or bpf_per_cpu_ptr
+helpers. However, when passing such pointer to kfunc, global funcs, or
+BPF helpers, in check_helper_mem_access, there is no expectation
+MEM_RDONLY flag will be set, hence it is checked as pointer to writable
+memory. Later, verifier sets up argument type of global func as
+PTR_TO_MEM | PTR_MAYBE_NULL, so user can use a global func to get around
+the limitations imposed by this flag.
+
+This check will also cover global non-percpu variables that may be
+introduced in kernel BTF in future.
+
+Also, we update the log message for PTR_TO_BUF case to be similar to
+PTR_TO_MEM case, so that the reason for error is clear to user.
+
+Fixes: 34d3a78c681e ("bpf: Make per_cpu_ptr return rdonly PTR_TO_MEM.")
+Reviewed-by: Hao Luo <haoluo@google.com>
 Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20220319080827.73251-4-memxor@gmail.com
+Link: https://lore.kernel.org/r/20220319080827.73251-3-memxor@gmail.com
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/bpf/verifier.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -4861,6 +4861,11 @@ static int check_helper_mem_access(struc
- 		return check_packet_access(env, regno, reg->off, access_size,
- 					   zero_size_allowed);
- 	case PTR_TO_MAP_KEY:
-+		if (meta && meta->raw_mode) {
-+			verbose(env, "R%d cannot write into %s\n", regno,
-+				reg_type_str(env, reg->type));
-+			return -EACCES;
+@@ -4876,13 +4876,23 @@ static int check_helper_mem_access(struc
+ 		return check_map_access(env, regno, reg->off, access_size,
+ 					zero_size_allowed);
+ 	case PTR_TO_MEM:
++		if (type_is_rdonly_mem(reg->type)) {
++			if (meta && meta->raw_mode) {
++				verbose(env, "R%d cannot write into %s\n", regno,
++					reg_type_str(env, reg->type));
++				return -EACCES;
++			}
 +		}
- 		return check_mem_region_access(env, regno, reg->off, access_size,
- 					       reg->map_ptr->key_size, false);
- 	case PTR_TO_MAP_VALUE:
+ 		return check_mem_region_access(env, regno, reg->off,
+ 					       access_size, reg->mem_size,
+ 					       zero_size_allowed);
+ 	case PTR_TO_BUF:
+ 		if (type_is_rdonly_mem(reg->type)) {
+-			if (meta && meta->raw_mode)
++			if (meta && meta->raw_mode) {
++				verbose(env, "R%d cannot write into %s\n", regno,
++					reg_type_str(env, reg->type));
+ 				return -EACCES;
++			}
+ 
+ 			max_access = &env->prog->aux->max_rdonly_access;
+ 		} else {
 
 
