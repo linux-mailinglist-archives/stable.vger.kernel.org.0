@@ -2,154 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4AE53D054
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DF653CEC4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346201AbiFCSCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S243524AbiFCRrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:47:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346656AbiFCSA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B267DBD6;
-        Fri,  3 Jun 2022 10:56:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 297EA61555;
-        Fri,  3 Jun 2022 17:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC69C385A9;
-        Fri,  3 Jun 2022 17:56:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279003;
-        bh=TbpKUtNHnEOzZffoMTxedrzce7IA7XzbzevMWJ2iUtU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o42VDqv6e+jZy6WGJbIbMx60d/GNnaOCLTGv7trtwQl2tSNENDQstXN0cUjPKj3m+
-         YDImadZllGFwSMlcj71RD31G/+coFKTrRXEhEuMGV4rPf1ewqah0AYgi2kemEFqY5+
-         /otmqNBeksZhWbGfekXPWt8mxTBNNmtF/ani4RVY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 21/67] KVM: x86: Use __try_cmpxchg_user() to emulate atomic accesses
-Date:   Fri,  3 Jun 2022 19:43:22 +0200
-Message-Id: <20220603173821.337659871@linuxfoundation.org>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
-User-Agent: quilt/0.66
+        with ESMTP id S1345329AbiFCRqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:46:36 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA15356C2C;
+        Fri,  3 Jun 2022 10:43:37 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id 3-20020a17090a174300b001e426a02ac5so9456384pjm.2;
+        Fri, 03 Jun 2022 10:43:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=SFmo1YtzIJ9rmtpE/GhXgq77Pr76QMO7iRfjafIiLu0=;
+        b=DOaMjOtD7xGK0cNLL5ZRRrHaBowV+EmnbJRuvIZOQnRjfBK35/MHWGGcgGI+ugA4Yc
+         aeBIErNDmUc8+C6/HtbbsCk9Z1NljkrlVnthWrgBpKGm4jYXNILCqQUXBTiTpeqNMzR/
+         XUfnlYjf8ZGcFA+kyPcRPQgftWRiuKjFmaKksyM3ja4FGDnbBXR4nulbkIR1bklPJszu
+         r9vYqDeVoFEqZNXsuxo1tc1A7c/YM6h9hMf/pUMiH5c6KEfCquRmcsxjzXhBTb6IdlaT
+         qxyU7pa1ibPn5ork30bJkoBX0fYwafqEvmeySvX1CFDsZJjVT80dPzJPzP5QbpM40Tmf
+         7hiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=SFmo1YtzIJ9rmtpE/GhXgq77Pr76QMO7iRfjafIiLu0=;
+        b=EbmjM3kr593DsHCoqogbhrsk10galw3n8dMCgdx8qsaz0nlyS77hUwOj57PdgIUI+C
+         W+BdAiwb5EOY7hqhLubMxMuagM45Z/nnVN0ZyCoZu/FnrFLJfY4MUC9ndQ0ouNOjmv7o
+         duuKZ/U6WXd8CZ8M7nQiHIwJR5o6MxN3Vzq6Fo10twxKtub3A5pqWCduw8LbuxY5pipS
+         8fYQIFuUQ7oFHuedf1CxUhF67B8MEZSObBqzy/63ctPBc4yu35VyfXND5E3ZQ2pehxij
+         V8HV8wttMth3uw4w5SilsS45Dkh1Q64Vny5o62AOR0GVFmYi+0UPxPbrnpK5jAns7wlV
+         cb1g==
+X-Gm-Message-State: AOAM530FanN9cEqy9rDNWvsKFeRyez2OLlDmiiwkSu+frbb9rrz03xXO
+        9SpnRqEr3aOqF9Eorm4V+3B4f/0KICs=
+X-Google-Smtp-Source: ABdhPJw+XqpqJ8OB9TZASqA/8JeEhe8fyUMlPzwLT5FkwqeSDQAN1uyG8C1Kf16l2HiTGKm9QjDwhg==
+X-Received: by 2002:a17:90b:4c52:b0:1e8:2af5:901e with SMTP id np18-20020a17090b4c5200b001e82af5901emr5568640pjb.180.1654278216714;
+        Fri, 03 Jun 2022 10:43:36 -0700 (PDT)
+Received: from localhost.localdomain (ip174-67-196-173.oc.oc.cox.net. [174.67.196.173])
+        by smtp.gmail.com with ESMTPSA id a13-20020a170902710d00b0015e8d4eb1d2sm5705047pll.28.2022.06.03.10.43.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jun 2022 10:43:36 -0700 (PDT)
+From:   James Smart <jsmart2021@gmail.com>
+To:     linux-scsi@vger.kernel.org
+Cc:     James Smart <jsmart2021@gmail.com>, stable@vger.kernel.org,
+        Justin Tee <justin.tee@broadcom.com>
+Subject: [PATCH 2/9] lpfc: Resolve some cleanup issues following abort path refactoring
+Date:   Fri,  3 Jun 2022 10:43:22 -0700
+Message-Id: <20220603174329.63777-3-jsmart2021@gmail.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20220603174329.63777-1-jsmart2021@gmail.com>
+References: <20220603174329.63777-1-jsmart2021@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+Following refactoring and consolidation of abort paths,
 
-commit 1c2361f667f3648855ceae25f1332c18413fdb9f upstream.
+- lpfc_sli4_abort_fcp_cmpl and lpfc_sli_abort_fcp_cmpl are combined into
+  a single generic lpfc_sli_abort_fcp_cmpl routine.  Thus, remove
+  extraneous lpfc_sli4_abort_fcp_cmpl prototype declaration.
 
-Use the recently introduce __try_cmpxchg_user() to emulate atomic guest
-accesses via the associated userspace address instead of mapping the
-backing pfn into kernel address space.  Using kvm_vcpu_map() is unsafe as
-it does not coordinate with KVM's mmu_notifier to ensure the hva=>pfn
-translation isn't changed/unmapped in the memremap() path, i.e. when
-there's no struct page and thus no elevated refcount.
+- lpfc_nvme_abort_fcreq_cmpl abort completion routine is called with a
+  mismatched argument type.  This may result in misleading log message
+  content.  Update to the correct argument type of lpfc_iocbq instead
+  of lpfc_wcqe_complete.  The lpfc_wcqe_complete should be derived from
+  the lpfc_iocbq structure.
 
-Fixes: 42e35f8072c3 ("KVM/X86: Use kvm_vcpu_map in emulator_cmpxchg_emulated")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220202004945.2540433-5-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 31a59f75702f ("scsi: lpfc: SLI path split: Refactor Abort paths")
+Cc: <stable@vger.kernel.org> # v5.18
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 ---
- arch/x86/kvm/x86.c |   35 ++++++++++++++---------------------
- 1 file changed, 14 insertions(+), 21 deletions(-)
+ drivers/scsi/lpfc/lpfc_crtn.h | 4 +---
+ drivers/scsi/lpfc/lpfc_nvme.c | 6 ++++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7229,15 +7229,8 @@ static int emulator_write_emulated(struc
- 				   exception, &write_emultor);
- }
+diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
+index b1be0dd0337a..f5d74958b664 100644
+--- a/drivers/scsi/lpfc/lpfc_crtn.h
++++ b/drivers/scsi/lpfc/lpfc_crtn.h
+@@ -420,8 +420,6 @@ int lpfc_sli_issue_iocb_wait(struct lpfc_hba *, uint32_t,
+ 			     uint32_t);
+ void lpfc_sli_abort_fcp_cmpl(struct lpfc_hba *, struct lpfc_iocbq *,
+ 			     struct lpfc_iocbq *);
+-void lpfc_sli4_abort_fcp_cmpl(struct lpfc_hba *h, struct lpfc_iocbq *i,
+-			      struct lpfc_wcqe_complete *w);
  
--#define CMPXCHG_TYPE(t, ptr, old, new) \
--	(cmpxchg((t *)(ptr), *(t *)(old), *(t *)(new)) == *(t *)(old))
--
--#ifdef CONFIG_X86_64
--#  define CMPXCHG64(ptr, old, new) CMPXCHG_TYPE(u64, ptr, old, new)
--#else
--#  define CMPXCHG64(ptr, old, new) \
--	(cmpxchg64((u64 *)(ptr), *(u64 *)(old), *(u64 *)(new)) == *(u64 *)(old))
--#endif
-+#define emulator_try_cmpxchg_user(t, ptr, old, new) \
-+	(__try_cmpxchg_user((t __user *)(ptr), (t *)(old), *(t *)(new), efault ## t))
+ void lpfc_sli_free_hbq(struct lpfc_hba *, struct hbq_dmabuf *);
  
- static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 				     unsigned long addr,
-@@ -7246,12 +7239,11 @@ static int emulator_cmpxchg_emulated(str
- 				     unsigned int bytes,
- 				     struct x86_exception *exception)
+@@ -630,7 +628,7 @@ void lpfc_nvmet_invalidate_host(struct lpfc_hba *phba,
+ 			struct lpfc_nodelist *ndlp);
+ void lpfc_nvme_abort_fcreq_cmpl(struct lpfc_hba *phba,
+ 				struct lpfc_iocbq *cmdiocb,
+-				struct lpfc_wcqe_complete *abts_cmpl);
++				struct lpfc_iocbq *rspiocb);
+ void lpfc_create_multixri_pools(struct lpfc_hba *phba);
+ void lpfc_create_destroy_pools(struct lpfc_hba *phba);
+ void lpfc_move_xri_pvt_to_pbl(struct lpfc_hba *phba, u32 hwqid);
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 335e90633933..88fa630ab93a 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -1787,7 +1787,7 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
+  * lpfc_nvme_abort_fcreq_cmpl - Complete an NVME FCP abort request.
+  * @phba: Pointer to HBA context object
+  * @cmdiocb: Pointer to command iocb object.
+- * @abts_cmpl: Pointer to wcqe complete object.
++ * @rspiocb: Pointer to response iocb object.
+  *
+  * This is the callback function for any NVME FCP IO that was aborted.
+  *
+@@ -1796,8 +1796,10 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
+  **/
+ void
+ lpfc_nvme_abort_fcreq_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+-			   struct lpfc_wcqe_complete *abts_cmpl)
++			   struct lpfc_iocbq *rspiocb)
  {
--	struct kvm_host_map map;
- 	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
- 	u64 page_line_mask;
-+	unsigned long hva;
- 	gpa_t gpa;
--	char *kaddr;
--	bool exchanged;
-+	int r;
- 
- 	/* guests cmpxchg8b have to be emulated atomically */
- 	if (bytes > 8 || (bytes & (bytes - 1)))
-@@ -7275,31 +7267,32 @@ static int emulator_cmpxchg_emulated(str
- 	if (((gpa + bytes - 1) & page_line_mask) != (gpa & page_line_mask))
- 		goto emul_write;
- 
--	if (kvm_vcpu_map(vcpu, gpa_to_gfn(gpa), &map))
-+	hva = kvm_vcpu_gfn_to_hva(vcpu, gpa_to_gfn(gpa));
-+	if (kvm_is_error_hva(addr))
- 		goto emul_write;
- 
--	kaddr = map.hva + offset_in_page(gpa);
-+	hva += offset_in_page(gpa);
- 
- 	switch (bytes) {
- 	case 1:
--		exchanged = CMPXCHG_TYPE(u8, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u8, hva, old, new);
- 		break;
- 	case 2:
--		exchanged = CMPXCHG_TYPE(u16, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u16, hva, old, new);
- 		break;
- 	case 4:
--		exchanged = CMPXCHG_TYPE(u32, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u32, hva, old, new);
- 		break;
- 	case 8:
--		exchanged = CMPXCHG64(kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u64, hva, old, new);
- 		break;
- 	default:
- 		BUG();
- 	}
- 
--	kvm_vcpu_unmap(vcpu, &map, true);
--
--	if (!exchanged)
-+	if (r < 0)
-+		goto emul_write;
-+	if (r)
- 		return X86EMUL_CMPXCHG_FAILED;
- 
- 	kvm_page_track_write(vcpu, gpa, new, bytes);
-
++	struct lpfc_wcqe_complete *abts_cmpl = &rspiocb->wcqe_cmpl;
++
+ 	lpfc_printf_log(phba, KERN_INFO, LOG_NVME,
+ 			"6145 ABORT_XRI_CN completing on rpi x%x "
+ 			"original iotag x%x, abort cmd iotag x%x "
+-- 
+2.26.2
 
