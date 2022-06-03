@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C7653CE53
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FBF53CE42
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344719AbiFCRlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:41:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
+        id S1344645AbiFCRke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344716AbiFCRlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:41:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F073C53A74;
-        Fri,  3 Jun 2022 10:40:47 -0700 (PDT)
+        with ESMTP id S1344650AbiFCRkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3DBF532F3;
+        Fri,  3 Jun 2022 10:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AC9E61AFD;
-        Fri,  3 Jun 2022 17:40:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23179C385B8;
-        Fri,  3 Jun 2022 17:40:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F35ACB8242F;
+        Fri,  3 Jun 2022 17:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A757C3411C;
+        Fri,  3 Jun 2022 17:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278046;
-        bh=2/eUY5HJlBIAAIiHk2QQP+pGXmnFeSwcIppQN6JtJJs=;
+        s=korg; t=1654278011;
+        bh=H+33qVGEmmmRXd4D8HKPoED2WQ8+Wv50Xo0oV+noaXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVCNc8WZRydYfOz5ZqEXeyRPzNB08bkFofmGTQjwO1BJohUf3kRcHSIaUj4CXIK8/
-         JRJrpJadDrBwmd64veC2F1nqjQYKYwI7Lwh+ZXOnw8lXqFw5eH+Jvg/jJKuTJ9mW9F
-         +Iy4I23rAD8Hme2m0JJxjoFtlvJdieYaVMEypbNA=
+        b=0/EVWW4b5dAbUugoe4ydwCC+4fGo9alvvec39ygv7HDT6l1vuPhwGU3CLcDA/7S8u
+         O/pogg7RAB4BhuE0+fM27KWAm9j7DOlb2NaUVoaVHzrYL66yzo8Xyaz8bOFSNpLwnq
+         H084RR5Dbat4C3fE8EJZYSwiNJsbU9PBoVsEXrjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 4.14 05/23] ACPI: sysfs: Make sparse happy about address space in use
+        stable@vger.kernel.org, Ariadne Conill <ariadne@dereferenced.org>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Rich Felker <dalias@libc.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>
+Subject: [PATCH 4.9 06/12] exec: Force single empty string when argv is empty
 Date:   Fri,  3 Jun 2022 19:39:32 +0200
-Message-Id: <20220603173814.528641585@linuxfoundation.org>
+Message-Id: <20220603173812.713763455@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
-References: <20220603173814.362515009@linuxfoundation.org>
+In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
+References: <20220603173812.524184588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +61,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit bdd56d7d8931e842775d2e5b93d426a8d1940e33 upstream.
+commit dcd46d897adb70d63e025f175a00a89797d31a43 upstream.
 
-Sparse is not happy about address space in use in acpi_data_show():
+Quoting[1] Ariadne Conill:
 
-drivers/acpi/sysfs.c:428:14: warning: incorrect type in assignment (different address spaces)
-drivers/acpi/sysfs.c:428:14:    expected void [noderef] __iomem *base
-drivers/acpi/sysfs.c:428:14:    got void *
-drivers/acpi/sysfs.c:431:59: warning: incorrect type in argument 4 (different address spaces)
-drivers/acpi/sysfs.c:431:59:    expected void const *from
-drivers/acpi/sysfs.c:431:59:    got void [noderef] __iomem *base
-drivers/acpi/sysfs.c:433:30: warning: incorrect type in argument 1 (different address spaces)
-drivers/acpi/sysfs.c:433:30:    expected void *logical_address
-drivers/acpi/sysfs.c:433:30:    got void [noderef] __iomem *base
+"In several other operating systems, it is a hard requirement that the
+second argument to execve(2) be the name of a program, thus prohibiting
+a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
+but it is not an explicit requirement[2]:
 
-Indeed, acpi_os_map_memory() returns a void pointer with dropped specific
-address space. Hence, we don't need to carry out __iomem in acpi_data_show().
+    The argument arg0 should point to a filename string that is
+    associated with the process being started by one of the exec
+    functions.
+...
+Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
+but there was no consensus to support fixing this issue then.
+Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
+of this bug in a shellcode, we can reconsider.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: dann frazier <dann.frazier@canonical.com>
+This issue is being tracked in the KSPP issue tracker[5]."
+
+While the initial code searches[6][7] turned up what appeared to be
+mostly corner case tests, trying to that just reject argv == NULL
+(or an immediately terminated pointer list) quickly started tripping[8]
+existing userspace programs.
+
+The next best approach is forcing a single empty string into argv and
+adjusting argc to match. The number of programs depending on argc == 0
+seems a smaller set than those calling execve with a NULL argv.
+
+Account for the additional stack space in bprm_stack_limits(). Inject an
+empty string when argc == 0 (and set argc = 1). Warn about the case so
+userspace has some notice about the change:
+
+    process './argc0' launched './argc0' with NULL argv: empty string added
+
+Additionally WARN() and reject NULL argv usage for kernel threads.
+
+[1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
+[2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
+[3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
+[4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
+[5] https://github.com/KSPP/linux/issues/176
+[6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
+[7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
+[8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
+
+Reported-by: Ariadne Conill <ariadne@dereferenced.org>
+Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Acked-by: Ariadne Conill <ariadne@dereferenced.org>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Link: https://lore.kernel.org/r/20220201000947.2453721-1-keescook@chromium.org
+[vegard: fixed conflicts due to missing
+ 886d7de631da71e30909980fdbf318f7caade262^- and
+ 3950e975431bc914f7e81b8f2a2dbdf2064acb0f^- and
+ 655c16a8ce9c15842547f40ce23fd148aeccc074]
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exec.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/acpi/sysfs.c
-+++ b/drivers/acpi/sysfs.c
-@@ -435,7 +435,7 @@ static ssize_t acpi_data_show(struct fil
- 			      loff_t offset, size_t count)
- {
- 	struct acpi_data_attr *data_attr;
--	void __iomem *base;
-+	void *base;
- 	ssize_t rc;
+This has been tested in both argc == 0 and argc >= 1 cases, but I would
+still appreciate a review given the differences with mainline. If it's
+considered too risky I'm also fine with dropping it -- just wanted to
+make sure this didn't fall through the cracks, as it does block a real
+(albeit old by now) exploit.
+
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1758,6 +1758,9 @@ static int do_execveat_common(int fd, st
+ 		goto out_unmark;
  
- 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
+ 	bprm->argc = count(argv, MAX_ARG_STRINGS);
++	if (bprm->argc == 0)
++		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
++			     current->comm, bprm->filename);
+ 	if ((retval = bprm->argc) < 0)
+ 		goto out;
+ 
+@@ -1782,6 +1785,20 @@ static int do_execveat_common(int fd, st
+ 	if (retval < 0)
+ 		goto out;
+ 
++	/*
++	 * When argv is empty, add an empty string ("") as argv[0] to
++	 * ensure confused userspace programs that start processing
++	 * from argv[1] won't end up walking envp. See also
++	 * bprm_stack_limits().
++	 */
++	if (bprm->argc == 0) {
++		const char *argv[] = { "", NULL };
++		retval = copy_strings_kernel(1, argv, bprm);
++		if (retval < 0)
++			goto out;
++		bprm->argc = 1;
++	}
++
+ 	retval = exec_binprm(bprm);
+ 	if (retval < 0)
+ 		goto out;
 
 
