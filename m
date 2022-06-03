@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FCCE53CF49
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE4953CF5D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239620AbiFCRxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S1345701AbiFCRyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346456AbiFCRvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0818156C3D;
-        Fri,  3 Jun 2022 10:48:20 -0700 (PDT)
+        with ESMTP id S1347246AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0326365C4;
+        Fri,  3 Jun 2022 10:51:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98E4F60F3E;
-        Fri,  3 Jun 2022 17:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F4FC385A9;
-        Fri,  3 Jun 2022 17:48:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9444560F38;
+        Fri,  3 Jun 2022 17:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B8DEC385A9;
+        Fri,  3 Jun 2022 17:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278499;
-        bh=21SXVznNk8nrAqUXqJHMAyEw3zH9dw0VNUvKpqJuS0o=;
+        s=korg; t=1654278673;
+        bh=1dDCelCnd3TDU/oKMdf68Nki42Ch/uDP9y6NwwQdRnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IxvBQdyO44ggWoIUq8pxz1ZtkctGuZzIDxvR2OhiYe2BmrcuJ6mK38WwtGkpMTyuQ
-         WlFWjYTXafdkcNQ9tytyrsXMNCLjUzFrKluARpzR5JnK4EAkk3GFbfDrj2qvUmsYRw
-         dPaCJP08mJCZ48niOixu03X5UfB7fNZJ+/TaxaQw=
+        b=hbDVJ2y3Vv8j+hX78abjryF9jRFC3347OqV++vVj9yJ6X+XVyDfev2Ur0y+H2ziTq
+         F047OeifHAwDYIGKBdZBad1sx3I2YmU37rDZAoOKTmtIQnBUU1PBgzRdmANUo1JsyJ
+         NUhkE2nmFH0p3Fbe8P9npCdXzRBeByOKnoUt51lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.10 51/53] NFSD: Fix possible sleep during nfsd4_release_lockowner()
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 56/66] media: i2c: imx412: Fix power_off ordering
 Date:   Fri,  3 Jun 2022 19:43:36 +0200
-Message-Id: <20220603173820.202073618@linuxfoundation.org>
+Message-Id: <20220603173822.277793913@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit ce3c4ad7f4ce5db7b4f08a1e237d8dd94b39180b upstream.
+commit 9a199694c6a1519522ec73a4571f68abe9f13d5d upstream.
 
-nfsd4_release_lockowner() holds clp->cl_lock when it calls
-check_for_locks(). However, check_for_locks() calls nfsd_file_get()
-/ nfsd_file_put() to access the backing inode's flc_posix list, and
-nfsd_file_put() can sleep if the inode was recently removed.
+The enable path does
+- gpio
+- clock
 
-Let's instead rely on the stateowner's reference count to gate
-whether the release is permitted. This should be a reliable
-indication of locks-in-use since file lock operations and
-->lm_get_owner take appropriate references, which are released
-appropriately when file locks are removed.
+The disable path does
+- gpio
+- clock
 
-Reported-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fix the order on the power-off path so that power-off and power-on have the
+same ordering for clock and gpio.
+
+Fixes: 9214e86c0cc1 ("media: i2c: Add imx412 camera sensor driver")
 Cc: stable@vger.kernel.org
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4state.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/media/i2c/imx412.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7122,16 +7122,12 @@ nfsd4_release_lockowner(struct svc_rqst
- 		if (sop->so_is_open_owner || !same_owner_str(sop, owner))
- 			continue;
+--- a/drivers/media/i2c/imx412.c
++++ b/drivers/media/i2c/imx412.c
+@@ -1040,10 +1040,10 @@ static int imx412_power_off(struct devic
+ 	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+ 	struct imx412 *imx412 = to_imx412(sd);
  
--		/* see if there are still any locks associated with it */
--		lo = lockowner(sop);
--		list_for_each_entry(stp, &sop->so_stateids, st_perstateowner) {
--			if (check_for_locks(stp->st_stid.sc_file, lo)) {
--				status = nfserr_locks_held;
--				spin_unlock(&clp->cl_lock);
--				return status;
--			}
-+		if (atomic_read(&sop->so_count) != 1) {
-+			spin_unlock(&clp->cl_lock);
-+			return nfserr_locks_held;
- 		}
+-	gpiod_set_value_cansleep(imx412->reset_gpio, 1);
+-
+ 	clk_disable_unprepare(imx412->inclk);
  
-+		lo = lockowner(sop);
- 		nfs4_get_stateowner(sop);
- 		break;
- 	}
++	gpiod_set_value_cansleep(imx412->reset_gpio, 1);
++
+ 	return 0;
+ }
+ 
 
 
