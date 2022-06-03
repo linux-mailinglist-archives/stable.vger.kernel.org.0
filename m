@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B79D653CE6F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2E253CE90
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344700AbiFCRma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:42:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56486 "EHLO
+        id S1345093AbiFCRoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:44:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344678AbiFCRmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:42:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4F353B5F;
-        Fri,  3 Jun 2022 10:41:30 -0700 (PDT)
+        with ESMTP id S244249AbiFCRnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0AA54FAC;
+        Fri,  3 Jun 2022 10:42:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E6E961AFE;
-        Fri,  3 Jun 2022 17:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E8EC385B8;
-        Fri,  3 Jun 2022 17:41:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6142A61B01;
+        Fri,  3 Jun 2022 17:42:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60401C385A9;
+        Fri,  3 Jun 2022 17:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278089;
-        bh=feL5DhGpFr9fOQ+CVlQslnoobzfhYmtKXTcaAR7THEI=;
+        s=korg; t=1654278133;
+        bh=sKgOfk/k9VR+3swUTYAojtlfzqP43XNrNjVvVFk1g3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXzsdHIdiVA/gaoTBQHGQuHuutIswWRG1oeYy0oBTuPVKEGwO4k34h28jh2OikjNl
-         RWydsKG0zcqImsQLQvJfwN0c2FCqiuR+JlJDnKi7O5lC2I3zSMwceFhIKW/vvw7oS+
-         9GOkucdrtXT4OkZV6vme6Xabrsl2tjM6bL9Jsnkg=
+        b=mAHzjD7fv0ajeKXzi7FM1TYQZMdnLpJ/2wJcBVc9iikwhbN3cJ1ooYmYUnFYD0s+i
+         KGb/2QDOMLPNydleWp8Kbu+HzJbcdIkp9GtbfSqf2uRvot3XFaaT+2qTKYrg6Gs6eM
+         GmQWSuM+vC/BjoEsWCsWbU9COTMMqvKjFddr7Iko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.14 21/23] docs: submitting-patches: Fix crossref to The canonical patch format
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 20/30] zsmalloc: fix races between asynchronous zspage free and page migration
 Date:   Fri,  3 Jun 2022 19:39:48 +0200
-Message-Id: <20220603173815.003147792@linuxfoundation.org>
+Message-Id: <20220603173815.689743053@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
-References: <20220603173814.362515009@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Yokosawa <akiyks@gmail.com>
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-commit 6d5aa418b3bd42cdccc36e94ee199af423ef7c84 upstream.
+commit 2505a981114dcb715f8977b8433f7540854851d8 upstream.
 
-The reference to `explicit_in_reply_to` is pointless as when the
-reference was added in the form of "#15" [1], Section 15) was "The
-canonical patch format".
-The reference of "#15" had not been properly updated in a couple of
-reorganizations during the plain-text SubmittingPatches era.
+The asynchronous zspage free worker tries to lock a zspage's entire page
+list without defending against page migration.  Since pages which haven't
+yet been locked can concurrently migrate off the zspage page list while
+lock_zspage() churns away, lock_zspage() can suffer from a few different
+lethal races.
 
-Fix it by using `the_canonical_patch_format`.
+It can lock a page which no longer belongs to the zspage and unsafely
+dereference page_private(), it can unsafely dereference a torn pointer to
+the next page (since there's a data race), and it can observe a spurious
+NULL pointer to the next page and thus not lock all of the zspage's pages
+(since a single page migration will reconstruct the entire page list, and
+create_page_chain() unconditionally zeroes out each list pointer in the
+process).
 
-[1]: 2ae19acaa50a ("Documentation: Add "how to write a good patch summary" to SubmittingPatches")
+Fix the races by using migrate_read_lock() in lock_zspage() to synchronize
+with page migration.
 
-Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Fixes: 5903019b2a5e ("Documentation/SubmittingPatches: convert it to ReST markup")
-Fixes: 9b2c76777acc ("Documentation/SubmittingPatches: enrich the Sphinx output")
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: stable@vger.kernel.org # v4.9+
-Link: https://lore.kernel.org/r/64e105a5-50be-23f2-6cae-903a2ea98e18@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Link: https://lkml.kernel.org/r/20220509024703.243847-1-sultan@kerneltoast.com
+Fixes: 77ff465799c602 ("zsmalloc: zs_page_migrate: skip unnecessary loops but not return -EBUSY if zspage is not inuse")
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/submitting-patches.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/zsmalloc.c |   37 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 4 deletions(-)
 
---- a/Documentation/process/submitting-patches.rst
-+++ b/Documentation/process/submitting-patches.rst
-@@ -133,7 +133,7 @@ as you intend it to.
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1812,11 +1812,40 @@ static enum fullness_group putback_zspag
+  */
+ static void lock_zspage(struct zspage *zspage)
+ {
+-	struct page *page = get_first_page(zspage);
++	struct page *curr_page, *page;
  
- The maintainer will thank you if you write your patch description in a
- form which can be easily pulled into Linux's source code management
--system, ``git``, as a "commit log".  See :ref:`explicit_in_reply_to`.
-+system, ``git``, as a "commit log".  See :ref:`the_canonical_patch_format`.
+-	do {
+-		lock_page(page);
+-	} while ((page = get_next_page(page)) != NULL);
++	/*
++	 * Pages we haven't locked yet can be migrated off the list while we're
++	 * trying to lock them, so we need to be careful and only attempt to
++	 * lock each page under migrate_read_lock(). Otherwise, the page we lock
++	 * may no longer belong to the zspage. This means that we may wait for
++	 * the wrong page to unlock, so we must take a reference to the page
++	 * prior to waiting for it to unlock outside migrate_read_lock().
++	 */
++	while (1) {
++		migrate_read_lock(zspage);
++		page = get_first_page(zspage);
++		if (trylock_page(page))
++			break;
++		get_page(page);
++		migrate_read_unlock(zspage);
++		wait_on_page_locked(page);
++		put_page(page);
++	}
++
++	curr_page = page;
++	while ((page = get_next_page(curr_page))) {
++		if (trylock_page(page)) {
++			curr_page = page;
++		} else {
++			get_page(page);
++			migrate_read_unlock(zspage);
++			wait_on_page_locked(page);
++			put_page(page);
++			migrate_read_lock(zspage);
++		}
++	}
++	migrate_read_unlock(zspage);
+ }
  
- Solve only one problem per patch.  If your description starts to get
- long, that's a sign that you probably need to split up your patch.
+ static struct dentry *zs_mount(struct file_system_type *fs_type,
 
 
