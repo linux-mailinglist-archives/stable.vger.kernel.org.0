@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 955FC53CFAC
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C96F353CEE9
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345597AbiFCRz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S1345008AbiFCRs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346343AbiFCRvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064A054BCD;
-        Fri,  3 Jun 2022 10:47:42 -0700 (PDT)
+        with ESMTP id S1345384AbiFCRsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D5E541B5;
+        Fri,  3 Jun 2022 10:45:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B25E0B82189;
-        Fri,  3 Jun 2022 17:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CE0C385A9;
-        Fri,  3 Jun 2022 17:47:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03FE460A24;
+        Fri,  3 Jun 2022 17:45:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12289C385A9;
+        Fri,  3 Jun 2022 17:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278459;
-        bh=40Dw1jN3ldvZgbMeHGnjn/t9svfNtIvS+9qMXPFOHNc=;
+        s=korg; t=1654278321;
+        bh=+w66Ow9xeA7Z0WMgKSy5y2U7WP4p9tUaCId1oFEUwl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQya78MlU0wu7LbWDhutTnASZq08De7xJLN7sAR37N7yX9drSEeVGM8UlWQg/1yeg
-         fSwDsxJ+gwsiDZ3ax27jFEsaR8mh+Z6schqYCjN14LJHJHDR2GaFNdNciTrmU5RtSA
-         l+HpIp85eeT15T7vutL45JcIIYKdXJA1VXAvAHDE=
+        b=ob8X5VSh0Kk9LMm4OgVaNf599adh4+GHlV69H+Jfacfcx/Xs6GYZxsYd+g9+1xoDh
+         lFYy950V7gJo2z1YpRbjsNg0YsV+6criF2SS+uPKogNKk8ieFrueCcaBBBzXRE33JG
+         +KF9yY3bVr1HMu7NUMYWwiRaMM9Ta0NFYJMTjs+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.10 39/53] ARM: dts: s5pv210: Correct interrupt name for bluetooth in Aries
+        stable@vger.kernel.org, Marek Maslanka <mm@semihalf.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 28/34] HID: multitouch: Add support for Google Whiskers Touchpad
 Date:   Fri,  3 Jun 2022 19:43:24 +0200
-Message-Id: <20220603173819.858782061@linuxfoundation.org>
+Message-Id: <20220603173817.000712172@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Marek Maślanka <mm@semihalf.com>
 
-commit 3f5e3d3a8b895c8a11da8b0063ba2022dd9e2045 upstream.
+commit 1d07cef7fd7599450b3d03e1915efc2a96e1f03f upstream.
 
-Correct the name of the bluetooth interrupt from host-wake to
-host-wakeup.
+The Google Whiskers touchpad does not work properly with the default
+multitouch configuration. Instead, use the same configuration as Google
+Rose.
 
-Fixes: 1c65b6184441b ("ARM: dts: s5pv210: Correct BCM4329 bluetooth node")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/CY4PR04MB0567495CFCBDC8D408D44199CB1C9@CY4PR04MB0567.namprd04.prod.outlook.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Marek Maslanka <mm@semihalf.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/s5pv210-aries.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-multitouch.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/s5pv210-aries.dtsi
-+++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
-@@ -896,7 +896,7 @@
- 		device-wakeup-gpios = <&gpg3 4 GPIO_ACTIVE_HIGH>;
- 		interrupt-parent = <&gph2>;
- 		interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "host-wake";
-+		interrupt-names = "host-wakeup";
- 	};
- };
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2158,6 +2158,9 @@ static const struct hid_device_id mt_dev
+ 	{ .driver_data = MT_CLS_GOOGLE,
+ 		HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_GOOGLE,
+ 			USB_DEVICE_ID_GOOGLE_TOUCH_ROSE) },
++	{ .driver_data = MT_CLS_GOOGLE,
++		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_GOOGLE,
++			USB_DEVICE_ID_GOOGLE_WHISKERS) },
  
+ 	/* Generic MT device */
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
 
 
