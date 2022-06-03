@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C522A53CF29
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06BA453CF5A
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345560AbiFCRyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
+        id S1345168AbiFCRxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347243AbiFCRwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF9565B0;
-        Fri,  3 Jun 2022 10:51:08 -0700 (PDT)
+        with ESMTP id S1346439AbiFCRvK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C6453B40;
+        Fri,  3 Jun 2022 10:48:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C09C560EE9;
-        Fri,  3 Jun 2022 17:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0F1C385A9;
-        Fri,  3 Jun 2022 17:51:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33734B82189;
+        Fri,  3 Jun 2022 17:48:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 859CBC385A9;
+        Fri,  3 Jun 2022 17:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278667;
-        bh=DdcTsahpMA3mopHeABHUdvpDhh4i1FgDJdxIWWBmhHc=;
+        s=korg; t=1654278493;
+        bh=gL/j46Vo0RPyW+VAjcvOzLGMRh1Gj7E6e1zfGX6QSB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gphYyYLtbjedEeryDiSVeIGtXqFf2Jyi/7oA3Bk9ljne8tttOjOw1R4je7C4seUdF
-         4Mw3CHsZlyQ6p7GYZ4aXlrIYQqu60RWo+xz796qG9BAW7swYts1MKqmc+VSbL9Dj8L
-         au/RVVUhhdpEb7JuKMXdi9eaV2qIrE0nm3D53E9E=
+        b=IbYDt15DTYyuEFGihhxP3/gilgoZeHizO2YfCgWtg9Z5YjdwmyUhenp6ZcNBWmzSY
+         KuFET/JkTwVXMRH6CyHKDfAMJS0mFHTKdAT0ifhbEtfJdrQVxsmXIIiCPCI1uK19oF
+         4SkrPAgE1Mpvl/Ox7GJEOom49eYdeP9gHPdJJzLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Haitao Huang <haitao.huang@intel.com>
-Subject: [PATCH 5.15 54/66] x86/sgx: Ensure no data in PCMD page after truncate
+        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.10 49/53] docs: submitting-patches: Fix crossref to The canonical patch format
 Date:   Fri,  3 Jun 2022 19:43:34 +0200
-Message-Id: <20220603173822.222435530@linuxfoundation.org>
+Message-Id: <20220603173820.143736210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Akira Yokosawa <akiyks@gmail.com>
 
-commit e3a3bbe3e99de73043a1d32d36cf4d211dc58c7e upstream.
+commit 6d5aa418b3bd42cdccc36e94ee199af423ef7c84 upstream.
 
-A PCMD (Paging Crypto MetaData) page contains the PCMD
-structures of enclave pages that have been encrypted and
-moved to the shmem backing store. When all enclave pages
-sharing a PCMD page are loaded in the enclave, there is no
-need for the PCMD page and it can be truncated from the
-backing store.
+The reference to `explicit_in_reply_to` is pointless as when the
+reference was added in the form of "#15" [1], Section 15) was "The
+canonical patch format".
+The reference of "#15" had not been properly updated in a couple of
+reorganizations during the plain-text SubmittingPatches era.
 
-A few issues appeared around the truncation of PCMD pages. The
-known issues have been addressed but the PCMD handling code could
-be made more robust by loudly complaining if any new issue appears
-in this area.
+Fix it by using `the_canonical_patch_format`.
 
-Add a check that will complain with a warning if the PCMD page is not
-actually empty after it has been truncated. There should never be data
-in the PCMD page at this point since it is was just checked to be empty
-and truncated with enclave mutex held and is updated with the
-enclave mutex held.
+[1]: 2ae19acaa50a ("Documentation: Add "how to write a good patch summary" to SubmittingPatches")
 
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Haitao Huang <haitao.huang@intel.com>
-Link: https://lkml.kernel.org/r/6495120fed43fafc1496d09dd23df922b9a32709.1652389823.git.reinette.chatre@intel.com
+Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
+Fixes: 5903019b2a5e ("Documentation/SubmittingPatches: convert it to ReST markup")
+Fixes: 9b2c76777acc ("Documentation/SubmittingPatches: enrich the Sphinx output")
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: stable@vger.kernel.org # v4.9+
+Link: https://lore.kernel.org/r/64e105a5-50be-23f2-6cae-903a2ea98e18@gmail.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/sgx/encl.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ Documentation/process/submitting-patches.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -187,12 +187,20 @@ static int __sgx_encl_eldu(struct sgx_en
- 	kunmap_atomic(pcmd_page);
- 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
+--- a/Documentation/process/submitting-patches.rst
++++ b/Documentation/process/submitting-patches.rst
+@@ -71,7 +71,7 @@ as you intend it to.
  
-+	get_page(b.pcmd);
- 	sgx_encl_put_backing(&b);
+ The maintainer will thank you if you write your patch description in a
+ form which can be easily pulled into Linux's source code management
+-system, ``git``, as a "commit log".  See :ref:`explicit_in_reply_to`.
++system, ``git``, as a "commit log".  See :ref:`the_canonical_patch_format`.
  
- 	sgx_encl_truncate_backing_page(encl, page_index);
- 
--	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page))
-+	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page)) {
- 		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
-+		pcmd_page = kmap_atomic(b.pcmd);
-+		if (memchr_inv(pcmd_page, 0, PAGE_SIZE))
-+			pr_warn("PCMD page not empty after truncate.\n");
-+		kunmap_atomic(pcmd_page);
-+	}
-+
-+	put_page(b.pcmd);
- 
- 	return ret;
- }
+ Solve only one problem per patch.  If your description starts to get
+ long, that's a sign that you probably need to split up your patch.
 
 
