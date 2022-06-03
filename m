@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B70C753D0B4
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F352A53D050
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:02:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345935AbiFCSIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
+        id S1346222AbiFCSCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:02:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347109AbiFCSFi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:05:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784EF275C7;
-        Fri,  3 Jun 2022 10:58:33 -0700 (PDT)
+        with ESMTP id S1346255AbiFCSAH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643AD44A39;
+        Fri,  3 Jun 2022 10:55:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B8766166E;
-        Fri,  3 Jun 2022 17:58:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD85C385A9;
-        Fri,  3 Jun 2022 17:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBEF6B82189;
+        Fri,  3 Jun 2022 17:55:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146BCC3411C;
+        Fri,  3 Jun 2022 17:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279093;
-        bh=DdcTsahpMA3mopHeABHUdvpDhh4i1FgDJdxIWWBmhHc=;
+        s=korg; t=1654278950;
+        bh=CVX7ifswhwcQdtQzFlElZGzhD98c4LLhRKYPlmhrabY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gcr4NMsc7dK/zKsFWfZ/QWBPWW4XEJizoJxXpcXY0ci5tngLP952bzzN+Frug2+6Y
-         TNg0QULn3UlMcaX8hYe1f0GW6YL0I/CnMy15q8aoBaoYK2EpKUUsyqlSDrE12fnBZH
-         ihDRYT2uE0uH5KIKUL2SRkO2OCxLKAGw1bQqbj4o=
+        b=aLJ9DwLwYLf/hiSDZjEG/3aI3YckS7slU3AK9VW9Jm/gRsxphquJ0ZkIiVNGHPvPw
+         SPoyxh9Jlp33E1+xpxFHvkorxX25jDiCwtYzrJv8VsZNrIEvS+Y1/951HgC4hvcqYC
+         8lY2Kujg7ex9pCP99AdzI3tTZLqqxAVotBXEMn3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Haitao Huang <haitao.huang@intel.com>
-Subject: [PATCH 5.18 51/67] x86/sgx: Ensure no data in PCMD page after truncate
-Date:   Fri,  3 Jun 2022 19:43:52 +0200
-Message-Id: <20220603173822.199037809@linuxfoundation.org>
+        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.17 69/75] bpf: Fix potential array overflow in bpf_trampoline_get_progs()
+Date:   Fri,  3 Jun 2022 19:43:53 +0200
+Message-Id: <20220603173823.686886343@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Yuntao Wang <ytcoode@gmail.com>
 
-commit e3a3bbe3e99de73043a1d32d36cf4d211dc58c7e upstream.
+commit a2aa95b71c9bbec793b5c5fa50f0a80d882b3e8d upstream.
 
-A PCMD (Paging Crypto MetaData) page contains the PCMD
-structures of enclave pages that have been encrypted and
-moved to the shmem backing store. When all enclave pages
-sharing a PCMD page are loaded in the enclave, there is no
-need for the PCMD page and it can be truncated from the
-backing store.
+The cnt value in the 'cnt >= BPF_MAX_TRAMP_PROGS' check does not
+include BPF_TRAMP_MODIFY_RETURN bpf programs, so the number of
+the attached BPF_TRAMP_MODIFY_RETURN bpf programs in a trampoline
+can exceed BPF_MAX_TRAMP_PROGS.
 
-A few issues appeared around the truncation of PCMD pages. The
-known issues have been addressed but the PCMD handling code could
-be made more robust by loudly complaining if any new issue appears
-in this area.
+When this happens, the assignment '*progs++ = aux->prog' in
+bpf_trampoline_get_progs() will cause progs array overflow as the
+progs field in the bpf_tramp_progs struct can only hold at most
+BPF_MAX_TRAMP_PROGS bpf programs.
 
-Add a check that will complain with a warning if the PCMD page is not
-actually empty after it has been truncated. There should never be data
-in the PCMD page at this point since it is was just checked to be empty
-and truncated with enclave mutex held and is updated with the
-enclave mutex held.
-
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Haitao Huang <haitao.huang@intel.com>
-Link: https://lkml.kernel.org/r/6495120fed43fafc1496d09dd23df922b9a32709.1652389823.git.reinette.chatre@intel.com
+Fixes: 88fd9e5352fe ("bpf: Refactor trampoline update code")
+Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
+Link: https://lore.kernel.org/r/20220430130803.210624-1-ytcoode@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/sgx/encl.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ kernel/bpf/trampoline.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -187,12 +187,20 @@ static int __sgx_encl_eldu(struct sgx_en
- 	kunmap_atomic(pcmd_page);
- 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
+--- a/kernel/bpf/trampoline.c
++++ b/kernel/bpf/trampoline.c
+@@ -423,7 +423,7 @@ int bpf_trampoline_link_prog(struct bpf_
+ {
+ 	enum bpf_tramp_prog_type kind;
+ 	int err = 0;
+-	int cnt;
++	int cnt = 0, i;
  
-+	get_page(b.pcmd);
- 	sgx_encl_put_backing(&b);
- 
- 	sgx_encl_truncate_backing_page(encl, page_index);
- 
--	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page))
-+	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page)) {
- 		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
-+		pcmd_page = kmap_atomic(b.pcmd);
-+		if (memchr_inv(pcmd_page, 0, PAGE_SIZE))
-+			pr_warn("PCMD page not empty after truncate.\n");
-+		kunmap_atomic(pcmd_page);
-+	}
+ 	kind = bpf_attach_type_to_tramp(prog);
+ 	mutex_lock(&tr->mutex);
+@@ -434,7 +434,10 @@ int bpf_trampoline_link_prog(struct bpf_
+ 		err = -EBUSY;
+ 		goto out;
+ 	}
+-	cnt = tr->progs_cnt[BPF_TRAMP_FENTRY] + tr->progs_cnt[BPF_TRAMP_FEXIT];
 +
-+	put_page(b.pcmd);
++	for (i = 0; i < BPF_TRAMP_MAX; i++)
++		cnt += tr->progs_cnt[i];
++
+ 	if (kind == BPF_TRAMP_REPLACE) {
+ 		/* Cannot attach extension if fentry/fexit are in use. */
+ 		if (cnt) {
+@@ -512,16 +515,19 @@ out:
  
- 	return ret;
- }
+ void bpf_trampoline_put(struct bpf_trampoline *tr)
+ {
++	int i;
++
+ 	if (!tr)
+ 		return;
+ 	mutex_lock(&trampoline_mutex);
+ 	if (!refcount_dec_and_test(&tr->refcnt))
+ 		goto out;
+ 	WARN_ON_ONCE(mutex_is_locked(&tr->mutex));
+-	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FENTRY])))
+-		goto out;
+-	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FEXIT])))
+-		goto out;
++
++	for (i = 0; i < BPF_TRAMP_MAX; i++)
++		if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[i])))
++			goto out;
++
+ 	/* This code will be executed even when the last bpf_tramp_image
+ 	 * is alive. All progs are detached from the trampoline and the
+ 	 * trampoline image is patched with jmp into epilogue to skip
 
 
