@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E959753CF75
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A48F53CFEC
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344653AbiFCRxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46566 "EHLO
+        id S1346023AbiFCR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:58:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346431AbiFCRvK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2F8B53A73;
-        Fri,  3 Jun 2022 10:48:10 -0700 (PDT)
+        with ESMTP id S1345763AbiFCR5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:57:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A611D5715E;
+        Fri,  3 Jun 2022 10:54:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6502B60EE9;
-        Fri,  3 Jun 2022 17:48:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B597C385B8;
-        Fri,  3 Jun 2022 17:48:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 427EEB82433;
+        Fri,  3 Jun 2022 17:54:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81FF0C36AF9;
+        Fri,  3 Jun 2022 17:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278489;
-        bh=t2iku9VsGb3Gnb7+FcVhBaBUkyqnTKlCN7xRRtn7nVw=;
+        s=korg; t=1654278859;
+        bh=sWYMcPFGoot0S8tVpli0sr3rcc3mpF4dNl+flmOjK3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caxM0skyVyLeF56lD7qbX6u/BhwDbRITveH0BKuDGcl+qAQYqC85XB7pKHIwE+t4z
-         gPV5NDoEfkqNH7WhlgIOX5Jyzts1sd2adM/Nd3Dicl2b4iVtY+vWciVzaJBUk3IENt
-         O++K7KjgGSS4zzFvk0uV9hgO9JhdTU1USfxC8Sdg=
+        b=TcMlwQ5aniBuoxqudbWapy16nDmT2Aa7Q6e8BgkbZ662HIIQXCkoxdBOyKIMQJAYI
+         53SBaz0kmrdaVSxKkw7qMA0RDanP1ubiqHYTqfmBl3KE9WA4CcZSpik+I8oYJwiCuy
+         acPsf/Eyla7emslNmEUjcPkRnSQE+igky62Rdxh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.10 48/53] tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.17 49/75] dm integrity: fix error code in dm_integrity_ctr()
 Date:   Fri,  3 Jun 2022 19:43:33 +0200
-Message-Id: <20220603173820.116053243@linuxfoundation.org>
+Message-Id: <20220603173823.137189779@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d0dc1a7100f19121f6e7450f9cdda11926aa3838 upstream.
+commit d3f2a14b8906df913cb04a706367b012db94a6e8 upstream.
 
-Currently it returns zero when CRQ response timed out, it should return
-an error code instead.
+The "r" variable shadows an earlier "r" that has function scope.  It
+means that we accidentally return success instead of an error code.
+Smatch has a warning for this:
 
-Fixes: d8d74ea3c002 ("tpm: ibmvtpm: Wait for buffer to be set before proceeding")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+	drivers/md/dm-integrity.c:4503 dm_integrity_ctr()
+	warn: missing error code 'r'
+
+Fixes: 7eada909bfd7 ("dm: add integrity target")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm-integrity.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -683,6 +683,7 @@ static int tpm_ibmvtpm_probe(struct vio_
- 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
- 				ibmvtpm->rtce_buf != NULL,
- 				HZ)) {
-+		rc = -ENODEV;
- 		dev_err(dev, "CRQ response timed out\n");
- 		goto init_irq_cleanup;
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -4495,8 +4495,6 @@ try_smaller_buffer:
  	}
+ 
+ 	if (should_write_sb) {
+-		int r;
+-
+ 		init_journal(ic, 0, ic->journal_sections, 0);
+ 		r = dm_integrity_failed(ic);
+ 		if (unlikely(r)) {
 
 
