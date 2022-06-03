@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3F1553CF73
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4087753CF9D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345357AbiFCRxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
+        id S1345810AbiFCRzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346678AbiFCRv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE9C57142;
-        Fri,  3 Jun 2022 10:49:08 -0700 (PDT)
+        with ESMTP id S1345463AbiFCRwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71D51A827;
+        Fri,  3 Jun 2022 10:52:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3276760F3E;
-        Fri,  3 Jun 2022 17:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 415FEC385A9;
-        Fri,  3 Jun 2022 17:49:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC2C7B82433;
+        Fri,  3 Jun 2022 17:52:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECE7C385A9;
+        Fri,  3 Jun 2022 17:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278547;
-        bh=utL4tx2DU7lDNCDqgGRF69/Bgz6BQ0QQnq+uQiKu+Ts=;
+        s=korg; t=1654278740;
+        bh=vDKShUhCqzjc8Sf6bpgAp7e22LI592LUlHmvwrPh4rM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnD8Ug9TBwCV2MpRomjiBKJfzEo5rCVe+o8Qa+IuAKamgrCtA7rZIa+4rG7Fs4XNC
-         hiT4xmM0gj1OemoFoz0NPFF1zw6XiY8BKhzW2IqjxGN3CYoUD+Gs3rdijhZyXxcUAP
-         yTzeX4+tWQgZnlrPVXi/9mG2v2qbMiujfXxCRNqs=
+        b=RDxzjbwJ0EwzZux4HdFCBVhCrPhzS9Nk5e8ACkqy6Czd6cbQo5i87cvh7bR+LZ+Ef
+         hgak6sm8f2uBttiK0stYIP05N1BWyyhv+wkVAp4i23+oKjU7hOGMDtOYUhzM56t8pj
+         TSMqmzCAd8lYFRqOInZ8UucSyb9ZkvLgHYFosdz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 15/66] net: ipa: compute proper aggregation limit
-Date:   Fri,  3 Jun 2022 19:42:55 +0200
-Message-Id: <20220603173821.104884211@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Aaron Adams <edg-e@nccgroup.com>
+Subject: [PATCH 5.17 12/75] netfilter: nf_tables: disallow non-stateful expression in sets earlier
+Date:   Fri,  3 Jun 2022 19:42:56 +0200
+Message-Id: <20220603173822.097170931@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit c5794097b269f15961ed78f7f27b50e51766dec9 upstream.
+commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
 
-The aggregation byte limit for an endpoint is currently computed
-based on the endpoint's receive buffer size.
+Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+instantiation"), it is possible to attach stateful expressions to set
+elements.
 
-However, some bytes at the front of each receive buffer are reserved
-on the assumption that--as with SKBs--it might be useful to insert
-data (such as headers) before what lands in the buffer.
+cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+and destroy phase") introduces conditional destruction on the object to
+accomodate transaction semantics.
 
-The aggregation byte limit currently doesn't take into account that
-reserved space, and as a result, aggregation could require space
-past that which is available in the buffer.
+nft_expr_init() calls expr->ops->init() first, then check for
+NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+lookup expressions which points to a set, which might lead to UAF since
+the set is not properly detached from the set->binding for this case.
+Anyway, this combination is non-sense from nf_tables perspective.
 
-Fix this by reducing the size used to compute the aggregation byte
-limit by the NET_SKB_PAD offset reserved for each receive buffer.
+This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+expr->ops->init() is called.
 
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The reporter provides a KASAN splat and a poc reproducer (similar to
+those autogenerated by syzbot to report use-after-free errors). It is
+unknown to me if they are using syzbot or if they use similar automated
+tool to locate the bug that they are reporting.
+
+For the record, this is the KASAN splat.
+
+[   85.431824] ==================================================================
+[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+[   85.434756]
+[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+
+Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_endpoint.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -722,13 +722,15 @@ static void ipa_endpoint_init_aggr(struc
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2794,27 +2794,31 @@ static struct nft_expr *nft_expr_init(co
  
- 	if (endpoint->data->aggregation) {
- 		if (!endpoint->toward_ipa) {
-+			u32 buffer_size;
- 			bool close_eof;
- 			u32 limit;
+ 	err = nf_tables_expr_parse(ctx, nla, &expr_info);
+ 	if (err < 0)
+-		goto err1;
++		goto err_expr_parse;
++
++	err = -EOPNOTSUPP;
++	if (!(expr_info.ops->type->flags & NFT_EXPR_STATEFUL))
++		goto err_expr_stateful;
  
- 			val |= u32_encode_bits(IPA_ENABLE_AGGR, AGGR_EN_FMASK);
- 			val |= u32_encode_bits(IPA_GENERIC, AGGR_TYPE_FMASK);
+ 	err = -ENOMEM;
+ 	expr = kzalloc(expr_info.ops->size, GFP_KERNEL);
+ 	if (expr == NULL)
+-		goto err2;
++		goto err_expr_stateful;
  
--			limit = ipa_aggr_size_kb(IPA_RX_BUFFER_SIZE);
-+			buffer_size = IPA_RX_BUFFER_SIZE - NET_SKB_PAD;
-+			limit = ipa_aggr_size_kb(buffer_size);
- 			val |= aggr_byte_limit_encoded(version, limit);
+ 	err = nf_tables_newexpr(ctx, &expr_info, expr);
+ 	if (err < 0)
+-		goto err3;
++		goto err_expr_new;
  
- 			limit = IPA_AGGR_TIME_LIMIT;
+ 	return expr;
+-err3:
++err_expr_new:
+ 	kfree(expr);
+-err2:
++err_expr_stateful:
+ 	owner = expr_info.ops->type->owner;
+ 	if (expr_info.ops->type->release_ops)
+ 		expr_info.ops->type->release_ops(expr_info.ops);
+ 
+ 	module_put(owner);
+-err1:
++err_expr_parse:
+ 	return ERR_PTR(err);
+ }
+ 
+@@ -5334,9 +5338,6 @@ struct nft_expr *nft_set_elem_expr_alloc
+ 		return expr;
+ 
+ 	err = -EOPNOTSUPP;
+-	if (!(expr->ops->type->flags & NFT_EXPR_STATEFUL))
+-		goto err_set_elem_expr;
+-
+ 	if (expr->ops->type->flags & NFT_EXPR_GC) {
+ 		if (set->flags & NFT_SET_TIMEOUT)
+ 			goto err_set_elem_expr;
 
 
