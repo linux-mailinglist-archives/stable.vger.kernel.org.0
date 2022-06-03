@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8801753CE8E
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E0453CE7E
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344870AbiFCRn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56894 "EHLO
+        id S1344869AbiFCRmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:42:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344972AbiFCRnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D678E546AE;
-        Fri,  3 Jun 2022 10:41:49 -0700 (PDT)
+        with ESMTP id S1344866AbiFCRmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:42:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE9D544CD;
+        Fri,  3 Jun 2022 10:41:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25C5CB8241E;
-        Fri,  3 Jun 2022 17:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93361C385B8;
-        Fri,  3 Jun 2022 17:41:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50BE2B8241E;
+        Fri,  3 Jun 2022 17:41:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 718E5C385B8;
+        Fri,  3 Jun 2022 17:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278107;
-        bh=LsH1HqDV5pyLfd2g9MkJXXWym+3MpMynBu8bh8SGuwA=;
+        s=korg; t=1654278095;
+        bh=3ViZWjmJ+Nek5pl0FuNMo3ymqto6EzWkpqpCjbVe+J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/9gjiqf/D2Y4DlKBs1FpPYT/04XRh+xSuO8/BTbV7ByxvDIafaHpYTinpdIwlvzc
-         QZeua///RQXKKHmBnOO5QauAPIn76/QZVwggBdgBDit2V99w4oDZ1krOBtvHUg1BKo
-         N9lUcrIciwRB3c2caNZeqIS6Hfbmxn4YTB8AnZi0=
+        b=q+UhhMdM8ZGiHeU+Wu9gYbJ8SIehtwd30o0Mb9XbmwAJz5OiMJVKS9GD9daCBpXqo
+         hJFeS8uUp/JVmb6pkUfvD+M3RyAaUV6yNfaJephoCJG1Xogha4qx06a4uH0oSEisUB
+         MQKnC30D5e/y1U7RpSAPpl72BnvSj9SS2wpbC9Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Miri Korenblit <miriam.rachel.korenblit@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 12/30] cfg80211: set custom regdomain after wiphy registration
+        stable@vger.kernel.org, Ariadne Conill <ariadne@dereferenced.org>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Rich Felker <dalias@libc.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>
+Subject: [PATCH 4.14 13/23] exec: Force single empty string when argv is empty
 Date:   Fri,  3 Jun 2022 19:39:40 +0200
-Message-Id: <20220603173815.455299058@linuxfoundation.org>
+Message-Id: <20220603173814.769065032@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
+References: <20220603173814.362515009@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +61,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miri Korenblit <miriam.rachel.korenblit@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 1b7b3ac8ff3317cdcf07a1c413de9bdb68019c2b upstream.
+commit dcd46d897adb70d63e025f175a00a89797d31a43 upstream.
 
-We used to set regulatory info before the registration of
-the device and then the regulatory info didn't get set, because
-the device isn't registered so there isn't a device to set the
-regulatory info for. So set the regulatory info after the device
-registration.
-Call reg_process_self_managed_hints() once again after the device
-registration because it does nothing before it.
+Quoting[1] Ariadne Conill:
 
-Signed-off-by: Miri Korenblit <miriam.rachel.korenblit@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210618133832.c96eadcffe80.I86799c2c866b5610b4cf91115c21d8ceb525c5aa@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+"In several other operating systems, it is a hard requirement that the
+second argument to execve(2) be the name of a program, thus prohibiting
+a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
+but it is not an explicit requirement[2]:
+
+    The argument arg0 should point to a filename string that is
+    associated with the process being started by one of the exec
+    functions.
+...
+Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
+but there was no consensus to support fixing this issue then.
+Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
+of this bug in a shellcode, we can reconsider.
+
+This issue is being tracked in the KSPP issue tracker[5]."
+
+While the initial code searches[6][7] turned up what appeared to be
+mostly corner case tests, trying to that just reject argv == NULL
+(or an immediately terminated pointer list) quickly started tripping[8]
+existing userspace programs.
+
+The next best approach is forcing a single empty string into argv and
+adjusting argc to match. The number of programs depending on argc == 0
+seems a smaller set than those calling execve with a NULL argv.
+
+Account for the additional stack space in bprm_stack_limits(). Inject an
+empty string when argc == 0 (and set argc = 1). Warn about the case so
+userspace has some notice about the change:
+
+    process './argc0' launched './argc0' with NULL argv: empty string added
+
+Additionally WARN() and reject NULL argv usage for kernel threads.
+
+[1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
+[2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
+[3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
+[4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
+[5] https://github.com/KSPP/linux/issues/176
+[6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
+[7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
+[8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
+
+Reported-by: Ariadne Conill <ariadne@dereferenced.org>
+Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Acked-by: Ariadne Conill <ariadne@dereferenced.org>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Link: https://lore.kernel.org/r/20220201000947.2453721-1-keescook@chromium.org
+[vegard: fixed conflicts due to missing
+ 886d7de631da71e30909980fdbf318f7caade262^- and
+ 3950e975431bc914f7e81b8f2a2dbdf2064acb0f^- and
+ 655c16a8ce9c15842547f40ce23fd148aeccc074]
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/core.c |    7 ++++---
- net/wireless/reg.c  |    1 +
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/exec.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -4,6 +4,7 @@
-  * Copyright 2006-2010		Johannes Berg <johannes@sipsolutions.net>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright 2015-2017	Intel Deutschland GmbH
-+ * Copyright (C) 2018-2021 Intel Corporation
-  */
+This has been tested in both argc == 0 and argc >= 1 cases, but I would
+still appreciate a review given the differences with mainline. If it's
+considered too risky I'm also fine with dropping it -- just wanted to
+make sure this didn't fall through the cracks, as it does block a real
+(albeit old by now) exploit.
+
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1788,6 +1788,9 @@ static int do_execveat_common(int fd, st
+ 		goto out_unmark;
  
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-@@ -835,9 +836,6 @@ int wiphy_register(struct wiphy *wiphy)
- 		return res;
- 	}
+ 	bprm->argc = count(argv, MAX_ARG_STRINGS);
++	if (bprm->argc == 0)
++		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
++			     current->comm, bprm->filename);
+ 	if ((retval = bprm->argc) < 0)
+ 		goto out;
  
--	/* set up regulatory info */
--	wiphy_regulatory_register(wiphy);
--
- 	list_add_rcu(&rdev->list, &cfg80211_rdev_list);
- 	cfg80211_rdev_list_generation++;
+@@ -1812,6 +1815,20 @@ static int do_execveat_common(int fd, st
+ 	if (retval < 0)
+ 		goto out;
  
-@@ -851,6 +849,9 @@ int wiphy_register(struct wiphy *wiphy)
- 	cfg80211_debugfs_rdev_add(rdev);
- 	nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
- 
-+	/* set up regulatory info */
-+	wiphy_regulatory_register(wiphy);
++	/*
++	 * When argv is empty, add an empty string ("") as argv[0] to
++	 * ensure confused userspace programs that start processing
++	 * from argv[1] won't end up walking envp. See also
++	 * bprm_stack_limits().
++	 */
++	if (bprm->argc == 0) {
++		const char *argv[] = { "", NULL };
++		retval = copy_strings_kernel(1, argv, bprm);
++		if (retval < 0)
++			goto out;
++		bprm->argc = 1;
++	}
 +
- 	if (wiphy->regulatory_flags & REGULATORY_CUSTOM_REG) {
- 		struct regulatory_request request;
- 
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3756,6 +3756,7 @@ void wiphy_regulatory_register(struct wi
- 
- 	wiphy_update_regulatory(wiphy, lr->initiator);
- 	wiphy_all_share_dfs_chan_state(wiphy);
-+	reg_process_self_managed_hints();
- }
- 
- void wiphy_regulatory_deregister(struct wiphy *wiphy)
+ 	retval = exec_binprm(bprm);
+ 	if (retval < 0)
+ 		goto out;
 
 
