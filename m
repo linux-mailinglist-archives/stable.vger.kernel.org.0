@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1695053D0EB
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAED53D0E4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245118AbiFCSIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44602 "EHLO
+        id S1346481AbiFCSIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347719AbiFCSGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4246E5D194;
-        Fri,  3 Jun 2022 10:59:22 -0700 (PDT)
+        with ESMTP id S1348027AbiFCSGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E1C15DBF0;
+        Fri,  3 Jun 2022 10:59:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4238B6167F;
-        Fri,  3 Jun 2022 17:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F2CC3411C;
-        Fri,  3 Jun 2022 17:58:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 68B31CE2491;
+        Fri,  3 Jun 2022 17:58:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E235C385A9;
+        Fri,  3 Jun 2022 17:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279133;
-        bh=/UriPG/kavlvRQJG4JCjxU7QWJusRkAp5IS4zlxqq0M=;
+        s=korg; t=1654279136;
+        bh=OjwbpKNPDfe7GTw3ryhR0CVtFhv3cYyjK+edEN1nmDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1C0Mi5A4hF0a45lgp6wtuAeManWHMzS+80yUXtgdoe4JGxPP7d1P4ZEmG5EgVA5w7
-         Ag4NOU8C+0CdjrqPxXIbaMaKH42BybzU3OvsmgSMRrcl+JkHHGbNqNBMTHFCyqfd1X
-         JGPKwUa84k3d46yVSeIUD1+/g3Qm/4tZvlMqvIGw=
+        b=J2YG4QfCZYhO072rxNEHT0l77w/IqsfcywRY/TqfTwBFWNAIzjnaX4b1aL/bakUX7
+         Gqwbd3WWlOqR7nDkAugqtAfXLW33Gs5s6LkvO0DS0DLoXBrxu83xsk1F6YKdCBk8g1
+         b0wbs7uiZxQTJAL6j5IYFc8g50YtLv9gGkqtRFz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KP Singh <kpsingh@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>
-Subject: [PATCH 5.18 63/67] bpf: Fix usage of trace RCU in local storage.
-Date:   Fri,  3 Jun 2022 19:44:04 +0200
-Message-Id: <20220603173822.531727915@linuxfoundation.org>
+        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.18 64/67] bpf: Fix excessive memory allocation in stack_map_alloc()
+Date:   Fri,  3 Jun 2022 19:44:05 +0200
+Message-Id: <20220603173822.558677557@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
 References: <20220603173820.731531504@linuxfoundation.org>
@@ -54,194 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KP Singh <kpsingh@kernel.org>
+From: Yuntao Wang <ytcoode@gmail.com>
 
-commit dcf456c9a095a6e71f53d6f6f004133ee851ee70 upstream.
+commit b45043192b3e481304062938a6561da2ceea46a6 upstream.
 
-bpf_{sk,task,inode}_storage_free() do not need to use
-call_rcu_tasks_trace as no BPF program should be accessing the owner
-as it's being destroyed. The only other reader at this point is
-bpf_local_storage_map_free() which uses normal RCU.
+The 'n_buckets * (value_size + sizeof(struct stack_map_bucket))' part of the
+allocated memory for 'smap' is never used after the memlock accounting was
+removed, thus get rid of it.
 
-The only path that needs trace RCU are:
+[ Note, Daniel:
 
-* bpf_local_storage_{delete,update} helpers
-* map_{delete,update}_elem() syscalls
+Commit b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
+moved `cost += n_buckets * (value_size + sizeof(struct stack_map_bucket))`
+up and therefore before the bpf_map_area_alloc() allocation, sigh. In a later
+step commit c85d69135a91 ("bpf: move memory size checks to bpf_map_charge_init()"),
+and the overflow checks of `cost >= U32_MAX - PAGE_SIZE` moved into
+bpf_map_charge_init(). And then 370868107bf6 ("bpf: Eliminate rlimit-based
+memory accounting for stackmap maps") finally removed the bpf_map_charge_init().
+Anyway, the original code did the allocation same way as /after/ this fix. ]
 
-Fixes: 0fe4b381a59e ("bpf: Allow bpf_local_storage to be used by sleepable programs")
-Signed-off-by: KP Singh <kpsingh@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220418155158.2865678-1-kpsingh@kernel.org
+Fixes: b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
+Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220407130423.798386-1-ytcoode@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf_local_storage.h |    4 ++--
- kernel/bpf/bpf_inode_storage.c    |    4 ++--
- kernel/bpf/bpf_local_storage.c    |   29 +++++++++++++++++++----------
- kernel/bpf/bpf_task_storage.c     |    4 ++--
- net/core/bpf_sk_storage.c         |    6 +++---
- 5 files changed, 28 insertions(+), 19 deletions(-)
+ kernel/bpf/stackmap.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/include/linux/bpf_local_storage.h
-+++ b/include/linux/bpf_local_storage.h
-@@ -143,9 +143,9 @@ void bpf_selem_link_storage_nolock(struc
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -100,7 +100,6 @@ static struct bpf_map *stack_map_alloc(u
+ 		return ERR_PTR(-E2BIG);
  
- bool bpf_selem_unlink_storage_nolock(struct bpf_local_storage *local_storage,
- 				     struct bpf_local_storage_elem *selem,
--				     bool uncharge_omem);
-+				     bool uncharge_omem, bool use_trace_rcu);
- 
--void bpf_selem_unlink(struct bpf_local_storage_elem *selem);
-+void bpf_selem_unlink(struct bpf_local_storage_elem *selem, bool use_trace_rcu);
- 
- void bpf_selem_link_map(struct bpf_local_storage_map *smap,
- 			struct bpf_local_storage_elem *selem);
---- a/kernel/bpf/bpf_inode_storage.c
-+++ b/kernel/bpf/bpf_inode_storage.c
-@@ -90,7 +90,7 @@ void bpf_inode_storage_free(struct inode
- 		 */
- 		bpf_selem_unlink_map(selem);
- 		free_inode_storage = bpf_selem_unlink_storage_nolock(
--			local_storage, selem, false);
-+			local_storage, selem, false, false);
- 	}
- 	raw_spin_unlock_bh(&local_storage->lock);
- 	rcu_read_unlock();
-@@ -149,7 +149,7 @@ static int inode_storage_delete(struct i
- 	if (!sdata)
- 		return -ENOENT;
- 
--	bpf_selem_unlink(SELEM(sdata));
-+	bpf_selem_unlink(SELEM(sdata), true);
- 
- 	return 0;
- }
---- a/kernel/bpf/bpf_local_storage.c
-+++ b/kernel/bpf/bpf_local_storage.c
-@@ -106,7 +106,7 @@ static void bpf_selem_free_rcu(struct rc
-  */
- bool bpf_selem_unlink_storage_nolock(struct bpf_local_storage *local_storage,
- 				     struct bpf_local_storage_elem *selem,
--				     bool uncharge_mem)
-+				     bool uncharge_mem, bool use_trace_rcu)
- {
- 	struct bpf_local_storage_map *smap;
- 	bool free_local_storage;
-@@ -150,11 +150,16 @@ bool bpf_selem_unlink_storage_nolock(str
- 	    SDATA(selem))
- 		RCU_INIT_POINTER(local_storage->cache[smap->cache_idx], NULL);
- 
--	call_rcu_tasks_trace(&selem->rcu, bpf_selem_free_rcu);
-+	if (use_trace_rcu)
-+		call_rcu_tasks_trace(&selem->rcu, bpf_selem_free_rcu);
-+	else
-+		kfree_rcu(selem, rcu);
-+
- 	return free_local_storage;
- }
- 
--static void __bpf_selem_unlink_storage(struct bpf_local_storage_elem *selem)
-+static void __bpf_selem_unlink_storage(struct bpf_local_storage_elem *selem,
-+				       bool use_trace_rcu)
- {
- 	struct bpf_local_storage *local_storage;
- 	bool free_local_storage = false;
-@@ -169,12 +174,16 @@ static void __bpf_selem_unlink_storage(s
- 	raw_spin_lock_irqsave(&local_storage->lock, flags);
- 	if (likely(selem_linked_to_storage(selem)))
- 		free_local_storage = bpf_selem_unlink_storage_nolock(
--			local_storage, selem, true);
-+			local_storage, selem, true, use_trace_rcu);
- 	raw_spin_unlock_irqrestore(&local_storage->lock, flags);
- 
--	if (free_local_storage)
--		call_rcu_tasks_trace(&local_storage->rcu,
-+	if (free_local_storage) {
-+		if (use_trace_rcu)
-+			call_rcu_tasks_trace(&local_storage->rcu,
- 				     bpf_local_storage_free_rcu);
-+		else
-+			kfree_rcu(local_storage, rcu);
-+	}
- }
- 
- void bpf_selem_link_storage_nolock(struct bpf_local_storage *local_storage,
-@@ -214,14 +223,14 @@ void bpf_selem_link_map(struct bpf_local
- 	raw_spin_unlock_irqrestore(&b->lock, flags);
- }
- 
--void bpf_selem_unlink(struct bpf_local_storage_elem *selem)
-+void bpf_selem_unlink(struct bpf_local_storage_elem *selem, bool use_trace_rcu)
- {
- 	/* Always unlink from map before unlinking from local_storage
- 	 * because selem will be freed after successfully unlinked from
- 	 * the local_storage.
- 	 */
- 	bpf_selem_unlink_map(selem);
--	__bpf_selem_unlink_storage(selem);
-+	__bpf_selem_unlink_storage(selem, use_trace_rcu);
- }
- 
- struct bpf_local_storage_data *
-@@ -466,7 +475,7 @@ bpf_local_storage_update(void *owner, st
- 	if (old_sdata) {
- 		bpf_selem_unlink_map(SELEM(old_sdata));
- 		bpf_selem_unlink_storage_nolock(local_storage, SELEM(old_sdata),
--						false);
-+						false, true);
- 	}
- 
- unlock:
-@@ -548,7 +557,7 @@ void bpf_local_storage_map_free(struct b
- 				migrate_disable();
- 				__this_cpu_inc(*busy_counter);
- 			}
--			bpf_selem_unlink(selem);
-+			bpf_selem_unlink(selem, false);
- 			if (busy_counter) {
- 				__this_cpu_dec(*busy_counter);
- 				migrate_enable();
---- a/kernel/bpf/bpf_task_storage.c
-+++ b/kernel/bpf/bpf_task_storage.c
-@@ -102,7 +102,7 @@ void bpf_task_storage_free(struct task_s
- 		 */
- 		bpf_selem_unlink_map(selem);
- 		free_task_storage = bpf_selem_unlink_storage_nolock(
--			local_storage, selem, false);
-+			local_storage, selem, false, false);
- 	}
- 	raw_spin_unlock_irqrestore(&local_storage->lock, flags);
- 	bpf_task_storage_unlock();
-@@ -192,7 +192,7 @@ static int task_storage_delete(struct ta
- 	if (!sdata)
- 		return -ENOENT;
- 
--	bpf_selem_unlink(SELEM(sdata));
-+	bpf_selem_unlink(SELEM(sdata), true);
- 
- 	return 0;
- }
---- a/net/core/bpf_sk_storage.c
-+++ b/net/core/bpf_sk_storage.c
-@@ -40,7 +40,7 @@ static int bpf_sk_storage_del(struct soc
- 	if (!sdata)
- 		return -ENOENT;
- 
--	bpf_selem_unlink(SELEM(sdata));
-+	bpf_selem_unlink(SELEM(sdata), true);
- 
- 	return 0;
- }
-@@ -75,8 +75,8 @@ void bpf_sk_storage_free(struct sock *sk
- 		 * sk_storage.
- 		 */
- 		bpf_selem_unlink_map(selem);
--		free_sk_storage = bpf_selem_unlink_storage_nolock(sk_storage,
--								  selem, true);
-+		free_sk_storage = bpf_selem_unlink_storage_nolock(
-+			sk_storage, selem, true, false);
- 	}
- 	raw_spin_unlock_bh(&sk_storage->lock);
- 	rcu_read_unlock();
+ 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
+-	cost += n_buckets * (value_size + sizeof(struct stack_map_bucket));
+ 	smap = bpf_map_area_alloc(cost, bpf_map_attr_numa_node(attr));
+ 	if (!smap)
+ 		return ERR_PTR(-ENOMEM);
 
 
