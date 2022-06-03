@@ -2,72 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0475E53C4C7
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 08:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF2753C533
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 08:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241367AbiFCGSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 02:18:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35250 "EHLO
+        id S241657AbiFCGxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 02:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiFCGSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 02:18:43 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDABA1D0F1;
-        Thu,  2 Jun 2022 23:18:42 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S241525AbiFCGxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 02:53:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD763669D;
+        Thu,  2 Jun 2022 23:53:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 7699D1F90D;
-        Fri,  3 Jun 2022 06:18:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1654237121; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EDB7jYe/eREYzqsgeee74yP1wsa2+nOa8MnVZn+zwws=;
-        b=vIy48MsKmGFLrbsKxHDnrH1z3Cv4rwmxKyqeCpDcmluxOQ9opkXzvsMbABN7fx19PY600r
-        +pXaxkywliLrubk2nUyChFVQRkSekb0ZmxzPWkoEPBsdyjcZv62Dxu+RjCmja1Np56ln8A
-        GFSkDDCchb+A+pL2Q4bHMxL7nM+pQrQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1654237121;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EDB7jYe/eREYzqsgeee74yP1wsa2+nOa8MnVZn+zwws=;
-        b=lknC0K5oGVxwpH2P5IjnJCFVqSyGXNx61FIkvfChMETEeThorLAWX5pH0wP+3YH2i90FpO
-        6s6ejSzF4Py22xAg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 47A7613AA2;
-        Fri,  3 Jun 2022 06:18:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id BFioEMGnmWJ/NQAAMHmgww
-        (envelope-from <hare@suse.de>); Fri, 03 Jun 2022 06:18:41 +0000
-Message-ID: <94c1c9ae-67cb-2491-0f00-477d78178616@suse.de>
-Date:   Fri, 3 Jun 2022 08:18:40 +0200
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D510B8222F;
+        Fri,  3 Jun 2022 06:53:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D4E4C34114;
+        Fri,  3 Jun 2022 06:53:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654239192;
+        bh=4kiwAXxTd5EFLJFklr/uinCBNS2WrG3A8QFkFVilo/Y=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=ZBYlKQXOAG9cVfZy3IEd/nTYWdZLYIdW0bbc2KQpa9ePcizpeffMaiJcxOMI9Te8r
+         mrmfLyjdfNKPXUzk2c8tYv56JfShBALH6wc7cvB2AnRbgqPwETeyjha6uw0evbNcdo
+         rMDN9Ur8wCOO4OIvtJwLMtmgVD+oBBeznopvRA0OcEKKinIplReg1u73646gzrqakt
+         0s0iHYB2MNsPGsqPp2YGwIDLNT+ljyWUHq4G0QrQknAaBcY9Sb5wk6G6qhTaoH+Gcq
+         dRWi02zoqp0ngnCCZ0MjxRBhhvJwuzXgK8Z4FGh8nfcqnpFQ7m4d4DAGYE+D6sFeKR
+         2DXj/gDrHJwoQ==
+Received: by mail-oi1-f172.google.com with SMTP id s8so4100172oib.6;
+        Thu, 02 Jun 2022 23:53:12 -0700 (PDT)
+X-Gm-Message-State: AOAM530zekfoDHeMaa8aOJ6W5jF5iv/7cSlIGO9miI2JP3OBXeuGpiXz
+        xmOCwstGfJTtbgpra05shXipyuum46pfxg0ORN4=
+X-Google-Smtp-Source: ABdhPJxa6gfpLwNr4hl8bLWkUKUtjQv5VONEmtC9iB+468r/tHaY4U1DDyhG6VltieIHtY9LINCXH2RU9xq97PsH9GE=
+X-Received: by 2002:a05:6808:300e:b0:32c:425e:df34 with SMTP id
+ ay14-20020a056808300e00b0032c425edf34mr4652911oib.126.1654239191301; Thu, 02
+ Jun 2022 23:53:11 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v2 3/3] scsi: sd: Fix interpretation of VPD B9h length
-Content-Language: en-US
-To:     Tyler Erickson <tyler.erickson@seagate.com>,
-        damien.lemoal@opensource.wdc.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
-        muhammad.ahmad@seagate.com, stable@vger.kernel.org
-References: <20220602225113.10218-1-tyler.erickson@seagate.com>
- <20220602225113.10218-4-tyler.erickson@seagate.com>
-From:   Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20220602225113.10218-4-tyler.erickson@seagate.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+References: <20220602212234.344394-1-Jason@zx2c4.com>
+In-Reply-To: <20220602212234.344394-1-Jason@zx2c4.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Fri, 3 Jun 2022 08:53:00 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXE=17f7kVs7RbUnBsUxyJKoH9mr-bR7jVR-XTBivqZRTw@mail.gmail.com>
+Message-ID: <CAMj1kXE=17f7kVs7RbUnBsUxyJKoH9mr-bR7jVR-XTBivqZRTw@mail.gmail.com>
+Subject: Re: [PATCH] ARM: initialize jump labels before setup_machine_fdt()
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Russell King <linux@armlinux.org.uk>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -76,46 +66,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/3/22 00:51, Tyler Erickson wrote:
-> Fixing the interpretation of the length of the B9h VPD page
-> (concurrent positioning ranges). Adding 4 is necessary as
-> the first 4 bytes of the page is the header with page number
-> and length information. Adding 3 was likely a misinterpretation
-> of the SBC-5 specification which sets all offsets starting at zero.
-> 
-> This fixes the error in dmesg:
-> [ 9.014456] sd 1:0:0:0: [sda] Invalid Concurrent Positioning Ranges VPD page
-> 
+On Thu, 2 Jun 2022 at 23:22, Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+>
+> Stephen reported that a static key warning splat appears during early
+> boot on arm64 systems that credit randomness from device trees that
+> contain an "rng-seed" property, because setup_machine_fdt() is called
+> before jump_label_init() during setup_arch(), which was fixed by
+> 73e2d827a501 ("arm64: Initialize jump labels before
+> setup_machine_fdt()").
+>
+> Upon cursory inspection, the same basic issue appears to apply to arm32
+> as well. In this case, we reorder setup_arch() to do things in the same
+> order as is now the case on arm64.
+>
+> Reported-by: Stephen Boyd <swboyd@chromium.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
 > Cc: stable@vger.kernel.org
-> Fixes: e815d36548f0 ("scsi: sd: add concurrent positioning ranges support")
-> Signed-off-by: Tyler Erickson <tyler.erickson@seagate.com>
-> Reviewed-by: Muhammad Ahmad <muhammad.ahmad@seagate.com>
-> Tested-by: Michael English <michael.english@seagate.com>
+> Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
+
+Wouldn't it be better to defer the
+static_branch_enable(&crng_is_ready) call to later in the boot (e.g.,
+using an initcall()), rather than going around 'fixing' fragile,
+working early boot code across multiple architectures?
+
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 > ---
->   drivers/scsi/sd.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-> index 749316462075..f25b0cc5dd21 100644
-> --- a/drivers/scsi/sd.c
-> +++ b/drivers/scsi/sd.c
-> @@ -3072,7 +3072,7 @@ static void sd_read_cpr(struct scsi_disk *sdkp)
->   		goto out;
->   
->   	/* We must have at least a 64B header and one 32B range descriptor */
-> -	vpd_len = get_unaligned_be16(&buffer[2]) + 3;
-> +	vpd_len = get_unaligned_be16(&buffer[2]) + 4;
->   	if (vpd_len > buf_len || vpd_len < 64 + 32 || (vpd_len & 31)) {
->   		sd_printk(KERN_ERR, sdkp,
->   			  "Invalid Concurrent Positioning Ranges VPD page\n");
+>  arch/arm/kernel/setup.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+> index 1e8a50a97edf..ef40d9f5d5a7 100644
+> --- a/arch/arm/kernel/setup.c
+> +++ b/arch/arm/kernel/setup.c
+> @@ -1097,10 +1097,15 @@ void __init setup_arch(char **cmdline_p)
+>         const struct machine_desc *mdesc = NULL;
+>         void *atags_vaddr = NULL;
+>
+> +       setup_initial_init_mm(_text, _etext, _edata, _end);
+> +       setup_processor();
+> +       early_fixmap_init();
+> +       early_ioremap_init();
+> +       jump_label_init();
+> +
 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+Is it really necessary to reorder all these calls? What does
+jump_label_init() actually need?
 
-Cheers,
+If this is related to the code patching, I wonder whether it wouldn't
+be better not to rewrite all the NOPs (this is a x86-ism as every new
+x86 uarch appears to have a better [faster?] NOP than the previous
+one)
 
-Hannes
--- 
-Dr. Hannes Reinecke		           Kernel Storage Architect
-hare@suse.de			                  +49 911 74053 688
-SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
+The issue with changes like these is that we might end up with bug
+report in ~3 months' time that 'obscure platform X no longer boots or
+produces any output'. In the best case, we'll have a bisect report
+identifying this patch, but we won't be able to simply revert it as it
+would reintroduce this issue into a kernel that is now stable.
+
+
+
+>         if (__atags_pointer)
+>                 atags_vaddr = FDT_VIRT_BASE(__atags_pointer);
+>
+> -       setup_processor();
+>         if (atags_vaddr) {
+>                 mdesc = setup_machine_fdt(atags_vaddr);
+>                 if (mdesc)
+> @@ -1125,15 +1130,10 @@ void __init setup_arch(char **cmdline_p)
+>         if (mdesc->reboot_mode != REBOOT_HARD)
+>                 reboot_mode = mdesc->reboot_mode;
+>
+> -       setup_initial_init_mm(_text, _etext, _edata, _end);
+> -
+>         /* populate cmd_line too for later use, preserving boot_command_line */
+>         strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
+>         *cmdline_p = cmd_line;
+>
+> -       early_fixmap_init();
+> -       early_ioremap_init();
+> -
+>         parse_early_param();
+>
+>  #ifdef CONFIG_MMU
+> --
+> 2.35.1
+>
