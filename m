@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A58953CEAB
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B648153CEB6
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345075AbiFCRpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:45:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
+        id S245101AbiFCRpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:45:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345350AbiFCRpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:45:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAA7854686;
-        Fri,  3 Jun 2022 10:43:04 -0700 (PDT)
+        with ESMTP id S1345382AbiFCRpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:45:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7E25620A;
+        Fri,  3 Jun 2022 10:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 475A3B82430;
-        Fri,  3 Jun 2022 17:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B85BC385A9;
-        Fri,  3 Jun 2022 17:43:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FC02B82433;
+        Fri,  3 Jun 2022 17:43:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A7BC385A9;
+        Fri,  3 Jun 2022 17:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278182;
-        bh=6QIvA1w7D1nVnT8dKZwTmw5fYgHUVDhCMA2ObrGVwiY=;
+        s=korg; t=1654278185;
+        bh=dGYmpab8lZhl/x+ohPdCjH5/Ov/gj3SWugFpxDrtFZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUEmU1/h/1nnRXHAj9xmlge20BM4D4+e+ncBed9BTc3xeMHWXA6CaaPODNeOvDYJk
-         0awP8+uIcHkKUObwYSEE9oDh+BMFomwaEUvPscGUb4n5Q2lqtZYwwFWrSFW9HbvONI
-         P5YuS0ZtquDEu5oEMEoF6Ql3C5cpk0UrXgspXVGw=
+        b=WXsXa0K4anJtisSvaak7jt/K3IXByIuDNZ5KKBPB6Sd0U3DBeVnzI2Wu0IaEbfSNQ
+         a4wo7/pA5kXpdriBnI78LVOWMVvS8j5L1V3hwf8p8ai0MIrJ/tnJF9t1pTexyhFcMa
+         qRus3cFGMQUSCOuZPz854wApQyrjq7Nr7xeU81pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.19 29/30] NFSD: Fix possible sleep during nfsd4_release_lockowner()
-Date:   Fri,  3 Jun 2022 19:39:57 +0200
-Message-Id: <20220603173815.947907478@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.19 30/30] bpf: Enlarge offset check value to INT_MAX in bpf_skb_{load,store}_bytes
+Date:   Fri,  3 Jun 2022 19:39:58 +0200
+Message-Id: <20220603173815.976549226@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
 References: <20220603173815.088143764@linuxfoundation.org>
@@ -53,51 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit ce3c4ad7f4ce5db7b4f08a1e237d8dd94b39180b upstream.
+commit 45969b4152c1752089351cd6836a42a566d49bcf upstream.
 
-nfsd4_release_lockowner() holds clp->cl_lock when it calls
-check_for_locks(). However, check_for_locks() calls nfsd_file_get()
-/ nfsd_file_put() to access the backing inode's flc_posix list, and
-nfsd_file_put() can sleep if the inode was recently removed.
+The data length of skb frags + frag_list may be greater than 0xffff, and
+skb_header_pointer can not handle negative offset. So, here INT_MAX is used
+to check the validity of offset. Add the same change to the related function
+skb_store_bytes.
 
-Let's instead rely on the stateowner's reference count to gate
-whether the release is permitted. This should be a reliable
-indication of locks-in-use since file lock operations and
-->lm_get_owner take appropriate references, which are released
-appropriately when file locks are removed.
-
-Reported-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: stable@vger.kernel.org
+Fixes: 05c74e5e53f6 ("bpf: add bpf_skb_load_bytes helper")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220416105801.88708-2-liujian56@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4state.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ net/core/filter.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -6401,16 +6401,12 @@ nfsd4_release_lockowner(struct svc_rqst
- 		if (sop->so_is_open_owner || !same_owner_str(sop, owner))
- 			continue;
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1666,7 +1666,7 @@ BPF_CALL_5(bpf_skb_store_bytes, struct s
  
--		/* see if there are still any locks associated with it */
--		lo = lockowner(sop);
--		list_for_each_entry(stp, &sop->so_stateids, st_perstateowner) {
--			if (check_for_locks(stp->st_stid.sc_file, lo)) {
--				status = nfserr_locks_held;
--				spin_unlock(&clp->cl_lock);
--				return status;
--			}
-+		if (atomic_read(&sop->so_count) != 1) {
-+			spin_unlock(&clp->cl_lock);
-+			return nfserr_locks_held;
- 		}
+ 	if (unlikely(flags & ~(BPF_F_RECOMPUTE_CSUM | BPF_F_INVALIDATE_HASH)))
+ 		return -EINVAL;
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		return -EFAULT;
+ 	if (unlikely(bpf_try_make_writable(skb, offset + len)))
+ 		return -EFAULT;
+@@ -1701,7 +1701,7 @@ BPF_CALL_4(bpf_skb_load_bytes, const str
+ {
+ 	void *ptr;
  
-+		lo = lockowner(sop);
- 		nfs4_get_stateowner(sop);
- 		break;
- 	}
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		goto err_clear;
+ 
+ 	ptr = skb_header_pointer(skb, offset, len, to);
 
 
