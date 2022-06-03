@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2101253CF7E
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90ED253CED3
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344629AbiFCRxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46532 "EHLO
+        id S1345156AbiFCRsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346857AbiFCRvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E975A156;
-        Fri,  3 Jun 2022 10:49:33 -0700 (PDT)
+        with ESMTP id S1345305AbiFCRsH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF1357B04;
+        Fri,  3 Jun 2022 10:44:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F3E460F3E;
-        Fri,  3 Jun 2022 17:49:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C8EC385A9;
-        Fri,  3 Jun 2022 17:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B3BD61AD7;
+        Fri,  3 Jun 2022 17:44:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F64C385A9;
+        Fri,  3 Jun 2022 17:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278572;
-        bh=mIDAvWxdB6qqu9n87Qx4+I7DdbEph4ufuQK535negPs=;
+        s=korg; t=1654278276;
+        bh=Cx8j6TGNcfOGltVh+shM90sXuC6xABAuTb/pYwuK17Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m0Y+R7YoKbh5zV9B4gfQTwR1z8XcPhtDroeB1lrzctoLlDrVQE+8K5V2n6lMSHqv6
-         3OKFQk7TWPe36n8B0yFWxe6mp2rulbfPZ91J6ON3lVYSpQ87sgJi7Ns0Q74mEhka4a
-         uohjK5K7sB3EpWZd+5G9jqEQ9Q9parREs4iWB3Jg=
+        b=pdCAdSsW5XTKkN+Y1ds2ZnHEZu+zDa5e0K/Uhtl/ikeH/VH94EoWc0+i+68ITqdcV
+         yyPtFFySYXW6lTKocvD4ORK+awp1hZ7azMqW4zrd7Nd4mlEqGYTP61SolyBsw9Ailj
+         7mmEu9DI7fhgypKpek8WQ0kV7F9cD2CG6ZOVAR0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 22/66] crypto: drbg - move dynamic ->reseed_threshold adjustments to __drbg_seed()
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stefan Ghinea <stefan.ghinea@windriver.com>
+Subject: [PATCH 5.4 06/34] secure_seq: use the 64 bits of the siphash for port offset calculation
 Date:   Fri,  3 Jun 2022 19:43:02 +0200
-Message-Id: <20220603173821.302120799@linuxfoundation.org>
+Message-Id: <20220603173816.180109481@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +58,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Willy Tarreau <w@1wt.eu>
 
-commit 262d83a4290c331cd4f617a457408bdb82fbb738 upstream.
+commit b2d057560b8107c633b39aabe517ff9d93f285e3 upstream.
 
-Since commit 42ea507fae1a ("crypto: drbg - reseed often if seedsource is
-degraded"), the maximum seed lifetime represented by ->reseed_threshold
-gets temporarily lowered if the get_random_bytes() source cannot provide
-sufficient entropy yet, as is common during boot, and restored back to
-the original value again once that has changed.
+SipHash replaced MD5 in secure_ipv{4,6}_port_ephemeral() via commit
+7cd23e5300c1 ("secure_seq: use SipHash in place of MD5"), but the output
+remained truncated to 32-bit only. In order to exploit more bits from the
+hash, let's make the functions return the full 64-bit of siphash_3u32().
+We also make sure the port offset calculation in __inet_hash_connect()
+remains done on 32-bit to avoid the need for div_u64_rem() and an extra
+cost on 32-bit systems.
 
-More specifically, if the add_random_ready_callback() invoked from
-drbg_prepare_hrng() in the course of DRBG instantiation does not return
--EALREADY, that is, if get_random_bytes() has not been fully initialized
-at this point yet, drbg_prepare_hrng() will lower ->reseed_threshold
-to a value of 50. The drbg_async_seed() scheduled from said
-random_ready_callback will eventually restore the original value.
-
-A future patch will replace the random_ready_callback based notification
-mechanism and thus, there will be no add_random_ready_callback() return
-value anymore which could get compared to -EALREADY.
-
-However, there's __drbg_seed() which gets invoked in the course of both,
-the DRBG instantiation as well as the eventual reseeding from
-get_random_bytes() in aforementioned drbg_async_seed(), if any. Moreover,
-it knows about the get_random_bytes() initialization state by the time the
-seed data had been obtained from it: the new_seed_state argument introduced
-with the previous patch would get set to DRBG_SEED_STATE_PARTIAL in case
-get_random_bytes() had not been fully initialized yet and to
-DRBG_SEED_STATE_FULL otherwise. Thus, __drbg_seed() provides a convenient
-alternative for managing that ->reseed_threshold lowering and restoring at
-a central place.
-
-Move all ->reseed_threshold adjustment code from drbg_prepare_hrng() and
-drbg_async_seed() respectively to __drbg_seed(). Make __drbg_seed()
-lower the ->reseed_threshold to 50 in case its new_seed_state argument
-equals DRBG_SEED_STATE_PARTIAL and let it restore the original value
-otherwise.
-
-There is no change in behaviour.
-
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Stephan Müller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[SG: Adjusted context]
+Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/drbg.c |   30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
+ include/net/inet_hashtables.h |    2 +-
+ include/net/secure_seq.h      |    4 ++--
+ net/core/secure_seq.c         |    4 ++--
+ net/ipv4/inet_hashtables.c    |   10 ++++++----
+ net/ipv6/inet6_hashtables.c   |    4 ++--
+ 5 files changed, 13 insertions(+), 11 deletions(-)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1047,6 +1047,27 @@ static inline int __drbg_seed(struct drb
- 	/* 10.1.1.2 / 10.1.1.3 step 5 */
- 	drbg->reseed_ctr = 1;
- 
-+	switch (drbg->seeded) {
-+	case DRBG_SEED_STATE_UNSEEDED:
-+		/* Impossible, but handle it to silence compiler warnings. */
-+		fallthrough;
-+	case DRBG_SEED_STATE_PARTIAL:
-+		/*
-+		 * Require frequent reseeds until the seed source is
-+		 * fully initialized.
-+		 */
-+		drbg->reseed_threshold = 50;
-+		break;
-+
-+	case DRBG_SEED_STATE_FULL:
-+		/*
-+		 * Seed source has become fully initialized, frequent
-+		 * reseeds no longer required.
-+		 */
-+		drbg->reseed_threshold = drbg_max_requests(drbg);
-+		break;
-+	}
-+
- 	return ret;
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -420,7 +420,7 @@ static inline void sk_rcv_saddr_set(stru
  }
  
-@@ -1095,9 +1116,6 @@ static void drbg_async_seed(struct work_
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+-			struct sock *sk, u32 port_offset,
++			struct sock *sk, u64 port_offset,
+ 			int (*check_established)(struct inet_timewait_death_row *,
+ 						 struct sock *, __u16,
+ 						 struct inet_timewait_sock **));
+--- a/include/net/secure_seq.h
++++ b/include/net/secure_seq.h
+@@ -4,8 +4,8 @@
  
- 	__drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
+ #include <linux/types.h>
  
--	if (drbg->seeded == DRBG_SEED_STATE_FULL)
--		drbg->reseed_threshold = drbg_max_requests(drbg);
--
- unlock:
- 	mutex_unlock(&drbg->drbg_mutex);
+-u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
+-u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
++u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
++u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 			       __be16 dport);
+ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
+ 		   __be16 sport, __be16 dport);
+--- a/net/core/secure_seq.c
++++ b/net/core/secure_seq.c
+@@ -97,7 +97,7 @@ u32 secure_tcpv6_seq(const __be32 *saddr
+ }
+ EXPORT_SYMBOL(secure_tcpv6_seq);
  
-@@ -1533,12 +1551,6 @@ static int drbg_prepare_hrng(struct drbg
- 		return err;
- 	}
+-u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
++u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 			       __be16 dport)
+ {
+ 	const struct {
+@@ -147,7 +147,7 @@ u32 secure_tcp_seq(__be32 saddr, __be32
+ }
+ EXPORT_SYMBOL_GPL(secure_tcp_seq);
  
--	/*
--	 * Require frequent reseeds until the seed source is fully
--	 * initialized.
--	 */
--	drbg->reseed_threshold = 50;
--
- 	return err;
+-u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
++u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
+ {
+ 	net_secret_init();
+ 	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -464,7 +464,7 @@ not_unique:
+ 	return -EADDRNOTAVAIL;
  }
  
+-static u32 inet_sk_port_offset(const struct sock *sk)
++static u64 inet_sk_port_offset(const struct sock *sk)
+ {
+ 	const struct inet_sock *inet = inet_sk(sk);
+ 
+@@ -683,7 +683,7 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+ static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
+ 
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+-		struct sock *sk, u32 port_offset,
++		struct sock *sk, u64 port_offset,
+ 		int (*check_established)(struct inet_timewait_death_row *,
+ 			struct sock *, __u16, struct inet_timewait_sock **))
+ {
+@@ -726,7 +726,9 @@ int __inet_hash_connect(struct inet_time
+ 	net_get_random_once(table_perturb, sizeof(table_perturb));
+ 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
+ 
+-	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
++	offset = READ_ONCE(table_perturb[index]) + port_offset;
++	offset %= remaining;
++
+ 	/* In first pass we try ports of @low parity.
+ 	 * inet_csk_get_port() does the opposite choice.
+ 	 */
+@@ -803,7 +805,7 @@ ok:
+ int inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 		      struct sock *sk)
+ {
+-	u32 port_offset = 0;
++	u64 port_offset = 0;
+ 
+ 	if (!inet_sk(sk)->inet_num)
+ 		port_offset = inet_sk_port_offset(sk);
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -262,7 +262,7 @@ not_unique:
+ 	return -EADDRNOTAVAIL;
+ }
+ 
+-static u32 inet6_sk_port_offset(const struct sock *sk)
++static u64 inet6_sk_port_offset(const struct sock *sk)
+ {
+ 	const struct inet_sock *inet = inet_sk(sk);
+ 
+@@ -274,7 +274,7 @@ static u32 inet6_sk_port_offset(const st
+ int inet6_hash_connect(struct inet_timewait_death_row *death_row,
+ 		       struct sock *sk)
+ {
+-	u32 port_offset = 0;
++	u64 port_offset = 0;
+ 
+ 	if (!inet_sk(sk)->inet_num)
+ 		port_offset = inet6_sk_port_offset(sk);
 
 
