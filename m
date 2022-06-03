@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F3153D03F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6424053D0E5
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345814AbiFCSBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:01:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48592 "EHLO
+        id S1346529AbiFCSHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:07:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346106AbiFCR7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:59:53 -0400
+        with ESMTP id S1347720AbiFCSGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA7A34B87;
-        Fri,  3 Jun 2022 10:55:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95955D1AB;
+        Fri,  3 Jun 2022 10:59:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1576611F3;
-        Fri,  3 Jun 2022 17:55:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADFC2C385A9;
-        Fri,  3 Jun 2022 17:55:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52537615DA;
+        Fri,  3 Jun 2022 17:58:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48B5FC385A9;
+        Fri,  3 Jun 2022 17:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278938;
-        bh=x5kV3Z+YxJqaxbkJ5fOTbYmq3aXHfxYboSUuniNqq7c=;
+        s=korg; t=1654279083;
+        bh=jRGYaec2MuAtdgELoc6FWEItHG4GgkCI+meBt12+l9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRoP0Nwd3Yy3kpVwIAcKZ9igbADyy5rcjAeulXFiOuphNJpGvdG3mR5Tzc7HEuBpM
-         M2/wu8tFqEunjDfL/N51i7dfCjzEgj4Znj08RBTOeY3PCHN5//BE3Soph2YxKEgebt
-         WatsxfZB9PNPzFjAkzi7xr0TZhstzxjMf8kDO4ao=
+        b=gsrkXD4kjOcfLxqzJp5E/O0swCCGzx2AFpV/Rrpm86BtjUMxz5eiIM4qsexG1kIY3
+         ULAGv8k6J4KrN2WeD+zZxEFJAAjgWwzQwYAuksx0j9nY7k/oU957H/WmW+0iBEJfIU
+         wSnxiptXFDQacP7xZg1Mm2qNXQ9ZvlVLymZSiC7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.17 65/75] tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
+        stable@vger.kernel.org,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Haitao Huang <haitao.huang@intel.com>
+Subject: [PATCH 5.18 48/67] x86/sgx: Mark PCMD page as dirty when modifying contents
 Date:   Fri,  3 Jun 2022 19:43:49 +0200
-Message-Id: <20220603173823.576669772@linuxfoundation.org>
+Message-Id: <20220603173822.114047536@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Reinette Chatre <reinette.chatre@intel.com>
 
-commit d0dc1a7100f19121f6e7450f9cdda11926aa3838 upstream.
+commit 2154e1c11b7080aa19f47160bd26b6f39bbd7824 upstream.
 
-Currently it returns zero when CRQ response timed out, it should return
-an error code instead.
+Recent commit 08999b2489b4 ("x86/sgx: Free backing memory
+after faulting the enclave page") expanded __sgx_encl_eldu()
+to clear an enclave page's PCMD (Paging Crypto MetaData)
+from the PCMD page in the backing store after the enclave
+page is restored to the enclave.
 
-Fixes: d8d74ea3c002 ("tpm: ibmvtpm: Wait for buffer to be set before proceeding")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Since the PCMD page in the backing store is modified the page
+should be marked as dirty to ensure the modified data is retained.
+
+Cc: stable@vger.kernel.org
+Fixes: 08999b2489b4 ("x86/sgx: Free backing memory after faulting the enclave page")
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Haitao Huang <haitao.huang@intel.com>
+Link: https://lkml.kernel.org/r/00cd2ac480db01058d112e347b32599c1a806bc4.1652389823.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c |    1 +
+ arch/x86/kernel/cpu/sgx/encl.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -681,6 +681,7 @@ static int tpm_ibmvtpm_probe(struct vio_
- 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
- 				ibmvtpm->rtce_buf != NULL,
- 				HZ)) {
-+		rc = -ENODEV;
- 		dev_err(dev, "CRQ response timed out\n");
- 		goto init_irq_cleanup;
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -84,6 +84,7 @@ static int __sgx_encl_eldu(struct sgx_en
  	}
+ 
+ 	memset(pcmd_page + b.pcmd_offset, 0, sizeof(struct sgx_pcmd));
++	set_page_dirty(b.pcmd);
+ 
+ 	/*
+ 	 * The area for the PCMD in the page was zeroed above.  Check if the
 
 
