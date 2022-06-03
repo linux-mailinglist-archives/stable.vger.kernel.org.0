@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4E253CF7C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F1553CF73
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345610AbiFCRxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S1345357AbiFCRxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345637AbiFCRuE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9596583B3;
-        Fri,  3 Jun 2022 10:46:10 -0700 (PDT)
+        with ESMTP id S1346678AbiFCRv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE9C57142;
+        Fri,  3 Jun 2022 10:49:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F145B8241E;
-        Fri,  3 Jun 2022 17:46:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A95C385A9;
-        Fri,  3 Jun 2022 17:46:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3276760F3E;
+        Fri,  3 Jun 2022 17:49:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 415FEC385A9;
+        Fri,  3 Jun 2022 17:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278368;
-        bh=QdzVgy+7LC1eSGiAnX9qGElIAQugWzv77O5yVZ37v+c=;
+        s=korg; t=1654278547;
+        bh=utL4tx2DU7lDNCDqgGRF69/Bgz6BQ0QQnq+uQiKu+Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjxDRedMc5sdIo2SsxXLkKVdbt2/d0aKJ2lyD2vE4VcngsbNYXQmAROxcKYStH1yJ
-         1N+bBL1tgofsrVQe0Wa1nZr8ifrang2Iuj+dkwIRlxjG6T95I1YtMPLK4MBxf09s/W
-         1jRgo0RQWr+FZUc9xT8dUQaFBQqAtytvIFm7lcCc=
+        b=wnD8Ug9TBwCV2MpRomjiBKJfzEo5rCVe+o8Qa+IuAKamgrCtA7rZIa+4rG7Fs4XNC
+         hiT4xmM0gj1OemoFoz0NPFF1zw6XiY8BKhzW2IqjxGN3CYoUD+Gs3rdijhZyXxcUAP
+         yTzeX4+tWQgZnlrPVXi/9mG2v2qbMiujfXxCRNqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.10 10/53] pipe: Fix missing lock in pipe_resize_ring()
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 15/66] net: ipa: compute proper aggregation limit
 Date:   Fri,  3 Jun 2022 19:42:55 +0200
-Message-Id: <20220603173819.020461179@linuxfoundation.org>
+Message-Id: <20220603173821.104884211@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 189b0ddc245139af81198d1a3637cac74f96e13a upstream.
+commit c5794097b269f15961ed78f7f27b50e51766dec9 upstream.
 
-pipe_resize_ring() needs to take the pipe->rd_wait.lock spinlock to
-prevent post_one_notification() from trying to insert into the ring
-whilst the ring is being replaced.
+The aggregation byte limit for an endpoint is currently computed
+based on the endpoint's receive buffer size.
 
-The occupancy check must be done after the lock is taken, and the lock
-must be taken after the new ring is allocated.
+However, some bytes at the front of each receive buffer are reserved
+on the assumption that--as with SKBs--it might be useful to insert
+data (such as headers) before what lands in the buffer.
 
-The bug can lead to an oops looking something like:
+The aggregation byte limit currently doesn't take into account that
+reserved space, and as a result, aggregation could require space
+past that which is available in the buffer.
 
- BUG: KASAN: use-after-free in post_one_notification.isra.0+0x62e/0x840
- Read of size 4 at addr ffff88801cc72a70 by task poc/27196
- ...
- Call Trace:
-  post_one_notification.isra.0+0x62e/0x840
-  __post_watch_notification+0x3b7/0x650
-  key_create_or_update+0xb8b/0xd20
-  __do_sys_add_key+0x175/0x340
-  __x64_sys_add_key+0xbe/0x140
-  do_syscall_64+0x5c/0xc0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+Fix this by reducing the size used to compute the aggregation byte
+limit by the NET_SKB_PAD offset reserved for each receive buffer.
 
-Reported by Selim Enes Karaduman @Enesdex working with Trend Micro Zero
-Day Initiative.
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17291
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+ drivers/net/ipa/ipa_endpoint.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -1244,30 +1244,33 @@ unsigned int round_pipe_size(unsigned lo
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -722,13 +722,15 @@ static void ipa_endpoint_init_aggr(struc
  
- /*
-  * Resize the pipe ring to a number of slots.
-+ *
-+ * Note the pipe can be reduced in capacity, but only if the current
-+ * occupancy doesn't exceed nr_slots; if it does, EBUSY will be
-+ * returned instead.
-  */
- int pipe_resize_ring(struct pipe_inode_info *pipe, unsigned int nr_slots)
- {
- 	struct pipe_buffer *bufs;
- 	unsigned int head, tail, mask, n;
+ 	if (endpoint->data->aggregation) {
+ 		if (!endpoint->toward_ipa) {
++			u32 buffer_size;
+ 			bool close_eof;
+ 			u32 limit;
  
--	/*
--	 * We can shrink the pipe, if arg is greater than the ring occupancy.
--	 * Since we don't expect a lot of shrink+grow operations, just free and
--	 * allocate again like we would do for growing.  If the pipe currently
--	 * contains more buffers than arg, then return busy.
--	 */
--	mask = pipe->ring_size - 1;
--	head = pipe->head;
--	tail = pipe->tail;
--	n = pipe_occupancy(pipe->head, pipe->tail);
--	if (nr_slots < n)
--		return -EBUSY;
--
- 	bufs = kcalloc(nr_slots, sizeof(*bufs),
- 		       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
- 	if (unlikely(!bufs))
- 		return -ENOMEM;
+ 			val |= u32_encode_bits(IPA_ENABLE_AGGR, AGGR_EN_FMASK);
+ 			val |= u32_encode_bits(IPA_GENERIC, AGGR_TYPE_FMASK);
  
-+	spin_lock_irq(&pipe->rd_wait.lock);
-+	mask = pipe->ring_size - 1;
-+	head = pipe->head;
-+	tail = pipe->tail;
-+
-+	n = pipe_occupancy(head, tail);
-+	if (nr_slots < n) {
-+		spin_unlock_irq(&pipe->rd_wait.lock);
-+		kfree(bufs);
-+		return -EBUSY;
-+	}
-+
- 	/*
- 	 * The pipe array wraps around, so just start the new one at zero
- 	 * and adjust the indices.
-@@ -1299,6 +1302,8 @@ int pipe_resize_ring(struct pipe_inode_i
- 	pipe->tail = tail;
- 	pipe->head = head;
+-			limit = ipa_aggr_size_kb(IPA_RX_BUFFER_SIZE);
++			buffer_size = IPA_RX_BUFFER_SIZE - NET_SKB_PAD;
++			limit = ipa_aggr_size_kb(buffer_size);
+ 			val |= aggr_byte_limit_encoded(version, limit);
  
-+	spin_unlock_irq(&pipe->rd_wait.lock);
-+
- 	/* This might have made more room for writers */
- 	wake_up_interruptible(&pipe->wr_wait);
- 	return 0;
+ 			limit = IPA_AGGR_TIME_LIMIT;
 
 
