@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8AE653CD8B
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 18:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B39D053CD8C
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 18:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244766AbiFCQxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 12:53:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33924 "EHLO
+        id S245689AbiFCQxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 12:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230224AbiFCQxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 12:53:32 -0400
+        with ESMTP id S230224AbiFCQxl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 12:53:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E292A72F
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 09:53:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D092A72F
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 09:53:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2151461A24
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 16:53:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C80C385B8;
-        Fri,  3 Jun 2022 16:53:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B32E8619A5
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 16:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A944AC385B8;
+        Fri,  3 Jun 2022 16:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654275210;
-        bh=Apl8KaRY2woqLAzDhlxdWdKLl39KAWgX7lMiIBkAgl8=;
+        s=korg; t=1654275219;
+        bh=cOqvelp6QK43LolqAugXaAURh0x1nqG2749GWLCzspw=;
         h=Subject:To:Cc:From:Date:From;
-        b=M+gcfNtLdee3jPp4IgPqDV7qO3V74AM0TxTLF1EYDHasJgHXgFFJ4/mlZ5Mwrm6/k
-         l4gyR/Lh/hFNGHAG4JvBiWhFvgia1IQiLqjPzgVFsMSeyKzLuzhUCOMQBoUt576PEf
-         /lsGH8bnw0sPunDb0IdYq3fvzOUX642Rq2p65HaA=
-Subject: FAILED: patch "[PATCH] bpf: Fix excessive memory allocation in stack_map_alloc()" failed to apply to 5.10-stable tree
+        b=SeKO29bJ9QDjBfZmpsLnxDFwl1qGLoJkBo/kK0lKnPdoxoMlONwfBQwyxvvAaw3ym
+         Nt7BJbEeMV/bwmrXlNhe8dfsSGs9kKIBMAYj3C80mEnYvKKWJFaQV1cVWJ6BTCm71j
+         F8oWRi533128O+rXeMtKU/HoItRyznPmwcfenA8k=
+Subject: FAILED: patch "[PATCH] bpf: Fix excessive memory allocation in stack_map_alloc()" failed to apply to 5.4-stable tree
 To:     ytcoode@gmail.com, daniel@iogearbox.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 18:53:27 +0200
-Message-ID: <165427520712295@kroah.com>
+Date:   Fri, 03 Jun 2022 18:53:28 +0200
+Message-ID: <165427520821280@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
