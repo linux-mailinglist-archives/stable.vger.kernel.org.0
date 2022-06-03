@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B20153CF1C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A9E53CF99
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241999AbiFCRwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:52:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46024 "EHLO
+        id S1345791AbiFCRzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345942AbiFCRuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B83A62ED;
-        Fri,  3 Jun 2022 10:46:45 -0700 (PDT)
+        with ESMTP id S1346615AbiFCRvV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C014854187;
+        Fri,  3 Jun 2022 10:48:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74481604EF;
-        Fri,  3 Jun 2022 17:46:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81611C385B8;
-        Fri,  3 Jun 2022 17:46:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76E14B82433;
+        Fri,  3 Jun 2022 17:48:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3CAC36AF6;
+        Fri,  3 Jun 2022 17:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278403;
-        bh=bT4CTgHpvXVv/uW9tgfQDMcOFCpQ1VTbuOkkQWTBUAc=;
+        s=korg; t=1654278535;
+        bh=K6tYsH8bSgs3PfSjUaakxOh0TLf3zeJAhtERYiKfyYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGKquLfJlmdeSBS5sV+DYh51owVItTlh+z1DeQPxn3TBbnn/woCIXRYzVQuN00gBq
-         RVfwEVFmSxKHDX7T5wufvmVWYsokY07v4p7sBMZHqkzfoJ8/a0NeCEeqS7eo++p78/
-         pSct5+fe8YRmF0o+bNoaJENi3VV8Dlxbau+/rCaE=
+        b=ORzm4QPYXjNNyfGSqxgckTXm89Rhwbm5oBsW30YuSQGHVdrLhnbYcDDnS6cXfrfZv
+         Q0O/kbuycwOMUXxXsXzqnVSGHcrStWZ88thQDfF2Gt098XlNvH1unu7yyNWtbkGlyN
+         BS+92xLC7t6J4osP6eXZOtmmAgvvKlNBgnLDOETU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "From: Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/53] i2c: ismt: Provide a DMA buffer for Interrupt Cause Logging
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Zheyu Ma <zheyuma97@gmail.com>
+Subject: [PATCH 5.15 11/66] i2c: ismt: prevent memory corruption in ismt_access()
 Date:   Fri,  3 Jun 2022 19:42:51 +0200
-Message-Id: <20220603173818.905015262@linuxfoundation.org>
+Message-Id: <20220603173820.990767042@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 17a0f3acdc6ec8b89ad40f6e22165a4beee25663 ]
+commit 690b2549b19563ec5ad53e5c82f6a944d910086e upstream.
 
-Before sending a MSI the hardware writes information pertinent to the
-interrupt cause to a memory location pointed by SMTICL register. This
-memory holds three double words where the least significant bit tells
-whether the interrupt cause of master/target/error is valid. The driver
-does not use this but we need to set it up because otherwise it will
-perform DMA write to the default address (0) and this will cause an
-IOMMU fault such as below:
+The "data->block[0]" variable comes from the user and is a number
+between 0-255.  It needs to be capped to prevent writing beyond the end
+of dma_buffer[].
 
-  DMAR: DRHD: handling fault status reg 2
-  DMAR: [DMA Write] Request device [00:12.0] PASID ffffffff fault addr 0
-        [fault reason 05] PTE Write access is not set
-
-To prevent this from happening, provide a proper DMA buffer for this
-that then gets mapped by the IOMMU accordingly.
-
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5e9a97b1f449 ("i2c: ismt: Adding support for I2C_SMBUS_BLOCK_PROC_CALL")
+Reported-and-tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-ismt.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/i2c/busses/i2c-ismt.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index a35a27c320e7..3d2d92640651 100644
 --- a/drivers/i2c/busses/i2c-ismt.c
 +++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -82,6 +82,7 @@
+@@ -528,6 +528,9 @@ static int ismt_access(struct i2c_adapte
  
- #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
- #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
-+#define ISMT_LOG_ENTRIES	3	/* number of interrupt cause log entries */
- 
- /* Hardware Descriptor Constants - Control Field */
- #define ISMT_DESC_CWRL	0x01	/* Command/Write Length */
-@@ -175,6 +176,8 @@ struct ismt_priv {
- 	u8 head;				/* ring buffer head pointer */
- 	struct completion cmp;			/* interrupt completion */
- 	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
-+	dma_addr_t log_dma;
-+	u32 *log;
- };
- 
- static const struct pci_device_id ismt_ids[] = {
-@@ -409,6 +412,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 	memset(desc, 0, sizeof(struct ismt_desc));
- 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
- 
-+	/* Always clear the log entries */
-+	memset(priv->log, 0, ISMT_LOG_ENTRIES * sizeof(u32));
+ 	case I2C_SMBUS_BLOCK_PROC_CALL:
+ 		dev_dbg(dev, "I2C_SMBUS_BLOCK_PROC_CALL\n");
++		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
++			return -EINVAL;
 +
- 	/* Initialize common control bits */
- 	if (likely(pci_dev_msi_enabled(priv->pci_dev)))
- 		desc->control = ISMT_DESC_INT | ISMT_DESC_FAIR;
-@@ -693,6 +699,8 @@ static void ismt_hw_init(struct ismt_priv *priv)
- 	/* initialize the Master Descriptor Base Address (MDBA) */
- 	writeq(priv->io_rng_dma, priv->smba + ISMT_MSTR_MDBA);
- 
-+	writeq(priv->log_dma, priv->smba + ISMT_GR_SMTICL);
-+
- 	/* initialize the Master Control Register (MCTRL) */
- 	writel(ISMT_MCTRL_MEIE, priv->smba + ISMT_MSTR_MCTRL);
- 
-@@ -780,6 +788,12 @@ static int ismt_dev_init(struct ismt_priv *priv)
- 	priv->head = 0;
- 	init_completion(&priv->cmp);
- 
-+	priv->log = dmam_alloc_coherent(&priv->pci_dev->dev,
-+					ISMT_LOG_ENTRIES * sizeof(u32),
-+					&priv->log_dma, GFP_KERNEL);
-+	if (!priv->log)
-+		return -ENOMEM;
-+
- 	return 0;
- }
- 
--- 
-2.35.1
-
+ 		dma_size = I2C_SMBUS_BLOCK_MAX;
+ 		desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, 1);
+ 		desc->wr_len_cmd = data->block[0] + 1;
 
 
