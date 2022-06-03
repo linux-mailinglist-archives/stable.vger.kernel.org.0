@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 750FB53CF46
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE60353CFE0
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345533AbiFCRyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58154 "EHLO
+        id S1344883AbiFCR5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347231AbiFCRwI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B01CC6;
-        Fri,  3 Jun 2022 10:50:52 -0700 (PDT)
+        with ESMTP id S1345941AbiFCR53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:57:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1975356FA8;
+        Fri,  3 Jun 2022 10:54:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A774B82419;
-        Fri,  3 Jun 2022 17:50:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98409C385A9;
-        Fri,  3 Jun 2022 17:50:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 892D1B82189;
+        Fri,  3 Jun 2022 17:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F20D1C3411C;
+        Fri,  3 Jun 2022 17:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278650;
-        bh=UoYgQFgAeQun6qyKQWi73uIHFyzu7x4V9H4PVuQYoos=;
+        s=korg; t=1654278844;
+        bh=k8dwY4UsBqEZIeUNq0npNOB1aRN/HTu4O5GznizTuIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJ6/Sg1vurzizsbCoQ6/G8NFNfcxvjer3oYfeK5YFbqdT1L4BASEYGiaq0gj5+4Ww
-         R5c1/0PyEMQEHdxzYzKp0QN3A6LZ/lfXGe2kstKXzKrhpX0LPcV/+0rlXXq8RVVwaD
-         MfqPISi64/r65yo2JJFyIqUd8xmRJRxr7UymssO0=
+        b=cmSgraSSxNd+/ZN97azoujqnJGFmTBcL+SY7jl3tFuPz0Tn63ebJ/+rcMhX/Aqrc8
+         JRrs6nZrIQ/wPU3RtbnBk/xFKIwOR+gb3MNV3Ef6JWGb4Zi26zvCibpkDf8kgy9ScM
+         /WfWau2Rn24dWLNFBtx7z/gBlqRysxmj7wR0DDWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Jin <tao-j@outlook.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.15 49/66] HID: multitouch: add quirks to enable Lenovo X12 trackpoint
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andr=C3=A9=20Kapelrud?= <a.kapelrud@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 45/75] ALSA: usb-audio: Add missing ep_idx in fixed EP quirks
 Date:   Fri,  3 Jun 2022 19:43:29 +0200
-Message-Id: <20220603173822.082302091@linuxfoundation.org>
+Message-Id: <20220603173823.025868917@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Jin <tao-j@outlook.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 95cd2cdc88c755dcd0a58b951faeb77742c733a4 upstream.
+commit 7b0efea4baf02f5e2f89e5f9b75ef891571b45f1 upstream.
 
-This applies the similar quirks used by previous generation devices
-such as X1 tablet for X12 tablet, so that the trackpoint and buttons
-can work.
+The quirk entry for Focusrite Saffire 6 had no proper ep_idx for the
+capture endpoint, and this confused the driver, resulting in the
+broken sound.  This patch adds the missing ep_idx in the entry.
 
-This patch was applied and tested working on 5.17.1 .
+While we are at it, a couple of other entries (for Digidesign MBox and
+MOTU MicroBook II) seem to have the same problem, and those are
+covered as well.
 
-Cc: stable@vger.kernel.org # 5.8+ given that it relies on 40d5bb87377a
-Signed-off-by: Tao Jin <tao-j@outlook.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/CO6PR03MB6241CB276FCDC7F4CEDC34F6E1E29@CO6PR03MB6241.namprd03.prod.outlook.com
+Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
+Reported-by: André Kapelrud <a.kapelrud@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220521065325.426-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h        |    1 +
- drivers/hid/hid-multitouch.c |    6 ++++++
- 2 files changed, 7 insertions(+)
+ sound/usb/quirks-table.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -753,6 +753,7 @@
- #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
- #define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
- #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
-+#define USB_DEVICE_ID_LENOVO_X12_TAB	0x60fe
- #define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -2032,6 +2032,12 @@ static const struct hid_device_id mt_dev
- 			   USB_VENDOR_ID_LENOVO,
- 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
- 
-+	/* Lenovo X12 TAB Gen 1 */
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+			   USB_VENDOR_ID_LENOVO,
-+			   USB_DEVICE_ID_LENOVO_X12_TAB) },
-+
- 	/* MosArt panels */
- 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2672,6 +2672,7 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 					.altset_idx = 1,
+ 					.attributes = 0,
+ 					.endpoint = 0x82,
++					.ep_idx = 1,
+ 					.ep_attr = USB_ENDPOINT_XFER_ISOC,
+ 					.datainterval = 1,
+ 					.maxpacksize = 0x0126,
+@@ -2875,6 +2876,7 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 					.altset_idx = 1,
+ 					.attributes = 0x4,
+ 					.endpoint = 0x81,
++					.ep_idx = 1,
+ 					.ep_attr = USB_ENDPOINT_XFER_ISOC |
+ 						USB_ENDPOINT_SYNC_ASYNC,
+ 					.maxpacksize = 0x130,
+@@ -3391,6 +3393,7 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 					.altset_idx = 1,
+ 					.attributes = 0,
+ 					.endpoint = 0x03,
++					.ep_idx = 1,
+ 					.rates = SNDRV_PCM_RATE_96000,
+ 					.ep_attr = USB_ENDPOINT_XFER_ISOC |
+ 						   USB_ENDPOINT_SYNC_ASYNC,
 
 
