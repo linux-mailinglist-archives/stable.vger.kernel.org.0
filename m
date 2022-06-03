@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5CD853D0B9
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE4753D03E
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242499AbiFCSIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48166 "EHLO
+        id S241164AbiFCSBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:01:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347581AbiFCSGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A3E5C35A;
-        Fri,  3 Jun 2022 10:59:06 -0700 (PDT)
+        with ESMTP id S1346238AbiFCSAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14E144A0E;
+        Fri,  3 Jun 2022 10:55:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62CB960F3B;
-        Fri,  3 Jun 2022 17:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C285C385A9;
-        Fri,  3 Jun 2022 17:58:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90856B82433;
+        Fri,  3 Jun 2022 17:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C32C2C385B8;
+        Fri,  3 Jun 2022 17:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279089;
-        bh=gu/GON9TB219Xl36FcW1sJOa2e8mHgE4PmzKh6ejERI=;
+        s=korg; t=1654278947;
+        bh=TdDP+Db7xcOWnxSQDmXme3EoRbglcHsVWz0Cb2tdDok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4ibf6qUZQNwS+zdEaM9jGJEi0Z5/zNZhr6SNZ6ZQzC6oBVfRlHMaAmfYxQz7Eoj+
-         UAk963s8UquixzCJAOZtyb+NEeOoT3KEjZAqwZ9QuaZ9m0MGE0VPJWMw902Xouc9Xj
-         w36ujfYVOmpJxStZzkuKUyq66yGA9GwzFFUjAKnA=
+        b=PdlN/NrnKt0iibXYSNGufBFBbNTpzUduNzAj36QQaxymRhHd18kGdim53Z1gRH8vD
+         xkB4Sm4ZeRWcByZ5ckzGNwcThV9Y0dkYy7Mxs9XJImD56N7ZpcDCioRbZZGPGkSIqZ
+         ALEMggcwUjR5KmQ+jdg/rO1krNmVvli6bU+OfTSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haitao Huang <haitao.huang@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.18 50/67] x86/sgx: Fix race between reclaimer and page fault handler
-Date:   Fri,  3 Jun 2022 19:43:51 +0200
-Message-Id: <20220603173822.171136364@linuxfoundation.org>
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.17 68/75] NFSD: Fix possible sleep during nfsd4_release_lockowner()
+Date:   Fri,  3 Jun 2022 19:43:52 +0200
+Message-Id: <20220603173823.659712353@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,257 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit af117837ceb9a78e995804ade4726ad2c2c8981f upstream.
+commit ce3c4ad7f4ce5db7b4f08a1e237d8dd94b39180b upstream.
 
-Haitao reported encountering a WARN triggered by the ENCLS[ELDU]
-instruction faulting with a #GP.
+nfsd4_release_lockowner() holds clp->cl_lock when it calls
+check_for_locks(). However, check_for_locks() calls nfsd_file_get()
+/ nfsd_file_put() to access the backing inode's flc_posix list, and
+nfsd_file_put() can sleep if the inode was recently removed.
 
-The WARN is encountered when the reclaimer evicts a range of
-pages from the enclave when the same pages are faulted back right away.
+Let's instead rely on the stateowner's reference count to gate
+whether the release is permitted. This should be a reliable
+indication of locks-in-use since file lock operations and
+->lm_get_owner take appropriate references, which are released
+appropriately when file locks are removed.
 
-Consider two enclave pages (ENCLAVE_A and ENCLAVE_B)
-sharing a PCMD page (PCMD_AB). ENCLAVE_A is in the
-enclave memory and ENCLAVE_B is in the backing store. PCMD_AB contains
-just one entry, that of ENCLAVE_B.
-
-Scenario proceeds where ENCLAVE_A is being evicted from the enclave
-while ENCLAVE_B is faulted in.
-
-sgx_reclaim_pages() {
-
-  ...
-
-  /*
-   * Reclaim ENCLAVE_A
-   */
-  mutex_lock(&encl->lock);
-  /*
-   * Get a reference to ENCLAVE_A's
-   * shmem page where enclave page
-   * encrypted data will be stored
-   * as well as a reference to the
-   * enclave page's PCMD data page,
-   * PCMD_AB.
-   * Release mutex before writing
-   * any data to the shmem pages.
-   */
-  sgx_encl_get_backing(...);
-  encl_page->desc |= SGX_ENCL_PAGE_BEING_RECLAIMED;
-  mutex_unlock(&encl->lock);
-
-                                    /*
-                                     * Fault ENCLAVE_B
-                                     */
-
-                                    sgx_vma_fault() {
-
-                                      mutex_lock(&encl->lock);
-                                      /*
-                                       * Get reference to
-                                       * ENCLAVE_B's shmem page
-                                       * as well as PCMD_AB.
-                                       */
-                                      sgx_encl_get_backing(...)
-                                     /*
-                                      * Load page back into
-                                      * enclave via ELDU.
-                                      */
-                                     /*
-                                      * Release reference to
-                                      * ENCLAVE_B' shmem page and
-                                      * PCMD_AB.
-                                      */
-                                     sgx_encl_put_backing(...);
-                                     /*
-                                      * PCMD_AB is found empty so
-                                      * it and ENCLAVE_B's shmem page
-                                      * are truncated.
-                                      */
-                                     /* Truncate ENCLAVE_B backing page */
-                                     sgx_encl_truncate_backing_page();
-                                     /* Truncate PCMD_AB */
-                                     sgx_encl_truncate_backing_page();
-
-                                     mutex_unlock(&encl->lock);
-
-                                     ...
-                                     }
-  mutex_lock(&encl->lock);
-  encl_page->desc &=
-       ~SGX_ENCL_PAGE_BEING_RECLAIMED;
-  /*
-  * Write encrypted contents of
-  * ENCLAVE_A to ENCLAVE_A shmem
-  * page and its PCMD data to
-  * PCMD_AB.
-  */
-  sgx_encl_put_backing(...)
-
-  /*
-   * Reference to PCMD_AB is
-   * dropped and it is truncated.
-   * ENCLAVE_A's PCMD data is lost.
-   */
-  mutex_unlock(&encl->lock);
-}
-
-What happens next depends on whether it is ENCLAVE_A being faulted
-in or ENCLAVE_B being evicted - but both end up with ENCLS[ELDU] faulting
-with a #GP.
-
-If ENCLAVE_A is faulted then at the time sgx_encl_get_backing() is called
-a new PCMD page is allocated and providing the empty PCMD data for
-ENCLAVE_A would cause ENCLS[ELDU] to #GP
-
-If ENCLAVE_B is evicted first then a new PCMD_AB would be allocated by the
-reclaimer but later when ENCLAVE_A is faulted the ENCLS[ELDU] instruction
-would #GP during its checks of the PCMD value and the WARN would be
-encountered.
-
-Noting that the reclaimer sets SGX_ENCL_PAGE_BEING_RECLAIMED at the time
-it obtains a reference to the backing store pages of an enclave page it
-is in the process of reclaiming, fix the race by only truncating the PCMD
-page after ensuring that no page sharing the PCMD page is in the process
-of being reclaimed.
-
+Reported-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Cc: stable@vger.kernel.org
-Fixes: 08999b2489b4 ("x86/sgx: Free backing memory after faulting the enclave page")
-Reported-by: Haitao Huang <haitao.huang@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Haitao Huang <haitao.huang@intel.com>
-Link: https://lkml.kernel.org/r/ed20a5db516aa813873268e125680041ae11dfcf.1652389823.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/sgx/encl.c |   94 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 93 insertions(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -12,6 +12,92 @@
- #include "encls.h"
- #include "sgx.h"
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -7330,16 +7330,12 @@ nfsd4_release_lockowner(struct svc_rqst
+ 		if (sop->so_is_open_owner || !same_owner_str(sop, owner))
+ 			continue;
  
-+#define PCMDS_PER_PAGE (PAGE_SIZE / sizeof(struct sgx_pcmd))
-+/*
-+ * 32 PCMD entries share a PCMD page. PCMD_FIRST_MASK is used to
-+ * determine the page index associated with the first PCMD entry
-+ * within a PCMD page.
-+ */
-+#define PCMD_FIRST_MASK GENMASK(4, 0)
-+
-+/**
-+ * reclaimer_writing_to_pcmd() - Query if any enclave page associated with
-+ *                               a PCMD page is in process of being reclaimed.
-+ * @encl:        Enclave to which PCMD page belongs
-+ * @start_addr:  Address of enclave page using first entry within the PCMD page
-+ *
-+ * When an enclave page is reclaimed some Paging Crypto MetaData (PCMD) is
-+ * stored. The PCMD data of a reclaimed enclave page contains enough
-+ * information for the processor to verify the page at the time
-+ * it is loaded back into the Enclave Page Cache (EPC).
-+ *
-+ * The backing storage to which enclave pages are reclaimed is laid out as
-+ * follows:
-+ * Encrypted enclave pages:SECS page:PCMD pages
-+ *
-+ * Each PCMD page contains the PCMD metadata of
-+ * PAGE_SIZE/sizeof(struct sgx_pcmd) enclave pages.
-+ *
-+ * A PCMD page can only be truncated if it is (a) empty, and (b) not in the
-+ * process of getting data (and thus soon being non-empty). (b) is tested with
-+ * a check if an enclave page sharing the PCMD page is in the process of being
-+ * reclaimed.
-+ *
-+ * The reclaimer sets the SGX_ENCL_PAGE_BEING_RECLAIMED flag when it
-+ * intends to reclaim that enclave page - it means that the PCMD page
-+ * associated with that enclave page is about to get some data and thus
-+ * even if the PCMD page is empty, it should not be truncated.
-+ *
-+ * Context: Enclave mutex (&sgx_encl->lock) must be held.
-+ * Return: 1 if the reclaimer is about to write to the PCMD page
-+ *         0 if the reclaimer has no intention to write to the PCMD page
-+ */
-+static int reclaimer_writing_to_pcmd(struct sgx_encl *encl,
-+				     unsigned long start_addr)
-+{
-+	int reclaimed = 0;
-+	int i;
-+
-+	/*
-+	 * PCMD_FIRST_MASK is based on number of PCMD entries within
-+	 * PCMD page being 32.
-+	 */
-+	BUILD_BUG_ON(PCMDS_PER_PAGE != 32);
-+
-+	for (i = 0; i < PCMDS_PER_PAGE; i++) {
-+		struct sgx_encl_page *entry;
-+		unsigned long addr;
-+
-+		addr = start_addr + i * PAGE_SIZE;
-+
-+		/*
-+		 * Stop when reaching the SECS page - it does not
-+		 * have a page_array entry and its reclaim is
-+		 * started and completed with enclave mutex held so
-+		 * it does not use the SGX_ENCL_PAGE_BEING_RECLAIMED
-+		 * flag.
-+		 */
-+		if (addr == encl->base + encl->size)
-+			break;
-+
-+		entry = xa_load(&encl->page_array, PFN_DOWN(addr));
-+		if (!entry)
-+			continue;
-+
-+		/*
-+		 * VA page slot ID uses same bit as the flag so it is important
-+		 * to ensure that the page is not already in backing store.
-+		 */
-+		if (entry->epc_page &&
-+		    (entry->desc & SGX_ENCL_PAGE_BEING_RECLAIMED)) {
-+			reclaimed = 1;
-+			break;
-+		}
-+	}
-+
-+	return reclaimed;
-+}
-+
- /*
-  * Calculate byte offset of a PCMD struct associated with an enclave page. PCMD's
-  * follow right after the EPC data in the backing storage. In addition to the
-@@ -47,6 +133,7 @@ static int __sgx_encl_eldu(struct sgx_en
- 	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
- 	struct sgx_encl *encl = encl_page->encl;
- 	pgoff_t page_index, page_pcmd_off;
-+	unsigned long pcmd_first_page;
- 	struct sgx_pageinfo pginfo;
- 	struct sgx_backing b;
- 	bool pcmd_page_empty;
-@@ -58,6 +145,11 @@ static int __sgx_encl_eldu(struct sgx_en
- 	else
- 		page_index = PFN_DOWN(encl->size);
+-		/* see if there are still any locks associated with it */
+-		lo = lockowner(sop);
+-		list_for_each_entry(stp, &sop->so_stateids, st_perstateowner) {
+-			if (check_for_locks(stp->st_stid.sc_file, lo)) {
+-				status = nfserr_locks_held;
+-				spin_unlock(&clp->cl_lock);
+-				return status;
+-			}
++		if (atomic_read(&sop->so_count) != 1) {
++			spin_unlock(&clp->cl_lock);
++			return nfserr_locks_held;
+ 		}
  
-+	/*
-+	 * Address of enclave page using the first entry within the PCMD page.
-+	 */
-+	pcmd_first_page = PFN_PHYS(page_index & ~PCMD_FIRST_MASK) + encl->base;
-+
- 	page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
- 
- 	ret = sgx_encl_get_backing(encl, page_index, &b);
-@@ -99,7 +191,7 @@ static int __sgx_encl_eldu(struct sgx_en
- 
- 	sgx_encl_truncate_backing_page(encl, page_index);
- 
--	if (pcmd_page_empty)
-+	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page))
- 		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
- 
- 	return ret;
++		lo = lockowner(sop);
+ 		nfs4_get_stateowner(sop);
+ 		break;
+ 	}
 
 
