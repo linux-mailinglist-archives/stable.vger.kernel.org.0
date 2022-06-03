@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB62053CF4A
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73F4153D02F
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345449AbiFCRyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58166 "EHLO
+        id S1346280AbiFCSBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347278AbiFCRwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE323167F2;
-        Fri,  3 Jun 2022 10:52:10 -0700 (PDT)
+        with ESMTP id S1346366AbiFCSAP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D695583B0;
+        Fri,  3 Jun 2022 10:56:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2B5CB8241D;
-        Fri,  3 Jun 2022 17:52:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F08CEC385A9;
-        Fri,  3 Jun 2022 17:52:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AD0AB82419;
+        Fri,  3 Jun 2022 17:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AFC9C385A9;
+        Fri,  3 Jun 2022 17:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278728;
-        bh=tSQXz/ZFbI2pYTh4TigjjrPwJuuXCKdaX9A7q3dypck=;
+        s=korg; t=1654278975;
+        bh=2cOlQ4KYOO/RdVnxta68xpDZTkPgvpT6wROgQ21+BnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sE7lE9Y/Byeitk28kV0m5CxmgRS+dy7Ql5GMXlAs/w/RYonMdLubsw2dOsQXfDCUD
-         oMlR5QoyjkQqY1MqOhKFRYwz3EH7ciJl/GO6h3JLsR1iE3pKnzPgqfzc58kp/2mssN
-         iRo+1RTCjh5dLGk6eFaIT15354QGGlU/I9Su9Thw=
+        b=R96LBe1PYju7/oHLv54DcwTqxzoDkgQK5YUWnxnq+C2LKnabiLrf5IdBZDTKIdhoJ
+         COUeLsOrOxdfUa1B8xPqERvAscvw2cgkeOdTrF9A5cRKNf80TegEptUZPTV/vaTPed
+         hriCh+gMtHLcXfp4vgfaxOu7p6/tXq6EuMBz1500=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Vabhav Sharma <vabhav.sharma@nxp.com>,
-        Gaurav Jain <gaurav.jain@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 34/66] crypto: caam - fix i.MX6SX entropy delay value
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.18 13/67] netfilter: nf_tables: double hook unregistration in netns path
 Date:   Fri,  3 Jun 2022 19:43:14 +0200
-Message-Id: <20220603173821.637268293@linuxfoundation.org>
+Message-Id: <20220603173821.113350962@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +52,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 4ee4cdad368a26de3967f2975806a9ee2fa245df upstream.
+commit f9a43007d3f7ba76d5e7f9421094f00f2ef202f8 upstream.
 
-Since commit 358ba762d9f1 ("crypto: caam - enable prediction resistance
-in HRWNG") the following CAAM errors can be seen on i.MX6SX:
+__nft_release_hooks() is called from pre_netns exit path which
+unregisters the hooks, then the NETDEV_UNREGISTER event is triggered
+which unregisters the hooks again.
 
-caam_jr 2101000.jr: 20003c5b: CCB: desc idx 60: RNG: Hardware error
-hwrng: no data available
+[  565.221461] WARNING: CPU: 18 PID: 193 at net/netfilter/core.c:495 __nf_unregister_net_hook+0x247/0x270
+[...]
+[  565.246890] CPU: 18 PID: 193 Comm: kworker/u64:1 Tainted: G            E     5.18.0-rc7+ #27
+[  565.253682] Workqueue: netns cleanup_net
+[  565.257059] RIP: 0010:__nf_unregister_net_hook+0x247/0x270
+[...]
+[  565.297120] Call Trace:
+[  565.300900]  <TASK>
+[  565.304683]  nf_tables_flowtable_event+0x16a/0x220 [nf_tables]
+[  565.308518]  raw_notifier_call_chain+0x63/0x80
+[  565.312386]  unregister_netdevice_many+0x54f/0xb50
 
-This error is due to an incorrect entropy delay for i.MX6SX.
+Unregister and destroy netdev hook from netns pre_exit via kfree_rcu
+so the NETDEV_UNREGISTER path see unregistered hooks.
 
-Fix it by increasing the minimum entropy delay for i.MX6SX
-as done in U-Boot:
-https://patchwork.ozlabs.org/project/uboot/patch/20220415111049.2565744-1-gaurav.jain@nxp.com/
-
-As explained in the U-Boot patch:
-
-"RNG self tests are run to determine the correct entropy delay.
-Such tests are executed with different voltages and temperatures to identify
-the worst case value for the entropy delay. For i.MX6SX, it was determined
-that after adding a margin value of 1000 the minimum entropy delay should be
-at least 12000."
-
-Cc: <stable@vger.kernel.org>
-Fixes: 358ba762d9f1 ("crypto: caam - enable prediction resistance in HRWNG")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Reviewed-by: Vabhav Sharma <vabhav.sharma@nxp.com>
-Reviewed-by: Gaurav Jain <gaurav.jain@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 767d1216bff8 ("netfilter: nftables: fix possible UAF over chains from packet path in netns")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/caam/ctrl.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ net/netfilter/nf_tables_api.c |   54 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 41 insertions(+), 13 deletions(-)
 
---- a/drivers/crypto/caam/ctrl.c
-+++ b/drivers/crypto/caam/ctrl.c
-@@ -609,6 +609,13 @@ static bool check_version(struct fsl_mc_
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -222,12 +222,18 @@ err_register:
  }
- #endif
  
-+static bool needs_entropy_delay_adjustment(void)
+ static void nft_netdev_unregister_hooks(struct net *net,
+-					struct list_head *hook_list)
++					struct list_head *hook_list,
++					bool release_netdev)
+ {
+-	struct nft_hook *hook;
++	struct nft_hook *hook, *next;
+ 
+-	list_for_each_entry(hook, hook_list, list)
++	list_for_each_entry_safe(hook, next, hook_list, list) {
+ 		nf_unregister_net_hook(net, &hook->ops);
++		if (release_netdev) {
++			list_del(&hook->list);
++			kfree_rcu(hook, rcu);
++		}
++	}
+ }
+ 
+ static int nf_tables_register_hook(struct net *net,
+@@ -253,9 +259,10 @@ static int nf_tables_register_hook(struc
+ 	return nf_register_net_hook(net, &basechain->ops);
+ }
+ 
+-static void nf_tables_unregister_hook(struct net *net,
+-				      const struct nft_table *table,
+-				      struct nft_chain *chain)
++static void __nf_tables_unregister_hook(struct net *net,
++					const struct nft_table *table,
++					struct nft_chain *chain,
++					bool release_netdev)
+ {
+ 	struct nft_base_chain *basechain;
+ 	const struct nf_hook_ops *ops;
+@@ -270,11 +277,19 @@ static void nf_tables_unregister_hook(st
+ 		return basechain->type->ops_unregister(net, ops);
+ 
+ 	if (nft_base_chain_netdev(table->family, basechain->ops.hooknum))
+-		nft_netdev_unregister_hooks(net, &basechain->hook_list);
++		nft_netdev_unregister_hooks(net, &basechain->hook_list,
++					    release_netdev);
+ 	else
+ 		nf_unregister_net_hook(net, &basechain->ops);
+ }
+ 
++static void nf_tables_unregister_hook(struct net *net,
++				      const struct nft_table *table,
++				      struct nft_chain *chain)
 +{
-+	if (of_machine_is_compatible("fsl,imx6sx"))
-+		return true;
-+	return false;
++	return __nf_tables_unregister_hook(net, table, chain, false);
 +}
 +
- /* Probe routine for CAAM top (controller) level */
- static int caam_probe(struct platform_device *pdev)
+ static void nft_trans_commit_list_add_tail(struct net *net, struct nft_trans *trans)
  {
-@@ -855,6 +862,8 @@ static int caam_probe(struct platform_de
- 			 * Also, if a handle was instantiated, do not change
- 			 * the TRNG parameters.
- 			 */
-+			if (needs_entropy_delay_adjustment())
-+				ent_delay = 12000;
- 			if (!(ctrlpriv->rng4_sh_init || inst_handles)) {
- 				dev_info(dev,
- 					 "Entropy delay = %u\n",
-@@ -871,6 +880,15 @@ static int caam_probe(struct platform_de
- 			 */
- 			ret = instantiate_rng(dev, inst_handles,
- 					      gen_sk);
-+			/*
-+			 * Entropy delay is determined via TRNG characterization.
-+			 * TRNG characterization is run across different voltages
-+			 * and temperatures.
-+			 * If worst case value for ent_dly is identified,
-+			 * the loop can be skipped for that platform.
-+			 */
-+			if (needs_entropy_delay_adjustment())
-+				break;
- 			if (ret == -EAGAIN)
- 				/*
- 				 * if here, the loop will rerun,
+ 	struct nftables_pernet *nft_net = nft_pernet(net);
+@@ -7301,13 +7316,25 @@ static void nft_unregister_flowtable_hoo
+ 				    FLOW_BLOCK_UNBIND);
+ }
+ 
+-static void nft_unregister_flowtable_net_hooks(struct net *net,
+-					       struct list_head *hook_list)
++static void __nft_unregister_flowtable_net_hooks(struct net *net,
++						 struct list_head *hook_list,
++					         bool release_netdev)
+ {
+-	struct nft_hook *hook;
++	struct nft_hook *hook, *next;
+ 
+-	list_for_each_entry(hook, hook_list, list)
++	list_for_each_entry_safe(hook, next, hook_list, list) {
+ 		nf_unregister_net_hook(net, &hook->ops);
++		if (release_netdev) {
++			list_del(&hook->list);
++			kfree_rcu(hook);
++		}
++	}
++}
++
++static void nft_unregister_flowtable_net_hooks(struct net *net,
++					       struct list_head *hook_list)
++{
++	__nft_unregister_flowtable_net_hooks(net, hook_list, false);
+ }
+ 
+ static int nft_register_flowtable_net_hooks(struct net *net,
+@@ -9751,9 +9778,10 @@ static void __nft_release_hook(struct ne
+ 	struct nft_chain *chain;
+ 
+ 	list_for_each_entry(chain, &table->chains, list)
+-		nf_tables_unregister_hook(net, table, chain);
++		__nf_tables_unregister_hook(net, table, chain, true);
+ 	list_for_each_entry(flowtable, &table->flowtables, list)
+-		nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list);
++		__nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list,
++						     true);
+ }
+ 
+ static void __nft_release_hooks(struct net *net)
 
 
