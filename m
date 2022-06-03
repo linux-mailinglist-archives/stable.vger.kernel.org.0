@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F4153D02F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C151253CF47
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346280AbiFCSBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:01:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
+        id S245730AbiFCRx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346366AbiFCSAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D695583B0;
-        Fri,  3 Jun 2022 10:56:18 -0700 (PDT)
+        with ESMTP id S1347219AbiFCRwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA63562DA;
+        Fri,  3 Jun 2022 10:50:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AD0AB82419;
-        Fri,  3 Jun 2022 17:56:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AFC9C385A9;
-        Fri,  3 Jun 2022 17:56:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB9FC60EE9;
+        Fri,  3 Jun 2022 17:50:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E75FDC3411C;
+        Fri,  3 Jun 2022 17:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278975;
-        bh=2cOlQ4KYOO/RdVnxta68xpDZTkPgvpT6wROgQ21+BnY=;
+        s=korg; t=1654278632;
+        bh=sQ0GPSl5NoQwPN9POfGGNsMy+Sxch4CTIxQGvcHIVJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R96LBe1PYju7/oHLv54DcwTqxzoDkgQK5YUWnxnq+C2LKnabiLrf5IdBZDTKIdhoJ
-         COUeLsOrOxdfUa1B8xPqERvAscvw2cgkeOdTrF9A5cRKNf80TegEptUZPTV/vaTPed
-         hriCh+gMtHLcXfp4vgfaxOu7p6/tXq6EuMBz1500=
+        b=uNVmtlsI96A2wYZ40DU+Fu95l8C8eENXStboWnRUCz6hUHomfdAO4CncSQ0WEhN7r
+         nxWsKZCsFx+UikUYP4tKKnMB5krM0yM4VE0+qwsVcliIXcXlfLyUylvSBD2K4E0kLM
+         YvLdPUaNX0Z7fGRycTcG8Iuv/wGEFPUgFyy4ky1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.18 13/67] netfilter: nf_tables: double hook unregistration in netns path
-Date:   Fri,  3 Jun 2022 19:43:14 +0200
-Message-Id: <20220603173821.113350962@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.15 35/66] crypto: ecrdsa - Fix incorrect use of vli_cmp
+Date:   Fri,  3 Jun 2022 19:43:15 +0200
+Message-Id: <20220603173821.665178127@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,137 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-commit f9a43007d3f7ba76d5e7f9421094f00f2ef202f8 upstream.
+commit 7cc7ab73f83ee6d50dc9536bc3355495d8600fad upstream.
 
-__nft_release_hooks() is called from pre_netns exit path which
-unregisters the hooks, then the NETDEV_UNREGISTER event is triggered
-which unregisters the hooks again.
+Correctly compare values that shall be greater-or-equal and not just
+greater.
 
-[  565.221461] WARNING: CPU: 18 PID: 193 at net/netfilter/core.c:495 __nf_unregister_net_hook+0x247/0x270
-[...]
-[  565.246890] CPU: 18 PID: 193 Comm: kworker/u64:1 Tainted: G            E     5.18.0-rc7+ #27
-[  565.253682] Workqueue: netns cleanup_net
-[  565.257059] RIP: 0010:__nf_unregister_net_hook+0x247/0x270
-[...]
-[  565.297120] Call Trace:
-[  565.300900]  <TASK>
-[  565.304683]  nf_tables_flowtable_event+0x16a/0x220 [nf_tables]
-[  565.308518]  raw_notifier_call_chain+0x63/0x80
-[  565.312386]  unregister_netdevice_many+0x54f/0xb50
-
-Unregister and destroy netdev hook from netns pre_exit via kfree_rcu
-so the NETDEV_UNREGISTER path see unregistered hooks.
-
-Fixes: 767d1216bff8 ("netfilter: nftables: fix possible UAF over chains from packet path in netns")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |   54 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 41 insertions(+), 13 deletions(-)
+ crypto/ecrdsa.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -222,12 +222,18 @@ err_register:
- }
+--- a/crypto/ecrdsa.c
++++ b/crypto/ecrdsa.c
+@@ -113,15 +113,15 @@ static int ecrdsa_verify(struct akcipher
  
- static void nft_netdev_unregister_hooks(struct net *net,
--					struct list_head *hook_list)
-+					struct list_head *hook_list,
-+					bool release_netdev)
- {
--	struct nft_hook *hook;
-+	struct nft_hook *hook, *next;
+ 	/* Step 1: verify that 0 < r < q, 0 < s < q */
+ 	if (vli_is_zero(r, ndigits) ||
+-	    vli_cmp(r, ctx->curve->n, ndigits) == 1 ||
++	    vli_cmp(r, ctx->curve->n, ndigits) >= 0 ||
+ 	    vli_is_zero(s, ndigits) ||
+-	    vli_cmp(s, ctx->curve->n, ndigits) == 1)
++	    vli_cmp(s, ctx->curve->n, ndigits) >= 0)
+ 		return -EKEYREJECTED;
  
--	list_for_each_entry(hook, hook_list, list)
-+	list_for_each_entry_safe(hook, next, hook_list, list) {
- 		nf_unregister_net_hook(net, &hook->ops);
-+		if (release_netdev) {
-+			list_del(&hook->list);
-+			kfree_rcu(hook, rcu);
-+		}
-+	}
- }
+ 	/* Step 2: calculate hash (h) of the message (passed as input) */
+ 	/* Step 3: calculate e = h \mod q */
+ 	vli_from_le64(e, digest, ndigits);
+-	if (vli_cmp(e, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(e, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(e, e, ctx->curve->n, ndigits);
+ 	if (vli_is_zero(e, ndigits))
+ 		e[0] = 1;
+@@ -137,7 +137,7 @@ static int ecrdsa_verify(struct akcipher
+ 	/* Step 6: calculate point C = z_1P + z_2Q, and R = x_c \mod q */
+ 	ecc_point_mult_shamir(&cc, z1, &ctx->curve->g, z2, &ctx->pub_key,
+ 			      ctx->curve);
+-	if (vli_cmp(cc.x, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(cc.x, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(cc.x, cc.x, ctx->curve->n, ndigits);
  
- static int nf_tables_register_hook(struct net *net,
-@@ -253,9 +259,10 @@ static int nf_tables_register_hook(struc
- 	return nf_register_net_hook(net, &basechain->ops);
- }
- 
--static void nf_tables_unregister_hook(struct net *net,
--				      const struct nft_table *table,
--				      struct nft_chain *chain)
-+static void __nf_tables_unregister_hook(struct net *net,
-+					const struct nft_table *table,
-+					struct nft_chain *chain,
-+					bool release_netdev)
- {
- 	struct nft_base_chain *basechain;
- 	const struct nf_hook_ops *ops;
-@@ -270,11 +277,19 @@ static void nf_tables_unregister_hook(st
- 		return basechain->type->ops_unregister(net, ops);
- 
- 	if (nft_base_chain_netdev(table->family, basechain->ops.hooknum))
--		nft_netdev_unregister_hooks(net, &basechain->hook_list);
-+		nft_netdev_unregister_hooks(net, &basechain->hook_list,
-+					    release_netdev);
- 	else
- 		nf_unregister_net_hook(net, &basechain->ops);
- }
- 
-+static void nf_tables_unregister_hook(struct net *net,
-+				      const struct nft_table *table,
-+				      struct nft_chain *chain)
-+{
-+	return __nf_tables_unregister_hook(net, table, chain, false);
-+}
-+
- static void nft_trans_commit_list_add_tail(struct net *net, struct nft_trans *trans)
- {
- 	struct nftables_pernet *nft_net = nft_pernet(net);
-@@ -7301,13 +7316,25 @@ static void nft_unregister_flowtable_hoo
- 				    FLOW_BLOCK_UNBIND);
- }
- 
--static void nft_unregister_flowtable_net_hooks(struct net *net,
--					       struct list_head *hook_list)
-+static void __nft_unregister_flowtable_net_hooks(struct net *net,
-+						 struct list_head *hook_list,
-+					         bool release_netdev)
- {
--	struct nft_hook *hook;
-+	struct nft_hook *hook, *next;
- 
--	list_for_each_entry(hook, hook_list, list)
-+	list_for_each_entry_safe(hook, next, hook_list, list) {
- 		nf_unregister_net_hook(net, &hook->ops);
-+		if (release_netdev) {
-+			list_del(&hook->list);
-+			kfree_rcu(hook);
-+		}
-+	}
-+}
-+
-+static void nft_unregister_flowtable_net_hooks(struct net *net,
-+					       struct list_head *hook_list)
-+{
-+	__nft_unregister_flowtable_net_hooks(net, hook_list, false);
- }
- 
- static int nft_register_flowtable_net_hooks(struct net *net,
-@@ -9751,9 +9778,10 @@ static void __nft_release_hook(struct ne
- 	struct nft_chain *chain;
- 
- 	list_for_each_entry(chain, &table->chains, list)
--		nf_tables_unregister_hook(net, table, chain);
-+		__nf_tables_unregister_hook(net, table, chain, true);
- 	list_for_each_entry(flowtable, &table->flowtables, list)
--		nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list);
-+		__nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list,
-+						     true);
- }
- 
- static void __nft_release_hooks(struct net *net)
+ 	/* Step 7: if R == r signature is valid */
 
 
