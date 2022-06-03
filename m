@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1C053CFCB
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD7953CEE6
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345875AbiFCR4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58130 "EHLO
+        id S1345355AbiFCRsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:48:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346076AbiFCRzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37209562F3;
-        Fri,  3 Jun 2022 10:53:38 -0700 (PDT)
+        with ESMTP id S1345368AbiFCRsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E821B5418F;
+        Fri,  3 Jun 2022 10:45:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4F1C61244;
-        Fri,  3 Jun 2022 17:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6B7EC385A9;
-        Fri,  3 Jun 2022 17:53:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 859E660A0F;
+        Fri,  3 Jun 2022 17:45:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E10DC385B8;
+        Fri,  3 Jun 2022 17:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278817;
-        bh=CHmgGFpsuDekL9gLWFmcxOCEDhBVsTKgnNsfGL5LnfI=;
+        s=korg; t=1654278310;
+        bh=NnEyWjMihEvGC1ycsFdaXgQ+EWmAJe/cwgy1WOjErkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TukBTrZXhnSFffHwoWuD3m72sxyOdz8ODuVpOJkA90LW8dSqTK0EKN4Ygvnk7VQA8
-         CNJXR5mJHDp8d71B3k1x7e2KDeX6Tk1kfEL7mote41wHP+kZgzMT37cYQoh5DPtx4F
-         WMMGxOjWmXL7fYCa855b7u6nRWAwOtlczXlmEhk8=
+        b=mSUZdAoPym97KU2ubp9gK3epjmL9A90oRf7BVhKakGAsuDq/hOQPnVxqeoq95pumc
+         puPQSl7VJC4KkMcrehfb3gGYhInEPiFvnXok9l7cDTa1cAusKKbl9z3BTQD/7Mj1n6
+         KRXaPbaSnvd8kcKY0+zmqqeduT9y7lWK3zLmNa4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenyi Qiang <chenyi.qiang@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 37/75] KVM: x86: Drop WARNs that assert a triple fault never "escapes" from L2
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.4 25/34] dm stats: add cond_resched when looping over entries
 Date:   Fri,  3 Jun 2022 19:43:21 +0200
-Message-Id: <20220603173822.797923186@linuxfoundation.org>
+Message-Id: <20220603173816.915846548@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 45846661d10422ce9e22da21f8277540b29eca22 upstream.
+commit bfe2b0146c4d0230b68f5c71a64380ff8d361f8b upstream.
 
-Remove WARNs that sanity check that KVM never lets a triple fault for L2
-escape and incorrectly end up in L1.  In normal operation, the sanity
-check is perfectly valid, but it incorrectly assumes that it's impossible
-for userspace to induce KVM_REQ_TRIPLE_FAULT without bouncing through
-KVM_RUN (which guarantees kvm_check_nested_state() will see and handle
-the triple fault).
+dm-stats can be used with a very large number of entries (it is only
+limited by 1/4 of total system memory), so add rescheduling points to
+the loops that iterate over the entries.
 
-The WARN can currently be triggered if userspace injects a machine check
-while L2 is active and CR4.MCE=0.  And a future fix to allow save/restore
-of KVM_REQ_TRIPLE_FAULT, e.g. so that a synthesized triple fault isn't
-lost on migration, will make it trivially easy for userspace to trigger
-the WARN.
-
-Clearing KVM_REQ_TRIPLE_FAULT when forcibly leaving guest mode is
-tempting, but wrong, especially if/when the request is saved/restored,
-e.g. if userspace restores events (including a triple fault) and then
-restores nested state (which may forcibly leave guest mode).  Ignoring
-the fact that KVM doesn't currently provide the necessary APIs, it's
-userspace's responsibility to manage pending events during save/restore.
-
-  ------------[ cut here ]------------
-  WARNING: CPU: 7 PID: 1399 at arch/x86/kvm/vmx/nested.c:4522 nested_vmx_vmexit+0x7fe/0xd90 [kvm_intel]
-  Modules linked in: kvm_intel kvm irqbypass
-  CPU: 7 PID: 1399 Comm: state_test Not tainted 5.17.0-rc3+ #808
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:nested_vmx_vmexit+0x7fe/0xd90 [kvm_intel]
-  Call Trace:
-   <TASK>
-   vmx_leave_nested+0x30/0x40 [kvm_intel]
-   vmx_set_nested_state+0xca/0x3e0 [kvm_intel]
-   kvm_arch_vcpu_ioctl+0xf49/0x13e0 [kvm]
-   kvm_vcpu_ioctl+0x4b9/0x660 [kvm]
-   __x64_sys_ioctl+0x83/0xb0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
-  ---[ end trace 0000000000000000 ]---
-
-Fixes: cb6a32c2b877 ("KVM: x86: Handle triple fault in L2 without killing L1")
 Cc: stable@vger.kernel.org
-Cc: Chenyi Qiang <chenyi.qiang@intel.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220407002315.78092-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/nested.c |    3 ---
- arch/x86/kvm/vmx/nested.c |    3 ---
- 2 files changed, 6 deletions(-)
+ drivers/md/dm-stats.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -790,9 +790,6 @@ int nested_svm_vmexit(struct vcpu_svm *s
- 	struct kvm_host_map map;
- 	int rc;
+--- a/drivers/md/dm-stats.c
++++ b/drivers/md/dm-stats.c
+@@ -224,6 +224,7 @@ void dm_stats_cleanup(struct dm_stats *s
+ 				       atomic_read(&shared->in_flight[READ]),
+ 				       atomic_read(&shared->in_flight[WRITE]));
+ 			}
++			cond_resched();
+ 		}
+ 		dm_stat_free(&s->rcu_head);
+ 	}
+@@ -313,6 +314,7 @@ static int dm_stats_create(struct dm_sta
+ 	for (ni = 0; ni < n_entries; ni++) {
+ 		atomic_set(&s->stat_shared[ni].in_flight[READ], 0);
+ 		atomic_set(&s->stat_shared[ni].in_flight[WRITE], 0);
++		cond_resched();
+ 	}
  
--	/* Triple faults in L2 should never escape. */
--	WARN_ON_ONCE(kvm_check_request(KVM_REQ_TRIPLE_FAULT, vcpu));
--
- 	rc = kvm_vcpu_map(vcpu, gpa_to_gfn(svm->nested.vmcb12_gpa), &map);
- 	if (rc) {
- 		if (rc == -EINVAL)
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4518,9 +4518,6 @@ void nested_vmx_vmexit(struct kvm_vcpu *
- 	/* trying to cancel vmlaunch/vmresume is a bug */
- 	WARN_ON_ONCE(vmx->nested.nested_run_pending);
+ 	if (s->n_histogram_entries) {
+@@ -325,6 +327,7 @@ static int dm_stats_create(struct dm_sta
+ 		for (ni = 0; ni < n_entries; ni++) {
+ 			s->stat_shared[ni].tmp.histogram = hi;
+ 			hi += s->n_histogram_entries + 1;
++			cond_resched();
+ 		}
+ 	}
  
--	/* Similarly, triple faults in L2 should never escape. */
--	WARN_ON_ONCE(kvm_check_request(KVM_REQ_TRIPLE_FAULT, vcpu));
--
- 	if (kvm_check_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu)) {
- 		/*
- 		 * KVM_REQ_GET_NESTED_STATE_PAGES is also used to map
+@@ -345,6 +348,7 @@ static int dm_stats_create(struct dm_sta
+ 			for (ni = 0; ni < n_entries; ni++) {
+ 				p[ni].histogram = hi;
+ 				hi += s->n_histogram_entries + 1;
++				cond_resched();
+ 			}
+ 		}
+ 	}
+@@ -474,6 +478,7 @@ static int dm_stats_list(struct dm_stats
+ 			}
+ 			DMEMIT("\n");
+ 		}
++		cond_resched();
+ 	}
+ 	mutex_unlock(&stats->mutex);
+ 
+@@ -750,6 +755,7 @@ static void __dm_stat_clear(struct dm_st
+ 				local_irq_enable();
+ 			}
+ 		}
++		cond_resched();
+ 	}
+ }
+ 
+@@ -865,6 +871,8 @@ static int dm_stats_print(struct dm_stat
+ 
+ 		if (unlikely(sz + 1 >= maxlen))
+ 			goto buffer_overflow;
++
++		cond_resched();
+ 	}
+ 
+ 	if (clear)
 
 
