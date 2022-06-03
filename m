@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BC653CF26
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EADAD53CFCC
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345523AbiFCRxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
+        id S1345855AbiFCR4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:56:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346299AbiFCRvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB635400C;
-        Fri,  3 Jun 2022 10:47:27 -0700 (PDT)
+        with ESMTP id S1346074AbiFCRzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08EE562E9;
+        Fri,  3 Jun 2022 10:53:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 539E6B823B0;
-        Fri,  3 Jun 2022 17:47:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 984F5C385A9;
-        Fri,  3 Jun 2022 17:47:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A3A5B82419;
+        Fri,  3 Jun 2022 17:53:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDB51C3411C;
+        Fri,  3 Jun 2022 17:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278444;
-        bh=tSQXz/ZFbI2pYTh4TigjjrPwJuuXCKdaX9A7q3dypck=;
+        s=korg; t=1654278814;
+        bh=QSqdrBXq5Smm/co4R3m8i5KuO0M2hHfHRZtBXITNQCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhTTo7nQN7CvEfTPfyXFPoUGlkrlG1T5se+xmQ597i8ZiixEtTD/3qkld6OVX2/j8
-         b6wHAnLXknJtpK5BUidVZ5GJ1qDmy7N4LW0biJZcLUgakUKNqdx4tC38qjDhTy5J+v
-         aKtl6fNzCLWU7SNv36YeN3G0AI/a2tPHkhHVBZFM=
+        b=gqd4pHKtJJN282t39dxWBZ9qAUnF8Ax25URYuQKcESNViEe0XVhouSwLXOhn8wu4k
+         Hr6N14lf7K/uQpzf4X9OwZPn/boj87TxZ6qlE6gcxMuJYJGkHT3be3CGhVCzaMHH0Y
+         gY9tY4SYF4FEFBolW4E64M+2Q8DCg5T+l3GMz/tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Vabhav Sharma <vabhav.sharma@nxp.com>,
-        Gaurav Jain <gaurav.jain@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.10 35/53] crypto: caam - fix i.MX6SX entropy delay value
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 36/75] KVM: x86: Fix the intel_pt PMI handling wrongly considered from guest
 Date:   Fri,  3 Jun 2022 19:43:20 +0200
-Message-Id: <20220603173819.744914090@linuxfoundation.org>
+Message-Id: <20220603173822.770199379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Yanfei Xu <yanfei.xu@intel.com>
 
-commit 4ee4cdad368a26de3967f2975806a9ee2fa245df upstream.
+commit ffd1925a596ce68bed7d81c61cb64bc35f788a9d upstream.
 
-Since commit 358ba762d9f1 ("crypto: caam - enable prediction resistance
-in HRWNG") the following CAAM errors can be seen on i.MX6SX:
+When kernel handles the vm-exit caused by external interrupts and NMI,
+it always sets kvm_intr_type to tell if it's dealing an IRQ or NMI. For
+the PMI scenario, it could be IRQ or NMI.
 
-caam_jr 2101000.jr: 20003c5b: CCB: desc idx 60: RNG: Hardware error
-hwrng: no data available
+However, intel_pt PMIs are only generated for HARDWARE perf events, and
+HARDWARE events are always configured to generate NMIs.  Use
+kvm_handling_nmi_from_guest() to precisely identify if the intel_pt PMI
+came from the guest; this avoids false positives if an intel_pt PMI/NMI
+arrives while the host is handling an unrelated IRQ VM-Exit.
 
-This error is due to an incorrect entropy delay for i.MX6SX.
-
-Fix it by increasing the minimum entropy delay for i.MX6SX
-as done in U-Boot:
-https://patchwork.ozlabs.org/project/uboot/patch/20220415111049.2565744-1-gaurav.jain@nxp.com/
-
-As explained in the U-Boot patch:
-
-"RNG self tests are run to determine the correct entropy delay.
-Such tests are executed with different voltages and temperatures to identify
-the worst case value for the entropy delay. For i.MX6SX, it was determined
-that after adding a margin value of 1000 the minimum entropy delay should be
-at least 12000."
-
-Cc: <stable@vger.kernel.org>
-Fixes: 358ba762d9f1 ("crypto: caam - enable prediction resistance in HRWNG")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Reviewed-by: Vabhav Sharma <vabhav.sharma@nxp.com>
-Reviewed-by: Gaurav Jain <gaurav.jain@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: db215756ae59 ("KVM: x86: More precisely identify NMI from guest when handling PMI")
+Signed-off-by: Yanfei Xu <yanfei.xu@intel.com>
+Message-Id: <20220523140821.1345605-1-yanfei.xu@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/caam/ctrl.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/x86/kvm/vmx/vmx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/crypto/caam/ctrl.c
-+++ b/drivers/crypto/caam/ctrl.c
-@@ -609,6 +609,13 @@ static bool check_version(struct fsl_mc_
- }
- #endif
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7858,7 +7858,7 @@ static unsigned int vmx_handle_intel_pt_
+ 	struct kvm_vcpu *vcpu = kvm_get_running_vcpu();
  
-+static bool needs_entropy_delay_adjustment(void)
-+{
-+	if (of_machine_is_compatible("fsl,imx6sx"))
-+		return true;
-+	return false;
-+}
-+
- /* Probe routine for CAAM top (controller) level */
- static int caam_probe(struct platform_device *pdev)
- {
-@@ -855,6 +862,8 @@ static int caam_probe(struct platform_de
- 			 * Also, if a handle was instantiated, do not change
- 			 * the TRNG parameters.
- 			 */
-+			if (needs_entropy_delay_adjustment())
-+				ent_delay = 12000;
- 			if (!(ctrlpriv->rng4_sh_init || inst_handles)) {
- 				dev_info(dev,
- 					 "Entropy delay = %u\n",
-@@ -871,6 +880,15 @@ static int caam_probe(struct platform_de
- 			 */
- 			ret = instantiate_rng(dev, inst_handles,
- 					      gen_sk);
-+			/*
-+			 * Entropy delay is determined via TRNG characterization.
-+			 * TRNG characterization is run across different voltages
-+			 * and temperatures.
-+			 * If worst case value for ent_dly is identified,
-+			 * the loop can be skipped for that platform.
-+			 */
-+			if (needs_entropy_delay_adjustment())
-+				break;
- 			if (ret == -EAGAIN)
- 				/*
- 				 * if here, the loop will rerun,
+ 	/* '0' on failure so that the !PT case can use a RET0 static call. */
+-	if (!kvm_arch_pmi_in_guest(vcpu))
++	if (!vcpu || !kvm_handling_nmi_from_guest(vcpu))
+ 		return 0;
+ 
+ 	kvm_make_request(KVM_REQ_PMI, vcpu);
 
 
