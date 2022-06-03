@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D2F53CF78
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B0853CFFE
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233081AbiFCRy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
+        id S1346096AbiFCR6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:58:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347258AbiFCRwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1543EA478;
-        Fri,  3 Jun 2022 10:51:26 -0700 (PDT)
+        with ESMTP id S1346022AbiFCR6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:58:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE4857998;
+        Fri,  3 Jun 2022 10:54:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A552760EE9;
-        Fri,  3 Jun 2022 17:51:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EF0C385B8;
-        Fri,  3 Jun 2022 17:51:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F3FAB82189;
+        Fri,  3 Jun 2022 17:54:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B12C385A9;
+        Fri,  3 Jun 2022 17:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278685;
-        bh=iVhxgBee0090K+JMRIMNDvagDEz2fQsj8dQrdToLUgg=;
+        s=korg; t=1654278880;
+        bh=vTWiCd2qo69ZjfuxwNlgeer11jVQIY4xgUWXfDmgCgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4VfgkhrELevKR3zonCy0ElKPG/UkSEOLPh2X1JcNtEqX0BY1HvkVL5oeUTqNXbqW
-         YCuBJMG4UVSIMMsi6vVlmuWMvXb7UOPfXC8JCPSxwMfjD7/0POdyDtuBcTiNkS9+oW
-         Ny+t4ON1ArcqxC5rHpYik3GybWY21jfQqSnejof4=
+        b=Vlm3RsqqJ94sJV0/CpPy4wwg16Kmf86MTd+lZpx+/BZ6jhZEbXcmZH9D4hYHByMRO
+         ANRXgTkQ0oxOT3NapkQ3lPf84x7ypnb4GyuW9mAvvwThB4xZDfBoBmAyY7Ygu7l6+g
+         OWXmb4gx/gn4gd39Yq+R/b0i/9Wc0O8JSagadUzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.15 60/66] NFS: Memory allocation failures are not server fatal errors
+        stable@vger.kernel.org, Tao Jin <tao-j@outlook.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.17 56/75] HID: multitouch: add quirks to enable Lenovo X12 trackpoint
 Date:   Fri,  3 Jun 2022 19:43:40 +0200
-Message-Id: <20220603173822.391111019@linuxfoundation.org>
+Message-Id: <20220603173823.328601324@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Tao Jin <tao-j@outlook.com>
 
-commit 452284407c18d8a522c3039339b1860afa0025a8 upstream.
+commit 95cd2cdc88c755dcd0a58b951faeb77742c733a4 upstream.
 
-We need to filter out ENOMEM in nfs_error_is_fatal_on_server(), because
-running out of memory on our client is not a server error.
+This applies the similar quirks used by previous generation devices
+such as X1 tablet for X12 tablet, so that the trackpoint and buttons
+can work.
 
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Fixes: 2dc23afffbca ("NFS: ENOMEM should also be a fatal error.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This patch was applied and tested working on 5.17.1 .
+
+Cc: stable@vger.kernel.org # 5.8+ given that it relies on 40d5bb87377a
+Signed-off-by: Tao Jin <tao-j@outlook.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/CO6PR03MB6241CB276FCDC7F4CEDC34F6E1E29@CO6PR03MB6241.namprd03.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/internal.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |    6 ++++++
+ 2 files changed, 7 insertions(+)
 
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -834,6 +834,7 @@ static inline bool nfs_error_is_fatal_on
- 	case 0:
- 	case -ERESTARTSYS:
- 	case -EINTR:
-+	case -ENOMEM:
- 		return false;
- 	}
- 	return nfs_error_is_fatal(err);
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -760,6 +760,7 @@
+ #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
+ #define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
+ #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
++#define USB_DEVICE_ID_LENOVO_X12_TAB	0x60fe
+ #define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2034,6 +2034,12 @@ static const struct hid_device_id mt_dev
+ 			   USB_VENDOR_ID_LENOVO,
+ 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
+ 
++	/* Lenovo X12 TAB Gen 1 */
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
++			   USB_VENDOR_ID_LENOVO,
++			   USB_DEVICE_ID_LENOVO_X12_TAB) },
++
+ 	/* MosArt panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
 
 
