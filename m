@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA8553CBF7
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6706953CC16
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:14:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238431AbiFCPEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 11:04:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41536 "EHLO
+        id S239670AbiFCPOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 11:14:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245315AbiFCPEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:04:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8982464D0
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:04:14 -0700 (PDT)
+        with ESMTP id S243965AbiFCPOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:14:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511935047D
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:14:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CD9D616F9
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AE3AC34115;
-        Fri,  3 Jun 2022 15:04:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09019B8214F
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7B7C385A9;
+        Fri,  3 Jun 2022 15:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654268653;
-        bh=9ZiFZY3sw5FQrSTE53ivw8l5EXshM6qBlG73h8/QO2Q=;
+        s=korg; t=1654269245;
+        bh=epEHVgBgt1Rt15AH+i3a8p6pWG2NNm0fOnrUTqgYxik=;
         h=Subject:To:Cc:From:Date:From;
-        b=AmxIZl1y+L24wleEAnA+U3XPnADApSAG7dsJZxx/aAY6MIFEaD5T2p/HW+AG7PbK5
-         XNXEaonrl23pxlUETuINelpoUCMbvf7H1ZlQG5/tsxwWZ345JoMRfyXdEotySxMZif
-         1+EdZi7xy/cjMjYMbxn/7kblyj35BEiueewcwc3E=
-Subject: FAILED: patch "[PATCH] KVM: x86: Use __try_cmpxchg_user() to emulate atomic accesses" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
+        b=K19iuI/gkJvnlbAOuv1Eaw5SRIRuZyeyHAVpf8Qm+SS+EpFp2VyMt/noYfSnzPtGK
+         zzSbDbQgRGI6urF31uypnDbIgVj1wUYQhLA3x0jr0KasgICIjQ4Bp7wUEU9HjoJzt6
+         Apb9W9OAPrdWCbu3gcHiVlOH0tMenMF06uNpLH4E=
+Subject: FAILED: patch "[PATCH] KVM: x86: avoid loading a vCPU after .vm_destroy was called" failed to apply to 5.4-stable tree
+To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 17:04:10 +0200
-Message-ID: <16542686502364@kroah.com>
+Date:   Fri, 03 Jun 2022 17:13:51 +0200
+Message-ID: <1654269231149240@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,101 +59,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1c2361f667f3648855ceae25f1332c18413fdb9f Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 2 Feb 2022 00:49:44 +0000
-Subject: [PATCH] KVM: x86: Use __try_cmpxchg_user() to emulate atomic accesses
+From 6fcee03df6a1a3101a77344be37bb85c6142d56c Mon Sep 17 00:00:00 2001
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Date: Tue, 22 Mar 2022 19:24:42 +0200
+Subject: [PATCH] KVM: x86: avoid loading a vCPU after .vm_destroy was called
 
-Use the recently introduce __try_cmpxchg_user() to emulate atomic guest
-accesses via the associated userspace address instead of mapping the
-backing pfn into kernel address space.  Using kvm_vcpu_map() is unsafe as
-it does not coordinate with KVM's mmu_notifier to ensure the hva=>pfn
-translation isn't changed/unmapped in the memremap() path, i.e. when
-there's no struct page and thus no elevated refcount.
+This can cause various unexpected issues, since VM is partially
+destroyed at that point.
 
-Fixes: 42e35f8072c3 ("KVM/X86: Use kvm_vcpu_map in emulator_cmpxchg_emulated")
+For example when AVIC is enabled, this causes avic_vcpu_load to
+access physical id page entry which is already freed by .vm_destroy.
+
+Fixes: 8221c1370056 ("svm: Manage vcpu load/unload when enable AVIC")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220202004945.2540433-5-seanjc@google.com>
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220322172449.235575-2-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index fb8153d584c8..e5b0dd24b200 100644
+index 1abce22b14d7..ba4faeb32437 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7257,15 +7257,8 @@ static int emulator_write_emulated(struct x86_emulate_ctxt *ctxt,
- 				   exception, &write_emultor);
+@@ -11816,20 +11816,15 @@ static void kvm_unload_vcpu_mmu(struct kvm_vcpu *vcpu)
+ 	vcpu_put(vcpu);
  }
  
--#define CMPXCHG_TYPE(t, ptr, old, new) \
--	(cmpxchg((t *)(ptr), *(t *)(old), *(t *)(new)) == *(t *)(old))
--
--#ifdef CONFIG_X86_64
--#  define CMPXCHG64(ptr, old, new) CMPXCHG_TYPE(u64, ptr, old, new)
--#else
--#  define CMPXCHG64(ptr, old, new) \
--	(cmpxchg64((u64 *)(ptr), *(u64 *)(old), *(u64 *)(new)) == *(u64 *)(old))
--#endif
-+#define emulator_try_cmpxchg_user(t, ptr, old, new) \
-+	(__try_cmpxchg_user((t __user *)(ptr), (t *)(old), *(t *)(new), efault ## t))
- 
- static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 				     unsigned long addr,
-@@ -7274,12 +7267,11 @@ static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 				     unsigned int bytes,
- 				     struct x86_exception *exception)
+-static void kvm_free_vcpus(struct kvm *kvm)
++static void kvm_unload_vcpu_mmus(struct kvm *kvm)
  {
--	struct kvm_host_map map;
- 	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
- 	u64 page_line_mask;
-+	unsigned long hva;
- 	gpa_t gpa;
--	char *kaddr;
--	bool exchanged;
-+	int r;
+ 	unsigned long i;
+ 	struct kvm_vcpu *vcpu;
  
- 	/* guests cmpxchg8b have to be emulated atomically */
- 	if (bytes > 8 || (bytes & (bytes - 1)))
-@@ -7303,31 +7295,32 @@ static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 	if (((gpa + bytes - 1) & page_line_mask) != (gpa & page_line_mask))
- 		goto emul_write;
- 
--	if (kvm_vcpu_map(vcpu, gpa_to_gfn(gpa), &map))
-+	hva = kvm_vcpu_gfn_to_hva(vcpu, gpa_to_gfn(gpa));
-+	if (kvm_is_error_hva(addr))
- 		goto emul_write;
- 
--	kaddr = map.hva + offset_in_page(gpa);
-+	hva += offset_in_page(gpa);
- 
- 	switch (bytes) {
- 	case 1:
--		exchanged = CMPXCHG_TYPE(u8, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u8, hva, old, new);
- 		break;
- 	case 2:
--		exchanged = CMPXCHG_TYPE(u16, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u16, hva, old, new);
- 		break;
- 	case 4:
--		exchanged = CMPXCHG_TYPE(u32, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u32, hva, old, new);
- 		break;
- 	case 8:
--		exchanged = CMPXCHG64(kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u64, hva, old, new);
- 		break;
- 	default:
- 		BUG();
+-	/*
+-	 * Unpin any mmu pages first.
+-	 */
+ 	kvm_for_each_vcpu(i, vcpu, kvm) {
+ 		kvm_clear_async_pf_completion_queue(vcpu);
+ 		kvm_unload_vcpu_mmu(vcpu);
  	}
- 
--	kvm_vcpu_unmap(vcpu, &map, true);
 -
--	if (!exchanged)
-+	if (r < 0)
-+		goto emul_write;
-+	if (r)
- 		return X86EMUL_CMPXCHG_FAILED;
+-	kvm_destroy_vcpus(kvm);
+ }
  
- 	kvm_page_track_write(vcpu, gpa, new, bytes);
+ void kvm_arch_sync_events(struct kvm *kvm)
+@@ -11935,11 +11930,12 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 		__x86_set_memory_region(kvm, TSS_PRIVATE_MEMSLOT, 0, 0);
+ 		mutex_unlock(&kvm->slots_lock);
+ 	}
++	kvm_unload_vcpu_mmus(kvm);
+ 	static_call_cond(kvm_x86_vm_destroy)(kvm);
+ 	kvm_free_msr_filter(srcu_dereference_check(kvm->arch.msr_filter, &kvm->srcu, 1));
+ 	kvm_pic_destroy(kvm);
+ 	kvm_ioapic_destroy(kvm);
+-	kvm_free_vcpus(kvm);
++	kvm_destroy_vcpus(kvm);
+ 	kvfree(rcu_dereference_check(kvm->arch.apic_map, 1));
+ 	kfree(srcu_dereference_check(kvm->arch.pmu_event_filter, &kvm->srcu, 1));
+ 	kvm_mmu_uninit_vm(kvm);
 
