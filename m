@@ -2,85 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78EFE53C96C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 13:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 973F353C9E4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 14:24:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244030AbiFCLc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 07:32:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
+        id S244203AbiFCMQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 08:16:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238542AbiFCLcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 07:32:25 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EC56568
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 04:32:24 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id p10so10019688wrg.12
-        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 04:32:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=PaEzrm9U0WjJMxkE+zbw8yGRv0uhjcRl9sFl9vmbKpk=;
-        b=FCV+OIy/Wx2HQfBelSHclCEHrmLV1q9nPsd3TSpRNimW2BmY1dOG4/RHKkp1vD4Rqw
-         5eEZka5uCgLjEsXbWmtv82/O6sT3WikdNNZY2eybINdHx6yL3ceQTa+pMz3GVAjRKUvs
-         M8leXmdb2eKa5Mz9PjXXEc0P5s35MQEVV3jOddL35uBz36qBeoyDKVfFhWrjXrhixvsO
-         VGS3CZJQl6izb7l+pjeGWiqAmP0iKNiGvmdp+ibDgKpljDB8kbDZCptl5SR8USV21yxt
-         uJOY7wlxFeKjBr38v+yZWKeV6sm4ykhDVFaIY6JvehEmAcE5tqGpkiJFFzH9Iwt8E1cW
-         hklg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=PaEzrm9U0WjJMxkE+zbw8yGRv0uhjcRl9sFl9vmbKpk=;
-        b=gDs2kNet4uGckas4PKM4Q8Zk+ezrODY9bn4YPgYE50pGkblgAGgNoDUogqxP2ju16T
-         BpmjbwsFUg0TMZCrtehiByX+pq8q+o95gIlW4kORVsb7qIOEcwFda8BZXoG5obFYXaUb
-         3A/st/DpB4LIG03djLDO2881RzqlQA6FTXZAls+LN1JMRs8irAwbDNhkOuwrwWlJ86E6
-         oxLQwRXDRDK/OqiJnDWJz3JkeiSfuOSeIzCqUDTtN2Vs98Vo70fsWXOxX1TSp/cht0tJ
-         GlpliTTEUjfyh0MlX1QaAx4mYrJnL2svu+dD73CfggHbfiqLER49hn+Y88xTQBINofTw
-         dBew==
-X-Gm-Message-State: AOAM5324L5bo+CDpTGsN4G3uPVy+G/jrsY5QaTemBs7GVwjqUqm2pCLb
-        rHArBHNLB23mEupDn7pB4d5YLnma2wjZbz5b0Lo=
-X-Google-Smtp-Source: ABdhPJyKgPPNMVB71hHJRoVYAa8Kclk/q5M7fup49P1QOB3alKBq34ochdNydWy9CbxOZmqCKteIeMDHSqDEKHTL2gc=
-X-Received: by 2002:adf:d1e9:0:b0:211:7ef1:5ace with SMTP id
- g9-20020adfd1e9000000b002117ef15acemr8143647wrd.282.1654255942613; Fri, 03
- Jun 2022 04:32:22 -0700 (PDT)
+        with ESMTP id S244222AbiFCMQA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 08:16:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9238E39B9C;
+        Fri,  3 Jun 2022 05:15:59 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AEEBB8229C;
+        Fri,  3 Jun 2022 12:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3662C385A9;
+        Fri,  3 Jun 2022 12:15:55 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="c3mcp+J+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1654258553;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=oRsHxHQzO9b36Wu7d91EDPUtT5qXNW3912jYDw/ciis=;
+        b=c3mcp+J+qUuufS2+xBe8Ii9kTqaeIMNB6W/woJj8yZqwjHzz9spVBuRHXD5MyzJIRw+Znw
+        Sv2ZWHqUZu6dNBVJwJq15W+sAGxXcU3gVt5AYH8ICM6+yal0iL4Erteq+dy7pZqFGMp0dt
+        qNk8lOYjQprBB4UmUtI0s4BmkDGCYns=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 2573374e (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Fri, 3 Jun 2022 12:15:52 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux@armlinux.org.uk, rmk+kernel@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        catalin.marinas@arm.com
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
+Date:   Fri,  3 Jun 2022 14:15:43 +0200
+Message-Id: <20220603121543.360283-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Received: by 2002:a5d:64ed:0:0:0:0:0 with HTTP; Fri, 3 Jun 2022 04:32:22 -0700 (PDT)
-Reply-To: markwillima00@gmail.com
-From:   Mark <mariamabdul888@gmail.com>
-Date:   Fri, 3 Jun 2022 04:32:22 -0700
-Message-ID: <CAP9xyD14e6O4QLfyHcQS-bN=o2cRYkuCKt_0K=NoeJmky9FAMw@mail.gmail.com>
-Subject: Re: Greetings!
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Stephen reported that a static key warning splat appears during early
+boot on arm64 systems that credit randomness from device trees that
+contain an "rng-seed" property, because setup_machine_fdt() is called
+before jump_label_init() during setup_arch(), which was fixed by
+73e2d827a501 ("arm64: Initialize jump labels before
+setup_machine_fdt()").
 
-Good day,
+Upon cursory inspection, the same basic issue appears to apply to arm32
+as well. So this commit adds a call to jump_label_init() just before
+setup_machine_fdt().
 
-The HSBC Bank is a financial institution in United Kingdom. We
-promotes long-term,sustainable and broad-based economic growth in
-developing and emerging countries by providing financial support like
-loans and investment to large, small and
-medium-sized companies (SMEs) as well as fast-growing enterprises
-which in turn helps to create secure and permanent jobs and reduce
-poverty.
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ arch/arm/kernel/setup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-If you need fund to promotes your business, project(Project Funding),
-Loan, planning, budgeting and expansion of your business(s) , do not
-hesitate to indicate your interest as we are here to serve you better
-by granting your request.
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index 1e8a50a97edf..3ff80b1ee0b5 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -1101,6 +1101,7 @@ void __init setup_arch(char **cmdline_p)
+ 		atags_vaddr = FDT_VIRT_BASE(__atags_pointer);
+ 
+ 	setup_processor();
++	jump_label_init();
+ 	if (atags_vaddr) {
+ 		mdesc = setup_machine_fdt(atags_vaddr);
+ 		if (mdesc)
+-- 
+2.35.1
 
-
-Thank you
-Mr:Mark
