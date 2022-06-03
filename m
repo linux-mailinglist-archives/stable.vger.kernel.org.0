@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF8253CF85
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 226D353D0DA
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbiFCRxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45562 "EHLO
+        id S1346349AbiFCSH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346481AbiFCRvN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D051454FB7;
-        Fri,  3 Jun 2022 10:48:24 -0700 (PDT)
+        with ESMTP id S1348054AbiFCSGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75715DBCC;
+        Fri,  3 Jun 2022 10:59:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 773D9B82189;
-        Fri,  3 Jun 2022 17:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA2BFC3411C;
-        Fri,  3 Jun 2022 17:48:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2BC3615D3;
+        Fri,  3 Jun 2022 17:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA56DC385A9;
+        Fri,  3 Jun 2022 17:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278502;
-        bh=dqFrCjkKesUQuBXwMi30MVJWQe5C7sFAW1S0r0P/XyE=;
+        s=korg; t=1654279170;
+        bh=rsXX6yLeIHVO6O+swiWLs088Z3L8fZkQ83Rdgo4SA0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpfZ1dWCbJ8E0e6MA3nqzkRpLM3Afr4n3JHJt89rPw3YBn/umaQe2MrmayzGunhRw
-         UtvdvUYIRh7nl9x+zJdgsVYsK3+kXP3Eh+AJ/mVqHWbYEI/BQ1H3BJPRqc0qeuLmGI
-         /ganWLEOKYc3HvUgc4wz2+iyy/Txtf2vHRVGE8Uw=
+        b=QFKXIQx1Ua/JRtkZ3tqrr7yao/B5s7ZRUTSZsSbS46QNyADWT5UDvak2SvgDTGiSl
+         mAVFaTqFpS/tjvGQd8ZqkQNgI8YXOj7q9UtnH+niZRFxmrX0vniaIyn1iGY7wSy3H2
+         0QzcBKucLw1asICGWq6NYrnJ/KT1Wg+RV01gPz7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 52/53] bpf: Fix potential array overflow in bpf_trampoline_get_progs()
+        stable@vger.kernel.org, Craig McLure <craig@mclure.net>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.18 36/67] ALSA: usb-audio: Configure sync endpoints before data
 Date:   Fri,  3 Jun 2022 19:43:37 +0200
-Message-Id: <20220603173820.230531699@linuxfoundation.org>
+Message-Id: <20220603173821.777889348@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuntao Wang <ytcoode@gmail.com>
+From: Craig McLure <craig@mclure.net>
 
-commit a2aa95b71c9bbec793b5c5fa50f0a80d882b3e8d upstream.
+commit 0e85a22d01dfe9ad9a9d9e87cd4a88acce1aad65 upstream.
 
-The cnt value in the 'cnt >= BPF_MAX_TRAMP_PROGS' check does not
-include BPF_TRAMP_MODIFY_RETURN bpf programs, so the number of
-the attached BPF_TRAMP_MODIFY_RETURN bpf programs in a trampoline
-can exceed BPF_MAX_TRAMP_PROGS.
+Devices such as the TC-Helicon GoXLR require the sync endpoint to be
+configured in advance of the data endpoint in order for sound output
+to work.
 
-When this happens, the assignment '*progs++ = aux->prog' in
-bpf_trampoline_get_progs() will cause progs array overflow as the
-progs field in the bpf_tramp_progs struct can only hold at most
-BPF_MAX_TRAMP_PROGS bpf programs.
+This patch simply changes the ordering of EP configuration to resolve
+this.
 
-Fixes: 88fd9e5352fe ("bpf: Refactor trampoline update code")
-Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
-Link: https://lore.kernel.org/r/20220430130803.210624-1-ytcoode@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215079
+Signed-off-by: Craig McLure <craig@mclure.net>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220524062115.25968-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/trampoline.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ sound/usb/pcm.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -378,7 +378,7 @@ int bpf_trampoline_link_prog(struct bpf_
- {
- 	enum bpf_tramp_prog_type kind;
- 	int err = 0;
--	int cnt;
-+	int cnt = 0, i;
- 
- 	kind = bpf_attach_type_to_tramp(prog);
- 	mutex_lock(&tr->mutex);
-@@ -389,7 +389,10 @@ int bpf_trampoline_link_prog(struct bpf_
- 		err = -EBUSY;
- 		goto out;
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -439,16 +439,21 @@ static int configure_endpoints(struct sn
+ 		/* stop any running stream beforehand */
+ 		if (stop_endpoints(subs, false))
+ 			sync_pending_stops(subs);
++		if (subs->sync_endpoint) {
++			err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
++			if (err < 0)
++				return err;
++		}
+ 		err = snd_usb_endpoint_configure(chip, subs->data_endpoint);
+ 		if (err < 0)
+ 			return err;
+ 		snd_usb_set_format_quirk(subs, subs->cur_audiofmt);
+-	}
+-
+-	if (subs->sync_endpoint) {
+-		err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
+-		if (err < 0)
+-			return err;
++	} else {
++		if (subs->sync_endpoint) {
++			err = snd_usb_endpoint_configure(chip, subs->sync_endpoint);
++			if (err < 0)
++				return err;
++		}
  	}
--	cnt = tr->progs_cnt[BPF_TRAMP_FENTRY] + tr->progs_cnt[BPF_TRAMP_FEXIT];
-+
-+	for (i = 0; i < BPF_TRAMP_MAX; i++)
-+		cnt += tr->progs_cnt[i];
-+
- 	if (kind == BPF_TRAMP_REPLACE) {
- 		/* Cannot attach extension if fentry/fexit are in use. */
- 		if (cnt) {
-@@ -467,16 +470,19 @@ out:
  
- void bpf_trampoline_put(struct bpf_trampoline *tr)
- {
-+	int i;
-+
- 	if (!tr)
- 		return;
- 	mutex_lock(&trampoline_mutex);
- 	if (!refcount_dec_and_test(&tr->refcnt))
- 		goto out;
- 	WARN_ON_ONCE(mutex_is_locked(&tr->mutex));
--	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FENTRY])))
--		goto out;
--	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FEXIT])))
--		goto out;
-+
-+	for (i = 0; i < BPF_TRAMP_MAX; i++)
-+		if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[i])))
-+			goto out;
-+
- 	/* This code will be executed even when the last bpf_tramp_image
- 	 * is alive. All progs are detached from the trampoline and the
- 	 * trampoline image is patched with jmp into epilogue to skip
+ 	return 0;
 
 
