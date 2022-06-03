@@ -2,52 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88ABA53CBC3
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 16:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DB353CBCC
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 16:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230449AbiFCOvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 10:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
+        id S245228AbiFCOyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 10:54:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230375AbiFCOvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 10:51:01 -0400
+        with ESMTP id S245222AbiFCOyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 10:54:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10CAA13F9D;
-        Fri,  3 Jun 2022 07:50:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A412939140
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 07:54:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7DFDB82345;
-        Fri,  3 Jun 2022 14:50:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03442C385B8;
-        Fri,  3 Jun 2022 14:50:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63000B82331
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 14:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A602AC385A9;
+        Fri,  3 Jun 2022 14:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654267856;
-        bh=Loo+eR1jL+X8O8VaZAHx+/ptX+/WuXg0POlWL1UADwg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CNNCKNvbxbyvV1+wAUK9F/ptTxn1IfR3hq5aQSXNSNiCdiqitF6/puKn2rrp0z4e7
-         Biuy6ld2FcY2YXE9eKa4P64gFPKb6qzwtYMLQ8UaNvHWX35KZZuX52XctZ3JlI1aXK
-         qZloZzJpEjlj26pcw+gEap255RLSIXIy63hM8HnY=
-Date:   Fri, 3 Jun 2022 16:50:53 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Vegard Nossum <vegard.nossum@oracle.com>
-Cc:     stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Rich Felker <dalias@libc.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH 4.9.y] exec: Force single empty string when argv is empty
-Message-ID: <YpofzcMaOWneccCp@kroah.com>
-References: <164890338266171@kroah.com>
- <20220601101226.1498-1-vegard.nossum@oracle.com>
+        s=korg; t=1654268074;
+        bh=UUxobAgoWrfVp3L4ByfFjgJsbaFILwj3igEbVXy1G84=;
+        h=Subject:To:Cc:From:Date:From;
+        b=lvwmV1+6msdtbH77hJHDnuVfquSmPRzR7SibjE9dNVMneITX/fJuX1QW1T/SeMhao
+         0d0db+rRPLqbUt6pwD4At3NKCL+zow/3YUgy6upB8OCjmnLkEDH64Eeej8SJAxqdQv
+         bI6SzSe9+Q7wkFSozeJ3d20sloD+JVmLywYpSs8s=
+Subject: FAILED: patch "[PATCH] netfilter: nf_tables: double hook unregistration in netns" failed to apply to 5.10-stable tree
+To:     pablo@netfilter.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 03 Jun 2022 16:54:31 +0200
+Message-ID: <165426807120211@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220601101226.1498-1-vegard.nossum@oracle.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -58,123 +47,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 01, 2022 at 12:12:26PM +0200, Vegard Nossum wrote:
-> From: Kees Cook <keescook@chromium.org>
-> 
-> commit dcd46d897adb70d63e025f175a00a89797d31a43 upstream.
-> 
-> Quoting[1] Ariadne Conill:
-> 
-> "In several other operating systems, it is a hard requirement that the
-> second argument to execve(2) be the name of a program, thus prohibiting
-> a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-> but it is not an explicit requirement[2]:
-> 
->     The argument arg0 should point to a filename string that is
->     associated with the process being started by one of the exec
->     functions.
-> ...
-> Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
-> but there was no consensus to support fixing this issue then.
-> Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
-> of this bug in a shellcode, we can reconsider.
-> 
-> This issue is being tracked in the KSPP issue tracker[5]."
-> 
-> While the initial code searches[6][7] turned up what appeared to be
-> mostly corner case tests, trying to that just reject argv == NULL
-> (or an immediately terminated pointer list) quickly started tripping[8]
-> existing userspace programs.
-> 
-> The next best approach is forcing a single empty string into argv and
-> adjusting argc to match. The number of programs depending on argc == 0
-> seems a smaller set than those calling execve with a NULL argv.
-> 
-> Account for the additional stack space in bprm_stack_limits(). Inject an
-> empty string when argc == 0 (and set argc = 1). Warn about the case so
-> userspace has some notice about the change:
-> 
->     process './argc0' launched './argc0' with NULL argv: empty string added
-> 
-> Additionally WARN() and reject NULL argv usage for kernel threads.
-> 
-> [1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
-> [2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-> [3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
-> [4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-> [5] https://github.com/KSPP/linux/issues/176
-> [6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-> [7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
-> [8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
-> 
-> Reported-by: Ariadne Conill <ariadne@dereferenced.org>
-> Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: Eric Biederman <ebiederm@xmission.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: linux-fsdevel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Acked-by: Christian Brauner <brauner@kernel.org>
-> Acked-by: Ariadne Conill <ariadne@dereferenced.org>
-> Acked-by: Andy Lutomirski <luto@kernel.org>
-> Link: https://lore.kernel.org/r/20220201000947.2453721-1-keescook@chromium.org
-> [vegard: fixed conflicts due to missing
->  886d7de631da71e30909980fdbf318f7caade262^- and
->  3950e975431bc914f7e81b8f2a2dbdf2064acb0f^- and
->  655c16a8ce9c15842547f40ce23fd148aeccc074]
-> Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-> ---
->  fs/exec.c | 17 +++++++++++++++++
->  1 file changed, 17 insertions(+)
-> 
-> This has been tested in both argc == 0 and argc >= 1 cases, but I would
-> still appreciate a review given the differences with mainline. If it's
-> considered too risky I'm also fine with dropping it -- just wanted to
-> make sure this didn't fall through the cracks, as it does block a real
-> (albeit old by now) exploit.
-> 
-> diff --git a/fs/exec.c b/fs/exec.c
-> index 482a8b4f41a5b..19f8b075d3b6b 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -1758,6 +1758,9 @@ static int do_execveat_common(int fd, struct filename *filename,
->  		goto out_unmark;
->  
->  	bprm->argc = count(argv, MAX_ARG_STRINGS);
-> +	if (bprm->argc == 0)
-> +		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
-> +			     current->comm, bprm->filename);
->  	if ((retval = bprm->argc) < 0)
->  		goto out;
->  
-> @@ -1782,6 +1785,20 @@ static int do_execveat_common(int fd, struct filename *filename,
->  	if (retval < 0)
->  		goto out;
->  
-> +	/*
-> +	 * When argv is empty, add an empty string ("") as argv[0] to
-> +	 * ensure confused userspace programs that start processing
-> +	 * from argv[1] won't end up walking envp. See also
-> +	 * bprm_stack_limits().
-> +	 */
-> +	if (bprm->argc == 0) {
-> +		const char *argv[] = { "", NULL };
-> +		retval = copy_strings_kernel(1, argv, bprm);
-> +		if (retval < 0)
-> +			goto out;
-> +		bprm->argc = 1;
-> +	}
-> +
->  	retval = exec_binprm(bprm);
->  	if (retval < 0)
->  		goto out;
-> -- 
-> 2.35.1.46.g38062e73e0
-> 
 
-All now queued up, thanks.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From f9a43007d3f7ba76d5e7f9421094f00f2ef202f8 Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Mon, 30 May 2022 18:24:06 +0200
+Subject: [PATCH] netfilter: nf_tables: double hook unregistration in netns
+ path
+
+__nft_release_hooks() is called from pre_netns exit path which
+unregisters the hooks, then the NETDEV_UNREGISTER event is triggered
+which unregisters the hooks again.
+
+[  565.221461] WARNING: CPU: 18 PID: 193 at net/netfilter/core.c:495 __nf_unregister_net_hook+0x247/0x270
+[...]
+[  565.246890] CPU: 18 PID: 193 Comm: kworker/u64:1 Tainted: G            E     5.18.0-rc7+ #27
+[  565.253682] Workqueue: netns cleanup_net
+[  565.257059] RIP: 0010:__nf_unregister_net_hook+0x247/0x270
+[...]
+[  565.297120] Call Trace:
+[  565.300900]  <TASK>
+[  565.304683]  nf_tables_flowtable_event+0x16a/0x220 [nf_tables]
+[  565.308518]  raw_notifier_call_chain+0x63/0x80
+[  565.312386]  unregister_netdevice_many+0x54f/0xb50
+
+Unregister and destroy netdev hook from netns pre_exit via kfree_rcu
+so the NETDEV_UNREGISTER path see unregistered hooks.
+
+Fixes: 767d1216bff8 ("netfilter: nftables: fix possible UAF over chains from packet path in netns")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index f77414e13de1..746be13438ef 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -222,12 +222,18 @@ static int nft_netdev_register_hooks(struct net *net,
+ }
+ 
+ static void nft_netdev_unregister_hooks(struct net *net,
+-					struct list_head *hook_list)
++					struct list_head *hook_list,
++					bool release_netdev)
+ {
+-	struct nft_hook *hook;
++	struct nft_hook *hook, *next;
+ 
+-	list_for_each_entry(hook, hook_list, list)
++	list_for_each_entry_safe(hook, next, hook_list, list) {
+ 		nf_unregister_net_hook(net, &hook->ops);
++		if (release_netdev) {
++			list_del(&hook->list);
++			kfree_rcu(hook, rcu);
++		}
++	}
+ }
+ 
+ static int nf_tables_register_hook(struct net *net,
+@@ -253,9 +259,10 @@ static int nf_tables_register_hook(struct net *net,
+ 	return nf_register_net_hook(net, &basechain->ops);
+ }
+ 
+-static void nf_tables_unregister_hook(struct net *net,
+-				      const struct nft_table *table,
+-				      struct nft_chain *chain)
++static void __nf_tables_unregister_hook(struct net *net,
++					const struct nft_table *table,
++					struct nft_chain *chain,
++					bool release_netdev)
+ {
+ 	struct nft_base_chain *basechain;
+ 	const struct nf_hook_ops *ops;
+@@ -270,11 +277,19 @@ static void nf_tables_unregister_hook(struct net *net,
+ 		return basechain->type->ops_unregister(net, ops);
+ 
+ 	if (nft_base_chain_netdev(table->family, basechain->ops.hooknum))
+-		nft_netdev_unregister_hooks(net, &basechain->hook_list);
++		nft_netdev_unregister_hooks(net, &basechain->hook_list,
++					    release_netdev);
+ 	else
+ 		nf_unregister_net_hook(net, &basechain->ops);
+ }
+ 
++static void nf_tables_unregister_hook(struct net *net,
++				      const struct nft_table *table,
++				      struct nft_chain *chain)
++{
++	return __nf_tables_unregister_hook(net, table, chain, false);
++}
++
+ static void nft_trans_commit_list_add_tail(struct net *net, struct nft_trans *trans)
+ {
+ 	struct nftables_pernet *nft_net = nft_pernet(net);
+@@ -7307,13 +7322,25 @@ static void nft_unregister_flowtable_hook(struct net *net,
+ 				    FLOW_BLOCK_UNBIND);
+ }
+ 
+-static void nft_unregister_flowtable_net_hooks(struct net *net,
+-					       struct list_head *hook_list)
++static void __nft_unregister_flowtable_net_hooks(struct net *net,
++						 struct list_head *hook_list,
++					         bool release_netdev)
+ {
+-	struct nft_hook *hook;
++	struct nft_hook *hook, *next;
+ 
+-	list_for_each_entry(hook, hook_list, list)
++	list_for_each_entry_safe(hook, next, hook_list, list) {
+ 		nf_unregister_net_hook(net, &hook->ops);
++		if (release_netdev) {
++			list_del(&hook->list);
++			kfree_rcu(hook);
++		}
++	}
++}
++
++static void nft_unregister_flowtable_net_hooks(struct net *net,
++					       struct list_head *hook_list)
++{
++	__nft_unregister_flowtable_net_hooks(net, hook_list, false);
+ }
+ 
+ static int nft_register_flowtable_net_hooks(struct net *net,
+@@ -9755,9 +9782,10 @@ static void __nft_release_hook(struct net *net, struct nft_table *table)
+ 	struct nft_chain *chain;
+ 
+ 	list_for_each_entry(chain, &table->chains, list)
+-		nf_tables_unregister_hook(net, table, chain);
++		__nf_tables_unregister_hook(net, table, chain, true);
+ 	list_for_each_entry(flowtable, &table->flowtables, list)
+-		nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list);
++		__nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list,
++						     true);
+ }
+ 
+ static void __nft_release_hooks(struct net *net)
+
