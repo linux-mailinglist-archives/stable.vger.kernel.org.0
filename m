@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D2453CFE9
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE0653D0E0
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345633AbiFCR6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46336 "EHLO
+        id S244659AbiFCSLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:11:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345965AbiFCR5i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:57:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A705712F;
-        Fri,  3 Jun 2022 10:54:14 -0700 (PDT)
+        with ESMTP id S1347203AbiFCSFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:05:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178285AA47;
+        Fri,  3 Jun 2022 10:58:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9856C60A54;
-        Fri,  3 Jun 2022 17:54:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A35C5C3411C;
-        Fri,  3 Jun 2022 17:54:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA3D261607;
+        Fri,  3 Jun 2022 17:57:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE8CC385A9;
+        Fri,  3 Jun 2022 17:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278853;
-        bh=/5ETmfWm2uhKWwgWPbY3yLxXWCxaJ5ZGh8hkglP8XMM=;
+        s=korg; t=1654279052;
+        bh=r07Ht/o8tyr7rzBej9Sx5OpKHymm6LYC2S7Uzqujyko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vh4bzKP9o+jvPy6UD5NWmlWLMuFniliz01hNW34dewpADzwWYs3fM4EbRRstmEx//
-         kZCkQ3hHLcrMtf3rVQF11zSO4eriZQQbuED3/ubLL57xyj46SzTocPI4mFDtFSM8oz
-         Za8XqyRYj67K1KpY8qKDWFek0bV2Rr/IoHj+RyWk=
+        b=bspohtLeVgr7Jz27/5hbmzRyaQa5GYMaa8JpjtcrMSJrtMIKnLumHL0yCvI/W2lC5
+         oonhEjBUGbCDBsslF9JRHTyj1zjesPIJ7ZySqNQPqws4AA23QbIJ4PbbiPn9GtF1RA
+         2rZliusndY1F76vLrnuG6kdxe4E9Syxgib3hUhqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.17 21/75] netfilter: nft_limit: Clone packet limits cost value
-Date:   Fri,  3 Jun 2022 19:43:05 +0200
-Message-Id: <20220603173822.349868192@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.18 05/67] pipe: Fix missing lock in pipe_resize_ring()
+Date:   Fri,  3 Jun 2022 19:43:06 +0200
+Message-Id: <20220603173820.888231000@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: David Howells <dhowells@redhat.com>
 
-commit 558254b0b602b8605d7246a10cfeb584b1fcabfc upstream.
+commit 189b0ddc245139af81198d1a3637cac74f96e13a upstream.
 
-When cloning a packet-based limit expression, copy the cost value as
-well. Otherwise the new limit is not functional anymore.
+pipe_resize_ring() needs to take the pipe->rd_wait.lock spinlock to
+prevent post_one_notification() from trying to insert into the ring
+whilst the ring is being replaced.
 
-Fixes: 3b9e2ea6c11bf ("netfilter: nft_limit: move stateful fields out of expression data")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The occupancy check must be done after the lock is taken, and the lock
+must be taken after the new ring is allocated.
+
+The bug can lead to an oops looking something like:
+
+ BUG: KASAN: use-after-free in post_one_notification.isra.0+0x62e/0x840
+ Read of size 4 at addr ffff88801cc72a70 by task poc/27196
+ ...
+ Call Trace:
+  post_one_notification.isra.0+0x62e/0x840
+  __post_watch_notification+0x3b7/0x650
+  key_create_or_update+0xb8b/0xd20
+  __do_sys_add_key+0x175/0x340
+  __x64_sys_add_key+0xbe/0x140
+  do_syscall_64+0x5c/0xc0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Reported by Selim Enes Karaduman @Enesdex working with Trend Micro Zero
+Day Initiative.
+
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17291
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_limit.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/pipe.c |   31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
---- a/net/netfilter/nft_limit.c
-+++ b/net/netfilter/nft_limit.c
-@@ -213,6 +213,8 @@ static int nft_limit_pkts_clone(struct n
- 	struct nft_limit_priv_pkts *priv_dst = nft_expr_priv(dst);
- 	struct nft_limit_priv_pkts *priv_src = nft_expr_priv(src);
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -1245,30 +1245,33 @@ unsigned int round_pipe_size(unsigned lo
  
-+	priv_dst->cost = priv_src->cost;
+ /*
+  * Resize the pipe ring to a number of slots.
++ *
++ * Note the pipe can be reduced in capacity, but only if the current
++ * occupancy doesn't exceed nr_slots; if it does, EBUSY will be
++ * returned instead.
+  */
+ int pipe_resize_ring(struct pipe_inode_info *pipe, unsigned int nr_slots)
+ {
+ 	struct pipe_buffer *bufs;
+ 	unsigned int head, tail, mask, n;
+ 
+-	/*
+-	 * We can shrink the pipe, if arg is greater than the ring occupancy.
+-	 * Since we don't expect a lot of shrink+grow operations, just free and
+-	 * allocate again like we would do for growing.  If the pipe currently
+-	 * contains more buffers than arg, then return busy.
+-	 */
+-	mask = pipe->ring_size - 1;
+-	head = pipe->head;
+-	tail = pipe->tail;
+-	n = pipe_occupancy(pipe->head, pipe->tail);
+-	if (nr_slots < n)
+-		return -EBUSY;
+-
+ 	bufs = kcalloc(nr_slots, sizeof(*bufs),
+ 		       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
+ 	if (unlikely(!bufs))
+ 		return -ENOMEM;
+ 
++	spin_lock_irq(&pipe->rd_wait.lock);
++	mask = pipe->ring_size - 1;
++	head = pipe->head;
++	tail = pipe->tail;
 +
- 	return nft_limit_clone(&priv_dst->limit, &priv_src->limit);
- }
++	n = pipe_occupancy(head, tail);
++	if (nr_slots < n) {
++		spin_unlock_irq(&pipe->rd_wait.lock);
++		kfree(bufs);
++		return -EBUSY;
++	}
++
+ 	/*
+ 	 * The pipe array wraps around, so just start the new one at zero
+ 	 * and adjust the indices.
+@@ -1300,6 +1303,8 @@ int pipe_resize_ring(struct pipe_inode_i
+ 	pipe->tail = tail;
+ 	pipe->head = head;
  
++	spin_unlock_irq(&pipe->rd_wait.lock);
++
+ 	/* This might have made more room for writers */
+ 	wake_up_interruptible(&pipe->wr_wait);
+ 	return 0;
 
 
