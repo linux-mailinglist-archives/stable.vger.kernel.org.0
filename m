@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C14053CEE8
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3925453D03A
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239156AbiFCRtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:49:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
+        id S1346057AbiFCSBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345204AbiFCRsV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43FA541B0;
-        Fri,  3 Jun 2022 10:45:27 -0700 (PDT)
+        with ESMTP id S1346972AbiFCSAs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5EBBA468;
+        Fri,  3 Jun 2022 10:57:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D025604EF;
-        Fri,  3 Jun 2022 17:45:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89376C3411D;
-        Fri,  3 Jun 2022 17:45:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D312AB82419;
+        Fri,  3 Jun 2022 17:56:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4994BC385B8;
+        Fri,  3 Jun 2022 17:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278326;
-        bh=sZ4yllEhtH7VW3/c5dkMAKfZGAOTfmyEplEGryc4wQ8=;
+        s=korg; t=1654279015;
+        bh=9zj7v1rHX8IEL130KgzECn4tAv637z1ax2CPmS3v65I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLHT/RZBbxA5chvwb0/YSUuFOK5A2Cu08iuo9MtWJuQUo9ewE7x6f+OyPGYbcmOlM
-         O0Dc7qzxSjIiHKcyIzUSBSZ8kvaIiNq8WydCyxCr/SN+3QZXl1UPBGXnAgnEEA3Mpy
-         EaXBm7QIHmFbyotZhhN+0RqQtLvwwFt7Dw36eEDY=
+        b=W1Mafr2YmEeaca2aYxNNDowY1WRYnqwLjCttqoVxHLx90n00hP2gKaa93IVm4pLIX
+         8z5a29VuADlvo3ObyeWxkTeilUoXFh1c0TqDWRgZ4z8tagszR/NeONaD4wFay4+9t9
+         4HcG/4cU578KAMOS7Xz8QGxgyrPGRhcCHSDgdAhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.4 30/34] tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.18 25/67] KVM: x86: Fix the intel_pt PMI handling wrongly considered from guest
 Date:   Fri,  3 Jun 2022 19:43:26 +0200
-Message-Id: <20220603173817.057325274@linuxfoundation.org>
+Message-Id: <20220603173821.450667939@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Yanfei Xu <yanfei.xu@intel.com>
 
-commit d0dc1a7100f19121f6e7450f9cdda11926aa3838 upstream.
+commit ffd1925a596ce68bed7d81c61cb64bc35f788a9d upstream.
 
-Currently it returns zero when CRQ response timed out, it should return
-an error code instead.
+When kernel handles the vm-exit caused by external interrupts and NMI,
+it always sets kvm_intr_type to tell if it's dealing an IRQ or NMI. For
+the PMI scenario, it could be IRQ or NMI.
 
-Fixes: d8d74ea3c002 ("tpm: ibmvtpm: Wait for buffer to be set before proceeding")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+However, intel_pt PMIs are only generated for HARDWARE perf events, and
+HARDWARE events are always configured to generate NMIs.  Use
+kvm_handling_nmi_from_guest() to precisely identify if the intel_pt PMI
+came from the guest; this avoids false positives if an intel_pt PMI/NMI
+arrives while the host is handling an unrelated IRQ VM-Exit.
+
+Fixes: db215756ae59 ("KVM: x86: More precisely identify NMI from guest when handling PMI")
+Signed-off-by: Yanfei Xu <yanfei.xu@intel.com>
+Message-Id: <20220523140821.1345605-1-yanfei.xu@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/vmx/vmx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -685,6 +685,7 @@ static int tpm_ibmvtpm_probe(struct vio_
- 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
- 				ibmvtpm->rtce_buf != NULL,
- 				HZ)) {
-+		rc = -ENODEV;
- 		dev_err(dev, "CRQ response timed out\n");
- 		goto init_irq_cleanup;
- 	}
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7856,7 +7856,7 @@ static unsigned int vmx_handle_intel_pt_
+ 	struct kvm_vcpu *vcpu = kvm_get_running_vcpu();
+ 
+ 	/* '0' on failure so that the !PT case can use a RET0 static call. */
+-	if (!kvm_arch_pmi_in_guest(vcpu))
++	if (!vcpu || !kvm_handling_nmi_from_guest(vcpu))
+ 		return 0;
+ 
+ 	kvm_make_request(KVM_REQ_PMI, vcpu);
 
 
