@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F5E53CE41
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D3F53CEA6
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344650AbiFCRkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
+        id S1344796AbiFCRpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:45:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344623AbiFCRkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52BD753734;
-        Fri,  3 Jun 2022 10:40:23 -0700 (PDT)
+        with ESMTP id S1344791AbiFCRoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:44:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1213D5534B;
+        Fri,  3 Jun 2022 10:42:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01C40B8241D;
-        Fri,  3 Jun 2022 17:40:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43366C385B8;
-        Fri,  3 Jun 2022 17:40:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6977B61B38;
+        Fri,  3 Jun 2022 17:42:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70291C385A9;
+        Fri,  3 Jun 2022 17:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278020;
-        bh=Mhd7UTT6zPQOdm7M0jqXy6UQ/4oBn6Jsa5byy3zImKY=;
+        s=korg; t=1654278157;
+        bh=F/0peBmLuxmM9kFRIm+u7NDg01nwTZbsksRv6qgOMnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MxM2mQiM+xCT0U/RRFAMvObKsV+mMgF+w1nDLMsrCVICsNdXvtu12pVPvxVLGyhBy
-         nxTYIaEZlDTF6Ehw9EjGhmQnXkCQCkmLloN+L+kuKs1sNShgNz/FjZ92yw/blGRP0v
-         0dYGh/g/IUIFT1NIP0OcHUxtWd0wYc4g4j8OQezQ=
+        b=tXDsy+tWYKI+7giSoGGaTWWG+InJqzu+zTd3Wqc4Zk/yFvvP91om3h1dJB89U4ql7
+         fb8sTeCNK6sRnw9cewQimfKosPKozkKtqkU/Lm6IWvXmrJsIkgTb4up9ohZy8bGEPr
+         DE8/FzzW1Pad3/gInw5ZjIA4ENmJERWnAq1rgYDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sarthak Kukreti <sarthakkukreti@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.9 09/12] dm verity: set DM_TARGET_IMMUTABLE feature flag
+        Thomas Bartschies <thomas.bartschies@cvk.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/30] net: af_key: check encryption module availability consistency
 Date:   Fri,  3 Jun 2022 19:39:35 +0200
-Message-Id: <20220603173812.801934643@linuxfoundation.org>
+Message-Id: <20220603173815.309144798@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
-References: <20220603173812.524184588@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sarthak Kukreti <sarthakkukreti@google.com>
+From: Thomas Bartschies <thomas.bartschies@cvk.de>
 
-commit 4caae58406f8ceb741603eee460d79bacca9b1b5 upstream.
+[ Upstream commit 015c44d7bff3f44d569716117becd570c179ca32 ]
 
-The device-mapper framework provides a mechanism to mark targets as
-immutable (and hence fail table reloads that try to change the target
-type). Add the DM_TARGET_IMMUTABLE flag to the dm-verity target's
-feature flags to prevent switching the verity target with a different
-target type.
+Since the recent introduction supporting the SM3 and SM4 hash algos for IPsec, the kernel
+produces invalid pfkey acquire messages, when these encryption modules are disabled. This
+happens because the availability of the algos wasn't checked in all necessary functions.
+This patch adds these checks.
 
-Fixes: a4ffc152198e ("dm: add verity target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sarthak Kukreti <sarthakkukreti@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Bartschies <thomas.bartschies@cvk.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-verity-target.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/key/af_key.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-verity-target.c
-+++ b/drivers/md/dm-verity-target.c
-@@ -1056,6 +1056,7 @@ bad:
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 170960ef7e36..1bbb6ec89ff3 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2910,7 +2910,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
+ 			break;
+ 		if (!aalg->pfkey_supported)
+ 			continue;
+-		if (aalg_tmpl_set(t, aalg))
++		if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 			sz += sizeof(struct sadb_comb);
+ 	}
+ 	return sz + sizeof(struct sadb_prop);
+@@ -2928,7 +2928,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 		if (!ealg->pfkey_supported)
+ 			continue;
  
- static struct target_type verity_target = {
- 	.name		= "verity",
-+	.features	= DM_TARGET_IMMUTABLE,
- 	.version	= {1, 3, 0},
- 	.module		= THIS_MODULE,
- 	.ctr		= verity_ctr,
+-		if (!(ealg_tmpl_set(t, ealg)))
++		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
+ 			continue;
+ 
+ 		for (k = 1; ; k++) {
+@@ -2939,7 +2939,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 			if (!aalg->pfkey_supported)
+ 				continue;
+ 
+-			if (aalg_tmpl_set(t, aalg))
++			if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 				sz += sizeof(struct sadb_comb);
+ 		}
+ 	}
+-- 
+2.35.1
+
 
 
