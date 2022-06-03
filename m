@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 134AC53CFB5
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA8653CF59
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243692AbiFCR40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46390 "EHLO
+        id S1344388AbiFCRyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346035AbiFCRzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D513A554B0;
-        Fri,  3 Jun 2022 10:53:22 -0700 (PDT)
+        with ESMTP id S1347240AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F009C6455;
+        Fri,  3 Jun 2022 10:51:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7263D60F3B;
-        Fri,  3 Jun 2022 17:53:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B58C3411C;
-        Fri,  3 Jun 2022 17:53:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A344AB82419;
+        Fri,  3 Jun 2022 17:51:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 126FAC385A9;
+        Fri,  3 Jun 2022 17:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278801;
-        bh=28cshCFhHcYGmaIVwQFz3FvqNeEW06pVYEWmEU9XjY4=;
+        s=korg; t=1654278664;
+        bh=ry2C3eARotAq5FGIRgqxgdjpHkZxCcBRsV2WwinOtyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpO0Cr/mZJpnHOkP9b5EjSHpM4428TD4aR3zGO+Tx0H0MiQZZhs63VW45ZKYqj5D/
-         J1RHvlpUVcqeg8Vp7Pd+9Okr2/6YGe86AaCqsd+Cv3ITCHWY0DRH+8Sfwwp3Wqfe3y
-         LdMNsccLChkAIdz5k6A9fRSqx8NCqiuFxE804wus=
+        b=ZrqpSvYsPcQue7DJD2ZQhFUjSIPHJ5aZd4DjLLS8VPF+9fCu54G0OIDwg9dhsSESx
+         UxPZUsyFelSlnqQgfIv+J0IqU4spTGnyMyv9PR3wLj/GtnkhoaXCfbwBuW9cJk77Ht
+         72KCnFegF0sMaZo2KdylZ5n6iK5ytn+63hiw6nQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 32/75] KVM: x86: Use __try_cmpxchg_user() to emulate atomic accesses
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 36/66] zsmalloc: fix races between asynchronous zspage free and page migration
 Date:   Fri,  3 Jun 2022 19:43:16 +0200
-Message-Id: <20220603173822.657950416@linuxfoundation.org>
+Message-Id: <20220603173821.693014834@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,103 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-commit 1c2361f667f3648855ceae25f1332c18413fdb9f upstream.
+commit 2505a981114dcb715f8977b8433f7540854851d8 upstream.
 
-Use the recently introduce __try_cmpxchg_user() to emulate atomic guest
-accesses via the associated userspace address instead of mapping the
-backing pfn into kernel address space.  Using kvm_vcpu_map() is unsafe as
-it does not coordinate with KVM's mmu_notifier to ensure the hva=>pfn
-translation isn't changed/unmapped in the memremap() path, i.e. when
-there's no struct page and thus no elevated refcount.
+The asynchronous zspage free worker tries to lock a zspage's entire page
+list without defending against page migration.  Since pages which haven't
+yet been locked can concurrently migrate off the zspage page list while
+lock_zspage() churns away, lock_zspage() can suffer from a few different
+lethal races.
 
-Fixes: 42e35f8072c3 ("KVM/X86: Use kvm_vcpu_map in emulator_cmpxchg_emulated")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220202004945.2540433-5-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+It can lock a page which no longer belongs to the zspage and unsafely
+dereference page_private(), it can unsafely dereference a torn pointer to
+the next page (since there's a data race), and it can observe a spurious
+NULL pointer to the next page and thus not lock all of the zspage's pages
+(since a single page migration will reconstruct the entire page list, and
+create_page_chain() unconditionally zeroes out each list pointer in the
+process).
+
+Fix the races by using migrate_read_lock() in lock_zspage() to synchronize
+with page migration.
+
+Link: https://lkml.kernel.org/r/20220509024703.243847-1-sultan@kerneltoast.com
+Fixes: 77ff465799c602 ("zsmalloc: zs_page_migrate: skip unnecessary loops but not return -EBUSY if zspage is not inuse")
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   35 ++++++++++++++---------------------
- 1 file changed, 14 insertions(+), 21 deletions(-)
+ mm/zsmalloc.c |   37 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7168,15 +7168,8 @@ static int emulator_write_emulated(struc
- 				   exception, &write_emultor);
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1743,11 +1743,40 @@ static enum fullness_group putback_zspag
+  */
+ static void lock_zspage(struct zspage *zspage)
+ {
+-	struct page *page = get_first_page(zspage);
++	struct page *curr_page, *page;
+ 
+-	do {
+-		lock_page(page);
+-	} while ((page = get_next_page(page)) != NULL);
++	/*
++	 * Pages we haven't locked yet can be migrated off the list while we're
++	 * trying to lock them, so we need to be careful and only attempt to
++	 * lock each page under migrate_read_lock(). Otherwise, the page we lock
++	 * may no longer belong to the zspage. This means that we may wait for
++	 * the wrong page to unlock, so we must take a reference to the page
++	 * prior to waiting for it to unlock outside migrate_read_lock().
++	 */
++	while (1) {
++		migrate_read_lock(zspage);
++		page = get_first_page(zspage);
++		if (trylock_page(page))
++			break;
++		get_page(page);
++		migrate_read_unlock(zspage);
++		wait_on_page_locked(page);
++		put_page(page);
++	}
++
++	curr_page = page;
++	while ((page = get_next_page(curr_page))) {
++		if (trylock_page(page)) {
++			curr_page = page;
++		} else {
++			get_page(page);
++			migrate_read_unlock(zspage);
++			wait_on_page_locked(page);
++			put_page(page);
++			migrate_read_lock(zspage);
++		}
++	}
++	migrate_read_unlock(zspage);
  }
  
--#define CMPXCHG_TYPE(t, ptr, old, new) \
--	(cmpxchg((t *)(ptr), *(t *)(old), *(t *)(new)) == *(t *)(old))
--
--#ifdef CONFIG_X86_64
--#  define CMPXCHG64(ptr, old, new) CMPXCHG_TYPE(u64, ptr, old, new)
--#else
--#  define CMPXCHG64(ptr, old, new) \
--	(cmpxchg64((u64 *)(ptr), *(u64 *)(old), *(u64 *)(new)) == *(u64 *)(old))
--#endif
-+#define emulator_try_cmpxchg_user(t, ptr, old, new) \
-+	(__try_cmpxchg_user((t __user *)(ptr), (t *)(old), *(t *)(new), efault ## t))
- 
- static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 				     unsigned long addr,
-@@ -7185,12 +7178,11 @@ static int emulator_cmpxchg_emulated(str
- 				     unsigned int bytes,
- 				     struct x86_exception *exception)
- {
--	struct kvm_host_map map;
- 	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
- 	u64 page_line_mask;
-+	unsigned long hva;
- 	gpa_t gpa;
--	char *kaddr;
--	bool exchanged;
-+	int r;
- 
- 	/* guests cmpxchg8b have to be emulated atomically */
- 	if (bytes > 8 || (bytes & (bytes - 1)))
-@@ -7214,31 +7206,32 @@ static int emulator_cmpxchg_emulated(str
- 	if (((gpa + bytes - 1) & page_line_mask) != (gpa & page_line_mask))
- 		goto emul_write;
- 
--	if (kvm_vcpu_map(vcpu, gpa_to_gfn(gpa), &map))
-+	hva = kvm_vcpu_gfn_to_hva(vcpu, gpa_to_gfn(gpa));
-+	if (kvm_is_error_hva(addr))
- 		goto emul_write;
- 
--	kaddr = map.hva + offset_in_page(gpa);
-+	hva += offset_in_page(gpa);
- 
- 	switch (bytes) {
- 	case 1:
--		exchanged = CMPXCHG_TYPE(u8, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u8, hva, old, new);
- 		break;
- 	case 2:
--		exchanged = CMPXCHG_TYPE(u16, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u16, hva, old, new);
- 		break;
- 	case 4:
--		exchanged = CMPXCHG_TYPE(u32, kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u32, hva, old, new);
- 		break;
- 	case 8:
--		exchanged = CMPXCHG64(kaddr, old, new);
-+		r = emulator_try_cmpxchg_user(u64, hva, old, new);
- 		break;
- 	default:
- 		BUG();
- 	}
- 
--	kvm_vcpu_unmap(vcpu, &map, true);
--
--	if (!exchanged)
-+	if (r < 0)
-+		goto emul_write;
-+	if (r)
- 		return X86EMUL_CMPXCHG_FAILED;
- 
- 	kvm_page_track_write(vcpu, gpa, new, bytes);
+ static int zs_init_fs_context(struct fs_context *fc)
 
 
