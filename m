@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EBA53CF60
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D2453CFE9
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344117AbiFCRx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
+        id S1345633AbiFCR6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:58:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346910AbiFCRvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC63C5A2D3;
-        Fri,  3 Jun 2022 10:49:43 -0700 (PDT)
+        with ESMTP id S1345965AbiFCR5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:57:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A705712F;
+        Fri,  3 Jun 2022 10:54:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78694B823B0;
-        Fri,  3 Jun 2022 17:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7596C385A9;
-        Fri,  3 Jun 2022 17:49:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9856C60A54;
+        Fri,  3 Jun 2022 17:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A35C5C3411C;
+        Fri,  3 Jun 2022 17:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278581;
-        bh=yIwoTYmHgD13KMGXjAlET+J3WJrNlVW7f/gtREit0J4=;
+        s=korg; t=1654278853;
+        bh=/5ETmfWm2uhKWwgWPbY3yLxXWCxaJ5ZGh8hkglP8XMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SvxysiI9hT6hxFhB3/+LKTcMFZbW/3N5IygwGDxCmTp4Jx/B46CU/yAUVrSxo2YYM
-         s21U21GQAnM36Pa+yFuTtwbpp6/aXvjTccr4Jay1M5eXmCHQ1F/rXnz1WRw5oIme8D
-         54nj5TujdYG2O1ZXkqRiecdW9Ra9L5k8ockAqZn8=
+        b=Vh4bzKP9o+jvPy6UD5NWmlWLMuFniliz01hNW34dewpADzwWYs3fM4EbRRstmEx//
+         kZCkQ3hHLcrMtf3rVQF11zSO4eriZQQbuED3/ubLL57xyj46SzTocPI4mFDtFSM8oz
+         Za8XqyRYj67K1KpY8qKDWFek0bV2Rr/IoHj+RyWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 25/66] netfilter: nf_tables: hold mutex on netns pre_exit path
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.17 21/75] netfilter: nft_limit: Clone packet limits cost value
 Date:   Fri,  3 Jun 2022 19:43:05 +0200
-Message-Id: <20220603173821.385759263@linuxfoundation.org>
+Message-Id: <20220603173822.349868192@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Phil Sutter <phil@nwl.cc>
 
-commit 3923b1e4406680d57da7e873da77b1683035d83f upstream.
+commit 558254b0b602b8605d7246a10cfeb584b1fcabfc upstream.
 
-clean_net() runs in workqueue while walking over the lists, grab mutex.
+When cloning a packet-based limit expression, copy the cost value as
+well. Otherwise the new limit is not functional anymore.
 
-Fixes: 767d1216bff8 ("netfilter: nftables: fix possible UAF over chains from packet path in netns")
+Fixes: 3b9e2ea6c11bf ("netfilter: nft_limit: move stateful fields out of expression data")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nft_limit.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -9746,7 +9746,11 @@ static int __net_init nf_tables_init_net
+--- a/net/netfilter/nft_limit.c
++++ b/net/netfilter/nft_limit.c
+@@ -213,6 +213,8 @@ static int nft_limit_pkts_clone(struct n
+ 	struct nft_limit_priv_pkts *priv_dst = nft_expr_priv(dst);
+ 	struct nft_limit_priv_pkts *priv_src = nft_expr_priv(src);
  
- static void __net_exit nf_tables_pre_exit_net(struct net *net)
- {
-+	struct nftables_pernet *nft_net = nft_pernet(net);
++	priv_dst->cost = priv_src->cost;
 +
-+	mutex_lock(&nft_net->commit_mutex);
- 	__nft_release_hooks(net);
-+	mutex_unlock(&nft_net->commit_mutex);
+ 	return nft_limit_clone(&priv_dst->limit, &priv_src->limit);
  }
  
- static void __net_exit nf_tables_exit_net(struct net *net)
 
 
