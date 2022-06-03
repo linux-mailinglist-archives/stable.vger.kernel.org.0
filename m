@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D0353CE91
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87EC953CE3B
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344939AbiFCRoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:44:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        id S244418AbiFCRkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:40:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344950AbiFCRnm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9594B54FA7;
-        Fri,  3 Jun 2022 10:42:13 -0700 (PDT)
+        with ESMTP id S1344641AbiFCRkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394D152E73;
+        Fri,  3 Jun 2022 10:40:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32819B82431;
-        Fri,  3 Jun 2022 17:42:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891D3C385B8;
-        Fri,  3 Jun 2022 17:42:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E572CE247C;
+        Fri,  3 Jun 2022 17:40:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75348C385A9;
+        Fri,  3 Jun 2022 17:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278130;
-        bh=lXvYUp4TtvE4d7NzCJv0+s1hxA+8BpW3New4PeeJTXc=;
+        s=korg; t=1654278008;
+        bh=komNFgnS0FqLDSYmW+a2ifBD02kTTJqYIBqeGiPTkEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTTLIJmBidaTo1xSFTmfgktIJzYg47zAz1OGGVai4POeibEQg2sb5wnI31yqPecIa
-         mllY+4JAYlEjuRsUIM9rlwRToI91dxpXrcb7bzsWxz9+7qyk0pyvqV4fk6+laFcTMj
-         WnXsyhq4eNRsgUpfwJcsNp0vbwHZnaDYJc5Hos5Q=
+        b=w07WZQ3HHKLuSE9CBwcHzujbBeIHirwic+tJjie1Yn4QjYAMKq+XLL91GQVv3bwJB
+         x9PC1Pc3hEHeJWLC6078OM53pBVE0gLTjSdLqQaC8YuufrceDXsLCgJwkQOf8HF/Qk
+         EVm1uiuKQ+mxbsj9NBxFL86+O99OMdgq/0Y0LKEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Denis Efremov (Oracle)" <efremov@linux.com>
-Subject: [PATCH 4.19 02/30] staging: rtl8723bs: prevent ->Ssid overflow in rtw_wx_set_scan()
-Date:   Fri,  3 Jun 2022 19:39:30 +0200
-Message-Id: <20220603173815.162277565@linuxfoundation.org>
+        stable@vger.kernel.org, Haimin Zhang <tcs.kernel@gmail.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Dragos-Marian Panait <dragos.panait@windriver.com>
+Subject: [PATCH 4.9 05/12] block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
+Date:   Fri,  3 Jun 2022 19:39:31 +0200
+Message-Id: <20220603173812.684682590@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
+References: <20220603173812.524184588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Denis Efremov (Oracle)" <efremov@linux.com>
+From: Haimin Zhang <tcs.kernel@gmail.com>
 
-This code has a check to prevent read overflow but it needs another
-check to prevent writing beyond the end of the ->Ssid[] array.
+commit cc8f7fe1f5eab010191aa4570f27641876fa1267 upstream.
 
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Denis Efremov (Oracle) <efremov@linux.com>
+Add __GFP_ZERO flag for alloc_page in function bio_copy_kern to initialize
+the buffer of a bio.
+
+Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220216084038.15635-1-tcs.kernel@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[DP: Backported to 4.19: Manually added __GFP_ZERO flag]
+Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ block/bio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-@@ -1359,9 +1359,11 @@ static int rtw_wx_set_scan(struct net_de
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1538,7 +1538,7 @@ struct bio *bio_copy_kern(struct request
+ 		if (bytes > len)
+ 			bytes = len;
  
- 					sec_len = *(pos++); len-= 1;
+-		page = alloc_page(q->bounce_gfp | gfp_mask);
++		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
+ 		if (!page)
+ 			goto cleanup;
  
--					if (sec_len>0 && sec_len<=len) {
-+					if (sec_len > 0 &&
-+					    sec_len <= len &&
-+					    sec_len <= 32) {
- 						ssid[ssid_index].SsidLength = sec_len;
--						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-+						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
- 						/* DBG_871X("%s COMBO_SCAN with specific ssid:%s, %d\n", __func__ */
- 						/* 	, ssid[ssid_index].Ssid, ssid[ssid_index].SsidLength); */
- 						ssid_index++;
 
 
