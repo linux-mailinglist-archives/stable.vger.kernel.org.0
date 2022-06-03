@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE0053CDA1
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7688253CDAD
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:03:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344173AbiFCRBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34898 "EHLO
+        id S230299AbiFCRDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:03:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243045AbiFCRBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:01:33 -0400
+        with ESMTP id S1344192AbiFCRDW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:03:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A253522D7
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 10:01:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED4B51E74
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 10:03:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA55061A3E
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 17:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E122FC385A9;
-        Fri,  3 Jun 2022 17:01:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A090F61A43
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 17:03:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F276C385A9;
+        Fri,  3 Jun 2022 17:03:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654275692;
-        bh=JDIWSU9rcKW9X2Y+Go3Q9VNv5dFAkla5idRq1Bj5Wfw=;
+        s=korg; t=1654275800;
+        bh=JDRPNAz8sVyBMRQaoofMckMWA15CajJPEoIa8w/8gyc=;
         h=Subject:To:Cc:From:Date:From;
-        b=mlwvvU0Q2ZWn9skePf/IwSVjh+Ay2ggL+hlkAuRpkz2HZVkTXjo1/PnYgF1WnFee2
-         G/jbugKrP6SK5hHxMAh9NzStNvM6sezmfI/DfPAPkgJPcuiv8MZ0etH/Mf2rJ9Lt6Y
-         fEizv0QXXFscbnzoqhWaj9vYsy6LelTf3rEVr2aQ=
-Subject: FAILED: patch "[PATCH] bpf: Fix combination of jit blinding and pointers to bpf" failed to apply to 5.15-stable tree
-To:     ast@kernel.org, andrii@kernel.org, daniel@iogearbox.net,
-        kafai@fb.com
+        b=XPm+RirWsXrROGJ80XHsY49GOgywtRpN4g7G5E294laziJuKZB4CrPK/ogtFZNd0a
+         ePI0cjoI+iBhG0GCJpmgyuDnwDo8WNj2oNvVydA5imnQjFFKVpS4lJUOLbL/OxUkw1
+         +v0KCQ5tR0a5nv7B6w8Iai5ngDHpou2m1Gis4+xg=
+Subject: FAILED: patch "[PATCH] bpf: Introduce bpf_arch_text_invalidate for bpf_prog_pack" failed to apply to 5.18-stable tree
+To:     song@kernel.org, daniel@iogearbox.net,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 19:01:29 +0200
-Message-ID: <1654275689143236@kroah.com>
+Date:   Fri, 03 Jun 2022 19:03:17 +0200
+Message-ID: <16542757971967@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,61 +60,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4b6313cf99b0d51b49aeaea98ec76ca8161ecb80 Mon Sep 17 00:00:00 2001
-From: Alexei Starovoitov <ast@kernel.org>
-Date: Thu, 12 May 2022 18:10:24 -0700
-Subject: [PATCH] bpf: Fix combination of jit blinding and pointers to bpf
- subprogs.
+From fe736565efb775620dbcf3c459c1cd80d3e868da Mon Sep 17 00:00:00 2001
+From: Song Liu <song@kernel.org>
+Date: Fri, 20 May 2022 16:57:53 -0700
+Subject: [PATCH] bpf: Introduce bpf_arch_text_invalidate for bpf_prog_pack
 
-The combination of jit blinding and pointers to bpf subprogs causes:
-[   36.989548] BUG: unable to handle page fault for address: 0000000100000001
-[   36.990342] #PF: supervisor instruction fetch in kernel mode
-[   36.990968] #PF: error_code(0x0010) - not-present page
-[   36.994859] RIP: 0010:0x100000001
-[   36.995209] Code: Unable to access opcode bytes at RIP 0xffffffd7.
-[   37.004091] Call Trace:
-[   37.004351]  <TASK>
-[   37.004576]  ? bpf_loop+0x4d/0x70
-[   37.004932]  ? bpf_prog_3899083f75e4c5de_F+0xe3/0x13b
+Introduce bpf_arch_text_invalidate and use it to fill unused part of the
+bpf_prog_pack with illegal instructions when a BPF program is freed.
 
-The jit blinding logic didn't recognize that ld_imm64 with an address
-of bpf subprogram is a special instruction and proceeded to randomize it.
-By itself it wouldn't have been an issue, but jit_subprogs() logic
-relies on two step process to JIT all subprogs and then JIT them
-again when addresses of all subprogs are known.
-Blinding process in the first JIT phase caused second JIT to miss
-adjustment of special ld_imm64.
-
-Fix this issue by ignoring special ld_imm64 instructions that don't have
-user controlled constants and shouldn't be blinded.
-
-Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
-Reported-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 57631054fae6 ("bpf: Introduce bpf_prog_pack allocator")
+Fixes: 33c9805860e5 ("bpf: Introduce bpf_jit_binary_pack_[alloc|finalize|free]")
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220513011025.13344-1-alexei.starovoitov@gmail.com
+Link: https://lore.kernel.org/bpf/20220520235758.1858153-4-song@kernel.org
 
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index a2b6d197c226..f298b18a9a3d 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -228,6 +228,11 @@ static void jit_fill_hole(void *area, unsigned int size)
+ 	memset(area, 0xcc, size);
+ }
+ 
++int bpf_arch_text_invalidate(void *dst, size_t len)
++{
++	return IS_ERR_OR_NULL(text_poke_set(dst, 0xcc, len));
++}
++
+ struct jit_context {
+ 	int cleanup_addr; /* Epilogue code offset */
+ 
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index cc4d5e394031..a9b1875212f6 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -2365,6 +2365,7 @@ int bpf_arch_text_poke(void *ip, enum bpf_text_poke_type t,
+ 		       void *addr1, void *addr2);
+ 
+ void *bpf_arch_text_copy(void *dst, void *src, size_t len);
++int bpf_arch_text_invalidate(void *dst, size_t len);
+ 
+ struct btf_id_set;
+ bool btf_id_set_contains(const struct btf_id_set *set, u32 id);
 diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 76f68d0a7ae8..9cc91f0f3115 100644
+index 2d0c9d4696ad..cacd8684c3c4 100644
 --- a/kernel/bpf/core.c
 +++ b/kernel/bpf/core.c
-@@ -1434,6 +1434,16 @@ struct bpf_prog *bpf_jit_blind_constants(struct bpf_prog *prog)
- 	insn = clone->insnsi;
+@@ -968,6 +968,9 @@ static void bpf_prog_pack_free(struct bpf_binary_header *hdr)
+ 	nbits = BPF_PROG_SIZE_TO_NBITS(hdr->size);
+ 	pos = ((unsigned long)hdr - (unsigned long)pack_ptr) >> BPF_PROG_CHUNK_SHIFT;
  
- 	for (i = 0; i < insn_cnt; i++, insn++) {
-+		if (bpf_pseudo_func(insn)) {
-+			/* ld_imm64 with an address of bpf subprog is not
-+			 * a user controlled constant. Don't randomize it,
-+			 * since it will conflict with jit_subprogs() logic.
-+			 */
-+			insn++;
-+			i++;
-+			continue;
-+		}
++	WARN_ONCE(bpf_arch_text_invalidate(hdr, hdr->size),
++		  "bpf_prog_pack bug: missing bpf_arch_text_invalidate?\n");
 +
- 		/* We temporarily need to hold the original ld64 insn
- 		 * so that we can still access the first part in the
- 		 * second blinding run.
+ 	bitmap_clear(pack->bitmap, pos, nbits);
+ 	if (bitmap_find_next_zero_area(pack->bitmap, bpf_prog_chunk_count(), 0,
+ 				       bpf_prog_chunk_count(), 0) == 0) {
+@@ -2740,6 +2743,11 @@ void * __weak bpf_arch_text_copy(void *dst, void *src, size_t len)
+ 	return ERR_PTR(-ENOTSUPP);
+ }
+ 
++int __weak bpf_arch_text_invalidate(void *dst, size_t len)
++{
++	return -ENOTSUPP;
++}
++
+ DEFINE_STATIC_KEY_FALSE(bpf_stats_enabled_key);
+ EXPORT_SYMBOL(bpf_stats_enabled_key);
+ 
 
