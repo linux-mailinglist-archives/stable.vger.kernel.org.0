@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F8053CF48
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA4353D008
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345600AbiFCRy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57860 "EHLO
+        id S243946AbiFCR7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347260AbiFCRwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6387FB4B1;
-        Fri,  3 Jun 2022 10:51:43 -0700 (PDT)
+        with ESMTP id S1346007AbiFCR6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:58:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76F9257B38;
+        Fri,  3 Jun 2022 10:55:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 130F7B823B0;
-        Fri,  3 Jun 2022 17:51:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35EDEC385A9;
-        Fri,  3 Jun 2022 17:51:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E14AE60F3B;
+        Fri,  3 Jun 2022 17:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C612FC385B8;
+        Fri,  3 Jun 2022 17:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278700;
-        bh=XJM0lwkShHlP+CUihjc1TOUi9hlvEuV01oCFVztSbGk=;
+        s=korg; t=1654278899;
+        bh=DdcTsahpMA3mopHeABHUdvpDhh4i1FgDJdxIWWBmhHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wMXfogTYIEkrBIpQOQFajR/hpTtNIvx82JLjha8m7m6dz48RJU/pV+FRJ2OE6s+Gs
-         ol9WwoI0N+F17JmfoEZ8stpK/BU27vX1QUZCgyfFdPYR072r44j2dRLWVHGyqNPtQU
-         FVr/15rxET1h+7qGoXM2PXHSZqlqz6D7YeEFCCBc=
+        b=vZgLPkrP0FhHUROa6LBCGAzts1dAK3y1h7N6weXw705E0qOVAet/QbQsY8AdKO3v5
+         X0aYM547Eyi+0z/GoG2h9JD6yy3uALmyTGRti93MiXPkiMB2L1TlSpc7bADJBZ0wfZ
+         /8tDHKMRui/7J2rAkUzL3FzVTHgkc8vD2le7tUH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.15 64/66] bpf: Fix excessive memory allocation in stack_map_alloc()
-Date:   Fri,  3 Jun 2022 19:43:44 +0200
-Message-Id: <20220603173822.504836401@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Haitao Huang <haitao.huang@intel.com>
+Subject: [PATCH 5.17 61/75] x86/sgx: Ensure no data in PCMD page after truncate
+Date:   Fri,  3 Jun 2022 19:43:45 +0200
+Message-Id: <20220603173823.466662540@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuntao Wang <ytcoode@gmail.com>
+From: Reinette Chatre <reinette.chatre@intel.com>
 
-commit b45043192b3e481304062938a6561da2ceea46a6 upstream.
+commit e3a3bbe3e99de73043a1d32d36cf4d211dc58c7e upstream.
 
-The 'n_buckets * (value_size + sizeof(struct stack_map_bucket))' part of the
-allocated memory for 'smap' is never used after the memlock accounting was
-removed, thus get rid of it.
+A PCMD (Paging Crypto MetaData) page contains the PCMD
+structures of enclave pages that have been encrypted and
+moved to the shmem backing store. When all enclave pages
+sharing a PCMD page are loaded in the enclave, there is no
+need for the PCMD page and it can be truncated from the
+backing store.
 
-[ Note, Daniel:
+A few issues appeared around the truncation of PCMD pages. The
+known issues have been addressed but the PCMD handling code could
+be made more robust by loudly complaining if any new issue appears
+in this area.
 
-Commit b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
-moved `cost += n_buckets * (value_size + sizeof(struct stack_map_bucket))`
-up and therefore before the bpf_map_area_alloc() allocation, sigh. In a later
-step commit c85d69135a91 ("bpf: move memory size checks to bpf_map_charge_init()"),
-and the overflow checks of `cost >= U32_MAX - PAGE_SIZE` moved into
-bpf_map_charge_init(). And then 370868107bf6 ("bpf: Eliminate rlimit-based
-memory accounting for stackmap maps") finally removed the bpf_map_charge_init().
-Anyway, the original code did the allocation same way as /after/ this fix. ]
+Add a check that will complain with a warning if the PCMD page is not
+actually empty after it has been truncated. There should never be data
+in the PCMD page at this point since it is was just checked to be empty
+and truncated with enclave mutex held and is updated with the
+enclave mutex held.
 
-Fixes: b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
-Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220407130423.798386-1-ytcoode@gmail.com
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Haitao Huang <haitao.huang@intel.com>
+Link: https://lkml.kernel.org/r/6495120fed43fafc1496d09dd23df922b9a32709.1652389823.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/stackmap.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/kernel/cpu/sgx/encl.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -119,7 +119,6 @@ static struct bpf_map *stack_map_alloc(u
- 		return ERR_PTR(-E2BIG);
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -187,12 +187,20 @@ static int __sgx_encl_eldu(struct sgx_en
+ 	kunmap_atomic(pcmd_page);
+ 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
  
- 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
--	cost += n_buckets * (value_size + sizeof(struct stack_map_bucket));
- 	smap = bpf_map_area_alloc(cost, bpf_map_attr_numa_node(attr));
- 	if (!smap)
- 		return ERR_PTR(-ENOMEM);
++	get_page(b.pcmd);
+ 	sgx_encl_put_backing(&b);
+ 
+ 	sgx_encl_truncate_backing_page(encl, page_index);
+ 
+-	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page))
++	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page)) {
+ 		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
++		pcmd_page = kmap_atomic(b.pcmd);
++		if (memchr_inv(pcmd_page, 0, PAGE_SIZE))
++			pr_warn("PCMD page not empty after truncate.\n");
++		kunmap_atomic(pcmd_page);
++	}
++
++	put_page(b.pcmd);
+ 
+ 	return ret;
+ }
 
 
