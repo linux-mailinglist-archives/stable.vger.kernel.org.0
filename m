@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90ED253CED3
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 073AA53D0D4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345156AbiFCRsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:48:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
+        id S1346324AbiFCSHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345305AbiFCRsH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF1357B04;
-        Fri,  3 Jun 2022 10:44:37 -0700 (PDT)
+        with ESMTP id S1347374AbiFCSF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:05:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF61A5BD03;
+        Fri,  3 Jun 2022 10:58:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B3BD61AD7;
-        Fri,  3 Jun 2022 17:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F64C385A9;
-        Fri,  3 Jun 2022 17:44:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 593C8615FF;
+        Fri,  3 Jun 2022 17:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48898C385A9;
+        Fri,  3 Jun 2022 17:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278276;
-        bh=Cx8j6TGNcfOGltVh+shM90sXuC6xABAuTb/pYwuK17Q=;
+        s=korg; t=1654279070;
+        bh=4ltGxpT2RJ3O0cMXesB42/3fugT5SM7Txn12IgNpxEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdCAdSsW5XTKkN+Y1ds2ZnHEZu+zDa5e0K/Uhtl/ikeH/VH94EoWc0+i+68ITqdcV
-         yyPtFFySYXW6lTKocvD4ORK+awp1hZ7azMqW4zrd7Nd4mlEqGYTP61SolyBsw9Ailj
-         7mmEu9DI7fhgypKpek8WQ0kV7F9cD2CG6ZOVAR0o=
+        b=w6iAj2ZdRAGfvkpRmNaM3hkpQfL4EEuLZYOrI5FOa54qxH03Mzz93j1SsGpHObQ4Z
+         gcBsPJHh8ls2fHT0Ryf3OLT6JONcsA9mtIQkAPnvk4r3llSjf7uTj0tjiKltcT2rsZ
+         dPFCM3ifDF8BLhePUUzkTPh3AMRTv2tXXZpDqk0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 5.4 06/34] secure_seq: use the 64 bits of the siphash for port offset calculation
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Aaron Adams <edg-e@nccgroup.com>
+Subject: [PATCH 5.18 01/67] netfilter: nf_tables: disallow non-stateful expression in sets earlier
 Date:   Fri,  3 Jun 2022 19:43:02 +0200
-Message-Id: <20220603173816.180109481@linuxfoundation.org>
+Message-Id: <20220603173820.776292973@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
-References: <20220603173815.990072516@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,139 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit b2d057560b8107c633b39aabe517ff9d93f285e3 upstream.
+commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
 
-SipHash replaced MD5 in secure_ipv{4,6}_port_ephemeral() via commit
-7cd23e5300c1 ("secure_seq: use SipHash in place of MD5"), but the output
-remained truncated to 32-bit only. In order to exploit more bits from the
-hash, let's make the functions return the full 64-bit of siphash_3u32().
-We also make sure the port offset calculation in __inet_hash_connect()
-remains done on 32-bit to avoid the need for div_u64_rem() and an extra
-cost on 32-bit systems.
+Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+instantiation"), it is possible to attach stateful expressions to set
+elements.
 
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[SG: Adjusted context]
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+and destroy phase") introduces conditional destruction on the object to
+accomodate transaction semantics.
+
+nft_expr_init() calls expr->ops->init() first, then check for
+NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+lookup expressions which points to a set, which might lead to UAF since
+the set is not properly detached from the set->binding for this case.
+Anyway, this combination is non-sense from nf_tables perspective.
+
+This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+expr->ops->init() is called.
+
+The reporter provides a KASAN splat and a poc reproducer (similar to
+those autogenerated by syzbot to report use-after-free errors). It is
+unknown to me if they are using syzbot or if they use similar automated
+tool to locate the bug that they are reporting.
+
+For the record, this is the KASAN splat.
+
+[   85.431824] ==================================================================
+[   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+[   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+[   85.434756]
+[   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+[   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+
+Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_hashtables.h |    2 +-
- include/net/secure_seq.h      |    4 ++--
- net/core/secure_seq.c         |    4 ++--
- net/ipv4/inet_hashtables.c    |   10 ++++++----
- net/ipv6/inet6_hashtables.c   |    4 ++--
- 5 files changed, 13 insertions(+), 11 deletions(-)
+ net/netfilter/nf_tables_api.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/include/net/inet_hashtables.h
-+++ b/include/net/inet_hashtables.h
-@@ -420,7 +420,7 @@ static inline void sk_rcv_saddr_set(stru
- }
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -2873,27 +2873,31 @@ static struct nft_expr *nft_expr_init(co
  
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--			struct sock *sk, u32 port_offset,
-+			struct sock *sk, u64 port_offset,
- 			int (*check_established)(struct inet_timewait_death_row *,
- 						 struct sock *, __u16,
- 						 struct inet_timewait_sock **));
---- a/include/net/secure_seq.h
-+++ b/include/net/secure_seq.h
-@@ -4,8 +4,8 @@
- 
- #include <linux/types.h>
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport);
- u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
- 		   __be16 sport, __be16 dport);
---- a/net/core/secure_seq.c
-+++ b/net/core/secure_seq.c
-@@ -97,7 +97,7 @@ u32 secure_tcpv6_seq(const __be32 *saddr
- }
- EXPORT_SYMBOL(secure_tcpv6_seq);
- 
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport)
- {
- 	const struct {
-@@ -147,7 +147,7 @@ u32 secure_tcp_seq(__be32 saddr, __be32
- }
- EXPORT_SYMBOL_GPL(secure_tcp_seq);
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
- {
- 	net_secret_init();
- 	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -464,7 +464,7 @@ not_unique:
- 	return -EADDRNOTAVAIL;
- }
- 
--static u32 inet_sk_port_offset(const struct sock *sk)
-+static u64 inet_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
- 
-@@ -683,7 +683,7 @@ EXPORT_SYMBOL_GPL(inet_unhash);
- static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--		struct sock *sk, u32 port_offset,
-+		struct sock *sk, u64 port_offset,
- 		int (*check_established)(struct inet_timewait_death_row *,
- 			struct sock *, __u16, struct inet_timewait_sock **))
- {
-@@ -726,7 +726,9 @@ int __inet_hash_connect(struct inet_time
- 	net_get_random_once(table_perturb, sizeof(table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
--	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
-+	offset = READ_ONCE(table_perturb[index]) + port_offset;
-+	offset %= remaining;
+ 	err = nf_tables_expr_parse(ctx, nla, &expr_info);
+ 	if (err < 0)
+-		goto err1;
++		goto err_expr_parse;
 +
- 	/* In first pass we try ports of @low parity.
- 	 * inet_csk_get_port() does the opposite choice.
- 	 */
-@@ -803,7 +805,7 @@ ok:
- int inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		      struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
++	err = -EOPNOTSUPP;
++	if (!(expr_info.ops->type->flags & NFT_EXPR_STATEFUL))
++		goto err_expr_stateful;
  
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet_sk_port_offset(sk);
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -262,7 +262,7 @@ not_unique:
- 	return -EADDRNOTAVAIL;
+ 	err = -ENOMEM;
+ 	expr = kzalloc(expr_info.ops->size, GFP_KERNEL_ACCOUNT);
+ 	if (expr == NULL)
+-		goto err2;
++		goto err_expr_stateful;
+ 
+ 	err = nf_tables_newexpr(ctx, &expr_info, expr);
+ 	if (err < 0)
+-		goto err3;
++		goto err_expr_new;
+ 
+ 	return expr;
+-err3:
++err_expr_new:
+ 	kfree(expr);
+-err2:
++err_expr_stateful:
+ 	owner = expr_info.ops->type->owner;
+ 	if (expr_info.ops->type->release_ops)
+ 		expr_info.ops->type->release_ops(expr_info.ops);
+ 
+ 	module_put(owner);
+-err1:
++err_expr_parse:
+ 	return ERR_PTR(err);
  }
  
--static u32 inet6_sk_port_offset(const struct sock *sk)
-+static u64 inet6_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
+@@ -5413,9 +5417,6 @@ struct nft_expr *nft_set_elem_expr_alloc
+ 		return expr;
  
-@@ -274,7 +274,7 @@ static u32 inet6_sk_port_offset(const st
- int inet6_hash_connect(struct inet_timewait_death_row *death_row,
- 		       struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet6_sk_port_offset(sk);
+ 	err = -EOPNOTSUPP;
+-	if (!(expr->ops->type->flags & NFT_EXPR_STATEFUL))
+-		goto err_set_elem_expr;
+-
+ 	if (expr->ops->type->flags & NFT_EXPR_GC) {
+ 		if (set->flags & NFT_SET_TIMEOUT)
+ 			goto err_set_elem_expr;
 
 
