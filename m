@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BAED53D0E4
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD3C53D097
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346481AbiFCSIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45308 "EHLO
+        id S236740AbiFCSHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348027AbiFCSGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E1C15DBF0;
-        Fri,  3 Jun 2022 10:59:41 -0700 (PDT)
+        with ESMTP id S1347900AbiFCSG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED905D5F8;
+        Fri,  3 Jun 2022 10:59:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 68B31CE2491;
-        Fri,  3 Jun 2022 17:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E235C385A9;
-        Fri,  3 Jun 2022 17:58:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3D09B82189;
+        Fri,  3 Jun 2022 17:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BAA8C385B8;
+        Fri,  3 Jun 2022 17:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279136;
-        bh=OjwbpKNPDfe7GTw3ryhR0CVtFhv3cYyjK+edEN1nmDE=;
+        s=korg; t=1654279139;
+        bh=jylEjt/kulbTS7GurMgB9K2xH/8vWaxgWIIDnWNp0L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2YG4QfCZYhO072rxNEHT0l77w/IqsfcywRY/TqfTwBFWNAIzjnaX4b1aL/bakUX7
-         Gqwbd3WWlOqR7nDkAugqtAfXLW33Gs5s6LkvO0DS0DLoXBrxu83xsk1F6YKdCBk8g1
-         b0wbs7uiZxQTJAL6j5IYFc8g50YtLv9gGkqtRFz0=
+        b=GFqMcWw0VZtKRFds+RBdbUt+Ny7HnlVKzxlunQ1Hqx3ZJyeXfjvkiqzl1WYHYrXYA
+         2GPzqus93laXOFvQE094xrDxwd74Rks2JGPcgYIEXeNCsm/ECAkAbrXWTmsGIDtv3X
+         XUDXGzwbRi/BHu8PMXHPO/6rpf9d2wSbLTFclxkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.18 64/67] bpf: Fix excessive memory allocation in stack_map_alloc()
-Date:   Fri,  3 Jun 2022 19:44:05 +0200
-Message-Id: <20220603173822.558677557@linuxfoundation.org>
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.18 65/67] bpf: Reject writes for PTR_TO_MAP_KEY in check_helper_mem_access
+Date:   Fri,  3 Jun 2022 19:44:06 +0200
+Message-Id: <20220603173822.586723850@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
 References: <20220603173820.731531504@linuxfoundation.org>
@@ -53,43 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuntao Wang <ytcoode@gmail.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit b45043192b3e481304062938a6561da2ceea46a6 upstream.
+commit 7b3552d3f9f6897851fc453b5131a967167e43c2 upstream.
 
-The 'n_buckets * (value_size + sizeof(struct stack_map_bucket))' part of the
-allocated memory for 'smap' is never used after the memlock accounting was
-removed, thus get rid of it.
+It is not permitted to write to PTR_TO_MAP_KEY, but the current code in
+check_helper_mem_access would allow for it, reject this case as well, as
+helpers taking ARG_PTR_TO_UNINIT_MEM also take PTR_TO_MAP_KEY.
 
-[ Note, Daniel:
-
-Commit b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
-moved `cost += n_buckets * (value_size + sizeof(struct stack_map_bucket))`
-up and therefore before the bpf_map_area_alloc() allocation, sigh. In a later
-step commit c85d69135a91 ("bpf: move memory size checks to bpf_map_charge_init()"),
-and the overflow checks of `cost >= U32_MAX - PAGE_SIZE` moved into
-bpf_map_charge_init(). And then 370868107bf6 ("bpf: Eliminate rlimit-based
-memory accounting for stackmap maps") finally removed the bpf_map_charge_init().
-Anyway, the original code did the allocation same way as /after/ this fix. ]
-
-Fixes: b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
-Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220407130423.798386-1-ytcoode@gmail.com
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/r/20220319080827.73251-4-memxor@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/stackmap.c |    1 -
- 1 file changed, 1 deletion(-)
+ kernel/bpf/verifier.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -100,7 +100,6 @@ static struct bpf_map *stack_map_alloc(u
- 		return ERR_PTR(-E2BIG);
- 
- 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
--	cost += n_buckets * (value_size + sizeof(struct stack_map_bucket));
- 	smap = bpf_map_area_alloc(cost, bpf_map_attr_numa_node(attr));
- 	if (!smap)
- 		return ERR_PTR(-ENOMEM);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4861,6 +4861,11 @@ static int check_helper_mem_access(struc
+ 		return check_packet_access(env, regno, reg->off, access_size,
+ 					   zero_size_allowed);
+ 	case PTR_TO_MAP_KEY:
++		if (meta && meta->raw_mode) {
++			verbose(env, "R%d cannot write into %s\n", regno,
++				reg_type_str(env, reg->type));
++			return -EACCES;
++		}
+ 		return check_mem_region_access(env, regno, reg->off, access_size,
+ 					       reg->map_ptr->key_size, false);
+ 	case PTR_TO_MAP_VALUE:
 
 
