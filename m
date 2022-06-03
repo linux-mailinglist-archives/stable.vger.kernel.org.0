@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4568853CF7A
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A078453CEEB
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345743AbiFCRy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
+        id S1345263AbiFCRtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:49:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347261AbiFCRwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DBE9B48E;
-        Fri,  3 Jun 2022 10:51:40 -0700 (PDT)
+        with ESMTP id S1345357AbiFCRsL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9EA253E05;
+        Fri,  3 Jun 2022 10:45:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2770B82419;
-        Fri,  3 Jun 2022 17:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23348C385A9;
-        Fri,  3 Jun 2022 17:51:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BBE4B82430;
+        Fri,  3 Jun 2022 17:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB7F6C385A9;
+        Fri,  3 Jun 2022 17:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278697;
-        bh=u3IpJg7f52QEmZoiTs+geEPRmnLMhe+3HVFYgwUxjcA=;
+        s=korg; t=1654278298;
+        bh=JRlXN+QbL40CRn9Cwv7aCRqGZNOb6OjwTpt42fLYcMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCd/MzFWqOlhokl60z4HvVU0yO5QWcVXR0dbscJAdiT1HfLDu+eGfYnKMwGxZ46I+
-         cHTNsEk5iw5O999Jd1IpeuZaAftUO4XqLDUW6rQP8375u0+Uzup75YcX+1fGFAE73p
-         Pn9Dyem6r+BKFWCBZmyF8k9bpy4w0tPbc6B9bBTI=
+        b=esNiSIDpMjzKWdJUlsPeQsQCEH6REuZV7ZcAr5qg59BqYgYfApa7YVYwvQi+EVUle
+         ZEnKSwXdfq7nXoRSK1G4UraUutuI5TpryJLoCcOFbVQREjvKD3veP+PuBK0TnON09w
+         6/Rrw8rhFAtqiOuQ6V7ELsJEGNK75ikkELg2rmKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Maris Abele <maris7abele@gmail.com>
-Subject: [PATCH 5.15 37/66] ALSA: usb-audio: Workaround for clock setup on TEAC devices
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 21/34] crypto: ecrdsa - Fix incorrect use of vli_cmp
 Date:   Fri,  3 Jun 2022 19:43:17 +0200
-Message-Id: <20220603173821.742820192@linuxfoundation.org>
+Message-Id: <20220603173816.609143086@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-commit 5ce0b06ae5e69e23142e73c5c3c0260e9f2ccb4b upstream.
+commit 7cc7ab73f83ee6d50dc9536bc3355495d8600fad upstream.
 
-Maris reported that TEAC UD-501 (0644:8043) doesn't work with the
-typical "clock source 41 is not valid, cannot use" errors on the
-recent kernels.  The currently known workaround so far is to restore
-(partially) what we've done unconditionally at the clock setup;
-namely, re-setup the USB interface immediately after the clock is
-changed.  This patch re-introduces the behavior conditionally for TEAC
-devices.
+Correctly compare values that shall be greater-or-equal and not just
+greater.
 
-Further notes:
-- The USB interface shall be set later in
-  snd_usb_endpoint_configure(), but this seems to be too late.
-- Even calling  usb_set_interface() right after
-  sne_usb_init_sample_rate() doesn't help; so this must be related
-  with the clock validation, too.
-- The device may still spew the "clock source 41 is not valid" error
-  at the first clock setup.  This seems happening at the very first
-  try of clock setup, but it disappears at later attempts.
-  The error is likely harmless because the driver retries the clock
-  setup (such an error is more or less expected on some devices).
-
-Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
-Reported-and-tested-by: Maris Abele <maris7abele@gmail.com>
+Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220521064627.29292-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/clock.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ crypto/ecrdsa.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -572,6 +572,13 @@ static int set_sample_rate_v2v3(struct s
- 		/* continue processing */
- 	}
+--- a/crypto/ecrdsa.c
++++ b/crypto/ecrdsa.c
+@@ -112,15 +112,15 @@ static int ecrdsa_verify(struct akcipher
  
-+	/* FIXME - TEAC devices require the immediate interface setup */
-+	if (rate != prev_rate && USB_ID_VENDOR(chip->usb_id) == 0x0644) {
-+		usb_set_interface(chip->dev, fmt->iface, fmt->altsetting);
-+		if (chip->quirk_flags & QUIRK_FLAG_IFACE_DELAY)
-+			msleep(50);
-+	}
-+
- validation:
- 	/* validate clock after rate change */
- 	if (!uac_clock_source_is_valid(chip, fmt, clock))
+ 	/* Step 1: verify that 0 < r < q, 0 < s < q */
+ 	if (vli_is_zero(r, ndigits) ||
+-	    vli_cmp(r, ctx->curve->n, ndigits) == 1 ||
++	    vli_cmp(r, ctx->curve->n, ndigits) >= 0 ||
+ 	    vli_is_zero(s, ndigits) ||
+-	    vli_cmp(s, ctx->curve->n, ndigits) == 1)
++	    vli_cmp(s, ctx->curve->n, ndigits) >= 0)
+ 		return -EKEYREJECTED;
+ 
+ 	/* Step 2: calculate hash (h) of the message (passed as input) */
+ 	/* Step 3: calculate e = h \mod q */
+ 	vli_from_le64(e, digest, ndigits);
+-	if (vli_cmp(e, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(e, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(e, e, ctx->curve->n, ndigits);
+ 	if (vli_is_zero(e, ndigits))
+ 		e[0] = 1;
+@@ -136,7 +136,7 @@ static int ecrdsa_verify(struct akcipher
+ 	/* Step 6: calculate point C = z_1P + z_2Q, and R = x_c \mod q */
+ 	ecc_point_mult_shamir(&cc, z1, &ctx->curve->g, z2, &ctx->pub_key,
+ 			      ctx->curve);
+-	if (vli_cmp(cc.x, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(cc.x, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(cc.x, cc.x, ctx->curve->n, ndigits);
+ 
+ 	/* Step 7: if R == r signature is valid */
 
 
