@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9AC53CF74
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5321353CEEA
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345272AbiFCRx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58234 "EHLO
+        id S1345201AbiFCRtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:49:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346922AbiFCRvo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:44 -0400
+        with ESMTP id S1345381AbiFCRsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A46085A2E3;
-        Fri,  3 Jun 2022 10:49:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8F6541A6;
+        Fri,  3 Jun 2022 10:45:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C5B160F70;
-        Fri,  3 Jun 2022 17:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BE8C385B8;
-        Fri,  3 Jun 2022 17:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3914660A24;
+        Fri,  3 Jun 2022 17:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42503C385A9;
+        Fri,  3 Jun 2022 17:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278584;
-        bh=OpaawRp79dtqnGSTyBaISZA/NROjTyAbG0fSnlPKS2A=;
+        s=korg; t=1654278318;
+        bh=yojwAR4GeocO+V0acQYXPAOcPk/e68dRzRXpL5OJFns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5ycwedZrRL8BUDL5lng82Cqr/3Zmn3HXF8Wni1yq+wuHQAY/OuOpfHCGOD5vBCjE
-         Bhs5WxvFGX+cbdJzCVw1+Ill+lMZdb8DxcEVAJWvwwdsPI4dwHx8tS2Up942QJYCBt
-         Be+XJWWtjyqkslK0ComaVGmqYsTtljZdFOUj9PSI=
+        b=l52wWfUEVGH94drrkI8DWznPgt6TGsxu8xfjxLNbOqIjwYUKUTzx5FWfyRoPp3Ity
+         ZdMbsWnOleYotA2N1HxnG+5oReQZ2PhhgxKCMpy1g7thLTdvYajSub0NcaTNtUGUsX
+         wSDALUuVDUS0cSqSra0anW0uuM8s/aevSmZGS3I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 26/66] netfilter: nf_tables: double hook unregistration in netns path
+        stable@vger.kernel.org,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Veronika Kabatova <vkabatov@redhat.com>,
+        Aristeu Rozanski <aris@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 5.4 10/34] ACPI: sysfs: Fix BERT error region memory mapping
 Date:   Fri,  3 Jun 2022 19:43:06 +0200
-Message-Id: <20220603173821.413744948@linuxfoundation.org>
+Message-Id: <20220603173816.297006586@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,137 +58,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-commit f9a43007d3f7ba76d5e7f9421094f00f2ef202f8 upstream.
+commit 1bbc21785b7336619fb6a67f1fff5afdaf229acc upstream.
 
-__nft_release_hooks() is called from pre_netns exit path which
-unregisters the hooks, then the NETDEV_UNREGISTER event is triggered
-which unregisters the hooks again.
+Currently the sysfs interface maps the BERT error region as "memory"
+(through acpi_os_map_memory()) in order to copy the error records into
+memory buffers through memory operations (eg memory_read_from_buffer()).
 
-[  565.221461] WARNING: CPU: 18 PID: 193 at net/netfilter/core.c:495 __nf_unregister_net_hook+0x247/0x270
-[...]
-[  565.246890] CPU: 18 PID: 193 Comm: kworker/u64:1 Tainted: G            E     5.18.0-rc7+ #27
-[  565.253682] Workqueue: netns cleanup_net
-[  565.257059] RIP: 0010:__nf_unregister_net_hook+0x247/0x270
-[...]
-[  565.297120] Call Trace:
-[  565.300900]  <TASK>
-[  565.304683]  nf_tables_flowtable_event+0x16a/0x220 [nf_tables]
-[  565.308518]  raw_notifier_call_chain+0x63/0x80
-[  565.312386]  unregister_netdevice_many+0x54f/0xb50
+The OS system cannot detect whether the BERT error region is part of
+system RAM or it is "device memory" (eg BMC memory) and therefore it
+cannot detect which memory attributes the bus to memory support (and
+corresponding kernel mapping, unless firmware provides the required
+information).
 
-Unregister and destroy netdev hook from netns pre_exit via kfree_rcu
-so the NETDEV_UNREGISTER path see unregistered hooks.
+The acpi_os_map_memory() arch backend implementation determines the
+mapping attributes. On arm64, if the BERT error region is not present in
+the EFI memory map, the error region is mapped as device-nGnRnE; this
+triggers alignment faults since memcpy unaligned accesses are not
+allowed in device-nGnRnE regions.
 
-Fixes: 767d1216bff8 ("netfilter: nftables: fix possible UAF over chains from packet path in netns")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The ACPI sysfs code cannot therefore map by default the BERT error
+region with memory semantics but should use a safer default.
+
+Change the sysfs code to map the BERT error region as MMIO (through
+acpi_os_map_iomem()) and use the memcpy_fromio() interface to read the
+error region into the kernel buffer.
+
+Link: https://lore.kernel.org/linux-arm-kernel/31ffe8fc-f5ee-2858-26c5-0fd8bdd68702@arm.com
+Link: https://lore.kernel.org/linux-acpi/CAJZ5v0g+OVbhuUUDrLUCfX_mVqY_e8ubgLTU98=jfjTeb4t+Pw@mail.gmail.com
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Tested-by: Veronika Kabatova <vkabatov@redhat.com>
+Tested-by: Aristeu Rozanski <aris@redhat.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |   54 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 41 insertions(+), 13 deletions(-)
+ drivers/acpi/sysfs.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -222,12 +222,18 @@ err_register:
- }
- 
- static void nft_netdev_unregister_hooks(struct net *net,
--					struct list_head *hook_list)
-+					struct list_head *hook_list,
-+					bool release_netdev)
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -438,19 +438,30 @@ static ssize_t acpi_data_show(struct fil
+ 			      loff_t offset, size_t count)
  {
--	struct nft_hook *hook;
-+	struct nft_hook *hook, *next;
+ 	struct acpi_data_attr *data_attr;
+-	void *base;
+-	ssize_t rc;
++	void __iomem *base;
++	ssize_t size;
  
--	list_for_each_entry(hook, hook_list, list)
-+	list_for_each_entry_safe(hook, next, hook_list, list) {
- 		nf_unregister_net_hook(net, &hook->ops);
-+		if (release_netdev) {
-+			list_del(&hook->list);
-+			kfree_rcu(hook, rcu);
-+		}
-+	}
- }
+ 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
++	size = data_attr->attr.size;
  
- static int nf_tables_register_hook(struct net *net,
-@@ -253,9 +259,10 @@ static int nf_tables_register_hook(struc
- 	return nf_register_net_hook(net, &basechain->ops);
- }
- 
--static void nf_tables_unregister_hook(struct net *net,
--				      const struct nft_table *table,
--				      struct nft_chain *chain)
-+static void __nf_tables_unregister_hook(struct net *net,
-+					const struct nft_table *table,
-+					struct nft_chain *chain,
-+					bool release_netdev)
- {
- 	struct nft_base_chain *basechain;
- 	const struct nf_hook_ops *ops;
-@@ -270,11 +277,19 @@ static void nf_tables_unregister_hook(st
- 		return basechain->type->ops_unregister(net, ops);
- 
- 	if (nft_base_chain_netdev(table->family, basechain->ops.hooknum))
--		nft_netdev_unregister_hooks(net, &basechain->hook_list);
-+		nft_netdev_unregister_hooks(net, &basechain->hook_list,
-+					    release_netdev);
- 	else
- 		nf_unregister_net_hook(net, &basechain->ops);
- }
- 
-+static void nf_tables_unregister_hook(struct net *net,
-+				      const struct nft_table *table,
-+				      struct nft_chain *chain)
-+{
-+	return __nf_tables_unregister_hook(net, table, chain, false);
-+}
+-	base = acpi_os_map_memory(data_attr->addr, data_attr->attr.size);
++	if (offset < 0)
++		return -EINVAL;
 +
- static void nft_trans_commit_list_add_tail(struct net *net, struct nft_trans *trans)
- {
- 	struct nftables_pernet *nft_net = nft_pernet(net);
-@@ -7206,13 +7221,25 @@ static void nft_unregister_flowtable_hoo
- 				    FLOW_BLOCK_UNBIND);
- }
- 
--static void nft_unregister_flowtable_net_hooks(struct net *net,
--					       struct list_head *hook_list)
-+static void __nft_unregister_flowtable_net_hooks(struct net *net,
-+						 struct list_head *hook_list,
-+					         bool release_netdev)
- {
--	struct nft_hook *hook;
-+	struct nft_hook *hook, *next;
- 
--	list_for_each_entry(hook, hook_list, list)
-+	list_for_each_entry_safe(hook, next, hook_list, list) {
- 		nf_unregister_net_hook(net, &hook->ops);
-+		if (release_netdev) {
-+			list_del(&hook->list);
-+			kfree_rcu(hook);
-+		}
-+	}
-+}
++	if (offset >= size)
++		return 0;
 +
-+static void nft_unregister_flowtable_net_hooks(struct net *net,
-+					       struct list_head *hook_list)
-+{
-+	__nft_unregister_flowtable_net_hooks(net, hook_list, false);
++	if (count > size - offset)
++		count = size - offset;
++
++	base = acpi_os_map_iomem(data_attr->addr, size);
+ 	if (!base)
+ 		return -ENOMEM;
+-	rc = memory_read_from_buffer(buf, count, &offset, base,
+-				     data_attr->attr.size);
+-	acpi_os_unmap_memory(base, data_attr->attr.size);
+ 
+-	return rc;
++	memcpy_fromio(buf, base + offset, count);
++
++	acpi_os_unmap_iomem(base, size);
++
++	return count;
  }
  
- static int nft_register_flowtable_net_hooks(struct net *net,
-@@ -9605,9 +9632,10 @@ static void __nft_release_hook(struct ne
- 	struct nft_chain *chain;
- 
- 	list_for_each_entry(chain, &table->chains, list)
--		nf_tables_unregister_hook(net, table, chain);
-+		__nf_tables_unregister_hook(net, table, chain, true);
- 	list_for_each_entry(flowtable, &table->flowtables, list)
--		nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list);
-+		__nft_unregister_flowtable_net_hooks(net, &flowtable->hook_list,
-+						     true);
- }
- 
- static void __nft_release_hooks(struct net *net)
+ static int acpi_bert_data_init(void *th, struct acpi_data_attr *data_attr)
 
 
