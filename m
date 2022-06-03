@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99EEC53CC14
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B310A53CC17
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:14:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241576AbiFCPN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 11:13:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
+        id S235751AbiFCPOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 11:14:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235751AbiFCPN4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:13:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DE850479
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:13:55 -0700 (PDT)
+        with ESMTP id S245397AbiFCPOG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:14:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E38506C3
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:14:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A74AB6186E
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:13:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D93C385B8;
-        Fri,  3 Jun 2022 15:13:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E679EB82260
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:14:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A35FC385A9;
+        Fri,  3 Jun 2022 15:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654269234;
-        bh=MmLxnlf/2pdBTKc8VIT0zuvJh+RyGEoWGIQ5+2chJaw=;
+        s=korg; t=1654269242;
+        bh=Jx55rPuaLEu0cCTi/ZYkD/6BQgNAPk8ZHu+8rCbzbmE=;
         h=Subject:To:Cc:From:Date:From;
-        b=GYu1/OTYmUfidzSvJcD1RgTibgRCsbj5P7obGrAXt0l8IK8RdoaGCl5UfGbgLjYRc
-         kEkFnhaLmVOTySxM4NEzxbXZY6XlbeiOhwWpRHgddNimrj58BkL1pbBAAPcv6B1mAq
-         0F1GOX631M0wpGGqQ3/oKe2F1eKhQ65mis1h3SmU=
-Subject: FAILED: patch "[PATCH] KVM: x86: avoid loading a vCPU after .vm_destroy was called" failed to apply to 5.15-stable tree
+        b=l75EmPyXaPgtp5cOKJXx1GETADWkLXygP4x0Qs2XtWvC9ju72+qe82ODenEw75KK6
+         RlhXu5oC8WutBpCfrTEU76rbdsuqwhUFqMTbd2Z3PYyJGzAUK/3HUjIUp0gs2pZqPQ
+         xDdzmTAApl9WCI924L1YSFGRgbApZovGc5ew+y7I=
+Subject: FAILED: patch "[PATCH] KVM: x86: avoid loading a vCPU after .vm_destroy was called" failed to apply to 5.10-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 03 Jun 2022 17:13:51 +0200
-Message-ID: <1654269231142142@kroah.com>
+Message-ID: <1654269231148210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
