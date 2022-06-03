@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C82553D041
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE20553CFDB
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346101AbiFCSBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:01:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51096 "EHLO
+        id S1345895AbiFCR5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:57:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346748AbiFCSAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886512BFD;
-        Fri,  3 Jun 2022 10:56:53 -0700 (PDT)
+        with ESMTP id S241008AbiFCR4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:56:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00FB456766;
+        Fri,  3 Jun 2022 10:53:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E857615E3;
-        Fri,  3 Jun 2022 17:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208C8C385A9;
-        Fri,  3 Jun 2022 17:56:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89DF561255;
+        Fri,  3 Jun 2022 17:53:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 896B8C36AE2;
+        Fri,  3 Jun 2022 17:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279012;
-        bh=SF7E+IPj5PcsCtp+gwrO4WkiOXIbDQbJq8FCHx19T88=;
+        s=korg; t=1654278832;
+        bh=sQ0GPSl5NoQwPN9POfGGNsMy+Sxch4CTIxQGvcHIVJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rbx6Hs9J+Foht+GZaZ9aX3Y72ntjVkNkZLiEAYbrMOkreie+z0TLXbrfdkeXKgTmV
-         7vpCzgaL1i5GRx0jx/zxK0oWhBib4KJJ7N1Q/up1khlXHqhMWmcYSG+FGOhgRxF9Ff
-         iOELkUfywVK/UMrpJrECe+KyKA7HUKp9sBR5AyYo=
+        b=R//gbOLlwURquQb98PwvE3qBJVfq4anxUcQo9JWBsNM3nFRs8m05VM/OZi+g/KuK1
+         gnm/aHK9Sr7mffDj3hYrol+b8uvrC81mn6S9J5p8L4lflsL+/WGlesCbACP3Z78b6X
+         PZY787AvgBNSAWn5YR2KyBHidAkAXiVF0S2KvqNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 24/67] KVM: x86: avoid loading a vCPU after .vm_destroy was called
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.17 41/75] crypto: ecrdsa - Fix incorrect use of vli_cmp
 Date:   Fri,  3 Jun 2022 19:43:25 +0200
-Message-Id: <20220603173821.422587327@linuxfoundation.org>
+Message-Id: <20220603173822.911441981@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-commit 6fcee03df6a1a3101a77344be37bb85c6142d56c upstream.
+commit 7cc7ab73f83ee6d50dc9536bc3355495d8600fad upstream.
 
-This can cause various unexpected issues, since VM is partially
-destroyed at that point.
+Correctly compare values that shall be greater-or-equal and not just
+greater.
 
-For example when AVIC is enabled, this causes avic_vcpu_load to
-access physical id page entry which is already freed by .vm_destroy.
-
-Fixes: 8221c1370056 ("svm: Manage vcpu load/unload when enable AVIC")
-Cc: stable@vger.kernel.org
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220322172449.235575-2-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ crypto/ecrdsa.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11747,20 +11747,15 @@ static void kvm_unload_vcpu_mmu(struct k
- 	vcpu_put(vcpu);
- }
+--- a/crypto/ecrdsa.c
++++ b/crypto/ecrdsa.c
+@@ -113,15 +113,15 @@ static int ecrdsa_verify(struct akcipher
  
--static void kvm_free_vcpus(struct kvm *kvm)
-+static void kvm_unload_vcpu_mmus(struct kvm *kvm)
- {
- 	unsigned long i;
- 	struct kvm_vcpu *vcpu;
+ 	/* Step 1: verify that 0 < r < q, 0 < s < q */
+ 	if (vli_is_zero(r, ndigits) ||
+-	    vli_cmp(r, ctx->curve->n, ndigits) == 1 ||
++	    vli_cmp(r, ctx->curve->n, ndigits) >= 0 ||
+ 	    vli_is_zero(s, ndigits) ||
+-	    vli_cmp(s, ctx->curve->n, ndigits) == 1)
++	    vli_cmp(s, ctx->curve->n, ndigits) >= 0)
+ 		return -EKEYREJECTED;
  
--	/*
--	 * Unpin any mmu pages first.
--	 */
- 	kvm_for_each_vcpu(i, vcpu, kvm) {
- 		kvm_clear_async_pf_completion_queue(vcpu);
- 		kvm_unload_vcpu_mmu(vcpu);
- 	}
--
--	kvm_destroy_vcpus(kvm);
- }
+ 	/* Step 2: calculate hash (h) of the message (passed as input) */
+ 	/* Step 3: calculate e = h \mod q */
+ 	vli_from_le64(e, digest, ndigits);
+-	if (vli_cmp(e, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(e, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(e, e, ctx->curve->n, ndigits);
+ 	if (vli_is_zero(e, ndigits))
+ 		e[0] = 1;
+@@ -137,7 +137,7 @@ static int ecrdsa_verify(struct akcipher
+ 	/* Step 6: calculate point C = z_1P + z_2Q, and R = x_c \mod q */
+ 	ecc_point_mult_shamir(&cc, z1, &ctx->curve->g, z2, &ctx->pub_key,
+ 			      ctx->curve);
+-	if (vli_cmp(cc.x, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(cc.x, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(cc.x, cc.x, ctx->curve->n, ndigits);
  
- void kvm_arch_sync_events(struct kvm *kvm)
-@@ -11866,11 +11861,12 @@ void kvm_arch_destroy_vm(struct kvm *kvm
- 		__x86_set_memory_region(kvm, TSS_PRIVATE_MEMSLOT, 0, 0);
- 		mutex_unlock(&kvm->slots_lock);
- 	}
-+	kvm_unload_vcpu_mmus(kvm);
- 	static_call_cond(kvm_x86_vm_destroy)(kvm);
- 	kvm_free_msr_filter(srcu_dereference_check(kvm->arch.msr_filter, &kvm->srcu, 1));
- 	kvm_pic_destroy(kvm);
- 	kvm_ioapic_destroy(kvm);
--	kvm_free_vcpus(kvm);
-+	kvm_destroy_vcpus(kvm);
- 	kvfree(rcu_dereference_check(kvm->arch.apic_map, 1));
- 	kfree(srcu_dereference_check(kvm->arch.pmu_event_filter, &kvm->srcu, 1));
- 	kvm_mmu_uninit_vm(kvm);
+ 	/* Step 7: if R == r signature is valid */
 
 
