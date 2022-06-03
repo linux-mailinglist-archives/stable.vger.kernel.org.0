@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA9A53D0CB
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D60D53CF03
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237861AbiFCSIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40290 "EHLO
+        id S245206AbiFCRwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238830AbiFCSEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:04:55 -0400
+        with ESMTP id S1345380AbiFCRsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CE2A57111;
-        Fri,  3 Jun 2022 10:58:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6289E55362;
+        Fri,  3 Jun 2022 10:45:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C080B8241D;
-        Fri,  3 Jun 2022 17:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB87C385A9;
-        Fri,  3 Jun 2022 17:57:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7BA1B82436;
+        Fri,  3 Jun 2022 17:45:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3761AC385A9;
+        Fri,  3 Jun 2022 17:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279027;
-        bh=tSQXz/ZFbI2pYTh4TigjjrPwJuuXCKdaX9A7q3dypck=;
+        s=korg; t=1654278338;
+        bh=dxjPZPVlqmjaq3Wp1+URqSoSvR4DtFcgfltGCSWzzCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIqgM5bzOWqa5VptNCzQD9VdXr45N0olLKqaLNocTIOjNiB5rq6sSiMWCntiJ63Gv
-         0t5f6Nh2t+FjF4/QWuJdJVA4dAJXuDcgo9GmERTksHIhDuPA1PQDlqQhz07O+zr/Z8
-         Ko8USy7XCVE1K8lmrZG0L0luQUeEboqpkbL8G7m0=
+        b=tRapyWrZRZZIrB3oVG4BtVJXKHuMfoBFIeEDoH9alxYUNcp6Wdf8zJQrk0fc8CRY3
+         EysxVMrh1zMw3inBcqS3zrspx6Yv7/UBRgbGmDVDAlEDcUvYa/DEN6mQVYlOjw/kX6
+         6eF+CUfAJ59t81/zaR7MDZnVSTbBy/H56tWal0Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Vabhav Sharma <vabhav.sharma@nxp.com>,
-        Gaurav Jain <gaurav.jain@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.18 29/67] crypto: caam - fix i.MX6SX entropy delay value
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.4 34/34] bpf: Enlarge offset check value to INT_MAX in bpf_skb_{load,store}_bytes
 Date:   Fri,  3 Jun 2022 19:43:30 +0200
-Message-Id: <20220603173821.563313170@linuxfoundation.org>
+Message-Id: <20220603173817.172203017@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Liu Jian <liujian56@huawei.com>
 
-commit 4ee4cdad368a26de3967f2975806a9ee2fa245df upstream.
+commit 45969b4152c1752089351cd6836a42a566d49bcf upstream.
 
-Since commit 358ba762d9f1 ("crypto: caam - enable prediction resistance
-in HRWNG") the following CAAM errors can be seen on i.MX6SX:
+The data length of skb frags + frag_list may be greater than 0xffff, and
+skb_header_pointer can not handle negative offset. So, here INT_MAX is used
+to check the validity of offset. Add the same change to the related function
+skb_store_bytes.
 
-caam_jr 2101000.jr: 20003c5b: CCB: desc idx 60: RNG: Hardware error
-hwrng: no data available
-
-This error is due to an incorrect entropy delay for i.MX6SX.
-
-Fix it by increasing the minimum entropy delay for i.MX6SX
-as done in U-Boot:
-https://patchwork.ozlabs.org/project/uboot/patch/20220415111049.2565744-1-gaurav.jain@nxp.com/
-
-As explained in the U-Boot patch:
-
-"RNG self tests are run to determine the correct entropy delay.
-Such tests are executed with different voltages and temperatures to identify
-the worst case value for the entropy delay. For i.MX6SX, it was determined
-that after adding a margin value of 1000 the minimum entropy delay should be
-at least 12000."
-
-Cc: <stable@vger.kernel.org>
-Fixes: 358ba762d9f1 ("crypto: caam - enable prediction resistance in HRWNG")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Reviewed-by: Vabhav Sharma <vabhav.sharma@nxp.com>
-Reviewed-by: Gaurav Jain <gaurav.jain@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 05c74e5e53f6 ("bpf: add bpf_skb_load_bytes helper")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220416105801.88708-2-liujian56@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/caam/ctrl.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ net/core/filter.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/caam/ctrl.c
-+++ b/drivers/crypto/caam/ctrl.c
-@@ -609,6 +609,13 @@ static bool check_version(struct fsl_mc_
- }
- #endif
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1668,7 +1668,7 @@ BPF_CALL_5(bpf_skb_store_bytes, struct s
  
-+static bool needs_entropy_delay_adjustment(void)
-+{
-+	if (of_machine_is_compatible("fsl,imx6sx"))
-+		return true;
-+	return false;
-+}
-+
- /* Probe routine for CAAM top (controller) level */
- static int caam_probe(struct platform_device *pdev)
+ 	if (unlikely(flags & ~(BPF_F_RECOMPUTE_CSUM | BPF_F_INVALIDATE_HASH)))
+ 		return -EINVAL;
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		return -EFAULT;
+ 	if (unlikely(bpf_try_make_writable(skb, offset + len)))
+ 		return -EFAULT;
+@@ -1703,7 +1703,7 @@ BPF_CALL_4(bpf_skb_load_bytes, const str
  {
-@@ -855,6 +862,8 @@ static int caam_probe(struct platform_de
- 			 * Also, if a handle was instantiated, do not change
- 			 * the TRNG parameters.
- 			 */
-+			if (needs_entropy_delay_adjustment())
-+				ent_delay = 12000;
- 			if (!(ctrlpriv->rng4_sh_init || inst_handles)) {
- 				dev_info(dev,
- 					 "Entropy delay = %u\n",
-@@ -871,6 +880,15 @@ static int caam_probe(struct platform_de
- 			 */
- 			ret = instantiate_rng(dev, inst_handles,
- 					      gen_sk);
-+			/*
-+			 * Entropy delay is determined via TRNG characterization.
-+			 * TRNG characterization is run across different voltages
-+			 * and temperatures.
-+			 * If worst case value for ent_dly is identified,
-+			 * the loop can be skipped for that platform.
-+			 */
-+			if (needs_entropy_delay_adjustment())
-+				break;
- 			if (ret == -EAGAIN)
- 				/*
- 				 * if here, the loop will rerun,
+ 	void *ptr;
+ 
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		goto err_clear;
+ 
+ 	ptr = skb_header_pointer(skb, offset, len, to);
 
 
