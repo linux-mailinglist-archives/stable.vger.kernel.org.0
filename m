@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7696E53D11F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:18:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C4653D0B6
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239192AbiFCSQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:16:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50080 "EHLO
+        id S1346671AbiFCSIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348048AbiFCSQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:16:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A635662CEB;
-        Fri,  3 Jun 2022 11:03:47 -0700 (PDT)
+        with ESMTP id S1347801AbiFCSGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BF3D5D5CD;
+        Fri,  3 Jun 2022 10:59:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09E7DB82435;
-        Fri,  3 Jun 2022 17:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38258C385A9;
-        Fri,  3 Jun 2022 17:58:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68E21615E5;
+        Fri,  3 Jun 2022 17:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642E2C385A9;
+        Fri,  3 Jun 2022 17:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279123;
-        bh=sO/fkfrAJ5blRicrhVjpzLcwBfyTi7/AnGJfvCfo6Hs=;
+        s=korg; t=1654279126;
+        bh=4qTz1o5Y1+SqJrvnr8q5XVJw1rkEY0oLUtfdFOURr8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRcBTePm7ERn55Dq8+oe8MSZeUlwSjKF40P06u3f7NxCX23VuC5E3NJ7D+XXa8RtD
-         ie1bi1KI6GUmabxpqwpkIgb+FcLAHCwvBpbMHbCkmWqCTihkiM6G8wSgbxPmcaSXxB
-         hW2FNEMjUlwU8vQWwo6jXYfcmdT5fFPsEzS+fSdo=
+        b=uAK016Byp+ScOQuO2eal9dYnqHNZ+DtYDKWSi7SINslFOxQfjf1BelEy4ZWVTkgvI
+         B7XumuRK+EuGfEucL8IG9+I7mBECFskSM8YYkzqebzagv/djW2bWf9HT73dqbroZDb
+         ffvwBRxbB+PUBqiCA1Sw0iRbm8VGi7u0Kt2aZOhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.18 60/67] bpf: Fix potential array overflow in bpf_trampoline_get_progs()
-Date:   Fri,  3 Jun 2022 19:44:01 +0200
-Message-Id: <20220603173822.448594205@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>
+Subject: [PATCH 5.18 61/67] bpf: Fix combination of jit blinding and pointers to bpf subprogs.
+Date:   Fri,  3 Jun 2022 19:44:02 +0200
+Message-Id: <20220603173822.476439161@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
 References: <20220603173820.731531504@linuxfoundation.org>
@@ -53,75 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuntao Wang <ytcoode@gmail.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-commit a2aa95b71c9bbec793b5c5fa50f0a80d882b3e8d upstream.
+commit 4b6313cf99b0d51b49aeaea98ec76ca8161ecb80 upstream.
 
-The cnt value in the 'cnt >= BPF_MAX_TRAMP_PROGS' check does not
-include BPF_TRAMP_MODIFY_RETURN bpf programs, so the number of
-the attached BPF_TRAMP_MODIFY_RETURN bpf programs in a trampoline
-can exceed BPF_MAX_TRAMP_PROGS.
+The combination of jit blinding and pointers to bpf subprogs causes:
+[   36.989548] BUG: unable to handle page fault for address: 0000000100000001
+[   36.990342] #PF: supervisor instruction fetch in kernel mode
+[   36.990968] #PF: error_code(0x0010) - not-present page
+[   36.994859] RIP: 0010:0x100000001
+[   36.995209] Code: Unable to access opcode bytes at RIP 0xffffffd7.
+[   37.004091] Call Trace:
+[   37.004351]  <TASK>
+[   37.004576]  ? bpf_loop+0x4d/0x70
+[   37.004932]  ? bpf_prog_3899083f75e4c5de_F+0xe3/0x13b
 
-When this happens, the assignment '*progs++ = aux->prog' in
-bpf_trampoline_get_progs() will cause progs array overflow as the
-progs field in the bpf_tramp_progs struct can only hold at most
-BPF_MAX_TRAMP_PROGS bpf programs.
+The jit blinding logic didn't recognize that ld_imm64 with an address
+of bpf subprogram is a special instruction and proceeded to randomize it.
+By itself it wouldn't have been an issue, but jit_subprogs() logic
+relies on two step process to JIT all subprogs and then JIT them
+again when addresses of all subprogs are known.
+Blinding process in the first JIT phase caused second JIT to miss
+adjustment of special ld_imm64.
 
-Fixes: 88fd9e5352fe ("bpf: Refactor trampoline update code")
-Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
-Link: https://lore.kernel.org/r/20220430130803.210624-1-ytcoode@gmail.com
+Fix this issue by ignoring special ld_imm64 instructions that don't have
+user controlled constants and shouldn't be blinded.
+
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Reported-by: Andrii Nakryiko <andrii@kernel.org>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20220513011025.13344-1-alexei.starovoitov@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/trampoline.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ kernel/bpf/core.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -411,7 +411,7 @@ int bpf_trampoline_link_prog(struct bpf_
- {
- 	enum bpf_tramp_prog_type kind;
- 	int err = 0;
--	int cnt;
-+	int cnt = 0, i;
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1436,6 +1436,16 @@ struct bpf_prog *bpf_jit_blind_constants
+ 	insn = clone->insnsi;
  
- 	kind = bpf_attach_type_to_tramp(prog);
- 	mutex_lock(&tr->mutex);
-@@ -422,7 +422,10 @@ int bpf_trampoline_link_prog(struct bpf_
- 		err = -EBUSY;
- 		goto out;
- 	}
--	cnt = tr->progs_cnt[BPF_TRAMP_FENTRY] + tr->progs_cnt[BPF_TRAMP_FEXIT];
+ 	for (i = 0; i < insn_cnt; i++, insn++) {
++		if (bpf_pseudo_func(insn)) {
++			/* ld_imm64 with an address of bpf subprog is not
++			 * a user controlled constant. Don't randomize it,
++			 * since it will conflict with jit_subprogs() logic.
++			 */
++			insn++;
++			i++;
++			continue;
++		}
 +
-+	for (i = 0; i < BPF_TRAMP_MAX; i++)
-+		cnt += tr->progs_cnt[i];
-+
- 	if (kind == BPF_TRAMP_REPLACE) {
- 		/* Cannot attach extension if fentry/fexit are in use. */
- 		if (cnt) {
-@@ -500,16 +503,19 @@ out:
- 
- void bpf_trampoline_put(struct bpf_trampoline *tr)
- {
-+	int i;
-+
- 	if (!tr)
- 		return;
- 	mutex_lock(&trampoline_mutex);
- 	if (!refcount_dec_and_test(&tr->refcnt))
- 		goto out;
- 	WARN_ON_ONCE(mutex_is_locked(&tr->mutex));
--	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FENTRY])))
--		goto out;
--	if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[BPF_TRAMP_FEXIT])))
--		goto out;
-+
-+	for (i = 0; i < BPF_TRAMP_MAX; i++)
-+		if (WARN_ON_ONCE(!hlist_empty(&tr->progs_hlist[i])))
-+			goto out;
-+
- 	/* This code will be executed even when the last bpf_tramp_image
- 	 * is alive. All progs are detached from the trampoline and the
- 	 * trampoline image is patched with jmp into epilogue to skip
+ 		/* We temporarily need to hold the original ld64 insn
+ 		 * so that we can still access the first part in the
+ 		 * second blinding run.
 
 
