@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FC853CEAC
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF3653CE47
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343916AbiFCRp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56830 "EHLO
+        id S1344602AbiFCRkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345092AbiFCRoC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:44:02 -0400
+        with ESMTP id S236861AbiFCRkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:40:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E64F5522D;
-        Fri,  3 Jun 2022 10:42:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F3535371B;
+        Fri,  3 Jun 2022 10:40:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3398B8242E;
-        Fri,  3 Jun 2022 17:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C795C385A9;
-        Fri,  3 Jun 2022 17:42:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD70AB8242F;
+        Fri,  3 Jun 2022 17:40:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6FBC385B8;
+        Fri,  3 Jun 2022 17:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278151;
-        bh=jN3i2LdxfYzhR0w/hB0nyLMKgMI6Tdxlrm4dOLX7fsg=;
+        s=korg; t=1654278017;
+        bh=Osm3N9ED8aEgFeCh/544mUnrHvCIblxB68cGxirIdOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHcXXRiZ0en+FlvnKlXB6WTsyqTsqW2lkoCJS/6Cqq2hVZWxbCuiCanUkp51jGKVK
-         Y1qApdBpHX1PjkMmZMJVbxSkC5IXd+SXWik0vEHFD6/mb+CpArQ810kcDrJpmjbEI+
-         PTcqCSujyQ8aZQh1q4yY6wWJE8qgT+7Ia/VWWA2o=
+        b=mhM8n9Qr8fO30/0iR4FL6qd/By1HcXPTBRgA+dInYG2+OWMJCcZeivnkA/P8cfCKG
+         gCBWQZnPNZyWCWEmJQJ9JdX1o0K32bGwWDVIOtTkfLi4GN6cQfeHiVG0PKW8own5cb
+         d2lix6H2islS1fWnawVRN3hkZsBeRG2s8pwfpyS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 4.19 05/30] ACPI: sysfs: Make sparse happy about address space in use
-Date:   Fri,  3 Jun 2022 19:39:33 +0200
-Message-Id: <20220603173815.250557142@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.9 08/12] dm stats: add cond_resched when looping over entries
+Date:   Fri,  3 Jun 2022 19:39:34 +0200
+Message-Id: <20220603173812.772452531@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
-References: <20220603173815.088143764@linuxfoundation.org>
+In-Reply-To: <20220603173812.524184588@linuxfoundation.org>
+References: <20220603173812.524184588@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit bdd56d7d8931e842775d2e5b93d426a8d1940e33 upstream.
+commit bfe2b0146c4d0230b68f5c71a64380ff8d361f8b upstream.
 
-Sparse is not happy about address space in use in acpi_data_show():
+dm-stats can be used with a very large number of entries (it is only
+limited by 1/4 of total system memory), so add rescheduling points to
+the loops that iterate over the entries.
 
-drivers/acpi/sysfs.c:428:14: warning: incorrect type in assignment (different address spaces)
-drivers/acpi/sysfs.c:428:14:    expected void [noderef] __iomem *base
-drivers/acpi/sysfs.c:428:14:    got void *
-drivers/acpi/sysfs.c:431:59: warning: incorrect type in argument 4 (different address spaces)
-drivers/acpi/sysfs.c:431:59:    expected void const *from
-drivers/acpi/sysfs.c:431:59:    got void [noderef] __iomem *base
-drivers/acpi/sysfs.c:433:30: warning: incorrect type in argument 1 (different address spaces)
-drivers/acpi/sysfs.c:433:30:    expected void *logical_address
-drivers/acpi/sysfs.c:433:30:    got void [noderef] __iomem *base
-
-Indeed, acpi_os_map_memory() returns a void pointer with dropped specific
-address space. Hence, we don't need to carry out __iomem in acpi_data_show().
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: dann frazier <dann.frazier@canonical.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-stats.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/acpi/sysfs.c
-+++ b/drivers/acpi/sysfs.c
-@@ -438,7 +438,7 @@ static ssize_t acpi_data_show(struct fil
- 			      loff_t offset, size_t count)
- {
- 	struct acpi_data_attr *data_attr;
--	void __iomem *base;
-+	void *base;
- 	ssize_t rc;
+--- a/drivers/md/dm-stats.c
++++ b/drivers/md/dm-stats.c
+@@ -228,6 +228,7 @@ void dm_stats_cleanup(struct dm_stats *s
+ 				       atomic_read(&shared->in_flight[READ]),
+ 				       atomic_read(&shared->in_flight[WRITE]));
+ 			}
++			cond_resched();
+ 		}
+ 		dm_stat_free(&s->rcu_head);
+ 	}
+@@ -316,6 +317,7 @@ static int dm_stats_create(struct dm_sta
+ 	for (ni = 0; ni < n_entries; ni++) {
+ 		atomic_set(&s->stat_shared[ni].in_flight[READ], 0);
+ 		atomic_set(&s->stat_shared[ni].in_flight[WRITE], 0);
++		cond_resched();
+ 	}
  
- 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
+ 	if (s->n_histogram_entries) {
+@@ -328,6 +330,7 @@ static int dm_stats_create(struct dm_sta
+ 		for (ni = 0; ni < n_entries; ni++) {
+ 			s->stat_shared[ni].tmp.histogram = hi;
+ 			hi += s->n_histogram_entries + 1;
++			cond_resched();
+ 		}
+ 	}
+ 
+@@ -348,6 +351,7 @@ static int dm_stats_create(struct dm_sta
+ 			for (ni = 0; ni < n_entries; ni++) {
+ 				p[ni].histogram = hi;
+ 				hi += s->n_histogram_entries + 1;
++				cond_resched();
+ 			}
+ 		}
+ 	}
+@@ -477,6 +481,7 @@ static int dm_stats_list(struct dm_stats
+ 			}
+ 			DMEMIT("\n");
+ 		}
++		cond_resched();
+ 	}
+ 	mutex_unlock(&stats->mutex);
+ 
+@@ -753,6 +758,7 @@ static void __dm_stat_clear(struct dm_st
+ 				local_irq_enable();
+ 			}
+ 		}
++		cond_resched();
+ 	}
+ }
+ 
+@@ -868,6 +874,8 @@ static int dm_stats_print(struct dm_stat
+ 
+ 		if (unlikely(sz + 1 >= maxlen))
+ 			goto buffer_overflow;
++
++		cond_resched();
+ 	}
+ 
+ 	if (clear)
 
 
