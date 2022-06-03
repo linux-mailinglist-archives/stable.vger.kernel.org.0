@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F6353CF0D
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6244053CFB2
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345395AbiFCRw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46560 "EHLO
+        id S242169AbiFCR4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345621AbiFCRuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:50:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9D4583A8;
-        Fri,  3 Jun 2022 10:46:07 -0700 (PDT)
+        with ESMTP id S1345580AbiFCRyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:54:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F5A331518;
+        Fri,  3 Jun 2022 10:52:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63AC4B82430;
-        Fri,  3 Jun 2022 17:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3222C385A9;
-        Fri,  3 Jun 2022 17:46:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05D5161255;
+        Fri,  3 Jun 2022 17:52:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D76C385A9;
+        Fri,  3 Jun 2022 17:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278365;
-        bh=+8/rSL0dktqyZfvWABToCYxgk0Wct5z+yxpZFfy6gak=;
+        s=korg; t=1654278759;
+        bh=iGBBStVTAl4oKKtotsVtuXy7Kc48haBI5YYBY5E0+qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJ/NNyNU/7l2cmiYZuIfTHFcVsKspw4e+c7V2mcpT18KBr14Sh9JVt3w2EJUerTnh
-         559KHU80WwuzuQghDUQLMxwylpY0eBG7KCQhPibiwzjy20i5WOPe1uAWR6HU9oowfE
-         ee3gK5nHXJB81eiHYZsLe41PTR4BfGMPjd5ou37g=
+        b=xa9/6viA4MemMedbqsGDmaXkhF5HeT/QOouqR96hzbmRwnmEOz5xdrM1UJSGjq3VN
+         tDXnRR4VHAErHRdAIBtNMv5KVjucmjTK3PRg7Flf3UgTHjb0OjhiHXsHUGZRhJ9Eb1
+         wmtv7RrRFYQvGOBjlmK8Ls9yyLV7mn+5aREh9O5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, IotaHydrae <writeforever@foxmail.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/53] pinctrl: sunxi: fix f1c100s uart2 function
+        stable@vger.kernel.org, Gabriele Mazzotta <gabriele.mzt@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 02/75] ALSA: hda/realtek: Add quirk for Dell Latitude 7520
 Date:   Fri,  3 Jun 2022 19:42:46 +0200
-Message-Id: <20220603173818.760924525@linuxfoundation.org>
+Message-Id: <20220603173821.820340826@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,43 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: IotaHydrae <writeforever@foxmail.com>
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-[ Upstream commit fa8785e5931367e2b43f2c507f26bcf3e281c0ca ]
+[ Upstream commit 1efcdd9c1f34f5a6590bc9ac5471e562fb011386 ]
 
-Change suniv f1c100s pinctrl,PD14 multiplexing function lvds1 to uart2
+The driver is currently using ALC269_FIXUP_DELL4_MIC_NO_PRESENCE for
+the Latitude 7520, but this fixup chain has some issues:
 
-When the pin PD13 and PD14 is setting up to uart2 function in dts,
-there's an error occurred:
-1c20800.pinctrl: unsupported function uart2 on pin PD14
+ - The internal mic is really loud and the recorded audio is distorted
+   at "standard" audio levels.
 
-Because 'uart2' is not any one multiplexing option of PD14,
-and pinctrl don't know how to configure it.
+ - There are pop noises at system startup and when plugging/unplugging
+   headphone jacks.
 
-So change the pin PD14 lvds1 function to uart2.
-
-Signed-off-by: IotaHydrae <writeforever@foxmail.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/tencent_70C1308DDA794C81CAEF389049055BACEC09@qq.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215885
+Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Link: https://lore.kernel.org/r/20220501124237.4667-1-gabriele.mzt@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 43 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-index 2801ca706273..68a5b627fb9b 100644
---- a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-@@ -204,7 +204,7 @@ static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
- 		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
--		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
-+		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
- 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index e38acdbe1a3b..cc3cf65ad5b9 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6773,6 +6773,41 @@ static void alc256_fixup_mic_no_presence_and_resume(struct hda_codec *codec,
+ 	}
+ }
+ 
++static void alc_fixup_dell4_mic_no_presence_quiet(struct hda_codec *codec,
++						  const struct hda_fixup *fix,
++						  int action)
++{
++	struct alc_spec *spec = codec->spec;
++	struct hda_input_mux *imux = &spec->gen.input_mux;
++	int i;
++
++	alc269_fixup_limit_int_mic_boost(codec, fix, action);
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		/**
++		 * Set the vref of pin 0x19 (Headset Mic) and pin 0x1b (Headphone Mic)
++		 * to Hi-Z to avoid pop noises at startup and when plugging and
++		 * unplugging headphones.
++		 */
++		snd_hda_codec_set_pin_target(codec, 0x19, PIN_VREFHIZ);
++		snd_hda_codec_set_pin_target(codec, 0x1b, PIN_VREFHIZ);
++		break;
++	case HDA_FIXUP_ACT_PROBE:
++		/**
++		 * Make the internal mic (0x12) the default input source to
++		 * prevent pop noises on cold boot.
++		 */
++		for (i = 0; i < imux->num_items; i++) {
++			if (spec->gen.imux_pins[i] == 0x12) {
++				spec->gen.cur_mux[0] = i;
++				break;
++			}
++		}
++		break;
++	}
++}
++
+ enum {
+ 	ALC269_FIXUP_GPIO2,
+ 	ALC269_FIXUP_SONY_VAIO,
+@@ -6814,6 +6849,7 @@ enum {
+ 	ALC269_FIXUP_DELL2_MIC_NO_PRESENCE,
+ 	ALC269_FIXUP_DELL3_MIC_NO_PRESENCE,
+ 	ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
++	ALC269_FIXUP_DELL4_MIC_NO_PRESENCE_QUIET,
+ 	ALC269_FIXUP_HEADSET_MODE,
+ 	ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC,
+ 	ALC269_FIXUP_ASPIRE_HEADSET_MIC,
+@@ -8770,6 +8806,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC285_FIXUP_HP_MUTE_LED,
+ 	},
++	[ALC269_FIXUP_DELL4_MIC_NO_PRESENCE_QUIET] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc_fixup_dell4_mic_no_presence_quiet,
++		.chained = true,
++		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8860,6 +8902,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x09bf, "Dell Precision", ALC233_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0a2e, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1028, 0x0a38, "Dell Latitude 7520", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE_QUIET),
+ 	SND_PCI_QUIRK(0x1028, 0x0a58, "Dell", ALC255_FIXUP_DELL_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a61, "Dell XPS 15 9510", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x0a62, "Dell Precision 5560", ALC289_FIXUP_DUAL_SPK),
 -- 
 2.35.1
 
