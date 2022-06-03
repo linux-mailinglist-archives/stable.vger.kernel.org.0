@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6CD53D0A1
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C522A53CF29
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346266AbiFCSHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:07:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40996 "EHLO
+        id S1345560AbiFCRyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346880AbiFCSF3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:05:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA5D5A17B;
-        Fri,  3 Jun 2022 10:58:17 -0700 (PDT)
+        with ESMTP id S1347243AbiFCRwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF9565B0;
+        Fri,  3 Jun 2022 10:51:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 136A1B82433;
-        Fri,  3 Jun 2022 17:57:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73379C385A9;
-        Fri,  3 Jun 2022 17:57:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C09C560EE9;
+        Fri,  3 Jun 2022 17:51:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0F1C385A9;
+        Fri,  3 Jun 2022 17:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279039;
-        bh=GKoL9+gfFzoAe2lfmV6JssBgfwtDzDbaPLiAC/jmV64=;
+        s=korg; t=1654278667;
+        bh=DdcTsahpMA3mopHeABHUdvpDhh4i1FgDJdxIWWBmhHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcwTQmEpBRCOmMJxa+664THpcdA8DF1rjdZQUKmRgCvsLgvdpjTvxZ0OGn8jdiSCL
-         nxu10jtphQlGsJF7DtDjT2lDFa6ElC4lCbz0UWziDJpOtg9vMUsiK0j0J6HOHhmGAc
-         FtF8ryvMBPoirCkoMYIYCJ0OTLJSVtptZZrm7KBk=
+        b=gphYyYLtbjedEeryDiSVeIGtXqFf2Jyi/7oA3Bk9ljne8tttOjOw1R4je7C4seUdF
+         4Mw3CHsZlyQ6p7GYZ4aXlrIYQqu60RWo+xz796qG9BAW7swYts1MKqmc+VSbL9Dj8L
+         au/RVVUhhdpEb7JuKMXdi9eaV2qIrE0nm3D53E9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 32/67] zsmalloc: fix races between asynchronous zspage free and page migration
-Date:   Fri,  3 Jun 2022 19:43:33 +0200
-Message-Id: <20220603173821.646368850@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Haitao Huang <haitao.huang@intel.com>
+Subject: [PATCH 5.15 54/66] x86/sgx: Ensure no data in PCMD page after truncate
+Date:   Fri,  3 Jun 2022 19:43:34 +0200
+Message-Id: <20220603173822.222435530@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+References: <20220603173820.663747061@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+From: Reinette Chatre <reinette.chatre@intel.com>
 
-commit 2505a981114dcb715f8977b8433f7540854851d8 upstream.
+commit e3a3bbe3e99de73043a1d32d36cf4d211dc58c7e upstream.
 
-The asynchronous zspage free worker tries to lock a zspage's entire page
-list without defending against page migration.  Since pages which haven't
-yet been locked can concurrently migrate off the zspage page list while
-lock_zspage() churns away, lock_zspage() can suffer from a few different
-lethal races.
+A PCMD (Paging Crypto MetaData) page contains the PCMD
+structures of enclave pages that have been encrypted and
+moved to the shmem backing store. When all enclave pages
+sharing a PCMD page are loaded in the enclave, there is no
+need for the PCMD page and it can be truncated from the
+backing store.
 
-It can lock a page which no longer belongs to the zspage and unsafely
-dereference page_private(), it can unsafely dereference a torn pointer to
-the next page (since there's a data race), and it can observe a spurious
-NULL pointer to the next page and thus not lock all of the zspage's pages
-(since a single page migration will reconstruct the entire page list, and
-create_page_chain() unconditionally zeroes out each list pointer in the
-process).
+A few issues appeared around the truncation of PCMD pages. The
+known issues have been addressed but the PCMD handling code could
+be made more robust by loudly complaining if any new issue appears
+in this area.
 
-Fix the races by using migrate_read_lock() in lock_zspage() to synchronize
-with page migration.
+Add a check that will complain with a warning if the PCMD page is not
+actually empty after it has been truncated. There should never be data
+in the PCMD page at this point since it is was just checked to be empty
+and truncated with enclave mutex held and is updated with the
+enclave mutex held.
 
-Link: https://lkml.kernel.org/r/20220509024703.243847-1-sultan@kerneltoast.com
-Fixes: 77ff465799c602 ("zsmalloc: zs_page_migrate: skip unnecessary loops but not return -EBUSY if zspage is not inuse")
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Haitao Huang <haitao.huang@intel.com>
+Link: https://lkml.kernel.org/r/6495120fed43fafc1496d09dd23df922b9a32709.1652389823.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/zsmalloc.c |   37 +++++++++++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/sgx/encl.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1718,11 +1718,40 @@ static enum fullness_group putback_zspag
-  */
- static void lock_zspage(struct zspage *zspage)
- {
--	struct page *page = get_first_page(zspage);
-+	struct page *curr_page, *page;
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -187,12 +187,20 @@ static int __sgx_encl_eldu(struct sgx_en
+ 	kunmap_atomic(pcmd_page);
+ 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
  
--	do {
--		lock_page(page);
--	} while ((page = get_next_page(page)) != NULL);
-+	/*
-+	 * Pages we haven't locked yet can be migrated off the list while we're
-+	 * trying to lock them, so we need to be careful and only attempt to
-+	 * lock each page under migrate_read_lock(). Otherwise, the page we lock
-+	 * may no longer belong to the zspage. This means that we may wait for
-+	 * the wrong page to unlock, so we must take a reference to the page
-+	 * prior to waiting for it to unlock outside migrate_read_lock().
-+	 */
-+	while (1) {
-+		migrate_read_lock(zspage);
-+		page = get_first_page(zspage);
-+		if (trylock_page(page))
-+			break;
-+		get_page(page);
-+		migrate_read_unlock(zspage);
-+		wait_on_page_locked(page);
-+		put_page(page);
++	get_page(b.pcmd);
+ 	sgx_encl_put_backing(&b);
+ 
+ 	sgx_encl_truncate_backing_page(encl, page_index);
+ 
+-	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page))
++	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page)) {
+ 		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
++		pcmd_page = kmap_atomic(b.pcmd);
++		if (memchr_inv(pcmd_page, 0, PAGE_SIZE))
++			pr_warn("PCMD page not empty after truncate.\n");
++		kunmap_atomic(pcmd_page);
 +	}
 +
-+	curr_page = page;
-+	while ((page = get_next_page(curr_page))) {
-+		if (trylock_page(page)) {
-+			curr_page = page;
-+		} else {
-+			get_page(page);
-+			migrate_read_unlock(zspage);
-+			wait_on_page_locked(page);
-+			put_page(page);
-+			migrate_read_lock(zspage);
-+		}
-+	}
-+	migrate_read_unlock(zspage);
- }
++	put_page(b.pcmd);
  
- static int zs_init_fs_context(struct fs_context *fc)
+ 	return ret;
+ }
 
 
