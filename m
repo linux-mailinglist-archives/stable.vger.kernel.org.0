@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B21DA53CF9A
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C801353D02D
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345806AbiFCRzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57826 "EHLO
+        id S1345003AbiFCSBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346588AbiFCRvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8B457136;
-        Fri,  3 Jun 2022 10:48:45 -0700 (PDT)
+        with ESMTP id S1346326AbiFCSAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11980580FB;
+        Fri,  3 Jun 2022 10:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AF42B82433;
-        Fri,  3 Jun 2022 17:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FD8C385A9;
-        Fri,  3 Jun 2022 17:48:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD5A2B82189;
+        Fri,  3 Jun 2022 17:56:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A3EC385A9;
+        Fri,  3 Jun 2022 17:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278523;
-        bh=5472PgeiF25eTzaG8Pxt7MVzcW+2xzwpBTW6xW3eu1U=;
+        s=korg; t=1654278969;
+        bh=aoUjbgcq58r/JunbedBzWXG5Q2u5FFyKsXE1IlujZss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oEyj6HP1SEm52fZwWU1Bxgwn+lXT434WV2+0CfJn1o8Ds9wlrbF+6y8+KKJ/4fXi
-         arPN/3/qTVnXtcc3X+5u3dTGoD+vhdhIMaen2JtC2DxDvqwCFBjfmK2F1D0Ca98QfV
-         29UbQc0CThYCOXmJfDWUgrpQr1xceLQa7Jt2gQYg=
+        b=By2NfNdrHNUfeXeQRmeokeUANEvVk1XIOwqWIhQGYnDqc0AhSEFN9AOCHk7vsS1+J
+         PPDLkJVxiV/CUGe2zKILlTyT1Bjp3djjc1po+SIy69k6WZD5EoW23meWTZfk6YY3Z+
+         IA58uKwLlyf+PIUGIFG7919Q6FTapkl0YQjTaW7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 27/53] crypto: drbg - move dynamic ->reseed_threshold adjustments to __drbg_seed()
+        stable@vger.kernel.org, zhangziming.zzm@antgroup.com,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.18 11/67] netfilter: nf_tables: sanitize nft_set_desc_concat_parse()
 Date:   Fri,  3 Jun 2022 19:43:12 +0200
-Message-Id: <20220603173819.514319812@linuxfoundation.org>
+Message-Id: <20220603173821.057219025@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
-References: <20220603173818.716010877@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 262d83a4290c331cd4f617a457408bdb82fbb738 upstream.
+commit fecf31ee395b0295f2d7260aa29946b7605f7c85 upstream.
 
-Since commit 42ea507fae1a ("crypto: drbg - reseed often if seedsource is
-degraded"), the maximum seed lifetime represented by ->reseed_threshold
-gets temporarily lowered if the get_random_bytes() source cannot provide
-sufficient entropy yet, as is common during boot, and restored back to
-the original value again once that has changed.
+Add several sanity checks for nft_set_desc_concat_parse():
 
-More specifically, if the add_random_ready_callback() invoked from
-drbg_prepare_hrng() in the course of DRBG instantiation does not return
--EALREADY, that is, if get_random_bytes() has not been fully initialized
-at this point yet, drbg_prepare_hrng() will lower ->reseed_threshold
-to a value of 50. The drbg_async_seed() scheduled from said
-random_ready_callback will eventually restore the original value.
+- validate desc->field_count not larger than desc->field_len array.
+- field length cannot be larger than desc->field_len (ie. U8_MAX)
+- total length of the concatenation cannot be larger than register array.
 
-A future patch will replace the random_ready_callback based notification
-mechanism and thus, there will be no add_random_ready_callback() return
-value anymore which could get compared to -EALREADY.
+Joint work with Florian Westphal.
 
-However, there's __drbg_seed() which gets invoked in the course of both,
-the DRBG instantiation as well as the eventual reseeding from
-get_random_bytes() in aforementioned drbg_async_seed(), if any. Moreover,
-it knows about the get_random_bytes() initialization state by the time the
-seed data had been obtained from it: the new_seed_state argument introduced
-with the previous patch would get set to DRBG_SEED_STATE_PARTIAL in case
-get_random_bytes() had not been fully initialized yet and to
-DRBG_SEED_STATE_FULL otherwise. Thus, __drbg_seed() provides a convenient
-alternative for managing that ->reseed_threshold lowering and restoring at
-a central place.
-
-Move all ->reseed_threshold adjustment code from drbg_prepare_hrng() and
-drbg_async_seed() respectively to __drbg_seed(). Make __drbg_seed()
-lower the ->reseed_threshold to 50 in case its new_seed_state argument
-equals DRBG_SEED_STATE_PARTIAL and let it restore the original value
-otherwise.
-
-There is no change in behaviour.
-
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Stephan Müller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: f3a2181e16f1 ("netfilter: nf_tables: Support for sets with multiple ranged fields")
+Reported-by: <zhangziming.zzm@antgroup.com>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/drbg.c |   30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
+ net/netfilter/nf_tables_api.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1046,6 +1046,27 @@ static inline int __drbg_seed(struct drb
- 	/* 10.1.1.2 / 10.1.1.3 step 5 */
- 	drbg->reseed_ctr = 1;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4246,6 +4246,9 @@ static int nft_set_desc_concat_parse(con
+ 	u32 len;
+ 	int err;
  
-+	switch (drbg->seeded) {
-+	case DRBG_SEED_STATE_UNSEEDED:
-+		/* Impossible, but handle it to silence compiler warnings. */
-+		fallthrough;
-+	case DRBG_SEED_STATE_PARTIAL:
-+		/*
-+		 * Require frequent reseeds until the seed source is
-+		 * fully initialized.
-+		 */
-+		drbg->reseed_threshold = 50;
-+		break;
++	if (desc->field_count >= ARRAY_SIZE(desc->field_len))
++		return -E2BIG;
 +
-+	case DRBG_SEED_STATE_FULL:
-+		/*
-+		 * Seed source has become fully initialized, frequent
-+		 * reseeds no longer required.
-+		 */
-+		drbg->reseed_threshold = drbg_max_requests(drbg);
-+		break;
-+	}
-+
- 	return ret;
- }
+ 	err = nla_parse_nested_deprecated(tb, NFTA_SET_FIELD_MAX, attr,
+ 					  nft_concat_policy, NULL);
+ 	if (err < 0)
+@@ -4255,9 +4258,8 @@ static int nft_set_desc_concat_parse(con
+ 		return -EINVAL;
  
-@@ -1094,9 +1115,6 @@ static void drbg_async_seed(struct work_
- 
- 	__drbg_seed(drbg, &seedlist, true, DRBG_SEED_STATE_FULL);
- 
--	if (drbg->seeded == DRBG_SEED_STATE_FULL)
--		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 	len = ntohl(nla_get_be32(tb[NFTA_SET_FIELD_LEN]));
 -
- unlock:
- 	mutex_unlock(&drbg->drbg_mutex);
+-	if (len * BITS_PER_BYTE / 32 > NFT_REG32_COUNT)
+-		return -E2BIG;
++	if (!len || len > U8_MAX)
++		return -EINVAL;
  
-@@ -1532,12 +1550,6 @@ static int drbg_prepare_hrng(struct drbg
- 		return err;
+ 	desc->field_len[desc->field_count++] = len;
+ 
+@@ -4268,7 +4270,8 @@ static int nft_set_desc_concat(struct nf
+ 			       const struct nlattr *nla)
+ {
+ 	struct nlattr *attr;
+-	int rem, err;
++	u32 num_regs = 0;
++	int rem, err, i;
+ 
+ 	nla_for_each_nested(attr, nla, rem) {
+ 		if (nla_type(attr) != NFTA_LIST_ELEM)
+@@ -4279,6 +4282,12 @@ static int nft_set_desc_concat(struct nf
+ 			return err;
  	}
  
--	/*
--	 * Require frequent reseeds until the seed source is fully
--	 * initialized.
--	 */
--	drbg->reseed_threshold = 50;
--
- 	return err;
++	for (i = 0; i < desc->field_count; i++)
++		num_regs += DIV_ROUND_UP(desc->field_len[i], sizeof(u32));
++
++	if (num_regs > NFT_REG32_COUNT)
++		return -E2BIG;
++
+ 	return 0;
  }
  
 
