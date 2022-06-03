@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DE053CCC4
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 17:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF13B53CCDE
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 18:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343523AbiFCP4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 11:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58126 "EHLO
+        id S237544AbiFCQBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 12:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343509AbiFCP4p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 11:56:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A111BE04
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 08:56:45 -0700 (PDT)
+        with ESMTP id S234822AbiFCQBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 12:01:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B61AC2CDDA
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 09:01:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4A7EB82291
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 15:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16C3FC385A9;
-        Fri,  3 Jun 2022 15:56:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51C87618F4
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 16:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BA2DC385A9;
+        Fri,  3 Jun 2022 16:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654271802;
-        bh=KoBdoj5JE1AW1/mklk+MEbUtOjX5YkLq16JnIp7arcQ=;
+        s=korg; t=1654272082;
+        bh=+ujJY77KuUyNc/14AWk+ktYUOQcOceKdpTkjoFpehDw=;
         h=Subject:To:Cc:From:Date:From;
-        b=cIIPGb2eDGFt/LQUwX5nZEHCQVQR5taExd87PA0DXWqnHyKbPfwm+iXiQQybXpl0Q
-         YhutGZQ3v3t0SZ0fpleiIO9e6uHWEcGlZixuUUNaW5Z4H8YxfyTHtuq0GS7VjrAywg
-         7ZnviDUHgeCiK++ZN3msHkdO7BMLMV6QyzMpspnI=
-Subject: WTF: patch "[PATCH] crypto: qat - set to zero DH parameters before free" was seriously submitted to be applied to the 5.18-stable tree?
-To:     giovanni.cabiddu@intel.com, adam.guerin@intel.com,
-        herbert@gondor.apana.org.au, wojciech.ziemba@intel.com
+        b=d8drXYGP9r6bK3RuvW6anNV61AM8ZpOA6t0mx3k5gsfwO10ISUMvRpyfcz7sDeLH7
+         mYJKNxiQGaIz+A41Y7Q3dAtH3ZFtq5JUAArCgbL90LM211Jb01gyojf3IeVgpTL9Zt
+         NYqdyDdagZhsHffIN6ieu7OgyKGdrJyYgbujExvU=
+Subject: FAILED: patch "[PATCH] Bluetooth: hci_qca: Use del_timer_sync() before freeing" failed to apply to 5.4-stable tree
+To:     rostedt@goodmis.org, eric.dumazet@gmail.com, marcel@holtmann.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 17:56:36 +0200
-Message-ID: <16542717967924@kroah.com>
+Date:   Fri, 03 Jun 2022 18:01:19 +0200
+Message-ID: <165427207915916@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +47,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below was submitted to be applied to the 5.18-stable tree.
 
-I fail to see how this patch meets the stable kernel rules as found at
-Documentation/process/stable-kernel-rules.rst.
-
-I could be totally wrong, and if so, please respond to 
-<stable@vger.kernel.org> and let me know why this patch should be
-applied.  Otherwise, it is now dropped from my patch queues, never to be
-seen again.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
@@ -64,44 +59,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1731160ff7c7bbb11bb1aacb14dd25e18d522779 Mon Sep 17 00:00:00 2001
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Date: Mon, 9 May 2022 14:19:27 +0100
-Subject: [PATCH] crypto: qat - set to zero DH parameters before free
+From 72ef98445aca568a81c2da050532500a8345ad3a Mon Sep 17 00:00:00 2001
+From: Steven Rostedt <rostedt@goodmis.org>
+Date: Tue, 5 Apr 2022 10:02:00 -0400
+Subject: [PATCH] Bluetooth: hci_qca: Use del_timer_sync() before freeing
 
-Set to zero the context buffers containing the DH key before they are
-freed.
-This is a defense in depth measure that avoids keys to be recovered from
-memory in case the system is compromised between the free of the buffer
-and when that area of memory (containing keys) gets overwritten.
+While looking at a crash report on a timer list being corrupted, which
+usually happens when a timer is freed while still active. This is
+commonly triggered by code calling del_timer() instead of
+del_timer_sync() just before freeing.
 
+One possible culprit is the hci_qca driver, which does exactly that.
+
+Eric mentioned that wake_retrans_timer could be rearmed via the work
+queue, so also move the destruction of the work queue before
+del_timer_sync().
+
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
 Cc: stable@vger.kernel.org
-Fixes: c9839143ebbf ("crypto: qat - Add DH support")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Adam Guerin <adam.guerin@intel.com>
-Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 0ff252c1976da ("Bluetooth: hciuart: Add support QCA chipset for UART")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 
-diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-index b0b78445418b..5633f9df3b6f 100644
---- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-@@ -420,14 +420,17 @@ static int qat_dh_set_params(struct qat_dh_ctx *ctx, struct dh *params)
- static void qat_dh_clear_ctx(struct device *dev, struct qat_dh_ctx *ctx)
- {
- 	if (ctx->g) {
-+		memset(ctx->g, 0, ctx->p_size);
- 		dma_free_coherent(dev, ctx->p_size, ctx->g, ctx->dma_g);
- 		ctx->g = NULL;
- 	}
- 	if (ctx->xa) {
-+		memset(ctx->xa, 0, ctx->p_size);
- 		dma_free_coherent(dev, ctx->p_size, ctx->xa, ctx->dma_xa);
- 		ctx->xa = NULL;
- 	}
- 	if (ctx->p) {
-+		memset(ctx->p, 0, ctx->p_size);
- 		dma_free_coherent(dev, ctx->p_size, ctx->p, ctx->dma_p);
- 		ctx->p = NULL;
- 	}
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index f6e91fb432a3..eab34e24d944 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -696,9 +696,9 @@ static int qca_close(struct hci_uart *hu)
+ 	skb_queue_purge(&qca->tx_wait_q);
+ 	skb_queue_purge(&qca->txq);
+ 	skb_queue_purge(&qca->rx_memdump_q);
+-	del_timer(&qca->tx_idle_timer);
+-	del_timer(&qca->wake_retrans_timer);
+ 	destroy_workqueue(qca->workqueue);
++	del_timer_sync(&qca->tx_idle_timer);
++	del_timer_sync(&qca->wake_retrans_timer);
+ 	qca->hu = NULL;
+ 
+ 	kfree_skb(qca->rx_skb);
 
