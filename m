@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C85453CFCF
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4AE53D054
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345593AbiFCR4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
+        id S1346201AbiFCSCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:02:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345790AbiFCR4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:56:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D7E56744;
-        Fri,  3 Jun 2022 10:53:45 -0700 (PDT)
+        with ESMTP id S1346656AbiFCSA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:00:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B267DBD6;
+        Fri,  3 Jun 2022 10:56:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B902B8241D;
-        Fri,  3 Jun 2022 17:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D61C385A9;
-        Fri,  3 Jun 2022 17:53:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 297EA61555;
+        Fri,  3 Jun 2022 17:56:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC69C385A9;
+        Fri,  3 Jun 2022 17:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278823;
-        bh=IP407a4ArB2pOP24D24dkDZNJr7SZbmMtP6GkgG7oRI=;
+        s=korg; t=1654279003;
+        bh=TbpKUtNHnEOzZffoMTxedrzce7IA7XzbzevMWJ2iUtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBRdqaL53Ez7AD8u/bmC/EnMMMLv3fgsNcP8+nc/A7ZZfhqaKS17FPd1HphpGFhqM
-         qB9ESxYoqeDobs7v8l9hvAr5ZUw2Ge6SzvPvMIryUCLoEEMljyVNaxAjPLgkkYHCx+
-         StYlFm88MwSMVnwd+l2wS8Vx1FdLzkpmnn2eoXSE=
+        b=o42VDqv6e+jZy6WGJbIbMx60d/GNnaOCLTGv7trtwQl2tSNENDQstXN0cUjPKj3m+
+         YDImadZllGFwSMlcj71RD31G/+coFKTrRXEhEuMGV4rPf1ewqah0AYgi2kemEFqY5+
+         /otmqNBeksZhWbGfekXPWt8mxTBNNmtF/ani4RVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Wenlong <houwenlong.hwl@antgroup.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 38/75] KVM: x86/mmu: Dont rebuild page when the page is synced and no tlb flushing is required
+Subject: [PATCH 5.18 21/67] KVM: x86: Use __try_cmpxchg_user() to emulate atomic accesses
 Date:   Fri,  3 Jun 2022 19:43:22 +0200
-Message-Id: <20220603173822.826001379@linuxfoundation.org>
+Message-Id: <20220603173821.337659871@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,89 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Wenlong <houwenlong.hwl@antgroup.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 8d5678a76689acbf91245a3791fe853ab773090f upstream.
+commit 1c2361f667f3648855ceae25f1332c18413fdb9f upstream.
 
-Before Commit c3e5e415bc1e6 ("KVM: X86: Change kvm_sync_page()
-to return true when remote flush is needed"), the return value
-of kvm_sync_page() indicates whether the page is synced, and
-kvm_mmu_get_page() would rebuild page when the sync fails.
-But now, kvm_sync_page() returns false when the page is
-synced and no tlb flushing is required, which leads to
-rebuild page in kvm_mmu_get_page(). So return the return
-value of mmu->sync_page() directly and check it in
-kvm_mmu_get_page(). If the sync fails, the page will be
-zapped and the invalid_list is not empty, so set flush as
-true is accepted in mmu_sync_children().
+Use the recently introduce __try_cmpxchg_user() to emulate atomic guest
+accesses via the associated userspace address instead of mapping the
+backing pfn into kernel address space.  Using kvm_vcpu_map() is unsafe as
+it does not coordinate with KVM's mmu_notifier to ensure the hva=>pfn
+translation isn't changed/unmapped in the memremap() path, i.e. when
+there's no struct page and thus no elevated refcount.
 
+Fixes: 42e35f8072c3 ("KVM/X86: Use kvm_vcpu_map in emulator_cmpxchg_emulated")
 Cc: stable@vger.kernel.org
-Fixes: c3e5e415bc1e6 ("KVM: X86: Change kvm_sync_page() to return true when remote flush is needed")
-Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Acked-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Message-Id: <0dabeeb789f57b0d793f85d073893063e692032d.1647336064.git.houwenlong.hwl@antgroup.com>
-[mmu_sync_children should not flush if the page is zapped. - Paolo]
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220202004945.2540433-5-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/kvm/x86.c |   35 ++++++++++++++---------------------
+ 1 file changed, 14 insertions(+), 21 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1894,17 +1894,14 @@ static void kvm_mmu_commit_zap_page(stru
- 	  &(_kvm)->arch.mmu_page_hash[kvm_page_table_hashfn(_gfn)])	\
- 		if ((_sp)->gfn != (_gfn) || (_sp)->role.direct) {} else
- 
--static bool kvm_sync_page(struct kvm_vcpu *vcpu, struct kvm_mmu_page *sp,
-+static int kvm_sync_page(struct kvm_vcpu *vcpu, struct kvm_mmu_page *sp,
- 			 struct list_head *invalid_list)
- {
- 	int ret = vcpu->arch.mmu->sync_page(vcpu, sp);
- 
--	if (ret < 0) {
-+	if (ret < 0)
- 		kvm_mmu_prepare_zap_page(vcpu->kvm, sp, invalid_list);
--		return false;
--	}
--
--	return !!ret;
-+	return ret;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7229,15 +7229,8 @@ static int emulator_write_emulated(struc
+ 				   exception, &write_emultor);
  }
  
- static bool kvm_mmu_remote_flush_or_zap(struct kvm *kvm,
-@@ -2033,7 +2030,7 @@ static int mmu_sync_children(struct kvm_
+-#define CMPXCHG_TYPE(t, ptr, old, new) \
+-	(cmpxchg((t *)(ptr), *(t *)(old), *(t *)(new)) == *(t *)(old))
+-
+-#ifdef CONFIG_X86_64
+-#  define CMPXCHG64(ptr, old, new) CMPXCHG_TYPE(u64, ptr, old, new)
+-#else
+-#  define CMPXCHG64(ptr, old, new) \
+-	(cmpxchg64((u64 *)(ptr), *(u64 *)(old), *(u64 *)(new)) == *(u64 *)(old))
+-#endif
++#define emulator_try_cmpxchg_user(t, ptr, old, new) \
++	(__try_cmpxchg_user((t __user *)(ptr), (t *)(old), *(t *)(new), efault ## t))
  
- 		for_each_sp(pages, sp, parents, i) {
- 			kvm_unlink_unsync_page(vcpu->kvm, sp);
--			flush |= kvm_sync_page(vcpu, sp, &invalid_list);
-+			flush |= kvm_sync_page(vcpu, sp, &invalid_list) > 0;
- 			mmu_pages_clear_parents(&parents);
- 		}
- 		if (need_resched() || rwlock_needbreak(&vcpu->kvm->mmu_lock)) {
-@@ -2074,6 +2071,7 @@ static struct kvm_mmu_page *kvm_mmu_get_
- 	struct hlist_head *sp_list;
- 	unsigned quadrant;
- 	struct kvm_mmu_page *sp;
-+	int ret;
- 	int collisions = 0;
- 	LIST_HEAD(invalid_list);
+ static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
+ 				     unsigned long addr,
+@@ -7246,12 +7239,11 @@ static int emulator_cmpxchg_emulated(str
+ 				     unsigned int bytes,
+ 				     struct x86_exception *exception)
+ {
+-	struct kvm_host_map map;
+ 	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
+ 	u64 page_line_mask;
++	unsigned long hva;
+ 	gpa_t gpa;
+-	char *kaddr;
+-	bool exchanged;
++	int r;
  
-@@ -2126,11 +2124,13 @@ static struct kvm_mmu_page *kvm_mmu_get_
- 			 * If the sync fails, the page is zapped.  If so, break
- 			 * in order to rebuild it.
- 			 */
--			if (!kvm_sync_page(vcpu, sp, &invalid_list))
-+			ret = kvm_sync_page(vcpu, sp, &invalid_list);
-+			if (ret < 0)
- 				break;
+ 	/* guests cmpxchg8b have to be emulated atomically */
+ 	if (bytes > 8 || (bytes & (bytes - 1)))
+@@ -7275,31 +7267,32 @@ static int emulator_cmpxchg_emulated(str
+ 	if (((gpa + bytes - 1) & page_line_mask) != (gpa & page_line_mask))
+ 		goto emul_write;
  
- 			WARN_ON(!list_empty(&invalid_list));
--			kvm_flush_remote_tlbs(vcpu->kvm);
-+			if (ret > 0)
-+				kvm_flush_remote_tlbs(vcpu->kvm);
- 		}
+-	if (kvm_vcpu_map(vcpu, gpa_to_gfn(gpa), &map))
++	hva = kvm_vcpu_gfn_to_hva(vcpu, gpa_to_gfn(gpa));
++	if (kvm_is_error_hva(addr))
+ 		goto emul_write;
  
- 		__clear_sp_write_flooding_count(sp);
+-	kaddr = map.hva + offset_in_page(gpa);
++	hva += offset_in_page(gpa);
+ 
+ 	switch (bytes) {
+ 	case 1:
+-		exchanged = CMPXCHG_TYPE(u8, kaddr, old, new);
++		r = emulator_try_cmpxchg_user(u8, hva, old, new);
+ 		break;
+ 	case 2:
+-		exchanged = CMPXCHG_TYPE(u16, kaddr, old, new);
++		r = emulator_try_cmpxchg_user(u16, hva, old, new);
+ 		break;
+ 	case 4:
+-		exchanged = CMPXCHG_TYPE(u32, kaddr, old, new);
++		r = emulator_try_cmpxchg_user(u32, hva, old, new);
+ 		break;
+ 	case 8:
+-		exchanged = CMPXCHG64(kaddr, old, new);
++		r = emulator_try_cmpxchg_user(u64, hva, old, new);
+ 		break;
+ 	default:
+ 		BUG();
+ 	}
+ 
+-	kvm_vcpu_unmap(vcpu, &map, true);
+-
+-	if (!exchanged)
++	if (r < 0)
++		goto emul_write;
++	if (r)
+ 		return X86EMUL_CMPXCHG_FAILED;
+ 
+ 	kvm_page_track_write(vcpu, gpa, new, bytes);
 
 
