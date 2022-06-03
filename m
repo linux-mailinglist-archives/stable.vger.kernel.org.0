@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE19B53CF8D
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F1553CFF0
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345693AbiFCRyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58244 "EHLO
+        id S1346065AbiFCR6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:58:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347256AbiFCRwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:52:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40FAA469;
-        Fri,  3 Jun 2022 10:51:19 -0700 (PDT)
+        with ESMTP id S1345966AbiFCR6H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:58:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FA527152;
+        Fri,  3 Jun 2022 10:54:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 823B760EE9;
-        Fri,  3 Jun 2022 17:51:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 950EAC385A9;
-        Fri,  3 Jun 2022 17:51:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9006B823B0;
+        Fri,  3 Jun 2022 17:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B14ECC385B8;
+        Fri,  3 Jun 2022 17:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278679;
-        bh=x5kV3Z+YxJqaxbkJ5fOTbYmq3aXHfxYboSUuniNqq7c=;
+        s=korg; t=1654278874;
+        bh=EPBHgmukQQ2kavRRx6NFY8j/vcnjOWl5lgESjAPm9W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbOzVWFVStBCbI440evV/eWVd7vbH9ek2tT3r8ffF7CYl4f6r6t4EkigQxNpQWH37
-         jS1grldjbV7UQLvg7H2fKt1ETFCYI51818bwCoMMjuorDCH33+W0XYfhOz1L++u9ga
-         bgUg+GM1KaHXaEy9t6726P5ukCFwiUgKhbGHY1wA=
+        b=inUrWPpSPYFZEpZgCPwgLbwP6QP3dUj+OdRyiGVsWfxyMaDbYfAS8VAGyOaCgIbx3
+         DkSCkGDpiFCy1fh3LTCr2CX1tA5NTAeoB6eMnLULcDGrCA9RcAxxF1XQNHVu+pFBDg
+         33oYrJlIOdRLNytnAPiBYWGxp3Z5M2zULEDGoLgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 58/66] tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+1631f09646bc214d2e76@syzkaller.appspotmail.com,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Kari Argillander <kari.argillander@stargateuniverse.net>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.17 54/75] fs/ntfs3: validate BOOT sectors_per_clusters
 Date:   Fri,  3 Jun 2022 19:43:38 +0200
-Message-Id: <20220603173822.334457186@linuxfoundation.org>
+Message-Id: <20220603173823.273872316@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit d0dc1a7100f19121f6e7450f9cdda11926aa3838 upstream.
+commit a3b774342fa752a5290c0de36375289dfcf4a260 upstream.
 
-Currently it returns zero when CRQ response timed out, it should return
-an error code instead.
+When the NTFS BOOT sectors_per_clusters field is > 0x80, it represents a
+shift value.  Make sure that the shift value is not too large before using
+it (NTFS max cluster size is 2MB).  Return -EVINVAL if it too large.
 
-Fixes: d8d74ea3c002 ("tpm: ibmvtpm: Wait for buffer to be set before proceeding")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+This prevents negative shift values and shift values that are larger than
+the field size.
+
+Prevents this UBSAN error:
+
+ UBSAN: shift-out-of-bounds in ../fs/ntfs3/super.c:673:16
+ shift exponent -192 is negative
+
+Link: https://lkml.kernel.org/r/20220502175342.20296-1-rdunlap@infradead.org
+Fixes: 82cae269cfa9 ("fs/ntfs3: Add initialization of super block")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+1631f09646bc214d2e76@syzkaller.appspotmail.com
+Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
+Cc: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Kari Argillander <kari.argillander@stargateuniverse.net>
+Cc: Namjae Jeon <linkinjeon@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ntfs3/super.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -681,6 +681,7 @@ static int tpm_ibmvtpm_probe(struct vio_
- 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
- 				ibmvtpm->rtce_buf != NULL,
- 				HZ)) {
-+		rc = -ENODEV;
- 		dev_err(dev, "CRQ response timed out\n");
- 		goto init_irq_cleanup;
- 	}
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -668,9 +668,11 @@ static u32 format_size_gb(const u64 byte
+ 
+ static u32 true_sectors_per_clst(const struct NTFS_BOOT *boot)
+ {
+-	return boot->sectors_per_clusters <= 0x80
+-		       ? boot->sectors_per_clusters
+-		       : (1u << (0 - boot->sectors_per_clusters));
++	if (boot->sectors_per_clusters <= 0x80)
++		return boot->sectors_per_clusters;
++	if (boot->sectors_per_clusters >= 0xf4) /* limit shift to 2MB max */
++		return 1U << (0 - boot->sectors_per_clusters);
++	return -EINVAL;
+ }
+ 
+ /*
+@@ -713,6 +715,8 @@ static int ntfs_init_from_boot(struct su
+ 
+ 	/* cluster size: 512, 1K, 2K, 4K, ... 2M */
+ 	sct_per_clst = true_sectors_per_clst(boot);
++	if ((int)sct_per_clst < 0)
++		goto out;
+ 	if (!is_power_of_2(sct_per_clst))
+ 		goto out;
+ 
 
 
