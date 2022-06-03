@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EADAD53CFCC
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A7A53CF30
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345855AbiFCR4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
+        id S237279AbiFCRxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346074AbiFCRzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08EE562E9;
-        Fri,  3 Jun 2022 10:53:36 -0700 (PDT)
+        with ESMTP id S1346313AbiFCRvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38F65372D;
+        Fri,  3 Jun 2022 10:47:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A3A5B82419;
-        Fri,  3 Jun 2022 17:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDB51C3411C;
-        Fri,  3 Jun 2022 17:53:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83DAB60A0F;
+        Fri,  3 Jun 2022 17:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E26C385A9;
+        Fri,  3 Jun 2022 17:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278814;
-        bh=QSqdrBXq5Smm/co4R3m8i5KuO0M2hHfHRZtBXITNQCY=;
+        s=korg; t=1654278446;
+        bh=sQ0GPSl5NoQwPN9POfGGNsMy+Sxch4CTIxQGvcHIVJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqd4pHKtJJN282t39dxWBZ9qAUnF8Ax25URYuQKcESNViEe0XVhouSwLXOhn8wu4k
-         Hr6N14lf7K/uQpzf4X9OwZPn/boj87TxZ6qlE6gcxMuJYJGkHT3be3CGhVCzaMHH0Y
-         gY9tY4SYF4FEFBolW4E64M+2Q8DCg5T+l3GMz/tI=
+        b=g90jNOUm3qi7wUq/iPH57bApQtGrtWlEst3S7sBv9rFp65fpYIIKZrSV1ObJZ7+99
+         YRoCmM6FeRPsruJe2PAsnVpGBp7AS+OIhNDlvboDJzDRNkOeLKnstTgVVrR0PSkT/U
+         ubxTfcGKZpEDD5/LT5BClXESfKIOVQxNXKKak2wU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 36/75] KVM: x86: Fix the intel_pt PMI handling wrongly considered from guest
-Date:   Fri,  3 Jun 2022 19:43:20 +0200
-Message-Id: <20220603173822.770199379@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.10 36/53] crypto: ecrdsa - Fix incorrect use of vli_cmp
+Date:   Fri,  3 Jun 2022 19:43:21 +0200
+Message-Id: <20220603173819.772771364@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173818.716010877@linuxfoundation.org>
+References: <20220603173818.716010877@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@intel.com>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-commit ffd1925a596ce68bed7d81c61cb64bc35f788a9d upstream.
+commit 7cc7ab73f83ee6d50dc9536bc3355495d8600fad upstream.
 
-When kernel handles the vm-exit caused by external interrupts and NMI,
-it always sets kvm_intr_type to tell if it's dealing an IRQ or NMI. For
-the PMI scenario, it could be IRQ or NMI.
+Correctly compare values that shall be greater-or-equal and not just
+greater.
 
-However, intel_pt PMIs are only generated for HARDWARE perf events, and
-HARDWARE events are always configured to generate NMIs.  Use
-kvm_handling_nmi_from_guest() to precisely identify if the intel_pt PMI
-came from the guest; this avoids false positives if an intel_pt PMI/NMI
-arrives while the host is handling an unrelated IRQ VM-Exit.
-
-Fixes: db215756ae59 ("KVM: x86: More precisely identify NMI from guest when handling PMI")
-Signed-off-by: Yanfei Xu <yanfei.xu@intel.com>
-Message-Id: <20220523140821.1345605-1-yanfei.xu@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/ecrdsa.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7858,7 +7858,7 @@ static unsigned int vmx_handle_intel_pt_
- 	struct kvm_vcpu *vcpu = kvm_get_running_vcpu();
+--- a/crypto/ecrdsa.c
++++ b/crypto/ecrdsa.c
+@@ -113,15 +113,15 @@ static int ecrdsa_verify(struct akcipher
  
- 	/* '0' on failure so that the !PT case can use a RET0 static call. */
--	if (!kvm_arch_pmi_in_guest(vcpu))
-+	if (!vcpu || !kvm_handling_nmi_from_guest(vcpu))
- 		return 0;
+ 	/* Step 1: verify that 0 < r < q, 0 < s < q */
+ 	if (vli_is_zero(r, ndigits) ||
+-	    vli_cmp(r, ctx->curve->n, ndigits) == 1 ||
++	    vli_cmp(r, ctx->curve->n, ndigits) >= 0 ||
+ 	    vli_is_zero(s, ndigits) ||
+-	    vli_cmp(s, ctx->curve->n, ndigits) == 1)
++	    vli_cmp(s, ctx->curve->n, ndigits) >= 0)
+ 		return -EKEYREJECTED;
  
- 	kvm_make_request(KVM_REQ_PMI, vcpu);
+ 	/* Step 2: calculate hash (h) of the message (passed as input) */
+ 	/* Step 3: calculate e = h \mod q */
+ 	vli_from_le64(e, digest, ndigits);
+-	if (vli_cmp(e, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(e, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(e, e, ctx->curve->n, ndigits);
+ 	if (vli_is_zero(e, ndigits))
+ 		e[0] = 1;
+@@ -137,7 +137,7 @@ static int ecrdsa_verify(struct akcipher
+ 	/* Step 6: calculate point C = z_1P + z_2Q, and R = x_c \mod q */
+ 	ecc_point_mult_shamir(&cc, z1, &ctx->curve->g, z2, &ctx->pub_key,
+ 			      ctx->curve);
+-	if (vli_cmp(cc.x, ctx->curve->n, ndigits) == 1)
++	if (vli_cmp(cc.x, ctx->curve->n, ndigits) >= 0)
+ 		vli_sub(cc.x, cc.x, ctx->curve->n, ndigits);
+ 
+ 	/* Step 7: if R == r signature is valid */
 
 
