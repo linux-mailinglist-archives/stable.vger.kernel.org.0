@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2904153CF45
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 972F453CFC2
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345581AbiFCRxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58106 "EHLO
+        id S1345736AbiFCR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:56:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346665AbiFCRvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8515418F;
-        Fri,  3 Jun 2022 10:49:04 -0700 (PDT)
+        with ESMTP id S1345914AbiFCRz1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:55:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D79D532F8;
+        Fri,  3 Jun 2022 10:53:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFAF9B8241E;
-        Fri,  3 Jun 2022 17:49:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28899C385A9;
-        Fri,  3 Jun 2022 17:49:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8B23B8241D;
+        Fri,  3 Jun 2022 17:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F234C385A9;
+        Fri,  3 Jun 2022 17:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278541;
-        bh=Lsl4MGIj+lFgH3ZgJ+tEmOVp6Tpf+jsCIrpUeJnyOnc=;
+        s=korg; t=1654278780;
+        bh=B0fbzs5NVpRoXeOmEKHVbepGaopA9N/slql/ABvPCnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVaUuKpeLNRf41/hnxvQ0i/KTsc2GlfT6bWKOQs59Iip7cfR0nLPlBEgYME/5jb/F
-         D2/H3HoeXdJQITk4IkqvXOiwoV40S6/UWc2WVYs0Vv74AbkJgKYuAki6MlVvNkq4hA
-         faMHqE2dlwkK1OulGbQd5+kfwG7xBg5IyGAXLaq4=
+        b=pHSE+2TGVksUbFZcSqksbHiqTZc86MDd7b4N8yEw/QE+WXJVCm8L9pr7zbiIyY8jj
+         85RRbTNvnJ6FOBXYedS5LBURltmEVsVsep6jUZaprP74o21+L5THAjnI0qrh+uFPSX
+         y/ToxzzpAQhTJkMh7cx2vKjIDi/aQJIb379jkiJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Alexander Duyck <alexander.h.duyck@intel.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Kuniyuki Iwashima <kuni1840@gmail.com>,
-        "Soheil Hassas Yeganeh" <soheil@google.com>,
-        "Sridhar Samudrala" <sridhar.samudrala@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 13/66] pipe: make poll_usage boolean and annotate its access
+        stable@vger.kernel.org, David Wilder <wilder@us.ibm.com>,
+        Dylan Hung <dylan_hung@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 09/75] net: ftgmac100: Disable hardware checksum on AST2600
 Date:   Fri,  3 Jun 2022 19:42:53 +0200
-Message-Id: <20220603173821.046674861@linuxfoundation.org>
+Message-Id: <20220603173822.014589048@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-References: <20220603173820.663747061@linuxfoundation.org>
+In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
+References: <20220603173821.749019262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,82 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+From: Joel Stanley <joel@jms.id.au>
 
-commit f485922d8fe4e44f6d52a5bb95a603b7c65554bb upstream.
+[ Upstream commit 6fd45e79e8b93b8d22fb8fe22c32fbad7e9190bd ]
 
-Patch series "Fix data-races around epoll reported by KCSAN."
+The AST2600 when using the i210 NIC over NC-SI has been observed to
+produce incorrect checksum results with specific MTU values. This was
+first observed when sending data across a long distance set of networks.
 
-This series suppresses a false positive KCSAN's message and fixes a real
-data-race.
+On a local network, the following test was performed using a 1MB file of
+random data.
 
+On the receiver run this script:
 
-This patch (of 2):
+ #!/bin/bash
+ while [ 1 ]; do
+        # Zero the stats
+        nstat -r  > /dev/null
+        nc -l 9899 > test-file
+        # Check for checksum errors
+        TcpInCsumErrors=$(nstat | grep TcpInCsumErrors)
+        if [ -z "$TcpInCsumErrors" ]; then
+                echo No TcpInCsumErrors
+        else
+                echo TcpInCsumErrors = $TcpInCsumErrors
+        fi
+ done
 
-pipe_poll() runs locklessly and assigns 1 to poll_usage.  Once poll_usage
-is set to 1, it never changes in other places.  However, concurrent writes
-of a value trigger KCSAN, so let's make KCSAN happy.
+On an AST2600 system:
 
-BUG: KCSAN: data-race in pipe_poll / pipe_poll
+ # nc <IP of  receiver host> 9899 < test-file
 
-write to 0xffff8880042f6678 of 4 bytes by task 174 on cpu 3:
- pipe_poll (fs/pipe.c:656)
- ep_item_poll.isra.0 (./include/linux/poll.h:88 fs/eventpoll.c:853)
- do_epoll_wait (fs/eventpoll.c:1692 fs/eventpoll.c:1806 fs/eventpoll.c:2234)
- __x64_sys_epoll_wait (fs/eventpoll.c:2246 fs/eventpoll.c:2241 fs/eventpoll.c:2241)
- do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:113)
+The test was repeated with various MTU values:
 
-write to 0xffff8880042f6678 of 4 bytes by task 177 on cpu 1:
- pipe_poll (fs/pipe.c:656)
- ep_item_poll.isra.0 (./include/linux/poll.h:88 fs/eventpoll.c:853)
- do_epoll_wait (fs/eventpoll.c:1692 fs/eventpoll.c:1806 fs/eventpoll.c:2234)
- __x64_sys_epoll_wait (fs/eventpoll.c:2246 fs/eventpoll.c:2241 fs/eventpoll.c:2241)
- do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:113)
+ # ip link set mtu 1410 dev eth0
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 177 Comm: epoll_race Not tainted 5.17.0-58927-gf443e374ae13 #6
-Hardware name: Red Hat KVM, BIOS 1.11.0-2.amzn2 04/01/2014
+The observed results:
 
-Link: https://lkml.kernel.org/r/20220322002653.33865-1-kuniyu@amazon.co.jp
-Link: https://lkml.kernel.org/r/20220322002653.33865-2-kuniyu@amazon.co.jp
-Fixes: 3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal loads")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
-Cc: "Soheil Hassas Yeganeh" <soheil@google.com>
-Cc: "Sridhar Samudrala" <sridhar.samudrala@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ 1500 - good
+ 1434 - bad
+ 1400 - good
+ 1410 - bad
+ 1420 - good
+
+The test was repeated after disabling tx checksumming:
+
+ # ethtool -K eth0 tx-checksumming off
+
+And all MTU values tested resulted in transfers without error.
+
+An issue with the driver cannot be ruled out, however there has been no
+bug discovered so far.
+
+David has done the work to take the original bug report of slow data
+transfer between long distance connections and triaged it down to this
+test case.
+
+The vendor suspects this this is a hardware issue when using NC-SI. The
+fixes line refers to the patch that introduced AST2600 support.
+
+Reported-by: David Wilder <wilder@us.ibm.com>
+Reviewed-by: Dylan Hung <dylan_hung@aspeedtech.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pipe.c                 |    2 +-
- include/linux/pipe_fs_i.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/faraday/ftgmac100.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -652,7 +652,7 @@ pipe_poll(struct file *filp, poll_table
- 	unsigned int head, tail;
- 
- 	/* Epoll has some historical nasty semantics, this enables them */
--	pipe->poll_usage = 1;
-+	WRITE_ONCE(pipe->poll_usage, true);
- 
- 	/*
- 	 * Reading pipe state only -- no need for acquiring the semaphore.
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -71,7 +71,7 @@ struct pipe_inode_info {
- 	unsigned int files;
- 	unsigned int r_counter;
- 	unsigned int w_counter;
--	unsigned int poll_usage;
-+	bool poll_usage;
- 	struct page *tmp_page;
- 	struct fasync_struct *fasync_readers;
- 	struct fasync_struct *fasync_writers;
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index caf48023f8ea..5231818943c6 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1928,6 +1928,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
+ 	/* AST2400  doesn't have working HW checksum generation */
+ 	if (np && (of_device_is_compatible(np, "aspeed,ast2400-mac")))
+ 		netdev->hw_features &= ~NETIF_F_HW_CSUM;
++
++	/* AST2600 tx checksum with NCSI is broken */
++	if (priv->use_ncsi && of_device_is_compatible(np, "aspeed,ast2600-mac"))
++		netdev->hw_features &= ~NETIF_F_HW_CSUM;
++
+ 	if (np && of_get_property(np, "no-hw-checksum", NULL))
+ 		netdev->hw_features &= ~(NETIF_F_HW_CSUM | NETIF_F_RXCSUM);
+ 	netdev->features |= netdev->hw_features;
+-- 
+2.35.1
+
 
 
