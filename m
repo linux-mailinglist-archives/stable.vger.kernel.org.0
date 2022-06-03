@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C153253CFC4
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DAB653CEE1
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345716AbiFCR4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58420 "EHLO
+        id S1345179AbiFCRsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:48:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345508AbiFCRxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:53:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465BC26121;
-        Fri,  3 Jun 2022 10:52:34 -0700 (PDT)
+        with ESMTP id S1345258AbiFCRsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:48:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9400957994;
+        Fri,  3 Jun 2022 10:44:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3140B60F3B;
-        Fri,  3 Jun 2022 17:52:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2719DC385B8;
-        Fri,  3 Jun 2022 17:52:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5AC61B38;
+        Fri,  3 Jun 2022 17:44:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DD11C341C0;
+        Fri,  3 Jun 2022 17:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278753;
-        bh=r07Ht/o8tyr7rzBej9Sx5OpKHymm6LYC2S7Uzqujyko=;
+        s=korg; t=1654278271;
+        bh=atzWDr3Jf2Jp/XXbxcAVp3pEhbI+lZ1uviGA5cgwK2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOZaKE79cGjmNVA5CCzGx15xa+kNjsdUbm7wrQhuqpcSPyKm5A2mTocBiwZFVtimR
-         wD3BJcYE99eQQR+dIMPqtpFqLx5j3NBmyDCxnp8yG9kUDkaUM/Rj45/OybzwBxVUP6
-         aWZrGO/MU0KqOJtsc4qQGwcHJgOzLSzk9Si/zzYs=
+        b=ojoOvXXQOGMPpUtr9h7PR/gXZTbEWNZA/XQ8t5ejMu62jMPCZl+81QL73i/B8gypy
+         E4zAkUMuxP1cnGKEgdYnVw+zIYziWlCkTBoAjwhqDHWI4H7X09uUR+R6I0hAsg9zJq
+         Bu/yuxo1cQ0tCYg9MP9A3uHG1HUR4L1bekzJfXT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.17 16/75] pipe: Fix missing lock in pipe_resize_ring()
+        stable@vger.kernel.org, Dmitry Mastykin <dmastykin@astralinux.ru>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH 5.4 04/34] Input: goodix - fix spurious key release events
 Date:   Fri,  3 Jun 2022 19:43:00 +0200
-Message-Id: <20220603173822.209807762@linuxfoundation.org>
+Message-Id: <20220603173816.122230068@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173815.990072516@linuxfoundation.org>
+References: <20220603173815.990072516@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Dmitry Mastykin <dmastykin@astralinux.ru>
 
-commit 189b0ddc245139af81198d1a3637cac74f96e13a upstream.
+commit 24ef83f6e31d20fc121a7cd732b04b498475fca3 upstream.
 
-pipe_resize_ring() needs to take the pipe->rd_wait.lock spinlock to
-prevent post_one_notification() from trying to insert into the ring
-whilst the ring is being replaced.
+The goodix panel sends spurious interrupts after a 'finger up' event,
+which always cause a timeout.
+We were exiting the interrupt handler by reporting touch_num == 0, but
+this was still processed as valid and caused the code to use the
+uninitialised point_data, creating spurious key release events.
 
-The occupancy check must be done after the lock is taken, and the lock
-must be taken after the new ring is allocated.
+Report an error from the interrupt handler so as to avoid processing
+invalid point_data further.
 
-The bug can lead to an oops looking something like:
-
- BUG: KASAN: use-after-free in post_one_notification.isra.0+0x62e/0x840
- Read of size 4 at addr ffff88801cc72a70 by task poc/27196
- ...
- Call Trace:
-  post_one_notification.isra.0+0x62e/0x840
-  __post_watch_notification+0x3b7/0x650
-  key_create_or_update+0xb8b/0xd20
-  __do_sys_add_key+0x175/0x340
-  __x64_sys_add_key+0xbe/0x140
-  do_syscall_64+0x5c/0xc0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Reported by Selim Enes Karaduman @Enesdex working with Trend Micro Zero
-Day Initiative.
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17291
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Dmitry Mastykin <dmastykin@astralinux.ru>
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20200316075302.3759-2-dmastykin@astralinux.ru
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+ drivers/input/touchscreen/goodix.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -1245,30 +1245,33 @@ unsigned int round_pipe_size(unsigned lo
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -335,7 +335,7 @@ static int goodix_ts_read_input_report(s
+ 	 * The Goodix panel will send spurious interrupts after a
+ 	 * 'finger up' event, which will always cause a timeout.
+ 	 */
+-	return 0;
++	return -ENOMSG;
+ }
  
- /*
-  * Resize the pipe ring to a number of slots.
-+ *
-+ * Note the pipe can be reduced in capacity, but only if the current
-+ * occupancy doesn't exceed nr_slots; if it does, EBUSY will be
-+ * returned instead.
-  */
- int pipe_resize_ring(struct pipe_inode_info *pipe, unsigned int nr_slots)
- {
- 	struct pipe_buffer *bufs;
- 	unsigned int head, tail, mask, n;
- 
--	/*
--	 * We can shrink the pipe, if arg is greater than the ring occupancy.
--	 * Since we don't expect a lot of shrink+grow operations, just free and
--	 * allocate again like we would do for growing.  If the pipe currently
--	 * contains more buffers than arg, then return busy.
--	 */
--	mask = pipe->ring_size - 1;
--	head = pipe->head;
--	tail = pipe->tail;
--	n = pipe_occupancy(pipe->head, pipe->tail);
--	if (nr_slots < n)
--		return -EBUSY;
--
- 	bufs = kcalloc(nr_slots, sizeof(*bufs),
- 		       GFP_KERNEL_ACCOUNT | __GFP_NOWARN);
- 	if (unlikely(!bufs))
- 		return -ENOMEM;
- 
-+	spin_lock_irq(&pipe->rd_wait.lock);
-+	mask = pipe->ring_size - 1;
-+	head = pipe->head;
-+	tail = pipe->tail;
-+
-+	n = pipe_occupancy(head, tail);
-+	if (nr_slots < n) {
-+		spin_unlock_irq(&pipe->rd_wait.lock);
-+		kfree(bufs);
-+		return -EBUSY;
-+	}
-+
- 	/*
- 	 * The pipe array wraps around, so just start the new one at zero
- 	 * and adjust the indices.
-@@ -1300,6 +1303,8 @@ int pipe_resize_ring(struct pipe_inode_i
- 	pipe->tail = tail;
- 	pipe->head = head;
- 
-+	spin_unlock_irq(&pipe->rd_wait.lock);
-+
- 	/* This might have made more room for writers */
- 	wake_up_interruptible(&pipe->wr_wait);
- 	return 0;
+ static void goodix_ts_report_touch_8b(struct goodix_ts_data *ts, u8 *coor_data)
 
 
