@@ -2,45 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7688253CDAD
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D085553CE22
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbiFCRDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:03:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40860 "EHLO
+        id S1344524AbiFCRfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:35:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344192AbiFCRDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:03:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED4B51E74
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 10:03:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A090F61A43
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 17:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F276C385A9;
-        Fri,  3 Jun 2022 17:03:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654275800;
-        bh=JDRPNAz8sVyBMRQaoofMckMWA15CajJPEoIa8w/8gyc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=XPm+RirWsXrROGJ80XHsY49GOgywtRpN4g7G5E294laziJuKZB4CrPK/ogtFZNd0a
-         ePI0cjoI+iBhG0GCJpmgyuDnwDo8WNj2oNvVydA5imnQjFFKVpS4lJUOLbL/OxUkw1
-         +v0KCQ5tR0a5nv7B6w8Iai5ngDHpou2m1Gis4+xg=
-Subject: FAILED: patch "[PATCH] bpf: Introduce bpf_arch_text_invalidate for bpf_prog_pack" failed to apply to 5.18-stable tree
-To:     song@kernel.org, daniel@iogearbox.net,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Jun 2022 19:03:17 +0200
-Message-ID: <16542757971967@kroah.com>
+        with ESMTP id S244909AbiFCRfS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:35:18 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65AD152E65
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 10:35:16 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id cx11so7860987pjb.1
+        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 10:35:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wsGkporiWQeNHg4v1skX8MmfnPHmZ0ni6U0Bq1ri7HA=;
+        b=a1sktZ6PwTtJdZaiQGYWK4MxHPhEr3vs5B0FyLaZOmVggg3/BzW2lFLLjb4vdmZ2CM
+         5tdYsRV4Tl1/efkLpIahk9F3SmrQ5a9wS/pdsPXgydC6nU6Aq+3QE1TAZjfLTiGszZJP
+         wWHnm8d+dE53knPFb08NqEB0r1WGlH+WTqimSxLxIUH9Co088ymYV3G03+rGClHdUdLD
+         1VUHbZUkzEzNAdMDaY7zwRX0M1bCniqdHONnnQn3TCRwa/eTtQrTEPFkfZZ3Vb+9u42t
+         Jnt6wzCrwFif404LEePDQmE5XXMq3Ly9WbIA1zCToHxYzdXKwCXsPqlzpQPM+YkmOoWQ
+         fAEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wsGkporiWQeNHg4v1skX8MmfnPHmZ0ni6U0Bq1ri7HA=;
+        b=TAhfscagdi34RkS8AhlortY9PSFML0cFtmeby4BNmZ5hzIkXk18yfSTTL0bVn8/40i
+         tYGFqpxMV7sHCOnIqqQQqjeqyyrxw6IYwoaxl+9DHITgx4g3HatQCUjHqKga2Lt60agw
+         kvqjgr0fLxFthyg2gDRj6rsASp4lAZ76P0FHDqg6OzLbIlTUfjGFEtaeI//SPMMBl5YZ
+         5qwjwBMf1FI2A94AlL/l+V/sWqisQUjLGkIAHptWlbjvSBEdXkfHEcb1wzPxBB6WJYJ1
+         EePs6pzhe0W77Q+vEXMjyPlBc90W0qPnLph8Uk1k7YRxiim1k+7SXtewvHy6aqToTlZh
+         WK3w==
+X-Gm-Message-State: AOAM533SbvhqLH88QxUO+qHXKQOuMv18X1ZAEG1SLfKkf1YKozgZYENs
+        e8GT8J+AcXaN73M1Tc2J5FfIWg==
+X-Google-Smtp-Source: ABdhPJx88jfqJGvlh85IKtdIkpIo1pu4gJb5NXPiJ/0S9jrCIk/XxyxIGjdKNFq7q+cF1hUVJ66yCQ==
+X-Received: by 2002:a17:902:d2d1:b0:167:4c33:d5d3 with SMTP id n17-20020a170902d2d100b001674c33d5d3mr3799752plc.81.1654277715866;
+        Fri, 03 Jun 2022 10:35:15 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id x17-20020a056a000bd100b0051be1b4cfb5sm1730265pfu.5.2022.06.03.10.35.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jun 2022 10:35:15 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     Tejun Heo <tj@kernel.org>
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Michal Koutny <mkoutny@suse.com>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, cgroups@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Subject: [PATCH] cgroup: serialize css kill and release paths
+Date:   Fri,  3 Jun 2022 10:34:55 -0700
+Message-Id: <20220603173455.441537-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,85 +80,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Syzbot found a corrupted list bug scenario that can be triggered from
+cgroup_subtree_control_write(cgrp). The reproduces writes to
+cgroup.subtree_control file, which invokes:
+cgroup_apply_control_enable()->css_create()->css_populate_dir(), which
+then fails with a fault injected -ENOMEM.
+In such scenario the css_killed_work_fn will be en-queued via
+cgroup_apply_control_disable(cgrp)->kill_css(css), and bail out to
+cgroup_kn_unlock(). Then cgroup_kn_unlock() will call:
+cgroup_put(cgrp)->css_put(&cgrp->self), which will try to enqueue
+css_release_work_fn for the same css instance, causing a list_add
+corruption bug, as can be seen in the syzkaller report [1].
 
-The patch below does not apply to the 5.18-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Fix this by synchronizing the css ref_kill and css_release jobs.
+css_release() function will check if the css_killed_work_fn() has been
+scheduled for the css and only en-queue the css_release_work_fn()
+if css_killed_work_fn wasn't already en-queued. Otherwise css_release() will
+set the CSS_REL_LATER flag for that css. This will cause the css_release_work_fn()
+work to be executed after css_killed_work_fn() is finished.
 
-thanks,
+Two scc flags have been introduced to implement this serialization mechanizm:
 
-greg k-h
+ * CSS_KILL_ENQED, which will be set when css_killed_work_fn() is en-queued, and
+ * CSS_REL_LATER, which, if set, will cause the css_release_work_fn() to be
+   scheduled after the css_killed_work_fn is finished.
 
------------------- original commit in Linus's tree ------------------
+There is also a new lock, which will protect the integrity of the css flags.
 
-From fe736565efb775620dbcf3c459c1cd80d3e868da Mon Sep 17 00:00:00 2001
-From: Song Liu <song@kernel.org>
-Date: Fri, 20 May 2022 16:57:53 -0700
-Subject: [PATCH] bpf: Introduce bpf_arch_text_invalidate for bpf_prog_pack
+[1] https://syzkaller.appspot.com/bug?id=e26e54d6eac9d9fb50b221ec3e4627b327465dbd
 
-Introduce bpf_arch_text_invalidate and use it to fill unused part of the
-bpf_prog_pack with illegal instructions when a BPF program is freed.
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Michal Koutny <mkoutny@suse.com>
+Cc: Zefan Li <lizefan.x@bytedance.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: <cgroups@vger.kernel.org>
+Cc: <netdev@vger.kernel.org>
+Cc: <bpf@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 
-Fixes: 57631054fae6 ("bpf: Introduce bpf_prog_pack allocator")
-Fixes: 33c9805860e5 ("bpf: Introduce bpf_jit_binary_pack_[alloc|finalize|free]")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220520235758.1858153-4-song@kernel.org
+Reported-and-tested-by: syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Fixes: 8f36aaec9c92 ("cgroup: Use rcu_work instead of explicit rcu and work item")
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+ include/linux/cgroup-defs.h |  4 ++++
+ kernel/cgroup/cgroup.c      | 35 ++++++++++++++++++++++++++++++++---
+ 2 files changed, 36 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index a2b6d197c226..f298b18a9a3d 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -228,6 +228,11 @@ static void jit_fill_hole(void *area, unsigned int size)
- 	memset(area, 0xcc, size);
+diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
+index 1bfcfb1af352..8dc8b4edb242 100644
+--- a/include/linux/cgroup-defs.h
++++ b/include/linux/cgroup-defs.h
+@@ -53,6 +53,8 @@ enum {
+ 	CSS_RELEASED	= (1 << 2), /* refcnt reached zero, released */
+ 	CSS_VISIBLE	= (1 << 3), /* css is visible to userland */
+ 	CSS_DYING	= (1 << 4), /* css is dying */
++	CSS_KILL_ENQED	= (1 << 5), /* kill work enqueued for the css */
++	CSS_REL_LATER	= (1 << 6), /* release needs to be done after kill */
+ };
+ 
+ /* bits in struct cgroup flags field */
+@@ -162,6 +164,8 @@ struct cgroup_subsys_state {
+ 	 */
+ 	int id;
+ 
++	/* lock to protect flags */
++	spinlock_t lock;
+ 	unsigned int flags;
+ 
+ 	/*
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 1779ccddb734..a0ceead4b390 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5210,8 +5210,23 @@ static void css_release(struct percpu_ref *ref)
+ 	struct cgroup_subsys_state *css =
+ 		container_of(ref, struct cgroup_subsys_state, refcnt);
+ 
+-	INIT_WORK(&css->destroy_work, css_release_work_fn);
+-	queue_work(cgroup_destroy_wq, &css->destroy_work);
++	spin_lock_bh(&css->lock);
++
++	/*
++	 * Check if the css_killed_work_fn work has been scheduled for this
++	 * css and enqueue css_release_work_fn only if it wasn't.
++	 * Otherwise set the CSS_REL_LATER flag, which will cause
++	 * release to be enqueued after css_killed_work_fn is finished.
++	 * This is to prevent list corruption by en-queuing two instance
++	 * of the same work struct on the same WQ, namely cgroup_destroy_wq.
++	 */
++	if (!(css->flags & CSS_KILL_ENQED)) {
++		INIT_WORK(&css->destroy_work, css_release_work_fn);
++		queue_work(cgroup_destroy_wq, &css->destroy_work);
++	} else {
++		css->flags |= CSS_REL_LATER;
++	}
++	spin_unlock_bh(&css->lock);
  }
  
-+int bpf_arch_text_invalidate(void *dst, size_t len)
-+{
-+	return IS_ERR_OR_NULL(text_poke_set(dst, 0xcc, len));
-+}
-+
- struct jit_context {
- 	int cleanup_addr; /* Epilogue code offset */
+ static void init_and_link_css(struct cgroup_subsys_state *css,
+@@ -5230,6 +5245,7 @@ static void init_and_link_css(struct cgroup_subsys_state *css,
+ 	INIT_LIST_HEAD(&css->rstat_css_node);
+ 	css->serial_nr = css_serial_nr_next++;
+ 	atomic_set(&css->online_cnt, 0);
++	spin_lock_init(&css->lock);
  
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index cc4d5e394031..a9b1875212f6 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -2365,6 +2365,7 @@ int bpf_arch_text_poke(void *ip, enum bpf_text_poke_type t,
- 		       void *addr1, void *addr2);
+ 	if (cgroup_parent(cgrp)) {
+ 		css->parent = cgroup_css(cgroup_parent(cgrp), ss);
+@@ -5545,10 +5561,12 @@ int cgroup_mkdir(struct kernfs_node *parent_kn, const char *name, umode_t mode)
+  */
+ static void css_killed_work_fn(struct work_struct *work)
+ {
+-	struct cgroup_subsys_state *css =
++	struct cgroup_subsys_state *css_killed, *css =
+ 		container_of(work, struct cgroup_subsys_state, destroy_work);
  
- void *bpf_arch_text_copy(void *dst, void *src, size_t len);
-+int bpf_arch_text_invalidate(void *dst, size_t len);
+ 	mutex_lock(&cgroup_mutex);
++	css_killed = css;
++	css_killed->flags &= ~CSS_KILL_ENQED;
  
- struct btf_id_set;
- bool btf_id_set_contains(const struct btf_id_set *set, u32 id);
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 2d0c9d4696ad..cacd8684c3c4 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -968,6 +968,9 @@ static void bpf_prog_pack_free(struct bpf_binary_header *hdr)
- 	nbits = BPF_PROG_SIZE_TO_NBITS(hdr->size);
- 	pos = ((unsigned long)hdr - (unsigned long)pack_ptr) >> BPF_PROG_CHUNK_SHIFT;
+ 	do {
+ 		offline_css(css);
+@@ -5557,6 +5575,14 @@ static void css_killed_work_fn(struct work_struct *work)
+ 		css = css->parent;
+ 	} while (css && atomic_dec_and_test(&css->online_cnt));
  
-+	WARN_ONCE(bpf_arch_text_invalidate(hdr, hdr->size),
-+		  "bpf_prog_pack bug: missing bpf_arch_text_invalidate?\n");
-+
- 	bitmap_clear(pack->bitmap, pos, nbits);
- 	if (bitmap_find_next_zero_area(pack->bitmap, bpf_prog_chunk_count(), 0,
- 				       bpf_prog_chunk_count(), 0) == 0) {
-@@ -2740,6 +2743,11 @@ void * __weak bpf_arch_text_copy(void *dst, void *src, size_t len)
- 	return ERR_PTR(-ENOTSUPP);
++	spin_lock_bh(&css->lock);
++	if (css_killed->flags & CSS_REL_LATER) {
++		/* If css_release work was delayed for the css enqueue it now. */
++		INIT_WORK(&css_killed->destroy_work, css_release_work_fn);
++		queue_work(cgroup_destroy_wq, &css_killed->destroy_work);
++		css_killed->flags &= ~CSS_REL_LATER;
++	}
++	spin_unlock_bh(&css->lock);
+ 	mutex_unlock(&cgroup_mutex);
  }
  
-+int __weak bpf_arch_text_invalidate(void *dst, size_t len)
-+{
-+	return -ENOTSUPP;
-+}
-+
- DEFINE_STATIC_KEY_FALSE(bpf_stats_enabled_key);
- EXPORT_SYMBOL(bpf_stats_enabled_key);
+@@ -5566,10 +5592,13 @@ static void css_killed_ref_fn(struct percpu_ref *ref)
+ 	struct cgroup_subsys_state *css =
+ 		container_of(ref, struct cgroup_subsys_state, refcnt);
  
-
++	spin_lock_bh(&css->lock);
+ 	if (atomic_dec_and_test(&css->online_cnt)) {
++		css->flags |= CSS_KILL_ENQED;
+ 		INIT_WORK(&css->destroy_work, css_killed_work_fn);
+ 		queue_work(cgroup_destroy_wq, &css->destroy_work);
+ 	}
++	spin_unlock_bh(&css->lock);
+ }
+ 
+ /**
+-- 
+2.36.1
