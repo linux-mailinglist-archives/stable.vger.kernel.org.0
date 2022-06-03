@@ -2,49 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D82F53D0CC
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E513953D154
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346651AbiFCSIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 14:08:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40990 "EHLO
+        id S231611AbiFCSWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347834AbiFCSGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:06:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 281595D677;
-        Fri,  3 Jun 2022 10:59:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19AEBB82438;
-        Fri,  3 Jun 2022 17:59:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86795C3411C;
-        Fri,  3 Jun 2022 17:59:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654279148;
-        bh=nPcxQpf1ssmDisQFOLeXmXkRO9v1ounJGsftVl69TWI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZcKconOqpCxwv8w1gmarcjo4bt1MEmAaIT5AleTVroMLC78ByapCu1ItJwJVfKiX
-         u1hLVQj01SE1RwoAyr/hMymUQeNwkB7vIeRtZOITp+FN+wOxDBoiMewJ9qRa11PcMT
-         5e/ulgasDr8BxIUu2iPehiBRUULAXSGnw2+bSuGg=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.18 67/67] bpf: Do write access check for kfunc and global func
-Date:   Fri,  3 Jun 2022 19:44:08 +0200
-Message-Id: <20220603173822.641516438@linuxfoundation.org>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-References: <20220603173820.731531504@linuxfoundation.org>
-User-Agent: quilt/0.66
+        with ESMTP id S1348122AbiFCSVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:21:41 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 713D531371
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 11:06:19 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id s68so7774385pgs.10
+        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 11:06:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=svaPePYVH4vz0O3T8xIGrC8HyL06d2NGhj+KphBzUno=;
+        b=IwAVBHzgWS4dkVu/qLRjRhpRlO9tC9h6H0XLkm6gQfD1Ick+CmJZfRRii+FDxIWP85
+         hVopm9iS326lYl/5DkMQNmUIOy3WxNkt5E/K3aft11XxaP4WWRGkqJL/FPEzDEXsD/Aa
+         lJWuOyXQN903SYenOmP4skGdUxIanc1vk5022d8ALXUOepRz6Xi3cPbEvojIb8L2pnzj
+         aIQBYZD/ZSr0dyb+LvspeTRRCXoBe7vxqIFyzMzxKIBK1t4ekpvPMHQuLfoH5YQw86Nk
+         KhamVkfq0/4ejEwmXXosra2Zs+TQJrM/2JSLvZ5xtZYJ7RxKPZm48xOMMKtLpKt7sNlT
+         Qthw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=svaPePYVH4vz0O3T8xIGrC8HyL06d2NGhj+KphBzUno=;
+        b=p6BIPMLUHwX97s2K/EmeFPnVPx9/QAY+eqTwo5sX6mtEGrsFCGI5zzez9GCvEftuL4
+         JN7zSbdRnKFAf1s1MKJqRSo4DS9XS8DCEFXdksJBS8QLodkrgC4fCOsen/GdJJLDKAzj
+         R0ywMNDYLGHgrXB6BY31eIUNK3NSPnHGliZ05kZYYL6YfXDWvY/wgE45n6Xt2D+0Nv6m
+         InjupSXz2zPs8NnoTlRyuSHxfiZHeKnoOXU0vZCAkRtiSzD8rJqBK4Eyt/YDqMrZXoJh
+         7zKRtbt1FbrYFC/+D/vPvz87OlUlmWII47RbSLu75jdpCfaEdzcTzaR34PeIkkp791IA
+         24tA==
+X-Gm-Message-State: AOAM530wUCmB8TcX/Lax3t5nPb7azHT3J2+nwAgEM/BGG4/0905X0kZA
+        J4PZnnMuLvQkpORYkOQWa+ssKg==
+X-Google-Smtp-Source: ABdhPJz5HDnPBWYPC/6wFvAYbckub3E1dTzAciJW93WVpE6oNFAHmVnt3INU9abX+ASYlI0QTMtV/g==
+X-Received: by 2002:a63:2109:0:b0:3fc:9fdf:f4e0 with SMTP id h9-20020a632109000000b003fc9fdff4e0mr10104603pgh.586.1654279578981;
+        Fri, 03 Jun 2022 11:06:18 -0700 (PDT)
+Received: from [192.168.254.36] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id c11-20020a170903234b00b001641047544bsm5716733plh.103.2022.06.03.11.06.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Jun 2022 11:06:18 -0700 (PDT)
+Message-ID: <79ec0073-2db7-a7a2-ec60-265a617d463a@linaro.org>
+Date:   Fri, 3 Jun 2022 11:06:17 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH] cgroup: serialize css kill and release paths
+Content-Language: en-US
+To:     Tejun Heo <tj@kernel.org>
+Cc:     Michal Koutny <mkoutny@suse.com>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, cgroups@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+References: <20220603173455.441537-1-tadeusz.struk@linaro.org>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <20220603173455.441537-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,113 +85,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+On 6/3/22 10:34, Tadeusz Struk wrote:
+> Syzbot found a corrupted list bug scenario that can be triggered from
+> cgroup_subtree_control_write(cgrp). The reproduces writes to
+> cgroup.subtree_control file, which invokes:
+> cgroup_apply_control_enable()->css_create()->css_populate_dir(), which
+> then fails with a fault injected -ENOMEM.
+> In such scenario the css_killed_work_fn will be en-queued via
+> cgroup_apply_control_disable(cgrp)->kill_css(css), and bail out to
+> cgroup_kn_unlock(). Then cgroup_kn_unlock() will call:
+> cgroup_put(cgrp)->css_put(&cgrp->self), which will try to enqueue
+> css_release_work_fn for the same css instance, causing a list_add
+> corruption bug, as can be seen in the syzkaller report [1].
+> 
+> Fix this by synchronizing the css ref_kill and css_release jobs.
+> css_release() function will check if the css_killed_work_fn() has been
+> scheduled for the css and only en-queue the css_release_work_fn()
+> if css_killed_work_fn wasn't already en-queued. Otherwise css_release() will
+> set the CSS_REL_LATER flag for that css. This will cause the css_release_work_fn()
+> work to be executed after css_killed_work_fn() is finished.
+> 
+> Two scc flags have been introduced to implement this serialization mechanizm:
+> 
+>   * CSS_KILL_ENQED, which will be set when css_killed_work_fn() is en-queued, and
+>   * CSS_REL_LATER, which, if set, will cause the css_release_work_fn() to be
+>     scheduled after the css_killed_work_fn is finished.
+> 
+> There is also a new lock, which will protect the integrity of the css flags.
+> 
+> [1]https://syzkaller.appspot.com/bug?id=e26e54d6eac9d9fb50b221ec3e4627b327465dbd
+> 
+> Cc: Tejun Heo<tj@kernel.org>
+> Cc: Michal Koutny<mkoutny@suse.com>
+> Cc: Zefan Li<lizefan.x@bytedance.com>
+> Cc: Johannes Weiner<hannes@cmpxchg.org>
+> Cc: Christian Brauner<brauner@kernel.org>
+> Cc: Alexei Starovoitov<ast@kernel.org>
+> Cc: Daniel Borkmann<daniel@iogearbox.net>
+> Cc: Andrii Nakryiko<andrii@kernel.org>
+> Cc: Martin KaFai Lau<kafai@fb.com>
+> Cc: Song Liu<songliubraving@fb.com>
+> Cc: Yonghong Song<yhs@fb.com>
+> Cc: John Fastabend<john.fastabend@gmail.com>
+> Cc: KP Singh<kpsingh@kernel.org>
+> Cc:<cgroups@vger.kernel.org>
+> Cc:<netdev@vger.kernel.org>
+> Cc:<bpf@vger.kernel.org>
+> Cc:<stable@vger.kernel.org>
+> Cc:<linux-kernel@vger.kernel.org>
+> 
+> Reported-and-tested-by:syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+> Fixes: 8f36aaec9c92 ("cgroup: Use rcu_work instead of explicit rcu and work item")
+> Signed-off-by: Tadeusz Struk<tadeusz.struk@linaro.org>
 
-commit be77354a3d7ebd4897ee18eca26dca6df9224c76 upstream.
+I just spotted an issue with this. I'm holding invalid lock in css_killed_work_fn().
+I will follow up with a v2 of the patch soon.
 
-When passing pointer to some map value to kfunc or global func, in
-verifier we are passing meta as NULL to various functions, which uses
-meta->raw_mode to check whether memory is being written to. Since some
-kfunc or global funcs may also write to memory pointers they receive as
-arguments, we must check for write access to memory. E.g. in some case
-map may be read only and this will be missed by current checks.
-
-However meta->raw_mode allows for uninitialized memory (e.g. on stack),
-since there is not enough info available through BTF, we must perform
-one call for read access (raw_mode = false), and one for write access
-(raw_mode = true).
-
-Fixes: e5069b9c23b3 ("bpf: Support pointers in global func args")
-Fixes: d583691c47dc ("bpf: Introduce mem, size argument pair support for kfunc")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20220319080827.73251-2-memxor@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/bpf/verifier.c |   44 +++++++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 15 deletions(-)
-
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4934,8 +4934,7 @@ static int check_mem_size_reg(struct bpf
- 	 * out. Only upper bounds can be learned because retval is an
- 	 * int type and negative retvals are allowed.
- 	 */
--	if (meta)
--		meta->msize_max_value = reg->umax_value;
-+	meta->msize_max_value = reg->umax_value;
- 
- 	/* The register is SCALAR_VALUE; the access check
- 	 * happens using its boundaries.
-@@ -4978,24 +4977,33 @@ static int check_mem_size_reg(struct bpf
- int check_mem_reg(struct bpf_verifier_env *env, struct bpf_reg_state *reg,
- 		   u32 regno, u32 mem_size)
- {
-+	bool may_be_null = type_may_be_null(reg->type);
-+	struct bpf_reg_state saved_reg;
-+	struct bpf_call_arg_meta meta;
-+	int err;
-+
- 	if (register_is_null(reg))
- 		return 0;
- 
--	if (type_may_be_null(reg->type)) {
--		/* Assuming that the register contains a value check if the memory
--		 * access is safe. Temporarily save and restore the register's state as
--		 * the conversion shouldn't be visible to a caller.
--		 */
--		const struct bpf_reg_state saved_reg = *reg;
--		int rv;
--
-+	memset(&meta, 0, sizeof(meta));
-+	/* Assuming that the register contains a value check if the memory
-+	 * access is safe. Temporarily save and restore the register's state as
-+	 * the conversion shouldn't be visible to a caller.
-+	 */
-+	if (may_be_null) {
-+		saved_reg = *reg;
- 		mark_ptr_not_null_reg(reg);
--		rv = check_helper_mem_access(env, regno, mem_size, true, NULL);
--		*reg = saved_reg;
--		return rv;
- 	}
- 
--	return check_helper_mem_access(env, regno, mem_size, true, NULL);
-+	err = check_helper_mem_access(env, regno, mem_size, true, &meta);
-+	/* Check access for BPF_WRITE */
-+	meta.raw_mode = true;
-+	err = err ?: check_helper_mem_access(env, regno, mem_size, true, &meta);
-+
-+	if (may_be_null)
-+		*reg = saved_reg;
-+
-+	return err;
- }
- 
- int check_kfunc_mem_size_reg(struct bpf_verifier_env *env, struct bpf_reg_state *reg,
-@@ -5004,16 +5012,22 @@ int check_kfunc_mem_size_reg(struct bpf_
- 	struct bpf_reg_state *mem_reg = &cur_regs(env)[regno - 1];
- 	bool may_be_null = type_may_be_null(mem_reg->type);
- 	struct bpf_reg_state saved_reg;
-+	struct bpf_call_arg_meta meta;
- 	int err;
- 
- 	WARN_ON_ONCE(regno < BPF_REG_2 || regno > BPF_REG_5);
- 
-+	memset(&meta, 0, sizeof(meta));
-+
- 	if (may_be_null) {
- 		saved_reg = *mem_reg;
- 		mark_ptr_not_null_reg(mem_reg);
- 	}
- 
--	err = check_mem_size_reg(env, reg, regno, true, NULL);
-+	err = check_mem_size_reg(env, reg, regno, true, &meta);
-+	/* Check access for BPF_WRITE */
-+	meta.raw_mode = true;
-+	err = err ?: check_mem_size_reg(env, reg, regno, true, &meta);
- 
- 	if (may_be_null)
- 		*mem_reg = saved_reg;
-
-
+-- 
+Thanks,
+Tadeusz
