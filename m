@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0FD53CE72
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:42:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2EF453CE95
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344659AbiFCRm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55674 "EHLO
+        id S1344944AbiFCRoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:44:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344801AbiFCRmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:42:08 -0400
+        with ESMTP id S1345043AbiFCRnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:43:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB09F53A79;
-        Fri,  3 Jun 2022 10:41:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971F454F9E;
+        Fri,  3 Jun 2022 10:42:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42582B8241E;
-        Fri,  3 Jun 2022 17:41:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AB4C385B8;
-        Fri,  3 Jun 2022 17:41:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C393B8242E;
+        Fri,  3 Jun 2022 17:42:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC996C385A9;
+        Fri,  3 Jun 2022 17:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278086;
-        bh=5DLh3zfwqkuKS/K1n4AvAGFzOB5krvK1ROtUZvkNdoI=;
+        s=korg; t=1654278128;
+        bh=+jKGu2m+qotB5j1a1TjLLakeDpMh01+5nUzTVxMt6Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FC4bWCNvWYoP6zcb12VGP/HM1Gtyj/LFusqdLmagxg5YK6phPCTQhfV0db39bFK7D
-         T9SulEH9c2cXF0H4Mcv1r1NP6rhEg61YL8fLT84daW++2Py3HBUPgfs9hzHeEb2ZSp
-         Z8MjoY+/hK5RqmbZWyRO4W2MCYNL7DSF63X4IHAY=
+        b=L/0DKgXut34P+/LrimPoK0NvSKq1aUQE6A5GKIYPEVZDx8elOz3D9I9jKp20rP0bM
+         lwSxPCNA86ukGROp+FRbu1grtjA3KMbi74uNNp5+Wk/+05FZj+NJW6aJ0GKIb1ufWt
+         imhL2LK8JZ/T7pEoupUmeWT3+PzQ5pDEibR4GhCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.14 20/23] tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
+        stable@vger.kernel.org,
+        syzbot+793a590957d9c1b96620@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 19/30] netfilter: conntrack: re-fetch conntrack after insertion
 Date:   Fri,  3 Jun 2022 19:39:47 +0200
-Message-Id: <20220603173814.974445103@linuxfoundation.org>
+Message-Id: <20220603173815.661040365@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173814.362515009@linuxfoundation.org>
-References: <20220603173814.362515009@linuxfoundation.org>
+In-Reply-To: <20220603173815.088143764@linuxfoundation.org>
+References: <20220603173815.088143764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit d0dc1a7100f19121f6e7450f9cdda11926aa3838 upstream.
+commit 56b14ecec97f39118bf85c9ac2438c5a949509ed upstream.
 
-Currently it returns zero when CRQ response timed out, it should return
-an error code instead.
+In case the conntrack is clashing, insertion can free skb->_nfct and
+set skb->_nfct to the already-confirmed entry.
 
-Fixes: d8d74ea3c002 ("tpm: ibmvtpm: Wait for buffer to be set before proceeding")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+This wasn't found before because the conntrack entry and the extension
+space used to free'd after an rcu grace period, plus the race needs
+events enabled to trigger.
+
+Reported-by: <syzbot+793a590957d9c1b96620@syzkaller.appspotmail.com>
+Fixes: 71d8c47fc653 ("netfilter: conntrack: introduce clash resolution on insertion race")
+Fixes: 2ad9d7747c10 ("netfilter: conntrack: free extension area immediately")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/net/netfilter/nf_conntrack_core.h |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -692,6 +692,7 @@ static int tpm_ibmvtpm_probe(struct vio_
- 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
- 				ibmvtpm->rtce_buf != NULL,
- 				HZ)) {
-+		rc = -ENODEV;
- 		dev_err(dev, "CRQ response timed out\n");
- 		goto init_irq_cleanup;
+--- a/include/net/netfilter/nf_conntrack_core.h
++++ b/include/net/netfilter/nf_conntrack_core.h
+@@ -58,8 +58,13 @@ static inline int nf_conntrack_confirm(s
+ 	int ret = NF_ACCEPT;
+ 
+ 	if (ct) {
+-		if (!nf_ct_is_confirmed(ct))
++		if (!nf_ct_is_confirmed(ct)) {
+ 			ret = __nf_conntrack_confirm(skb);
++
++			if (ret == NF_ACCEPT)
++				ct = (struct nf_conn *)skb_nfct(skb);
++		}
++
+ 		if (likely(ret == NF_ACCEPT))
+ 			nf_ct_deliver_cached_events(ct);
  	}
 
 
