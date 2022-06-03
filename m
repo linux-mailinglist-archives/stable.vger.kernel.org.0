@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8800953CF31
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1252253CF6E
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 19:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345369AbiFCRxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:53:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46560 "EHLO
+        id S1345518AbiFCRxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 13:53:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346751AbiFCRv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:29 -0400
+        with ESMTP id S1346815AbiFCRvc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:51:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68A635715E;
-        Fri,  3 Jun 2022 10:49:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 817F557B00;
+        Fri,  3 Jun 2022 10:49:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDE78B8241D;
-        Fri,  3 Jun 2022 17:49:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 319C1C385A9;
-        Fri,  3 Jun 2022 17:49:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2391B82419;
+        Fri,  3 Jun 2022 17:49:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 495DEC385B8;
+        Fri,  3 Jun 2022 17:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278559;
-        bh=ygwq7yfFRXP9bKkF4D16aTkBxZUxyK/GL3hNi2M+PPk=;
+        s=korg; t=1654278565;
+        bh=TIS2GoTaI2/zpFafNEpWpq5sRvOtRLPlkLlhchtllhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmxlhS1U+0k0mMK0G9bMr8K4jxCwBUpokRALtNDv+6jmJrU0OTZSfPR4Cjl4Q2oai
-         6JVcqbpQk2nxSSmH5gH3WSGdlZKrFih5IQdJQxcgugDxcJAfUZ+d4tyK9wnUn8DLCe
-         gfY8WoUb77yLbxUptG07y5k0qbGZlgFwnFPNEMFk=
+        b=E6Oz771+h058gH4BVniw3drqvTvpvd3Cw7vUhIXYqaEktyxq9BWzXCmVaiHaqSVdi
+         NGQONY3J/ZB+oTG//wqJDHTgloX0hdYqY37Pag5gum479eNtAOArwYL/rysCfHFRlm
+         VfiQ+vZL4pgGhiflW74opXMrYp3HJhmpbLfb5TOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-crypto@vger.kernel.org,
-        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 19/66] lib/crypto: add prompts back to crypto libraries
-Date:   Fri,  3 Jun 2022 19:42:59 +0200
-Message-Id: <20220603173821.218500114@linuxfoundation.org>
+Subject: [PATCH 5.15 20/66] crypto: drbg - prepare for more fine-grained tracking of seeding state
+Date:   Fri,  3 Jun 2022 19:43:00 +0200
+Message-Id: <20220603173821.247230562@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
 References: <20220603173820.663747061@linuxfoundation.org>
@@ -55,115 +55,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Justin M. Forbes" <jforbes@fedoraproject.org>
+From: Nicolai Stange <nstange@suse.de>
 
-commit e56e18985596617ae426ed5997fb2e737cffb58b upstream.
+commit ce8ce31b2c5c8b18667784b8c515650c65d57b4e upstream.
 
-Commit 6048fdcc5f269 ("lib/crypto: blake2s: include as built-in") took
-away a number of prompt texts from other crypto libraries. This makes
-values flip from built-in to module when oldconfig runs, and causes
-problems when these crypto libs need to be built in for thingslike
-BIG_KEYS.
+There are two different randomness sources the DRBGs are getting seeded
+from, namely the jitterentropy source (if enabled) and get_random_bytes().
+At initial DRBG seeding time during boot, the latter might not have
+collected sufficient entropy for seeding itself yet and thus, the DRBG
+implementation schedules a reseed work from a random_ready_callback once
+that has happened. This is particularly important for the !->pr DRBG
+instances, for which (almost) no further reseeds are getting triggered
+during their lifetime.
 
-Fixes: 6048fdcc5f269 ("lib/crypto: blake2s: include as built-in")
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-crypto@vger.kernel.org
-Signed-off-by: Justin M. Forbes <jforbes@fedoraproject.org>
-[Jason: - moved menu into submenu of lib/ instead of root menu
-        - fixed chacha sub-dependencies for CONFIG_CRYPTO]
+Because collecting data from the jitterentropy source is a rather expensive
+operation, the aforementioned asynchronously scheduled reseed work
+restricts itself to get_random_bytes() only. That is, it in some sense
+amends the initial DRBG seed derived from jitterentropy output at full
+(estimated) entropy with fresh randomness obtained from get_random_bytes()
+once that has been seeded with sufficient entropy itself.
+
+With the advent of rng_is_initialized(), there is no real need for doing
+the reseed operation from an asynchronously scheduled work anymore and a
+subsequent patch will make it synchronous by moving it next to related
+logic already present in drbg_generate().
+
+However, for tracking whether a full reseed including the jitterentropy
+source is required or a "partial" reseed involving only get_random_bytes()
+would be sufficient already, the boolean struct drbg_state's ->seeded
+member must become a tristate value.
+
+Prepare for this by introducing the new enum drbg_seed_state and change
+struct drbg_state's ->seeded member's type from bool to that type.
+
+For facilitating review, enum drbg_seed_state is made to only contain
+two members corresponding to the former ->seeded values of false and true
+resp. at this point: DRBG_SEED_STATE_UNSEEDED and DRBG_SEED_STATE_FULL. A
+third one for tracking the intermediate state of "seeded from jitterentropy
+only" will be introduced with a subsequent patch.
+
+There is no change in behaviour at this point.
+
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Stephan Müller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/Kconfig     |    2 --
- lib/Kconfig        |    2 ++
- lib/crypto/Kconfig |   17 ++++++++++++-----
- 3 files changed, 14 insertions(+), 7 deletions(-)
+ crypto/drbg.c         |   19 ++++++++++---------
+ include/crypto/drbg.h |    7 ++++++-
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -1924,5 +1924,3 @@ source "crypto/asymmetric_keys/Kconfig"
- source "certs/Kconfig"
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -1043,7 +1043,7 @@ static inline int __drbg_seed(struct drb
+ 	if (ret)
+ 		return ret;
  
- endif	# if CRYPTO
--
--source "lib/crypto/Kconfig"
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -121,6 +121,8 @@ config INDIRECT_IOMEM_FALLBACK
- 	  mmio accesses when the IO memory address is not a registered
- 	  emulated region.
+-	drbg->seeded = true;
++	drbg->seeded = DRBG_SEED_STATE_FULL;
+ 	/* 10.1.1.2 / 10.1.1.3 step 5 */
+ 	drbg->reseed_ctr = 1;
  
-+source "lib/crypto/Kconfig"
+@@ -1088,14 +1088,14 @@ static void drbg_async_seed(struct work_
+ 	if (ret)
+ 		goto unlock;
+ 
+-	/* Set seeded to false so that if __drbg_seed fails the
+-	 * next generate call will trigger a reseed.
++	/* Reset ->seeded so that if __drbg_seed fails the next
++	 * generate call will trigger a reseed.
+ 	 */
+-	drbg->seeded = false;
++	drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 
+ 	__drbg_seed(drbg, &seedlist, true);
+ 
+-	if (drbg->seeded)
++	if (drbg->seeded == DRBG_SEED_STATE_FULL)
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
+ unlock:
+@@ -1386,13 +1386,14 @@ static int drbg_generate(struct drbg_sta
+ 	 * here. The spec is a bit convoluted here, we make it simpler.
+ 	 */
+ 	if (drbg->reseed_threshold < drbg->reseed_ctr)
+-		drbg->seeded = false;
++		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 
+-	if (drbg->pr || !drbg->seeded) {
++	if (drbg->pr || drbg->seeded == DRBG_SEED_STATE_UNSEEDED) {
+ 		pr_devel("DRBG: reseeding before generation (prediction "
+ 			 "resistance: %s, state %s)\n",
+ 			 drbg->pr ? "true" : "false",
+-			 drbg->seeded ? "seeded" : "unseeded");
++			 (drbg->seeded ==  DRBG_SEED_STATE_FULL ?
++			  "seeded" : "unseeded"));
+ 		/* 9.3.1 steps 7.1 through 7.3 */
+ 		len = drbg_seed(drbg, addtl, true);
+ 		if (len)
+@@ -1577,7 +1578,7 @@ static int drbg_instantiate(struct drbg_
+ 	if (!drbg->core) {
+ 		drbg->core = &drbg_cores[coreref];
+ 		drbg->pr = pr;
+-		drbg->seeded = false;
++		drbg->seeded = DRBG_SEED_STATE_UNSEEDED;
+ 		drbg->reseed_threshold = drbg_max_requests(drbg);
+ 
+ 		ret = drbg_alloc_state(drbg);
+--- a/include/crypto/drbg.h
++++ b/include/crypto/drbg.h
+@@ -105,6 +105,11 @@ struct drbg_test_data {
+ 	struct drbg_string *testentropy; /* TEST PARAMETER: test entropy */
+ };
+ 
++enum drbg_seed_state {
++	DRBG_SEED_STATE_UNSEEDED,
++	DRBG_SEED_STATE_FULL,
++};
 +
- config CRC_CCITT
- 	tristate "CRC-CCITT functions"
- 	help
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -1,5 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
+ struct drbg_state {
+ 	struct mutex drbg_mutex;	/* lock around DRBG */
+ 	unsigned char *V;	/* internal state 10.1.1.1 1a) */
+@@ -127,7 +132,7 @@ struct drbg_state {
+ 	struct crypto_wait ctr_wait;		/* CTR mode async wait obj */
+ 	struct scatterlist sg_in, sg_out;	/* CTR mode SGLs */
  
-+menu "Crypto library routines"
-+
- config CRYPTO_LIB_AES
- 	tristate
- 
-@@ -31,7 +33,7 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_LIB_CHACHA_GENERIC
- 	tristate
--	select CRYPTO_ALGAPI
-+	select XOR_BLOCKS
- 	help
- 	  This symbol can be depended upon by arch implementations of the
- 	  ChaCha library interface that require the generic code as a
-@@ -40,7 +42,8 @@ config CRYPTO_LIB_CHACHA_GENERIC
- 	  of CRYPTO_LIB_CHACHA.
- 
- config CRYPTO_LIB_CHACHA
--	tristate
-+	tristate "ChaCha library interface"
-+	depends on CRYPTO
- 	depends on CRYPTO_ARCH_HAVE_LIB_CHACHA || !CRYPTO_ARCH_HAVE_LIB_CHACHA
- 	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
- 	help
-@@ -65,7 +68,7 @@ config CRYPTO_LIB_CURVE25519_GENERIC
- 	  of CRYPTO_LIB_CURVE25519.
- 
- config CRYPTO_LIB_CURVE25519
--	tristate
-+	tristate "Curve25519 scalar multiplication library"
- 	depends on CRYPTO_ARCH_HAVE_LIB_CURVE25519 || !CRYPTO_ARCH_HAVE_LIB_CURVE25519
- 	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
- 	help
-@@ -100,7 +103,7 @@ config CRYPTO_LIB_POLY1305_GENERIC
- 	  of CRYPTO_LIB_POLY1305.
- 
- config CRYPTO_LIB_POLY1305
--	tristate
-+	tristate "Poly1305 library interface"
- 	depends on CRYPTO_ARCH_HAVE_LIB_POLY1305 || !CRYPTO_ARCH_HAVE_LIB_POLY1305
- 	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
- 	help
-@@ -109,14 +112,18 @@ config CRYPTO_LIB_POLY1305
- 	  is available and enabled.
- 
- config CRYPTO_LIB_CHACHA20POLY1305
--	tristate
-+	tristate "ChaCha20-Poly1305 AEAD support (8-byte nonce library version)"
- 	depends on CRYPTO_ARCH_HAVE_LIB_CHACHA || !CRYPTO_ARCH_HAVE_LIB_CHACHA
- 	depends on CRYPTO_ARCH_HAVE_LIB_POLY1305 || !CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	depends on CRYPTO
- 	select CRYPTO_LIB_CHACHA
- 	select CRYPTO_LIB_POLY1305
-+	select CRYPTO_ALGAPI
- 
- config CRYPTO_LIB_SHA256
- 	tristate
- 
- config CRYPTO_LIB_SM4
- 	tristate
-+
-+endmenu
+-	bool seeded;		/* DRBG fully seeded? */
++	enum drbg_seed_state seeded;		/* DRBG fully seeded? */
+ 	bool pr;		/* Prediction resistance enabled? */
+ 	bool fips_primed;	/* Continuous test primed? */
+ 	unsigned char *prev;	/* FIPS 140-2 continuous test value */
 
 
