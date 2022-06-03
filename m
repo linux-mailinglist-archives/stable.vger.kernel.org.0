@@ -2,104 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98AC953C89F
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 12:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78EFE53C96C
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 13:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239109AbiFCK2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 06:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36924 "EHLO
+        id S244030AbiFCLc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 07:32:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237693AbiFCK2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 06:28:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BB5E01E;
-        Fri,  3 Jun 2022 03:28:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A718C60C8C;
-        Fri,  3 Jun 2022 10:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B19D1C385A9;
-        Fri,  3 Jun 2022 10:28:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654252089;
-        bh=hZ5cSwyo7EzHMEbyT4ghAzT5Uo6NhCs7zRE3Q+mOoHA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sGYVoWmDur/WytEsZLyZOXTpZDnKsTCPjRSA3X3MABPU2G3ZuUJhjuF5Sss0XT0tv
-         SpXFdH1w/NgmGX5ICFTumTPXFKmAqOXvFUPCj6voDq4Ux4eFlP0zqdOM7jq1QB72SD
-         Xta+NHZAMG8SCY6Vp/KAiUJNImWQKHr3PB0fkuRmn8mFIf1apLlB+PuA8vV3Py5joX
-         8b1ku6PzU1t+P0SC4C1oFykm56lPu+JIU4M7OEwwLNX3Ll74W7J3bDIVsSbZkBf2B/
-         WjYy20I57Vb+kYsxvP7Pptsq3O1ytiEm1AGWWAD6q0JVXecGEWQ2A6q4jhqwqp49yf
-         Ee0KoffGrfjSA==
-Date:   Fri, 3 Jun 2022 12:28:06 +0200
-From:   Mark Brown <broonie@kernel.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        theflamefire89@gmail.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 34/48] ASoC: ops: Reject out of bounds values in
- snd_soc_put_volsw_sx()
-Message-ID: <YpniNuBDbv/RRY/2@sirena.org.uk>
-References: <20220207103752.341184175@linuxfoundation.org>
- <20220207103753.450763414@linuxfoundation.org>
- <20220603100613.GA26825@duo.ucw.cz>
+        with ESMTP id S238542AbiFCLcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 07:32:25 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EC56568
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 04:32:24 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id p10so10019688wrg.12
+        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 04:32:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=PaEzrm9U0WjJMxkE+zbw8yGRv0uhjcRl9sFl9vmbKpk=;
+        b=FCV+OIy/Wx2HQfBelSHclCEHrmLV1q9nPsd3TSpRNimW2BmY1dOG4/RHKkp1vD4Rqw
+         5eEZka5uCgLjEsXbWmtv82/O6sT3WikdNNZY2eybINdHx6yL3ceQTa+pMz3GVAjRKUvs
+         M8leXmdb2eKa5Mz9PjXXEc0P5s35MQEVV3jOddL35uBz36qBeoyDKVfFhWrjXrhixvsO
+         VGS3CZJQl6izb7l+pjeGWiqAmP0iKNiGvmdp+ibDgKpljDB8kbDZCptl5SR8USV21yxt
+         uJOY7wlxFeKjBr38v+yZWKeV6sm4ykhDVFaIY6JvehEmAcE5tqGpkiJFFzH9Iwt8E1cW
+         hklg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=PaEzrm9U0WjJMxkE+zbw8yGRv0uhjcRl9sFl9vmbKpk=;
+        b=gDs2kNet4uGckas4PKM4Q8Zk+ezrODY9bn4YPgYE50pGkblgAGgNoDUogqxP2ju16T
+         BpmjbwsFUg0TMZCrtehiByX+pq8q+o95gIlW4kORVsb7qIOEcwFda8BZXoG5obFYXaUb
+         3A/st/DpB4LIG03djLDO2881RzqlQA6FTXZAls+LN1JMRs8irAwbDNhkOuwrwWlJ86E6
+         oxLQwRXDRDK/OqiJnDWJz3JkeiSfuOSeIzCqUDTtN2Vs98Vo70fsWXOxX1TSp/cht0tJ
+         GlpliTTEUjfyh0MlX1QaAx4mYrJnL2svu+dD73CfggHbfiqLER49hn+Y88xTQBINofTw
+         dBew==
+X-Gm-Message-State: AOAM5324L5bo+CDpTGsN4G3uPVy+G/jrsY5QaTemBs7GVwjqUqm2pCLb
+        rHArBHNLB23mEupDn7pB4d5YLnma2wjZbz5b0Lo=
+X-Google-Smtp-Source: ABdhPJyKgPPNMVB71hHJRoVYAa8Kclk/q5M7fup49P1QOB3alKBq34ochdNydWy9CbxOZmqCKteIeMDHSqDEKHTL2gc=
+X-Received: by 2002:adf:d1e9:0:b0:211:7ef1:5ace with SMTP id
+ g9-20020adfd1e9000000b002117ef15acemr8143647wrd.282.1654255942613; Fri, 03
+ Jun 2022 04:32:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZJvHfhMxfZ0Ue3YX"
-Content-Disposition: inline
-In-Reply-To: <20220603100613.GA26825@duo.ucw.cz>
-X-Cookie: May your camel be as swift as the wind.
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:a5d:64ed:0:0:0:0:0 with HTTP; Fri, 3 Jun 2022 04:32:22 -0700 (PDT)
+Reply-To: markwillima00@gmail.com
+From:   Mark <mariamabdul888@gmail.com>
+Date:   Fri, 3 Jun 2022 04:32:22 -0700
+Message-ID: <CAP9xyD14e6O4QLfyHcQS-bN=o2cRYkuCKt_0K=NoeJmky9FAMw@mail.gmail.com>
+Subject: Re: Greetings!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
---ZJvHfhMxfZ0Ue3YX
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Good day,
 
-On Fri, Jun 03, 2022 at 12:06:13PM +0200, Pavel Machek wrote:
+The HSBC Bank is a financial institution in United Kingdom. We
+promotes long-term,sustainable and broad-based economic growth in
+developing and emerging countries by providing financial support like
+loans and investment to large, small and
+medium-sized companies (SMEs) as well as fast-growing enterprises
+which in turn helps to create secure and permanent jobs and reduce
+poverty.
 
-> We are getting reports that this commit breaks audio on some
-> phones... and indeed it looks like "+ min" is missing in first condition:
+If you need fund to promotes your business, project(Project Funding),
+Loan, planning, budgeting and expansion of your business(s) , do not
+hesitate to indicate your interest as we are here to serve you better
+by granting your request.
 
-> https://github.com/baunilla/android_kernel_xiaomi_rosy/commit/969b9d366c1=
-e9564e173aea325ec544dcd7804ff
 
-> 	val =3D ucontrol->value.integer.value[0];
-> -=EF=BF=BC	if (mc->platform_max && val > mc->platform_max)
-> +=EF=BF=BC	if (mc->platform_max && ((int)val + min) > mc->platform_max)
-> =EF=BF=BC		return -EINVAL;
-
-> What needs to be done to get this fixed?
-
-The downstream kernel platform_max configuration should really be
-using the user visible value, not a direct register value.  Note
-that some of the Qualcomm vendor trees have modifictions to the
-semantics of some of the controls which cause issues, and partly
-due to this confusion there should be some fixes for their
-upstream drivers coming soon.
-
---ZJvHfhMxfZ0Ue3YX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmKZ4jYACgkQJNaLcl1U
-h9CkYQf/b0ZSozDl7hMZY7oH/qdRK7mLBPjQiF/bXToFEqAI4NTsylsVqfzjjuGe
-tL+aOQsDxIgWT60U5Q3CXBpTfZbVQkC6IvahCNc4rIrna8QFdIIKr0spxqj0Rsqj
-SZXXP9rrDzNVrxrR6o2X5ot8dc3y+OG88YrNmbY7J9o4SFbwEkp2cf4456GNemrB
-7DDCosap+5bi4SmPuH3jH4Yh4ma9IEGWsVXOdN3qTB4hmytFQXZI8lLLXtcPMoHK
-uxSiR2MvgTNa24TkfhZtjY1iVQLF/Ys7KAcNVDXj31StkGfBNMBixo/S1UGhMVmX
-h05BHpJEqiS3l9sWdYofqAB2mx/2yA==
-=LPQb
------END PGP SIGNATURE-----
-
---ZJvHfhMxfZ0Ue3YX--
+Thank you
+Mr:Mark
