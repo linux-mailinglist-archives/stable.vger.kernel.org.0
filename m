@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2697053D01C
-	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9BC153D0A4
+	for <lists+stable@lfdr.de>; Fri,  3 Jun 2022 20:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346223AbiFCR7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 13:59:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51312 "EHLO
+        id S1345501AbiFCSH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 14:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346127AbiFCR7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 13:59:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88F68580DC;
-        Fri,  3 Jun 2022 10:55:13 -0700 (PDT)
+        with ESMTP id S1347093AbiFCSFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 14:05:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2885AA68;
+        Fri,  3 Jun 2022 10:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A241B8241E;
-        Fri,  3 Jun 2022 17:55:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B79D2C385A9;
-        Fri,  3 Jun 2022 17:55:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7152615E5;
+        Fri,  3 Jun 2022 17:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9000C385A9;
+        Fri,  3 Jun 2022 17:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654278911;
-        bh=cFrmnNl9L7po2P5cc20mN8UGOG2sPnDsfXvs7hKmLbA=;
+        s=korg; t=1654279064;
+        bh=Bkle9clltA+R6fN9FLeBxz6W1Wqn17K3e2OD2XvnkVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0G8i+liqfQ5gNUptn0MtHuSC/vbkcwPt0fiXfXx913HQm8Lg6h1jU0dv4ZaXuOQZV
-         yXQm769gcMNTfHkwqlSJdJexnPB+LM5JNYiHn6I7Qt9+T8WOWQT9i2UfagajZ5PleU
-         ZEPa3zeeEVdhCf4w8iJHABrvRXTomaJKzQ8mv3eg=
+        b=nn7E8ALkK8SifCIGqa5h0K62z6bGTSRgzKpBl4sake295wCaFgNKEkqjWsPaNkCmN
+         /bvKOX9js0O1hyfFCWkQOSZfaXgtAzGqKonjCsWcjdxbQXLpyJa6/ujHvDZDhl1i3C
+         AIE28f7edmBojbAN9b0905zaVn932Exrtvjg6wIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.17 26/75] KVM: PPC: Book3S HV: fix incorrect NULL check on list iterator
+        stable@vger.kernel.org, Yuezhang Mo <Yuezhang.Mo@sony.com>,
+        Andy Wu <Andy.Wu@sony.com>,
+        Aoyama Wataru <wataru.aoyama@sony.com>,
+        Daniel Palmer <daniel.palmer@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 5.18 09/67] exfat: fix referencing wrong parent directory information after renaming
 Date:   Fri,  3 Jun 2022 19:43:10 +0200
-Message-Id: <20220603173822.490097361@linuxfoundation.org>
+Message-Id: <20220603173821.000877880@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220603173821.749019262@linuxfoundation.org>
-References: <20220603173821.749019262@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+References: <20220603173820.731531504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +57,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Yuezhang Mo <Yuezhang.Mo@sony.com>
 
-commit 300981abddcb13f8f06ad58f52358b53a8096775 upstream.
+commit d8dad2588addd1d861ce19e7df3b702330f0c7e3 upstream.
 
-The bug is here:
-	if (!p)
-                return ret;
+During renaming, the parent directory information maybe
+updated. But the file/directory still references to the
+old parent directory information.
 
-The list iterator value 'p' will *always* be set and non-NULL by
-list_for_each_entry(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element is found.
+This bug will cause 2 problems.
 
-To fix the bug, Use a new value 'iter' as the list iterator, while use
-the old value 'p' as a dedicated variable to point to the found element.
+(1) The renamed file can not be written.
 
-Fixes: dfaa973ae960 ("KVM: PPC: Book3S HV: In H_SVM_INIT_DONE, migrate remaining normal-GFNs to secure-GFNs")
-Cc: stable@vger.kernel.org # v5.9+
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220414062103.8153-1-xiam0nd.tong@gmail.com
+    [10768.175172] exFAT-fs (sda1): error, failed to bmap (inode : 7afd50e4 iblock : 0, err : -5)
+    [10768.184285] exFAT-fs (sda1): Filesystem has been set read-only
+    ash: write error: Input/output error
+
+(2) Some dentries of the renamed file/directory are not set
+    to deleted after removing the file/directory.
+
+exfat_update_parent_info() is a workaround for the wrong parent
+directory information being used after renaming. Now that bug is
+fixed, this is no longer needed, so remove it.
+
+Fixes: 5f2aa075070c ("exfat: add inode operations")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Reviewed-by: Andy Wu <Andy.Wu@sony.com>
+Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
+Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_uvmem.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/exfat/namei.c |   27 +--------------------------
+ 1 file changed, 1 insertion(+), 26 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv_uvmem.c
-+++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
-@@ -360,13 +360,15 @@ static bool kvmppc_gfn_is_uvmem_pfn(unsi
- static bool kvmppc_next_nontransitioned_gfn(const struct kvm_memory_slot *memslot,
- 		struct kvm *kvm, unsigned long *gfn)
- {
--	struct kvmppc_uvmem_slot *p;
-+	struct kvmppc_uvmem_slot *p = NULL, *iter;
- 	bool ret = false;
- 	unsigned long i;
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -1080,6 +1080,7 @@ static int exfat_rename_file(struct inod
  
--	list_for_each_entry(p, &kvm->arch.uvmem_pfns, list)
--		if (*gfn >= p->base_pfn && *gfn < p->base_pfn + p->nr_pfns)
-+	list_for_each_entry(iter, &kvm->arch.uvmem_pfns, list)
-+		if (*gfn >= iter->base_pfn && *gfn < iter->base_pfn + iter->nr_pfns) {
-+			p = iter;
- 			break;
-+		}
- 	if (!p)
- 		return ret;
- 	/*
+ 		exfat_remove_entries(inode, p_dir, oldentry, 0,
+ 			num_old_entries);
++		ei->dir = *p_dir;
+ 		ei->entry = newentry;
+ 	} else {
+ 		if (exfat_get_entry_type(epold) == TYPE_FILE) {
+@@ -1167,28 +1168,6 @@ static int exfat_move_file(struct inode
+ 	return 0;
+ }
+ 
+-static void exfat_update_parent_info(struct exfat_inode_info *ei,
+-		struct inode *parent_inode)
+-{
+-	struct exfat_sb_info *sbi = EXFAT_SB(parent_inode->i_sb);
+-	struct exfat_inode_info *parent_ei = EXFAT_I(parent_inode);
+-	loff_t parent_isize = i_size_read(parent_inode);
+-
+-	/*
+-	 * the problem that struct exfat_inode_info caches wrong parent info.
+-	 *
+-	 * because of flag-mismatch of ei->dir,
+-	 * there is abnormal traversing cluster chain.
+-	 */
+-	if (unlikely(parent_ei->flags != ei->dir.flags ||
+-		     parent_isize != EXFAT_CLU_TO_B(ei->dir.size, sbi) ||
+-		     parent_ei->start_clu != ei->dir.dir)) {
+-		exfat_chain_set(&ei->dir, parent_ei->start_clu,
+-			EXFAT_B_TO_CLU_ROUND_UP(parent_isize, sbi),
+-			parent_ei->flags);
+-	}
+-}
+-
+ /* rename or move a old file into a new file */
+ static int __exfat_rename(struct inode *old_parent_inode,
+ 		struct exfat_inode_info *ei, struct inode *new_parent_inode,
+@@ -1219,8 +1198,6 @@ static int __exfat_rename(struct inode *
+ 		return -ENOENT;
+ 	}
+ 
+-	exfat_update_parent_info(ei, old_parent_inode);
+-
+ 	exfat_chain_dup(&olddir, &ei->dir);
+ 	dentry = ei->entry;
+ 
+@@ -1241,8 +1218,6 @@ static int __exfat_rename(struct inode *
+ 			goto out;
+ 		}
+ 
+-		exfat_update_parent_info(new_ei, new_parent_inode);
+-
+ 		p_dir = &(new_ei->dir);
+ 		new_entry = new_ei->entry;
+ 		ep = exfat_get_dentry(sb, p_dir, new_entry, &new_bh);
 
 
