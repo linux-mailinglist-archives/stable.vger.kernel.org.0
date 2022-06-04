@@ -2,125 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9900B53D883
-	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 22:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3111953D899
+	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 23:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234748AbiFDUae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jun 2022 16:30:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52146 "EHLO
+        id S241758AbiFDVUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jun 2022 17:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240931AbiFDUad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 16:30:33 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA4C222A3
-        for <stable@vger.kernel.org>; Sat,  4 Jun 2022 13:30:29 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id o6-20020a17090a0a0600b001e2c6566046so14747171pjo.0
-        for <stable@vger.kernel.org>; Sat, 04 Jun 2022 13:30:29 -0700 (PDT)
+        with ESMTP id S241962AbiFDVT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 17:19:59 -0400
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7523D4D61C;
+        Sat,  4 Jun 2022 14:19:57 -0700 (PDT)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-e656032735so14843591fac.0;
+        Sat, 04 Jun 2022 14:19:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=purestorage.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=/HBb0ZDkKChS7u7W92q6z+RJ56Q8ZTddXO5nLVdm7Ds=;
-        b=P9CwzByv7YgasmohkFwhBdbjzvwEj+asz8ddZId+WOAo1rW80xt71SlfNQjChfKryA
-         wsOQcEWIagvMoLVuqx/Wl04bzWcJiucwtVHxpf+pl+ZTjtZY57pdASshNB27LMmG+Zjx
-         uWQ1GkoBKbMEn58u3OWvQ2kPRb7gAZzYQXH8Y=
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=K2R5nf9O6AXprXYtmFMJmMfna4dlV7oqPr6ZCw0TaSM=;
+        b=Mr2vutiv5X3Uqb/yPEUs+327z19fq38IV3IhPA2fuBuPaiQ36mMBs2FQCtbNhRh6Pp
+         WLRDwyMxgYWBGf6MLFnhUKPez6h5VAuWU0pz1gEDtpE/1Plad+V+F/T5gpnVBSL9z0DE
+         igOBECG1EXpTxN8oDCbVpzr7Rptin9icrl6p7ggrjSrNMsQTEdeunJFauHLoheUHUzhW
+         7e0cRtNYFPoCusfynYimsvOP0xbQXeDPxTCaRjYJgEzZR5dijrIlrlk38Z3JdoGxTJ5D
+         wYGwiRGE3GXBcu/QQ04nV9zg94UDMx9WU1svOTx+bIUbUrFHGqNCA6C8qyr4mXo/2ok1
+         XafQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=/HBb0ZDkKChS7u7W92q6z+RJ56Q8ZTddXO5nLVdm7Ds=;
-        b=J3J2nAvUi6fJOEQcD80BfXQTSDm1JR2pqz0Ik5A9C5isxRhjh2AApzmg26x9yZwGIp
-         yxgMeQbY52K8G2ljcBzqzVxXHZhYxigZioup2T5KTADQOfhmuxa+jn0Ps3UBF4OimFi/
-         EeUl90rCupCS6bLFmECvRNBV2Li4j3NlCGKxAzNgLvrsxcILA0bJUiocA/BOC+bmp4r2
-         i07D88gLB+p0M3KfJ8hkks4hLBNzcA1UpxgkPuUOEQ7IJV/FkONTZnFhgamKXzbt1eS9
-         eeMloet1jKQ3qKZ2rnVI1odUNKgR4B8lBToG2/U5kT6COA9N+/nQ4SqAAO57V3zeKxMI
-         6HZw==
-X-Gm-Message-State: AOAM532uwrsIo3XanpCnSOuIfJ47dBEfW9fXAyUPlA6yA3IIElAluE58
-        6MmXaai2XAXNQ/OgOCRfVgUk0w==
-X-Google-Smtp-Source: ABdhPJwtXs6I68jQqRzep0xqec3GlALJ3iL77SWf2Owq4SCVbCGHKE8Dm7lcxheeLXbH6VLIAOVrIw==
-X-Received: by 2002:a17:902:eccc:b0:167:5c6e:31e4 with SMTP id a12-20020a170902eccc00b001675c6e31e4mr5543306plh.90.1654374628607;
-        Sat, 04 Jun 2022 13:30:28 -0700 (PDT)
-Received: from irdv-mkhalfella.dev.purestorage.com ([208.88.158.128])
-        by smtp.googlemail.com with ESMTPSA id l63-20020a638842000000b003f61c311e79sm6530196pgd.56.2022.06.04.13.30.26
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 04 Jun 2022 13:30:27 -0700 (PDT)
-From:   Mohamed Khalfella <mkhalfella@purestorage.com>
-To:     helgaas@kernel.org
-Cc:     bhelgaas@google.com, ebadger@purestorage.com,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, mkhalfella@purestorage.com,
-        msaggi@purestorage.com, oohall@gmail.com, rajatja@google.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] PCI/AER: Iterate over error counters instead of error
-Date:   Sat,  4 Jun 2022 20:30:21 +0000
-Message-Id: <20220604203021.10663-1-mkhalfella@purestorage.com>
-X-Mailer: git-send-email 2.29.0
-In-Reply-To: <20220603235856.GA117911@bhelgaas>
-References: <20220603235856.GA117911@bhelgaas>
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=K2R5nf9O6AXprXYtmFMJmMfna4dlV7oqPr6ZCw0TaSM=;
+        b=tCfCj0Cp4YRbWjDa1cz2n1JwnlGeo0xfE6uKO/BoYt8Jo3L5YjO4smxE/l77STHmFT
+         TcyC4M0CZc0/a7Wyfb5cA30A0AtU61WbKb7G06enimwResMJ8kvI2P4YjNdWwS6Ikk2M
+         daK6p/HWeLwN/XGENGbrk38Rw3syv80nDoixfRvapzquLiC0S9Ev4eUb8PgfQZEYeiKz
+         VF4RJ+wcoYlwdvKnveea9ZYtzgs0s3Z+GcqK//vS5lVyhlXwRRH/xdKlSeSzD6DNQgpc
+         fySsaF4/YP1UIhWqlAbkna80FrcphKa2s70rvWCEZGoLKbRHxajeK7cW+ttMjFGwPmH5
+         J/3w==
+X-Gm-Message-State: AOAM53172nk7nMkmiEmRDqurUkXAz7YqzM7S1w4anVFIYvpHIb6q5R6a
+        F4w+Fas+f+3z+QjIARHoV4I=
+X-Google-Smtp-Source: ABdhPJwYEaG9q9x4p0Kd0sEYx8WTM1dFHp/XBRnjlJ58/Y4KLNuaufFeXR99f7Co6LhD60kSbPKQTQ==
+X-Received: by 2002:a05:6870:b292:b0:f5:da78:c444 with SMTP id c18-20020a056870b29200b000f5da78c444mr13453322oao.214.1654377596779;
+        Sat, 04 Jun 2022 14:19:56 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id m11-20020a4aedcb000000b00415a9971cfcsm5731100ooh.38.2022.06.04.14.19.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Jun 2022 14:19:56 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 4 Jun 2022 14:19:54 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 00/66] 5.15.45-rc1 review
+Message-ID: <20220604211954.GA4026952@roeck-us.net>
+References: <20220603173820.663747061@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/3/22 16:58, Bjorn Helgaas wrote:
-> On Fri, Jun 03, 2022 at 10:12:47PM +0000, Mohamed Khalfella wrote:
->> Is there any chance for this to land in 5.19?
->
-> Too late for v5.19, since the merge window will end in a couple days.
-> Remind me again if you don't see it in -next by v5.20-rc5 or so.
->
+On Fri, Jun 03, 2022 at 07:42:40PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.45 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 05 Jun 2022 17:38:05 +0000.
+> Anything received after that time might be too late.
+> 
 
-Thank you. I will keep an eye on -next.
+Build results:
+	total: 157 pass: 157 fail: 0
+Qemu test results:
+	total: 488 pass: 488 fail: 0
 
->> On 5/10/22 14:17, Mohamed Khalfella wrote:
->>>> Thanks for catching this; it definitely looks like a real issue!  I
->>>> guess you're probably seeing junk in the sysfs files?
->>>
->>> That is correct. The initial report was seeing junk when reading sysfs
->>> files. As descibed, this is happening because we reading data past the
->>> end of the stats counters array.
->>>
->>>
->>>> I think maybe we should populate the currently NULL entries in the
->>>> string[] arrays and simplify the code here, e.g.,
->>>>
->>>> static const char *aer_correctable_error_string[] = {
->>>>        "RxErr",                        /* Bit Position 0       */
->>>>        "dev_cor_errs_bit[1]",
->>>> 	...
->>>>
->>>>  if (stats[i])
->>>>    len += sysfs_emit_at(buf, len, "%s %llu\n", strings_array[i], stats[i]);
->>>
->>> Doing it this way will change the output format. In this case we will show
->>> stats only if their value is greater than zero. The current code shows all the
->>> stats those have names (regardless of their value) plus those have non-zero
->>> values.
->>>
->>>>> @@ -1342,6 +1342,11 @@ static int aer_probe(struct pcie_device *dev)
->>>>>  	struct device *device = &dev->device;
->>>>>  	struct pci_dev *port = dev->port;
->>>>>
->>>>> +	BUILD_BUG_ON(ARRAY_SIZE(aer_correctable_error_string) <
->>>>> +		     AER_MAX_TYPEOF_COR_ERRS);
->>>>> +	BUILD_BUG_ON(ARRAY_SIZE(aer_uncorrectable_error_string) <
->>>>> +		     AER_MAX_TYPEOF_UNCOR_ERRS);
->>>>
->>>> And make these check for "!=" instead of "<".
->>
->> I am happy to remove these BUILD_BUG_ON() if you think it is a good
->> idea to do so.
->
-> I think it's good to enforce correctness there somehow, so let's leave
-> them there unless somebody has a better idea.
->
->>> This will require unnecessarily extending stats arrays to have 32 entries
->>> in order to match names arrays. If you don't feel strogly about changing
->>> "<" to "!=", I prefer to keep the code as it is. 
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
