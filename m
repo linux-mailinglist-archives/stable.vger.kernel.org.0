@@ -2,48 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3745253D5CE
-	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 08:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D78753D5CC
+	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 08:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345596AbiFDGZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jun 2022 02:25:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51412 "EHLO
+        id S244887AbiFDGZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jun 2022 02:25:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350667AbiFDGZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 02:25:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE8B1A07A
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 23:25:28 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1441B8253E
-        for <stable@vger.kernel.org>; Sat,  4 Jun 2022 06:25:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01947C385B8;
-        Sat,  4 Jun 2022 06:25:24 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kHYZuoog"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1654323922;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=tPN7HvJHMbq/2SQEEjHzasXiGzKC+KA2FuMI8orGO14=;
-        b=kHYZuoogYK4hGWEiUE2JZHcHQ4O7ne4wl7dRMQMu5yzOIqLZnVpFkQ55mofxMoiIWkbwk9
-        Z4cdyAAXi6nQrKQRVwMvF/F3a5S2VwoRBRu07tfROJpIThy+SRPA8WQvJmdCAKfRDW/1z2
-        7PreFeOOx/XVzJuOnzg2flaApKcCbtk=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id cc581e7a (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Sat, 4 Jun 2022 06:25:22 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: [PATCH stable 5.10 5.15 5.17 5.18] arm64: Initialize jump labels before setup_machine_fdt()
-Date:   Sat,  4 Jun 2022 08:25:03 +0200
-Message-Id: <20220604062503.396762-1-Jason@zx2c4.com>
+        with ESMTP id S232531AbiFDGZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 02:25:08 -0400
+Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704C719C11
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 23:25:07 -0700 (PDT)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id CB1C710049CBF
+        for <stable@vger.kernel.org>; Sat,  4 Jun 2022 06:25:06 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id xNDenFMnhkku4xNDenSKFT; Sat, 04 Jun 2022 06:25:06 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=CoB6zl0D c=1 sm=1 tr=0 ts=629afac2
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=JPEYwPQDsx4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=pmHkVxMz6qU+V6/Loyd/TJeypiA5LYXFC7plwqYyu64=; b=E47j/KKK1f6uyzqkiAs71P+XLZ
+        sg3HYCVPIoJaMoHUuwjoFhXExtZUhmqIyfvV+J8jFyzkCb10u7rD8AxW9pE59TnR04eWHkDwOez3W
+        X325cdrG5m/E5dWGo4liP2WSvbgvJFAWQhQBBZfk+qMlhICR/LW3+3caKuoiJgRieUbvbnfNKzpCE
+        GZtmtNeJCYCR+DarWP+Vi5R6Dceb6+HTyRNCUIalxI4kKQywnk+xiN8mLM+FIvuM0Nunufludg/SL
+        fGwVEeGp5wvpbLceiGYqcjsvXL3uQgRfGeFwB7Cn7YhHj3tm7bh6xnIzQ+cMUMCLClEDUXftm0nvk
+        XbrlRYjQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53318 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1nxNDd-0005OB-HZ;
+        Sat, 04 Jun 2022 00:25:05 -0600
+Subject: Re: [PATCH 5.18 00/67] 5.18.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220603173820.731531504@linuxfoundation.org>
+In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <da301fcc-4636-f229-c10c-192069311411@w6rz.net>
+Date:   Fri, 3 Jun 2022 23:25:03 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nxNDd-0005OB-HZ
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53318
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,95 +92,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+On 6/3/22 10:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.2 release.
+> There are 67 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 05 Jun 2022 17:38:05 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.2-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-A static key warning splat appears during early boot on arm64 systems
-that credit randomness from devicetrees that contain an "rng-seed"
-property. This is because setup_machine_fdt() is called before
-jump_label_init() during setup_arch(). Let's swap the order of these two
-calls so that jump labels are initialized before the devicetree is
-unflattened and the rng seed is credited.
-
- static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
- WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
- Modules linked in:
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
- pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
- pc : static_key_enable_cpuslocked+0xb0/0xb8
- lr : static_key_enable_cpuslocked+0xb0/0xb8
- sp : ffffffe51c393cf0
- x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
- x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
- x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
- x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
- x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
- x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
- x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
- x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
- x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
- x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
- Call trace:
-  static_key_enable_cpuslocked+0xb0/0xb8
-  static_key_enable+0x2c/0x40
-  crng_set_ready+0x24/0x30
-  execute_in_process_context+0x80/0x90
-  _credit_init_bits+0x100/0x154
-  add_bootloader_randomness+0x64/0x78
-  early_init_dt_scan_chosen+0x140/0x184
-  early_init_dt_scan_nodes+0x28/0x4c
-  early_init_dt_scan+0x40/0x44
-  setup_machine_fdt+0x7c/0x120
-  setup_arch+0x74/0x1d8
-  start_kernel+0x84/0x44c
-  __primary_switched+0xc0/0xc8
- ---[ end trace 0000000000000000 ]---
- random: crng init done
- Machine model: Google Lazor (rev1 - 2) with LTE
-
-Cc: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
-This got a "Fixes:" tag, but didn't have a corresponding Cc to stable.
-Presumably AUTOSEL will eventually find this too, but sending it onward
-proactively anyway.
-
- arch/arm64/kernel/setup.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index eb4b24652c10..2360ff765979 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -300,13 +300,14 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
- 	early_fixmap_init();
- 	early_ioremap_init();
- 
--	setup_machine_fdt(__fdt_pointer);
--
- 	/*
- 	 * Initialise the static keys early as they may be enabled by the
--	 * cpufeature code and early parameters.
-+	 * cpufeature code, early parameters, and DT setup.
- 	 */
- 	jump_label_init();
-+
-+	setup_machine_fdt(__fdt_pointer);
-+
- 	parse_early_param();
- 
- 	/*
--- 
-2.35.1
+Tested-by: Ron Economos <re@w6rz.net>
 
