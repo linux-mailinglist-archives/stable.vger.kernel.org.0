@@ -2,116 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D78753D5CC
-	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 08:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C42853D603
+	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 10:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244887AbiFDGZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jun 2022 02:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51144 "EHLO
+        id S233454AbiFDIAG convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 4 Jun 2022 04:00:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232531AbiFDGZI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 02:25:08 -0400
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704C719C11
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 23:25:07 -0700 (PDT)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id CB1C710049CBF
-        for <stable@vger.kernel.org>; Sat,  4 Jun 2022 06:25:06 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id xNDenFMnhkku4xNDenSKFT; Sat, 04 Jun 2022 06:25:06 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=CoB6zl0D c=1 sm=1 tr=0 ts=629afac2
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=JPEYwPQDsx4A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=pmHkVxMz6qU+V6/Loyd/TJeypiA5LYXFC7plwqYyu64=; b=E47j/KKK1f6uyzqkiAs71P+XLZ
-        sg3HYCVPIoJaMoHUuwjoFhXExtZUhmqIyfvV+J8jFyzkCb10u7rD8AxW9pE59TnR04eWHkDwOez3W
-        X325cdrG5m/E5dWGo4liP2WSvbgvJFAWQhQBBZfk+qMlhICR/LW3+3caKuoiJgRieUbvbnfNKzpCE
-        GZtmtNeJCYCR+DarWP+Vi5R6Dceb6+HTyRNCUIalxI4kKQywnk+xiN8mLM+FIvuM0Nunufludg/SL
-        fGwVEeGp5wvpbLceiGYqcjsvXL3uQgRfGeFwB7Cn7YhHj3tm7bh6xnIzQ+cMUMCLClEDUXftm0nvk
-        XbrlRYjQ==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53318 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1nxNDd-0005OB-HZ;
-        Sat, 04 Jun 2022 00:25:05 -0600
-Subject: Re: [PATCH 5.18 00/67] 5.18.2-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220603173820.731531504@linuxfoundation.org>
-In-Reply-To: <20220603173820.731531504@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <da301fcc-4636-f229-c10c-192069311411@w6rz.net>
-Date:   Fri, 3 Jun 2022 23:25:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S233422AbiFDH74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 03:59:56 -0400
+X-Greylist: delayed 63 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 04 Jun 2022 00:59:51 PDT
+Received: from srv-correo.valvulasarco.es (srv-correo.valvulasarco.es [217.130.82.102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 299C933E98;
+        Sat,  4 Jun 2022 00:59:50 -0700 (PDT)
+Received: from [103.153.79.240] (103.153.79.240) by SRV-MAIL.jferrer.es
+ (172.16.22.8) with Microsoft SMTP Server (TLS) id 8.3.348.2; Sat, 4 Jun 2022
+ 09:58:46 +0200
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nxNDd-0005OB-HZ
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53318
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Hi...
+To:     Recipients <mbravo@valvulasarco.es>
+From:   MIKE TAILOR INVESTMENT <mbravo@valvulasarco.es>
+Date:   Sat, 4 Jun 2022 00:43:57 -0700
+Reply-To: <investmentdept2022@miketailorinv.us>
+Message-ID: <35c5c24d-a5e4-4032-844b-d33e2e24ab7b@SRV-MAIL.jferrer.es>
+X-EXCLAIMER-MD-CONFIG: 34136305-f895-4c7a-ba04-06adf52f1cb6
+X-Spam-Status: No, score=3.8 required=5.0 tests=BAYES_50,NIXSPAM_IXHASH,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ***
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/3/22 10:43 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.2 release.
-> There are 67 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 05 Jun 2022 17:38:05 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.2-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
-
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
-
-Tested-by: Ron Economos <re@w6rz.net>
-
+Mike Tailor INV is currently doing a great investment Promo, You have the opportunity to invest at least $250 USD and earn $2,500 USD in 4 working days. Contact the investment company via this email: ( investmentdept2022@miketailorinv.us ). The higher you invest the higher your profit value.
