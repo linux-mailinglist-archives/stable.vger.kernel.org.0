@@ -2,117 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5032B53D4F5
-	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 04:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3745253D5CE
+	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 08:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350291AbiFDCzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 22:55:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41654 "EHLO
+        id S1345596AbiFDGZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jun 2022 02:25:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232272AbiFDCzN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 22:55:13 -0400
-Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 172381EAC3;
-        Fri,  3 Jun 2022 19:55:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1654311312; x=1685847312;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ED43jslFhlsHXIzRJK0vY5xln1pin1QES+QgTYUzm0I=;
-  b=XRXeLSNT8dYGkUF4h281apYTXLAgsrs0EuuyGOEJ6UmT7Fyrwv+8FSor
-   xvGDjt7fTGEPt6sLAPgzG/MzN/TrYmxMwQXb7FpmzkPJkqxeRdKBYkYww
-   qCxIWxdg6wPizjdEwOrrlTj3TGyomywxVbGqrnkGTHX2qvhturLYvmdm1
-   o=;
-Received: from unknown (HELO ironmsg02-sd.qualcomm.com) ([10.53.140.142])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 03 Jun 2022 19:55:12 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg02-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2022 19:55:11 -0700
-Received: from nalasex01b.na.qualcomm.com (10.47.209.197) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 3 Jun 2022 19:55:11 -0700
-Received: from linyyuan-gv.qualcomm.com (10.80.80.8) by
- nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 3 Jun 2022 19:55:08 -0700
-From:   Linyu Yuan <quic_linyyuan@quicinc.com>
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-usb@vger.kernel.org>, <stable@vger.kernel.org>,
-        Jack Pham <quic_jackp@quicinc.com>,
-        Michael Wu <michael@allwinnertech.com>,
-        "John Keeping" <john@metanate.com>,
-        Linyu Yuan <quic_linyyuan@quicinc.com>
-Subject: [PATCH v4 2/2] usb: gadget: f_fs: change ep->ep safe in ffs_epfile_io()
-Date:   Sat, 4 Jun 2022 10:54:55 +0800
-Message-ID: <1654311295-9700-3-git-send-email-quic_linyyuan@quicinc.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1654311295-9700-1-git-send-email-quic_linyyuan@quicinc.com>
-References: <1654311295-9700-1-git-send-email-quic_linyyuan@quicinc.com>
+        with ESMTP id S1350667AbiFDGZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 02:25:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE8B1A07A
+        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 23:25:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1441B8253E
+        for <stable@vger.kernel.org>; Sat,  4 Jun 2022 06:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01947C385B8;
+        Sat,  4 Jun 2022 06:25:24 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kHYZuoog"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1654323922;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=tPN7HvJHMbq/2SQEEjHzasXiGzKC+KA2FuMI8orGO14=;
+        b=kHYZuoogYK4hGWEiUE2JZHcHQ4O7ne4wl7dRMQMu5yzOIqLZnVpFkQ55mofxMoiIWkbwk9
+        Z4cdyAAXi6nQrKQRVwMvF/F3a5S2VwoRBRu07tfROJpIThy+SRPA8WQvJmdCAKfRDW/1z2
+        7PreFeOOx/XVzJuOnzg2flaApKcCbtk=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id cc581e7a (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sat, 4 Jun 2022 06:25:22 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
+Subject: [PATCH stable 5.10 5.15 5.17 5.18] arm64: Initialize jump labels before setup_machine_fdt()
+Date:   Sat,  4 Jun 2022 08:25:03 +0200
+Message-Id: <20220604062503.396762-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In ffs_epfile_io(), when read/write data in blocking mode, it will wait
-the completion in interruptible mode, if task receive a signal, it will
-terminate the wait, at same time, if function unbind occurs,
-ffs_func_unbind() will kfree all eps, ffs_epfile_io() still try to
-dequeue request by dereferencing ep which may become invalid.
+From: Stephen Boyd <swboyd@chromium.org>
 
-Fix it by add ep spinlock and will not dereference ep if it is not valid.
+commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
 
-Cc: <stable@vger.kernel.org> # 5.15
-Reported-by: Michael Wu <michael@allwinnertech.com>
-Tested-by: Michael Wu <michael@allwinnertech.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
+A static key warning splat appears during early boot on arm64 systems
+that credit randomness from devicetrees that contain an "rng-seed"
+property. This is because setup_machine_fdt() is called before
+jump_label_init() during setup_arch(). Let's swap the order of these two
+calls so that jump labels are initialized before the devicetree is
+unflattened and the rng seed is credited.
+
+ static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
+ WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
+ pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+ pc : static_key_enable_cpuslocked+0xb0/0xb8
+ lr : static_key_enable_cpuslocked+0xb0/0xb8
+ sp : ffffffe51c393cf0
+ x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
+ x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
+ x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
+ x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
+ x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
+ x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
+ x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
+ x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
+ x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
+ x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
+ Call trace:
+  static_key_enable_cpuslocked+0xb0/0xb8
+  static_key_enable+0x2c/0x40
+  crng_set_ready+0x24/0x30
+  execute_in_process_context+0x80/0x90
+  _credit_init_bits+0x100/0x154
+  add_bootloader_randomness+0x64/0x78
+  early_init_dt_scan_chosen+0x140/0x184
+  early_init_dt_scan_nodes+0x28/0x4c
+  early_init_dt_scan+0x40/0x44
+  setup_machine_fdt+0x7c/0x120
+  setup_arch+0x74/0x1d8
+  start_kernel+0x84/0x44c
+  __primary_switched+0xc0/0xc8
+ ---[ end trace 0000000000000000 ]---
+ random: crng init done
+ Machine model: Google Lazor (rev1 - 2) with LTE
+
+Cc: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
-v2: add Reviewed-by from John keeping
-v3: add Reported-by from Michael Wu
-v4: add Tested-by from Michael Wu
-    cc stable kernel
+This got a "Fixes:" tag, but didn't have a corresponding Cc to stable.
+Presumably AUTOSEL will eventually find this too, but sending it onward
+proactively anyway.
 
- drivers/usb/gadget/function/f_fs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/kernel/setup.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 3958c60..b0c046a 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1077,6 +1077,11 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 		spin_unlock_irq(&epfile->ffs->eps_lock);
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index eb4b24652c10..2360ff765979 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -300,13 +300,14 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
+ 	early_fixmap_init();
+ 	early_ioremap_init();
  
- 		if (wait_for_completion_interruptible(&io_data->done)) {
-+			spin_lock_irq(&epfile->ffs->eps_lock);
-+			if (epfile->ep != ep) {
-+				ret = -ESHUTDOWN;
-+				goto error_lock;
-+			}
- 			/*
- 			 * To avoid race condition with ffs_epfile_io_complete,
- 			 * dequeue the request first then check
-@@ -1084,6 +1089,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 			 * condition with req->complete callback.
- 			 */
- 			usb_ep_dequeue(ep->ep, req);
-+			spin_unlock_irq(&epfile->ffs->eps_lock);
- 			wait_for_completion(&io_data->done);
- 			interrupted = io_data->status < 0;
- 		}
+-	setup_machine_fdt(__fdt_pointer);
+-
+ 	/*
+ 	 * Initialise the static keys early as they may be enabled by the
+-	 * cpufeature code and early parameters.
++	 * cpufeature code, early parameters, and DT setup.
+ 	 */
+ 	jump_label_init();
++
++	setup_machine_fdt(__fdt_pointer);
++
+ 	parse_early_param();
+ 
+ 	/*
 -- 
-2.7.4
+2.35.1
 
