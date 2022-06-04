@@ -2,168 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E75B753D40D
-	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 02:20:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4497953D415
+	for <lists+stable@lfdr.de>; Sat,  4 Jun 2022 02:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbiFDAUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jun 2022 20:20:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S1348884AbiFDAeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jun 2022 20:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231737AbiFDAUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 20:20:55 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291B95932C
-        for <stable@vger.kernel.org>; Fri,  3 Jun 2022 17:20:54 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id h1so7855346plf.11
-        for <stable@vger.kernel.org>; Fri, 03 Jun 2022 17:20:54 -0700 (PDT)
+        with ESMTP id S231961AbiFDAeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jun 2022 20:34:08 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 259C91EAF0;
+        Fri,  3 Jun 2022 17:34:07 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id mh16-20020a17090b4ad000b001e8313301f1so1933281pjb.1;
+        Fri, 03 Jun 2022 17:34:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=A2GfEm2k+DcqSI7482Lr60vKNEHFOk0JCK7bNUNr3bU=;
-        b=k8JJfAurUV1rW94i6aPlTr80UnIJGzlfVv8e4wxK+k06lEjQlV0sibqbdOepxI8NCI
-         3m8xMS7Fx90Hw585OecRa9HAF2If35m1hHJ34gLGs+gWCkSIQkYnmVFU6VsjAvSSMsjM
-         AObtzv+HR3/+c/68HYXg8iMwAt2S2vXiNR2obcX99PulqKyvPjRbhUf7ku9+7SEogJQS
-         rNEn8utuzxVSbXmJf4xh2AoyAZpYj+qTy01aBmxa/sJ/DIQh0b9eR9DIlVr0suUTsNNL
-         USZ/RulH0NnPwtbl8m13ziXCs/pzAPleMYSpselskdeseEHwcEzuNReaR8jQ85NQLlO2
-         YpHg==
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=4J9r/ADMHRa2VWDoRZONcQ79oJ/Zv5AbYRMCT0dxcKI=;
+        b=oBQYyoGuhqud0Uo0G9jJEbWL5XGDdvkOHkOkYNwfynRVfc7bZyiw6hhKcqFaubd12F
+         V4W7qwRClvOhDersC3MwfuLq3wY/CB1FVW2JulQBNEJr8gQe5F2BTZZ0g5L7vIdEDWl9
+         i9CRo/2wGAPZXVDhlGmwoL/g1fWE13+d/plvJI0C1PDHaMGtzzlAj+dr863IbJh3VaNW
+         gq/iqFRpg5xHHPbav7GA2L5tvmuhoIAH3THW8Il7Bw33My/NjSvbk4/j5FTV/afF/jNg
+         2dm0IbTZQ08joDiVD5EjrdA66/tJd9kZJXtVVaS9iV1k/bIvxtq9pk15N/2JXAtdkHgt
+         USFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=A2GfEm2k+DcqSI7482Lr60vKNEHFOk0JCK7bNUNr3bU=;
-        b=rIG4lowi0UMa5mWOG4aFSLrYv/7uGv/Jyz22abuFfgzLRQA+OYDY1rHo6Ah81jsiiG
-         ayGEretYxoLr4CD2tiSq5rKkFxt1cjok+JgXWyygPttEPdTxZXZ9O275bTfxPWtFMQ2x
-         Rdb7TaI/qSv3x2N2GG3AomaqzEYfGODklb7nyQUrOOUyUDahfpOxH+OpJc/9p6tLuNKO
-         uaZYpCAHL9N9F+BEEXgDXK97/WQdmlzvGlf8eEevTtUB1F4q0Q9rGyiktQrpTTRB3jEj
-         4g3xy5nzKGbtwM+FdAKzYws9L0dE/9qehdlVZD84wHphhkgb3URqE2lL1t4EuhNpcq3/
-         iojw==
-X-Gm-Message-State: AOAM531vRd/ZYSMbj/5SLXQqXRMuGzZEgcjzzZcsthLbXvTb6Bca6wrG
-        R30w28xfCsRNpfdjB8x8xtHa2RKsSSXpQJgP
-X-Google-Smtp-Source: ABdhPJyA3qspoqTdwi18JcBtp7WhQjDO0Tu92rgOeCYUC+VMfGT9SwFLBewMxKZvRuZtR1dM/88bZQ==
-X-Received: by 2002:a17:902:bf45:b0:163:ad4b:dde9 with SMTP id u5-20020a170902bf4500b00163ad4bdde9mr12137561pls.25.1654302053568;
-        Fri, 03 Jun 2022 17:20:53 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g7-20020a170902934700b0015e8d4eb1e5sm5906814plp.47.2022.06.03.17.20.52
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=4J9r/ADMHRa2VWDoRZONcQ79oJ/Zv5AbYRMCT0dxcKI=;
+        b=uj0owmH0reYiH36UeKUnbIikBFsbcguIRaIS3RIQ6EHZ67MRgtye18+i32vhAijRzY
+         em5eCLhY7auP6TOd74nFkj/MbMY3U9F3h/u8wzi/+7eRSfH37MLmMqm6tmJAPj07yNxo
+         sicXrcHznkQY4F5z7EqKuTULRSCAYlWE7mP6fDFaGfXM8CzX/V+IxYgaE7tQte3NynBh
+         VYtFJk4MFDMDggwpNPb5x8xh3RKPXNCLi2ZMo3UYDvWz+4QbkR8d0W9/lQB/JoP2oVRm
+         9YMf9u1N7roQB6Rf+XwY74ptDUUqHnfwRXGyfx/Cu9Og+c6vK/lMP0ajfEumQ0+IaU6x
+         DWHA==
+X-Gm-Message-State: AOAM532kNXb95e+uDjM/pds0kztSIvk/zNYSWNMK2GAhpK+8bjK+YtIs
+        2VFkM3Ql5CZiGQWAnJFSytzcRw/nl0lYpL8wRS8=
+X-Google-Smtp-Source: ABdhPJwz+zcP/jbpD3OdNjr4zcbZupr8epwyWSV1FBCKIIbIFaUGIVFkSI++OIwAgcIi48bKhE4nww==
+X-Received: by 2002:a17:90b:1c8e:b0:1bf:364c:dd7a with SMTP id oo14-20020a17090b1c8e00b001bf364cdd7amr13224332pjb.103.1654302846284;
+        Fri, 03 Jun 2022 17:34:06 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id j17-20020aa78d11000000b0051bbb683cc4sm5212195pfe.165.2022.06.03.17.34.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jun 2022 17:20:52 -0700 (PDT)
-Message-ID: <629aa564.1c69fb81.e6675.d9b8@mx.google.com>
-Date:   Fri, 03 Jun 2022 17:20:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.17.11-188-g30200667e8235
-X-Kernelci-Branch: linux-5.17.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.17.y baseline: 68 runs,
- 2 regressions (v5.17.11-188-g30200667e8235)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        Fri, 03 Jun 2022 17:34:05 -0700 (PDT)
+Message-ID: <629aa87d.1c69fb81.5d845.beae@mx.google.com>
+Date:   Fri, 03 Jun 2022 17:34:05 -0700 (PDT)
+X-Google-Original-Date: Sat, 04 Jun 2022 00:34:04 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
+Subject: RE: [PATCH 5.15 00/66] 5.15.45-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.17.y baseline: 68 runs, 2 regressions (v5.17.11-188-g3020=
-0667e8235)
+On Fri,  3 Jun 2022 19:42:40 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.15.45 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 05 Jun 2022 17:38:05 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.45-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Regressions Summary
--------------------
+5.15.45-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-platform           | arch   | lab           | compiler | defconfig         =
-           | regressions
--------------------+--------+---------------+----------+-------------------=
------------+------------
-hp-x360-14-G1-sona | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
-chromebook | 1          =
-
-jetson-tk1         | arm    | lab-baylibre  | gcc-10   | tegra_defconfig   =
-           | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.17.y/ker=
-nel/v5.17.11-188-g30200667e8235/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.17.y
-  Describe: v5.17.11-188-g30200667e8235
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      30200667e823559c51baeb2bd95c14b144cd8e5c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch   | lab           | compiler | defconfig         =
-           | regressions
--------------------+--------+---------------+----------+-------------------=
------------+------------
-hp-x360-14-G1-sona | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629a6faa049fd54f0da39bd8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-1-188-g30200667e8235/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-coll=
-abora/baseline-hp-x360-14-G1-sona.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-1-188-g30200667e8235/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-coll=
-abora/baseline-hp-x360-14-G1-sona.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629a6faa049fd54f0da39=
-bd9
-        new failure (last pass: v5.17.11-112-g118948632858) =
-
- =
-
-
-
-platform           | arch   | lab           | compiler | defconfig         =
-           | regressions
--------------------+--------+---------------+----------+-------------------=
------------+------------
-jetson-tk1         | arm    | lab-baylibre  | gcc-10   | tegra_defconfig   =
-           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629a73e509d682164fa39bed
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-1-188-g30200667e8235/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetso=
-n-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
-1-188-g30200667e8235/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetso=
-n-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629a73e509d682164fa39=
-bee
-        new failure (last pass: v5.17.11) =
-
- =20
