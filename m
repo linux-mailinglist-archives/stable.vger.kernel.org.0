@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6EAE53DBDA
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB00A53DBD8
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344497AbiFENym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:54:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37990 "EHLO
+        id S1344419AbiFENzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:55:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344419AbiFENyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:54:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2699B1E1;
-        Sun,  5 Jun 2022 06:54:06 -0700 (PDT)
+        with ESMTP id S1344599AbiFENyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:54:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39A4B7F5;
+        Sun,  5 Jun 2022 06:54:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75F7D60FA6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8389FB80735;
+        Sun,  5 Jun 2022 13:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F7B2C34115;
         Sun,  5 Jun 2022 13:54:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D199C385A5;
-        Sun,  5 Jun 2022 13:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654437245;
-        bh=h4il9NEwlDhRClIoY7hNjlMkV92f7fL2oN4YkoUeJsM=;
+        s=k20201202; t=1654437247;
+        bh=NMn/D9JPxt8jLL6icF27dO7Gk6ddPFeYALAuEG6UVWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/mpuCW2Lr0kaFLAhpKw/OnbjBxq62LgIub3j3bXFFWVw2JHEB8lEzCGH1Je63umN
-         g7kGKx6oUa/BCBJJ0arwnn0x/6da9t0t1K9xa9G+q69GBnGycf8cveXlPZZyRx65vz
-         ySy7a5zMsCGrUreGzkRfzj/AX0QAAUaJC91p8TUqH8NZhR1+At95yFI8Hx2F9Lq+3/
-         1pbmVOUpreK/3R1+p6ZeCKD6uqARNq3HDgyFcpVgZ5IVk4pNkttf1MtGzpxRFoLOx9
-         G9cW4jFWKL+vSqHfu6i4AE7prfn7BfNqCj65Uhg6aaLW+B3hXfOi2SUV85Sf1LuIG/
-         JkT1h7a0fRFHA==
+        b=KRnU3Unpk2NxVGaheTfsiVykcQ6C3vRQ+BinX1fS/3tYzlQGxLJtdiC3L0ZPCT9bT
+         xtBvOyqB3B6b65Jf7H/eQhjP/6Uju94rYAU5LaaqsvPr8xquEJCOY2OVEDm5djJbyq
+         JN6FQBpZbNoMZLDZBsryibAhpXhc+T01DXocBo4UmbJpV8CRI46VjnD6QEJdTvpRcQ
+         5LC4bO8NsEibp++Q0sCXShB6zShT2R050Faax4iHwDJ2sy/dvg2bTpa6q5bi5iUusq
+         2PtTG2SDRzP3+GB8p5mXPtLZkzIJwHCJDKhGkKj6ycuVuiR4V+R9Han+JOH0FxNG1W
+         L0I5Z6INNN35w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+Cc:     Marc Zyngier <maz@kernel.org>, John Garry <john.garry@huawei.com>,
+        David Decotigny <ddecotig@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH MANUALSEL 5.17 4/6] lib/irq_poll: Prevent softirq pending leak in irq_poll_cpu_dead()
-Date:   Sun,  5 Jun 2022 09:53:35 -0400
-Message-Id: <20220605135341.61427-4-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.17 5/6] genirq/msi: Shutdown managed interrupts with unsatifiable affinities
+Date:   Sun,  5 Jun 2022 09:53:36 -0400
+Message-Id: <20220605135341.61427-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220605135341.61427-1-sashal@kernel.org>
 References: <20220605135341.61427-1-sashal@kernel.org>
@@ -56,57 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 75d8cce128c516fe6cf4b8683e8fe1a59e919902 ]
+[ Upstream commit d802057c7c553ad426520a053da9f9fe08e2c35a ]
 
-irq_poll_cpu_dead() pulls the blk_cpu_iopoll backlog from the dead CPU and
-raises the POLL softirq with __raise_softirq_irqoff() on the CPU it is
-running on. That just sets the bit in the pending softirq mask.
+When booting with maxcpus=<small number>, interrupt controllers
+such as the GICv3 ITS may not be able to satisfy the affinity of
+some managed interrupts, as some of the HW resources are simply
+not available.
 
-This means the handling of the softirq is delayed until the next interrupt
-or a local_bh_disable/enable() pair. As a consequence the CPU on which this
-code runs can reach idle with the POLL softirq pending, which triggers a
-warning in the NOHZ idle code.
+The same thing happens when loading a driver using managed interrupts
+while CPUs are offline.
 
-Add a local_bh_disable/enable() pair around the interrupts disabled section
-in irq_poll_cpu_dead(). local_bh_enable will handle the pending softirq.
+In order to deal with this, do not try to activate such interrupt
+if there is no online CPU capable of handling it. Instead, place
+it in shutdown state. Once a capable CPU shows up, it will be
+activated.
 
-[tglx: Massaged changelog and comment]
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: John Garry <john.garry@huawei.com>
+Reported-by: David Decotigny <ddecotig@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/87k0bxgl27.ffs@tglx
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/irq_poll.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ kernel/irq/msi.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/lib/irq_poll.c b/lib/irq_poll.c
-index 2f17b488d58e..2d5329a42105 100644
---- a/lib/irq_poll.c
-+++ b/lib/irq_poll.c
-@@ -188,14 +188,18 @@ EXPORT_SYMBOL(irq_poll_init);
- static int irq_poll_cpu_dead(unsigned int cpu)
- {
- 	/*
--	 * If a CPU goes away, splice its entries to the current CPU
--	 * and trigger a run of the softirq
-+	 * If a CPU goes away, splice its entries to the current CPU and
-+	 * set the POLL softirq bit. The local_bh_disable()/enable() pair
-+	 * ensures that it is handled. Otherwise the current CPU could
-+	 * reach idle with the POLL softirq pending.
- 	 */
-+	local_bh_disable();
- 	local_irq_disable();
- 	list_splice_init(&per_cpu(blk_cpu_iopoll, cpu),
- 			 this_cpu_ptr(&blk_cpu_iopoll));
- 	__raise_softirq_irqoff(IRQ_POLL_SOFTIRQ);
- 	local_irq_enable();
-+	local_bh_enable();
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index 2bdfce5edafd..a9ee535293eb 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -818,6 +818,21 @@ static int msi_init_virq(struct irq_domain *domain, int virq, unsigned int vflag
+ 		irqd_clr_can_reserve(irqd);
+ 		if (vflags & VIRQ_NOMASK_QUIRK)
+ 			irqd_set_msi_nomask_quirk(irqd);
++
++		/*
++		 * If the interrupt is managed but no CPU is available to
++		 * service it, shut it down until better times. Note that
++		 * we only do this on the !RESERVE path as x86 (the only
++		 * architecture using this flag) deals with this in a
++		 * different way by using a catch-all vector.
++		 */
++		if ((vflags & VIRQ_ACTIVATE) &&
++		    irqd_affinity_is_managed(irqd) &&
++		    !cpumask_intersects(irq_data_get_affinity_mask(irqd),
++					cpu_online_mask)) {
++			    irqd_set_managed_shutdown(irqd);
++			    return 0;
++		    }
+ 	}
  
- 	return 0;
- }
+ 	if (!(vflags & VIRQ_ACTIVATE))
 -- 
 2.35.1
 
