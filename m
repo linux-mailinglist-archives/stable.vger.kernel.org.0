@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA4E53DBF8
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66D853DBE6
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351037AbiFEN4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:56:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39564 "EHLO
+        id S1347913AbiFEN4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:56:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346284AbiFENzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:55:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A41CE19;
-        Sun,  5 Jun 2022 06:55:23 -0700 (PDT)
+        with ESMTP id S1347947AbiFENzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:55:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFC215F4F;
+        Sun,  5 Jun 2022 06:55:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1D30B80DA8;
-        Sun,  5 Jun 2022 13:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56987C3411E;
-        Sun,  5 Jun 2022 13:54:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDC35B80DA1;
+        Sun,  5 Jun 2022 13:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5804EC385A5;
+        Sun,  5 Jun 2022 13:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654437299;
-        bh=aUep4enDS2rEm1cqYLVP0bI+LmbTqMVDSvrpQnmDAJw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLL3kURYs05vmXGEFWYNQleFu6ngZ0dPHmOzhT/2hkGZa31BO3xfx8fJuhCOgJckP
-         7K5d9sF/bkLumA4lQOV5yPfUN2I/EzPV8c3AQ74o1zsfCoLEk7txAlCrQUcIo+ASfv
-         aE4qw2Y2fMjK4B/oTJUtpFeCn9oTzi/o2oV7CEvMonGF2esKAfVIb5YSdk5lD2uMnK
-         mOzUYr74Fc+Ef4sLBMOXz5u5xTV8VhWAi07vMHTbnXtsAFSmx8osEwC2714TbeVCKM
-         3CwSTqkgHKM7F4XyfOckynYuc1BnLRRnPX36MQxfUP9izFsFSfGknLr6lcJdFLzfQb
-         irsGpwEvyAqRg==
+        s=k20201202; t=1654437306;
+        bh=Vr7VThk1XbeLwsLjyjYcdxc1AE5dwjiu8m73nzLb5Wk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Uiqxk0rjAFfy1erfD7f/0rriWL+8N9Ve6uGI3lyKttKkyJI3yi51Gd50rS7AzpoTW
+         BkJhsrGioj/6+IJhGUn038YE2yixB1uhPkL3/Iiqm6VKyrAopBBAKAgtP3USfR1x5c
+         Tet1u7EBDoKttvxCOeTC0VEPvf6Tm7cMmvWEmkvh15cfrum8lLjwJvKGFMlxizO3KQ
+         tNwFNg9XeHPFysA4JG+j5xjVtN5SVfIII7rWQtIEyXGX71KzvSwBF0zKFYTwxNNPX8
+         ajQJ0dDNLIkcuQ9qrTfppOcHpXsbY6YUjdajCn0ESMT7iHQ02tcrwaZ/tJQxVroBC1
+         /+Os8aukGovIA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Sean Christopherson <seanjc@google.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, linux-pci@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.10 5/5] x86/PCI: Add PIRQ routing table range checks
-Date:   Sun,  5 Jun 2022 09:54:44 -0400
-Message-Id: <20220605135447.61611-5-sashal@kernel.org>
+        x86@kernel.org, peterz@infradead.org, jkosina@suse.cz
+Subject: [PATCH MANUALSEL 5.4 1/4] x86/nmi: Make register_nmi_handler() more robust
+Date:   Sun,  5 Jun 2022 09:54:57 -0400
+Message-Id: <20220605135503.61690-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220605135447.61611-1-sashal@kernel.org>
-References: <20220605135447.61611-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,73 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 5d64089aa4a5bd3d7e00e3d6ddf4943dd34627b3 ]
+[ Upstream commit a7fed5c0431dbfa707037848830f980e0f93cfb3 ]
 
-Verify that the PCI IRQ Routing Table header as well as individual slot
-entries are all wholly contained within the BIOS memory area.  Do not
-even call the checksum calculator if the header would overrun the area
-and then bail out early if any slot would.
+register_nmi_handler() has no sanity check whether a handler has been
+registered already. Such an unintended double-add leads to list corruption
+and hard to diagnose problems during the next NMI handling.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Init the list head in the static NMI action struct and check it for being
+empty in register_nmi_handler().
+
+  [ bp: Fixups. ]
+
+Reported-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203301735510.22465@angie.orcam.me.uk
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/lkml/20220511234332.3654455-1-seanjc@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/pci/irq.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/nmi.h |  1 +
+ arch/x86/kernel/nmi.c      | 12 ++++++++----
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/pci/irq.c b/arch/x86/pci/irq.c
-index d3a73f9335e1..2bf6d2c4874b 100644
---- a/arch/x86/pci/irq.c
-+++ b/arch/x86/pci/irq.c
-@@ -62,7 +62,8 @@ void (*pcibios_disable_irq)(struct pci_dev *dev) = pirq_disable_irq;
-  *  and perform checksum verification.
-  */
+diff --git a/arch/x86/include/asm/nmi.h b/arch/x86/include/asm/nmi.h
+index 9d5d949e662e..655ca59acfe7 100644
+--- a/arch/x86/include/asm/nmi.h
++++ b/arch/x86/include/asm/nmi.h
+@@ -48,6 +48,7 @@ struct nmiaction {
+ #define register_nmi_handler(t, fn, fg, n, init...)	\
+ ({							\
+ 	static struct nmiaction init fn##_na = {	\
++		.list = LIST_HEAD_INIT(fn##_na.list),	\
+ 		.handler = (fn),			\
+ 		.name = (n),				\
+ 		.flags = (fg),				\
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index 5bb001c0c771..0d95273951ea 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -160,7 +160,7 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
+ 	struct nmi_desc *desc = nmi_to_desc(type);
+ 	unsigned long flags;
  
--static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
-+static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr,
-+								 u8 *limit)
+-	if (!action->handler)
++	if (WARN_ON_ONCE(!action->handler || !list_empty(&action->list)))
+ 		return -EINVAL;
+ 
+ 	raw_spin_lock_irqsave(&desc->lock, flags);
+@@ -180,7 +180,7 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
+ 		list_add_rcu(&action->list, &desc->head);
+ 	else
+ 		list_add_tail_rcu(&action->list, &desc->head);
+-	
++
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ 	return 0;
+ }
+@@ -189,7 +189,7 @@ EXPORT_SYMBOL(__register_nmi_handler);
+ void unregister_nmi_handler(unsigned int type, const char *name)
  {
- 	struct irq_routing_table *rt;
- 	int i;
-@@ -72,7 +73,8 @@ static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
- 	if (rt->signature != PIRQ_SIGNATURE ||
- 	    rt->version != PIRQ_VERSION ||
- 	    rt->size % 16 ||
--	    rt->size < sizeof(struct irq_routing_table))
-+	    rt->size < sizeof(struct irq_routing_table) ||
-+	    (limit && rt->size > limit - addr))
- 		return NULL;
- 	sum = 0;
- 	for (i = 0; i < rt->size; i++)
-@@ -93,17 +95,22 @@ static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
+ 	struct nmi_desc *desc = nmi_to_desc(type);
+-	struct nmiaction *n;
++	struct nmiaction *n, *found = NULL;
+ 	unsigned long flags;
  
- static struct irq_routing_table * __init pirq_find_routing_table(void)
- {
-+	u8 * const bios_start = (u8 *)__va(0xf0000);
-+	u8 * const bios_end = (u8 *)__va(0x100000);
- 	u8 *addr;
- 	struct irq_routing_table *rt;
+ 	raw_spin_lock_irqsave(&desc->lock, flags);
+@@ -203,12 +203,16 @@ void unregister_nmi_handler(unsigned int type, const char *name)
+ 			WARN(in_nmi(),
+ 				"Trying to free NMI (%s) from NMI context!\n", n->name);
+ 			list_del_rcu(&n->list);
++			found = n;
+ 			break;
+ 		}
+ 	}
  
- 	if (pirq_table_addr) {
--		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
-+		rt = pirq_check_routing_table((u8 *)__va(pirq_table_addr),
-+					      NULL);
- 		if (rt)
- 			return rt;
- 		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n");
- 	}
--	for (addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
--		rt = pirq_check_routing_table(addr);
-+	for (addr = bios_start;
-+	     addr < bios_end - sizeof(struct irq_routing_table);
-+	     addr += 16) {
-+		rt = pirq_check_routing_table(addr, bios_end);
- 		if (rt)
- 			return rt;
- 	}
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+-	synchronize_rcu();
++	if (found) {
++		synchronize_rcu();
++		INIT_LIST_HEAD(&found->list);
++	}
+ }
+ EXPORT_SYMBOL_GPL(unregister_nmi_handler);
+ 
 -- 
 2.35.1
 
