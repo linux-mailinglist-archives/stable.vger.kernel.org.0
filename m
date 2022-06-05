@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9553C53DBB8
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBA253DBC2
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbiFENkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
+        id S1344098AbiFENxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343834AbiFENkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:40:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B4022B0C;
-        Sun,  5 Jun 2022 06:40:11 -0700 (PDT)
+        with ESMTP id S240021AbiFENx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:53:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B23270E;
+        Sun,  5 Jun 2022 06:53:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 659EAB80735;
-        Sun,  5 Jun 2022 13:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63D4C385A5;
-        Sun,  5 Jun 2022 13:40:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E792160F9C;
+        Sun,  5 Jun 2022 13:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012DDC385A5;
+        Sun,  5 Jun 2022 13:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654436409;
-        bh=NwObenWbHO817AcTNpCBYS8i6ub6XU64uqzXl/+yLE8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j6kYgd7n2jn3qs9IqmVReQcLWMBTH7vn27O+sxeFVNb5yEOFd5OU44wMcgn8ifkZz
-         cg2MWStQOFkr5bbnEyCgDJE8MNT+vY4YRlfVfK5zr4iw4JfBV4xWB7M0RCT01lsgkf
-         nLJeoalUm5C5Cz/Y1+ORyR6C8fu4HsFUFvydB5rjNnprL8cR7KyllDxx7wHLs9pt1L
-         howxitaOjoX1GjwTT0qyAOzGOwoMz7Qh3Zpz+sgTSN7rRGdeNheFWwqFUPIPtG0z6L
-         YPzYXkbgsAM+kgEJ896VuPGu69QYOrdh0We1duDEnX1M57VA/3cHSuS/VFPJI/rfJC
-         v66Q8FtGJUi6A==
-Date:   Sun, 5 Jun 2022 09:40:07 -0400
+        s=k20201202; t=1654437203;
+        bh=d065B4B8fmBHR6fCIbMdjWQL/kEBny/spn97THCJiJI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=czfnQQAVUWMFM0b8cPW8zsa8xQ6Gu0FVqivM4bvy871WDOCChGWaccXQy82LJaZcv
+         3R9jbORCqrK8EZVy1qYYuyACyJNzMRFEG3Dtw7w/ZB3RXc2L8V+slD8isK0iPWoo2s
+         iowPZT0f44i4zKipelr+hYA0rt0pGMIupH+JR0NgRYv14B0KSG8crAmKDY/du3AZg3
+         3UyJ6GZnwEsSzaC+s/XoJz7C/GuLSilUGVDTI72s2amG1igBtbSOqLtj7Rabx8RS/t
+         SUgPVdsojVugnwbUiwLLgFdpeDP4dn/GQ438Aklm12c+OwB25hPwgkbcySBxthajOa
+         E4ObZzAA5Em2A==
 From:   Sasha Levin <sashal@kernel.org>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Shuah Khan <skhan@linuxfoundation.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.9 03/11] selftests/resctrl: Change the default
- limited time to 120 seconds
-Message-ID: <YpyyN5OBWAE2O4cX@sashalap>
-References: <20220601140100.2005469-1-sashal@kernel.org>
- <20220601140100.2005469-3-sashal@kernel.org>
- <55ef4461-75b5-4c1b-90b5-17909ec58f25@intel.com>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Sean Christopherson <seanjc@google.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, jkosina@suse.cz, peterz@infradead.org
+Subject: [PATCH MANUALSEL 5.18 1/7] x86/nmi: Make register_nmi_handler() more robust
+Date:   Sun,  5 Jun 2022 09:53:09 -0400
+Message-Id: <20220605135320.61247-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <55ef4461-75b5-4c1b-90b5-17909ec58f25@intel.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,25 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 01, 2022 at 10:19:45AM -0700, Reinette Chatre wrote:
->Dear Stable Team,
->
->I received the below notice about this commit being considered for
->4.9 as well as other notices for it being considered for 4.14, 4.19,
->5.4, 5.10, 5.15, 5.17, and 5.18.
->
->I do not believe this commit is appropriate for stable because:
->- It forms part of a series and without the other accompanying patches
->  from that series it does not do anything. Series is at:
->  https://lore.kernel.org/lkml/20220323081227.1603991-1-tan.shaopeng@jp.fujitsu.com/
->- The original series was not not submitted for inclusion to stable and
->  none of its patches have a Fixes: tag.
->- The series this patch forms part of aims to port resctrl_tests to the
->  kselftest framework and I do not believe such a change matches stable
->  criteria.
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Sure, I'll drop it, thanks!
+[ Upstream commit a7fed5c0431dbfa707037848830f980e0f93cfb3 ]
 
+register_nmi_handler() has no sanity check whether a handler has been
+registered already. Such an unintended double-add leads to list corruption
+and hard to diagnose problems during the next NMI handling.
+
+Init the list head in the static NMI action struct and check it for being
+empty in register_nmi_handler().
+
+  [ bp: Fixups. ]
+
+Reported-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/lkml/20220511234332.3654455-1-seanjc@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/x86/include/asm/nmi.h |  1 +
+ arch/x86/kernel/nmi.c      | 12 ++++++++----
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/include/asm/nmi.h b/arch/x86/include/asm/nmi.h
+index 1cb9c17a4cb4..5c5f1e56c404 100644
+--- a/arch/x86/include/asm/nmi.h
++++ b/arch/x86/include/asm/nmi.h
+@@ -47,6 +47,7 @@ struct nmiaction {
+ #define register_nmi_handler(t, fn, fg, n, init...)	\
+ ({							\
+ 	static struct nmiaction init fn##_na = {	\
++		.list = LIST_HEAD_INIT(fn##_na.list),	\
+ 		.handler = (fn),			\
+ 		.name = (n),				\
+ 		.flags = (fg),				\
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index e73f7df362f5..cec0bfa3bc04 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -157,7 +157,7 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
+ 	struct nmi_desc *desc = nmi_to_desc(type);
+ 	unsigned long flags;
+ 
+-	if (!action->handler)
++	if (WARN_ON_ONCE(!action->handler || !list_empty(&action->list)))
+ 		return -EINVAL;
+ 
+ 	raw_spin_lock_irqsave(&desc->lock, flags);
+@@ -177,7 +177,7 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
+ 		list_add_rcu(&action->list, &desc->head);
+ 	else
+ 		list_add_tail_rcu(&action->list, &desc->head);
+-	
++
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ 	return 0;
+ }
+@@ -186,7 +186,7 @@ EXPORT_SYMBOL(__register_nmi_handler);
+ void unregister_nmi_handler(unsigned int type, const char *name)
+ {
+ 	struct nmi_desc *desc = nmi_to_desc(type);
+-	struct nmiaction *n;
++	struct nmiaction *n, *found = NULL;
+ 	unsigned long flags;
+ 
+ 	raw_spin_lock_irqsave(&desc->lock, flags);
+@@ -200,12 +200,16 @@ void unregister_nmi_handler(unsigned int type, const char *name)
+ 			WARN(in_nmi(),
+ 				"Trying to free NMI (%s) from NMI context!\n", n->name);
+ 			list_del_rcu(&n->list);
++			found = n;
+ 			break;
+ 		}
+ 	}
+ 
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+-	synchronize_rcu();
++	if (found) {
++		synchronize_rcu();
++		INIT_LIST_HEAD(&found->list);
++	}
+ }
+ EXPORT_SYMBOL_GPL(unregister_nmi_handler);
+ 
 -- 
-Thanks,
-Sasha
+2.35.1
+
