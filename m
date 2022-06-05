@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBA253DBC2
+	by mail.lfdr.de (Postfix) with ESMTP id 16A3D53DBC1
 	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344098AbiFENxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:53:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
+        id S244215AbiFENx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240021AbiFENx0 (ORCPT
+        with ESMTP id S241771AbiFENx0 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:53:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B23270E;
-        Sun,  5 Jun 2022 06:53:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EF562AF5;
+        Sun,  5 Jun 2022 06:53:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E792160F9C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F28E360F9E;
+        Sun,  5 Jun 2022 13:53:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C096EC34115;
         Sun,  5 Jun 2022 13:53:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012DDC385A5;
-        Sun,  5 Jun 2022 13:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654437203;
-        bh=d065B4B8fmBHR6fCIbMdjWQL/kEBny/spn97THCJiJI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=czfnQQAVUWMFM0b8cPW8zsa8xQ6Gu0FVqivM4bvy871WDOCChGWaccXQy82LJaZcv
-         3R9jbORCqrK8EZVy1qYYuyACyJNzMRFEG3Dtw7w/ZB3RXc2L8V+slD8isK0iPWoo2s
-         iowPZT0f44i4zKipelr+hYA0rt0pGMIupH+JR0NgRYv14B0KSG8crAmKDY/du3AZg3
-         3UyJ6GZnwEsSzaC+s/XoJz7C/GuLSilUGVDTI72s2amG1igBtbSOqLtj7Rabx8RS/t
-         SUgPVdsojVugnwbUiwLLgFdpeDP4dn/GQ438Aklm12c+OwB25hPwgkbcySBxthajOa
-         E4ObZzAA5Em2A==
+        s=k20201202; t=1654437204;
+        bh=4qMC9CoFFzyDXCOkYG5Quuebl4JSXLc6N91kOk/wLXU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=m0F5En/COjfnWWoKWWwoTZ6GU2ixzRRpucn4HiEwylYCbckSiP3fbhtK190MFIZzg
+         /7G43vZYpX3VKz5qO7E1tX61OeItN1ru/sRnEBEbXZTINyA9bfa25hT7I+Zy9iP2kw
+         ktWxoNOgTbIiCTlNaWiDlMRb8nJuaBORTxXuOrO3De+D92u8adFL6J3OZcvAWO1WVM
+         3RQ4sz7P10GZGpIFDNw8RLvNZVxO1y3GwV6ELx1dFWxTqEvzWvsPH+3HEECzNiIsF5
+         wwuDBMabsEVQ5ruDPnXpQAk1giYThD6YNHesgdlmf4nevp0V4JMck8r+rw6RGcSPT/
+         2f7S2oUkyPMeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, jkosina@suse.cz, peterz@infradead.org
-Subject: [PATCH MANUALSEL 5.18 1/7] x86/nmi: Make register_nmi_handler() more robust
-Date:   Sun,  5 Jun 2022 09:53:09 -0400
-Message-Id: <20220605135320.61247-1-sashal@kernel.org>
+Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.18 2/7] genirq/irq_sim: Make the irq_work always run in hard irq context
+Date:   Sun,  5 Jun 2022 09:53:10 -0400
+Message-Id: <20220605135320.61247-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220605135320.61247-1-sashal@kernel.org>
+References: <20220605135320.61247-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,89 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit a7fed5c0431dbfa707037848830f980e0f93cfb3 ]
+[ Upstream commit 21673fcb2532dcd189905ff5a5389eb7dcd0e57a ]
 
-register_nmi_handler() has no sanity check whether a handler has been
-registered already. Such an unintended double-add leads to list corruption
-and hard to diagnose problems during the next NMI handling.
+The IRQ simulator uses irq_work to trigger an interrupt. Without the
+IRQ_WORK_HARD_IRQ flag the irq_work will be performed in thread context
+on PREEMPT_RT. This causes locking errors later in handle_simple_irq()
+which expects to be invoked with disabled interrupts.
 
-Init the list head in the static NMI action struct and check it for being
-empty in register_nmi_handler().
+Triggering individual interrupts in hardirq context should not lead to
+unexpected high latencies since this is also what the hardware
+controller does. Also it is used as a simulator so...
 
-  [ bp: Fixups. ]
+Use IRQ_WORK_INIT_HARD() to carry out the irq_work in hardirq context on
+PREEMPT_RT.
 
-Reported-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/lkml/20220511234332.3654455-1-seanjc@google.com
+Link: https://lore.kernel.org/r/YnuZBoEVMGwKkLm+@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nmi.h |  1 +
- arch/x86/kernel/nmi.c      | 12 ++++++++----
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ kernel/irq/irq_sim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/nmi.h b/arch/x86/include/asm/nmi.h
-index 1cb9c17a4cb4..5c5f1e56c404 100644
---- a/arch/x86/include/asm/nmi.h
-+++ b/arch/x86/include/asm/nmi.h
-@@ -47,6 +47,7 @@ struct nmiaction {
- #define register_nmi_handler(t, fn, fg, n, init...)	\
- ({							\
- 	static struct nmiaction init fn##_na = {	\
-+		.list = LIST_HEAD_INIT(fn##_na.list),	\
- 		.handler = (fn),			\
- 		.name = (n),				\
- 		.flags = (fg),				\
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index e73f7df362f5..cec0bfa3bc04 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -157,7 +157,7 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
- 	struct nmi_desc *desc = nmi_to_desc(type);
- 	unsigned long flags;
+diff --git a/kernel/irq/irq_sim.c b/kernel/irq/irq_sim.c
+index 0cd02efa3a74..dd76323ea3fd 100644
+--- a/kernel/irq/irq_sim.c
++++ b/kernel/irq/irq_sim.c
+@@ -181,7 +181,7 @@ struct irq_domain *irq_domain_create_sim(struct fwnode_handle *fwnode,
+ 		goto err_free_bitmap;
  
--	if (!action->handler)
-+	if (WARN_ON_ONCE(!action->handler || !list_empty(&action->list)))
- 		return -EINVAL;
+ 	work_ctx->irq_count = num_irqs;
+-	init_irq_work(&work_ctx->work, irq_sim_handle_irq);
++	work_ctx->work = IRQ_WORK_INIT_HARD(irq_sim_handle_irq);
  
- 	raw_spin_lock_irqsave(&desc->lock, flags);
-@@ -177,7 +177,7 @@ int __register_nmi_handler(unsigned int type, struct nmiaction *action)
- 		list_add_rcu(&action->list, &desc->head);
- 	else
- 		list_add_tail_rcu(&action->list, &desc->head);
--	
-+
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- 	return 0;
- }
-@@ -186,7 +186,7 @@ EXPORT_SYMBOL(__register_nmi_handler);
- void unregister_nmi_handler(unsigned int type, const char *name)
- {
- 	struct nmi_desc *desc = nmi_to_desc(type);
--	struct nmiaction *n;
-+	struct nmiaction *n, *found = NULL;
- 	unsigned long flags;
- 
- 	raw_spin_lock_irqsave(&desc->lock, flags);
-@@ -200,12 +200,16 @@ void unregister_nmi_handler(unsigned int type, const char *name)
- 			WARN(in_nmi(),
- 				"Trying to free NMI (%s) from NMI context!\n", n->name);
- 			list_del_rcu(&n->list);
-+			found = n;
- 			break;
- 		}
- 	}
- 
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
--	synchronize_rcu();
-+	if (found) {
-+		synchronize_rcu();
-+		INIT_LIST_HEAD(&found->list);
-+	}
- }
- EXPORT_SYMBOL_GPL(unregister_nmi_handler);
+ 	return work_ctx->domain;
  
 -- 
 2.35.1
