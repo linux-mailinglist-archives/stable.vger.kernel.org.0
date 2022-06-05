@@ -2,87 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD0053D96B
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 05:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBCA353D9A5
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 06:17:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243627AbiFEDhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jun 2022 23:37:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37686 "EHLO
+        id S1348746AbiFEERA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 00:17:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236902AbiFEDhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jun 2022 23:37:38 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93FB94ECFF;
-        Sat,  4 Jun 2022 20:37:37 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id u12-20020a17090a1d4c00b001df78c7c209so15195488pju.1;
-        Sat, 04 Jun 2022 20:37:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=0ZOChcgwzBDlVgM1N8B0pRUhhOfUT8/pv0U4FxB5B0I=;
-        b=M95MiWf6kWmzFna3YuivxQU3C6W02thHF81sw4yQXyYSX2m4na2pprZnMKchpG9DWo
-         68X/UIHaGG5RQvB86FrGEvO6TiwI661xgifthPRoOMEItAG7TYcS+StpOGPupDjBDN0+
-         l4Dr7ohdkGva45fUkEya0U+pOvCvGHhc3SFluV0l2OvbU7SR5RrotqmwA9C0tj5mNHHs
-         qNmdJEGRubnTIcZ8/WaKvzvEGaInIawbGstdxLgaUPOwkijRlhOipQ2+PEB+KDLuBTe8
-         +l/AXM9q2XMVhQvS5hOv7IEooBocSY7Q7Vk+246ZravKciqNTu8LCe9V7bE+XUbGL6i0
-         79dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=0ZOChcgwzBDlVgM1N8B0pRUhhOfUT8/pv0U4FxB5B0I=;
-        b=BkHQX0Qv2LcZ058qMhuVb0403rCJWhyhvhJTW1eVK5vVt3L8KNrOjytOEfBl8p2sKc
-         tDTWOHwFSPj2CsZ87JW43hIr0VsiOjGwoSOQ00Xx8EnRy8dRLlkrLASVJLYGUGErJUhl
-         1zKdmj/BybE5bXWhTJwlnZ2zQCogP0Qbq1OjX+xF2rfE7CJK+jhFdWdqGdcV+Frwr7Yq
-         oYKB0qfzgemTltdJGDlnFwEgWZs15tsWcjuS1iSFfDBlI2n2wrss+x8TDb89fnxHeTbt
-         gdS0N8crv5ejkE3MfrkHUUqw52ah8cWsqYtJV+8K4s5O4bIA+brrxHkJt9sjPNCF+UH4
-         Beow==
-X-Gm-Message-State: AOAM532FSfhTzhiu8L74Z/Ff3mUw/uD2pc/GjhcPz0L4nBsKsp9Xr7jS
-        cDpQqJGWeuLP2BSgA0BtL4k=
-X-Google-Smtp-Source: ABdhPJwp9PCMgo0eewj3xv1CDXcT9sT9znT4anOREClj/aGpVeK1ZZ0SLb7EJWgVGNZGWAXbtGrFiA==
-X-Received: by 2002:a17:902:ea0e:b0:164:1a71:beee with SMTP id s14-20020a170902ea0e00b001641a71beeemr17737349plg.10.1654400257055;
-        Sat, 04 Jun 2022 20:37:37 -0700 (PDT)
-Received: from localhost (subs28-116-206-12-46.three.co.id. [116.206.12.46])
-        by smtp.gmail.com with ESMTPSA id f16-20020aa782d0000000b0051b291c2778sm7937063pfn.134.2022.06.04.20.37.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jun 2022 20:37:36 -0700 (PDT)
-Date:   Sun, 5 Jun 2022 10:37:32 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
+        with ESMTP id S243725AbiFEEQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 00:16:56 -0400
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8780B2C4
+        for <stable@vger.kernel.org>; Sat,  4 Jun 2022 21:16:53 -0700 (PDT)
+Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 9271F802B18D
+        for <stable@vger.kernel.org>; Sun,  5 Jun 2022 04:16:52 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 607581003E985
+        for <stable@vger.kernel.org>; Sun,  5 Jun 2022 04:15:52 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id xhg7nxSR5wPf0xhg8nWkQB; Sun, 05 Jun 2022 04:15:52 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=F5ySyotN c=1 sm=1 tr=0 ts=629c2df8
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=JPEYwPQDsx4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=iS1ThwYjwVSwqAqFUSHazr4dOTsLSobJ2vX2doG2si0=; b=y/y5xGfr737f6pZeGa72+sYOlj
+        /dgPMHssjRmRVtD53rugdW8G8iTc07EXuPRfWBQbgR67Vb9AoqCpdKOfYLfTno49rzqNKcK7Q/1PG
+        /8lNkvcIGr+AvEjSLZsPhbTDon8re1LnFqB6FgPURJPdN+ly/pppkrd8Uh0sMyBUKERkPjkmnoGw+
+        Obb2gv93szN+FBvxXjy9ovldFRFJgCKy/z/0BXX0iRuFme4JflNLAdsv/o7uDcnP5APlLdctGo3Uf
+        0efL7u+hibZwMQgmd0Fd59ZPeKH2cdEAMgInlHCk7SVCZAoO+Mmd4ZGBR63nD3EzOlKHiYvgAHU2p
+        JfUc6Olg==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53508 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1nxhg6-002EHA-W5;
+        Sat, 04 Jun 2022 22:15:51 -0600
 Subject: Re: [PATCH 5.15 00/66] 5.15.45-rc1 review
-Message-ID: <Ypwk/GVw7//G/t1m@debian.me>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
 References: <20220603173820.663747061@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 In-Reply-To: <20220603173820.663747061@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <eedbfe54-a05e-44d3-1833-a3743f8fca0f@w6rz.net>
+Date:   Sat, 4 Jun 2022 21:15:49 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nxhg6-002EHA-W5
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:53508
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 03, 2022 at 07:42:40PM +0200, Greg Kroah-Hartman wrote:
+On 6/3/22 10:42 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.15.45 release.
 > There are 66 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
+>
+> Responses should be made by Sun, 05 Jun 2022 17:38:05 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.45-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Successfully cross-compiled for arm (multi_v7_defconfig, GCC 12.1.0,
-neon FPU) and arm64 (bcm2711_defconfig, GCC 12.1.0).
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Tested-by: Ron Economos <re@w6rz.net>
 
--- 
-An old man doll... just what I always wanted! - Clara
