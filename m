@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDDA53DBCD
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D18C53DBC6
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242320AbiFENxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:53:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35156 "EHLO
+        id S1344252AbiFENxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344204AbiFENxg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:53:36 -0400
+        with ESMTP id S1344228AbiFENxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:53:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFCA2BF6;
-        Sun,  5 Jun 2022 06:53:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101CE616F;
+        Sun,  5 Jun 2022 06:53:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4433460F9C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97EA760F9F;
+        Sun,  5 Jun 2022 13:53:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 390E7C3411E;
         Sun,  5 Jun 2022 13:53:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F698C385A5;
-        Sun,  5 Jun 2022 13:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654437213;
-        bh=h4il9NEwlDhRClIoY7hNjlMkV92f7fL2oN4YkoUeJsM=;
+        s=k20201202; t=1654437215;
+        bh=NMn/D9JPxt8jLL6icF27dO7Gk6ddPFeYALAuEG6UVWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mi6RothSZ188jMLN+4Qearm4mJ7zlaQCHJsbQqcJ5BNGqdSFuQ/v/Zja4Kw2j7vLP
-         KL4AvbCQeGIJB6ZDWnu5zPmqyzgUTkOteUEDcOYx/paWHJ4s+AMnxneWlE1e/nyO9+
-         QmbH+QH0QHPl/Vd8sDAVzC/7LITXuY04ubZH4fXXIm0b7txiTsnBZXLDfh31Yom/xW
-         lVAIPQoBqsL9kGRMidR8FZc4hM7gUVFllVmPGty9E3c8BYHuQZa4LXKavIcwY5bti5
-         q1EP2D10au7BmHcIw4Lb3aamiBnSkesC9is0q/T7kpvFC0Xxc7RbpMWQ0GG6UADsei
-         i0vEMhpLAl2tw==
+        b=hLoSRzUZaWgnM2zpSSYBpyOJ80bwWGqTPMs4mVDdnjWJ4vuaf6WX7tUbhQFY2W919
+         nvyA9C7yZ5vzDUDIuGYooSkOTmHGkZOUy/QNTd23Ml5V4LfdCuM+HcwiskqwL3dVTG
+         7o+UbCmq0I0lrpDJA8xJiIoT3jB3lfiOajjZtGgfKETA3vV/m/LIp5MaS0L8DwjTqz
+         lV8ntCiEfTTgl0eWiv+nMU0HiZl3d0A2iE4PTWI5YzWmd0mkpr/GIP6C0MhAayx8tV
+         /1oojhqImCHaBB13zb5yJRKBwEAE9XtWOA84rDK1bj6WRumqj1LWNx3i0C7JDkEBdt
+         aUvYZfKigIBWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+Cc:     Marc Zyngier <maz@kernel.org>, John Garry <john.garry@huawei.com>,
+        David Decotigny <ddecotig@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH MANUALSEL 5.18 5/7] lib/irq_poll: Prevent softirq pending leak in irq_poll_cpu_dead()
-Date:   Sun,  5 Jun 2022 09:53:13 -0400
-Message-Id: <20220605135320.61247-5-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.18 6/7] genirq/msi: Shutdown managed interrupts with unsatifiable affinities
+Date:   Sun,  5 Jun 2022 09:53:14 -0400
+Message-Id: <20220605135320.61247-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220605135320.61247-1-sashal@kernel.org>
 References: <20220605135320.61247-1-sashal@kernel.org>
@@ -56,57 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 75d8cce128c516fe6cf4b8683e8fe1a59e919902 ]
+[ Upstream commit d802057c7c553ad426520a053da9f9fe08e2c35a ]
 
-irq_poll_cpu_dead() pulls the blk_cpu_iopoll backlog from the dead CPU and
-raises the POLL softirq with __raise_softirq_irqoff() on the CPU it is
-running on. That just sets the bit in the pending softirq mask.
+When booting with maxcpus=<small number>, interrupt controllers
+such as the GICv3 ITS may not be able to satisfy the affinity of
+some managed interrupts, as some of the HW resources are simply
+not available.
 
-This means the handling of the softirq is delayed until the next interrupt
-or a local_bh_disable/enable() pair. As a consequence the CPU on which this
-code runs can reach idle with the POLL softirq pending, which triggers a
-warning in the NOHZ idle code.
+The same thing happens when loading a driver using managed interrupts
+while CPUs are offline.
 
-Add a local_bh_disable/enable() pair around the interrupts disabled section
-in irq_poll_cpu_dead(). local_bh_enable will handle the pending softirq.
+In order to deal with this, do not try to activate such interrupt
+if there is no online CPU capable of handling it. Instead, place
+it in shutdown state. Once a capable CPU shows up, it will be
+activated.
 
-[tglx: Massaged changelog and comment]
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reported-by: John Garry <john.garry@huawei.com>
+Reported-by: David Decotigny <ddecotig@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/87k0bxgl27.ffs@tglx
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/irq_poll.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ kernel/irq/msi.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/lib/irq_poll.c b/lib/irq_poll.c
-index 2f17b488d58e..2d5329a42105 100644
---- a/lib/irq_poll.c
-+++ b/lib/irq_poll.c
-@@ -188,14 +188,18 @@ EXPORT_SYMBOL(irq_poll_init);
- static int irq_poll_cpu_dead(unsigned int cpu)
- {
- 	/*
--	 * If a CPU goes away, splice its entries to the current CPU
--	 * and trigger a run of the softirq
-+	 * If a CPU goes away, splice its entries to the current CPU and
-+	 * set the POLL softirq bit. The local_bh_disable()/enable() pair
-+	 * ensures that it is handled. Otherwise the current CPU could
-+	 * reach idle with the POLL softirq pending.
- 	 */
-+	local_bh_disable();
- 	local_irq_disable();
- 	list_splice_init(&per_cpu(blk_cpu_iopoll, cpu),
- 			 this_cpu_ptr(&blk_cpu_iopoll));
- 	__raise_softirq_irqoff(IRQ_POLL_SOFTIRQ);
- 	local_irq_enable();
-+	local_bh_enable();
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index 2bdfce5edafd..a9ee535293eb 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -818,6 +818,21 @@ static int msi_init_virq(struct irq_domain *domain, int virq, unsigned int vflag
+ 		irqd_clr_can_reserve(irqd);
+ 		if (vflags & VIRQ_NOMASK_QUIRK)
+ 			irqd_set_msi_nomask_quirk(irqd);
++
++		/*
++		 * If the interrupt is managed but no CPU is available to
++		 * service it, shut it down until better times. Note that
++		 * we only do this on the !RESERVE path as x86 (the only
++		 * architecture using this flag) deals with this in a
++		 * different way by using a catch-all vector.
++		 */
++		if ((vflags & VIRQ_ACTIVATE) &&
++		    irqd_affinity_is_managed(irqd) &&
++		    !cpumask_intersects(irq_data_get_affinity_mask(irqd),
++					cpu_online_mask)) {
++			    irqd_set_managed_shutdown(irqd);
++			    return 0;
++		    }
+ 	}
  
- 	return 0;
- }
+ 	if (!(vflags & VIRQ_ACTIVATE))
 -- 
 2.35.1
 
