@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 827F453DBD0
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5FB653DBD4
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344478AbiFENy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:54:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37690 "EHLO
+        id S1344534AbiFENyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239680AbiFENyZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:54:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A07A1BA;
-        Sun,  5 Jun 2022 06:54:02 -0700 (PDT)
+        with ESMTP id S1344477AbiFENy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:54:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B4364D7;
+        Sun,  5 Jun 2022 06:54:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E8F3B80D6B;
-        Sun,  5 Jun 2022 13:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9649DC34115;
-        Sun,  5 Jun 2022 13:53:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5F1660F03;
+        Sun,  5 Jun 2022 13:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84380C34115;
+        Sun,  5 Jun 2022 13:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654437240;
-        bh=4qMC9CoFFzyDXCOkYG5Quuebl4JSXLc6N91kOk/wLXU=;
+        s=k20201202; t=1654437243;
+        bh=AU8d+kJilhAOhDFwChzPGNMoONnIHkfPe6ac7uyzwz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKwwTZlUm5Gx1RalX023voQw4u9dOKuTji0EI4D3lV8A5Wj4zi3v2nKcYvmx4hv8x
-         U+Wn0SWw5a+lzLtDoQ8CJN4NeTUe8cQybzSORv5sF5UyXVfQeWFdBqiM0BYaGtNhnc
-         KRq7D2VXMIYMHHfDFTC/DdJkg7ZJm9NG80JcqnIQaFeGWwDXmkH0USI8zlrltz6nUp
-         3mDmcissfXm08yA5THxUbTXRaxXhnhy4Quys3BNGB835xpW5rcuGLSGvlXwPEJCFsA
-         Vxm+iMJhJK+IcKt/JdZOH0d9vVZRE3X5HTaJP1KXba1pjHUSD8KejF5QkeOj2Miwt/
-         mY7xtAQOtxrTg==
+        b=D15nyA7udLO1XyADgsX9UsjWPfZaSUW5rtQR/B7FhojMfqcfZyBSV4GozRtcUXZBw
+         JnygbbqUBPeDgxwHw9nIJYK0O4V9qjFI5TzSxZmDrGmAHq/U455pGL+JT8LIJFt0G+
+         4SoF0Y3sUYdvrgzkgc5sl+BnTKHkdEZBKnyLbDjkhLdgP2rDB/58mb9AOKbPfKhSyx
+         NNhLIHpfjId58+AQthrh10Btm1opokIAw4cFj+k8RUtEfENGcPafbQ5ATIIGc1Dyjl
+         i3mSOKIccPTgfN9ldWNa0M572UCiyD5s16jdjtvce5iHgWKEHUffjd4kc5t1b19kiR
+         H3yyYdzdJYivg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <jstultz@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH MANUALSEL 5.17 2/6] genirq/irq_sim: Make the irq_work always run in hard irq context
-Date:   Sun,  5 Jun 2022 09:53:33 -0400
-Message-Id: <20220605135341.61427-2-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.17 3/6] time/sched_clock: Round the frequency reported to nearest rather than down
+Date:   Sun,  5 Jun 2022 09:53:34 -0400
+Message-Id: <20220605135341.61427-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220605135341.61427-1-sashal@kernel.org>
 References: <20220605135341.61427-1-sashal@kernel.org>
@@ -56,43 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
 
-[ Upstream commit 21673fcb2532dcd189905ff5a5389eb7dcd0e57a ]
+[ Upstream commit 92067440f1311dfa4d77b57a9da6b3706f5da32e ]
 
-The IRQ simulator uses irq_work to trigger an interrupt. Without the
-IRQ_WORK_HARD_IRQ flag the irq_work will be performed in thread context
-on PREEMPT_RT. This causes locking errors later in handle_simple_irq()
-which expects to be invoked with disabled interrupts.
+The frequency reported for clock sources are rounded down, which gives
+misleading figures, e.g.:
 
-Triggering individual interrupts in hardirq context should not lead to
-unexpected high latencies since this is also what the hardware
-controller does. Also it is used as a simulator so...
+ I/O ASIC clock frequency 24999480Hz
+ sched_clock: 32 bits at 24MHz, resolution 40ns, wraps every 85901132779ns
+ MIPS counter frequency 59998512Hz
+ sched_clock: 32 bits at 59MHz, resolution 16ns, wraps every 35792281591ns
 
-Use IRQ_WORK_INIT_HARD() to carry out the irq_work in hardirq context on
-PREEMPT_RT.
+Rounding to nearest is more adequate:
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+ I/O ASIC clock frequency 24999664Hz
+ sched_clock: 32 bits at 25MHz, resolution 40ns, wraps every 85900499947ns
+ MIPS counter frequency 59999728Hz
+ sched_clock: 32 bits at 60MHz, resolution 16ns, wraps every 35791556599ns
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/YnuZBoEVMGwKkLm+@linutronix.de
+Acked-by: John Stultz <jstultz@google.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204240055590.9383@angie.orcam.me.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irq_sim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/time/sched_clock.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/irq/irq_sim.c b/kernel/irq/irq_sim.c
-index 0cd02efa3a74..dd76323ea3fd 100644
---- a/kernel/irq/irq_sim.c
-+++ b/kernel/irq/irq_sim.c
-@@ -181,7 +181,7 @@ struct irq_domain *irq_domain_create_sim(struct fwnode_handle *fwnode,
- 		goto err_free_bitmap;
+diff --git a/kernel/time/sched_clock.c b/kernel/time/sched_clock.c
+index b1b9b12899f5..ee07f3ac1e5b 100644
+--- a/kernel/time/sched_clock.c
++++ b/kernel/time/sched_clock.c
+@@ -8,6 +8,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/ktime.h>
+ #include <linux/kernel.h>
++#include <linux/math.h>
+ #include <linux/moduleparam.h>
+ #include <linux/sched.h>
+ #include <linux/sched/clock.h>
+@@ -199,11 +200,11 @@ sched_clock_register(u64 (*read)(void), int bits, unsigned long rate)
  
- 	work_ctx->irq_count = num_irqs;
--	init_irq_work(&work_ctx->work, irq_sim_handle_irq);
-+	work_ctx->work = IRQ_WORK_INIT_HARD(irq_sim_handle_irq);
- 
- 	return work_ctx->domain;
- 
+ 	r = rate;
+ 	if (r >= 4000000) {
+-		r /= 1000000;
++		r = DIV_ROUND_CLOSEST(r, 1000000);
+ 		r_unit = 'M';
+ 	} else {
+ 		if (r >= 1000) {
+-			r /= 1000;
++			r = DIV_ROUND_CLOSEST(r, 1000);
+ 			r_unit = 'k';
+ 		} else {
+ 			r_unit = ' ';
 -- 
 2.35.1
 
