@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A317153DBB5
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:39:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9553C53DBB8
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236175AbiFENjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:39:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36560 "EHLO
+        id S230293AbiFENkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230293AbiFENiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:38:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6882253A;
-        Sun,  5 Jun 2022 06:38:54 -0700 (PDT)
+        with ESMTP id S1343834AbiFENkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:40:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B4022B0C;
+        Sun,  5 Jun 2022 06:40:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42EB360F03;
-        Sun,  5 Jun 2022 13:38:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75F2DC385A5;
-        Sun,  5 Jun 2022 13:38:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 659EAB80735;
+        Sun,  5 Jun 2022 13:40:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63D4C385A5;
+        Sun,  5 Jun 2022 13:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654436333;
-        bh=dOP6WV1PB9DEnflGLpFvz3Gzod/6sFdv+px60DLgVAI=;
+        s=k20201202; t=1654436409;
+        bh=NwObenWbHO817AcTNpCBYS8i6ub6XU64uqzXl/+yLE8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=enVB8Km+mpNKPw/Mwc5T24lYHhyFNt5bs3qJ48k4qohnBsljE9SMLu2p79GhLimY+
-         fZyMWW0EMWajMtLEhx1liakrVolTPuzlp8rhOTo8WhnzXTkkitzcU+u7pb7mhgilhS
-         CP4S/rizEeGhz4fD/R9HGBmDamuKw24p3kvpgbGMrPFQAh7P3xW/plNoPnJLouBWYQ
-         M7mG9gs6jzfdOFAV6j9yDBRPUB7Ff6TTC8bBeh8qQy0yGC6ZGDCWZvjQtW/goOH60G
-         fMALaCrIaLTt11ZnkHSS4JFIcOv4+7Oyc2u7gipYUCRWgpVQXXul2sMo4HUESO5gIW
-         EXN2YCd1YiuMg==
-Date:   Sun, 5 Jun 2022 09:38:52 -0400
+        b=j6kYgd7n2jn3qs9IqmVReQcLWMBTH7vn27O+sxeFVNb5yEOFd5OU44wMcgn8ifkZz
+         cg2MWStQOFkr5bbnEyCgDJE8MNT+vY4YRlfVfK5zr4iw4JfBV4xWB7M0RCT01lsgkf
+         nLJeoalUm5C5Cz/Y1+ORyR6C8fu4HsFUFvydB5rjNnprL8cR7KyllDxx7wHLs9pt1L
+         howxitaOjoX1GjwTT0qyAOzGOwoMz7Qh3Zpz+sgTSN7rRGdeNheFWwqFUPIPtG0z6L
+         YPzYXkbgsAM+kgEJ896VuPGu69QYOrdh0We1duDEnX1M57VA/3cHSuS/VFPJI/rfJC
+         v66Q8FtGJUi6A==
+Date:   Sun, 5 Jun 2022 09:40:07 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>
+To:     Reinette Chatre <reinette.chatre@intel.com>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Joey Gouly <joey.gouly@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>, will@kernel.org,
-        broonie@kernel.org, alexandru.elisei@arm.com, mark.rutland@arm.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.18 15/49] arm64: Expand ESR_ELx_WFx_ISS_TI to
- match its ARMv8.7 definition
-Message-ID: <Ypyx7Flp1BhA8plw@sashalap>
-References: <20220601135214.2002647-1-sashal@kernel.org>
- <20220601135214.2002647-15-sashal@kernel.org>
- <877d605rrw.wl-maz@kernel.org>
+        Shaopeng Tan <tan.shaopeng@jp.fujitsu.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.9 03/11] selftests/resctrl: Change the default
+ limited time to 120 seconds
+Message-ID: <YpyyN5OBWAE2O4cX@sashalap>
+References: <20220601140100.2005469-1-sashal@kernel.org>
+ <20220601140100.2005469-3-sashal@kernel.org>
+ <55ef4461-75b5-4c1b-90b5-17909ec58f25@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <877d605rrw.wl-maz@kernel.org>
+In-Reply-To: <55ef4461-75b5-4c1b-90b5-17909ec58f25@intel.com>
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,37 +59,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 01, 2022 at 04:26:27PM +0100, Marc Zyngier wrote:
->On Wed, 01 Jun 2022 14:51:39 +0100,
->Sasha Levin <sashal@kernel.org> wrote:
->>
->> From: Marc Zyngier <maz@kernel.org>
->>
->> [ Upstream commit 6a437208cb942a2dd98f7e1c3fd347ed3d425ffc ]
->>
->> Starting with FEAT_WFXT in ARMv8.7, the TI field in the ISS
->> that is reported on a WFx trap is expanded by one bit to
->> allow the description of WFET and WFIT.
->>
->> Special care is taken to exclude the WFxT bit from the mask
->> used to match WFI so that it also matches WFIT when trapped from
->> EL0.
->>
->> Reviewed-by: Joey Gouly <joey.gouly@arm.com>
->> Signed-off-by: Marc Zyngier <maz@kernel.org>
->> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
->> Link: https://lore.kernel.org/r/20220419182755.601427-2-maz@kernel.org
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Wed, Jun 01, 2022 at 10:19:45AM -0700, Reinette Chatre wrote:
+>Dear Stable Team,
 >
->Please do not backport this patch. It achieves nothing on its own, and
->the kernel isn't broken without it.
+>I received the below notice about this commit being considered for
+>4.9 as well as other notices for it being considered for 4.14, 4.19,
+>5.4, 5.10, 5.15, 5.17, and 5.18.
+>
+>I do not believe this commit is appropriate for stable because:
+>- It forms part of a series and without the other accompanying patches
+>  from that series it does not do anything. Series is at:
+>  https://lore.kernel.org/lkml/20220323081227.1603991-1-tan.shaopeng@jp.fujitsu.com/
+>- The original series was not not submitted for inclusion to stable and
+>  none of its patches have a Fixes: tag.
+>- The series this patch forms part of aims to port resctrl_tests to the
+>  kselftest framework and I do not believe such a change matches stable
+>  criteria.
 
-I'll drop this and the other ones you've pointed out.
-
->Also, please do not AUTOSEL KVM/arm64 patches that are not tagged with
->a Cc stable.
-
-Happily!
+Sure, I'll drop it, thanks!
 
 -- 
 Thanks,
