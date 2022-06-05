@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D18C53DBC6
-	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5EE53DBC9
+	for <lists+stable@lfdr.de>; Sun,  5 Jun 2022 15:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344252AbiFENxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jun 2022 09:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35194 "EHLO
+        id S1344339AbiFENxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jun 2022 09:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344228AbiFENxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:53:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101CE616F;
-        Sun,  5 Jun 2022 06:53:36 -0700 (PDT)
+        with ESMTP id S1344286AbiFENxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jun 2022 09:53:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D428C2AF6;
+        Sun,  5 Jun 2022 06:53:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97EA760F9F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A2DA60F9C;
+        Sun,  5 Jun 2022 13:53:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9937DC341CC;
         Sun,  5 Jun 2022 13:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 390E7C3411E;
-        Sun,  5 Jun 2022 13:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654437215;
-        bh=NMn/D9JPxt8jLL6icF27dO7Gk6ddPFeYALAuEG6UVWE=;
+        s=k20201202; t=1654437216;
+        bh=WUCCmgo0CJd1Oa1t/rXXnPa6NyR1QOuVmJ5dvv7/r0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLoSRzUZaWgnM2zpSSYBpyOJ80bwWGqTPMs4mVDdnjWJ4vuaf6WX7tUbhQFY2W919
-         nvyA9C7yZ5vzDUDIuGYooSkOTmHGkZOUy/QNTd23Ml5V4LfdCuM+HcwiskqwL3dVTG
-         7o+UbCmq0I0lrpDJA8xJiIoT3jB3lfiOajjZtGgfKETA3vV/m/LIp5MaS0L8DwjTqz
-         lV8ntCiEfTTgl0eWiv+nMU0HiZl3d0A2iE4PTWI5YzWmd0mkpr/GIP6C0MhAayx8tV
-         /1oojhqImCHaBB13zb5yJRKBwEAE9XtWOA84rDK1bj6WRumqj1LWNx3i0C7JDkEBdt
-         aUvYZfKigIBWw==
+        b=PXw0v7P3s+AtLeqAj3rJwOXFL0VhsfD5TKsS41WcocVQ8sx3CkNnOpTuT7Qrlhjmh
+         7B898rUwhHdLPZA8dyR6JwIzGq3tPMN/7qP62MUV3zGQWpVnynsHFJn8UffUFb8BNw
+         ByflQ+tLd8f3SeHU+WbC1diXo2RCMkHvvgtS9WPrT3GLoNApCUfJksGo1V+8qs8K6C
+         bwJdNe8PCF+v/pYDWMWY2im4hMmX/WjQwWY4Jid/ObZ0psybgSzp9MW93PE8ycBh3N
+         miv3bdaL92QeaUdngJtDwSwR9BuAlymD2GwHOI5mBYg0kwDJIWhRuqlSlqIgErwhqn
+         M5G/n6eNogrxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, John Garry <john.garry@huawei.com>,
-        David Decotigny <ddecotig@google.com>,
+Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH MANUALSEL 5.18 6/7] genirq/msi: Shutdown managed interrupts with unsatifiable affinities
-Date:   Sun,  5 Jun 2022 09:53:14 -0400
-Message-Id: <20220605135320.61247-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, linux-pci@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.18 7/7] x86/PCI: Add PIRQ routing table range checks
+Date:   Sun,  5 Jun 2022 09:53:15 -0400
+Message-Id: <20220605135320.61247-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220605135320.61247-1-sashal@kernel.org>
 References: <20220605135320.61247-1-sashal@kernel.org>
@@ -57,60 +58,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
 
-[ Upstream commit d802057c7c553ad426520a053da9f9fe08e2c35a ]
+[ Upstream commit 5d64089aa4a5bd3d7e00e3d6ddf4943dd34627b3 ]
 
-When booting with maxcpus=<small number>, interrupt controllers
-such as the GICv3 ITS may not be able to satisfy the affinity of
-some managed interrupts, as some of the HW resources are simply
-not available.
+Verify that the PCI IRQ Routing Table header as well as individual slot
+entries are all wholly contained within the BIOS memory area.  Do not
+even call the checksum calculator if the header would overrun the area
+and then bail out early if any slot would.
 
-The same thing happens when loading a driver using managed interrupts
-while CPUs are offline.
-
-In order to deal with this, do not try to activate such interrupt
-if there is no online CPU capable of handling it. Instead, place
-it in shutdown state. Once a capable CPU shows up, it will be
-activated.
-
-Reported-by: John Garry <john.garry@huawei.com>
-Reported-by: David Decotigny <ddecotig@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203301735510.22465@angie.orcam.me.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/msi.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/x86/pci/irq.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index 2bdfce5edafd..a9ee535293eb 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -818,6 +818,21 @@ static int msi_init_virq(struct irq_domain *domain, int virq, unsigned int vflag
- 		irqd_clr_can_reserve(irqd);
- 		if (vflags & VIRQ_NOMASK_QUIRK)
- 			irqd_set_msi_nomask_quirk(irqd);
-+
-+		/*
-+		 * If the interrupt is managed but no CPU is available to
-+		 * service it, shut it down until better times. Note that
-+		 * we only do this on the !RESERVE path as x86 (the only
-+		 * architecture using this flag) deals with this in a
-+		 * different way by using a catch-all vector.
-+		 */
-+		if ((vflags & VIRQ_ACTIVATE) &&
-+		    irqd_affinity_is_managed(irqd) &&
-+		    !cpumask_intersects(irq_data_get_affinity_mask(irqd),
-+					cpu_online_mask)) {
-+			    irqd_set_managed_shutdown(irqd);
-+			    return 0;
-+		    }
- 	}
+diff --git a/arch/x86/pci/irq.c b/arch/x86/pci/irq.c
+index 97b63e35e152..13513003303e 100644
+--- a/arch/x86/pci/irq.c
++++ b/arch/x86/pci/irq.c
+@@ -68,7 +68,8 @@ void (*pcibios_disable_irq)(struct pci_dev *dev) = pirq_disable_irq;
+  *  and perform checksum verification.
+  */
  
- 	if (!(vflags & VIRQ_ACTIVATE))
+-static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
++static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr,
++								 u8 *limit)
+ {
+ 	struct irq_routing_table *rt;
+ 	int i;
+@@ -78,7 +79,8 @@ static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
+ 	if (rt->signature != PIRQ_SIGNATURE ||
+ 	    rt->version != PIRQ_VERSION ||
+ 	    rt->size % 16 ||
+-	    rt->size < sizeof(struct irq_routing_table))
++	    rt->size < sizeof(struct irq_routing_table) ||
++	    (limit && rt->size > limit - addr))
+ 		return NULL;
+ 	sum = 0;
+ 	for (i = 0; i < rt->size; i++)
+@@ -99,17 +101,22 @@ static inline struct irq_routing_table *pirq_check_routing_table(u8 *addr)
+ 
+ static struct irq_routing_table * __init pirq_find_routing_table(void)
+ {
++	u8 * const bios_start = (u8 *)__va(0xf0000);
++	u8 * const bios_end = (u8 *)__va(0x100000);
+ 	u8 *addr;
+ 	struct irq_routing_table *rt;
+ 
+ 	if (pirq_table_addr) {
+-		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
++		rt = pirq_check_routing_table((u8 *)__va(pirq_table_addr),
++					      NULL);
+ 		if (rt)
+ 			return rt;
+ 		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n");
+ 	}
+-	for (addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
+-		rt = pirq_check_routing_table(addr);
++	for (addr = bios_start;
++	     addr < bios_end - sizeof(struct irq_routing_table);
++	     addr += 16) {
++		rt = pirq_check_routing_table(addr, bios_end);
+ 		if (rt)
+ 			return rt;
+ 	}
 -- 
 2.35.1
 
