@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C0F53E65B
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4002753E6AD
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240130AbiFFO4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 10:56:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
+        id S240143AbiFFO5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 10:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240109AbiFFO4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:56:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE81143AD5
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:56:11 -0700 (PDT)
+        with ESMTP id S240146AbiFFO5w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:57:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712FB2FB429
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:57:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B9B1B81A79
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 14:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0800C3411D;
-        Mon,  6 Jun 2022 14:56:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7A51B81A7A
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 14:57:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C18C385A9;
+        Mon,  6 Jun 2022 14:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654527369;
-        bh=rlXzn1fkLokmnpdPngak5Ec17sCdSJuSm3L0EqBxXsI=;
+        s=korg; t=1654527467;
+        bh=ipAuaFxTS+Xhp+p88Xj2Jt6B+MjEGk80VdFNkQ9I17U=;
         h=Subject:To:Cc:From:Date:From;
-        b=IM34GkizMrjb35i8woSyW20KRb+mUedAW6fa9KbBoeoyod9V/lWKeUETDAz8PeE8w
-         7NdEccoQ0Ax04y4PYjsXCNLk/O1ci3fcKXXJcYIEgPTMMIHlCTZSJUtyzpUXxENOwQ
-         G7AXktlX26mDspAGiejOo06tJrtbOd5nnDHIHtx0=
-Subject: FAILED: patch "[PATCH] MIPS: IP30: Remove incorrect `cpu_has_fpu' override" failed to apply to 5.17-stable tree
-To:     macro@orcam.me.uk, starzhangzsd@gmail.com,
-        tsbogend@alpha.franken.de
+        b=jUYGoeJwoqlAfz0ChgLczJd8NYaxncYEr3zOoJnY9eln9SPx2xUhyTavzAZk5dqE+
+         kQ5hWy8ONgL8SREArFdQDeEJmjdsDEUv10UXvQX8pG7yIk86Bp5uha01vYSB79xp9z
+         HCwAJO41jE/Y1H6rOezhVU64C2pHS3b+3zFHzVfg=
+Subject: FAILED: patch "[PATCH] powerpc/ftrace: Remove ftrace init tramp once kernel init is" failed to apply to 5.15-stable tree
+To:     naveen.n.rao@linux.vnet.ibm.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 16:55:51 +0200
-Message-ID: <16545273511126@kroah.com>
+Date:   Mon, 06 Jun 2022 16:57:34 +0200
+Message-ID: <1654527454203153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,37 +59,99 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f44b3e74c33fe04defeff24ebcae98c3bcc5b285 Mon Sep 17 00:00:00 2001
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
-Date: Sun, 1 May 2022 23:14:22 +0100
-Subject: [PATCH] MIPS: IP30: Remove incorrect `cpu_has_fpu' override
+From 84ade0a6655bee803d176525ef457175cbf4df22 Mon Sep 17 00:00:00 2001
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Date: Mon, 16 May 2022 12:44:22 +0530
+Subject: [PATCH] powerpc/ftrace: Remove ftrace init tramp once kernel init is
+ complete
 
-Remove unsupported forcing of `cpu_has_fpu' to 1, which makes the `nofpu'
-kernel parameter non-functional, and also causes a link error:
+Stop using the ftrace trampoline for init section once kernel init is
+complete.
 
-ld: arch/mips/kernel/traps.o: in function `trap_init':
-./arch/mips/include/asm/msa.h:(.init.text+0x348): undefined reference to `handle_fpe'
-ld: ./arch/mips/include/asm/msa.h:(.init.text+0x354): undefined reference to `handle_fpe'
-ld: ./arch/mips/include/asm/msa.h:(.init.text+0x360): undefined reference to `handle_fpe'
+Fixes: 67361cf8071286 ("powerpc/ftrace: Handle large kernel configs")
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220516071422.463738-1-naveen.n.rao@linux.vnet.ibm.com
 
-where the CONFIG_MIPS_FP_SUPPORT configuration option has been disabled.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Reported-by: Stephen Zhang <starzhangzsd@gmail.com>
-Fixes: 7505576d1c1a ("MIPS: add support for SGI Octane (IP30)")
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-
-diff --git a/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h b/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
-index 8ad0c424a9af..ce4e4c6e09e2 100644
---- a/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
-+++ b/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
-@@ -28,7 +28,6 @@
- #define cpu_has_4kex			1
- #define cpu_has_3k_cache		0
- #define cpu_has_4k_cache		1
--#define cpu_has_fpu			1
- #define cpu_has_nofpuex			0
- #define cpu_has_32fpr			1
- #define cpu_has_counter			1
+diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
+index b56166b7ea68..3cee7115441b 100644
+--- a/arch/powerpc/include/asm/ftrace.h
++++ b/arch/powerpc/include/asm/ftrace.h
+@@ -86,7 +86,7 @@ static inline bool arch_syscall_match_sym_name(const char *sym, const char *name
+ #endif /* CONFIG_PPC64_ELF_ABI_V1 */
+ #endif /* CONFIG_FTRACE_SYSCALLS */
+ 
+-#ifdef CONFIG_PPC64
++#if defined(CONFIG_PPC64) && defined(CONFIG_FUNCTION_TRACER)
+ #include <asm/paca.h>
+ 
+ static inline void this_cpu_disable_ftrace(void)
+@@ -110,11 +110,13 @@ static inline u8 this_cpu_get_ftrace_enabled(void)
+ 	return get_paca()->ftrace_enabled;
+ }
+ 
++void ftrace_free_init_tramp(void);
+ #else /* CONFIG_PPC64 */
+ static inline void this_cpu_disable_ftrace(void) { }
+ static inline void this_cpu_enable_ftrace(void) { }
+ static inline void this_cpu_set_ftrace_enabled(u8 ftrace_enabled) { }
+ static inline u8 this_cpu_get_ftrace_enabled(void) { return 1; }
++static inline void ftrace_free_init_tramp(void) { }
+ #endif /* CONFIG_PPC64 */
+ #endif /* !__ASSEMBLY__ */
+ 
+diff --git a/arch/powerpc/kernel/trace/ftrace.c b/arch/powerpc/kernel/trace/ftrace.c
+index 2807136a1c19..2a893e06e4f1 100644
+--- a/arch/powerpc/kernel/trace/ftrace.c
++++ b/arch/powerpc/kernel/trace/ftrace.c
+@@ -257,9 +257,7 @@ static int setup_mcount_compiler_tramp(unsigned long tramp)
+ 
+ 	/* Is this a known long jump tramp? */
+ 	for (i = 0; i < NUM_FTRACE_TRAMPS; i++)
+-		if (!ftrace_tramps[i])
+-			break;
+-		else if (ftrace_tramps[i] == tramp)
++		if (ftrace_tramps[i] == tramp)
+ 			return 0;
+ 
+ 	/* New trampoline -- read where this goes */
+@@ -710,6 +708,17 @@ void arch_ftrace_update_code(int command)
+ 
+ extern unsigned int ftrace_tramp_text[], ftrace_tramp_init[];
+ 
++void ftrace_free_init_tramp(void)
++{
++	int i;
++
++	for (i = 0; i < NUM_FTRACE_TRAMPS && ftrace_tramps[i]; i++)
++		if (ftrace_tramps[i] == (unsigned long)ftrace_tramp_init) {
++			ftrace_tramps[i] = 0;
++			return;
++		}
++}
++
+ int __init ftrace_dyn_arch_init(void)
+ {
+ 	int i;
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 177fae5ea0d1..09b7b5e7bb9a 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -22,6 +22,7 @@
+ #include <asm/kasan.h>
+ #include <asm/svm.h>
+ #include <asm/mmzone.h>
++#include <asm/ftrace.h>
+ #include <asm/code-patching.h>
+ 
+ #include <mm/mmu_decl.h>
+@@ -314,6 +315,7 @@ void free_initmem(void)
+ 	mark_initmem_nx();
+ 	static_branch_enable(&init_mem_is_free);
+ 	free_initmem_default(POISON_FREE_INITMEM);
++	ftrace_free_init_tramp();
+ }
+ 
+ /*
 
