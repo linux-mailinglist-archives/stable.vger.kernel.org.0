@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6AF53E6F2
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7AF453E70B
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240109AbiFFO5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 10:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55544 "EHLO
+        id S240145AbiFFO5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 10:57:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240144AbiFFO5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:57:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C648F2FA609
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:57:45 -0700 (PDT)
+        with ESMTP id S240144AbiFFO5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:57:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352BA2FC0F4
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:57:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63A1F614BF
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 14:57:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CBA7C3411C;
-        Mon,  6 Jun 2022 14:57:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8085BB81A7C
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 14:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF07DC385A9;
+        Mon,  6 Jun 2022 14:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654527464;
-        bh=CcvN+yUwsrzQKNMgg2S8DKnciIY0V3ALpxJsu8dTjnE=;
+        s=korg; t=1654527470;
+        bh=6JmfO12xHz7L1rKXp/IWG2/AEBApN0ixQJNLJBnVDtg=;
         h=Subject:To:Cc:From:Date:From;
-        b=oCHkS/vfRaV/6jfbxeUQmk9NaBkpPapWdCZKP67rvqbNcI0pRUD0/JtZiFuJ5DDcZ
-         PRMazVBDoUZ8IZoRq+HD8aO2VgfaEuwdErk7IctvTs97Lk3bcQ/GBmJHx0cKQq9dMO
-         eVGntxabkv0N7NVepXmNHtEGAHpEnUf19dNkr5/o=
-Subject: FAILED: patch "[PATCH] powerpc/ftrace: Remove ftrace init tramp once kernel init is" failed to apply to 5.17-stable tree
+        b=bWfA+NlpjwusIc6BCP+chfjV4HNe8s2Ljs29T3MvGCG43JOj4Qu0yeqfXdBOIg6HV
+         07mQbd8lGbTIoM/QOG6jrEs7xzMSLi7LmbyWatlbC4HP1iu4Guw+7LqGyaXBGy3065
+         n+u0HO1Hke68KOLii4MxKIM1BNJOese3WTIuHJCQ=
+Subject: FAILED: patch "[PATCH] powerpc/ftrace: Remove ftrace init tramp once kernel init is" failed to apply to 5.10-stable tree
 To:     naveen.n.rao@linux.vnet.ibm.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 06 Jun 2022 16:57:34 +0200
-Message-ID: <165452745425542@kroah.com>
+Message-ID: <1654527454178230@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
