@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CCB853ECB5
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F39253E7A2
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240031AbiFFOt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 10:49:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49890 "EHLO
+        id S240071AbiFFOxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 10:53:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239984AbiFFOt5 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 6 Jun 2022 10:49:57 -0400
+        with ESMTP id S240076AbiFFOxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:53:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808E26E8D2
-        for <Stable@vger.kernel.org>; Mon,  6 Jun 2022 07:49:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CDF01B9FA6
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:53:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D25CB81A7A
-        for <Stable@vger.kernel.org>; Mon,  6 Jun 2022 14:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C378C34115;
-        Mon,  6 Jun 2022 14:49:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8C87B81A79
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 14:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45DDCC385A9;
+        Mon,  6 Jun 2022 14:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654526992;
-        bh=Mh8R6bv4Y107dHLrK6HyqpWIMfUEttk9tHF6FcWbeVM=;
+        s=korg; t=1654527213;
+        bh=zOef/xT8HRPk0r1pu42s1dVVJn/7fOZJSOLxiTcAZQY=;
         h=Subject:To:Cc:From:Date:From;
-        b=SrgcTHZ2WGId4xkTyjmTJZN/f1P19XcmK1khfwR//Zks2/Yt3W2IyAIFInicHz01D
-         1B8edix6fpNBngM5R/qBc2n27unDIb84qt8n4CWAFPDvP00GbsGA7eBHkzPwRWn0XU
-         5OaMs4tKkuQthJLQwVLSOiQosTT+RnmCHBGu0Jn0=
-Subject: FAILED: patch "[PATCH] ima: remove the IMA_TEMPLATE Kconfig option" failed to apply to 5.4-stable tree
-To:     guozihua@huawei.com, Stable@vger.kernel.org, zohar@linux.ibm.com
+        b=FyInEcvL1oaj2T85JjQCqSvrjaJKFA+wzJdCrcv2til/SMfcT6JuZaLw6V3feKXSP
+         Zp/OcqdJguo2Ye4WZeVoReZkST72j587dzFd9MjO8Ed8yydgonTjz/tlKLZS//HErX
+         R6t+y9uAFwQtXzqR4VzpKTekcDg0Mn1CM6Si/FTs=
+Subject: FAILED: patch "[PATCH] mt76: fix use-after-free by removing a non-RCU wcid pointer" failed to apply to 5.15-stable tree
+To:     nbd@nbd.name, sean.wang@mediatek.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 16:49:38 +0200
-Message-ID: <1654526978177115@kroah.com>
+Date:   Mon, 06 Jun 2022 16:53:31 +0200
+Message-ID: <165452721112712@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,98 +59,255 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 891163adf180bc369b2f11c9dfce6d2758d2a5bd Mon Sep 17 00:00:00 2001
-From: GUO Zihua <guozihua@huawei.com>
-Date: Thu, 7 Apr 2022 10:16:19 +0800
-Subject: [PATCH] ima: remove the IMA_TEMPLATE Kconfig option
+From 51fb1278aa57ae0fc54adaa786e1965362bed4fb Mon Sep 17 00:00:00 2001
+From: Felix Fietkau <nbd@nbd.name>
+Date: Fri, 25 Mar 2022 22:01:43 +0100
+Subject: [PATCH] mt76: fix use-after-free by removing a non-RCU wcid pointer
 
-The original 'ima' measurement list template contains a hash, defined
-as 20 bytes, and a null terminated pathname, limited to 255
-characters.  Other measurement list templates permit both larger hashes
-and longer pathnames.  When the "ima" template is configured as the
-default, a new measurement list template (ima_template=) must be
-specified before specifying a larger hash algorithm (ima_hash=) on the
-boot command line.
+Fixes an issue caught by KASAN about use-after-free in mt76_txq_schedule
+by protecting mtxq->wcid with rcu_lock between mt76_txq_schedule and
+sta_info_[alloc, free].
 
-To avoid this boot command line ordering issue, remove the legacy "ima"
-template configuration option, allowing it to still be specified on the
-boot command line.
+[18853.876689] ==================================================================
+[18853.876751] BUG: KASAN: use-after-free in mt76_txq_schedule+0x204/0xaf8 [mt76]
+[18853.876773] Read of size 8 at addr ffffffaf989a2138 by task mt76-tx phy0/883
+[18853.876786]
+[18853.876810] CPU: 5 PID: 883 Comm: mt76-tx phy0 Not tainted 5.10.100-fix-510-56778d365941-kasan #5 0b01fbbcf41a530f52043508fec2e31a4215
 
-The root cause of this issue is that during the processing of ima_hash,
-we would try to check whether the hash algorithm is compatible with the
-template. If the template is not set at the moment we do the check, we
-check the algorithm against the configured default template. If the
-default template is "ima", then we reject any hash algorithm other than
-sha1 and md5.
+[18853.876840] Call trace:
+[18853.876861]  dump_backtrace+0x0/0x3ec
+[18853.876878]  show_stack+0x20/0x2c
+[18853.876899]  dump_stack+0x11c/0x1ac
+[18853.876918]  print_address_description+0x74/0x514
+[18853.876934]  kasan_report+0x134/0x174
+[18853.876948]  __asan_report_load8_noabort+0x44/0x50
+[18853.876976]  mt76_txq_schedule+0x204/0xaf8 [mt76 074e03e4640e97fe7405ee1fab547b81c4fa45d2]
+[18853.877002]  mt76_txq_schedule_all+0x2c/0x48 [mt76 074e03e4640e97fe7405ee1fab547b81c4fa45d2]
+[18853.877030]  mt7921_tx_worker+0xa0/0x1cc [mt7921_common f0875ebac9d7b4754e1010549e7db50fbd90a047]
+[18853.877054]  __mt76_worker_fn+0x190/0x22c [mt76 074e03e4640e97fe7405ee1fab547b81c4fa45d2]
+[18853.877071]  kthread+0x2f8/0x3b8
+[18853.877087]  ret_from_fork+0x10/0x30
+[18853.877098]
+[18853.877112] Allocated by task 941:
+[18853.877131]  kasan_save_stack+0x38/0x68
+[18853.877147]  __kasan_kmalloc+0xd4/0xfc
+[18853.877163]  kasan_kmalloc+0x10/0x1c
+[18853.877177]  __kmalloc+0x264/0x3c4
+[18853.877294]  sta_info_alloc+0x460/0xf88 [mac80211]
+[18853.877410]  ieee80211_prep_connection+0x204/0x1ee0 [mac80211]
+[18853.877523]  ieee80211_mgd_auth+0x6c4/0xa4c [mac80211]
+[18853.877635]  ieee80211_auth+0x20/0x2c [mac80211]
+[18853.877733]  rdev_auth+0x7c/0x438 [cfg80211]
+[18853.877826]  cfg80211_mlme_auth+0x26c/0x390 [cfg80211]
+[18853.877919]  nl80211_authenticate+0x6d4/0x904 [cfg80211]
+[18853.877938]  genl_rcv_msg+0x748/0x93c
+[18853.877954]  netlink_rcv_skb+0x160/0x2a8
+[18853.877969]  genl_rcv+0x3c/0x54
+[18853.877985]  netlink_unicast_kernel+0x104/0x1ec
+[18853.877999]  netlink_unicast+0x178/0x268
+[18853.878015]  netlink_sendmsg+0x3cc/0x5f0
+[18853.878030]  sock_sendmsg+0xb4/0xd8
+[18853.878043]  ____sys_sendmsg+0x2f8/0x53c
+[18853.878058]  ___sys_sendmsg+0xe8/0x150
+[18853.878071]  __sys_sendmsg+0xc4/0x1f4
+[18853.878087]  __arm64_compat_sys_sendmsg+0x88/0x9c
+[18853.878101]  el0_svc_common+0x1b4/0x390
+[18853.878115]  do_el0_svc_compat+0x8c/0xdc
+[18853.878131]  el0_svc_compat+0x10/0x1c
+[18853.878146]  el0_sync_compat_handler+0xa8/0xcc
+[18853.878161]  el0_sync_compat+0x188/0x1c0
+[18853.878171]
+[18853.878183] Freed by task 10927:
+[18853.878200]  kasan_save_stack+0x38/0x68
+[18853.878215]  kasan_set_track+0x28/0x3c
+[18853.878228]  kasan_set_free_info+0x24/0x48
+[18853.878244]  __kasan_slab_free+0x11c/0x154
+[18853.878259]  kasan_slab_free+0x14/0x24
+[18853.878273]  slab_free_freelist_hook+0xac/0x1b0
+[18853.878287]  kfree+0x104/0x390
+[18853.878402]  sta_info_free+0x198/0x210 [mac80211]
+[18853.878515]  __sta_info_destroy_part2+0x230/0x2d4 [mac80211]
+[18853.878628]  __sta_info_flush+0x300/0x37c [mac80211]
+[18853.878740]  ieee80211_set_disassoc+0x2cc/0xa7c [mac80211]
+[18853.878851]  ieee80211_mgd_deauth+0x4a4/0x10a0 [mac80211]
+[18853.878962]  ieee80211_deauth+0x20/0x2c [mac80211]
+[18853.879057]  rdev_deauth+0x7c/0x438 [cfg80211]
+[18853.879150]  cfg80211_mlme_deauth+0x274/0x414 [cfg80211]
+[18853.879243]  cfg80211_mlme_down+0xe4/0x118 [cfg80211]
+[18853.879335]  cfg80211_disconnect+0x218/0x2d8 [cfg80211]
+[18853.879427]  __cfg80211_leave+0x17c/0x240 [cfg80211]
+[18853.879519]  cfg80211_leave+0x3c/0x58 [cfg80211]
+[18853.879611]  wiphy_suspend+0xdc/0x200 [cfg80211]
+[18853.879628]  dpm_run_callback+0x58/0x408
+[18853.879642]  __device_suspend+0x4cc/0x864
+[18853.879658]  async_suspend+0x34/0xf4
+[18853.879673]  async_run_entry_fn+0xe0/0x37c
+[18853.879689]  process_one_work+0x508/0xb98
+[18853.879702]  worker_thread+0x7f4/0xcd4
+[18853.879717]  kthread+0x2f8/0x3b8
+[18853.879731]  ret_from_fork+0x10/0x30
+[18853.879741]
+[18853.879757] The buggy address belongs to the object at ffffffaf989a2000
+[18853.879757]  which belongs to the cache kmalloc-8k of size 8192
+[18853.879774] The buggy address is located 312 bytes inside of
+[18853.879774]  8192-byte region [ffffffaf989a2000, ffffffaf989a4000)
+[18853.879787] The buggy address belongs to the page:
+[18853.879807] page:000000004bda2a59 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1d89a0
+[18853.879823] head:000000004bda2a59 order:3 compound_mapcount:0 compound_pincount:0
+[18853.879839] flags: 0x8000000000010200(slab|head)
+[18853.879857] raw: 8000000000010200 ffffffffbc89e208 ffffffffb7fb5208 ffffffaec000cc80
+[18853.879873] raw: 0000000000000000 0000000000010001 00000001ffffffff 0000000000000000
+[18853.879885] page dumped because: kasan: bad access detected
+[18853.879896]
+[18853.879907] Memory state around the buggy address:
+[18853.879922]  ffffffaf989a2000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879935]  ffffffaf989a2080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879948] >ffffffaf989a2100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879961]                                         ^
+[18853.879973]  ffffffaf989a2180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879986]  ffffffaf989a2200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879998] ==================================================================
 
-For example, if the compiled default template is "ima", and the default
-algorithm is sha1 (which is the current default). In the cmdline, we put
-in "ima_hash=sha256 ima_template=ima-ng". The expected behavior would be
-that ima starts with ima-ng as the template and sha256 as the hash
-algorithm. However, during the processing of "ima_hash=",
-"ima_template=" has not been processed yet, and hash_setup would check
-the configured hash algorithm against the compiled default: ima, and
-reject sha256. So at the end, the hash algorithm that is actually used
-will be sha1.
+Cc: stable@vger.kernel.org
+Reported-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
-With template "ima" removed from the configured default, we ensure that
-the default tempalte would at least be "ima-ng" which allows for
-basically any hash algorithm.
-
-This change would not break the algorithm compatibility checks for IMA.
-
-Fixes: 4286587dccd43 ("ima: add Kconfig default measurement list template")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-
-diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
-index f3a9cc201c8c..7249f16257c7 100644
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -69,10 +69,9 @@ choice
- 	  hash, defined as 20 bytes, and a null terminated pathname,
- 	  limited to 255 characters.  The 'ima-ng' measurement list
- 	  template permits both larger hash digests and longer
--	  pathnames.
-+	  pathnames. The configured default template can be replaced
-+	  by specifying "ima_template=" on the boot command line.
+diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
+index 5b53d008eb66..026ab1e16d45 100644
+--- a/drivers/net/wireless/mediatek/mt76/mac80211.c
++++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
+@@ -1303,7 +1303,7 @@ mt76_sta_add(struct mt76_dev *dev, struct ieee80211_vif *vif,
+ 			continue;
  
--	config IMA_TEMPLATE
--		bool "ima"
- 	config IMA_NG_TEMPLATE
- 		bool "ima-ng (default)"
- 	config IMA_SIG_TEMPLATE
-@@ -82,7 +81,6 @@ endchoice
- config IMA_DEFAULT_TEMPLATE
- 	string
- 	depends on IMA
--	default "ima" if IMA_TEMPLATE
- 	default "ima-ng" if IMA_NG_TEMPLATE
- 	default "ima-sig" if IMA_SIG_TEMPLATE
+ 		mtxq = (struct mt76_txq *)sta->txq[i]->drv_priv;
+-		mtxq->wcid = wcid;
++		mtxq->wcid = wcid->idx;
+ 	}
  
-@@ -102,19 +100,19 @@ choice
+ 	ewma_signal_init(&wcid->rssi);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 882fb5d2517f..522c523d5c41 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -275,7 +275,7 @@ struct mt76_wcid {
+ };
  
- 	config IMA_DEFAULT_HASH_SHA256
- 		bool "SHA256"
--		depends on CRYPTO_SHA256=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SHA256=y
+ struct mt76_txq {
+-	struct mt76_wcid *wcid;
++	u16 wcid;
  
- 	config IMA_DEFAULT_HASH_SHA512
- 		bool "SHA512"
--		depends on CRYPTO_SHA512=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SHA512=y
+ 	u16 agg_ssn;
+ 	bool send_bar;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/main.c b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+index 83c5eec5b163..1d098e9799dd 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+@@ -75,7 +75,7 @@ mt7603_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ 	mt7603_wtbl_init(dev, idx, mvif->idx, bc_addr);
  
- 	config IMA_DEFAULT_HASH_WP512
- 		bool "WP512"
--		depends on CRYPTO_WP512=y && !IMA_TEMPLATE
-+		depends on CRYPTO_WP512=y
+ 	mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-	mtxq->wcid = &mvif->sta.wcid;
++	mtxq->wcid = idx;
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
  
- 	config IMA_DEFAULT_HASH_SM3
- 		bool "SM3"
--		depends on CRYPTO_SM3=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SM3=y
- endchoice
+ out:
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index d79cbdbd5a05..6b8e3e7ae4a2 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -234,7 +234,7 @@ static int mt7615_add_interface(struct ieee80211_hw *hw,
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 	if (vif->txq) {
+ 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-		mtxq->wcid = &mvif->sta.wcid;
++		mtxq->wcid = idx;
+ 	}
  
- config IMA_DEFAULT_HASH
+ 	ret = mt7615_mcu_add_dev_info(phy, vif, true);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+index dd30f537676d..be1d27de993a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+@@ -292,7 +292,8 @@ mt76x02_vif_init(struct mt76x02_dev *dev, struct ieee80211_vif *vif,
+ 	mt76_packet_id_init(&mvif->group_wcid);
+ 
+ 	mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-	mtxq->wcid = &mvif->group_wcid;
++	rcu_assign_pointer(dev->mt76.wcid[MT_VIF_WCID(idx)], &mvif->group_wcid);
++	mtxq->wcid = MT_VIF_WCID(idx);
+ }
+ 
+ int
+@@ -345,6 +346,7 @@ void mt76x02_remove_interface(struct ieee80211_hw *hw,
+ 	struct mt76x02_vif *mvif = (struct mt76x02_vif *)vif->drv_priv;
+ 
+ 	dev->mt76.vif_mask &= ~BIT(mvif->idx);
++	rcu_assign_pointer(dev->mt76.wcid[mvif->group_wcid.idx], NULL);
+ 	mt76_packet_id_flush(&dev->mt76, &mvif->group_wcid);
+ }
+ EXPORT_SYMBOL_GPL(mt76x02_remove_interface);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+index c3f44d801e7f..187cf4ccd36e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+@@ -246,7 +246,7 @@ static int mt7915_add_interface(struct ieee80211_hw *hw,
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 	if (vif->txq) {
+ 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-		mtxq->wcid = &mvif->sta.wcid;
++		mtxq->wcid = idx;
+ 	}
+ 
+ 	if (vif->type != NL80211_IFTYPE_AP &&
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index fdaf2451bc1d..2173c3e9723f 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -330,7 +330,7 @@ static int mt7921_add_interface(struct ieee80211_hw *hw,
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 	if (vif->txq) {
+ 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-		mtxq->wcid = &mvif->sta.wcid;
++		mtxq->wcid = idx;
+ 	}
+ 
+ out:
+diff --git a/drivers/net/wireless/mediatek/mt76/tx.c b/drivers/net/wireless/mediatek/mt76/tx.c
+index 830963a65b34..c3be62f58b62 100644
+--- a/drivers/net/wireless/mediatek/mt76/tx.c
++++ b/drivers/net/wireless/mediatek/mt76/tx.c
+@@ -436,12 +436,11 @@ mt76_txq_stopped(struct mt76_queue *q)
+ 
+ static int
+ mt76_txq_send_burst(struct mt76_phy *phy, struct mt76_queue *q,
+-		    struct mt76_txq *mtxq)
++		    struct mt76_txq *mtxq, struct mt76_wcid *wcid)
+ {
+ 	struct mt76_dev *dev = phy->dev;
+ 	struct ieee80211_txq *txq = mtxq_to_txq(mtxq);
+ 	enum mt76_txq_id qid = mt76_txq_get_qid(txq);
+-	struct mt76_wcid *wcid = mtxq->wcid;
+ 	struct ieee80211_tx_info *info;
+ 	struct sk_buff *skb;
+ 	int n_frames = 1;
+@@ -527,8 +526,8 @@ mt76_txq_schedule_list(struct mt76_phy *phy, enum mt76_txq_id qid)
+ 			break;
+ 
+ 		mtxq = (struct mt76_txq *)txq->drv_priv;
+-		wcid = mtxq->wcid;
+-		if (wcid && test_bit(MT_WCID_FLAG_PS, &wcid->flags))
++		wcid = rcu_dereference(dev->wcid[mtxq->wcid]);
++		if (!wcid || test_bit(MT_WCID_FLAG_PS, &wcid->flags))
+ 			continue;
+ 
+ 		if (mtxq->send_bar && mtxq->aggr) {
+@@ -543,7 +542,7 @@ mt76_txq_schedule_list(struct mt76_phy *phy, enum mt76_txq_id qid)
+ 		}
+ 
+ 		if (!mt76_txq_stopped(q))
+-			n_frames = mt76_txq_send_burst(phy, q, mtxq);
++			n_frames = mt76_txq_send_burst(phy, q, mtxq, wcid);
+ 
+ 		ieee80211_return_txq(phy->hw, txq, false);
+ 
 
