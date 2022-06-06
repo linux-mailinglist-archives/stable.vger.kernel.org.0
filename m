@@ -2,85 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AEC53E39A
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2052153F2C9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 01:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232484AbiFFIua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 04:50:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60670 "EHLO
+        id S235367AbiFFXwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 19:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232862AbiFFIuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 04:50:07 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE4E4F35
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 01:47:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654505237; x=1686041237;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=6zkmf8dpJwqQab7Y0AsW0CgxvTOmU9yaEcr//UEsV20=;
-  b=EuYogeSGYJ836chbXp9uGGeUGyfHNiKJMLiKGnOgt+D8zQ8Z6D8iVGQq
-   X0I1ZHnwquvsh/kJHwAPcDWNzCxs1I5IFSxPyL9DKtYvCg6DV2vYqwyhq
-   q84gVoztba2IP3E7NTOPde11uvipEGpnetjyrBq//jkgWrpALo83IBkIF
-   GVAMZfUCL3PhsOxJmP2NsTbCP8I7oqGT4fmfZ/F3f14/FErAV7SdaK4tG
-   dbjCxD9gcJasJdRohUmOrKlFArGF+o1DO2XGhtWiYvUck9+jQs3w812Lb
-   qwSwHGw5yTG9dxjDFaWTtowC/Q4tRafXHX2oLMVoy1Knt/FbtgQ2SeNyd
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10369"; a="256476369"
-X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="256476369"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 01:47:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="682162720"
-Received: from q.bj.intel.com ([10.238.154.102])
-  by fmsmga002.fm.intel.com with ESMTP; 06 Jun 2022 01:47:16 -0700
-From:   shaoqin.huang@intel.com
-To:     shaoqin.huang@intel.com
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] KVM: x86/mmu: Check every prev_roots in __kvm_mmu_free_obsolete_roots()
-Date:   Mon,  6 Jun 2022 17:48:43 -0600
-Message-Id: <20220606234843.2931871-1-shaoqin.huang@intel.com>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S235355AbiFFXv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 19:51:58 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF09244A12
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 16:51:57 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id o17so13398643pla.6
+        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 16:51:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1RFyXYoYG1d/O/MId2w1B4qXmXmbYcy40FEdfUxvDQ0=;
+        b=Cn3xLCJxxjoTsVuwqp4QaegknKudM2FH3/d/+nJkjzf4H1AvVDp/IgClVKDfHZJ2A2
+         jACgpuyFCU00hBNTwxrs1EueGiz3NjE//n6nfUgIMPTiqfYvnQeyna7MqsO6S5qHtI+V
+         tF8lvzR57RWx+SLLgvn+Qqgw7S+zESJVXQYn8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1RFyXYoYG1d/O/MId2w1B4qXmXmbYcy40FEdfUxvDQ0=;
+        b=CeqQoDRwYrU0hXDR3EnTkHkJt8ZX3Of8CMkaZZjcqbhOCbgm5WIc4OejDegg43rHnH
+         VLz0mtawUd2dn1hR1ozFjAcusIRIH9JrxlUpLpwmoQ2i10mFaj8C+LMOooNZyUv5nTID
+         YpZ/x8um05C6RR2rMOQpqGU6NA0FuqI5hvK58dNsoeF2CWspyLgJRl38dWOIOHoYKMKf
+         oEZYcEEY32HMqmyG5F8KjnhNx50m/TGt2IMuYw8RZZUARS3/ClxELjwUQdZ4CVyFT9Xj
+         2oj2G/ZKwlGcWm3zmX6TQayPIfsraRcK/u9z+1+rU4hwIOG1nhU6ytZ7QA2HpSDMeGwh
+         ntNQ==
+X-Gm-Message-State: AOAM531csnNZFTqTiPa4aLThkc4rGopJ9Fh05Ib6vTLXAnqkAnHBNGgp
+        Rgai7pYh7WTufHMXZRkc+aeolpNajU7b8g==
+X-Google-Smtp-Source: ABdhPJzmrGgJHv3Bva+srWmCfwk6Cq0f7P99pevSkJYxd09EjqAPoGwRWZ7+0eiFwXeNjYxkmOiYlw==
+X-Received: by 2002:a17:902:d4ca:b0:164:1971:1504 with SMTP id o10-20020a170902d4ca00b0016419711504mr26181185plg.138.1654559517315;
+        Mon, 06 Jun 2022 16:51:57 -0700 (PDT)
+Received: from smtp.gmail.com ([2620:15c:202:201:7100:486c:d20:242a])
+        by smtp.gmail.com with ESMTPSA id 66-20020a621445000000b0050dc762816dsm11005789pfu.71.2022.06.06.16.51.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jun 2022 16:51:57 -0700 (PDT)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Alex Elder <elder@linaro.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 5.15 0/2] Fix suspend on qcom sc7180 SoCs
+Date:   Mon,  6 Jun 2022 16:51:53 -0700
+Message-Id: <20220606235155.2437168-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.36.1.255.ge46751e96f-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DATE_IN_FUTURE_12_24,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaoqin Huang <shaoqin.huang@intel.com>
+These two patches fix suspend on sc7180 boards, i.e. Trogdor, on 5.15
+stable kernels. Without these two patches the IP0 interconnect is kept
+on forever, and suspend fails because XO shutdown can't be achieved.
 
-When freeing obsolete previous roots, check prev_roots as intended, not
-the current root.
+Mike Tipton (1):
+  interconnect: qcom: icc-rpmh: Add BCMs to commit list in pre_aggregate
 
-Signed-off-by: Shaoqin Huang <shaoqin.huang@intel.com>
-Fixes: 527d5cd7eece ("KVM: x86/mmu: Zap only obsolete roots if a root shadow page is zapped")
-Cc: stable@vger.kernel.org
----
- arch/x86/kvm/mmu/mmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Stephen Boyd (1):
+  interconnect: qcom: sc7180: Drop IP0 interconnects
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index f4653688fa6d..e826ee9138fa 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5179,7 +5179,7 @@ static void __kvm_mmu_free_obsolete_roots(struct kvm *kvm, struct kvm_mmu *mmu)
- 		roots_to_free |= KVM_MMU_ROOT_CURRENT;
- 
- 	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
--		if (is_obsolete_root(kvm, mmu->root.hpa))
-+		if (is_obsolete_root(kvm, mmu->prev_roots[i].hpa))
- 			roots_to_free |= KVM_MMU_ROOT_PREVIOUS(i);
- 	}
- 
+ drivers/interconnect/qcom/icc-rpmh.c | 10 +++++-----
+ drivers/interconnect/qcom/sc7180.c   | 21 ---------------------
+ drivers/interconnect/qcom/sm8150.c   |  1 -
+ drivers/interconnect/qcom/sm8250.c   |  1 -
+ drivers/interconnect/qcom/sm8350.c   |  1 -
+ 5 files changed, 5 insertions(+), 29 deletions(-)
+
 -- 
-2.30.2
+https://chromeos.dev
 
