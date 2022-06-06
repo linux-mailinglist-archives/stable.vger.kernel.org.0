@@ -2,60 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E9F53ECAD
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9B153EB7A
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236584AbiFFMRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:17:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38902 "EHLO
+        id S236688AbiFFMUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:20:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236579AbiFFMQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:16:59 -0400
+        with ESMTP id S236687AbiFFMUJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:20:09 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0291E293814;
-        Mon,  6 Jun 2022 05:16:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABFD1006
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:20:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 61DBCCE1A93;
-        Mon,  6 Jun 2022 12:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE360C34119;
-        Mon,  6 Jun 2022 12:16:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654517814;
-        bh=DbMgnzFRDeClTcRHZKl9h6of7GFtoGX1BaOdzUKuVpM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=B7z7FHJhSOsxG0qlrZKrOsoSS0uQvLJlGQZEVqpzl9lgWj/QKHPYxDbBXCkm4m7vN
-         3UPBWK5UUxcCS9dIdcVwFkn1w66aFkXyQVjUHTJQvU4VRheyvpMZ3yOnNGThcpMCXD
-         CqBoIe+Lg8zvxsW2Zh4v06JNQUgtrdcUQkMlzp9PE6CYNeL5loiRQCMzD2M0isBP7b
-         qbCpIv6eP3tzuJ1LA+citjUdU8c2lAHs98cf30MTjA/hsijoZPHXx3mr9RBMDPU4z2
-         5QK6wKQkbFOmY9S3XZ2aDkyIA2MUaw+8LLcD8dnpxwN7VIqVHjj73B896O/GS8f9ih
-         l3GfBYwo+i8hQ==
-Date:   Mon, 6 Jun 2022 13:16:48 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Oliver Upton <oupton@google.com>,
-        Will Deacon <will@kernel.org>, Fuad Tabba <tabba@google.com>,
-        Quentin Perret <qperret@google.com>, kernel-team@android.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 01/18] KVM: arm64: Always start with clearing SVE flag on
- load
-Message-ID: <Yp3wMETNdDWtNhaY@sirena.org.uk>
-References: <20220528113829.1043361-1-maz@kernel.org>
- <20220528113829.1043361-2-maz@kernel.org>
- <YpTXsgd1MPpJEjUJ@sirena.org.uk>
- <87y1ya3uan.wl-maz@kernel.org>
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8347CE1B02
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C42BC34119;
+        Mon,  6 Jun 2022 12:20:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654518004;
+        bh=pJewfwS+e+TABD3LnFWTTQuMN6UTCNeJgySmT6auMbo=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Z3xDk/wMpxVIWl6yK/KeDjKq7F+zwnjf8tbmnW7tFzdvGwE6P8XsRfbUXPbnKDHeI
+         qorFu5+n3RK6kKHgJP8HJk7e3JrHE8lZ+qcuyCeyNb4HAr/3UEAqLjGcK+tcBkiSgP
+         tiqTyL/9Fzoulq6Ka2PRwapCGuJdxmb1dKzbf3z0=
+Subject: FAILED: patch "[PATCH] tracing: Have event format check not flag %p* on" failed to apply to 5.15-stable tree
+To:     rostedt@goodmis.org, sfr@canb.auug.org.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 06 Jun 2022 14:20:02 +0200
+Message-ID: <165451800211378@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="B+OWqsOhQgqxaqa/"
-Content-Disposition: inline
-In-Reply-To: <87y1ya3uan.wl-maz@kernel.org>
-X-Cookie: Bedfellows make strange politicians.
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -67,61 +48,66 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---B+OWqsOhQgqxaqa/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On Mon, Jun 06, 2022 at 12:28:32PM +0100, Marc Zyngier wrote:
-> Mark Brown <broonie@kernel.org> wrote:
-> > On Sat, May 28, 2022 at 12:38:11PM +0100, Marc Zyngier wrote:
+thanks,
 
-> > > We probably never saw the issue because no VMM uses SVE, but
-> > > that's still pretty bad. Unconditionally clearing the flag
-> > > on vcpu load addresses the issue.
+greg k-h
 
-> > Unless I'm missing something since we currently always disable
-> > SVE on syscall even if the VMM were using SVE for some reason
-> > (SVE memcpy()?) we should already have disabled SVE for EL0 in
-> > sve_user_discard() during kernel entry so EL0 access to SVE
-> > should be disabled in the system register by the time we get
-> > here.
+------------------ original commit in Linus's tree ------------------
 
-> Indeed. And this begs the question: what is this code actually doing?
-> Is there any way we can end-up running a guest with any valid host SVE
-> state?
+From 499f12168aebd6da8fa32c9b7d6203ca9b5eb88d Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Thu, 7 Apr 2022 14:56:32 -0400
+Subject: [PATCH] tracing: Have event format check not flag %p* on
+ __get_dynamic_array()
 
-> I remember being >this< close to removing that code some time ago, and
-> only stopped because I vaguely remembered Dave Martin convincing me at
-> some point that it was necessary. I'm unable to piece the argument
-> together again though.
+The print fmt check against trace events to make sure that the format does
+not use pointers that may be freed from the time of the trace to the time
+the event is read, gives a false positive on %pISpc when reading data that
+was saved in __get_dynamic_array() when it is perfectly fine to do so, as
+the data being read is on the ring buffer.
 
-I've stared at that code a few times as well, I think I'd ended up
-assuming it was some path to do with preempting and context switching
-but in that case I've never been clear why there'd be anything left that
-we'd need to preserve, or if we do why we don't just force a
-fpsimd_save().  It's possible this was from some earlier stage in review
-where the ABI didn't allow us to discard the SVE register state, or that
-it's there as defensive programming so for future work where we don't
-just disable on entry.
+Link: https://lore.kernel.org/all/20220407144524.2a592ed6@canb.auug.org.au/
 
-Conicidentally I am going to post some patches later today or tomorrow
-which leave SVE enabled on syscall, they still have the hook for
-disabling it when entering KVM though so we'd still not need to save the
-EL0 state and the above should still apply.
+Cc: stable@vger.kernel.org
+Fixes: 5013f454a352c ("tracing: Add check of trace event print fmts for dereferencing pointers")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
---B+OWqsOhQgqxaqa/
-Content-Type: application/pgp-signature; name="signature.asc"
+diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+index 78f313b7b315..d5913487821a 100644
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -392,12 +392,6 @@ static void test_event_printk(struct trace_event_call *call)
+ 			if (!(dereference_flags & (1ULL << arg)))
+ 				goto next_arg;
+ 
+-			/* Check for __get_sockaddr */;
+-			if (str_has_prefix(fmt + i, "__get_sockaddr(")) {
+-				dereference_flags &= ~(1ULL << arg);
+-				goto next_arg;
+-			}
+-
+ 			/* Find the REC-> in the argument */
+ 			c = strchr(fmt + i, ',');
+ 			r = strstr(fmt + i, "REC->");
+@@ -413,7 +407,14 @@ static void test_event_printk(struct trace_event_call *call)
+ 				a = strchr(fmt + i, '&');
+ 				if ((a && (a < r)) || test_field(r, call))
+ 					dereference_flags &= ~(1ULL << arg);
++			} else if ((r = strstr(fmt + i, "__get_dynamic_array(")) &&
++				   (!c || r < c)) {
++				dereference_flags &= ~(1ULL << arg);
++			} else if ((r = strstr(fmt + i, "__get_sockaddr(")) &&
++				   (!c || r < c)) {
++				dereference_flags &= ~(1ULL << arg);
+ 			}
++
+ 		next_arg:
+ 			i--;
+ 			arg++;
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmKd8C8ACgkQJNaLcl1U
-h9AuDQf/VtGwAYDRDXwCU0D9tcpQJP64CtZ/QTytBLvoK2LGjER1sF9NO52CsDv2
-LKMCVNLg64qR5K+eB9ruX6ER3XOtEP1ttwQNvNVkZxmx7uHi2zZA/8FVdy+5RHYH
-651Hye9Gxe0Pq/dUj5H0Ij4eauwvOYahcpvoI+XDHNyM5DGjayLuqJX2BOFhfMvp
-bSYpgzr63deaSi/Hm7d+zD/EFupGNoMcKJ2aYFbRx29AUeriEe+q2yR7wAiwXhbG
-ZB6s+YX23A75vW7S1G3ujaPKAVenINEhfg8hGZ2G9GeJUw8iT6ckCm2CYAp6hurz
-b8rnsx2vN0U9BYAo+aQrx24rn8sz0Q==
-=8N3B
------END PGP SIGNATURE-----
-
---B+OWqsOhQgqxaqa/--
