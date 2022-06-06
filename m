@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9FC53E6C4
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAE953E7E6
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235541AbiFFLmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 07:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45534 "EHLO
+        id S235555AbiFFLmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 07:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235545AbiFFLmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:42:08 -0400
+        with ESMTP id S235551AbiFFLmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:42:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEFF13BA
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:42:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF19A3BA
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:42:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BC560F7E
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:42:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F260C385A9;
-        Mon,  6 Jun 2022 11:42:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9603760F84
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:42:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFA5C3411C;
+        Mon,  6 Jun 2022 11:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654515726;
-        bh=v5amNq3sS4UgwFE9duNMZkkSbkh7D80Oxm0Va1bfX70=;
+        s=korg; t=1654515730;
+        bh=QbMvM/GKBaR63Q7zuwZKe8x2iMO9NAXuMWxbPMVl5AE=;
         h=Subject:To:Cc:From:Date:From;
-        b=uMbJsQTb64mPTU5WRc+UdmABQrCEX+9tK4EquHfoRUrLywxQkewY3Pqj+3noKGQND
-         k+8HnkKiWMqubE8HP+6DODe7B6slGvwKbtiGmwKHf2CY5bYZKAovnXGIXR7J/rcClq
-         UqsB0FzzS4Wt9XAW8bzzJsf6YPJcHAgMg5RX5P+M=
-Subject: WTF: patch "[PATCH] crypto: qat - add param check for RSA" was seriously submitted to be applied to the 5.18-stable tree?
+        b=v/lAdt27QGNYPRHPjlsySYv2/NKHeirkM/RyTeU6rlhUZAYIN+kMVi7kLeWrqmTTz
+         d3Oe1Jp5OJ/ItvYVr7JDVX2ftXIORcTbyq4yS8cmaI9ZVcDiGamzH/E9GO0pDltYNA
+         6256pcNVs1hgwqkdO5RRZEIH8np3qxzt664TNVpw=
+Subject: WTF: patch "[PATCH] crypto: qat - fix memory leak in RSA" was seriously submitted to be applied to the 5.18-stable tree?
 To:     giovanni.cabiddu@intel.com, adam.guerin@intel.com,
         herbert@gondor.apana.org.au, wojciech.ziemba@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 13:42:01 +0200
-Message-ID: <165451572118022@kroah.com>
+Date:   Mon, 06 Jun 2022 13:42:03 +0200
+Message-ID: <165451572322421@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -64,45 +64,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9714061423b8b24b8afb31b8eb4df977c63f19c4 Mon Sep 17 00:00:00 2001
+From 80a52e1ee7757b742f96bfb0d58f0c14eb6583d0 Mon Sep 17 00:00:00 2001
 From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Date: Mon, 9 May 2022 14:34:14 +0100
-Subject: [PATCH] crypto: qat - add param check for RSA
+Date: Mon, 9 May 2022 14:34:11 +0100
+Subject: [PATCH] crypto: qat - fix memory leak in RSA
 
-Reject requests with a source buffer that is bigger than the size of the
-key. This is to prevent a possible integer underflow that might happen
-when copying the source scatterlist into a linear buffer.
+When an RSA key represented in form 2 (as defined in PKCS #1 V2.1) is
+used, some components of the private key persist even after the TFM is
+released.
+Replace the explicit calls to free the buffers in qat_rsa_exit_tfm()
+with a call to qat_rsa_clear_ctx() which frees all buffers referenced in
+the TFM context.
 
 Cc: stable@vger.kernel.org
+Fixes: 879f77e9071f ("crypto: qat - Add RSA CRT mode")
 Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 Reviewed-by: Adam Guerin <adam.guerin@intel.com>
 Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
 diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-index 25bbd22085c3..947eeff181b4 100644
+index ff7249c093c9..2bc02c75398e 100644
 --- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
 +++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-@@ -656,6 +656,10 @@ static int qat_rsa_enc(struct akcipher_request *req)
- 		req->dst_len = ctx->key_sz;
- 		return -EOVERFLOW;
- 	}
-+
-+	if (req->src_len > ctx->key_sz)
-+		return -EINVAL;
-+
- 	memset(msg, '\0', sizeof(*msg));
- 	ICP_QAT_FW_PKE_HDR_VALID_FLAG_SET(msg->pke_hdr,
- 					  ICP_QAT_FW_COMN_REQ_FLAG_SET);
-@@ -785,6 +789,10 @@ static int qat_rsa_dec(struct akcipher_request *req)
- 		req->dst_len = ctx->key_sz;
- 		return -EOVERFLOW;
- 	}
-+
-+	if (req->src_len > ctx->key_sz)
-+		return -EINVAL;
-+
- 	memset(msg, '\0', sizeof(*msg));
- 	ICP_QAT_FW_PKE_HDR_VALID_FLAG_SET(msg->pke_hdr,
- 					  ICP_QAT_FW_COMN_REQ_FLAG_SET);
+@@ -1257,18 +1257,8 @@ static void qat_rsa_exit_tfm(struct crypto_akcipher *tfm)
+ 	struct qat_rsa_ctx *ctx = akcipher_tfm_ctx(tfm);
+ 	struct device *dev = &GET_DEV(ctx->inst->accel_dev);
+ 
+-	if (ctx->n)
+-		dma_free_coherent(dev, ctx->key_sz, ctx->n, ctx->dma_n);
+-	if (ctx->e)
+-		dma_free_coherent(dev, ctx->key_sz, ctx->e, ctx->dma_e);
+-	if (ctx->d) {
+-		memset(ctx->d, '\0', ctx->key_sz);
+-		dma_free_coherent(dev, ctx->key_sz, ctx->d, ctx->dma_d);
+-	}
++	qat_rsa_clear_ctx(dev, ctx);
+ 	qat_crypto_put_instance(ctx->inst);
+-	ctx->n = NULL;
+-	ctx->e = NULL;
+-	ctx->d = NULL;
+ }
+ 
+ static struct akcipher_alg rsa = {
 
