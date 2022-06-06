@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CED7B53E7D2
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD5253E970
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239765AbiFFOdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 10:33:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51492 "EHLO
+        id S239767AbiFFOdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 10:33:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239749AbiFFOdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:33:11 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687362AC5F;
-        Mon,  6 Jun 2022 07:33:10 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id p10so20118989wrg.12;
-        Mon, 06 Jun 2022 07:33:10 -0700 (PDT)
+        with ESMTP id S239749AbiFFOdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:33:13 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6412B248;
+        Mon,  6 Jun 2022 07:33:12 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id l2-20020a05600c1d0200b0039c35ef94c4so5902227wms.4;
+        Mon, 06 Jun 2022 07:33:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=1QqcTEPtoODTXKz5bXn/012pkjfLEsGJrtDgaQa4Ijw=;
-        b=Ib49PzdWGwEDkmiRo1kCrpEvD3rUNAHDiUAO9fAKNOejpqOXliEMniLhMv4BmSbMZ5
-         0KJ11+QorM3i8WCBn1JwbBQaLbrP5qgQ9MnkVYxZ8CCn7YxR3DOkRpsuhJVog9AVeWNz
-         Tt5f8347aQrIySRHQ0y6h0Xy5xy9jF8Mt8JWDvjtTa2+Ob1jK6LCf4FBXUJox6MGUHT/
-         g194Y/utE9B8H+Q781LcyHdILTT89CxZd4ZiPxZ0j48Ak9C9M9BvPAHx0297qr4xWChw
-         HClUHMHTHk7+xMrEbsMz/PUTeCo7+10wGDwbv9AHcJPteBN1cka05is9+C/osey+CORp
-         bVJg==
+        bh=SzyQsb1o4fSk85fpWvWY8/HRYw+PK4Y1RJ618LPBXOE=;
+        b=T5CRrkmg3r1UzZG2LLjrDRF/l413u2riFgZL8u86FhGjCdozXKk/HYAuRGaOlB4Fol
+         jfwsZ86tRuox/xpaMePq/T5DwznaWubv7whYvT13uSeGC9gNRJ71Bu1+ytkmoSG0lpcO
+         bhNL/3ejdmfsi4gnQIHaXHFwlFaxnjK66X6BGzi68pWImdQnA40n60M1+n/AgcPme7hL
+         60dJMVG58x1SNdn82ToW6mOQL5TRfNQSGuauYW/VQPDljWU3SN5jHNO1EjEqIejcFSIK
+         6cgV6AFBT6XWWm/ubTUQWDKWHC+kFY7dF3bUhcFeGf1zSmNBEGxZqSVFdvGja6Yn7j6F
+         eUfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1QqcTEPtoODTXKz5bXn/012pkjfLEsGJrtDgaQa4Ijw=;
-        b=3vwJjlirwh5sZD0jRNqkrbmaji7Ip7xN1a8oC3He8C1rJ+sv+7AwTbWPa1mnE+mGgx
-         MQwlCs7mjv86hcbWbu5VAmIBqMgBmiX0gCkBFxFcxClW4TpV7dg9u2h/lpm6UyBxD0az
-         YJ/HRsE68pN3G+yytfavTQhN9A04K80w/j3Vtrk25twcHmO0NY9VbNkbSIarOkzUdWHK
-         A5QAPZeSBztS0qr7VqiN4idGZkUQikQTKw1FZcjRPfzNdmK2JdYlKKQ+JVLXlGT7CSUB
-         6rcHvEhqnLTe2yM27EXryIU6O7qhZKv452yOJHQ7YiZSe3UsfX6Zh+dzUycpYpxhHM7H
-         4fyw==
-X-Gm-Message-State: AOAM530ypGga5UIwjoo06u0sQZXvzYmflL2ZP4ozF7Qz9teKjjnuApiL
-        kboVFOR+citBtlpZSw7+skc=
-X-Google-Smtp-Source: ABdhPJwZm7a+WVaiXpXkbBFEypjjggoNyMCYBaYFbMik0IO+NmcOo+VVAkNMpipktdyQt24TMjcoBg==
-X-Received: by 2002:a05:6000:1542:b0:20f:f809:cf89 with SMTP id 2-20020a056000154200b0020ff809cf89mr21740382wry.361.1654525988797;
-        Mon, 06 Jun 2022 07:33:08 -0700 (PDT)
+        bh=SzyQsb1o4fSk85fpWvWY8/HRYw+PK4Y1RJ618LPBXOE=;
+        b=n6y4F+FZnvCXpDlfB/8NMcbEjPAY+pHkmLOYpuknjILSnwWm0e3YUboGS6oklzgoED
+         D4Zx3/lKEqDWKTD08+O+ma+toGPAoOmFiu7CmvzxEbqJZvGBA2pzRGQdM+wIHY7wuPFY
+         XSGm51RFTNFbTtcxYCLcr9QBANidRsfZbxGy8WaLZsvx2UB4C5AuZDWVhSTqGFPMyOaJ
+         XABdxvlMPvwgQ0sJLwZlH+hzRd8VwjB+UfzoRE8hav0pB+PbbygK7osovkcVJ1iKO2/8
+         fbE3WMTonrfPWTBkH4Dqb1357AnURYr8oU/UL8wIH+4wJOpDT5LdEcQcxl8Q08CWXZAD
+         Q2cg==
+X-Gm-Message-State: AOAM532hudFGnOk2RBSkadBna4nx495pgOmj5HIeDKjG8TXBLkrDCtdB
+        btjiMRteES8XHvnCPBkjxOQ=
+X-Google-Smtp-Source: ABdhPJxU0b1GxwHBraCdgM9PVN1ZncTUb4oO3fgL83YJfb6c1ByhYEyN2dSYBm/Cg0S2jShQuyHAlw==
+X-Received: by 2002:a7b:c758:0:b0:39c:44ce:f00f with SMTP id w24-20020a7bc758000000b0039c44cef00fmr13674785wmk.167.1654525990476;
+        Mon, 06 Jun 2022 07:33:10 -0700 (PDT)
 Received: from amir-ThinkPad-T480.ctera.local (bzq-166-168-31-246.red.bezeqint.net. [31.168.166.246])
-        by smtp.gmail.com with ESMTPSA id h24-20020a05600c145800b0039c54bb28f2sm1622958wmi.36.2022.06.06.07.33.07
+        by smtp.gmail.com with ESMTPSA id h24-20020a05600c145800b0039c54bb28f2sm1622958wmi.36.2022.06.06.07.33.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jun 2022 07:33:08 -0700 (PDT)
+        Mon, 06 Jun 2022 07:33:09 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -59,10 +59,10 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Leah Rumancik <leah.rumancik@gmail.com>,
         Adam Manzanares <a.manzanares@samsung.com>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Chandan Babu R <chandanrlinux@gmail.com>
-Subject: [PATCH 5.10 v2 4/8] xfs: fix incorrect root dquot corruption error when switching group/project quota types
-Date:   Mon,  6 Jun 2022 17:32:51 +0300
-Message-Id: <20220606143255.685988-5-amir73il@gmail.com>
+        Eric Sandeen <sandeen@redhat.com>
+Subject: [PATCH 5.10 v2 5/8] xfs: restore shutdown check in mapped write fault path
+Date:   Mon,  6 Jun 2022 17:32:52 +0300
+Message-Id: <20220606143255.685988-6-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220606143255.685988-1-amir73il@gmail.com>
 References: <20220606143255.685988-1-amir73il@gmail.com>
@@ -78,94 +78,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 45068063efb7dd0a8d115c106aa05d9ab0946257 upstream.
+commit e4826691cc7e5458bcb659935d0092bcf3f08c20 upstream.
 
-While writing up a regression test for broken behavior when a chprojid
-request fails, I noticed that we were logging corruption notices about
-the root dquot of the group/project quota file at mount time when
-testing V4 filesystems.
+XFS triggers an iomap warning in the write fault path due to a
+!PageUptodate() page if a write fault happens to occur on a page
+that recently failed writeback. The iomap writeback error handling
+code can clear the Uptodate flag if no portion of the page is
+submitted for I/O. This is reproduced by fstest generic/019, which
+combines various forms of I/O with simulated disk failures that
+inevitably lead to filesystem shutdown (which then unconditionally
+fails page writeback).
 
-In commit afeda6000b0c, I was trying to improve ondisk dquot validation
-by making sure that when we load an ondisk dquot into memory on behalf
-of an incore dquot, the dquot id and type matches.  Unfortunately, I
-forgot that V4 filesystems only have two quota files, and can switch
-that file between group and project quota types at mount time.  When we
-perform that switch, we'll try to load the default quota limits from the
-root dquot prior to running quotacheck and log a corruption error when
-the types don't match.
+This is a regression introduced by commit f150b4234397 ("xfs: split
+the iomap ops for buffered vs direct writes") due to the removal of
+a shutdown check and explicit error return in the ->iomap_begin()
+path used by the write fault path. The explicit error return
+historically translated to a SIGBUS, but now carries on with iomap
+processing where it complains about the unexpected state. Restore
+the shutdown check to xfs_buffered_write_iomap_begin() to restore
+historical behavior.
 
-This is inconsequential because quotacheck will reset the second quota
-file as part of doing the switch, but we shouldn't leave scary messages
-in the kernel log.
-
-Fixes: afeda6000b0c ("xfs: validate ondisk/incore dquot flags")
+Fixes: f150b4234397 ("xfs: split the iomap ops for buffered vs direct writes")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/xfs/xfs_dquot.c | 39 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 37 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_iomap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/xfs/xfs_dquot.c b/fs/xfs/xfs_dquot.c
-index 1d95ed387d66..80c4579d6835 100644
---- a/fs/xfs/xfs_dquot.c
-+++ b/fs/xfs/xfs_dquot.c
-@@ -500,6 +500,42 @@ xfs_dquot_alloc(
- 	return dqp;
- }
+diff --git a/fs/xfs/xfs_iomap.c b/fs/xfs/xfs_iomap.c
+index 7b9ff824e82d..74bc2beadc23 100644
+--- a/fs/xfs/xfs_iomap.c
++++ b/fs/xfs/xfs_iomap.c
+@@ -870,6 +870,9 @@ xfs_buffered_write_iomap_begin(
+ 	int			allocfork = XFS_DATA_FORK;
+ 	int			error = 0;
  
-+/* Check the ondisk dquot's id and type match what the incore dquot expects. */
-+static bool
-+xfs_dquot_check_type(
-+	struct xfs_dquot	*dqp,
-+	struct xfs_disk_dquot	*ddqp)
-+{
-+	uint8_t			ddqp_type;
-+	uint8_t			dqp_type;
++	if (XFS_FORCED_SHUTDOWN(mp))
++		return -EIO;
 +
-+	ddqp_type = ddqp->d_type & XFS_DQTYPE_REC_MASK;
-+	dqp_type = xfs_dquot_type(dqp);
-+
-+	if (be32_to_cpu(ddqp->d_id) != dqp->q_id)
-+		return false;
-+
-+	/*
-+	 * V5 filesystems always expect an exact type match.  V4 filesystems
-+	 * expect an exact match for user dquots and for non-root group and
-+	 * project dquots.
-+	 */
-+	if (xfs_sb_version_hascrc(&dqp->q_mount->m_sb) ||
-+	    dqp_type == XFS_DQTYPE_USER || dqp->q_id != 0)
-+		return ddqp_type == dqp_type;
-+
-+	/*
-+	 * V4 filesystems support either group or project quotas, but not both
-+	 * at the same time.  The non-user quota file can be switched between
-+	 * group and project quota uses depending on the mount options, which
-+	 * means that we can encounter the other type when we try to load quota
-+	 * defaults.  Quotacheck will soon reset the the entire quota file
-+	 * (including the root dquot) anyway, but don't log scary corruption
-+	 * reports to dmesg.
-+	 */
-+	return ddqp_type == XFS_DQTYPE_GROUP || ddqp_type == XFS_DQTYPE_PROJ;
-+}
-+
- /* Copy the in-core quota fields in from the on-disk buffer. */
- STATIC int
- xfs_dquot_from_disk(
-@@ -512,8 +548,7 @@ xfs_dquot_from_disk(
- 	 * Ensure that we got the type and ID we were looking for.
- 	 * Everything else was checked by the dquot buffer verifier.
- 	 */
--	if ((ddqp->d_type & XFS_DQTYPE_REC_MASK) != xfs_dquot_type(dqp) ||
--	    be32_to_cpu(ddqp->d_id) != dqp->q_id) {
-+	if (!xfs_dquot_check_type(dqp, ddqp)) {
- 		xfs_alert_tag(bp->b_mount, XFS_PTAG_VERIFIER_ERROR,
- 			  "Metadata corruption detected at %pS, quota %u",
- 			  __this_address, dqp->q_id);
+ 	/* we can't use delayed allocations when using extent size hints */
+ 	if (xfs_get_extsz_hint(ip))
+ 		return xfs_direct_write_iomap_begin(inode, offset, count,
 -- 
 2.25.1
 
