@@ -2,109 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B8453EB8B
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4541053EA0D
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237070AbiFFMci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
+        id S237656AbiFFMoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:44:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237112AbiFFMcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:32:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE6A247AEE;
-        Mon,  6 Jun 2022 05:32:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 495A8611C0;
-        Mon,  6 Jun 2022 12:32:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E61CC34119;
-        Mon,  6 Jun 2022 12:32:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518741;
-        bh=hVfefRVJKJPx3FSezXnpyQQ9tSQ5yErSlG0OfnsDYz4=;
-        h=Subject:To:Cc:From:Date:From;
-        b=n2aOc7g5vnjB1wZSXuptDuFdrHvCZ7IcY7rxBblRRzg0sv5EmiVHB/Nf8QRjHrCAI
-         5+SEz7MkBUpda9tiLMjUxGm8HeviYkX98GEqB4+ZLkMXQWVP9b68H8j4e18smbhzSF
-         gJLd6zhU97PTOk4SRI7BPJ3Ukb9y2jr1rWg5/ySI=
-Subject: FAILED: patch "[PATCH] exportfs: support idmapped mounts" failed to apply to 5.17-stable tree
-To:     brauner@kernel.org, amir73il@gmail.com, gscrivan@redhat.com,
-        hch@lst.de, linux-fsdevel@vger.kernel.org, mszeredi@redhat.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:32:11 +0200
-Message-ID: <1654518731221197@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S237649AbiFFMoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:44:10 -0400
+X-Greylist: delayed 544 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 06 Jun 2022 05:44:07 PDT
+Received: from smtp.uniroma2.it (smtp.uniroma2.it [160.80.6.16])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9147218E17
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:44:06 -0700 (PDT)
+Received: from smtpauth-2019-1.uniroma2.it (smtpauth-2019-1.uniroma2.it [160.80.5.46])
+        by smtp-2015.uniroma2.it (8.14.4/8.14.4/Debian-8) with ESMTP id 256CXgr7024134;
+        Mon, 6 Jun 2022 14:33:47 +0200
+Received: from lubuntu-18.04 (unknown [160.80.103.126])
+        by smtpauth-2019-1.uniroma2.it (Postfix) with ESMTPSA id DFA831212B4;
+        Mon,  6 Jun 2022 14:33:38 +0200 (CEST)
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=uniroma2.it;
+        s=ed201904; t=1654518819; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8B6BQq7gCMMTyTKJNSZBHuMyyStdALnwUURupL2Td2o=;
+        b=X7w1dL/Qdi0cGco1mzCLqfC//5laoY1s1Mcit4m6zobej3fu2+NwBDv9UFWimW+rIlfVnu
+        oLBzbUp7cCWCJvBQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniroma2.it; s=rsa201904;
+        t=1654518819; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8B6BQq7gCMMTyTKJNSZBHuMyyStdALnwUURupL2Td2o=;
+        b=nz5Ja2R9K87ulc+qvyWNju3i1v8S9IXm1GruSHe1XLogKTdmXH8UY3Sfs4k/t52+iDxB+c
+        wj23Fqx0P1hqsZ1l988VEenJPgrYS6dl1fBVUocxgHER8nTlfoOR52HwjapbuDDNutwSyI
+        Q7N+sm7olNFUdRjzGD8Oos6kow+yYuUSApFPJlxa/RtegzNgGvkeIsbjBZCv2a5JKBLNqY
+        +hN/mRWoa3j8e6OAIqvH/F5Z1rpPexJIbAzAVMzIN/13+EevVnb+5pPM9rBFq7QzhFRLqK
+        B73DgcDvU/UpPpAqsQrVMJ2jWs87WuBW+zTfr8eQBkMLkuUlB8NeLOHqh3PF+w==
+Date:   Mon, 6 Jun 2022 14:33:38 +0200
+From:   Andrea Mayer <andrea.mayer@uniroma2.it>
+To:     Anton Makarov <am@3a-alliance.com>
+Cc:     David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, david.lebrun@uclouvain.be,
+        regressions@lists.linux.dev, stable@vger.kernel.org,
+        Stefano Salsano <stefano.salsano@uniroma2.it>,
+        Paolo Lungaroni <paolo.lungaroni@uniroma2.it>,
+        Ahmed Abdelsalam <ahabdels.dev@gmail.com>,
+        Andrea Mayer <andrea.mayer@uniroma2.it>
+Subject: Re: [REGRESSION] net: SRv6 End.DT6 function is broken in VRF mode
+Message-Id: <20220606143338.91df592bbb7dc2f7db4747e6@uniroma2.it>
+In-Reply-To: <7e315ff1-e172-16c3-44b5-0c83c4c92779@3a-alliance.com>
+References: <7e315ff1-e172-16c3-44b5-0c83c4c92779@3a-alliance.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.100.0 at smtp-2015
+X-Virus-Status: Clean
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 3 Jun 2022 15:23:26 +0300
+Anton Makarov <am@3a-alliance.com> wrote:
 
-The patch below does not apply to the 5.17-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> #regzbot introduced: b9132c32e01976686efa26252cc246944a0d2cab
+> 
+> Hi All!
+> 
+> Seems there is a regression of SRv6 End.DT6 function in VRF mode. In the 
+> following scenario packet is decapsulated successfully on vrf10 
+> interface but not forwarded to vrf10's slave interface:
+> 
+> ip netns exec r4 ip -6 nexthop add id 1004 encap seg6local action 
+> End.DT6 vrftable 10 dev vrf10
+> 
+> ip netns exec r4 ip -6 route add fcff:0:4:200:: nhid 1004
+> 
+> 
+> In End.DT6 legacy mode everything works good:
+> 
+> ip netns exec r4 ip -6 nexthop add id 1004 encap seg6local action 
+> End.DT6 table 10 dev vrf10
+> 
+> ip netns exec r4 ip -6 route add fcff:0:4:200:: nhid 1004
+> 
+> 
+> The issue impacts even stable v5.18.1. Please help to fix it.
+> 
+> 
+> Thanks!
+> 
+> Anton
+> 
+> 
+> 
 
-thanks,
+Hi Anton,
 
-greg k-h
+thank you for reporting this issue. I am already working on a fix patch which I
+will send shortly.
 
------------------- original commit in Linus's tree ------------------
-
-From 3a761d72fa62eec8913e45d29375344f61706541 Mon Sep 17 00:00:00 2001
-From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 4 Apr 2022 12:51:41 +0200
-Subject: [PATCH] exportfs: support idmapped mounts
-
-Make the two locations where exportfs helpers check permission to lookup
-a given inode idmapped mount aware by switching it to the lookup_one()
-helper. This is a bugfix for the open_by_handle_at() system call which
-doesn't take idmapped mounts into account currently. It's not tied to a
-specific commit so we'll just Cc stable.
-
-In addition this is required to support idmapped base layers in overlay.
-The overlay filesystem uses exportfs to encode and decode file handles
-for its index=on mount option and when nfs_export=on.
-
-Cc: <stable@vger.kernel.org>
-Cc: <linux-fsdevel@vger.kernel.org>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-
-diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
-index 0106eba46d5a..3ef80d000e13 100644
---- a/fs/exportfs/expfs.c
-+++ b/fs/exportfs/expfs.c
-@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
- 	if (err)
- 		goto out_err;
- 	dprintk("%s: found name: %s\n", __func__, nbuf);
--	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
-+	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
- 	if (IS_ERR(tmp)) {
- 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
- 		err = PTR_ERR(tmp);
-@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *mnt, struct fid *fid, int fh_len,
- 		}
- 
- 		inode_lock(target_dir->d_inode);
--		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
-+		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
-+				     target_dir, strlen(nbuf));
- 		if (!IS_ERR(nresult)) {
- 			if (unlikely(nresult->d_inode != result->d_inode)) {
- 				dput(nresult);
-
+Andrea
