@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E13BE53EC02
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA4F853EC3D
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236440AbiFFMJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:09:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60130 "EHLO
+        id S236500AbiFFMKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:10:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236429AbiFFMJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:09:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C21923158
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:09:34 -0700 (PDT)
+        with ESMTP id S236504AbiFFMKb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:10:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6269526563
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:10:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6DD7B81818
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25086C3411C;
-        Mon,  6 Jun 2022 12:09:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EAB7B81817
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:10:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7306AC385A9;
+        Mon,  6 Jun 2022 12:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654517371;
-        bh=kdL2KF/jQXYexMQEr7D24uGTOEleANYY0JfghYUaPQk=;
+        s=korg; t=1654517427;
+        bh=Qmxo6blR9QKmStyXVYgtdz3EX4n6gIDD2oJzqm3DnmU=;
         h=Subject:To:Cc:From:Date:From;
-        b=RjewC7AvEKLhTi4GHGokEn+n+Ee3sOVtU0jq4oVAeOgZSirDHRaoWvgcjPpKeoYQp
-         fKhgl0ySOeqSI2j01MZRY1uM0OFi3eng1555kIslwsNqKlbhBRuFxhXa6lyOcH6Ljv
-         MGUOoJMydiZgYGWQIQhouycotZgNRISq/yELQ80I=
-Subject: FAILED: patch "[PATCH] ext4: mark group as trimmed only if it was fully scanned" failed to apply to 5.10-stable tree
-To:     dmtrmonakhov@yandex-team.ru, tytso@mit.edu
+        b=outqr9zBWhXkXgIEKWicc7RBbYvssnihmpgB6MXQ0/9DKyHP7LUjdCikgnrEmEK3Z
+         L1FDDHK44sdFDkkzAO0MUjqZlEUP0BjQwRR15BbXwyAM71oahv5qPLM0ObdEDjKCAc
+         WOMlqO3Gu5uPCJMJbk1ou7YLZbD5lbdXzWAs8unU=
+Subject: FAILED: patch "[PATCH] ext4: fix race condition between ext4_write and" failed to apply to 5.10-stable tree
+To:     libaokun1@huawei.com, hulkci@huawei.com, jack@suse.cz,
+        tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:09:29 +0200
-Message-ID: <165451736914081@kroah.com>
+Date:   Mon, 06 Jun 2022 14:10:25 +0200
+Message-ID: <165451742586146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,99 +60,132 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d63c00ea435a5352f486c259665a4ced60399421 Mon Sep 17 00:00:00 2001
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Date: Sun, 17 Apr 2022 20:03:15 +0300
-Subject: [PATCH] ext4: mark group as trimmed only if it was fully scanned
+From f87c7a4b084afc13190cbb263538e444cb2b392a Mon Sep 17 00:00:00 2001
+From: Baokun Li <libaokun1@huawei.com>
+Date: Thu, 28 Apr 2022 21:40:31 +0800
+Subject: [PATCH] ext4: fix race condition between ext4_write and
+ ext4_convert_inline_data
 
-Otherwise nonaligned fstrim calls will works inconveniently for iterative
-scanners, for example:
+Hulk Robot reported a BUG_ON:
+ ==================================================================
+ EXT4-fs error (device loop3): ext4_mb_generate_buddy:805: group 0,
+ block bitmap and bg descriptor inconsistent: 25 vs 31513 free clusters
+ kernel BUG at fs/ext4/ext4_jbd2.c:53!
+ invalid opcode: 0000 [#1] SMP KASAN PTI
+ CPU: 0 PID: 25371 Comm: syz-executor.3 Not tainted 5.10.0+ #1
+ RIP: 0010:ext4_put_nojournal fs/ext4/ext4_jbd2.c:53 [inline]
+ RIP: 0010:__ext4_journal_stop+0x10e/0x110 fs/ext4/ext4_jbd2.c:116
+ [...]
+ Call Trace:
+  ext4_write_inline_data_end+0x59a/0x730 fs/ext4/inline.c:795
+  generic_perform_write+0x279/0x3c0 mm/filemap.c:3344
+  ext4_buffered_write_iter+0x2e3/0x3d0 fs/ext4/file.c:270
+  ext4_file_write_iter+0x30a/0x11c0 fs/ext4/file.c:520
+  do_iter_readv_writev+0x339/0x3c0 fs/read_write.c:732
+  do_iter_write+0x107/0x430 fs/read_write.c:861
+  vfs_writev fs/read_write.c:934 [inline]
+  do_pwritev+0x1e5/0x380 fs/read_write.c:1031
+ [...]
+ ==================================================================
 
-// trim [0,16MB] for group-1, but mark full group as trimmed
-fstrim  -o $((1024*1024*128)) -l $((1024*1024*16)) ./m
-// handle [16MB,16MB] for group-1, do nothing because group already has the flag.
-fstrim  -o $((1024*1024*144)) -l $((1024*1024*16)) ./m
+Above issue may happen as follows:
+           cpu1                     cpu2
+__________________________|__________________________
+do_pwritev
+ vfs_writev
+  do_iter_write
+   ext4_file_write_iter
+    ext4_buffered_write_iter
+     generic_perform_write
+      ext4_da_write_begin
+                           vfs_fallocate
+                            ext4_fallocate
+                             ext4_convert_inline_data
+                              ext4_convert_inline_data_nolock
+                               ext4_destroy_inline_data_nolock
+                                clear EXT4_STATE_MAY_INLINE_DATA
+                               ext4_map_blocks
+                                ext4_ext_map_blocks
+                                 ext4_mb_new_blocks
+                                  ext4_mb_regular_allocator
+                                   ext4_mb_good_group_nolock
+                                    ext4_mb_init_group
+                                     ext4_mb_init_cache
+                                      ext4_mb_generate_buddy  --> error
+       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
+                                ext4_restore_inline_data
+                                 set EXT4_STATE_MAY_INLINE_DATA
+       ext4_block_write_begin
+      ext4_da_write_end
+       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
+       ext4_write_inline_data_end
+        handle=NULL
+        ext4_journal_stop(handle)
+         __ext4_journal_stop
+          ext4_put_nojournal(handle)
+           ref_cnt = (unsigned long)handle
+           BUG_ON(ref_cnt == 0)  ---> BUG_ON
 
-[ Update function documentation for ext4_trim_all_free -- TYT ]
+The lock held by ext4_convert_inline_data is xattr_sem, but the lock
+held by generic_perform_write is i_rwsem. Therefore, the two locks can
+be concurrent.
 
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Link: https://lore.kernel.org/r/1650214995-860245-1-git-send-email-dmtrmonakhov@yandex-team.ru
+To solve above issue, we add inode_lock() for ext4_convert_inline_data().
+At the same time, move ext4_convert_inline_data() in front of
+ext4_punch_hole(), remove similar handling from ext4_punch_hole().
+
+Fixes: 0c8d414f163f ("ext4: let fallocate handle inline data correctly")
+Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220428134031.4153381-1-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 3e715b837e70..bc90635b757c 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -6395,6 +6395,7 @@ __releases(ext4_group_lock_ptr(sb, e4b->bd_group))
-  * @start:		first group block to examine
-  * @max:		last group block to examine
-  * @minblocks:		minimum extent block count
-+ * @set_trimmed:	set the trimmed flag if at least one block is trimmed
-  *
-  * ext4_trim_all_free walks through group's block bitmap searching for free
-  * extents. When the free extent is found, mark it as used in group buddy
-@@ -6404,7 +6405,7 @@ __releases(ext4_group_lock_ptr(sb, e4b->bd_group))
- static ext4_grpblk_t
- ext4_trim_all_free(struct super_block *sb, ext4_group_t group,
- 		   ext4_grpblk_t start, ext4_grpblk_t max,
--		   ext4_grpblk_t minblocks)
-+		   ext4_grpblk_t minblocks, bool set_trimmed)
- {
- 	struct ext4_buddy e4b;
- 	int ret;
-@@ -6423,7 +6424,7 @@ ext4_trim_all_free(struct super_block *sb, ext4_group_t group,
- 	if (!EXT4_MB_GRP_WAS_TRIMMED(e4b.bd_info) ||
- 	    minblocks < EXT4_SB(sb)->s_last_trim_minblks) {
- 		ret = ext4_try_to_trim_range(sb, &e4b, start, max, minblocks);
--		if (ret >= 0)
-+		if (ret >= 0 && set_trimmed)
- 			EXT4_MB_GRP_SET_TRIMMED(e4b.bd_info);
- 	} else {
- 		ret = 0;
-@@ -6460,6 +6461,7 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- 	ext4_fsblk_t first_data_blk =
- 			le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block);
- 	ext4_fsblk_t max_blks = ext4_blocks_count(EXT4_SB(sb)->s_es);
-+	bool whole_group, eof = false;
- 	int ret = 0;
+diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+index e473fde6b64b..474479ce76e0 100644
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -4693,15 +4693,17 @@ long ext4_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+ 		     FALLOC_FL_INSERT_RANGE))
+ 		return -EOPNOTSUPP;
  
- 	start = range->start >> sb->s_blocksize_bits;
-@@ -6478,8 +6480,10 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- 		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
- 			goto out;
++	inode_lock(inode);
++	ret = ext4_convert_inline_data(inode);
++	inode_unlock(inode);
++	if (ret)
++		goto exit;
++
+ 	if (mode & FALLOC_FL_PUNCH_HOLE) {
+ 		ret = ext4_punch_hole(file, offset, len);
+ 		goto exit;
  	}
--	if (end >= max_blks)
-+	if (end >= max_blks - 1) {
- 		end = max_blks - 1;
-+		eof = true;
-+	}
- 	if (end <= first_data_blk)
- 		goto out;
- 	if (start < first_data_blk)
-@@ -6493,6 +6497,7 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
  
- 	/* end now represents the last cluster to discard in this group */
- 	end = EXT4_CLUSTERS_PER_GROUP(sb) - 1;
-+	whole_group = true;
- 
- 	for (group = first_group; group <= last_group; group++) {
- 		grp = ext4_get_group_info(sb, group);
-@@ -6509,12 +6514,13 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- 		 * change it for the last group, note that last_cluster is
- 		 * already computed earlier by ext4_get_group_no_and_offset()
- 		 */
--		if (group == last_group)
-+		if (group == last_group) {
- 			end = last_cluster;
+-	ret = ext4_convert_inline_data(inode);
+-	if (ret)
+-		goto exit;
 -
-+			whole_group = eof ? true : end == EXT4_CLUSTERS_PER_GROUP(sb) - 1;
-+		}
- 		if (grp->bb_free >= minlen) {
- 			cnt = ext4_trim_all_free(sb, group, first_cluster,
--						end, minlen);
-+						 end, minlen, whole_group);
- 			if (cnt < 0) {
- 				ret = cnt;
- 				break;
+ 	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
+ 		ret = ext4_collapse_range(file, offset, len);
+ 		goto exit;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 5948bbba28e3..890f769d6e20 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3979,15 +3979,6 @@ int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
+ 
+ 	trace_ext4_punch_hole(inode, offset, length, 0);
+ 
+-	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+-	if (ext4_has_inline_data(inode)) {
+-		filemap_invalidate_lock(mapping);
+-		ret = ext4_convert_inline_data(inode);
+-		filemap_invalidate_unlock(mapping);
+-		if (ret)
+-			return ret;
+-	}
+-
+ 	/*
+ 	 * Write out all dirty pages to avoid race conditions
+ 	 * Then release them.
 
