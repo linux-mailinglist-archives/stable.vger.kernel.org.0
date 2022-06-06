@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E023153E347
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C32853E1CB
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231501AbiFFHuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 03:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45058 "EHLO
+        id S231476AbiFFHuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 03:50:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231509AbiFFHuu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:50:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95430B8BDE
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:50:47 -0700 (PDT)
+        with ESMTP id S231501AbiFFHut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:50:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E22BBCC2
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19529611B9
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:50:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22E7AC385A9;
-        Mon,  6 Jun 2022 07:50:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E69FAB811CE
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5920CC385A9;
+        Mon,  6 Jun 2022 07:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654501846;
-        bh=jbDFItgo17VlNltGE+rgDC+bU9RjFKVJe2G64deT0I8=;
+        s=korg; t=1654501843;
+        bh=cj8eJIeeKY9GyixLt2jkU+b2lumKM/pVVq3Ex1qw7ZA=;
         h=Subject:To:Cc:From:Date:From;
-        b=g0Hld5qLj9E9Pkv6dlEtvDThwz7bn5MoOem5fWBIYkSscM+lNscvLRqxj3GPTQnKT
-         KekS3RLQcJdEYcDOGrE8+XtuujGvFVHqIUQGF7YeI38r1n+P4R6kX7GvFET3kU+QMG
-         T/pFyvz8mxQSDb8daXWLxLeQmIXbKF2xP5qWk0gc=
-Subject: WTF: patch "[PATCH] selftests/landlock: Test landlock_create_ruleset(2) argument" was seriously submitted to be applied to the 5.18-stable tree?
-To:     mic@digikod.net
+        b=1B/R6u42eLSnXx6ySc9drdFlqR+D9AJHumWyXHb1C9RRpBq0oe21nVc/mpD1Iw2N7
+         FG/BCEUbic3pwvDCdrk3iahRaZdCsWtpvIaq1LpjfULWoDCVdlDGwF8V2tcBZBSjuq
+         JiKhnWhsRxNaoa3LjjopD5PEhQ+bBV1LEnzmgcEQ=
+Subject: WTF: patch "[PATCH] selftests/landlock: Add tests for unknown access rights" was seriously submitted to be applied to the 5.18-stable tree?
+To:     mic@digikod.net, shuah@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 06 Jun 2022 09:50:33 +0200
-Message-ID: <1654501833220120@kroah.com>
+Message-ID: <1654501833201@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -63,72 +63,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6533d0c3a86ee1cc74ff37ac92ca597deb87015c Mon Sep 17 00:00:00 2001
+From c56b3bf566da5a0dd3b58ad97a614b0928b06ebf Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Date: Fri, 6 May 2022 18:08:20 +0200
-Subject: [PATCH] selftests/landlock: Test landlock_create_ruleset(2) argument
- check ordering
+Date: Fri, 6 May 2022 18:08:14 +0200
+Subject: [PATCH] selftests/landlock: Add tests for unknown access rights
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add inval_create_ruleset_arguments, extension of
-inval_create_ruleset_flags, to also check error ordering for
-landlock_create_ruleset(2).
+Make sure that trying to use unknown access rights returns an error.
 
-This is similar to the previous commit checking landlock_add_rule(2).
-
-Test coverage for security/landlock is 94.4% of 504 lines accorging to
-gcc/gcov-11.
-
-Link: https://lore.kernel.org/r/20220506160820.524344-11-mic@digikod.net
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-5-mic@digikod.net
 Cc: stable@vger.kernel.org
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 
-diff --git a/tools/testing/selftests/landlock/base_test.c b/tools/testing/selftests/landlock/base_test.c
-index 21fb33581419..35f64832b869 100644
---- a/tools/testing/selftests/landlock/base_test.c
-+++ b/tools/testing/selftests/landlock/base_test.c
-@@ -97,14 +97,17 @@ TEST(abi_version)
- 	ASSERT_EQ(EINVAL, errno);
+diff --git a/tools/testing/selftests/landlock/fs_test.c b/tools/testing/selftests/landlock/fs_test.c
+index cc7fa7b17578..f293b7e2a1a7 100644
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -448,6 +448,22 @@ TEST_F_FORK(layout1, file_access_rights)
+ 	ASSERT_EQ(0, close(path_beneath.parent_fd));
  }
  
--TEST(inval_create_ruleset_flags)
-+/* Tests ordering of syscall argument checks. */
-+TEST(create_ruleset_checks_ordering)
- {
- 	const int last_flag = LANDLOCK_CREATE_RULESET_VERSION;
- 	const int invalid_flag = last_flag << 1;
-+	int ruleset_fd;
- 	const struct landlock_ruleset_attr ruleset_attr = {
- 		.handled_access_fs = LANDLOCK_ACCESS_FS_READ_FILE,
- 	};
- 
-+	/* Checks priority for invalid flags. */
- 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 0, invalid_flag));
- 	ASSERT_EQ(EINVAL, errno);
- 
-@@ -119,6 +122,22 @@ TEST(inval_create_ruleset_flags)
- 		  landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr),
- 					  invalid_flag));
- 	ASSERT_EQ(EINVAL, errno);
++TEST_F_FORK(layout1, unknown_access_rights)
++{
++	__u64 access_mask;
 +
-+	/* Checks too big ruleset_attr size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, -1, 0));
-+	ASSERT_EQ(E2BIG, errno);
++	for (access_mask = 1ULL << 63; access_mask != ACCESS_LAST;
++	     access_mask >>= 1) {
++		struct landlock_ruleset_attr ruleset_attr = {
++			.handled_access_fs = access_mask,
++		};
 +
-+	/* Checks too small ruleset_attr size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 0, 0));
-+	ASSERT_EQ(EINVAL, errno);
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 1, 0));
-+	ASSERT_EQ(EINVAL, errno);
++		ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr,
++						      sizeof(ruleset_attr), 0));
++		ASSERT_EQ(EINVAL, errno);
++	}
++}
 +
-+	/* Checks valid call. */
-+	ruleset_fd =
-+		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-+	ASSERT_LE(0, ruleset_fd);
-+	ASSERT_EQ(0, close(ruleset_fd));
- }
- 
- /* Tests ordering of syscall argument checks. */
+ static void add_path_beneath(struct __test_metadata *const _metadata,
+ 			     const int ruleset_fd, const __u64 allowed_access,
+ 			     const char *const path)
 
