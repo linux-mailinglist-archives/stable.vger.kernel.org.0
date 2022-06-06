@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5050C53E609
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A73553E7F5
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240430AbiFFPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 11:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42360 "EHLO
+        id S240366AbiFFPUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 11:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240425AbiFFPTU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 11:19:20 -0400
+        with ESMTP id S240439AbiFFPTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 11:19:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C5013FD73
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 08:19:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9A314042B
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 08:19:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DFC261501
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 15:19:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC6EDC385A9;
-        Mon,  6 Jun 2022 15:19:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F5A6614F5
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 15:19:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27367C385A9;
+        Mon,  6 Jun 2022 15:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654528756;
-        bh=zTJa9cIJQ/cpfxdK63E/CoiI+IEcHii3MGjUHmH6SVM=;
+        s=korg; t=1654528779;
+        bh=JWTzE2Lx7wybCBCD+hrMnI0NKNqjETJCNcEvgM4aor8=;
         h=Subject:To:Cc:From:Date:From;
-        b=Opuh+xeHnWW8wVdK7pai2TkeN81OtaknT7GLo9HhRgO42JJstxZpRcAZL/Om67NnD
-         2fcbqH70FiqNQhhgl6Yd//DHghdWuNvRMeAmX+mxvYWPACQxz49HW/UgXVr5uf/bsm
-         OZzYww7eSHkdenTLaMdn+jn4J0y8Bs/Js8m7+8EY=
-Subject: FAILED: patch "[PATCH] serial: pch: don't overwrite xmit->buf[0] by x_char" failed to apply to 4.9-stable tree
-To:     jirislaby@kernel.org, gregkh@linuxfoundation.org, jslaby@suse.cz,
-        stable@vger.kernel.org
+        b=HcjRT+a09GbpF9wYd6ZnCQ9Gz3lW4FpuSvqZcevBq0ohLk2Yt4PPLuaNcNELcYi8N
+         BEHYcLop4fcNDCunqe+8suDNWkhQmOWTCrXI1LbpzsO2c5H5DIED6nvCRCrSVhnGbf
+         qZdmatWfptfKr6T88hrOw1GdwmuY9RjJNrlL1EBA=
+Subject: FAILED: patch "[PATCH] tilcdc: tilcdc_external: fix an incorrect NULL check on list" failed to apply to 4.19-stable tree
+To:     xiam0nd.tong@gmail.com, jyri.sarha@iki.fi
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 17:19:10 +0200
-Message-ID: <1654528750194162@kroah.com>
+Date:   Mon, 06 Jun 2022 17:19:36 +0200
+Message-ID: <165452877615511@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,78 +59,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d9f3af4fbb1d955bbaf872d9e76502f6e3e803cb Mon Sep 17 00:00:00 2001
-From: Jiri Slaby <jirislaby@kernel.org>
-Date: Tue, 3 May 2022 10:08:03 +0200
-Subject: [PATCH] serial: pch: don't overwrite xmit->buf[0] by x_char
+From 8b917cbe38e9b0d002492477a9fc2bfee2412ce4 Mon Sep 17 00:00:00 2001
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Date: Sun, 27 Mar 2022 14:15:16 +0800
+Subject: [PATCH] tilcdc: tilcdc_external: fix an incorrect NULL check on list
+ iterator
 
-When x_char is to be sent, the TX path overwrites whatever is in the
-circular buffer at offset 0 with x_char and sends it using
-pch_uart_hal_write(). I don't understand how this was supposed to work
-if xmit->buf[0] already contained some character. It must have been
-lost.
+The bug is here:
+	if (!encoder) {
 
-Remove this whole pop_tx_x() concept and do the work directly in the
-callers. (Without printing anything using dev_dbg().)
+The list iterator value 'encoder' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+is found.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 3c6a483275f4 (Serial: EG20T: add PCH_UART driver)
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220503080808.28332-1-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix the bug, use a new variable 'iter' as the list iterator,
+while use the original variable 'encoder' as a dedicated pointer
+to point to the found element.
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index f872613a5e83..6cb631487383 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -624,22 +624,6 @@ static int push_rx(struct eg20t_port *priv, const unsigned char *buf,
- 	return 0;
- }
- 
--static int pop_tx_x(struct eg20t_port *priv, unsigned char *buf)
--{
--	int ret = 0;
--	struct uart_port *port = &priv->port;
--
--	if (port->x_char) {
--		dev_dbg(priv->port.dev, "%s:X character send %02x (%lu)\n",
--			__func__, port->x_char, jiffies);
--		buf[0] = port->x_char;
--		port->x_char = 0;
--		ret = 1;
--	}
--
--	return ret;
--}
--
- static int dma_push_rx(struct eg20t_port *priv, int size)
+Cc: stable@vger.kernel.org
+Fixes: ec9eab097a500 ("drm/tilcdc: Add drm bridge support for attaching drm bridge drivers")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Jyri Sarha <jyri.sarha@iki.fi>
+Tested-by: Jyri Sarha <jyri.sarha@iki.fi>
+Signed-off-by: Jyri Sarha <jyri.sarha@iki.fi>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327061516.5076-1-xiam0nd.tong@gmail.com
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.c b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+index 7594cf6e186e..3b86d002ef62 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+@@ -60,11 +60,13 @@ struct drm_connector *tilcdc_encoder_find_connector(struct drm_device *ddev,
+ int tilcdc_add_component_encoder(struct drm_device *ddev)
  {
- 	int room;
-@@ -889,9 +873,10 @@ static unsigned int handle_tx(struct eg20t_port *priv)
+ 	struct tilcdc_drm_private *priv = ddev->dev_private;
+-	struct drm_encoder *encoder;
++	struct drm_encoder *encoder = NULL, *iter;
  
- 	fifo_size = max(priv->fifo_size, 1);
- 	tx_empty = 1;
--	if (pop_tx_x(priv, xmit->buf)) {
--		pch_uart_hal_write(priv, xmit->buf, 1);
-+	if (port->x_char) {
-+		pch_uart_hal_write(priv, &port->x_char, 1);
- 		port->icount.tx++;
-+		port->x_char = 0;
- 		tx_empty = 0;
- 		fifo_size--;
- 	}
-@@ -948,9 +933,11 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
- 	}
+-	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
+-		if (encoder->possible_crtcs & (1 << priv->crtc->index))
++	list_for_each_entry(iter, &ddev->mode_config.encoder_list, head)
++		if (iter->possible_crtcs & (1 << priv->crtc->index)) {
++			encoder = iter;
+ 			break;
++		}
  
- 	fifo_size = max(priv->fifo_size, 1);
--	if (pop_tx_x(priv, xmit->buf)) {
--		pch_uart_hal_write(priv, xmit->buf, 1);
-+
-+	if (port->x_char) {
-+		pch_uart_hal_write(priv, &port->x_char, 1);
- 		port->icount.tx++;
-+		port->x_char = 0;
- 		fifo_size--;
- 	}
- 
+ 	if (!encoder) {
+ 		dev_err(ddev->dev, "%s: No suitable encoder found\n", __func__);
 
