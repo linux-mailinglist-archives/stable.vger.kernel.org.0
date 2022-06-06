@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B8F53F267
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 01:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E03C753F26D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 01:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235212AbiFFXMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 19:12:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45070 "EHLO
+        id S235250AbiFFXNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 19:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232334AbiFFXMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 19:12:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B284CC9ECA;
-        Mon,  6 Jun 2022 16:12:01 -0700 (PDT)
+        with ESMTP id S233471AbiFFXND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 19:13:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3AEA1FA79;
+        Mon,  6 Jun 2022 16:13:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46FE3B81C1E;
-        Mon,  6 Jun 2022 23:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B99BAC385A9;
-        Mon,  6 Jun 2022 23:11:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EC1EB81BED;
+        Mon,  6 Jun 2022 23:13:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A4DC34119;
+        Mon,  6 Jun 2022 23:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654557118;
-        bh=os+VNrxZ18hzpoZQbhF28dYaPUqeEW+gxHjeRa9iGag=;
+        s=k20201202; t=1654557179;
+        bh=cPa+daYMpGbKgPG6Q9jh8Fys6wB583rNbMLSC3WwYY4=;
         h=From:To:Cc:Subject:Date:From;
-        b=EHIWTo20rJbhfy9yJ1iKii9XkbAPDx+ruYaSZ8LLPWUCdyOIXSkCK9JVZF0OSk41e
-         jvo516e6jO1hykde+nHeDw6Jq/dv6YFTExIVME03gI8PxYo72no+Mh+HLYKFXTsbHp
-         2Qy0tMkt9l4qa1+nRilqvJs/6zCQKf+y4fAJmQyf6LVhf2WPqFuFJf4qn7ght/qvNp
-         TNbwR0GYzpRW79SgKlThZ9NkWfC94eVQsY3t7sKB8YPXi6/0d8fkXSN1qiAdLZs7dY
-         O70P3e1gFIccFvcgynaPHaNqFkvm+mThBHysrXfVQK41Ys3eBGOlml8OXkwI/7WXsR
-         L2ZkEr8iSxzQQ==
+        b=AQBpB800JJoo3o5lbRf1+VznHbbV5jO5P3vQvonijHx3HzJi4u6cXUiUIBs3fVhfB
+         33evEH8L2ib6xI117uiF/tQSeUJeNLI/IebH3i/0mUTtb+lRXuHsXqe6Z5zx0e45Aw
+         WYe+egL6nw6j9S2ZVg5h+BZLbqE6/h7qnbqUm/2rNO1xh/PElN4tYQlhv6aJw9cZkh
+         mRIX362XOlFQMGRHydcva863UFF/M5XqPShOxTuZ3r5DUEDcHsJ71m1zQNhSARkKc1
+         4Z6fTC/UbhnUYoTTs2YNS89RAlZ7/Ii34R8Mld1B1HeIefBIsDYmBnJaWmFv+jIrDd
+         F3r5i63fSBxhw==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linux-ext4@vger.kernel.org, linux-fscrypt@vger.kernel.org,
         Gabriel Krisman Bertazi <krisman@collabora.com>,
         Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH 5.15] ext4: only allow test_dummy_encryption when supported
-Date:   Mon,  6 Jun 2022 16:11:49 -0700
-Message-Id: <20220606231149.165759-1-ebiggers@kernel.org>
+Subject: [PATCH 5.10] ext4: only allow test_dummy_encryption when supported
+Date:   Mon,  6 Jun 2022 16:12:33 -0700
+Message-Id: <20220606231233.165860-1-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -95,10 +95,10 @@ Signed-off-by: Theodore Ts'o <tytso@mit.edu>
  2 files changed, 10 insertions(+), 14 deletions(-)
 
 diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index a0a9878578949..2d84030d7b7fc 100644
+index 8329961546b58..4ad1c3ce9398a 100644
 --- a/fs/ext4/ext4.h
 +++ b/fs/ext4/ext4.h
-@@ -1435,12 +1435,6 @@ struct ext4_super_block {
+@@ -1419,12 +1419,6 @@ struct ext4_super_block {
  
  #ifdef __KERNEL__
  
@@ -112,10 +112,10 @@ index a0a9878578949..2d84030d7b7fc 100644
  #define EXT4_MAXQUOTAS 3
  
 diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index d12f11c6fbf25..de7b0897f3d4b 100644
+index 3e26edeca8c73..46007d0177e00 100644
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -2058,6 +2058,12 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
+@@ -2083,6 +2083,12 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
  	struct ext4_sb_info *sbi = EXT4_SB(sb);
  	int err;
  
@@ -128,7 +128,7 @@ index d12f11c6fbf25..de7b0897f3d4b 100644
  	/*
  	 * This mount option is just for testing, and it's not worthwhile to
  	 * implement the extra complexity (e.g. RCU protection) that would be
-@@ -2085,11 +2091,13 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
+@@ -2110,11 +2116,13 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
  		return -1;
  	}
  	ext4_msg(sb, KERN_WARNING, "Test dummy encryption mode enabled");
@@ -143,22 +143,22 @@ index d12f11c6fbf25..de7b0897f3d4b 100644
 -	return 1;
  }
  
- struct ext4_parsed_options {
-@@ -4783,12 +4791,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
+@@ -4928,12 +4936,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
  		goto failed_mount_wq;
  	}
  
 -	if (DUMMY_ENCRYPTION_ENABLED(sbi) && !sb_rdonly(sb) &&
 -	    !ext4_has_feature_encrypt(sb)) {
 -		ext4_set_feature_encrypt(sb);
--		ext4_commit_super(sb);
+-		ext4_commit_super(sb, 1);
 -	}
 -
  	/*
  	 * Get the # of file system overhead blocks from the
  	 * superblock if present.
 
-base-commit: 207ca688162d4d77129981a8b4352114b97a52b5
+base-commit: 70dd2d169d08f059ff25a41278ab7c658b1d2af8
 -- 
 2.36.1
 
