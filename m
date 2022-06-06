@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 417A153EB0B
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC2BC53E921
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236112AbiFFL6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 07:58:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59182 "EHLO
+        id S236115AbiFFL6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 07:58:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236037AbiFFL6O (ORCPT
+        with ESMTP id S236182AbiFFL6O (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:58:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0624BBF881
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:57:47 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC2464C7
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:57:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B16D61119
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5F3C34119;
-        Mon,  6 Jun 2022 11:57:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD8A460FF4
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:57:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2E7C34119;
+        Mon,  6 Jun 2022 11:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654516662;
-        bh=228rd6U3tXc+aiqCy98HPNOTyVWpNfV8YGf8Ef2mZYQ=;
+        s=korg; t=1654516668;
+        bh=3xRWkVWY2pP9B0M/ZAeUYhEawIcJgyAoY5ulpYyFMh0=;
         h=Subject:To:Cc:From:Date:From;
-        b=uSnS/PZsFWVzxPj6VbIM9BMuyz340csqjH5FEmraHd0BRRtc3/oZmbFtH38ZQHsbQ
-         8DoXcYZ1w1vmIv/eWxEj76fCOP6Bvgig7Dvaz3diWD7Bi406e0/jSwqfsGmKiWW9J8
-         qM+zUS/5oN29QZzTTAaj+45fs+oYiK8pguOnd6D8=
-Subject: FAILED: patch "[PATCH] bfq: Split shared queues on move between cgroups" failed to apply to 4.14-stable tree
+        b=eN87zd7rK2YO0CDiWzBYaQZVjGIh3jFM+Lp7snEx/qKEHlqluFFVFGq+9iVKWVdKa
+         xdVgJA5tt2QOfOIOo8I3jcDTLdabA5DYjFuZH5vgPnfRc8X982anCn0Az+lAMaOmyz
+         6u40o5u8ND2UozW7XEce5aA2mjV1nZMpSmVehT/U=
+Subject: FAILED: patch "[PATCH] bfq: Split shared queues on move between cgroups" failed to apply to 4.19-stable tree
 To:     jack@suse.cz, axboe@kernel.dk, hch@lst.de, yukuai3@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 13:56:58 +0200
-Message-ID: <1654516618192225@kroah.com>
+Date:   Mon, 06 Jun 2022 13:57:29 +0200
+Message-ID: <16545166495292@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
