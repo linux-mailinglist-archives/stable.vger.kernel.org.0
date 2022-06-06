@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9B153EB7A
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9509D53EB2F
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236688AbiFFMUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53322 "EHLO
+        id S236690AbiFFMUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236687AbiFFMUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:20:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABFD1006
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:20:08 -0700 (PDT)
+        with ESMTP id S236687AbiFFMUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:20:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C19929381B
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:20:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A8347CE1B02
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:20:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C42BC34119;
-        Mon,  6 Jun 2022 12:20:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4367611B4
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84FBC34119;
+        Mon,  6 Jun 2022 12:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518004;
-        bh=pJewfwS+e+TABD3LnFWTTQuMN6UTCNeJgySmT6auMbo=;
+        s=korg; t=1654518013;
+        bh=pPr2DTHJo4wBvKkvI21NKiGXqgASHIjbPPuuqLzaaQI=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z3xDk/wMpxVIWl6yK/KeDjKq7F+zwnjf8tbmnW7tFzdvGwE6P8XsRfbUXPbnKDHeI
-         qorFu5+n3RK6kKHgJP8HJk7e3JrHE8lZ+qcuyCeyNb4HAr/3UEAqLjGcK+tcBkiSgP
-         tiqTyL/9Fzoulq6Ka2PRwapCGuJdxmb1dKzbf3z0=
-Subject: FAILED: patch "[PATCH] tracing: Have event format check not flag %p* on" failed to apply to 5.15-stable tree
+        b=Cj/lJ3vlTXGROOwp1J5pE+sBE7TU3f4DPIx7G6IHFVMtviCdWYHVIJ5y8MAX8qGBb
+         DytK0bPfSEYuOeKM2q5+m6fIFCbUwcMsAMOOv6s2wzzBzM75i0c7iVVbXDrOARfZ06
+         NcZalJuA6jKbc2/CDsnotv3z59jnihl7Yf64UEnU=
+Subject: FAILED: patch "[PATCH] tracing: Have event format check not flag %p* on" failed to apply to 5.17-stable tree
 To:     rostedt@goodmis.org, sfr@canb.auug.org.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 06 Jun 2022 14:20:02 +0200
-Message-ID: <165451800211378@kroah.com>
+Message-ID: <165451800221189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
