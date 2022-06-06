@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 208D653EABE
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B6A53E78C
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236501AbiFFMKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36734 "EHLO
+        id S236546AbiFFMMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236513AbiFFMKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:10:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38E926563
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:10:39 -0700 (PDT)
+        with ESMTP id S236536AbiFFML7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:11:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85B098096
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:11:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B14CFB81821
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076C7C34119;
-        Mon,  6 Jun 2022 12:10:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 33BD4CE1A23
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D045C34119;
+        Mon,  6 Jun 2022 12:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654517437;
-        bh=/Ai3lc4MRUuqyhuMqkQK78dMsvnJxaTLrTGDd0rpUlI=;
+        s=korg; t=1654517513;
+        bh=gqA/DiRa0TPCfUhh1v3ndFXEJ4aB0zwmEjKmyae6P7M=;
         h=Subject:To:Cc:From:Date:From;
-        b=BVhAS1YCYI6DJyerGeE5Azs2ywCs3UtoMo0pk2I0nDJIeKIXIHWu+QRgh4eDJ+Irk
-         1SQWEQ3X3nQXm8alAi12TCWdSLQ/fMUgUN0B/lYJqYZPndPBOYJp1BA3R5RK+ez17A
-         mFss4/vW/x3lSweo2ldOnwM+hYKglMfzL/DyEsNs=
-Subject: FAILED: patch "[PATCH] ext4: fix race condition between ext4_write and" failed to apply to 4.9-stable tree
+        b=u3/ofw5o9JKfYrZaXJx58l1B4WR2oB3F4SEeTmxSJZ4me0GkDSOEjCwIu2/NATrbx
+         36yll6STVOnwQem/oktMg6se9fpgfy7GTT+FRWxAL6qEkk/Wfqe/K9hSUJWhOTLk4U
+         Uo3eJ0rhHW4uvGprCMQU3zlZIX5M8FfPP0MR08uw=
+Subject: FAILED: patch "[PATCH] ext4: fix bug_on in __es_tree_search" failed to apply to 5.4-stable tree
 To:     libaokun1@huawei.com, hulkci@huawei.com, jack@suse.cz,
         tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:10:28 +0200
-Message-ID: <1654517428122179@kroah.com>
+Date:   Mon, 06 Jun 2022 14:11:51 +0200
+Message-ID: <165451751147179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,132 +60,136 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f87c7a4b084afc13190cbb263538e444cb2b392a Mon Sep 17 00:00:00 2001
+From d36f6ed761b53933b0b4126486c10d3da7751e7f Mon Sep 17 00:00:00 2001
 From: Baokun Li <libaokun1@huawei.com>
-Date: Thu, 28 Apr 2022 21:40:31 +0800
-Subject: [PATCH] ext4: fix race condition between ext4_write and
- ext4_convert_inline_data
+Date: Wed, 18 May 2022 20:08:16 +0800
+Subject: [PATCH] ext4: fix bug_on in __es_tree_search
 
 Hulk Robot reported a BUG_ON:
- ==================================================================
- EXT4-fs error (device loop3): ext4_mb_generate_buddy:805: group 0,
- block bitmap and bg descriptor inconsistent: 25 vs 31513 free clusters
- kernel BUG at fs/ext4/ext4_jbd2.c:53!
- invalid opcode: 0000 [#1] SMP KASAN PTI
- CPU: 0 PID: 25371 Comm: syz-executor.3 Not tainted 5.10.0+ #1
- RIP: 0010:ext4_put_nojournal fs/ext4/ext4_jbd2.c:53 [inline]
- RIP: 0010:__ext4_journal_stop+0x10e/0x110 fs/ext4/ext4_jbd2.c:116
- [...]
- Call Trace:
-  ext4_write_inline_data_end+0x59a/0x730 fs/ext4/inline.c:795
-  generic_perform_write+0x279/0x3c0 mm/filemap.c:3344
-  ext4_buffered_write_iter+0x2e3/0x3d0 fs/ext4/file.c:270
-  ext4_file_write_iter+0x30a/0x11c0 fs/ext4/file.c:520
-  do_iter_readv_writev+0x339/0x3c0 fs/read_write.c:732
-  do_iter_write+0x107/0x430 fs/read_write.c:861
-  vfs_writev fs/read_write.c:934 [inline]
-  do_pwritev+0x1e5/0x380 fs/read_write.c:1031
- [...]
- ==================================================================
+==================================================================
+kernel BUG at fs/ext4/extents_status.c:199!
+[...]
+RIP: 0010:ext4_es_end fs/ext4/extents_status.c:199 [inline]
+RIP: 0010:__es_tree_search+0x1e0/0x260 fs/ext4/extents_status.c:217
+[...]
+Call Trace:
+ ext4_es_cache_extent+0x109/0x340 fs/ext4/extents_status.c:766
+ ext4_cache_extents+0x239/0x2e0 fs/ext4/extents.c:561
+ ext4_find_extent+0x6b7/0xa20 fs/ext4/extents.c:964
+ ext4_ext_map_blocks+0x16b/0x4b70 fs/ext4/extents.c:4384
+ ext4_map_blocks+0xe26/0x19f0 fs/ext4/inode.c:567
+ ext4_getblk+0x320/0x4c0 fs/ext4/inode.c:980
+ ext4_bread+0x2d/0x170 fs/ext4/inode.c:1031
+ ext4_quota_read+0x248/0x320 fs/ext4/super.c:6257
+ v2_read_header+0x78/0x110 fs/quota/quota_v2.c:63
+ v2_check_quota_file+0x76/0x230 fs/quota/quota_v2.c:82
+ vfs_load_quota_inode+0x5d1/0x1530 fs/quota/dquot.c:2368
+ dquot_enable+0x28a/0x330 fs/quota/dquot.c:2490
+ ext4_quota_enable fs/ext4/super.c:6137 [inline]
+ ext4_enable_quotas+0x5d7/0x960 fs/ext4/super.c:6163
+ ext4_fill_super+0xa7c9/0xdc00 fs/ext4/super.c:4754
+ mount_bdev+0x2e9/0x3b0 fs/super.c:1158
+ mount_fs+0x4b/0x1e4 fs/super.c:1261
+[...]
+==================================================================
 
 Above issue may happen as follows:
-           cpu1                     cpu2
-__________________________|__________________________
-do_pwritev
- vfs_writev
-  do_iter_write
-   ext4_file_write_iter
-    ext4_buffered_write_iter
-     generic_perform_write
-      ext4_da_write_begin
-                           vfs_fallocate
-                            ext4_fallocate
-                             ext4_convert_inline_data
-                              ext4_convert_inline_data_nolock
-                               ext4_destroy_inline_data_nolock
-                                clear EXT4_STATE_MAY_INLINE_DATA
-                               ext4_map_blocks
-                                ext4_ext_map_blocks
-                                 ext4_mb_new_blocks
-                                  ext4_mb_regular_allocator
-                                   ext4_mb_good_group_nolock
-                                    ext4_mb_init_group
-                                     ext4_mb_init_cache
-                                      ext4_mb_generate_buddy  --> error
-       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
-                                ext4_restore_inline_data
-                                 set EXT4_STATE_MAY_INLINE_DATA
-       ext4_block_write_begin
-      ext4_da_write_end
-       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
-       ext4_write_inline_data_end
-        handle=NULL
-        ext4_journal_stop(handle)
-         __ext4_journal_stop
-          ext4_put_nojournal(handle)
-           ref_cnt = (unsigned long)handle
-           BUG_ON(ref_cnt == 0)  ---> BUG_ON
+-------------------------------------
+ext4_fill_super
+ ext4_enable_quotas
+  ext4_quota_enable
+   ext4_iget
+    __ext4_iget
+     ext4_ext_check_inode
+      ext4_ext_check
+       __ext4_ext_check
+        ext4_valid_extent_entries
+         Check for overlapping extents does't take effect
+   dquot_enable
+    vfs_load_quota_inode
+     v2_check_quota_file
+      v2_read_header
+       ext4_quota_read
+        ext4_bread
+         ext4_getblk
+          ext4_map_blocks
+           ext4_ext_map_blocks
+            ext4_find_extent
+             ext4_cache_extents
+              ext4_es_cache_extent
+               ext4_es_cache_extent
+                __es_tree_search
+                 ext4_es_end
+                  BUG_ON(es->es_lblk + es->es_len < es->es_lblk)
 
-The lock held by ext4_convert_inline_data is xattr_sem, but the lock
-held by generic_perform_write is i_rwsem. Therefore, the two locks can
-be concurrent.
+The error ext4 extents is as follows:
+0af3 0300 0400 0000 00000000    extent_header
+00000000 0100 0000 12000000     extent1
+00000000 0100 0000 18000000     extent2
+02000000 0400 0000 14000000     extent3
 
-To solve above issue, we add inode_lock() for ext4_convert_inline_data().
-At the same time, move ext4_convert_inline_data() in front of
-ext4_punch_hole(), remove similar handling from ext4_punch_hole().
+In the ext4_valid_extent_entries function,
+if prev is 0, no error is returned even if lblock<=prev.
+This was intended to skip the check on the first extent, but
+in the error image above, prev=0+1-1=0 when checking the second extent,
+so even though lblock<=prev, the function does not return an error.
+As a result, bug_ON occurs in __es_tree_search and the system panics.
 
-Fixes: 0c8d414f163f ("ext4: let fallocate handle inline data correctly")
-Cc: stable@vger.kernel.org
+To solve this problem, we only need to check that:
+1. The lblock of the first extent is not less than 0.
+2. The lblock of the next extent  is not less than
+   the next block of the previous extent.
+The same applies to extent_idx.
+
+Cc: stable@kernel.org
+Fixes: 5946d089379a ("ext4: check for overlapping extents in ext4_valid_extent_entries()")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220428134031.4153381-1-libaokun1@huawei.com
+Link: https://lore.kernel.org/r/20220518120816.1541863-1-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
 diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index e473fde6b64b..474479ce76e0 100644
+index 474479ce76e0..c148bb97b527 100644
 --- a/fs/ext4/extents.c
 +++ b/fs/ext4/extents.c
-@@ -4693,15 +4693,17 @@ long ext4_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
- 		     FALLOC_FL_INSERT_RANGE))
- 		return -EOPNOTSUPP;
+@@ -372,7 +372,7 @@ static int ext4_valid_extent_entries(struct inode *inode,
+ {
+ 	unsigned short entries;
+ 	ext4_lblk_t lblock = 0;
+-	ext4_lblk_t prev = 0;
++	ext4_lblk_t cur = 0;
  
-+	inode_lock(inode);
-+	ret = ext4_convert_inline_data(inode);
-+	inode_unlock(inode);
-+	if (ret)
-+		goto exit;
-+
- 	if (mode & FALLOC_FL_PUNCH_HOLE) {
- 		ret = ext4_punch_hole(file, offset, len);
- 		goto exit;
+ 	if (eh->eh_entries == 0)
+ 		return 1;
+@@ -396,11 +396,11 @@ static int ext4_valid_extent_entries(struct inode *inode,
+ 
+ 			/* Check for overlapping extents */
+ 			lblock = le32_to_cpu(ext->ee_block);
+-			if ((lblock <= prev) && prev) {
++			if (lblock < cur) {
+ 				*pblk = ext4_ext_pblock(ext);
+ 				return 0;
+ 			}
+-			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
++			cur = lblock + ext4_ext_get_actual_len(ext);
+ 			ext++;
+ 			entries--;
+ 		}
+@@ -420,13 +420,13 @@ static int ext4_valid_extent_entries(struct inode *inode,
+ 
+ 			/* Check for overlapping index extents */
+ 			lblock = le32_to_cpu(ext_idx->ei_block);
+-			if ((lblock <= prev) && prev) {
++			if (lblock < cur) {
+ 				*pblk = ext4_idx_pblock(ext_idx);
+ 				return 0;
+ 			}
+ 			ext_idx++;
+ 			entries--;
+-			prev = lblock;
++			cur = lblock + 1;
+ 		}
  	}
- 
--	ret = ext4_convert_inline_data(inode);
--	if (ret)
--		goto exit;
--
- 	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
- 		ret = ext4_collapse_range(file, offset, len);
- 		goto exit;
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 5948bbba28e3..890f769d6e20 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3979,15 +3979,6 @@ int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
- 
- 	trace_ext4_punch_hole(inode, offset, length, 0);
- 
--	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
--	if (ext4_has_inline_data(inode)) {
--		filemap_invalidate_lock(mapping);
--		ret = ext4_convert_inline_data(inode);
--		filemap_invalidate_unlock(mapping);
--		if (ret)
--			return ret;
--	}
--
- 	/*
- 	 * Write out all dirty pages to avoid race conditions
- 	 * Then release them.
+ 	return 1;
 
