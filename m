@@ -2,105 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1819753E6AB
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36CB53E771
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235482AbiFFLg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 07:36:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42554 "EHLO
+        id S235538AbiFFLlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 07:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235553AbiFFLfQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:35:16 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2F1E1B7B1;
-        Mon,  6 Jun 2022 04:35:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654515314; x=1686051314;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=mqq/I6JH+2jc6rqeS+J0c5Od7x0FtTJYCRFam/X/jKg=;
-  b=hHaO0KZpSifBautd06hNy312GX7xF+otQFjJCA89/VSkWmamOJmTWIbJ
-   j9vxYCCw9goNGAa3J/F8JbYFGj097Icca0bOXQlYgntZ3W6ZQiGJarQvO
-   l0tmVStJUlfXA6nwmeLDukXI75GHFojv4gK+pfZYORC9wuGT0xNCg5aA/
-   BB7nK0WPHFIabH4rE7aY+M2PwLM1typgOw2XKnYXmnuoxjDAZuu09JEr/
-   Rb2VsEKYFuJTAMj0xUIH9RQC86/7XRM8g2Q4kAvMYKoJukLdQPbLzCi1L
-   EFmttjML6xPC0CR9FzTYsoF39bhRuZagigToK8K01vq7RCASXEHTbBkel
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10369"; a="257093549"
-X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="257093549"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 04:35:14 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="532095386"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
-  by orsmga003.jf.intel.com with ESMTP; 06 Jun 2022 04:35:12 -0700
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     rydberg@bitmath.org
-Cc:     linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org
-Subject: [PATCH] Input: bcm5974 - Set missing URB_NO_TRANSFER_DMA_MAP urb flag
-Date:   Mon,  6 Jun 2022 14:36:36 +0300
-Message-Id: <20220606113636.588955-1-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S235523AbiFFLly (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:41:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD512D1F0
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:41:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8128BB8175D
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B0F3C385A9;
+        Mon,  6 Jun 2022 11:41:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654515711;
+        bh=KoBdoj5JE1AW1/mklk+MEbUtOjX5YkLq16JnIp7arcQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ouf+MC2CW6J8hlVXM4rEvNpwNiaPILo5cZPtROuzj0SF1O/k69EyDMt+ASqfwsrn1
+         J3U6FvfoVukcI0CqDbtd5kDs2ZNclHF11iMvWQ4xmFqxrcFjqIo4gfonsEpu4wzJ7P
+         Y5wsiJ4U7QAs0KtFbOBwHvWArPt07iwTE3Bk0+/E=
+Subject: WTF: patch "[PATCH] crypto: qat - set to zero DH parameters before free" was seriously submitted to be applied to the 5.18-stable tree?
+To:     giovanni.cabiddu@intel.com, adam.guerin@intel.com,
+        herbert@gondor.apana.org.au, wojciech.ziemba@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 06 Jun 2022 13:41:48 +0200
+Message-ID: <165451570812441@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The bcm5974 driver does the allocation and dma mapping of the usb urb
-data buffer, but driver does not set the URB_NO_TRANSFER_DMA_MAP flag
-to let usb core know the buffer is already mapped.
+The patch below was submitted to be applied to the 5.18-stable tree.
 
-usb core tries to map the already mapped buffer, causing a warning:
-"xhci_hcd 0000:00:14.0: rejecting DMA map of vmalloc memory"
+I fail to see how this patch meets the stable kernel rules as found at
+Documentation/process/stable-kernel-rules.rst.
 
-Fix this by setting the URB_NO_TRANSFER_DMA_MAP, letting usb core
-know buffer is already mapped by bcm5974 driver
+I could be totally wrong, and if so, please respond to 
+<stable@vger.kernel.org> and let me know why this patch should be
+applied.  Otherwise, it is now dropped from my patch queues, never to be
+seen again.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1731160ff7c7bbb11bb1aacb14dd25e18d522779 Mon Sep 17 00:00:00 2001
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Date: Mon, 9 May 2022 14:19:27 +0100
+Subject: [PATCH] crypto: qat - set to zero DH parameters before free
+
+Set to zero the context buffers containing the DH key before they are
+freed.
+This is a defense in depth measure that avoids keys to be recovered from
+memory in case the system is compromised between the free of the buffer
+and when that area of memory (containing keys) gets overwritten.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/input/mouse/bcm5974.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Fixes: c9839143ebbf ("crypto: qat - Add DH support")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Adam Guerin <adam.guerin@intel.com>
+Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 59a14505b9cd..ca150618d32f 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -942,17 +942,22 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	if (!dev->tp_data)
- 		goto err_free_bt_buffer;
- 
--	if (dev->bt_urb)
-+	if (dev->bt_urb) {
- 		usb_fill_int_urb(dev->bt_urb, udev,
- 				 usb_rcvintpipe(udev, cfg->bt_ep),
- 				 dev->bt_data, dev->cfg.bt_datalen,
- 				 bcm5974_irq_button, dev, 1);
- 
-+		dev->bt_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+	}
-+
- 	usb_fill_int_urb(dev->tp_urb, udev,
- 			 usb_rcvintpipe(udev, cfg->tp_ep),
- 			 dev->tp_data, dev->cfg.tp_datalen,
- 			 bcm5974_irq_trackpad, dev, 1);
- 
-+	dev->tp_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
- 	/* create bcm5974 device */
- 	usb_make_path(udev, dev->phys, sizeof(dev->phys));
- 	strlcat(dev->phys, "/input0", sizeof(dev->phys));
--- 
-2.25.1
+diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+index b0b78445418b..5633f9df3b6f 100644
+--- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+@@ -420,14 +420,17 @@ static int qat_dh_set_params(struct qat_dh_ctx *ctx, struct dh *params)
+ static void qat_dh_clear_ctx(struct device *dev, struct qat_dh_ctx *ctx)
+ {
+ 	if (ctx->g) {
++		memset(ctx->g, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->g, ctx->dma_g);
+ 		ctx->g = NULL;
+ 	}
+ 	if (ctx->xa) {
++		memset(ctx->xa, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->xa, ctx->dma_xa);
+ 		ctx->xa = NULL;
+ 	}
+ 	if (ctx->p) {
++		memset(ctx->p, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->p, ctx->dma_p);
+ 		ctx->p = NULL;
+ 	}
 
