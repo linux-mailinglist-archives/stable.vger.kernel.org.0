@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9761053E230
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD39E53E364
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:55:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbiFFHqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 03:46:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55616 "EHLO
+        id S231458AbiFFHqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 03:46:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231458AbiFFHqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:46:22 -0400
+        with ESMTP id S231535AbiFFHqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:46:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7654899692
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:46:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA40996BC
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:46:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09196611B5
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:46:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103B6C385A9;
-        Mon,  6 Jun 2022 07:46:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0121611B5
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:46:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0434BC385A9;
+        Mon,  6 Jun 2022 07:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654501579;
-        bh=dEJ1FR8SqSFq5xp3Rsi4ryGTZTKw3OoIAUg9K+dIRhQ=;
+        s=korg; t=1654501592;
+        bh=aO7ZDi+bbq0IGWM28kJoTjqv+7uZBSXnuU/6ckbOn5E=;
         h=Subject:To:Cc:From:Date:From;
-        b=Dq2gi1t46t6jUzDQYvmnNbbEX1Wz2n8AOTv4sGKeJVuOg26WvSn9sywyOk4+CfxQh
-         ApqqRN8M6Ez0RIQVBovFWYrJRS8UZf3wd+vMmhpll1MAMTKdIvZEl1guGCjLnRwzqv
-         gfXYDue5wtDo72A/EqKFgFEAJEBuVyuTQf0YlzUQ=
-Subject: WTF: patch "[PATCH] selftests/landlock: Add clang-format exceptions" was seriously submitted to be applied to the 5.18-stable tree?
+        b=mOXYV3eh7lRJ/x8GwdMTs4O54KUCJODBQekIiztLpYgD5ps8KK/2jRat8kKzMQJeM
+         40UYGwnJDgh8q6BzcOh+SbkU4RVrXG+Y4HeWuxqLx9MqsdVjRU0P0VNfVtml4UsmBc
+         h4Jvx9aAuUsuQt99ZJRZH+zr7KY/YkJvII9DJyiE=
+Subject: WTF: patch "[PATCH] samples/landlock: Format with clang-format" was seriously submitted to be applied to the 5.18-stable tree?
 To:     mic@digikod.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 09:46:15 +0200
-Message-ID: <1654501575117211@kroah.com>
+Date:   Mon, 06 Jun 2022 09:46:28 +0200
+Message-ID: <1654501588118192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -63,216 +63,206 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4598d9abf4215e1e371a35683350d50122793c80 Mon Sep 17 00:00:00 2001
+From 81709f3dccacf4104a4bc2daa80bdd767a9c4c54 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Date: Fri, 6 May 2022 18:05:09 +0200
-Subject: [PATCH] selftests/landlock: Add clang-format exceptions
+Date: Fri, 6 May 2022 18:05:13 +0200
+Subject: [PATCH] samples/landlock: Format with clang-format
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-In preparation to a following commit, add clang-format on and
-clang-format off stanzas around constant definitions and the TEST_F_FORK
-macro.  This enables to keep aligned values, which is much more readable
-than packed definitions.
+Let's follow a consistent and documented coding style.  Everything may
+not be to our liking but it is better than tacit knowledge.  Moreover,
+this will help maintain style consistency between different developers.
 
-Add other clang-format exceptions for FIXTURE() and
-FIXTURE_VARIANT_ADD() declarations to force space before open brace,
-which is reported by checkpatch.pl .
+This contains only whitespace changes.
 
-Link: https://lore.kernel.org/r/20220506160513.523257-4-mic@digikod.net
+Automatically formatted with:
+clang-format-14 -i samples/landlock/*.[ch]
+
+Link: https://lore.kernel.org/r/20220506160513.523257-8-mic@digikod.net
 Cc: stable@vger.kernel.org
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 
-diff --git a/tools/testing/selftests/landlock/common.h b/tools/testing/selftests/landlock/common.h
-index 183b7e8e1b95..435ba6963756 100644
---- a/tools/testing/selftests/landlock/common.h
-+++ b/tools/testing/selftests/landlock/common.h
-@@ -25,6 +25,7 @@
-  * this to be possible, we must not call abort() but instead exit smoothly
-  * (hence the step print).
-  */
-+/* clang-format off */
- #define TEST_F_FORK(fixture_name, test_name) \
- 	static void fixture_name##_##test_name##_child( \
- 		struct __test_metadata *_metadata, \
-@@ -71,6 +72,7 @@
- 		FIXTURE_DATA(fixture_name) __attribute__((unused)) *self, \
- 		const FIXTURE_VARIANT(fixture_name) \
- 			__attribute__((unused)) *variant)
-+/* clang-format on */
+diff --git a/samples/landlock/sandboxer.c b/samples/landlock/sandboxer.c
+index 5ce961b5bda7..c089e9cdaf32 100644
+--- a/samples/landlock/sandboxer.c
++++ b/samples/landlock/sandboxer.c
+@@ -22,9 +22,9 @@
+ #include <unistd.h>
  
  #ifndef landlock_create_ruleset
- static inline int landlock_create_ruleset(
-diff --git a/tools/testing/selftests/landlock/fs_test.c b/tools/testing/selftests/landlock/fs_test.c
-index 10c9a1e4ebd9..aef2eb3d07cd 100644
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -221,8 +221,9 @@ static void remove_layout1(struct __test_metadata *const _metadata)
- 	EXPECT_EQ(0, remove_path(dir_s3d2));
+-static inline int landlock_create_ruleset(
+-		const struct landlock_ruleset_attr *const attr,
+-		const size_t size, const __u32 flags)
++static inline int
++landlock_create_ruleset(const struct landlock_ruleset_attr *const attr,
++			const size_t size, const __u32 flags)
+ {
+ 	return syscall(__NR_landlock_create_ruleset, attr, size, flags);
  }
+@@ -32,17 +32,18 @@ static inline int landlock_create_ruleset(
  
--FIXTURE(layout1) {
--};
-+/* clang-format off */
-+FIXTURE(layout1) {};
-+/* clang-format on */
- 
- FIXTURE_SETUP(layout1)
+ #ifndef landlock_add_rule
+ static inline int landlock_add_rule(const int ruleset_fd,
+-		const enum landlock_rule_type rule_type,
+-		const void *const rule_attr, const __u32 flags)
++				    const enum landlock_rule_type rule_type,
++				    const void *const rule_attr,
++				    const __u32 flags)
  {
-@@ -376,6 +377,8 @@ TEST_F_FORK(layout1, inval)
- 	ASSERT_EQ(0, close(ruleset_fd));
+-	return syscall(__NR_landlock_add_rule, ruleset_fd, rule_type,
+-			rule_attr, flags);
++	return syscall(__NR_landlock_add_rule, ruleset_fd, rule_type, rule_attr,
++		       flags);
  }
+ #endif
  
-+/* clang-format off */
-+
- #define ACCESS_FILE ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
-@@ -396,6 +399,8 @@ TEST_F_FORK(layout1, inval)
- 	LANDLOCK_ACCESS_FS_MAKE_BLOCK | \
- 	ACCESS_LAST)
- 
-+/* clang-format on */
-+
- TEST_F_FORK(layout1, file_access_rights)
+ #ifndef landlock_restrict_self
+ static inline int landlock_restrict_self(const int ruleset_fd,
+-		const __u32 flags)
++					 const __u32 flags)
  {
- 	__u64 access;
-@@ -452,6 +457,8 @@ struct rule {
- 	__u64 access;
- };
- 
-+/* clang-format off */
-+
- #define ACCESS_RO ( \
- 	LANDLOCK_ACCESS_FS_READ_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_DIR)
-@@ -460,6 +467,8 @@ struct rule {
- 	ACCESS_RO | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE)
- 
-+/* clang-format on */
-+
- static int create_ruleset(struct __test_metadata *const _metadata,
- 		const __u64 handled_access_fs, const struct rule rules[])
- {
-@@ -2070,8 +2079,9 @@ TEST_F_FORK(layout1, proc_pipe)
- 	ASSERT_EQ(0, close(pipe_fds[1]));
+ 	return syscall(__NR_landlock_restrict_self, ruleset_fd, flags);
  }
+@@ -79,9 +80,8 @@ static int parse_path(char *env_path, const char ***const path_list)
  
--FIXTURE(layout1_bind) {
--};
-+/* clang-format off */
-+FIXTURE(layout1_bind) {};
-+/* clang-format on */
+ /* clang-format on */
  
- FIXTURE_SETUP(layout1_bind)
+-static int populate_ruleset(
+-		const char *const env_var, const int ruleset_fd,
+-		const __u64 allowed_access)
++static int populate_ruleset(const char *const env_var, const int ruleset_fd,
++			    const __u64 allowed_access)
  {
-@@ -2411,8 +2421,9 @@ static const char (*merge_sub_files[])[] = {
-  *         └── work
-  */
+ 	int num_paths, i, ret = 1;
+ 	char *env_path_name;
+@@ -111,12 +111,10 @@ static int populate_ruleset(
+ 	for (i = 0; i < num_paths; i++) {
+ 		struct stat statbuf;
  
--FIXTURE(layout2_overlay) {
--};
-+/* clang-format off */
-+FIXTURE(layout2_overlay) {};
-+/* clang-format on */
+-		path_beneath.parent_fd = open(path_list[i], O_PATH |
+-				O_CLOEXEC);
++		path_beneath.parent_fd = open(path_list[i], O_PATH | O_CLOEXEC);
+ 		if (path_beneath.parent_fd < 0) {
+ 			fprintf(stderr, "Failed to open \"%s\": %s\n",
+-					path_list[i],
+-					strerror(errno));
++				path_list[i], strerror(errno));
+ 			goto out_free_name;
+ 		}
+ 		if (fstat(path_beneath.parent_fd, &statbuf)) {
+@@ -127,9 +125,10 @@ static int populate_ruleset(
+ 		if (!S_ISDIR(statbuf.st_mode))
+ 			path_beneath.allowed_access &= ACCESS_FILE;
+ 		if (landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+-					&path_beneath, 0)) {
+-			fprintf(stderr, "Failed to update the ruleset with \"%s\": %s\n",
+-					path_list[i], strerror(errno));
++				      &path_beneath, 0)) {
++			fprintf(stderr,
++				"Failed to update the ruleset with \"%s\": %s\n",
++				path_list[i], strerror(errno));
+ 			close(path_beneath.parent_fd);
+ 			goto out_free_name;
+ 		}
+@@ -171,55 +170,64 @@ int main(const int argc, char *const argv[], char *const *const envp)
+ 	int ruleset_fd;
+ 	struct landlock_ruleset_attr ruleset_attr = {
+ 		.handled_access_fs = ACCESS_FS_ROUGHLY_READ |
+-			ACCESS_FS_ROUGHLY_WRITE,
++				     ACCESS_FS_ROUGHLY_WRITE,
+ 	};
  
- FIXTURE_SETUP(layout2_overlay)
- {
-diff --git a/tools/testing/selftests/landlock/ptrace_test.c b/tools/testing/selftests/landlock/ptrace_test.c
-index 15fbef9cc849..090adadfe2dc 100644
---- a/tools/testing/selftests/landlock/ptrace_test.c
-+++ b/tools/testing/selftests/landlock/ptrace_test.c
-@@ -59,7 +59,9 @@ static int test_ptrace_read(const pid_t pid)
- 	return 0;
- }
+ 	if (argc < 2) {
+-		fprintf(stderr, "usage: %s=\"...\" %s=\"...\" %s <cmd> [args]...\n\n",
+-				ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
+-		fprintf(stderr, "Launch a command in a restricted environment.\n\n");
++		fprintf(stderr,
++			"usage: %s=\"...\" %s=\"...\" %s <cmd> [args]...\n\n",
++			ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
++		fprintf(stderr,
++			"Launch a command in a restricted environment.\n\n");
+ 		fprintf(stderr, "Environment variables containing paths, "
+ 				"each separated by a colon:\n");
+-		fprintf(stderr, "* %s: list of paths allowed to be used in a read-only way.\n",
+-				ENV_FS_RO_NAME);
+-		fprintf(stderr, "* %s: list of paths allowed to be used in a read-write way.\n",
+-				ENV_FS_RW_NAME);
+-		fprintf(stderr, "\nexample:\n"
+-				"%s=\"/bin:/lib:/usr:/proc:/etc:/dev/urandom\" "
+-				"%s=\"/dev/null:/dev/full:/dev/zero:/dev/pts:/tmp\" "
+-				"%s bash -i\n",
+-				ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
++		fprintf(stderr,
++			"* %s: list of paths allowed to be used in a read-only way.\n",
++			ENV_FS_RO_NAME);
++		fprintf(stderr,
++			"* %s: list of paths allowed to be used in a read-write way.\n",
++			ENV_FS_RW_NAME);
++		fprintf(stderr,
++			"\nexample:\n"
++			"%s=\"/bin:/lib:/usr:/proc:/etc:/dev/urandom\" "
++			"%s=\"/dev/null:/dev/full:/dev/zero:/dev/pts:/tmp\" "
++			"%s bash -i\n",
++			ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
+ 		return 1;
+ 	}
  
--FIXTURE(hierarchy) { };
-+/* clang-format off */
-+FIXTURE(hierarchy) {};
-+/* clang-format on */
+-	ruleset_fd = landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
++	ruleset_fd =
++		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+ 	if (ruleset_fd < 0) {
+ 		const int err = errno;
  
- FIXTURE_VARIANT(hierarchy) {
- 	const bool domain_both;
-@@ -83,7 +85,9 @@ FIXTURE_VARIANT(hierarchy) {
-  *       \              P2 -> P1 : allow
-  *        'P2
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = false,
- 	.domain_child = false,
-@@ -98,7 +102,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
-  *        |  P2  |
-  *        '------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = false,
- 	.domain_child = true,
-@@ -112,7 +118,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
-  *            '
-  *            P2
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = true,
- 	.domain_child = false,
-@@ -127,7 +135,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
-  *         |  P2  |
-  *         '------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = true,
- 	.domain_child = true,
-@@ -142,7 +152,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
-  * |         P2  |
-  * '-------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = false,
- 	.domain_child = false,
-@@ -158,7 +170,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
-  * |        '------' |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = false,
- 	.domain_child = true,
-@@ -174,7 +188,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
-  * |             P2  |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = true,
- 	.domain_child = false,
-@@ -192,7 +208,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
-  * |        '------' |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_forked_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = true,
- 	.domain_child = true,
+ 		perror("Failed to create a ruleset");
+ 		switch (err) {
+ 		case ENOSYS:
+-			fprintf(stderr, "Hint: Landlock is not supported by the current kernel. "
+-					"To support it, build the kernel with "
+-					"CONFIG_SECURITY_LANDLOCK=y and prepend "
+-					"\"landlock,\" to the content of CONFIG_LSM.\n");
++			fprintf(stderr,
++				"Hint: Landlock is not supported by the current kernel. "
++				"To support it, build the kernel with "
++				"CONFIG_SECURITY_LANDLOCK=y and prepend "
++				"\"landlock,\" to the content of CONFIG_LSM.\n");
+ 			break;
+ 		case EOPNOTSUPP:
+-			fprintf(stderr, "Hint: Landlock is currently disabled. "
+-					"It can be enabled in the kernel configuration by "
+-					"prepending \"landlock,\" to the content of CONFIG_LSM, "
+-					"or at boot time by setting the same content to the "
+-					"\"lsm\" kernel parameter.\n");
++			fprintf(stderr,
++				"Hint: Landlock is currently disabled. "
++				"It can be enabled in the kernel configuration by "
++				"prepending \"landlock,\" to the content of CONFIG_LSM, "
++				"or at boot time by setting the same content to the "
++				"\"lsm\" kernel parameter.\n");
+ 			break;
+ 		}
+ 		return 1;
+ 	}
+ 	if (populate_ruleset(ENV_FS_RO_NAME, ruleset_fd,
+-				ACCESS_FS_ROUGHLY_READ)) {
++			     ACCESS_FS_ROUGHLY_READ)) {
+ 		goto err_close_ruleset;
+ 	}
+ 	if (populate_ruleset(ENV_FS_RW_NAME, ruleset_fd,
+-				ACCESS_FS_ROUGHLY_READ | ACCESS_FS_ROUGHLY_WRITE)) {
++			     ACCESS_FS_ROUGHLY_READ |
++				     ACCESS_FS_ROUGHLY_WRITE)) {
+ 		goto err_close_ruleset;
+ 	}
+ 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+@@ -236,7 +244,7 @@ int main(const int argc, char *const argv[], char *const *const envp)
+ 	cmd_argv = argv + 1;
+ 	execvpe(cmd_path, cmd_argv, envp);
+ 	fprintf(stderr, "Failed to execute \"%s\": %s\n", cmd_path,
+-			strerror(errno));
++		strerror(errno));
+ 	fprintf(stderr, "Hint: access to the binary, the interpreter or "
+ 			"shared libraries may be denied.\n");
+ 	return 1;
 
