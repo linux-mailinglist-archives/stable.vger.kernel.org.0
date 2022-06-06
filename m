@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2F553E8FE
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EFF553E74A
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232921AbiFFJ1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 05:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38996 "EHLO
+        id S233046AbiFFJbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 05:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232854AbiFFJ1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 05:27:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC0DBA567
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 02:26:50 -0700 (PDT)
+        with ESMTP id S233067AbiFFJbn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 05:31:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7539218CE22
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 02:31:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1469361324
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 09:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 080C8C385A9;
-        Mon,  6 Jun 2022 09:26:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2C8861335
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 09:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 838FEC385A9;
+        Mon,  6 Jun 2022 09:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654507609;
-        bh=5a1mS+nyYVxIOV3iAJIxiJmOr5zpL9U8roIipNftynY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=elH9eacNdrHZXOEmePmwDCnKNmq7iXL8eVYEZwC4IkgSmePIE5eix5pkdkM605ovc
-         MM9wovaxvC+VTAIfqQof5cSCKPbDNimCgGxIcpyj8TVFpXpA6IvQHz4wGixl5RM8/D
-         9AxbcL4879CMAoSUrc/NZr9h/azEBqc+bLkgl9cI=
-Date:   Mon, 6 Jun 2022 11:26:46 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     shaoqin.huang@intel.com
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: x86/mmu: Check every prev_roots in
- __kvm_mmu_free_obsolete_roots()
-Message-ID: <Yp3IVmtCITw6qmub@kroah.com>
-References: <y>
- <20220606234636.2931713-1-shaoqin.huang@intel.com>
+        s=korg; t=1654507899;
+        bh=xwrRRcsGO1GK4PkCki1lGQPRmq5HUFKOr0V/M4M9W+E=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Wubu95irSGQQGIqS8uPgyOhe7CNbC0jjV2vrtaKyQjaJCKww5Uo1f+qd9N7BDIcwe
+         SdPABxrApSzKy9uIH0/TISWGBiKibck4tkKi6EW4qIf9IdLSDQykNKuC44k9XEOkCY
+         MAnj02rfAJEwlgQOvJq7kW+gb8S61HSKRu5Yi+Mo=
+Subject: FAILED: patch "[PATCH] ptrace/um: Replace PT_DTRACE with TIF_SINGLESTEP" failed to apply to 4.19-stable tree
+To:     ebiederm@xmission.com, johannes@sipsolutions.net,
+        keescook@chromium.org, oleg@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 06 Jun 2022 11:31:35 +0200
+Message-ID: <165450789585152@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220606234636.2931713-1-shaoqin.huang@intel.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,42 +48,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 06, 2022 at 05:46:36PM -0600, shaoqin.huang@intel.com wrote:
-> From: Shaoqin Huang <shaoqin.huang@intel.com>
-> 
-> When freeing obsolete previous roots, check prev_roots as intended, not
-> the current root.
-> 
-> Signed-off-by: Shaoqin Huang <shaoqin.huang@intel.com>
-> Fixes: 527d5cd7eece ("KVM: x86/mmu: Zap only obsolete roots if a root shadow page is zapped")
-> Cc: stable@vger.kernel.org
-> ---
->  arch/x86/kvm/mmu/mmu.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-> index f4653688fa6d..e826ee9138fa 100644
-> --- a/arch/x86/kvm/mmu/mmu.c
-> +++ b/arch/x86/kvm/mmu/mmu.c
-> @@ -5179,7 +5179,7 @@ static void __kvm_mmu_free_obsolete_roots(struct kvm *kvm, struct kvm_mmu *mmu)
->  		roots_to_free |= KVM_MMU_ROOT_CURRENT;
->  
->  	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
-> -		if (is_obsolete_root(kvm, mmu->root.hpa))
-> +		if (is_obsolete_root(kvm, mmu->prev_roots[i].hpa))
->  			roots_to_free |= KVM_MMU_ROOT_PREVIOUS(i);
->  	}
->  
-> -- 
-> 2.30.2
->
 
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-<formletter>
+thanks,
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+greg k-h
 
-</formletter>
+------------------ original commit in Linus's tree ------------------
+
+From c200e4bb44e80b343c09841e7caaaca0aac5e5fa Mon Sep 17 00:00:00 2001
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Tue, 26 Apr 2022 16:30:17 -0500
+Subject: [PATCH] ptrace/um: Replace PT_DTRACE with TIF_SINGLESTEP
+
+User mode linux is the last user of the PT_DTRACE flag.  Using the flag to indicate
+single stepping is a little confusing and worse changing tsk->ptrace without locking
+could potentionally cause problems.
+
+So use a thread info flag with a better name instead of flag in tsk->ptrace.
+
+Remove the definition PT_DTRACE as uml is the last user.
+
+Cc: stable@vger.kernel.org
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Link: https://lkml.kernel.org/r/20220505182645.497868-3-ebiederm@xmission.com
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+
+diff --git a/arch/um/include/asm/thread_info.h b/arch/um/include/asm/thread_info.h
+index 1395cbd7e340..c7b4b49826a2 100644
+--- a/arch/um/include/asm/thread_info.h
++++ b/arch/um/include/asm/thread_info.h
+@@ -60,6 +60,7 @@ static inline struct thread_info *current_thread_info(void)
+ #define TIF_RESTORE_SIGMASK	7
+ #define TIF_NOTIFY_RESUME	8
+ #define TIF_SECCOMP		9	/* secure computing */
++#define TIF_SINGLESTEP		10	/* single stepping userspace */
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+@@ -68,5 +69,6 @@ static inline struct thread_info *current_thread_info(void)
+ #define _TIF_MEMDIE		(1 << TIF_MEMDIE)
+ #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
++#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
+ 
+ #endif
+diff --git a/arch/um/kernel/exec.c b/arch/um/kernel/exec.c
+index c85e40c72779..58938d75871a 100644
+--- a/arch/um/kernel/exec.c
++++ b/arch/um/kernel/exec.c
+@@ -43,7 +43,7 @@ void start_thread(struct pt_regs *regs, unsigned long eip, unsigned long esp)
+ {
+ 	PT_REGS_IP(regs) = eip;
+ 	PT_REGS_SP(regs) = esp;
+-	current->ptrace &= ~PT_DTRACE;
++	clear_thread_flag(TIF_SINGLESTEP);
+ #ifdef SUBARCH_EXECVE1
+ 	SUBARCH_EXECVE1(regs->regs);
+ #endif
+diff --git a/arch/um/kernel/process.c b/arch/um/kernel/process.c
+index 80504680be08..88c5c7844281 100644
+--- a/arch/um/kernel/process.c
++++ b/arch/um/kernel/process.c
+@@ -335,7 +335,7 @@ int singlestepping(void * t)
+ {
+ 	struct task_struct *task = t ? t : current;
+ 
+-	if (!(task->ptrace & PT_DTRACE))
++	if (!test_thread_flag(TIF_SINGLESTEP))
+ 		return 0;
+ 
+ 	if (task->thread.singlestep_syscall)
+diff --git a/arch/um/kernel/ptrace.c b/arch/um/kernel/ptrace.c
+index bfaf6ab1ac03..5154b27de580 100644
+--- a/arch/um/kernel/ptrace.c
++++ b/arch/um/kernel/ptrace.c
+@@ -11,7 +11,7 @@
+ 
+ void user_enable_single_step(struct task_struct *child)
+ {
+-	child->ptrace |= PT_DTRACE;
++	set_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	child->thread.singlestep_syscall = 0;
+ 
+ #ifdef SUBARCH_SET_SINGLESTEPPING
+@@ -21,7 +21,7 @@ void user_enable_single_step(struct task_struct *child)
+ 
+ void user_disable_single_step(struct task_struct *child)
+ {
+-	child->ptrace &= ~PT_DTRACE;
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	child->thread.singlestep_syscall = 0;
+ 
+ #ifdef SUBARCH_SET_SINGLESTEPPING
+@@ -120,7 +120,7 @@ static void send_sigtrap(struct uml_pt_regs *regs, int error_code)
+ }
+ 
+ /*
+- * XXX Check PT_DTRACE vs TIF_SINGLESTEP for singlestepping check and
++ * XXX Check TIF_SINGLESTEP for singlestepping check and
+  * PT_PTRACED vs TIF_SYSCALL_TRACE for syscall tracing check
+  */
+ int syscall_trace_enter(struct pt_regs *regs)
+@@ -144,7 +144,7 @@ void syscall_trace_leave(struct pt_regs *regs)
+ 	audit_syscall_exit(regs);
+ 
+ 	/* Fake a debug trap */
+-	if (ptraced & PT_DTRACE)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		send_sigtrap(&regs->regs, 0);
+ 
+ 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+diff --git a/arch/um/kernel/signal.c b/arch/um/kernel/signal.c
+index 88cd9b5c1b74..ae4658f576ab 100644
+--- a/arch/um/kernel/signal.c
++++ b/arch/um/kernel/signal.c
+@@ -53,7 +53,7 @@ static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
+ 	unsigned long sp;
+ 	int err;
+ 
+-	if ((current->ptrace & PT_DTRACE) && (current->ptrace & PT_PTRACED))
++	if (test_thread_flag(TIF_SINGLESTEP) && (current->ptrace & PT_PTRACED))
+ 		singlestep = 1;
+ 
+ 	/* Did we come from a system call? */
+@@ -128,7 +128,7 @@ void do_signal(struct pt_regs *regs)
+ 	 * on the host.  The tracing thread will check this flag and
+ 	 * PTRACE_SYSCALL if necessary.
+ 	 */
+-	if (current->ptrace & PT_DTRACE)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		current->thread.singlestep_syscall =
+ 			is_syscall(PT_REGS_IP(&current->thread.regs));
+ 
+diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
+index 15b3d176b6b4..4c06f9f8ef3f 100644
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -30,7 +30,6 @@ extern int ptrace_access_vm(struct task_struct *tsk, unsigned long addr,
+ 
+ #define PT_SEIZED	0x00010000	/* SEIZE used, enable new behavior */
+ #define PT_PTRACED	0x00000001
+-#define PT_DTRACE	0x00000002	/* delayed trace (used on m68k, i386) */
+ 
+ #define PT_OPT_FLAG_SHIFT	3
+ /* PT_TRACE_* event enable flags */
+
