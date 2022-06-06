@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EAC53E717
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE51053E7E9
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236793AbiFFM21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37062 "EHLO
+        id S236798AbiFFM22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236835AbiFFM2U (ORCPT
+        with ESMTP id S236823AbiFFM2U (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:28:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE3223A01E
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:28:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E226F49
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:28:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C74ED60FA4
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:28:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D48C385A9;
-        Mon,  6 Jun 2022 12:28:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED7F60FA4
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:28:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC7FEC3411F;
+        Mon,  6 Jun 2022 12:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518498;
-        bh=ku5Omvr8c1w0DXLZyCGcHtdhGi4wJ3pR3g/kh4/ahN4=;
+        s=korg; t=1654518495;
+        bh=73YI32Dg6CFn20IxBlhocPBMq+hhM8U74PShEhqhtNo=;
         h=Subject:To:Cc:From:Date:From;
-        b=ixYCk2bUzVl2nXBx5/Q/OCwqIE5SgIl0zsb/T7C+vTOsdLgn0lmDPp9bv+pyb4xZI
-         RKwdrbue4gQ0oGcV8JmP3ZL3glwro5iPjYdKPiQh74f4cU783Urut6ATbAGNazznF6
-         d4TPg4hgTqFftsUfdtle/xY5DvtXx+pkGc+M5raY=
-Subject: FAILED: patch "[PATCH] zonefs: Fix management of open zones" failed to apply to 5.15-stable tree
+        b=pMin6mJjvMwaD9hqf2CLCR1WzmtmFM6LIwFsPeH/Z8zvEYGtxalUrbis/xvaKEFna
+         qLAvibwbaCUIV+S+JeivF2CCY8bDPozh3gKMEHjdZrbjPRxZuZOaSOf8hOThXzh+WY
+         0DdNHx79T2OfyOyu8T5U0VBKPoFAH569J95EoFZM=
+Subject: FAILED: patch "[PATCH] zonefs: Fix management of open zones" failed to apply to 5.10-stable tree
 To:     damien.lemoal@opensource.wdc.com, hans.holmberg@wdc.com,
         johannes.thumshirn@wdc.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 06 Jun 2022 14:28:02 +0200
-Message-ID: <16545184826437@kroah.com>
+Message-ID: <1654518482188148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
