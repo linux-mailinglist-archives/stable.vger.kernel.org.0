@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4A753E62D
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91ECE53EBF6
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239740AbiFFOdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 10:33:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51316 "EHLO
+        id S239761AbiFFOdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 10:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239748AbiFFOdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:33:08 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37EF2AE2C;
-        Mon,  6 Jun 2022 07:33:07 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id q15so4634172wmj.2;
-        Mon, 06 Jun 2022 07:33:07 -0700 (PDT)
+        with ESMTP id S239749AbiFFOdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:33:10 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DAA2AC5F;
+        Mon,  6 Jun 2022 07:33:08 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id z17so2934020wmi.1;
+        Mon, 06 Jun 2022 07:33:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=KtH8GLMcafEYSB20tONa+zJ9ioX5tusX1ZCZq7mMdkA=;
-        b=gR2A8c7WofRsDAd9EPAoi+yXmS9SsEjsLvasD7U2oy6C89qQwmJJQgsKwDAmmMCIom
-         3SG6dXs0ANMl+te54nCmulT/E6wzc4cgnDp+d0ZEv8GNMtV7qhq/P+8u/WjfSUWd8rxn
-         zJLT1dlNilBzLJW2hZQn/iqth63BWZJxTArm3JM+ofixVyGgGLKXtBYi4nfrW848eozh
-         qDgXElzDZsnuZcgKYQD3S+Upka0f+obooNESRo3XENzp5hsMjJ1fIEpvfLACoh/i/L8C
-         ALXdvKPG9MH72voghs2W0W/EJII4/BintopgP+ys1KyfXM2Hyz0KkComJH8izNBJpox/
-         QDww==
+        bh=v9bZ/oogoWoPQX2w9BuFOFgcjiIV4xqYgwERl5n3obI=;
+        b=e7oTz65RaFs+soZopzJhoh12f2yOpDyBOz5hlGHewlDIBVpTgGNjO5YNtwJlMg/LTe
+         S1DBp1kZo6jBdGW1GJzlZpbIs9esnjos6E6EkqK4ut5rCjCkru2L/T7BB6dFKBkFC0PK
+         ynWXNaX44E3rthVSUhrJv14oHB5RCTXbDE3tTnHudRznMGi6gTLhMJjOtUw6XEgejFFn
+         iO662O9ThrLeS7o3zuSl4rdFQtMthtxvli9cCbRDcZSMK/ZpMjuk+1z0ps5vwk1b9Zpu
+         dYigbVlClnhzxCsZxZ4Q6zvvXwuw/VNLR1jHfy/6t6ZFOd6o96MUWw2lz/S8cYSEuBNW
+         AANQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=KtH8GLMcafEYSB20tONa+zJ9ioX5tusX1ZCZq7mMdkA=;
-        b=IYUq56oLsqjwnAZkAjis3GwFnErPnUgD6aS6bb3v9Cqs/DP6PZBXqIGI+D/kfYLNnc
-         98Wwfa0RcLhxg2pFZCJ6IP/+uljL9qpbMzeehxBQdM9Xxzjy1/KYN4zwebnsyoVJ3lLv
-         czHh708wxWRlTwnXk1S6ComlAtbZgJAP5OSlY58DCL+jb24qRowt7p1sUfJQyPkiw7z+
-         0CGzumTjxJrKXOKimpp7DrSsYrDMcNaEgUHmpWffKKoBoo+TsgoIok7sor5HWwYSZ60H
-         pLW8mJlx/hKMls807yIYtynEyRMQArgHQN3MJt5wFunlZ4vwmD5pSxXjOMJ6mYD48xv2
-         Z2yg==
-X-Gm-Message-State: AOAM530hOR3XkjR/Yvr5lL5Olvfldd2HGihXEtNF3BTkxBGy9AnlygpX
-        xsDDg4XHJiElQk7Blwya8LPgmIH4Ky5QNg==
-X-Google-Smtp-Source: ABdhPJzHBSJy4GpckPylEDJZvQkhwZU0vMCaqZ0ZP+Ag7+wF7p2/TC6NpZzrDE3Ism5vYmg0adgKQQ==
-X-Received: by 2002:a7b:c777:0:b0:39c:4e1d:fd27 with SMTP id x23-20020a7bc777000000b0039c4e1dfd27mr6463863wmk.1.1654525985909;
-        Mon, 06 Jun 2022 07:33:05 -0700 (PDT)
+        bh=v9bZ/oogoWoPQX2w9BuFOFgcjiIV4xqYgwERl5n3obI=;
+        b=x7Ag51+GzX5Q9s5z7bvbHmKXEIhE2kooaS6IkXA0N2DiTknZqCjMiXN1g1y83qgglC
+         7tByBapA/A/7LigsFpHTl1u++9y77ZxBx03Ih+UT4FQ3xl/y++jAC76iNL830PBUd+QX
+         6TZ2qQ69+AOxAA0XaJTFRM5GQYzHgGcQXPPer+voNitqZGlxczi4pCYGDrCVOuRkTHOi
+         C/cQizrRByACm2SKZ0+s4ONYxVYvzPc3b77ulz1I1wSHTNxopNgFgeh+1/oct+XX5Hp7
+         vw5vVMN6epE7DC7b7lVNbZ5J15bfyJGRhy/AdOSO6n8gg6Q7XOOjKvtaNKOFex5cga1b
+         leVA==
+X-Gm-Message-State: AOAM530IFWt+avCpKyahQtnC0XnB4Km2gkNwCBwgWZrMXHmoacwtnCAF
+        mxWj4v6t4mlCDEzUEBUtw2A=
+X-Google-Smtp-Source: ABdhPJzIXLPzU24TwlJbx+3T4KQsSvX/FRp2+cWiy/Bo1wFczL6AgqIJKxutRY1UGxQiL6hCW+YVRg==
+X-Received: by 2002:a05:600c:1f05:b0:39c:51c6:7c85 with SMTP id bd5-20020a05600c1f0500b0039c51c67c85mr4264753wmb.33.1654525987313;
+        Mon, 06 Jun 2022 07:33:07 -0700 (PDT)
 Received: from amir-ThinkPad-T480.ctera.local (bzq-166-168-31-246.red.bezeqint.net. [31.168.166.246])
-        by smtp.gmail.com with ESMTPSA id h24-20020a05600c145800b0039c54bb28f2sm1622958wmi.36.2022.06.06.07.33.04
+        by smtp.gmail.com with ESMTPSA id h24-20020a05600c145800b0039c54bb28f2sm1622958wmi.36.2022.06.06.07.33.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jun 2022 07:33:05 -0700 (PDT)
+        Mon, 06 Jun 2022 07:33:06 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -58,14 +58,10 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Leah Rumancik <leah.rumancik@gmail.com>,
         Adam Manzanares <a.manzanares@samsung.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Allison Henderson <allison.henderson@oracle.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Bill O'Donnell <billodo@redhat.com>
-Subject: [PATCH 5.10 v2 2/8] xfs: sync lazy sb accounting on quiesce of read-only mounts
-Date:   Mon,  6 Jun 2022 17:32:49 +0300
-Message-Id: <20220606143255.685988-3-amir73il@gmail.com>
+        linux-xfs@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 5.10 v2 3/8] xfs: fix chown leaking delalloc quota blocks when fssetxattr fails
+Date:   Mon,  6 Jun 2022 17:32:50 +0300
+Message-Id: <20220606143255.685988-4-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220606143255.685988-1-amir73il@gmail.com>
 References: <20220606143255.685988-1-amir73il@gmail.com>
@@ -81,127 +77,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 50d25484bebe94320c49dd1347d3330c7063bbdb upstream.
+commit 1aecf3734a95f3c167d1495550ca57556d33f7ec upstream.
 
-xfs_log_sbcount() syncs the superblock specifically to accumulate
-the in-core percpu superblock counters and commit them to disk. This
-is required to maintain filesystem consistency across quiesce
-(freeze, read-only mount/remount) or unmount when lazy superblock
-accounting is enabled because individual transactions do not update
-the superblock directly.
+While refactoring the quota code to create a function to allocate inode
+change transactions, I noticed that xfs_qm_vop_chown_reserve does more
+than just make reservations: it also *modifies* the incore counts
+directly to handle the owner id change for the delalloc blocks.
 
-This mechanism works as expected for writable mounts, but
-xfs_log_sbcount() skips the update for read-only mounts. Read-only
-mounts otherwise still allow log recovery and write out an unmount
-record during log quiesce. If a read-only mount performs log
-recovery, it can modify the in-core superblock counters and write an
-unmount record when the filesystem unmounts without ever syncing the
-in-core counters. This leaves the filesystem with a clean log but in
-an inconsistent state with regard to lazy sb counters.
+I then observed that the fssetxattr code continues validating input
+arguments after making the quota reservation but before dirtying the
+transaction.  If the routine decides to error out, it fails to undo the
+accounting switch!  This leads to incorrect quota reservation and
+failure down the line.
 
-Update xfs_log_sbcount() to use the same logic
-xfs_log_unmount_write() uses to determine when to write an unmount
-record. This ensures that lazy accounting is always synced before
-the log is cleaned. Refactor this logic into a new helper to
-distinguish between a writable filesystem and a writable log.
-Specifically, the log is writable unless the filesystem is mounted
-with the norecovery mount option, the underlying log device is
-read-only, or the filesystem is shutdown. Drop the freeze state
-check because the update is already allowed during the freezing
-process and no context calls this function on an already frozen fs.
-Also, retain the shutdown check in xfs_log_unmount_write() to catch
-the case where the preceding log force might have triggered a
-shutdown.
+We can fix this by making the reservation function do only that -- for
+the new dquot, it reserves ondisk and delalloc blocks to the
+transaction, and the old dquot hangs on to its incore reservation for
+now.  Once we actually switch the dquots, we can then update the incore
+reservations because we've dirtied the transaction and it's too late to
+turn back now.
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
-Reviewed-by: Allison Henderson <allison.henderson@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Bill O'Donnell <billodo@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+No fixes tag because this has been broken since the start of git.
+
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/xfs/xfs_log.c   | 28 ++++++++++++++++++++--------
- fs/xfs/xfs_log.h   |  1 +
- fs/xfs/xfs_mount.c |  3 +--
- 3 files changed, 22 insertions(+), 10 deletions(-)
+ fs/xfs/xfs_qm.c | 92 +++++++++++++++++++------------------------------
+ 1 file changed, 35 insertions(+), 57 deletions(-)
 
-diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
-index fa2d05e65ff1..b445e63cbc3c 100644
---- a/fs/xfs/xfs_log.c
-+++ b/fs/xfs/xfs_log.c
-@@ -347,6 +347,25 @@ xlog_tic_add_region(xlog_ticket_t *tic, uint len, uint type)
- 	tic->t_res_num++;
- }
+diff --git a/fs/xfs/xfs_qm.c b/fs/xfs/xfs_qm.c
+index b2a9abee8b2b..64e5da33733b 100644
+--- a/fs/xfs/xfs_qm.c
++++ b/fs/xfs/xfs_qm.c
+@@ -1785,6 +1785,29 @@ xfs_qm_vop_chown(
+ 	xfs_trans_mod_dquot(tp, newdq, bfield, ip->i_d.di_nblocks);
+ 	xfs_trans_mod_dquot(tp, newdq, XFS_TRANS_DQ_ICOUNT, 1);
  
-+bool
-+xfs_log_writable(
-+	struct xfs_mount	*mp)
-+{
 +	/*
-+	 * Never write to the log on norecovery mounts, if the block device is
-+	 * read-only, or if the filesystem is shutdown. Read-only mounts still
-+	 * allow internal writes for log recovery and unmount purposes, so don't
-+	 * restrict that case here.
++	 * Back when we made quota reservations for the chown, we reserved the
++	 * ondisk blocks + delalloc blocks with the new dquot.  Now that we've
++	 * switched the dquots, decrease the new dquot's block reservation
++	 * (having already bumped up the real counter) so that we don't have
++	 * any reservation to give back when we commit.
 +	 */
-+	if (mp->m_flags & XFS_MOUNT_NORECOVERY)
-+		return false;
-+	if (xfs_readonly_buftarg(mp->m_log->l_targ))
-+		return false;
-+	if (XFS_FORCED_SHUTDOWN(mp))
-+		return false;
-+	return true;
-+}
++	xfs_trans_mod_dquot(tp, newdq, XFS_TRANS_DQ_RES_BLKS,
++			-ip->i_delayed_blks);
 +
- /*
-  * Replenish the byte reservation required by moving the grant write head.
-  */
-@@ -886,15 +905,8 @@ xfs_log_unmount_write(
++	/*
++	 * Give the incore reservation for delalloc blocks back to the old
++	 * dquot.  We don't normally handle delalloc quota reservations
++	 * transactionally, so just lock the dquot and subtract from the
++	 * reservation.  Dirty the transaction because it's too late to turn
++	 * back now.
++	 */
++	tp->t_flags |= XFS_TRANS_DIRTY;
++	xfs_dqlock(prevdq);
++	ASSERT(prevdq->q_blk.reserved >= ip->i_delayed_blks);
++	prevdq->q_blk.reserved -= ip->i_delayed_blks;
++	xfs_dqunlock(prevdq);
++
+ 	/*
+ 	 * Take an extra reference, because the inode is going to keep
+ 	 * this dquot pointer even after the trans_commit.
+@@ -1807,84 +1830,39 @@ xfs_qm_vop_chown_reserve(
+ 	uint			flags)
  {
- 	struct xlog		*log = mp->m_log;
+ 	struct xfs_mount	*mp = ip->i_mount;
+-	uint64_t		delblks;
+ 	unsigned int		blkflags;
+-	struct xfs_dquot	*udq_unres = NULL;
+-	struct xfs_dquot	*gdq_unres = NULL;
+-	struct xfs_dquot	*pdq_unres = NULL;
+ 	struct xfs_dquot	*udq_delblks = NULL;
+ 	struct xfs_dquot	*gdq_delblks = NULL;
+ 	struct xfs_dquot	*pdq_delblks = NULL;
+-	int			error;
+-
  
--	/*
--	 * Don't write out unmount record on norecovery mounts or ro devices.
--	 * Or, if we are doing a forced umount (typically because of IO errors).
--	 */
--	if (mp->m_flags & XFS_MOUNT_NORECOVERY ||
--	    xfs_readonly_buftarg(log->l_targ)) {
--		ASSERT(mp->m_flags & XFS_MOUNT_RDONLY);
-+	if (!xfs_log_writable(mp))
- 		return;
+ 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL|XFS_ILOCK_SHARED));
+ 	ASSERT(XFS_IS_QUOTA_RUNNING(mp));
+ 
+-	delblks = ip->i_delayed_blks;
+ 	blkflags = XFS_IS_REALTIME_INODE(ip) ?
+ 			XFS_QMOPT_RES_RTBLKS : XFS_QMOPT_RES_REGBLKS;
+ 
+ 	if (XFS_IS_UQUOTA_ON(mp) && udqp &&
+-	    i_uid_read(VFS_I(ip)) != udqp->q_id) {
++	    i_uid_read(VFS_I(ip)) != udqp->q_id)
+ 		udq_delblks = udqp;
+-		/*
+-		 * If there are delayed allocation blocks, then we have to
+-		 * unreserve those from the old dquot, and add them to the
+-		 * new dquot.
+-		 */
+-		if (delblks) {
+-			ASSERT(ip->i_udquot);
+-			udq_unres = ip->i_udquot;
+-		}
+-	}
++
+ 	if (XFS_IS_GQUOTA_ON(ip->i_mount) && gdqp &&
+-	    i_gid_read(VFS_I(ip)) != gdqp->q_id) {
++	    i_gid_read(VFS_I(ip)) != gdqp->q_id)
+ 		gdq_delblks = gdqp;
+-		if (delblks) {
+-			ASSERT(ip->i_gdquot);
+-			gdq_unres = ip->i_gdquot;
+-		}
 -	}
  
- 	xfs_log_force(mp, XFS_LOG_SYNC);
- 
-diff --git a/fs/xfs/xfs_log.h b/fs/xfs/xfs_log.h
-index 58c3fcbec94a..98c913da7587 100644
---- a/fs/xfs/xfs_log.h
-+++ b/fs/xfs/xfs_log.h
-@@ -127,6 +127,7 @@ int	  xfs_log_reserve(struct xfs_mount *mp,
- int	  xfs_log_regrant(struct xfs_mount *mp, struct xlog_ticket *tic);
- void      xfs_log_unmount(struct xfs_mount *mp);
- int	  xfs_log_force_umount(struct xfs_mount *mp, int logerror);
-+bool	xfs_log_writable(struct xfs_mount *mp);
- 
- struct xlog_ticket *xfs_log_ticket_get(struct xlog_ticket *ticket);
- void	  xfs_log_ticket_put(struct xlog_ticket *ticket);
-diff --git a/fs/xfs/xfs_mount.c b/fs/xfs/xfs_mount.c
-index 7110507a2b6b..a62b8a574409 100644
---- a/fs/xfs/xfs_mount.c
-+++ b/fs/xfs/xfs_mount.c
-@@ -1176,8 +1176,7 @@ xfs_fs_writable(
- int
- xfs_log_sbcount(xfs_mount_t *mp)
- {
--	/* allow this to proceed during the freeze sequence... */
--	if (!xfs_fs_writable(mp, SB_FREEZE_COMPLETE))
-+	if (!xfs_log_writable(mp))
- 		return 0;
+ 	if (XFS_IS_PQUOTA_ON(ip->i_mount) && pdqp &&
+-	    ip->i_d.di_projid != pdqp->q_id) {
++	    ip->i_d.di_projid != pdqp->q_id)
+ 		pdq_delblks = pdqp;
+-		if (delblks) {
+-			ASSERT(ip->i_pdquot);
+-			pdq_unres = ip->i_pdquot;
+-		}
+-	}
+-
+-	error = xfs_trans_reserve_quota_bydquots(tp, ip->i_mount,
+-				udq_delblks, gdq_delblks, pdq_delblks,
+-				ip->i_d.di_nblocks, 1, flags | blkflags);
+-	if (error)
+-		return error;
  
  	/*
+-	 * Do the delayed blks reservations/unreservations now. Since, these
+-	 * are done without the help of a transaction, if a reservation fails
+-	 * its previous reservations won't be automatically undone by trans
+-	 * code. So, we have to do it manually here.
++	 * Reserve enough quota to handle blocks on disk and reserved for a
++	 * delayed allocation.  We'll actually transfer the delalloc
++	 * reservation between dquots at chown time, even though that part is
++	 * only semi-transactional.
+ 	 */
+-	if (delblks) {
+-		/*
+-		 * Do the reservations first. Unreservation can't fail.
+-		 */
+-		ASSERT(udq_delblks || gdq_delblks || pdq_delblks);
+-		ASSERT(udq_unres || gdq_unres || pdq_unres);
+-		error = xfs_trans_reserve_quota_bydquots(NULL, ip->i_mount,
+-			    udq_delblks, gdq_delblks, pdq_delblks,
+-			    (xfs_qcnt_t)delblks, 0, flags | blkflags);
+-		if (error)
+-			return error;
+-		xfs_trans_reserve_quota_bydquots(NULL, ip->i_mount,
+-				udq_unres, gdq_unres, pdq_unres,
+-				-((xfs_qcnt_t)delblks), 0, blkflags);
+-	}
+-
+-	return 0;
++	return xfs_trans_reserve_quota_bydquots(tp, ip->i_mount, udq_delblks,
++			gdq_delblks, pdq_delblks,
++			ip->i_d.di_nblocks + ip->i_delayed_blks,
++			1, blkflags | flags);
+ }
+ 
+ int
 -- 
 2.25.1
 
