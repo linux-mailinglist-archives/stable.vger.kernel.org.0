@@ -2,69 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4541053EA0D
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8065053E890
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237656AbiFFMoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:44:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32846 "EHLO
+        id S237173AbiFFMfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:35:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237649AbiFFMoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:44:10 -0400
-X-Greylist: delayed 544 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 06 Jun 2022 05:44:07 PDT
-Received: from smtp.uniroma2.it (smtp.uniroma2.it [160.80.6.16])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9147218E17
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:44:06 -0700 (PDT)
-Received: from smtpauth-2019-1.uniroma2.it (smtpauth-2019-1.uniroma2.it [160.80.5.46])
-        by smtp-2015.uniroma2.it (8.14.4/8.14.4/Debian-8) with ESMTP id 256CXgr7024134;
-        Mon, 6 Jun 2022 14:33:47 +0200
-Received: from lubuntu-18.04 (unknown [160.80.103.126])
-        by smtpauth-2019-1.uniroma2.it (Postfix) with ESMTPSA id DFA831212B4;
-        Mon,  6 Jun 2022 14:33:38 +0200 (CEST)
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=uniroma2.it;
-        s=ed201904; t=1654518819; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8B6BQq7gCMMTyTKJNSZBHuMyyStdALnwUURupL2Td2o=;
-        b=X7w1dL/Qdi0cGco1mzCLqfC//5laoY1s1Mcit4m6zobej3fu2+NwBDv9UFWimW+rIlfVnu
-        oLBzbUp7cCWCJvBQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniroma2.it; s=rsa201904;
-        t=1654518819; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8B6BQq7gCMMTyTKJNSZBHuMyyStdALnwUURupL2Td2o=;
-        b=nz5Ja2R9K87ulc+qvyWNju3i1v8S9IXm1GruSHe1XLogKTdmXH8UY3Sfs4k/t52+iDxB+c
-        wj23Fqx0P1hqsZ1l988VEenJPgrYS6dl1fBVUocxgHER8nTlfoOR52HwjapbuDDNutwSyI
-        Q7N+sm7olNFUdRjzGD8Oos6kow+yYuUSApFPJlxa/RtegzNgGvkeIsbjBZCv2a5JKBLNqY
-        +hN/mRWoa3j8e6OAIqvH/F5Z1rpPexJIbAzAVMzIN/13+EevVnb+5pPM9rBFq7QzhFRLqK
-        B73DgcDvU/UpPpAqsQrVMJ2jWs87WuBW+zTfr8eQBkMLkuUlB8NeLOHqh3PF+w==
-Date:   Mon, 6 Jun 2022 14:33:38 +0200
-From:   Andrea Mayer <andrea.mayer@uniroma2.it>
-To:     Anton Makarov <am@3a-alliance.com>
-Cc:     David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, david.lebrun@uclouvain.be,
-        regressions@lists.linux.dev, stable@vger.kernel.org,
-        Stefano Salsano <stefano.salsano@uniroma2.it>,
-        Paolo Lungaroni <paolo.lungaroni@uniroma2.it>,
-        Ahmed Abdelsalam <ahabdels.dev@gmail.com>,
-        Andrea Mayer <andrea.mayer@uniroma2.it>
-Subject: Re: [REGRESSION] net: SRv6 End.DT6 function is broken in VRF mode
-Message-Id: <20220606143338.91df592bbb7dc2f7db4747e6@uniroma2.it>
-In-Reply-To: <7e315ff1-e172-16c3-44b5-0c83c4c92779@3a-alliance.com>
-References: <7e315ff1-e172-16c3-44b5-0c83c4c92779@3a-alliance.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.100.0 at smtp-2015
-X-Virus-Status: Clean
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        with ESMTP id S237176AbiFFMfV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:35:21 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5102A5D70
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:35:20 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id r71so12829203pgr.0
+        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 05:35:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TT0X+aohwKgku46gkaQIaiS6NGo7O65IWWc6xliJ4MU=;
+        b=PkmPxGDuLXVFI+mItaUXCFqmwY/WtJACBG1/G9+UckTkYF7avMDFZXVQJi8UzQgWCn
+         h1ZT76VIltk19oiwsNez1AGGjLErNIH6veij9BnPthTwfeaELQ2nobLLZgEAqRGx84DT
+         XSdIWuLK967Gdjy+pm1eB6afacW0W8GGLDzmX3Q8+hilvGbF1h7Y7Fk/dEx+4kbT/SKD
+         raKLwbvzRaoZ4xehgEiN0r2exUMyJbrD8MSEn6IGq9ZBNVI6X1i+wNxWJoFF08SIrIxO
+         Zcu4E2n316+eQSoWOx2hUfH/0EO9H72HiUONUHTZTdfqQcRfO9egjUE6vaEMX2ojD2In
+         4Iog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TT0X+aohwKgku46gkaQIaiS6NGo7O65IWWc6xliJ4MU=;
+        b=MKO4LaP4fFSUH6Uc0pOunUPPswbt2PgMse6abtl9CmHtD20QkJcumZerw0ubcbTgTF
+         fr/6zwkQKvXu5g41py9GaK2ikdRDwE0wED4M0GEaQfr1S5lXmynFHkYjexsJDTgoJwUf
+         qnN/K7gIqCnsqj+Bs5zix43kvtFAcVrVAILY03TvLgZTnqeKd7vFtP55y3Daeig5Ois3
+         fDfRlBC9gxCr+vqZREtLWAxRTVT1Pz8wbPERA1QRbDgFeTSIvUbIMigOqylc2viUZP2i
+         GEG/jGvJInziyowo+5WTPgYUkwH3dmHuZPGG4d+Jd/mqFWPXFNuUiNM2hKKZn7E8pKA8
+         Bwaw==
+X-Gm-Message-State: AOAM530Yff3pQKO4VvHAtt5c6jq6IkrSv1tQHn9YqlIrXKaA2blfINSr
+        m5oAfHbcHrlAPVvQDVX+XiNQQ4UeU04+8n/d
+X-Google-Smtp-Source: ABdhPJx/i8LP3MWT5j5HHhf4YZobEJ11JVJitp4DHRU/MMpHYitn/CHXppOvLkwHXcFMG3uxJq17ow==
+X-Received: by 2002:a05:6a00:c89:b0:51c:2ad8:47ad with SMTP id a9-20020a056a000c8900b0051c2ad847admr1464164pfv.42.1654518919599;
+        Mon, 06 Jun 2022 05:35:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v9-20020a17090a0c8900b001e0899052f1sm12565124pja.3.2022.06.06.05.35.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jun 2022 05:35:19 -0700 (PDT)
+Message-ID: <629df487.1c69fb81.5b189.cde0@mx.google.com>
+Date:   Mon, 06 Jun 2022 05:35:19 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.2
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.18.y baseline: 105 runs, 2 regressions (v5.18.2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,44 +69,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 3 Jun 2022 15:23:26 +0300
-Anton Makarov <am@3a-alliance.com> wrote:
+stable/linux-5.18.y baseline: 105 runs, 2 regressions (v5.18.2)
 
-> #regzbot introduced: b9132c32e01976686efa26252cc246944a0d2cab
-> 
-> Hi All!
-> 
-> Seems there is a regression of SRv6 End.DT6 function in VRF mode. In the 
-> following scenario packet is decapsulated successfully on vrf10 
-> interface but not forwarded to vrf10's slave interface:
-> 
-> ip netns exec r4 ip -6 nexthop add id 1004 encap seg6local action 
-> End.DT6 vrftable 10 dev vrf10
-> 
-> ip netns exec r4 ip -6 route add fcff:0:4:200:: nhid 1004
-> 
-> 
-> In End.DT6 legacy mode everything works good:
-> 
-> ip netns exec r4 ip -6 nexthop add id 1004 encap seg6local action 
-> End.DT6 table 10 dev vrf10
-> 
-> ip netns exec r4 ip -6 route add fcff:0:4:200:: nhid 1004
-> 
-> 
-> The issue impacts even stable v5.18.1. Please help to fix it.
-> 
-> 
-> Thanks!
-> 
-> Anton
-> 
-> 
-> 
+Regressions Summary
+-------------------
 
-Hi Anton,
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+r8a77950-salvator-x     | arm64 | lab-baylibre | gcc-10   | defconfig | 1  =
+        =
 
-thank you for reporting this issue. I am already working on a fix patch which I
-will send shortly.
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-10   | defconfig | 1  =
+        =
 
-Andrea
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
+/v5.18.2/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.18.y
+  Describe: v5.18.2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      25405d5eecac69622a155752bb8b0e1ed5071e36 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+r8a77950-salvator-x     | arm64 | lab-baylibre | gcc-10   | defconfig | 1  =
+        =
+
+
+  Details:     https://kernelci.org/test/plan/id/629dbf08220f31a25ba39c31
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.2/ar=
+m64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.2/ar=
+m64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220527.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629dbf09220f31a25ba39=
+c32
+        new failure (last pass: v5.18.1) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-10   | defconfig | 1  =
+        =
+
+
+  Details:     https://kernelci.org/test/plan/id/629dbf35b469c29bb9a39be2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.2/ar=
+m64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.2/ar=
+m64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220527.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629dbf36b469c29bb9a39=
+be3
+        new failure (last pass: v5.18.1) =
+
+ =20
