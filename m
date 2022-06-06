@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2927653E2BF
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9761053E230
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbiFFHqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 03:46:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55014 "EHLO
+        id S231453AbiFFHqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 03:46:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231514AbiFFHqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:46:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D5D9728C
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:46:12 -0700 (PDT)
+        with ESMTP id S231458AbiFFHqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:46:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7654899692
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D2078CE16FA
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:46:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D42C385A9;
-        Mon,  6 Jun 2022 07:46:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09196611B5
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:46:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103B6C385A9;
+        Mon,  6 Jun 2022 07:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654501569;
-        bh=MxT6w9tk4l+8jXDwrriIwZxL6hECTUfsUbMl47vrHUU=;
+        s=korg; t=1654501579;
+        bh=dEJ1FR8SqSFq5xp3Rsi4ryGTZTKw3OoIAUg9K+dIRhQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=LABbD5Pz12g6t/z8KGL5pqurhUoj4h39wYJw0vyMT2iQveSINdGZCBcBtf9X9Bip5
-         90DwWK2Kz5dovKnumG7V+G2H9smTzyrmHlckTL1Lx0ocCa0qbmU9iJUOUVBn7TpSIN
-         syPQgbpGeKxOQqDibO+TJ/oPoKrqQja9weAHTfYQ=
-Subject: WTF: patch "[PATCH] landlock: Add clang-format exceptions" was seriously submitted to be applied to the 5.18-stable tree?
+        b=Dq2gi1t46t6jUzDQYvmnNbbEX1Wz2n8AOTv4sGKeJVuOg26WvSn9sywyOk4+CfxQh
+         ApqqRN8M6Ez0RIQVBovFWYrJRS8UZf3wd+vMmhpll1MAMTKdIvZEl1guGCjLnRwzqv
+         gfXYDue5wtDo72A/EqKFgFEAJEBuVyuTQf0YlzUQ=
+Subject: WTF: patch "[PATCH] selftests/landlock: Add clang-format exceptions" was seriously submitted to be applied to the 5.18-stable tree?
 To:     mic@digikod.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 09:46:04 +0200
-Message-ID: <1654501564224121@kroah.com>
+Date:   Mon, 06 Jun 2022 09:46:15 +0200
+Message-ID: <1654501575117211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -63,86 +63,216 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6cc2df8e3a3967e7c13a424f87f6efb1d4a62d80 Mon Sep 17 00:00:00 2001
+From 4598d9abf4215e1e371a35683350d50122793c80 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Date: Fri, 6 May 2022 18:05:07 +0200
-Subject: [PATCH] landlock: Add clang-format exceptions
+Date: Fri, 6 May 2022 18:05:09 +0200
+Subject: [PATCH] selftests/landlock: Add clang-format exceptions
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 In preparation to a following commit, add clang-format on and
-clang-format off stanzas around constant definitions.  This enables to
-keep aligned values, which is much more readable than packed
-definitions.
+clang-format off stanzas around constant definitions and the TEST_F_FORK
+macro.  This enables to keep aligned values, which is much more readable
+than packed definitions.
 
-Link: https://lore.kernel.org/r/20220506160513.523257-2-mic@digikod.net
+Add other clang-format exceptions for FIXTURE() and
+FIXTURE_VARIANT_ADD() declarations to force space before open brace,
+which is reported by checkpatch.pl .
+
+Link: https://lore.kernel.org/r/20220506160513.523257-4-mic@digikod.net
 Cc: stable@vger.kernel.org
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 
-diff --git a/include/uapi/linux/landlock.h b/include/uapi/linux/landlock.h
-index b3d952067f59..15c31abb0d76 100644
---- a/include/uapi/linux/landlock.h
-+++ b/include/uapi/linux/landlock.h
-@@ -33,7 +33,9 @@ struct landlock_ruleset_attr {
-  * - %LANDLOCK_CREATE_RULESET_VERSION: Get the highest supported Landlock ABI
-  *   version.
+diff --git a/tools/testing/selftests/landlock/common.h b/tools/testing/selftests/landlock/common.h
+index 183b7e8e1b95..435ba6963756 100644
+--- a/tools/testing/selftests/landlock/common.h
++++ b/tools/testing/selftests/landlock/common.h
+@@ -25,6 +25,7 @@
+  * this to be possible, we must not call abort() but instead exit smoothly
+  * (hence the step print).
   */
 +/* clang-format off */
- #define LANDLOCK_CREATE_RULESET_VERSION			(1U << 0)
+ #define TEST_F_FORK(fixture_name, test_name) \
+ 	static void fixture_name##_##test_name##_child( \
+ 		struct __test_metadata *_metadata, \
+@@ -71,6 +72,7 @@
+ 		FIXTURE_DATA(fixture_name) __attribute__((unused)) *self, \
+ 		const FIXTURE_VARIANT(fixture_name) \
+ 			__attribute__((unused)) *variant)
 +/* clang-format on */
  
- /**
-  * enum landlock_rule_type - Landlock rule type
-@@ -120,6 +122,7 @@ struct landlock_path_beneath_attr {
-  *   :manpage:`access(2)`.
-  *   Future Landlock evolutions will enable to restrict them.
-  */
-+/* clang-format off */
- #define LANDLOCK_ACCESS_FS_EXECUTE			(1ULL << 0)
- #define LANDLOCK_ACCESS_FS_WRITE_FILE			(1ULL << 1)
- #define LANDLOCK_ACCESS_FS_READ_FILE			(1ULL << 2)
-@@ -133,5 +136,6 @@ struct landlock_path_beneath_attr {
- #define LANDLOCK_ACCESS_FS_MAKE_FIFO			(1ULL << 10)
- #define LANDLOCK_ACCESS_FS_MAKE_BLOCK			(1ULL << 11)
- #define LANDLOCK_ACCESS_FS_MAKE_SYM			(1ULL << 12)
-+/* clang-format on */
- 
- #endif /* _UAPI_LINUX_LANDLOCK_H */
-diff --git a/security/landlock/fs.c b/security/landlock/fs.c
-index 97b8e421f617..4195a6be60b2 100644
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -141,10 +141,12 @@ static struct landlock_object *get_inode_object(struct inode *const inode)
+ #ifndef landlock_create_ruleset
+ static inline int landlock_create_ruleset(
+diff --git a/tools/testing/selftests/landlock/fs_test.c b/tools/testing/selftests/landlock/fs_test.c
+index 10c9a1e4ebd9..aef2eb3d07cd 100644
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -221,8 +221,9 @@ static void remove_layout1(struct __test_metadata *const _metadata)
+ 	EXPECT_EQ(0, remove_path(dir_s3d2));
  }
  
- /* All access rights that can be tied to files. */
+-FIXTURE(layout1) {
+-};
 +/* clang-format off */
++FIXTURE(layout1) {};
++/* clang-format on */
+ 
+ FIXTURE_SETUP(layout1)
+ {
+@@ -376,6 +377,8 @@ TEST_F_FORK(layout1, inval)
+ 	ASSERT_EQ(0, close(ruleset_fd));
+ }
+ 
++/* clang-format off */
++
  #define ACCESS_FILE ( \
  	LANDLOCK_ACCESS_FS_EXECUTE | \
  	LANDLOCK_ACCESS_FS_WRITE_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_FILE)
-+/* clang-format on */
+@@ -396,6 +399,8 @@ TEST_F_FORK(layout1, inval)
+ 	LANDLOCK_ACCESS_FS_MAKE_BLOCK | \
+ 	ACCESS_LAST)
  
- /*
-  * @path: Should have been checked by get_path_from_fd().
-diff --git a/security/landlock/limits.h b/security/landlock/limits.h
-index 2a0a1095ee27..a274ae6b5570 100644
---- a/security/landlock/limits.h
-+++ b/security/landlock/limits.h
-@@ -12,10 +12,14 @@
- #include <linux/limits.h>
- #include <uapi/linux/landlock.h>
++/* clang-format on */
++
+ TEST_F_FORK(layout1, file_access_rights)
+ {
+ 	__u64 access;
+@@ -452,6 +457,8 @@ struct rule {
+ 	__u64 access;
+ };
  
 +/* clang-format off */
 +
- #define LANDLOCK_MAX_NUM_LAYERS		64
- #define LANDLOCK_MAX_NUM_RULES		U32_MAX
- 
- #define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_MAKE_SYM
- #define LANDLOCK_MASK_ACCESS_FS		((LANDLOCK_LAST_ACCESS_FS << 1) - 1)
+ #define ACCESS_RO ( \
+ 	LANDLOCK_ACCESS_FS_READ_FILE | \
+ 	LANDLOCK_ACCESS_FS_READ_DIR)
+@@ -460,6 +467,8 @@ struct rule {
+ 	ACCESS_RO | \
+ 	LANDLOCK_ACCESS_FS_WRITE_FILE)
  
 +/* clang-format on */
 +
- #endif /* _SECURITY_LANDLOCK_LIMITS_H */
+ static int create_ruleset(struct __test_metadata *const _metadata,
+ 		const __u64 handled_access_fs, const struct rule rules[])
+ {
+@@ -2070,8 +2079,9 @@ TEST_F_FORK(layout1, proc_pipe)
+ 	ASSERT_EQ(0, close(pipe_fds[1]));
+ }
+ 
+-FIXTURE(layout1_bind) {
+-};
++/* clang-format off */
++FIXTURE(layout1_bind) {};
++/* clang-format on */
+ 
+ FIXTURE_SETUP(layout1_bind)
+ {
+@@ -2411,8 +2421,9 @@ static const char (*merge_sub_files[])[] = {
+  *         └── work
+  */
+ 
+-FIXTURE(layout2_overlay) {
+-};
++/* clang-format off */
++FIXTURE(layout2_overlay) {};
++/* clang-format on */
+ 
+ FIXTURE_SETUP(layout2_overlay)
+ {
+diff --git a/tools/testing/selftests/landlock/ptrace_test.c b/tools/testing/selftests/landlock/ptrace_test.c
+index 15fbef9cc849..090adadfe2dc 100644
+--- a/tools/testing/selftests/landlock/ptrace_test.c
++++ b/tools/testing/selftests/landlock/ptrace_test.c
+@@ -59,7 +59,9 @@ static int test_ptrace_read(const pid_t pid)
+ 	return 0;
+ }
+ 
+-FIXTURE(hierarchy) { };
++/* clang-format off */
++FIXTURE(hierarchy) {};
++/* clang-format on */
+ 
+ FIXTURE_VARIANT(hierarchy) {
+ 	const bool domain_both;
+@@ -83,7 +85,9 @@ FIXTURE_VARIANT(hierarchy) {
+  *       \              P2 -> P1 : allow
+  *        'P2
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = false,
+ 	.domain_child = false,
+@@ -98,7 +102,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
+  *        |  P2  |
+  *        '------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = false,
+ 	.domain_child = true,
+@@ -112,7 +118,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
+  *            '
+  *            P2
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = true,
+ 	.domain_child = false,
+@@ -127,7 +135,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
+  *         |  P2  |
+  *         '------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = true,
+ 	.domain_child = true,
+@@ -142,7 +152,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
+  * |         P2  |
+  * '-------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = false,
+ 	.domain_child = false,
+@@ -158,7 +170,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
+  * |        '------' |
+  * '-----------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = false,
+ 	.domain_child = true,
+@@ -174,7 +188,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
+  * |             P2  |
+  * '-----------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = true,
+ 	.domain_child = false,
+@@ -192,7 +208,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
+  * |        '------' |
+  * '-----------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_forked_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = true,
+ 	.domain_child = true,
 
