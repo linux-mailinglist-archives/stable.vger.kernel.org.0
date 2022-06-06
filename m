@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A52153E89A
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADBE253E6B2
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237042AbiFFMbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54638 "EHLO
+        id S237077AbiFFMcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:32:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237044AbiFFMbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:31:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93392ADF67;
-        Mon,  6 Jun 2022 05:31:40 -0700 (PDT)
+        with ESMTP id S237070AbiFFMcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:32:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F77C8BD0E;
+        Mon,  6 Jun 2022 05:32:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7243DB81929;
-        Mon,  6 Jun 2022 12:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC10EC3411C;
-        Mon,  6 Jun 2022 12:31:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBF82611D7;
+        Mon,  6 Jun 2022 12:32:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFA3CC3411C;
+        Mon,  6 Jun 2022 12:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518698;
-        bh=0HYYkl7L1QJ5MkmvZX9/5CDL9vz7Q8mjCPspPyzNYTc=;
+        s=korg; t=1654518733;
+        bh=uQRi8C4Np2KvjlWq3a/6np1Au3qmA2pKHeUpkfpP94o=;
         h=Subject:To:Cc:From:Date:From;
-        b=kR4dn81IqI7nHcoB3+To2cnRjJJ+me7H8NdlnI4o/mbFJO6gutbpiuZ4EVbTCp1fe
-         eE4tgE0lJFkBx3WaReGEsOHIDk3LHO/tfeXjyqn7mlsVvXPmYVCWT2O7GfiySVh9MZ
-         RGZz+9jZgc71mrbP+gwVWS+TcSJwu26cUjzh8Yik=
-Subject: FAILED: patch "[PATCH] exportfs: support idmapped mounts" failed to apply to 5.15-stable tree
+        b=JHbaGGyG4ZpmWZFhvE8M9rdg0ujpT9gtz2OiuEWCaWrEHyzYjBRh/Zh4LbHclnHWC
+         J0hJKnLCtvuAexYvwGiGBtor5mVTb4tpps0zyLL11i7+xn9eSuPBqj3MiT4pU2va8P
+         ufcLs9NuRS485wCP7PfB3GsClmRPzkMSDqheV/vI=
+Subject: FAILED: patch "[PATCH] exportfs: support idmapped mounts" failed to apply to 5.18-stable tree
 To:     brauner@kernel.org, amir73il@gmail.com, gscrivan@redhat.com,
         hch@lst.de, linux-fsdevel@vger.kernel.org, mszeredi@redhat.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:31:35 +0200
-Message-ID: <165451869522688@kroah.com>
+Date:   Mon, 06 Jun 2022 14:32:10 +0200
+Message-ID: <1654518730184242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
