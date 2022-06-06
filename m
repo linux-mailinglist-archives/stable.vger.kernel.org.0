@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A856353EBB3
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15B953E7B2
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236812AbiFFM2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:28:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
+        id S237016AbiFFMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:31:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236823AbiFFM2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:28:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6811CFF4
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:28:32 -0700 (PDT)
+        with ESMTP id S237006AbiFFMbK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:31:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B6A2A305C;
+        Mon,  6 Jun 2022 05:31:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39761B81812
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5381C385A9;
-        Mon,  6 Jun 2022 12:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BD536113E;
+        Mon,  6 Jun 2022 12:31:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C91C385A9;
+        Mon,  6 Jun 2022 12:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518510;
-        bh=QMlGL8eotkZRe98RllcwhZ9hJSMXqudOQ6yVvVUhPk8=;
+        s=korg; t=1654518668;
+        bh=iXTMoO0XNdC/DACbwz1eXQlgtyfRFcaDn3TSzCFFaV0=;
         h=Subject:To:Cc:From:Date:From;
-        b=grWaTrLfQv0cDME7Y8PmD2Khq/Y+pv1C3kEfLchH5IjPwdPvyznSf99naSnCvo2r7
-         gZo9MWIp+otV5IScGo1+7ggsnN+6nWkE9jj8jAR+NrJKAwNhPSK3Qx7gyYVtQn0VW7
-         rFBLIeI6gMm5B86oNypjCIz8om4tzHQQ2mQ0ttfA=
-Subject: FAILED: patch "[PATCH] zonefs: Clear inode information flags on inode creation" failed to apply to 5.17-stable tree
-To:     damien.lemoal@opensource.wdc.com, hans.holmberg@wdc.com,
-        johannes.thumshirn@wdc.com, kch@nvidia.com, stable@vger.kernel.org
+        b=CV2WeXPHPLrVEOSu6hDdq4lPtQ8P/ieuvv/ed2cbg+8cxfhASkekKFjqVX5Yfhuwu
+         +CdlCa9cNeD+NYwpaLOpDo6WQ+B47x25qF5mZ/jZOWiPhPnqV6LwaAxgy91WAPOAL7
+         726I0JOJKO8zmTNFNWq+Llmw56TdhdlkcZZyGOPE=
+Subject: FAILED: patch "[PATCH] exportfs: support idmapped mounts" failed to apply to 4.9-stable tree
+To:     brauner@kernel.org, amir73il@gmail.com, gscrivan@redhat.com,
+        hch@lst.de, linux-fsdevel@vger.kernel.org, mszeredi@redhat.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:28:15 +0200
-Message-ID: <165451849538107@kroah.com>
+Date:   Mon, 06 Jun 2022 14:31:06 +0200
+Message-ID: <1654518666146225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,32 +61,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b954ebba296bb2eb2e38322f17aaa6426934bd7e Mon Sep 17 00:00:00 2001
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Date: Tue, 12 Apr 2022 20:52:35 +0900
-Subject: [PATCH] zonefs: Clear inode information flags on inode creation
+From 3a761d72fa62eec8913e45d29375344f61706541 Mon Sep 17 00:00:00 2001
+From: Christian Brauner <brauner@kernel.org>
+Date: Mon, 4 Apr 2022 12:51:41 +0200
+Subject: [PATCH] exportfs: support idmapped mounts
 
-Ensure that the i_flags field of struct zonefs_inode_info is cleared to
-0 when initializing a zone file inode, avoiding seeing the flag
-ZONEFS_ZONE_OPEN being incorrectly set.
+Make the two locations where exportfs helpers check permission to lookup
+a given inode idmapped mount aware by switching it to the lookup_one()
+helper. This is a bugfix for the open_by_handle_at() system call which
+doesn't take idmapped mounts into account currently. It's not tied to a
+specific commit so we'll just Cc stable.
 
-Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
+In addition this is required to support idmapped base layers in overlay.
+The overlay filesystem uses exportfs to encode and decode file handles
+for its index=on mount option and when nfs_export=on.
+
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
+Cc: <linux-fsdevel@vger.kernel.org>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 
-diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
-index 3614c7834007..75d8dabe0807 100644
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -1142,6 +1142,7 @@ static struct inode *zonefs_alloc_inode(struct super_block *sb)
- 	inode_init_once(&zi->i_vnode);
- 	mutex_init(&zi->i_truncate_mutex);
- 	zi->i_wr_refcnt = 0;
-+	zi->i_flags = 0;
+diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
+index 0106eba46d5a..3ef80d000e13 100644
+--- a/fs/exportfs/expfs.c
++++ b/fs/exportfs/expfs.c
+@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
+ 	if (err)
+ 		goto out_err;
+ 	dprintk("%s: found name: %s\n", __func__, nbuf);
+-	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
++	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
+ 	if (IS_ERR(tmp)) {
+ 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
+ 		err = PTR_ERR(tmp);
+@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *mnt, struct fid *fid, int fh_len,
+ 		}
  
- 	return &zi->i_vnode;
- }
+ 		inode_lock(target_dir->d_inode);
+-		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
++		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
++				     target_dir, strlen(nbuf));
+ 		if (!IS_ERR(nresult)) {
+ 			if (unlikely(nresult->d_inode != result->d_inode)) {
+ 				dput(nresult);
 
