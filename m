@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C34B53E2A3
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6889453E1CC
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230431AbiFFHEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 03:04:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57190 "EHLO
+        id S230435AbiFFHFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 03:05:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230427AbiFFHEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:04:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4A11C901;
-        Mon,  6 Jun 2022 00:04:31 -0700 (PDT)
+        with ESMTP id S230436AbiFFHEi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:04:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8605F1A380;
+        Mon,  6 Jun 2022 00:04:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09E0761138;
-        Mon,  6 Jun 2022 07:04:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 150F7C385A9;
-        Mon,  6 Jun 2022 07:04:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFBB961138;
+        Mon,  6 Jun 2022 07:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B64C385A9;
+        Mon,  6 Jun 2022 07:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654499070;
-        bh=sBMyC+cD0Gg0riEcn5GeANAgcLnef9LDKauAjKY7Apk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WPJZE8AdKYk6LN0VesSRzenBZOrUGwirwfjqJThAN1k8f54NPlcVLtdl7hK1sg7zT
-         87C85Y0AQ0sBIOB2Ie7BnQwdvSym0ZzIbnjFTRUjkbB2THi9Pr7uIRSpdllmbCSEM4
-         zaYFWsuyANLMSZJVvW+BwQwN0n0F8ILpoMMGWuDc=
+        s=korg; t=1654499073;
+        bh=at7l+rzRcDCdypHVDCNRyVXd9QHP+mBQ1VcvpLRbl74=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dJHDlfXgTd1VLbck4siHtqcu2g7gtNpcjDO78jbz3XWUH8uPxe2h3wmHWOF+bPvFO
+         yDRaeH1RCjy7nLklb7IOuHUTBcK6naL8TLXpg+/V5PrIc5xBZWM9WGGDs0UWtF8emD
+         k44GVmSr1ywi9NTp1y1W8XvYSBhVDSkc2/3tFmfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.19.246
-Date:   Mon,  6 Jun 2022 09:04:26 +0200
-Message-Id: <165449906624716@kroah.com>
+Subject: Re: Linux 4.19.246
+Date:   Mon,  6 Jun 2022 09:04:27 +0200
+Message-Id: <165449906614831@kroah.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <165449906624716@kroah.com>
+References: <165449906624716@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,145 +51,933 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.19.246 kernel.
-
-All users of the 4.19 kernel series must upgrade.
-
-The updated 4.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/process/submitting-patches.rst   |    2 -
- Makefile                                       |    2 -
- arch/x86/pci/xen.c                             |    5 +++
- block/bio.c                                    |    2 -
- drivers/acpi/sysfs.c                           |   23 +++++++++++----
- drivers/char/tpm/tpm2-cmd.c                    |   11 ++++++-
- drivers/char/tpm/tpm_ibmvtpm.c                 |    1 
- drivers/gpu/drm/i915/intel_pm.c                |    2 -
- drivers/hid/hid-multitouch.c                   |    3 ++
- drivers/i2c/busses/i2c-ismt.c                  |   14 +++++++++
- drivers/i2c/busses/i2c-thunderx-pcidrv.c       |    1 
- drivers/md/dm-crypt.c                          |   14 +++++++--
- drivers/md/dm-integrity.c                      |    2 -
- drivers/md/dm-stats.c                          |    8 +++++
- drivers/md/dm-verity-target.c                  |    1 
- drivers/net/ethernet/faraday/ftgmac100.c       |    5 +++
- drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |    6 ++--
- fs/exec.c                                      |   17 +++++++++++
- fs/nfsd/nfs4state.c                            |   12 ++------
- include/net/inet_hashtables.h                  |    2 -
- include/net/netfilter/nf_conntrack_core.h      |    7 ++++
- include/net/secure_seq.h                       |    4 +-
- lib/assoc_array.c                              |    8 +++++
- mm/zsmalloc.c                                  |   37 ++++++++++++++++++++++---
- net/core/filter.c                              |    4 +-
- net/core/secure_seq.c                          |    4 +-
- net/ipv4/inet_hashtables.c                     |   28 ++++++++++++++----
- net/ipv6/inet6_hashtables.c                    |    4 +-
- net/key/af_key.c                               |    6 ++--
- net/wireless/core.c                            |    7 ++--
- net/wireless/reg.c                             |    1 
- tools/lib/traceevent/Makefile                  |    2 -
- tools/perf/bench/bench.h                       |    4 ++
- tools/perf/bench/futex-hash.c                  |   12 ++++----
- tools/perf/bench/futex-lock-pi.c               |   11 +++----
- tools/perf/tests/bp_account.c                  |    2 -
- 36 files changed, 208 insertions(+), 66 deletions(-)
-
-Akira Yokosawa (1):
-      docs: submitting-patches: Fix crossref to 'The canonical patch format'
-
-Andy Shevchenko (1):
-      ACPI: sysfs: Make sparse happy about address space in use
-
-Arnaldo Carvalho de Melo (2):
-      perf bench: Share some global variables to fix build with gcc 10
-      perf tests bp_account: Make global variable static
-
-Ben Hutchings (1):
-      libtraceevent: Fix build with binutils 2.35
-
-Chuck Lever (1):
-      NFSD: Fix possible sleep during nfsd4_release_lockowner()
-
-Dan Carpenter (1):
-      dm integrity: fix error code in dm_integrity_ctr()
-
-Denis Efremov (Oracle) (1):
-      staging: rtl8723bs: prevent ->Ssid overflow in rtw_wx_set_scan()
-
-Eric Dumazet (1):
-      tcp: change source port randomizarion at connect() time
-
-Florian Westphal (1):
-      netfilter: conntrack: re-fetch conntrack after insertion
-
-Greg Kroah-Hartman (1):
-      Linux 4.19.246
-
-Gustavo A. R. Silva (1):
-      drm/i915: Fix -Wstringop-overflow warning in call to intel_read_wm_latency()
-
-Haimin Zhang (1):
-      block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
-
-Joel Stanley (1):
-      net: ftgmac100: Disable hardware checksum on AST2600
-
-Kees Cook (1):
-      exec: Force single empty string when argv is empty
-
-Liu Jian (1):
-      bpf: Enlarge offset check value to INT_MAX in bpf_skb_{load,store}_bytes
-
-Lorenzo Pieralisi (1):
-      ACPI: sysfs: Fix BERT error region memory mapping
-
-Marek Maślanka (1):
-      HID: multitouch: Add support for Google Whiskers Touchpad
-
-Mika Westerberg (1):
-      i2c: ismt: Provide a DMA buffer for Interrupt Cause Logging
-
-Mikulas Patocka (2):
-      dm crypt: make printing of the key constant-time
-      dm stats: add cond_resched when looping over entries
-
-Miri Korenblit (1):
-      cfg80211: set custom regdomain after wiphy registration
-
-Piyush Malgujar (1):
-      drivers: i2c: thunderx: Allow driver to work with ACPI defined TWSI controllers
-
-Sarthak Kukreti (1):
-      dm verity: set DM_TARGET_IMMUTABLE feature flag
-
-Stefan Mahnke-Hartmann (1):
-      tpm: Fix buffer access in tpm2_get_tpm_pt()
-
-Stephen Brennan (1):
-      assoc_array: Fix BUG_ON during garbage collect
-
-Sultan Alsawaf (1):
-      zsmalloc: fix races between asynchronous zspage free and page migration
-
-Thomas Bartschies (1):
-      net: af_key: check encryption module availability consistency
-
-Thomas Gleixner (1):
-      x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests
-
-Willy Tarreau (1):
-      secure_seq: use the 64 bits of the siphash for port offset calculation
-
-Xiu Jianfeng (1):
-      tpm: ibmvtpm: Correct the return value in tpm_ibmvtpm_probe()
-
+diff --git a/Documentation/process/submitting-patches.rst b/Documentation/process/submitting-patches.rst
+index c0917107b90a..3739c1ce686d 100644
+--- a/Documentation/process/submitting-patches.rst
++++ b/Documentation/process/submitting-patches.rst
+@@ -133,7 +133,7 @@ as you intend it to.
+ 
+ The maintainer will thank you if you write your patch description in a
+ form which can be easily pulled into Linux's source code management
+-system, ``git``, as a "commit log".  See :ref:`explicit_in_reply_to`.
++system, ``git``, as a "commit log".  See :ref:`the_canonical_patch_format`.
+ 
+ Solve only one problem per patch.  If your description starts to get
+ long, that's a sign that you probably need to split up your patch.
+diff --git a/Makefile b/Makefile
+index 64a64f6ba90d..e1cbe6e8bcae 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 19
+-SUBLEVEL = 245
++SUBLEVEL = 246
+ EXTRAVERSION =
+ NAME = "People's Front"
+ 
+diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+index 22da9bfd8a45..bacf8d988f65 100644
+--- a/arch/x86/pci/xen.c
++++ b/arch/x86/pci/xen.c
+@@ -441,6 +441,11 @@ void __init xen_msi_init(void)
+ 
+ 	x86_msi.setup_msi_irqs = xen_hvm_setup_msi_irqs;
+ 	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
++	/*
++	 * With XEN PIRQ/Eventchannels in use PCI/MSI[-X] masking is solely
++	 * controlled by the hypervisor.
++	 */
++	pci_msi_ignore_mask = 1;
+ }
+ #endif
+ 
+diff --git a/block/bio.c b/block/bio.c
+index fe749404ef93..7858b2d23916 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1528,7 +1528,7 @@ struct bio *bio_copy_kern(struct request_queue *q, void *data, unsigned int len,
+ 		if (bytes > len)
+ 			bytes = len;
+ 
+-		page = alloc_page(q->bounce_gfp | gfp_mask);
++		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
+ 		if (!page)
+ 			goto cleanup;
+ 
+diff --git a/drivers/acpi/sysfs.c b/drivers/acpi/sysfs.c
+index 39ee0ca636aa..0b6489fd5d0d 100644
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -439,18 +439,29 @@ static ssize_t acpi_data_show(struct file *filp, struct kobject *kobj,
+ {
+ 	struct acpi_data_attr *data_attr;
+ 	void __iomem *base;
+-	ssize_t rc;
++	ssize_t size;
+ 
+ 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
++	size = data_attr->attr.size;
++
++	if (offset < 0)
++		return -EINVAL;
++
++	if (offset >= size)
++		return 0;
+ 
+-	base = acpi_os_map_memory(data_attr->addr, data_attr->attr.size);
++	if (count > size - offset)
++		count = size - offset;
++
++	base = acpi_os_map_iomem(data_attr->addr, size);
+ 	if (!base)
+ 		return -ENOMEM;
+-	rc = memory_read_from_buffer(buf, count, &offset, base,
+-				     data_attr->attr.size);
+-	acpi_os_unmap_memory(base, data_attr->attr.size);
+ 
+-	return rc;
++	memcpy_fromio(buf, base + offset, count);
++
++	acpi_os_unmap_iomem(base, size);
++
++	return count;
+ }
+ 
+ static int acpi_bert_data_init(void *th, struct acpi_data_attr *data_attr)
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index e71c6b24aed1..ce497b0691d7 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -717,7 +717,16 @@ ssize_t tpm2_get_tpm_pt(struct tpm_chip *chip, u32 property_id,  u32 *value,
+ 	if (!rc) {
+ 		out = (struct tpm2_get_cap_out *)
+ 			&buf.data[TPM_HEADER_SIZE];
+-		*value = be32_to_cpu(out->value);
++		/*
++		 * To prevent failing boot up of some systems, Infineon TPM2.0
++		 * returns SUCCESS on TPM2_Startup in field upgrade mode. Also
++		 * the TPM2_Getcapability command returns a zero length list
++		 * in field upgrade mode.
++		 */
++		if (be32_to_cpu(out->property_cnt) > 0)
++			*value = be32_to_cpu(out->value);
++		else
++			rc = -ENODATA;
+ 	}
+ 	tpm_buf_destroy(&buf);
+ 	return rc;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 3ba67bc6baba..80647eb071fd 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -692,6 +692,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
+ 				ibmvtpm->rtce_buf != NULL,
+ 				HZ)) {
++		rc = -ENODEV;
+ 		dev_err(dev, "CRQ response timed out\n");
+ 		goto init_irq_cleanup;
+ 	}
+diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+index 1847faa45d37..af8865281b47 100644
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -2814,7 +2814,7 @@ hsw_compute_linetime_wm(const struct intel_crtc_state *cstate)
+ }
+ 
+ static void intel_read_wm_latency(struct drm_i915_private *dev_priv,
+-				  uint16_t wm[8])
++				  uint16_t wm[])
+ {
+ 	if (INTEL_GEN(dev_priv) >= 9) {
+ 		uint32_t val;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index c20945ed1dc1..e99286258f62 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2111,6 +2111,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_GOOGLE,
+ 		HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_GOOGLE,
+ 			USB_DEVICE_ID_GOOGLE_TOUCH_ROSE) },
++	{ .driver_data = MT_CLS_GOOGLE,
++		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_GOOGLE,
++			USB_DEVICE_ID_GOOGLE_WHISKERS) },
+ 
+ 	/* Generic MT device */
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 0d1c3ec8cb40..80796061102f 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -80,6 +80,7 @@
+ 
+ #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
+ #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
++#define ISMT_LOG_ENTRIES	3	/* number of interrupt cause log entries */
+ 
+ /* Hardware Descriptor Constants - Control Field */
+ #define ISMT_DESC_CWRL	0x01	/* Command/Write Length */
+@@ -173,6 +174,8 @@ struct ismt_priv {
+ 	u8 head;				/* ring buffer head pointer */
+ 	struct completion cmp;			/* interrupt completion */
+ 	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
++	dma_addr_t log_dma;
++	u32 *log;
+ };
+ 
+ /**
+@@ -406,6 +409,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	memset(desc, 0, sizeof(struct ismt_desc));
+ 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+ 
++	/* Always clear the log entries */
++	memset(priv->log, 0, ISMT_LOG_ENTRIES * sizeof(u32));
++
+ 	/* Initialize common control bits */
+ 	if (likely(pci_dev_msi_enabled(priv->pci_dev)))
+ 		desc->control = ISMT_DESC_INT | ISMT_DESC_FAIR;
+@@ -695,6 +701,8 @@ static void ismt_hw_init(struct ismt_priv *priv)
+ 	/* initialize the Master Descriptor Base Address (MDBA) */
+ 	writeq(priv->io_rng_dma, priv->smba + ISMT_MSTR_MDBA);
+ 
++	writeq(priv->log_dma, priv->smba + ISMT_GR_SMTICL);
++
+ 	/* initialize the Master Control Register (MCTRL) */
+ 	writel(ISMT_MCTRL_MEIE, priv->smba + ISMT_MSTR_MCTRL);
+ 
+@@ -784,6 +792,12 @@ static int ismt_dev_init(struct ismt_priv *priv)
+ 	priv->head = 0;
+ 	init_completion(&priv->cmp);
+ 
++	priv->log = dmam_alloc_coherent(&priv->pci_dev->dev,
++					ISMT_LOG_ENTRIES * sizeof(u32),
++					&priv->log_dma, GFP_KERNEL);
++	if (!priv->log)
++		return -ENOMEM;
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+index 19f8eec38717..107aeb8b54da 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -208,6 +208,7 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 	i2c->adap.bus_recovery_info = &octeon_i2c_recovery_info;
+ 	i2c->adap.dev.parent = dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
++	i2c->adap.dev.fwnode = dev->fwnode;
+ 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
+ 		 "Cavium ThunderX i2c adapter at %s", dev_name(dev));
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+index 3441ad140b58..e38c713e882e 100644
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2932,6 +2932,11 @@ static int crypt_map(struct dm_target *ti, struct bio *bio)
+ 	return DM_MAPIO_SUBMITTED;
+ }
+ 
++static char hex2asc(unsigned char c)
++{
++	return c + '0' + ((unsigned)(9 - c) >> 4 & 0x27);
++}
++
+ static void crypt_status(struct dm_target *ti, status_type_t type,
+ 			 unsigned status_flags, char *result, unsigned maxlen)
+ {
+@@ -2950,9 +2955,12 @@ static void crypt_status(struct dm_target *ti, status_type_t type,
+ 		if (cc->key_size > 0) {
+ 			if (cc->key_string)
+ 				DMEMIT(":%u:%s", cc->key_size, cc->key_string);
+-			else
+-				for (i = 0; i < cc->key_size; i++)
+-					DMEMIT("%02x", cc->key[i]);
++			else {
++				for (i = 0; i < cc->key_size; i++) {
++					DMEMIT("%c%c", hex2asc(cc->key[i] >> 4),
++					       hex2asc(cc->key[i] & 0xf));
++				}
++			}
+ 		} else
+ 			DMEMIT("-");
+ 
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index b0105d53918a..8456e82409e2 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -3565,8 +3565,6 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 	}
+ 
+ 	if (should_write_sb) {
+-		int r;
+-
+ 		init_journal(ic, 0, ic->journal_sections, 0);
+ 		r = dm_integrity_failed(ic);
+ 		if (unlikely(r)) {
+diff --git a/drivers/md/dm-stats.c b/drivers/md/dm-stats.c
+index 21de30b4e2a1..3d59f3e208c5 100644
+--- a/drivers/md/dm-stats.c
++++ b/drivers/md/dm-stats.c
+@@ -224,6 +224,7 @@ void dm_stats_cleanup(struct dm_stats *stats)
+ 				       atomic_read(&shared->in_flight[READ]),
+ 				       atomic_read(&shared->in_flight[WRITE]));
+ 			}
++			cond_resched();
+ 		}
+ 		dm_stat_free(&s->rcu_head);
+ 	}
+@@ -313,6 +314,7 @@ static int dm_stats_create(struct dm_stats *stats, sector_t start, sector_t end,
+ 	for (ni = 0; ni < n_entries; ni++) {
+ 		atomic_set(&s->stat_shared[ni].in_flight[READ], 0);
+ 		atomic_set(&s->stat_shared[ni].in_flight[WRITE], 0);
++		cond_resched();
+ 	}
+ 
+ 	if (s->n_histogram_entries) {
+@@ -325,6 +327,7 @@ static int dm_stats_create(struct dm_stats *stats, sector_t start, sector_t end,
+ 		for (ni = 0; ni < n_entries; ni++) {
+ 			s->stat_shared[ni].tmp.histogram = hi;
+ 			hi += s->n_histogram_entries + 1;
++			cond_resched();
+ 		}
+ 	}
+ 
+@@ -345,6 +348,7 @@ static int dm_stats_create(struct dm_stats *stats, sector_t start, sector_t end,
+ 			for (ni = 0; ni < n_entries; ni++) {
+ 				p[ni].histogram = hi;
+ 				hi += s->n_histogram_entries + 1;
++				cond_resched();
+ 			}
+ 		}
+ 	}
+@@ -474,6 +478,7 @@ static int dm_stats_list(struct dm_stats *stats, const char *program,
+ 			}
+ 			DMEMIT("\n");
+ 		}
++		cond_resched();
+ 	}
+ 	mutex_unlock(&stats->mutex);
+ 
+@@ -750,6 +755,7 @@ static void __dm_stat_clear(struct dm_stat *s, size_t idx_start, size_t idx_end,
+ 				local_irq_enable();
+ 			}
+ 		}
++		cond_resched();
+ 	}
+ }
+ 
+@@ -865,6 +871,8 @@ static int dm_stats_print(struct dm_stats *stats, int id,
+ 
+ 		if (unlikely(sz + 1 >= maxlen))
+ 			goto buffer_overflow;
++
++		cond_resched();
+ 	}
+ 
+ 	if (clear)
+diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
+index fa8c201fca77..36945030520a 100644
+--- a/drivers/md/dm-verity-target.c
++++ b/drivers/md/dm-verity-target.c
+@@ -1176,6 +1176,7 @@ static int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 
+ static struct target_type verity_target = {
+ 	.name		= "verity",
++	.features	= DM_TARGET_IMMUTABLE,
+ 	.version	= {1, 4, 0},
+ 	.module		= THIS_MODULE,
+ 	.ctr		= verity_ctr,
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index 964407deca35..23c019d1278c 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1869,6 +1869,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
+ 	/* AST2400  doesn't have working HW checksum generation */
+ 	if (np && (of_device_is_compatible(np, "aspeed,ast2400-mac")))
+ 		netdev->hw_features &= ~NETIF_F_HW_CSUM;
++
++	/* AST2600 tx checksum with NCSI is broken */
++	if (priv->use_ncsi && of_device_is_compatible(np, "aspeed,ast2600-mac"))
++		netdev->hw_features &= ~NETIF_F_HW_CSUM;
++
+ 	if (np && of_get_property(np, "no-hw-checksum", NULL))
+ 		netdev->hw_features &= ~(NETIF_F_HW_CSUM | NETIF_F_RXCSUM);
+ 	netdev->features |= netdev->hw_features;
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+index 466d25ccc4bb..40d7130a4909 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -1359,9 +1359,11 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
+ 
+ 					sec_len = *(pos++); len-= 1;
+ 
+-					if (sec_len>0 && sec_len<=len) {
++					if (sec_len > 0 &&
++					    sec_len <= len &&
++					    sec_len <= 32) {
+ 						ssid[ssid_index].SsidLength = sec_len;
+-						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
++						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
+ 						/* DBG_871X("%s COMBO_SCAN with specific ssid:%s, %d\n", __func__ */
+ 						/* 	, ssid[ssid_index].Ssid, ssid[ssid_index].SsidLength); */
+ 						ssid_index++;
+diff --git a/fs/exec.c b/fs/exec.c
+index e87e3c020c61..28e3b5eb2f4a 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1805,6 +1805,9 @@ static int __do_execve_file(int fd, struct filename *filename,
+ 		goto out_unmark;
+ 
+ 	bprm->argc = count(argv, MAX_ARG_STRINGS);
++	if (bprm->argc == 0)
++		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
++			     current->comm, bprm->filename);
+ 	if ((retval = bprm->argc) < 0)
+ 		goto out;
+ 
+@@ -1829,6 +1832,20 @@ static int __do_execve_file(int fd, struct filename *filename,
+ 	if (retval < 0)
+ 		goto out;
+ 
++	/*
++	 * When argv is empty, add an empty string ("") as argv[0] to
++	 * ensure confused userspace programs that start processing
++	 * from argv[1] won't end up walking envp. See also
++	 * bprm_stack_limits().
++	 */
++	if (bprm->argc == 0) {
++		const char *argv[] = { "", NULL };
++		retval = copy_strings_kernel(1, argv, bprm);
++		if (retval < 0)
++			goto out;
++		bprm->argc = 1;
++	}
++
+ 	retval = exec_binprm(bprm);
+ 	if (retval < 0)
+ 		goto out;
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index ed5429d18595..78191320f8e2 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -6401,16 +6401,12 @@ nfsd4_release_lockowner(struct svc_rqst *rqstp,
+ 		if (sop->so_is_open_owner || !same_owner_str(sop, owner))
+ 			continue;
+ 
+-		/* see if there are still any locks associated with it */
+-		lo = lockowner(sop);
+-		list_for_each_entry(stp, &sop->so_stateids, st_perstateowner) {
+-			if (check_for_locks(stp->st_stid.sc_file, lo)) {
+-				status = nfserr_locks_held;
+-				spin_unlock(&clp->cl_lock);
+-				return status;
+-			}
++		if (atomic_read(&sop->so_count) != 1) {
++			spin_unlock(&clp->cl_lock);
++			return nfserr_locks_held;
+ 		}
+ 
++		lo = lockowner(sop);
+ 		nfs4_get_stateowner(sop);
+ 		break;
+ 	}
+diff --git a/include/net/inet_hashtables.h b/include/net/inet_hashtables.h
+index fa5fe23ca6aa..2d04f3e06de1 100644
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -407,7 +407,7 @@ static inline void sk_rcv_saddr_set(struct sock *sk, __be32 addr)
+ }
+ 
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+-			struct sock *sk, u32 port_offset,
++			struct sock *sk, u64 port_offset,
+ 			int (*check_established)(struct inet_timewait_death_row *,
+ 						 struct sock *, __u16,
+ 						 struct inet_timewait_sock **));
+diff --git a/include/net/netfilter/nf_conntrack_core.h b/include/net/netfilter/nf_conntrack_core.h
+index 2a3e0974a6af..4e3fff9f929b 100644
+--- a/include/net/netfilter/nf_conntrack_core.h
++++ b/include/net/netfilter/nf_conntrack_core.h
+@@ -58,8 +58,13 @@ static inline int nf_conntrack_confirm(struct sk_buff *skb)
+ 	int ret = NF_ACCEPT;
+ 
+ 	if (ct) {
+-		if (!nf_ct_is_confirmed(ct))
++		if (!nf_ct_is_confirmed(ct)) {
+ 			ret = __nf_conntrack_confirm(skb);
++
++			if (ret == NF_ACCEPT)
++				ct = (struct nf_conn *)skb_nfct(skb);
++		}
++
+ 		if (likely(ret == NF_ACCEPT))
+ 			nf_ct_deliver_cached_events(ct);
+ 	}
+diff --git a/include/net/secure_seq.h b/include/net/secure_seq.h
+index d7d2495f83c2..dac91aa38c5a 100644
+--- a/include/net/secure_seq.h
++++ b/include/net/secure_seq.h
+@@ -4,8 +4,8 @@
+ 
+ #include <linux/types.h>
+ 
+-u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
+-u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
++u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
++u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 			       __be16 dport);
+ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
+ 		   __be16 sport, __be16 dport);
+diff --git a/lib/assoc_array.c b/lib/assoc_array.c
+index 59875eb278ea..3b1ff063ceca 100644
+--- a/lib/assoc_array.c
++++ b/lib/assoc_array.c
+@@ -1465,6 +1465,7 @@ int assoc_array_gc(struct assoc_array *array,
+ 	struct assoc_array_ptr *cursor, *ptr;
+ 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
+ 	unsigned long nr_leaves_on_tree;
++	bool retained;
+ 	int keylen, slot, nr_free, next_slot, i;
+ 
+ 	pr_devel("-->%s()\n", __func__);
+@@ -1541,6 +1542,7 @@ int assoc_array_gc(struct assoc_array *array,
+ 		goto descend;
+ 	}
+ 
++retry_compress:
+ 	pr_devel("-- compress node %p --\n", new_n);
+ 
+ 	/* Count up the number of empty slots in this node and work out the
+@@ -1558,6 +1560,7 @@ int assoc_array_gc(struct assoc_array *array,
+ 	pr_devel("free=%d, leaves=%lu\n", nr_free, new_n->nr_leaves_on_branch);
+ 
+ 	/* See what we can fold in */
++	retained = false;
+ 	next_slot = 0;
+ 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
+ 		struct assoc_array_shortcut *s;
+@@ -1607,9 +1610,14 @@ int assoc_array_gc(struct assoc_array *array,
+ 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
+ 				 slot, child->nr_leaves_on_branch, nr_free + 1,
+ 				 next_slot);
++			retained = true;
+ 		}
+ 	}
+ 
++	if (retained && new_n->nr_leaves_on_branch <= ASSOC_ARRAY_FAN_OUT) {
++		pr_devel("internal nodes remain despite enough space, retrying\n");
++		goto retry_compress;
++	}
+ 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
+ 
+ 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 11e81b3ff0cf..4d71356ea66a 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1812,11 +1812,40 @@ static enum fullness_group putback_zspage(struct size_class *class,
+  */
+ static void lock_zspage(struct zspage *zspage)
+ {
+-	struct page *page = get_first_page(zspage);
++	struct page *curr_page, *page;
+ 
+-	do {
+-		lock_page(page);
+-	} while ((page = get_next_page(page)) != NULL);
++	/*
++	 * Pages we haven't locked yet can be migrated off the list while we're
++	 * trying to lock them, so we need to be careful and only attempt to
++	 * lock each page under migrate_read_lock(). Otherwise, the page we lock
++	 * may no longer belong to the zspage. This means that we may wait for
++	 * the wrong page to unlock, so we must take a reference to the page
++	 * prior to waiting for it to unlock outside migrate_read_lock().
++	 */
++	while (1) {
++		migrate_read_lock(zspage);
++		page = get_first_page(zspage);
++		if (trylock_page(page))
++			break;
++		get_page(page);
++		migrate_read_unlock(zspage);
++		wait_on_page_locked(page);
++		put_page(page);
++	}
++
++	curr_page = page;
++	while ((page = get_next_page(curr_page))) {
++		if (trylock_page(page)) {
++			curr_page = page;
++		} else {
++			get_page(page);
++			migrate_read_unlock(zspage);
++			wait_on_page_locked(page);
++			put_page(page);
++			migrate_read_lock(zspage);
++		}
++	}
++	migrate_read_unlock(zspage);
+ }
+ 
+ static struct dentry *zs_mount(struct file_system_type *fs_type,
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 7d68c98a00aa..c1310c9d1b90 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1666,7 +1666,7 @@ BPF_CALL_5(bpf_skb_store_bytes, struct sk_buff *, skb, u32, offset,
+ 
+ 	if (unlikely(flags & ~(BPF_F_RECOMPUTE_CSUM | BPF_F_INVALIDATE_HASH)))
+ 		return -EINVAL;
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		return -EFAULT;
+ 	if (unlikely(bpf_try_make_writable(skb, offset + len)))
+ 		return -EFAULT;
+@@ -1701,7 +1701,7 @@ BPF_CALL_4(bpf_skb_load_bytes, const struct sk_buff *, skb, u32, offset,
+ {
+ 	void *ptr;
+ 
+-	if (unlikely(offset > 0xffff))
++	if (unlikely(offset > INT_MAX))
+ 		goto err_clear;
+ 
+ 	ptr = skb_header_pointer(skb, offset, len, to);
+diff --git a/net/core/secure_seq.c b/net/core/secure_seq.c
+index 3a8128341e6a..6fd25279bee9 100644
+--- a/net/core/secure_seq.c
++++ b/net/core/secure_seq.c
+@@ -96,7 +96,7 @@ u32 secure_tcpv6_seq(const __be32 *saddr, const __be32 *daddr,
+ }
+ EXPORT_SYMBOL(secure_tcpv6_seq);
+ 
+-u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
++u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 			       __be16 dport)
+ {
+ 	const struct {
+@@ -146,7 +146,7 @@ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
+ }
+ EXPORT_SYMBOL_GPL(secure_tcp_seq);
+ 
+-u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
++u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
+ {
+ 	net_secret_init();
+ 	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index c96a5871b49d..0a8aec3f37cc 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -507,7 +507,7 @@ static int __inet_check_established(struct inet_timewait_death_row *death_row,
+ 	return -EADDRNOTAVAIL;
+ }
+ 
+-static u32 inet_sk_port_offset(const struct sock *sk)
++static u64 inet_sk_port_offset(const struct sock *sk)
+ {
+ 	const struct inet_sock *inet = inet_sk(sk);
+ 
+@@ -714,8 +714,19 @@ void inet_unhash(struct sock *sk)
+ }
+ EXPORT_SYMBOL_GPL(inet_unhash);
+ 
++/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
++ * Note that we use 32bit integers (vs RFC 'short integers')
++ * because 2^16 is not a multiple of num_ephemeral and this
++ * property might be used by clever attacker.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
++ * we use 256 instead to really give more isolation and
++ * privacy, this only consumes 1 KB of kernel memory.
++ */
++#define INET_TABLE_PERTURB_SHIFT 8
++static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
++
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+-		struct sock *sk, u32 port_offset,
++		struct sock *sk, u64 port_offset,
+ 		int (*check_established)(struct inet_timewait_death_row *,
+ 			struct sock *, __u16, struct inet_timewait_sock **))
+ {
+@@ -727,7 +738,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	struct inet_bind_bucket *tb;
+ 	u32 remaining, offset;
+ 	int ret, i, low, high;
+-	static u32 hint;
++	u32 index;
+ 
+ 	if (port) {
+ 		head = &hinfo->bhash[inet_bhashfn(net, port,
+@@ -752,7 +763,12 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	if (likely(remaining > 1))
+ 		remaining &= ~1U;
+ 
+-	offset = (hint + port_offset) % remaining;
++	net_get_random_once(table_perturb, sizeof(table_perturb));
++	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
++
++	offset = READ_ONCE(table_perturb[index]) + port_offset;
++	offset %= remaining;
++
+ 	/* In first pass we try ports of @low parity.
+ 	 * inet_csk_get_port() does the opposite choice.
+ 	 */
+@@ -805,7 +821,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	return -EADDRNOTAVAIL;
+ 
+ ok:
+-	hint += i + 2;
++	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
+ 
+ 	/* Head lock still held and bh's disabled */
+ 	inet_bind_hash(sk, tb, port);
+@@ -828,7 +844,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ int inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 		      struct sock *sk)
+ {
+-	u32 port_offset = 0;
++	u64 port_offset = 0;
+ 
+ 	if (!inet_sk(sk)->inet_num)
+ 		port_offset = inet_sk_port_offset(sk);
+diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
+index d9e2575dad94..d8391921363f 100644
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -311,7 +311,7 @@ static int __inet6_check_established(struct inet_timewait_death_row *death_row,
+ 	return -EADDRNOTAVAIL;
+ }
+ 
+-static u32 inet6_sk_port_offset(const struct sock *sk)
++static u64 inet6_sk_port_offset(const struct sock *sk)
+ {
+ 	const struct inet_sock *inet = inet_sk(sk);
+ 
+@@ -323,7 +323,7 @@ static u32 inet6_sk_port_offset(const struct sock *sk)
+ int inet6_hash_connect(struct inet_timewait_death_row *death_row,
+ 		       struct sock *sk)
+ {
+-	u32 port_offset = 0;
++	u64 port_offset = 0;
+ 
+ 	if (!inet_sk(sk)->inet_num)
+ 		port_offset = inet6_sk_port_offset(sk);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 170960ef7e36..1bbb6ec89ff3 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2910,7 +2910,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
+ 			break;
+ 		if (!aalg->pfkey_supported)
+ 			continue;
+-		if (aalg_tmpl_set(t, aalg))
++		if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 			sz += sizeof(struct sadb_comb);
+ 	}
+ 	return sz + sizeof(struct sadb_prop);
+@@ -2928,7 +2928,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 		if (!ealg->pfkey_supported)
+ 			continue;
+ 
+-		if (!(ealg_tmpl_set(t, ealg)))
++		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
+ 			continue;
+ 
+ 		for (k = 1; ; k++) {
+@@ -2939,7 +2939,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 			if (!aalg->pfkey_supported)
+ 				continue;
+ 
+-			if (aalg_tmpl_set(t, aalg))
++			if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 				sz += sizeof(struct sadb_comb);
+ 		}
+ 	}
+diff --git a/net/wireless/core.c b/net/wireless/core.c
+index 68660781aa51..7c66f99046ac 100644
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -4,6 +4,7 @@
+  * Copyright 2006-2010		Johannes Berg <johannes@sipsolutions.net>
+  * Copyright 2013-2014  Intel Mobile Communications GmbH
+  * Copyright 2015-2017	Intel Deutschland GmbH
++ * Copyright (C) 2018-2021 Intel Corporation
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -835,9 +836,6 @@ int wiphy_register(struct wiphy *wiphy)
+ 		return res;
+ 	}
+ 
+-	/* set up regulatory info */
+-	wiphy_regulatory_register(wiphy);
+-
+ 	list_add_rcu(&rdev->list, &cfg80211_rdev_list);
+ 	cfg80211_rdev_list_generation++;
+ 
+@@ -851,6 +849,9 @@ int wiphy_register(struct wiphy *wiphy)
+ 	cfg80211_debugfs_rdev_add(rdev);
+ 	nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
+ 
++	/* set up regulatory info */
++	wiphy_regulatory_register(wiphy);
++
+ 	if (wiphy->regulatory_flags & REGULATORY_CUSTOM_REG) {
+ 		struct regulatory_request request;
+ 
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index c7825b951f72..dd8503a3ef1e 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -3756,6 +3756,7 @@ void wiphy_regulatory_register(struct wiphy *wiphy)
+ 
+ 	wiphy_update_regulatory(wiphy, lr->initiator);
+ 	wiphy_all_share_dfs_chan_state(wiphy);
++	reg_process_self_managed_hints();
+ }
+ 
+ void wiphy_regulatory_deregister(struct wiphy *wiphy)
+diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
+index 05f8a0f27121..b7f7e4e541d7 100644
+--- a/tools/lib/traceevent/Makefile
++++ b/tools/lib/traceevent/Makefile
+@@ -263,7 +263,7 @@ define do_generate_dynamic_list_file
+ 	xargs echo "U w W" | tr 'w ' 'W\n' | sort -u | xargs echo`;\
+ 	if [ "$$symbol_type" = "U W" ];then				\
+ 		(echo '{';						\
+-		$(NM) -u -D $1 | awk 'NF>1 {print "\t"$$2";"}' | sort -u;\
++		$(NM) -u -D $1 | awk 'NF>1 {sub("@.*", "", $$2); print "\t"$$2";"}' | sort -u;\
+ 		echo '};';						\
+ 		) > $2;							\
+ 	else								\
+diff --git a/tools/perf/bench/bench.h b/tools/perf/bench/bench.h
+index 6c9fcd757f31..b3e418afc21a 100644
+--- a/tools/perf/bench/bench.h
++++ b/tools/perf/bench/bench.h
+@@ -2,6 +2,10 @@
+ #ifndef BENCH_H
+ #define BENCH_H
+ 
++#include <sys/time.h>
++
++extern struct timeval bench__start, bench__end, bench__runtime;
++
+ /*
+  * The madvise transparent hugepage constants were added in glibc
+  * 2.13. For compatibility with older versions of glibc, define these
+diff --git a/tools/perf/bench/futex-hash.c b/tools/perf/bench/futex-hash.c
+index 9aa3a674829b..ee9b28065109 100644
+--- a/tools/perf/bench/futex-hash.c
++++ b/tools/perf/bench/futex-hash.c
+@@ -35,7 +35,7 @@ static unsigned int nfutexes = 1024;
+ static bool fshared = false, done = false, silent = false;
+ static int futex_flag = 0;
+ 
+-struct timeval start, end, runtime;
++struct timeval bench__start, bench__end, bench__runtime;
+ static pthread_mutex_t thread_lock;
+ static unsigned int threads_starting;
+ static struct stats throughput_stats;
+@@ -101,8 +101,8 @@ static void toggle_done(int sig __maybe_unused,
+ {
+ 	/* inform all threads that we're done for the day */
+ 	done = true;
+-	gettimeofday(&end, NULL);
+-	timersub(&end, &start, &runtime);
++	gettimeofday(&bench__end, NULL);
++	timersub(&bench__end, &bench__start, &bench__runtime);
+ }
+ 
+ static void print_summary(void)
+@@ -112,7 +112,7 @@ static void print_summary(void)
+ 
+ 	printf("%sAveraged %ld operations/sec (+- %.2f%%), total secs = %d\n",
+ 	       !silent ? "\n" : "", avg, rel_stddev_stats(stddev, avg),
+-	       (int) runtime.tv_sec);
++	       (int)bench__runtime.tv_sec);
+ }
+ 
+ int bench_futex_hash(int argc, const char **argv)
+@@ -159,7 +159,7 @@ int bench_futex_hash(int argc, const char **argv)
+ 
+ 	threads_starting = nthreads;
+ 	pthread_attr_init(&thread_attr);
+-	gettimeofday(&start, NULL);
++	gettimeofday(&bench__start, NULL);
+ 	for (i = 0; i < nthreads; i++) {
+ 		worker[i].tid = i;
+ 		worker[i].futex = calloc(nfutexes, sizeof(*worker[i].futex));
+@@ -202,7 +202,7 @@ int bench_futex_hash(int argc, const char **argv)
+ 	pthread_mutex_destroy(&thread_lock);
+ 
+ 	for (i = 0; i < nthreads; i++) {
+-		unsigned long t = worker[i].ops/runtime.tv_sec;
++		unsigned long t = worker[i].ops / bench__runtime.tv_sec;
+ 		update_stats(&throughput_stats, t);
+ 		if (!silent) {
+ 			if (nfutexes == 1)
+diff --git a/tools/perf/bench/futex-lock-pi.c b/tools/perf/bench/futex-lock-pi.c
+index 8e9c4753e304..017609ae3590 100644
+--- a/tools/perf/bench/futex-lock-pi.c
++++ b/tools/perf/bench/futex-lock-pi.c
+@@ -35,7 +35,6 @@ static bool silent = false, multi = false;
+ static bool done = false, fshared = false;
+ static unsigned int nthreads = 0;
+ static int futex_flag = 0;
+-struct timeval start, end, runtime;
+ static pthread_mutex_t thread_lock;
+ static unsigned int threads_starting;
+ static struct stats throughput_stats;
+@@ -62,7 +61,7 @@ static void print_summary(void)
+ 
+ 	printf("%sAveraged %ld operations/sec (+- %.2f%%), total secs = %d\n",
+ 	       !silent ? "\n" : "", avg, rel_stddev_stats(stddev, avg),
+-	       (int) runtime.tv_sec);
++	       (int)bench__runtime.tv_sec);
+ }
+ 
+ static void toggle_done(int sig __maybe_unused,
+@@ -71,8 +70,8 @@ static void toggle_done(int sig __maybe_unused,
+ {
+ 	/* inform all threads that we're done for the day */
+ 	done = true;
+-	gettimeofday(&end, NULL);
+-	timersub(&end, &start, &runtime);
++	gettimeofday(&bench__end, NULL);
++	timersub(&bench__end, &bench__start, &bench__runtime);
+ }
+ 
+ static void *workerfn(void *arg)
+@@ -183,7 +182,7 @@ int bench_futex_lock_pi(int argc, const char **argv)
+ 
+ 	threads_starting = nthreads;
+ 	pthread_attr_init(&thread_attr);
+-	gettimeofday(&start, NULL);
++	gettimeofday(&bench__start, NULL);
+ 
+ 	create_threads(worker, thread_attr, cpu);
+ 	pthread_attr_destroy(&thread_attr);
+@@ -209,7 +208,7 @@ int bench_futex_lock_pi(int argc, const char **argv)
+ 	pthread_mutex_destroy(&thread_lock);
+ 
+ 	for (i = 0; i < nthreads; i++) {
+-		unsigned long t = worker[i].ops/runtime.tv_sec;
++		unsigned long t = worker[i].ops / bench__runtime.tv_sec;
+ 
+ 		update_stats(&throughput_stats, t);
+ 		if (!silent)
+diff --git a/tools/perf/tests/bp_account.c b/tools/perf/tests/bp_account.c
+index a20cbc445426..624e4ef73d1c 100644
+--- a/tools/perf/tests/bp_account.c
++++ b/tools/perf/tests/bp_account.c
+@@ -22,7 +22,7 @@
+ #include "perf.h"
+ #include "cloexec.h"
+ 
+-volatile long the_var;
++static volatile long the_var;
+ 
+ static noinline int test_function(void)
+ {
