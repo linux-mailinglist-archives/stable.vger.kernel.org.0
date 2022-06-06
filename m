@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1E553E33D
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2927653E2BF
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbiFFHpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 03:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S231292AbiFFHqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 03:46:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231292AbiFFHpv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:45:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B25B278EFA
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:45:49 -0700 (PDT)
+        with ESMTP id S231514AbiFFHqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 03:46:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D5D9728C
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 00:46:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31F9C611AF
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:45:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 116DFC3411C;
-        Mon,  6 Jun 2022 07:45:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D2078CE16FA
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:46:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D42C385A9;
+        Mon,  6 Jun 2022 07:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654501548;
-        bh=KZblQbhZwux93hjpUVsSCCkX4E5BpRdssKaa/A0WBrc=;
+        s=korg; t=1654501569;
+        bh=MxT6w9tk4l+8jXDwrriIwZxL6hECTUfsUbMl47vrHUU=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ct49OtYU3HP/pKvBOFxf3ZoiY39OSV0ypw43XG1hhdC4IWHuwAwXoMl5ERTGqbJ6H
-         qMhxU/BrsR1D9PzbUKjbBcOu3o3cno0ZN+KJmTr0I2lxy0sFfLWuQstDnOTncgSb4J
-         E0myFAFz769ri7Aa4QML/m3KfUi+S+1DJkL3FVYU=
-Subject: WTF: patch "[PATCH] landlock: Format with clang-format" was seriously submitted to be applied to the 5.18-stable tree?
+        b=LABbD5Pz12g6t/z8KGL5pqurhUoj4h39wYJw0vyMT2iQveSINdGZCBcBtf9X9Bip5
+         90DwWK2Kz5dovKnumG7V+G2H9smTzyrmHlckTL1Lx0ocCa0qbmU9iJUOUVBn7TpSIN
+         syPQgbpGeKxOQqDibO+TJ/oPoKrqQja9weAHTfYQ=
+Subject: WTF: patch "[PATCH] landlock: Add clang-format exceptions" was seriously submitted to be applied to the 5.18-stable tree?
 To:     mic@digikod.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 09:45:44 +0200
-Message-ID: <165450154415242@kroah.com>
+Date:   Mon, 06 Jun 2022 09:46:04 +0200
+Message-ID: <1654501564224121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -63,847 +63,86 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 06a1c40a09a8dded4bf0e7e3ccbda6bddcccd7c8 Mon Sep 17 00:00:00 2001
+From 6cc2df8e3a3967e7c13a424f87f6efb1d4a62d80 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Date: Fri, 6 May 2022 18:05:08 +0200
-Subject: [PATCH] landlock: Format with clang-format
+Date: Fri, 6 May 2022 18:05:07 +0200
+Subject: [PATCH] landlock: Add clang-format exceptions
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Let's follow a consistent and documented coding style.  Everything may
-not be to our liking but it is better than tacit knowledge.  Moreover,
-this will help maintain style consistency between different developers.
+In preparation to a following commit, add clang-format on and
+clang-format off stanzas around constant definitions.  This enables to
+keep aligned values, which is much more readable than packed
+definitions.
 
-This contains only whitespace changes.
-
-Automatically formatted with:
-clang-format-14 -i security/landlock/*.[ch] include/uapi/linux/landlock.h
-
-Link: https://lore.kernel.org/r/20220506160513.523257-3-mic@digikod.net
+Link: https://lore.kernel.org/r/20220506160513.523257-2-mic@digikod.net
 Cc: stable@vger.kernel.org
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 
-diff --git a/security/landlock/cred.c b/security/landlock/cred.c
-index 6725af24c684..ec6c37f04a19 100644
---- a/security/landlock/cred.c
-+++ b/security/landlock/cred.c
-@@ -15,7 +15,7 @@
- #include "setup.h"
- 
- static int hook_cred_prepare(struct cred *const new,
--		const struct cred *const old, const gfp_t gfp)
-+			     const struct cred *const old, const gfp_t gfp)
- {
- 	struct landlock_ruleset *const old_dom = landlock_cred(old)->domain;
- 
-@@ -42,5 +42,5 @@ static struct security_hook_list landlock_hooks[] __lsm_ro_after_init = {
- __init void landlock_add_cred_hooks(void)
- {
- 	security_add_hooks(landlock_hooks, ARRAY_SIZE(landlock_hooks),
--			LANDLOCK_NAME);
-+			   LANDLOCK_NAME);
- }
-diff --git a/security/landlock/cred.h b/security/landlock/cred.h
-index 5f99d3decade..af89ab00e6d1 100644
---- a/security/landlock/cred.h
-+++ b/security/landlock/cred.h
-@@ -20,8 +20,8 @@ struct landlock_cred_security {
- 	struct landlock_ruleset *domain;
- };
- 
--static inline struct landlock_cred_security *landlock_cred(
--		const struct cred *cred)
-+static inline struct landlock_cred_security *
-+landlock_cred(const struct cred *cred)
- {
- 	return cred->security + landlock_blob_sizes.lbs_cred;
- }
-@@ -34,8 +34,8 @@ static inline const struct landlock_ruleset *landlock_get_current_domain(void)
- /*
-  * The call needs to come from an RCU read-side critical section.
+diff --git a/include/uapi/linux/landlock.h b/include/uapi/linux/landlock.h
+index b3d952067f59..15c31abb0d76 100644
+--- a/include/uapi/linux/landlock.h
++++ b/include/uapi/linux/landlock.h
+@@ -33,7 +33,9 @@ struct landlock_ruleset_attr {
+  * - %LANDLOCK_CREATE_RULESET_VERSION: Get the highest supported Landlock ABI
+  *   version.
   */
--static inline const struct landlock_ruleset *landlock_get_task_domain(
--		const struct task_struct *const task)
-+static inline const struct landlock_ruleset *
-+landlock_get_task_domain(const struct task_struct *const task)
- {
- 	return landlock_cred(__task_cred(task))->domain;
- }
-diff --git a/security/landlock/fs.c b/security/landlock/fs.c
-index 4195a6be60b2..eeecf5b2fa89 100644
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -152,14 +152,14 @@ static struct landlock_object *get_inode_object(struct inode *const inode)
-  * @path: Should have been checked by get_path_from_fd().
-  */
- int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
--		const struct path *const path, u32 access_rights)
-+			    const struct path *const path, u32 access_rights)
- {
- 	int err;
- 	struct landlock_object *object;
- 
- 	/* Files only get access rights that make sense. */
--	if (!d_is_dir(path->dentry) && (access_rights | ACCESS_FILE) !=
--			ACCESS_FILE)
-+	if (!d_is_dir(path->dentry) &&
-+	    (access_rights | ACCESS_FILE) != ACCESS_FILE)
- 		return -EINVAL;
- 	if (WARN_ON_ONCE(ruleset->num_layers != 1))
- 		return -EINVAL;
-@@ -182,10 +182,9 @@ int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
- 
- /* Access-control management */
- 
--static inline u64 unmask_layers(
--		const struct landlock_ruleset *const domain,
--		const struct path *const path, const u32 access_request,
--		u64 layer_mask)
-+static inline u64 unmask_layers(const struct landlock_ruleset *const domain,
-+				const struct path *const path,
-+				const u32 access_request, u64 layer_mask)
- {
- 	const struct landlock_rule *rule;
- 	const struct inode *inode;
-@@ -196,8 +195,8 @@ static inline u64 unmask_layers(
- 		return layer_mask;
- 	inode = d_backing_inode(path->dentry);
- 	rcu_read_lock();
--	rule = landlock_find_rule(domain,
--			rcu_dereference(landlock_inode(inode)->object));
-+	rule = landlock_find_rule(
-+		domain, rcu_dereference(landlock_inode(inode)->object));
- 	rcu_read_unlock();
- 	if (!rule)
- 		return layer_mask;
-@@ -225,7 +224,7 @@ static inline u64 unmask_layers(
- }
- 
- static int check_access_path(const struct landlock_ruleset *const domain,
--		const struct path *const path, u32 access_request)
-+			     const struct path *const path, u32 access_request)
- {
- 	bool allowed = false;
- 	struct path walker_path;
-@@ -245,8 +244,8 @@ static int check_access_path(const struct landlock_ruleset *const domain,
- 	 * /proc/<pid>/fd/<file-descriptor> .
- 	 */
- 	if ((path->dentry->d_sb->s_flags & SB_NOUSER) ||
--			(d_is_positive(path->dentry) &&
--			 unlikely(IS_PRIVATE(d_backing_inode(path->dentry)))))
-+	    (d_is_positive(path->dentry) &&
-+	     unlikely(IS_PRIVATE(d_backing_inode(path->dentry)))))
- 		return 0;
- 	if (WARN_ON_ONCE(domain->num_layers < 1))
- 		return -EACCES;
-@@ -270,8 +269,8 @@ static int check_access_path(const struct landlock_ruleset *const domain,
- 	while (true) {
- 		struct dentry *parent_dentry;
- 
--		layer_mask = unmask_layers(domain, &walker_path,
--				access_request, layer_mask);
-+		layer_mask = unmask_layers(domain, &walker_path, access_request,
-+					   layer_mask);
- 		if (layer_mask == 0) {
- 			/* Stops when a rule from each layer grants access. */
- 			allowed = true;
-@@ -310,7 +309,7 @@ static int check_access_path(const struct landlock_ruleset *const domain,
- }
- 
- static inline int current_check_access_path(const struct path *const path,
--		const u32 access_request)
-+					    const u32 access_request)
- {
- 	const struct landlock_ruleset *const dom =
- 		landlock_get_current_domain();
-@@ -438,8 +437,8 @@ static void hook_sb_delete(struct super_block *const sb)
- 	if (prev_inode)
- 		iput(prev_inode);
- 	/* Waits for pending iput() in release_inode(). */
--	wait_var_event(&landlock_superblock(sb)->inode_refs, !atomic_long_read(
--				&landlock_superblock(sb)->inode_refs));
-+	wait_var_event(&landlock_superblock(sb)->inode_refs,
-+		       !atomic_long_read(&landlock_superblock(sb)->inode_refs));
- }
- 
- /*
-@@ -461,8 +460,8 @@ static void hook_sb_delete(struct super_block *const sb)
-  * a dedicated user space option would be required (e.g. as a ruleset flag).
-  */
- static int hook_sb_mount(const char *const dev_name,
--		const struct path *const path, const char *const type,
--		const unsigned long flags, void *const data)
-+			 const struct path *const path, const char *const type,
-+			 const unsigned long flags, void *const data)
- {
- 	if (!landlock_get_current_domain())
- 		return 0;
-@@ -470,7 +469,7 @@ static int hook_sb_mount(const char *const dev_name,
- }
- 
- static int hook_move_mount(const struct path *const from_path,
--		const struct path *const to_path)
-+			   const struct path *const to_path)
- {
- 	if (!landlock_get_current_domain())
- 		return 0;
-@@ -504,7 +503,7 @@ static int hook_sb_remount(struct super_block *const sb, void *const mnt_opts)
-  * view of the filesystem.
-  */
- static int hook_sb_pivotroot(const struct path *const old_path,
--		const struct path *const new_path)
-+			     const struct path *const new_path)
- {
- 	if (!landlock_get_current_domain())
- 		return 0;
-@@ -547,8 +546,8 @@ static inline u32 get_mode_access(const umode_t mode)
-  * deal with that.
-  */
- static int hook_path_link(struct dentry *const old_dentry,
--		const struct path *const new_dir,
--		struct dentry *const new_dentry)
-+			  const struct path *const new_dir,
-+			  struct dentry *const new_dentry)
- {
- 	const struct landlock_ruleset *const dom =
- 		landlock_get_current_domain();
-@@ -561,8 +560,9 @@ static int hook_path_link(struct dentry *const old_dentry,
- 		return -EXDEV;
- 	if (unlikely(d_is_negative(old_dentry)))
- 		return -ENOENT;
--	return check_access_path(dom, new_dir,
--			get_mode_access(d_backing_inode(old_dentry)->i_mode));
-+	return check_access_path(
-+		dom, new_dir,
-+		get_mode_access(d_backing_inode(old_dentry)->i_mode));
- }
- 
- static inline u32 maybe_remove(const struct dentry *const dentry)
-@@ -570,13 +570,13 @@ static inline u32 maybe_remove(const struct dentry *const dentry)
- 	if (d_is_negative(dentry))
- 		return 0;
- 	return d_is_dir(dentry) ? LANDLOCK_ACCESS_FS_REMOVE_DIR :
--		LANDLOCK_ACCESS_FS_REMOVE_FILE;
-+				  LANDLOCK_ACCESS_FS_REMOVE_FILE;
- }
- 
- static int hook_path_rename(const struct path *const old_dir,
--		struct dentry *const old_dentry,
--		const struct path *const new_dir,
--		struct dentry *const new_dentry)
-+			    struct dentry *const old_dentry,
-+			    const struct path *const new_dir,
-+			    struct dentry *const new_dentry)
- {
- 	const struct landlock_ruleset *const dom =
- 		landlock_get_current_domain();
-@@ -590,20 +590,21 @@ static int hook_path_rename(const struct path *const old_dir,
- 	if (unlikely(d_is_negative(old_dentry)))
- 		return -ENOENT;
- 	/* RENAME_EXCHANGE is handled because directories are the same. */
--	return check_access_path(dom, old_dir, maybe_remove(old_dentry) |
--			maybe_remove(new_dentry) |
-+	return check_access_path(
-+		dom, old_dir,
-+		maybe_remove(old_dentry) | maybe_remove(new_dentry) |
- 			get_mode_access(d_backing_inode(old_dentry)->i_mode));
- }
- 
- static int hook_path_mkdir(const struct path *const dir,
--		struct dentry *const dentry, const umode_t mode)
-+			   struct dentry *const dentry, const umode_t mode)
- {
- 	return current_check_access_path(dir, LANDLOCK_ACCESS_FS_MAKE_DIR);
- }
- 
- static int hook_path_mknod(const struct path *const dir,
--		struct dentry *const dentry, const umode_t mode,
--		const unsigned int dev)
-+			   struct dentry *const dentry, const umode_t mode,
-+			   const unsigned int dev)
- {
- 	const struct landlock_ruleset *const dom =
- 		landlock_get_current_domain();
-@@ -614,19 +615,20 @@ static int hook_path_mknod(const struct path *const dir,
- }
- 
- static int hook_path_symlink(const struct path *const dir,
--		struct dentry *const dentry, const char *const old_name)
-+			     struct dentry *const dentry,
-+			     const char *const old_name)
- {
- 	return current_check_access_path(dir, LANDLOCK_ACCESS_FS_MAKE_SYM);
- }
- 
- static int hook_path_unlink(const struct path *const dir,
--		struct dentry *const dentry)
-+			    struct dentry *const dentry)
- {
- 	return current_check_access_path(dir, LANDLOCK_ACCESS_FS_REMOVE_FILE);
- }
- 
- static int hook_path_rmdir(const struct path *const dir,
--		struct dentry *const dentry)
-+			   struct dentry *const dentry)
- {
- 	return current_check_access_path(dir, LANDLOCK_ACCESS_FS_REMOVE_DIR);
- }
-@@ -690,5 +692,5 @@ static struct security_hook_list landlock_hooks[] __lsm_ro_after_init = {
- __init void landlock_add_fs_hooks(void)
- {
- 	security_add_hooks(landlock_hooks, ARRAY_SIZE(landlock_hooks),
--			LANDLOCK_NAME);
-+			   LANDLOCK_NAME);
- }
-diff --git a/security/landlock/fs.h b/security/landlock/fs.h
-index 187284b421c9..03f746e74e9e 100644
---- a/security/landlock/fs.h
-+++ b/security/landlock/fs.h
-@@ -50,14 +50,14 @@ struct landlock_superblock_security {
- 	atomic_long_t inode_refs;
- };
- 
--static inline struct landlock_inode_security *landlock_inode(
--		const struct inode *const inode)
-+static inline struct landlock_inode_security *
-+landlock_inode(const struct inode *const inode)
- {
- 	return inode->i_security + landlock_blob_sizes.lbs_inode;
- }
- 
--static inline struct landlock_superblock_security *landlock_superblock(
--		const struct super_block *const superblock)
-+static inline struct landlock_superblock_security *
-+landlock_superblock(const struct super_block *const superblock)
- {
- 	return superblock->s_security + landlock_blob_sizes.lbs_superblock;
- }
-@@ -65,6 +65,7 @@ static inline struct landlock_superblock_security *landlock_superblock(
- __init void landlock_add_fs_hooks(void);
- 
- int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
--		const struct path *const path, u32 access_hierarchy);
-+			    const struct path *const path,
-+			    u32 access_hierarchy);
- 
- #endif /* _SECURITY_LANDLOCK_FS_H */
-diff --git a/security/landlock/object.c b/security/landlock/object.c
-index d674fdf9ff04..1f50612f0185 100644
---- a/security/landlock/object.c
-+++ b/security/landlock/object.c
-@@ -17,9 +17,9 @@
- 
- #include "object.h"
- 
--struct landlock_object *landlock_create_object(
--		const struct landlock_object_underops *const underops,
--		void *const underobj)
-+struct landlock_object *
-+landlock_create_object(const struct landlock_object_underops *const underops,
-+		       void *const underobj)
- {
- 	struct landlock_object *new_object;
- 
-diff --git a/security/landlock/object.h b/security/landlock/object.h
-index 3f80674c6c8d..5f28c35e8aa8 100644
---- a/security/landlock/object.h
-+++ b/security/landlock/object.h
-@@ -76,9 +76,9 @@ struct landlock_object {
- 	};
- };
- 
--struct landlock_object *landlock_create_object(
--		const struct landlock_object_underops *const underops,
--		void *const underobj);
-+struct landlock_object *
-+landlock_create_object(const struct landlock_object_underops *const underops,
-+		       void *const underobj);
- 
- void landlock_put_object(struct landlock_object *const object);
- 
-diff --git a/security/landlock/ptrace.c b/security/landlock/ptrace.c
-index f55b82446de2..4c5b9cd71286 100644
---- a/security/landlock/ptrace.c
-+++ b/security/landlock/ptrace.c
-@@ -30,7 +30,7 @@
-  * means a subset of) the @child domain.
-  */
- static bool domain_scope_le(const struct landlock_ruleset *const parent,
--		const struct landlock_ruleset *const child)
-+			    const struct landlock_ruleset *const child)
- {
- 	const struct landlock_hierarchy *walker;
- 
-@@ -48,7 +48,7 @@ static bool domain_scope_le(const struct landlock_ruleset *const parent,
- }
- 
- static bool task_is_scoped(const struct task_struct *const parent,
--		const struct task_struct *const child)
-+			   const struct task_struct *const child)
- {
- 	bool is_scoped;
- 	const struct landlock_ruleset *dom_parent, *dom_child;
-@@ -62,7 +62,7 @@ static bool task_is_scoped(const struct task_struct *const parent,
- }
- 
- static int task_ptrace(const struct task_struct *const parent,
--		const struct task_struct *const child)
-+		       const struct task_struct *const child)
- {
- 	/* Quick return for non-landlocked tasks. */
- 	if (!landlocked(parent))
-@@ -86,7 +86,7 @@ static int task_ptrace(const struct task_struct *const parent,
-  * granted, -errno if denied.
-  */
- static int hook_ptrace_access_check(struct task_struct *const child,
--		const unsigned int mode)
-+				    const unsigned int mode)
- {
- 	return task_ptrace(current, child);
- }
-@@ -116,5 +116,5 @@ static struct security_hook_list landlock_hooks[] __lsm_ro_after_init = {
- __init void landlock_add_ptrace_hooks(void)
- {
- 	security_add_hooks(landlock_hooks, ARRAY_SIZE(landlock_hooks),
--			LANDLOCK_NAME);
-+			   LANDLOCK_NAME);
- }
-diff --git a/security/landlock/ruleset.c b/security/landlock/ruleset.c
-index ec72b9262bf3..4d33359addbd 100644
---- a/security/landlock/ruleset.c
-+++ b/security/landlock/ruleset.c
-@@ -28,8 +28,9 @@ static struct landlock_ruleset *create_ruleset(const u32 num_layers)
- {
- 	struct landlock_ruleset *new_ruleset;
- 
--	new_ruleset = kzalloc(struct_size(new_ruleset, fs_access_masks,
--				num_layers), GFP_KERNEL_ACCOUNT);
-+	new_ruleset =
-+		kzalloc(struct_size(new_ruleset, fs_access_masks, num_layers),
-+			GFP_KERNEL_ACCOUNT);
- 	if (!new_ruleset)
- 		return ERR_PTR(-ENOMEM);
- 	refcount_set(&new_ruleset->usage, 1);
-@@ -66,11 +67,10 @@ static void build_check_rule(void)
- 	BUILD_BUG_ON(rule.num_layers < LANDLOCK_MAX_NUM_LAYERS);
- }
- 
--static struct landlock_rule *create_rule(
--		struct landlock_object *const object,
--		const struct landlock_layer (*const layers)[],
--		const u32 num_layers,
--		const struct landlock_layer *const new_layer)
-+static struct landlock_rule *
-+create_rule(struct landlock_object *const object,
-+	    const struct landlock_layer (*const layers)[], const u32 num_layers,
-+	    const struct landlock_layer *const new_layer)
- {
- 	struct landlock_rule *new_rule;
- 	u32 new_num_layers;
-@@ -85,7 +85,7 @@ static struct landlock_rule *create_rule(
- 		new_num_layers = num_layers;
- 	}
- 	new_rule = kzalloc(struct_size(new_rule, layers, new_num_layers),
--			GFP_KERNEL_ACCOUNT);
-+			   GFP_KERNEL_ACCOUNT);
- 	if (!new_rule)
- 		return ERR_PTR(-ENOMEM);
- 	RB_CLEAR_NODE(&new_rule->node);
-@@ -94,7 +94,7 @@ static struct landlock_rule *create_rule(
- 	new_rule->num_layers = new_num_layers;
- 	/* Copies the original layer stack. */
- 	memcpy(new_rule->layers, layers,
--			flex_array_size(new_rule, layers, num_layers));
-+	       flex_array_size(new_rule, layers, num_layers));
- 	if (new_layer)
- 		/* Adds a copy of @new_layer on the layer stack. */
- 		new_rule->layers[new_rule->num_layers - 1] = *new_layer;
-@@ -142,9 +142,9 @@ static void build_check_ruleset(void)
-  * access rights.
-  */
- static int insert_rule(struct landlock_ruleset *const ruleset,
--		struct landlock_object *const object,
--		const struct landlock_layer (*const layers)[],
--		size_t num_layers)
-+		       struct landlock_object *const object,
-+		       const struct landlock_layer (*const layers)[],
-+		       size_t num_layers)
- {
- 	struct rb_node **walker_node;
- 	struct rb_node *parent_node = NULL;
-@@ -156,8 +156,8 @@ static int insert_rule(struct landlock_ruleset *const ruleset,
- 		return -ENOENT;
- 	walker_node = &(ruleset->root.rb_node);
- 	while (*walker_node) {
--		struct landlock_rule *const this = rb_entry(*walker_node,
--				struct landlock_rule, node);
-+		struct landlock_rule *const this =
-+			rb_entry(*walker_node, struct landlock_rule, node);
- 
- 		if (this->object != object) {
- 			parent_node = *walker_node;
-@@ -194,7 +194,7 @@ static int insert_rule(struct landlock_ruleset *const ruleset,
- 		 * ruleset and a domain.
- 		 */
- 		new_rule = create_rule(object, &this->layers, this->num_layers,
--				&(*layers)[0]);
-+				       &(*layers)[0]);
- 		if (IS_ERR(new_rule))
- 			return PTR_ERR(new_rule);
- 		rb_replace_node(&this->node, &new_rule->node, &ruleset->root);
-@@ -228,13 +228,13 @@ static void build_check_layer(void)
- 
- /* @ruleset must be locked by the caller. */
- int landlock_insert_rule(struct landlock_ruleset *const ruleset,
--		struct landlock_object *const object, const u32 access)
-+			 struct landlock_object *const object, const u32 access)
- {
--	struct landlock_layer layers[] = {{
-+	struct landlock_layer layers[] = { {
- 		.access = access,
- 		/* When @level is zero, insert_rule() extends @ruleset. */
- 		.level = 0,
--	}};
-+	} };
- 
- 	build_check_layer();
- 	return insert_rule(ruleset, object, &layers, ARRAY_SIZE(layers));
-@@ -257,7 +257,7 @@ static void put_hierarchy(struct landlock_hierarchy *hierarchy)
- }
- 
- static int merge_ruleset(struct landlock_ruleset *const dst,
--		struct landlock_ruleset *const src)
-+			 struct landlock_ruleset *const src)
- {
- 	struct landlock_rule *walker_rule, *next_rule;
- 	int err = 0;
-@@ -282,11 +282,11 @@ static int merge_ruleset(struct landlock_ruleset *const dst,
- 	dst->fs_access_masks[dst->num_layers - 1] = src->fs_access_masks[0];
- 
- 	/* Merges the @src tree. */
--	rbtree_postorder_for_each_entry_safe(walker_rule, next_rule,
--			&src->root, node) {
--		struct landlock_layer layers[] = {{
-+	rbtree_postorder_for_each_entry_safe(walker_rule, next_rule, &src->root,
-+					     node) {
-+		struct landlock_layer layers[] = { {
- 			.level = dst->num_layers,
--		}};
-+		} };
- 
- 		if (WARN_ON_ONCE(walker_rule->num_layers != 1)) {
- 			err = -EINVAL;
-@@ -298,7 +298,7 @@ static int merge_ruleset(struct landlock_ruleset *const dst,
- 		}
- 		layers[0].access = walker_rule->layers[0].access;
- 		err = insert_rule(dst, walker_rule->object, &layers,
--				ARRAY_SIZE(layers));
-+				  ARRAY_SIZE(layers));
- 		if (err)
- 			goto out_unlock;
- 	}
-@@ -310,7 +310,7 @@ static int merge_ruleset(struct landlock_ruleset *const dst,
- }
- 
- static int inherit_ruleset(struct landlock_ruleset *const parent,
--		struct landlock_ruleset *const child)
-+			   struct landlock_ruleset *const child)
- {
- 	struct landlock_rule *walker_rule, *next_rule;
- 	int err = 0;
-@@ -325,9 +325,10 @@ static int inherit_ruleset(struct landlock_ruleset *const parent,
- 
- 	/* Copies the @parent tree. */
- 	rbtree_postorder_for_each_entry_safe(walker_rule, next_rule,
--			&parent->root, node) {
-+					     &parent->root, node) {
- 		err = insert_rule(child, walker_rule->object,
--				&walker_rule->layers, walker_rule->num_layers);
-+				  &walker_rule->layers,
-+				  walker_rule->num_layers);
- 		if (err)
- 			goto out_unlock;
- 	}
-@@ -338,7 +339,7 @@ static int inherit_ruleset(struct landlock_ruleset *const parent,
- 	}
- 	/* Copies the parent layer stack and leaves a space for the new layer. */
- 	memcpy(child->fs_access_masks, parent->fs_access_masks,
--			flex_array_size(parent, fs_access_masks, parent->num_layers));
-+	       flex_array_size(parent, fs_access_masks, parent->num_layers));
- 
- 	if (WARN_ON_ONCE(!parent->hierarchy)) {
- 		err = -EINVAL;
-@@ -358,8 +359,7 @@ static void free_ruleset(struct landlock_ruleset *const ruleset)
- 	struct landlock_rule *freeme, *next;
- 
- 	might_sleep();
--	rbtree_postorder_for_each_entry_safe(freeme, next, &ruleset->root,
--			node)
-+	rbtree_postorder_for_each_entry_safe(freeme, next, &ruleset->root, node)
- 		free_rule(freeme);
- 	put_hierarchy(ruleset->hierarchy);
- 	kfree(ruleset);
-@@ -397,9 +397,9 @@ void landlock_put_ruleset_deferred(struct landlock_ruleset *const ruleset)
-  * Returns the intersection of @parent and @ruleset, or returns @parent if
-  * @ruleset is empty, or returns a duplicate of @ruleset if @parent is empty.
-  */
--struct landlock_ruleset *landlock_merge_ruleset(
--		struct landlock_ruleset *const parent,
--		struct landlock_ruleset *const ruleset)
-+struct landlock_ruleset *
-+landlock_merge_ruleset(struct landlock_ruleset *const parent,
-+		       struct landlock_ruleset *const ruleset)
- {
- 	struct landlock_ruleset *new_dom;
- 	u32 num_layers;
-@@ -421,8 +421,8 @@ struct landlock_ruleset *landlock_merge_ruleset(
- 	new_dom = create_ruleset(num_layers);
- 	if (IS_ERR(new_dom))
- 		return new_dom;
--	new_dom->hierarchy = kzalloc(sizeof(*new_dom->hierarchy),
--			GFP_KERNEL_ACCOUNT);
-+	new_dom->hierarchy =
-+		kzalloc(sizeof(*new_dom->hierarchy), GFP_KERNEL_ACCOUNT);
- 	if (!new_dom->hierarchy) {
- 		err = -ENOMEM;
- 		goto out_put_dom;
-@@ -449,9 +449,9 @@ struct landlock_ruleset *landlock_merge_ruleset(
- /*
-  * The returned access has the same lifetime as @ruleset.
-  */
--const struct landlock_rule *landlock_find_rule(
--		const struct landlock_ruleset *const ruleset,
--		const struct landlock_object *const object)
-+const struct landlock_rule *
-+landlock_find_rule(const struct landlock_ruleset *const ruleset,
-+		   const struct landlock_object *const object)
- {
- 	const struct rb_node *node;
- 
-@@ -459,8 +459,8 @@ const struct landlock_rule *landlock_find_rule(
- 		return NULL;
- 	node = ruleset->root.rb_node;
- 	while (node) {
--		struct landlock_rule *this = rb_entry(node,
--				struct landlock_rule, node);
-+		struct landlock_rule *this =
-+			rb_entry(node, struct landlock_rule, node);
- 
- 		if (this->object == object)
- 			return this;
-diff --git a/security/landlock/ruleset.h b/security/landlock/ruleset.h
-index 2d3ed7ec5a0a..e9ba47045aca 100644
---- a/security/landlock/ruleset.h
-+++ b/security/landlock/ruleset.h
-@@ -146,15 +146,16 @@ void landlock_put_ruleset(struct landlock_ruleset *const ruleset);
- void landlock_put_ruleset_deferred(struct landlock_ruleset *const ruleset);
- 
- int landlock_insert_rule(struct landlock_ruleset *const ruleset,
--		struct landlock_object *const object, const u32 access);
-+			 struct landlock_object *const object,
-+			 const u32 access);
- 
--struct landlock_ruleset *landlock_merge_ruleset(
--		struct landlock_ruleset *const parent,
--		struct landlock_ruleset *const ruleset);
-+struct landlock_ruleset *
-+landlock_merge_ruleset(struct landlock_ruleset *const parent,
-+		       struct landlock_ruleset *const ruleset);
- 
--const struct landlock_rule *landlock_find_rule(
--		const struct landlock_ruleset *const ruleset,
--		const struct landlock_object *const object);
-+const struct landlock_rule *
-+landlock_find_rule(const struct landlock_ruleset *const ruleset,
-+		   const struct landlock_object *const object);
- 
- static inline void landlock_get_ruleset(struct landlock_ruleset *const ruleset)
- {
-diff --git a/security/landlock/syscalls.c b/security/landlock/syscalls.c
-index 7e27ce394020..2fde978bf8ca 100644
---- a/security/landlock/syscalls.c
-+++ b/security/landlock/syscalls.c
-@@ -43,9 +43,10 @@
-  * @src: User space pointer or NULL.
-  * @usize: (Alleged) size of the data pointed to by @src.
-  */
--static __always_inline int copy_min_struct_from_user(void *const dst,
--		const size_t ksize, const size_t ksize_min,
--		const void __user *const src, const size_t usize)
-+static __always_inline int
-+copy_min_struct_from_user(void *const dst, const size_t ksize,
-+			  const size_t ksize_min, const void __user *const src,
-+			  const size_t usize)
- {
- 	/* Checks buffer inconsistencies. */
- 	BUILD_BUG_ON(!dst);
-@@ -93,7 +94,7 @@ static void build_check_abi(void)
- /* Ruleset handling */
- 
- static int fop_ruleset_release(struct inode *const inode,
--		struct file *const filp)
-+			       struct file *const filp)
- {
- 	struct landlock_ruleset *ruleset = filp->private_data;
- 
-@@ -102,15 +103,15 @@ static int fop_ruleset_release(struct inode *const inode,
- }
- 
- static ssize_t fop_dummy_read(struct file *const filp, char __user *const buf,
--		const size_t size, loff_t *const ppos)
-+			      const size_t size, loff_t *const ppos)
- {
- 	/* Dummy handler to enable FMODE_CAN_READ. */
- 	return -EINVAL;
- }
- 
- static ssize_t fop_dummy_write(struct file *const filp,
--		const char __user *const buf, const size_t size,
--		loff_t *const ppos)
-+			       const char __user *const buf, const size_t size,
-+			       loff_t *const ppos)
- {
- 	/* Dummy handler to enable FMODE_CAN_WRITE. */
- 	return -EINVAL;
-@@ -128,7 +129,7 @@ static const struct file_operations ruleset_fops = {
- 	.write = fop_dummy_write,
- };
- 
--#define LANDLOCK_ABI_VERSION	1
-+#define LANDLOCK_ABI_VERSION 1
++/* clang-format off */
+ #define LANDLOCK_CREATE_RULESET_VERSION			(1U << 0)
++/* clang-format on */
  
  /**
-  * sys_landlock_create_ruleset - Create a new ruleset
-@@ -168,22 +169,23 @@ SYSCALL_DEFINE3(landlock_create_ruleset,
- 		return -EOPNOTSUPP;
- 
- 	if (flags) {
--		if ((flags == LANDLOCK_CREATE_RULESET_VERSION)
--				&& !attr && !size)
-+		if ((flags == LANDLOCK_CREATE_RULESET_VERSION) && !attr &&
-+		    !size)
- 			return LANDLOCK_ABI_VERSION;
- 		return -EINVAL;
- 	}
- 
- 	/* Copies raw user space buffer. */
- 	err = copy_min_struct_from_user(&ruleset_attr, sizeof(ruleset_attr),
--			offsetofend(typeof(ruleset_attr), handled_access_fs),
--			attr, size);
-+					offsetofend(typeof(ruleset_attr),
-+						    handled_access_fs),
-+					attr, size);
- 	if (err)
- 		return err;
- 
- 	/* Checks content (and 32-bits cast). */
- 	if ((ruleset_attr.handled_access_fs | LANDLOCK_MASK_ACCESS_FS) !=
--			LANDLOCK_MASK_ACCESS_FS)
-+	    LANDLOCK_MASK_ACCESS_FS)
- 		return -EINVAL;
- 
- 	/* Checks arguments and transforms to kernel struct. */
-@@ -193,7 +195,7 @@ SYSCALL_DEFINE3(landlock_create_ruleset,
- 
- 	/* Creates anonymous FD referring to the ruleset. */
- 	ruleset_fd = anon_inode_getfd("[landlock-ruleset]", &ruleset_fops,
--			ruleset, O_RDWR | O_CLOEXEC);
-+				      ruleset, O_RDWR | O_CLOEXEC);
- 	if (ruleset_fd < 0)
- 		landlock_put_ruleset(ruleset);
- 	return ruleset_fd;
-@@ -204,7 +206,7 @@ SYSCALL_DEFINE3(landlock_create_ruleset,
-  * landlock_put_ruleset() on the return value.
+  * enum landlock_rule_type - Landlock rule type
+@@ -120,6 +122,7 @@ struct landlock_path_beneath_attr {
+  *   :manpage:`access(2)`.
+  *   Future Landlock evolutions will enable to restrict them.
   */
- static struct landlock_ruleset *get_ruleset_from_fd(const int fd,
--		const fmode_t mode)
-+						    const fmode_t mode)
- {
- 	struct fd ruleset_f;
- 	struct landlock_ruleset *ruleset;
-@@ -244,8 +246,8 @@ static int get_path_from_fd(const s32 fd, struct path *const path)
- 	struct fd f;
- 	int err = 0;
++/* clang-format off */
+ #define LANDLOCK_ACCESS_FS_EXECUTE			(1ULL << 0)
+ #define LANDLOCK_ACCESS_FS_WRITE_FILE			(1ULL << 1)
+ #define LANDLOCK_ACCESS_FS_READ_FILE			(1ULL << 2)
+@@ -133,5 +136,6 @@ struct landlock_path_beneath_attr {
+ #define LANDLOCK_ACCESS_FS_MAKE_FIFO			(1ULL << 10)
+ #define LANDLOCK_ACCESS_FS_MAKE_BLOCK			(1ULL << 11)
+ #define LANDLOCK_ACCESS_FS_MAKE_SYM			(1ULL << 12)
++/* clang-format on */
  
--	BUILD_BUG_ON(!__same_type(fd,
--		((struct landlock_path_beneath_attr *)NULL)->parent_fd));
-+	BUILD_BUG_ON(!__same_type(
-+		fd, ((struct landlock_path_beneath_attr *)NULL)->parent_fd));
+ #endif /* _UAPI_LINUX_LANDLOCK_H */
+diff --git a/security/landlock/fs.c b/security/landlock/fs.c
+index 97b8e421f617..4195a6be60b2 100644
+--- a/security/landlock/fs.c
++++ b/security/landlock/fs.c
+@@ -141,10 +141,12 @@ static struct landlock_object *get_inode_object(struct inode *const inode)
+ }
  
- 	/* Handles O_PATH. */
- 	f = fdget_raw(fd);
-@@ -257,10 +259,10 @@ static int get_path_from_fd(const s32 fd, struct path *const path)
- 	 * pipefs).
- 	 */
- 	if ((f.file->f_op == &ruleset_fops) ||
--			(f.file->f_path.mnt->mnt_flags & MNT_INTERNAL) ||
--			(f.file->f_path.dentry->d_sb->s_flags & SB_NOUSER) ||
--			d_is_negative(f.file->f_path.dentry) ||
--			IS_PRIVATE(d_backing_inode(f.file->f_path.dentry))) {
-+	    (f.file->f_path.mnt->mnt_flags & MNT_INTERNAL) ||
-+	    (f.file->f_path.dentry->d_sb->s_flags & SB_NOUSER) ||
-+	    d_is_negative(f.file->f_path.dentry) ||
-+	    IS_PRIVATE(d_backing_inode(f.file->f_path.dentry))) {
- 		err = -EBADFD;
- 		goto out_fdput;
- 	}
-@@ -301,8 +303,8 @@ static int get_path_from_fd(const s32 fd, struct path *const path)
-  * - EPERM: @ruleset_fd has no write access to the underlying ruleset;
-  * - EFAULT: @rule_attr inconsistency.
-  */
--SYSCALL_DEFINE4(landlock_add_rule,
--		const int, ruleset_fd, const enum landlock_rule_type, rule_type,
-+SYSCALL_DEFINE4(landlock_add_rule, const int, ruleset_fd,
-+		const enum landlock_rule_type, rule_type,
- 		const void __user *const, rule_attr, const __u32, flags)
- {
- 	struct landlock_path_beneath_attr path_beneath_attr;
-@@ -322,7 +324,7 @@ SYSCALL_DEFINE4(landlock_add_rule,
+ /* All access rights that can be tied to files. */
++/* clang-format off */
+ #define ACCESS_FILE ( \
+ 	LANDLOCK_ACCESS_FS_EXECUTE | \
+ 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
+ 	LANDLOCK_ACCESS_FS_READ_FILE)
++/* clang-format on */
  
- 	/* Copies raw user space buffer, only one type for now. */
- 	res = copy_from_user(&path_beneath_attr, rule_attr,
--			sizeof(path_beneath_attr));
-+			     sizeof(path_beneath_attr));
- 	if (res)
- 		return -EFAULT;
+ /*
+  * @path: Should have been checked by get_path_from_fd().
+diff --git a/security/landlock/limits.h b/security/landlock/limits.h
+index 2a0a1095ee27..a274ae6b5570 100644
+--- a/security/landlock/limits.h
++++ b/security/landlock/limits.h
+@@ -12,10 +12,14 @@
+ #include <linux/limits.h>
+ #include <uapi/linux/landlock.h>
  
-@@ -344,7 +346,7 @@ SYSCALL_DEFINE4(landlock_add_rule,
- 	 * (ruleset->fs_access_masks[0] is automatically upgraded to 64-bits).
- 	 */
- 	if ((path_beneath_attr.allowed_access | ruleset->fs_access_masks[0]) !=
--			ruleset->fs_access_masks[0]) {
-+	    ruleset->fs_access_masks[0]) {
- 		err = -EINVAL;
- 		goto out_put_ruleset;
- 	}
-@@ -356,7 +358,7 @@ SYSCALL_DEFINE4(landlock_add_rule,
++/* clang-format off */
++
+ #define LANDLOCK_MAX_NUM_LAYERS		64
+ #define LANDLOCK_MAX_NUM_RULES		U32_MAX
  
- 	/* Imports the new rule. */
- 	err = landlock_append_fs_rule(ruleset, &path,
--			path_beneath_attr.allowed_access);
-+				      path_beneath_attr.allowed_access);
- 	path_put(&path);
+ #define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_MAKE_SYM
+ #define LANDLOCK_MASK_ACCESS_FS		((LANDLOCK_LAST_ACCESS_FS << 1) - 1)
  
- out_put_ruleset:
-@@ -389,8 +391,8 @@ SYSCALL_DEFINE4(landlock_add_rule,
-  * - E2BIG: The maximum number of stacked rulesets is reached for the current
-  *   thread.
-  */
--SYSCALL_DEFINE2(landlock_restrict_self,
--		const int, ruleset_fd, const __u32, flags)
-+SYSCALL_DEFINE2(landlock_restrict_self, const int, ruleset_fd, const __u32,
-+		flags)
- {
- 	struct landlock_ruleset *new_dom, *ruleset;
- 	struct cred *new_cred;
-@@ -409,7 +411,7 @@ SYSCALL_DEFINE2(landlock_restrict_self,
- 	 * returned.
- 	 */
- 	if (!task_no_new_privs(current) &&
--			!ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
-+	    !ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* Gets and checks the ruleset. */
++/* clang-format on */
++
+ #endif /* _SECURITY_LANDLOCK_LIMITS_H */
 
