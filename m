@@ -2,163 +2,482 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E03C753F26D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 01:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9791253F270
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 01:14:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235250AbiFFXNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 19:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
+        id S232513AbiFFXOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 19:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233471AbiFFXND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 19:13:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3AEA1FA79;
-        Mon,  6 Jun 2022 16:13:01 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EC1EB81BED;
-        Mon,  6 Jun 2022 23:13:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A4DC34119;
-        Mon,  6 Jun 2022 23:12:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654557179;
-        bh=cPa+daYMpGbKgPG6Q9jh8Fys6wB583rNbMLSC3WwYY4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=AQBpB800JJoo3o5lbRf1+VznHbbV5jO5P3vQvonijHx3HzJi4u6cXUiUIBs3fVhfB
-         33evEH8L2ib6xI117uiF/tQSeUJeNLI/IebH3i/0mUTtb+lRXuHsXqe6Z5zx0e45Aw
-         WYe+egL6nw6j9S2ZVg5h+BZLbqE6/h7qnbqUm/2rNO1xh/PElN4tYQlhv6aJw9cZkh
-         mRIX362XOlFQMGRHydcva863UFF/M5XqPShOxTuZ3r5DUEDcHsJ71m1zQNhSARkKc1
-         4Z6fTC/UbhnUYoTTs2YNS89RAlZ7/Ii34R8Mld1B1HeIefBIsDYmBnJaWmFv+jIrDd
-         F3r5i63fSBxhw==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-ext4@vger.kernel.org, linux-fscrypt@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH 5.10] ext4: only allow test_dummy_encryption when supported
-Date:   Mon,  6 Jun 2022 16:12:33 -0700
-Message-Id: <20220606231233.165860-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S229472AbiFFXOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 19:14:40 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 962E6B49
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 16:14:38 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id c196so13948238pfb.1
+        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 16:14:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/sTkdM8KTT/OhnUFwbs4max+agl0L3znim3W22BU1yM=;
+        b=qnMCLWkgGEYbDd5f5b80rcMSbeenlvnDO8zP4wWJnMHu43tqMpXT/3zPDfFMbMKQux
+         jVuI+L98F3yjEvALUq68LUqUL9u1VWsJjvafS3yRzcWBvMP0MpBXRyK2/fyMzSsvhgPf
+         Le2thrSkwR8nvlb0CwUs7Hbr1KodpQpjcfracKGenimTrg051+k3fuyuOuT/AGD4/cgv
+         SLDe8nif/Y2pYYfHY+cjXlKG0cCJuW4bC0rCN8DSwMzP5+ne8k0nsT0cN1mGnfwF0DeE
+         FOmH35qa+PaWVD9rW1j3nYGXbN03eBh3u8pNdrXHRpvtWDbb5qIXJjsEbZfHD+QldpNc
+         GNFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/sTkdM8KTT/OhnUFwbs4max+agl0L3znim3W22BU1yM=;
+        b=t23HmpaTkvGFU5E/WM00zbu9pEMB8/iuRf/7OfHXMuh5Ee8aPKoCLwOggzdHVHQgHa
+         aTZPGKcC1jB8laGjYumiIIRc22I8fl/2q03x7tacRxk/BUS2nMELiRJEqjbxQKS958X+
+         W4++lm3x+Xcg27TKtmJmJaN6wNycgsJaMRvla8d30uRULkL5iT8ciAPlmQaAIzDXvCcZ
+         HlQ5tsNVw68zDep3pIDTWC2UQtsvN2Ouht2yt/BiFOGhn6Dq8ca6cAGTtbv8xWKDl3WV
+         mOIXs0j9adlWZ2xl4PqZWK0aic5ZA3fo2nl0JEuRm/FNIwuzpU+Rcm3R6UcoTXyTUmQH
+         7euA==
+X-Gm-Message-State: AOAM532UjQ+/qIelS38lk1pT97EgSKg+V9kh2j+iLbVpA3hgwrbUyPCM
+        WMT4enmUkX2E3s9c3HGQrG8t700w4m50WHCt
+X-Google-Smtp-Source: ABdhPJzLID29VuUk8TdUt+tbnU2q/8AAfASJ3G9GAaqloCSrUv9aq4bt5KS5NmHahahOQ8eHMp8DAw==
+X-Received: by 2002:a05:6a00:16cb:b0:517:c8ff:6ff6 with SMTP id l11-20020a056a0016cb00b00517c8ff6ff6mr26469919pfc.46.1654557277880;
+        Mon, 06 Jun 2022 16:14:37 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z28-20020aa7991c000000b0050dc76281bdsm11199706pff.151.2022.06.06.16.14.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jun 2022 16:14:37 -0700 (PDT)
+Message-ID: <629e8a5d.1c69fb81.74b7c.9209@mx.google.com>
+Date:   Mon, 06 Jun 2022 16:14:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.197
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 102 runs, 11 regressions (v5.4.197)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+stable-rc/linux-5.4.y baseline: 102 runs, 11 regressions (v5.4.197)
 
-commit 5f41fdaea63ddf96d921ab36b2af4a90ccdb5744 upstream.
+Regressions Summary
+-------------------
 
-Make the test_dummy_encryption mount option require that the encrypt
-feature flag be already enabled on the filesystem, rather than
-automatically enabling it.  Practically, this means that "-O encrypt"
-will need to be included in MKFS_OPTIONS when running xfstests with the
-test_dummy_encryption mount option.  (ext4/053 also needs an update.)
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+hp-x360-14-G1-sona         | x86_64 | lab-collabora | gcc-10   | x86_64_def=
+con...6-chromebook | 1          =
 
-Moreover, as long as the preconditions for test_dummy_encryption are
-being tightened anyway, take the opportunity to start rejecting it when
-!CONFIG_FS_ENCRYPTION rather than ignoring it.
+jetson-tk1                 | arm    | lab-baylibre  | gcc-10   | tegra_defc=
+onfig              | 1          =
 
-The motivation for requiring the encrypt feature flag is that:
+qemu_arm64-virt-gicv2      | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
 
-- Having the filesystem auto-enable feature flags is problematic, as it
-  bypasses the usual sanity checks.  The specific issue which came up
-  recently is that in kernel versions where ext4 supports casefold but
-  not encrypt+casefold (v5.1 through v5.10), the kernel will happily add
-  the encrypt flag to a filesystem that has the casefold flag, making it
-  unmountable -- but only for subsequent mounts, not the initial one.
-  This confused the casefold support detection in xfstests, causing
-  generic/556 to fail rather than be skipped.
+qemu_arm64-virt-gicv2      | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
 
-- The xfstests-bld test runners (kvm-xfstests et al.) already use the
-  required mkfs flag, so they will not be affected by this change.  Only
-  users of test_dummy_encryption alone will be affected.  But, this
-  option has always been for testing only, so it should be fine to
-  require that the few users of this option update their test scripts.
+qemu_arm64-virt-gicv2-uefi | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
 
-- f2fs already requires it (for its equivalent feature flag).
+qemu_arm64-virt-gicv2-uefi | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Link: https://lore.kernel.org/r/20220519204437.61645-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
----
- fs/ext4/ext4.h  |  6 ------
- fs/ext4/super.c | 18 ++++++++++--------
- 2 files changed, 10 insertions(+), 14 deletions(-)
+qemu_arm64-virt-gicv3      | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 8329961546b58..4ad1c3ce9398a 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1419,12 +1419,6 @@ struct ext4_super_block {
- 
- #ifdef __KERNEL__
- 
--#ifdef CONFIG_FS_ENCRYPTION
--#define DUMMY_ENCRYPTION_ENABLED(sbi) ((sbi)->s_dummy_enc_policy.policy != NULL)
--#else
--#define DUMMY_ENCRYPTION_ENABLED(sbi) (0)
--#endif
--
- /* Number of quota types we support */
- #define EXT4_MAXQUOTAS 3
- 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 3e26edeca8c73..46007d0177e00 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2083,6 +2083,12 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	int err;
- 
-+	if (!ext4_has_feature_encrypt(sb)) {
-+		ext4_msg(sb, KERN_WARNING,
-+			 "test_dummy_encryption requires encrypt feature");
-+		return -1;
-+	}
-+
- 	/*
- 	 * This mount option is just for testing, and it's not worthwhile to
- 	 * implement the extra complexity (e.g. RCU protection) that would be
-@@ -2110,11 +2116,13 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
- 		return -1;
- 	}
- 	ext4_msg(sb, KERN_WARNING, "Test dummy encryption mode enabled");
-+	return 1;
- #else
- 	ext4_msg(sb, KERN_WARNING,
--		 "Test dummy encryption mount option ignored");
-+		 "test_dummy_encryption option not supported");
-+	return -1;
-+
- #endif
--	return 1;
- }
- 
- static int handle_mount_opt(struct super_block *sb, char *opt, int token,
-@@ -4928,12 +4936,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		goto failed_mount_wq;
- 	}
- 
--	if (DUMMY_ENCRYPTION_ENABLED(sbi) && !sb_rdonly(sb) &&
--	    !ext4_has_feature_encrypt(sb)) {
--		ext4_set_feature_encrypt(sb);
--		ext4_commit_super(sb, 1);
--	}
--
- 	/*
- 	 * Get the # of file system overhead blocks from the
- 	 * superblock if present.
+qemu_arm64-virt-gicv3      | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
 
-base-commit: 70dd2d169d08f059ff25a41278ab7c658b1d2af8
--- 
-2.36.1
+qemu_arm64-virt-gicv3-uefi | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
 
+qemu_arm64-virt-gicv3-uefi | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
+
+tegra124-nyan-big          | arm    | lab-collabora | gcc-10   | tegra_defc=
+onfig              | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.197/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.197
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      35c6471fd2c181f6e5e0b292dc759b49dbd95d6a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+hp-x360-14-G1-sona         | x86_64 | lab-collabora | gcc-10   | x86_64_def=
+con...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e5260bae1680e72a39bf0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-hp-x3=
+60-14-G1-sona.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-hp-x3=
+60-14-G1-sona.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e5260bae1680e72a39=
+bf1
+        new failure (last pass: v5.4.196-35-g2b69e7392fd9) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+jetson-tk1                 | arm    | lab-baylibre  | gcc-10   | tegra_defc=
+onfig              | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e7fee7d08c9fce9a39bf4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e7fee7d08c9fce9a39=
+bf5
+        failing since 14 days (last pass: v5.4.194-43-g71ab15716d94, first =
+fail: v5.4.195-69-ge9366e2c155a) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv2      | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e52362696cadea6a39be0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e52362696cadea6a39=
+be1
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv2      | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e52e7631d6fea81a39c1b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e52e7631d6fea81a39=
+c1c
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e5220bae1680e72a39bd9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2-uefi.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e5220bae1680e72a39=
+bda
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e52fb631d6fea81a39c1e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e52fb631d6fea81a39=
+c1f
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv3      | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e521f66b9d3af5aa39c05
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e521f66b9d3af5aa39=
+c06
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv3      | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e52aa4324be6377a39bda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e52aa4324be6377a39=
+bdb
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64  | lab-baylibre  | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e52342696cadea6a39bdd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3-uefi.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e52342696cadea6a39=
+bde
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64  | lab-broonie   | gcc-10   | defconfig =
+                   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e52d3595f71c593a39bcd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e52d3595f71c593a39=
+bce
+        failing since 27 days (last pass: v5.4.191-85-ga4a4cbb41380, first =
+fail: v5.4.191-118-g7dae5fe9ddc0) =
+
+ =
+
+
+
+platform                   | arch   | lab           | compiler | defconfig =
+                   | regressions
+---------------------------+--------+---------------+----------+-----------=
+-------------------+------------
+tegra124-nyan-big          | arm    | lab-collabora | gcc-10   | tegra_defc=
+onfig              | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e5f3f981018695aa39be8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra124-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.197=
+/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra124-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e5f3f981018695aa39=
+be9
+        failing since 13 days (last pass: v5.4.194-43-g71ab15716d94, first =
+fail: v5.4.195-69-ge9366e2c155a) =
+
+ =20
