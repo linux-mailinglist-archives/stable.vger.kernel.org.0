@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D388753E608
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:06:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18BF053E80D
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236718AbiFFMVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:21:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56722 "EHLO
+        id S236743AbiFFMWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:22:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236716AbiFFMU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:20:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59BA729753F
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:20:58 -0700 (PDT)
+        with ESMTP id S236750AbiFFMWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:22:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EA32A25E9
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:22:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E078E611B8
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:20:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93F4C34119;
-        Mon,  6 Jun 2022 12:20:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B511AB81920
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0493CC3411F;
+        Mon,  6 Jun 2022 12:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518057;
-        bh=GHajSNOgHeNe81vArVECI18M84OxJUHEL1rpL8T42V4=;
+        s=korg; t=1654518121;
+        bh=az6BSHEzxTLuFfEkjQEa6a1nn+Y3y6KnafFz2iZFets=;
         h=Subject:To:Cc:From:Date:From;
-        b=RyFchqRqi+xX6wGJ17ItuSjm+kNMU9Zc3jjswLW3Htf/1L6F2Xs5DXHSNl0UP0Rz6
-         R6QDH+m8AinNxXj82Z7tVx8KK0zS5Tsq3zLwgpWR1cW0/850gc4saWZ8eKvLoY/ikD
-         zSyDdeO1gMUHqVXXOOWszaMVY76dFVBHU8xu5Tno=
-Subject: FAILED: patch "[PATCH] tracing: Fix return value of trace_pid_write()" failed to apply to 4.9-stable tree
-To:     vvghjk1234@gmail.com, bsahn@etri.re.kr, kimhy@etri.re.kr,
-        mingo@redhat.com, rostedt@goodmis.org, taeung@reallinux.co.kr
+        b=AOEMO1NYuNSa62ETaRq7fLoPXYi4MAA9QyswlJNxPsxatYspaawKU0zsMgzi0G7FS
+         tex5vg5DVLDGC56EAol2HQTlFGsPA2W8qZgt0O9kM+kgQlG+O/ExM4TdTkjRrTEvXC
+         W6toZa3Vn+rcn0+tNKYKVZRiUv6hDXOz+OnIkB7I=
+Subject: FAILED: patch "[PATCH] PCI: qcom: Fix pipe clock imbalance" failed to apply to 5.17-stable tree
+To:     johan+linaro@kernel.org, bhelgaas@google.com,
+        bjorn.andersson@linaro.org, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:20:41 +0200
-Message-ID: <165451804148184@kroah.com>
+Date:   Mon, 06 Jun 2022 14:21:58 +0200
+Message-ID: <165451811823274@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,77 +60,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b27f266f74fbda4ee36c2b2b04d15992860cf23b Mon Sep 17 00:00:00 2001
-From: Wonhyuk Yang <vvghjk1234@gmail.com>
-Date: Tue, 3 May 2022 14:05:46 +0900
-Subject: [PATCH] tracing: Fix return value of trace_pid_write()
+From fdf6a2f533115ec5d4d9629178f8196331f1ac50 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan+linaro@kernel.org>
+Date: Fri, 1 Apr 2022 15:33:51 +0200
+Subject: [PATCH] PCI: qcom: Fix pipe clock imbalance
 
-Setting set_event_pid with trailing whitespace lead to endless write
-system calls like below.
+Fix a clock imbalance introduced by ed8cc3b1fc84 ("PCI: qcom: Add support
+for SDM845 PCIe controller"), which enables the pipe clock both in init()
+and in post_init() but only disables in post_deinit().
 
-    $ strace echo "123 " > /sys/kernel/debug/tracing/set_event_pid
-    execve("/usr/bin/echo", ["echo", "123 "], ...) = 0
-    ...
-    write(1, "123 \n", 5)                   = 4
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    ....
+Note that the pipe clock was also never disabled in the init() error
+paths and that enabling the clock before powering up the PHY looks
+questionable.
 
-This is because, the result of trace_get_user's are not returned when it
-read at least one pid. To fix it, update read variable even if
-parser->idx == 0.
+Link: https://lore.kernel.org/r/20220401133351.10113-1-johan+linaro@kernel.org
+Fixes: ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe controller")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: stable@vger.kernel.org      # 5.6
 
-The result of applied patch is below.
-
-    $ strace echo "123 " > /sys/kernel/debug/tracing/set_event_pid
-    execve("/usr/bin/echo", ["echo", "123 "], ...) = 0
-    ...
-    write(1, "123 \n", 5)                   = 5
-    close(1)                                = 0
-
-Link: https://lkml.kernel.org/r/20220503050546.288911-1-vvghjk1234@gmail.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Baik Song An <bsahn@etri.re.kr>
-Cc: Hong Yeon Kim <kimhy@etri.re.kr>
-Cc: Taeung Song <taeung@reallinux.co.kr>
-Cc: linuxgeek@linuxgeek.io
-Cc: stable@vger.kernel.org
-Fixes: 4909010788640 ("tracing: Add set_event_pid directory for future use")
-Signed-off-by: Wonhyuk Yang <vvghjk1234@gmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 498ae22d4ffa..4825883b2ffd 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -721,13 +721,16 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
- 		pos = 0;
- 
- 		ret = trace_get_user(&parser, ubuf, cnt, &pos);
--		if (ret < 0 || !trace_parser_loaded(&parser))
-+		if (ret < 0)
- 			break;
- 
- 		read += ret;
- 		ubuf += ret;
- 		cnt -= ret;
- 
-+		if (!trace_parser_loaded(&parser))
-+			break;
-+
- 		ret = -EINVAL;
- 		if (kstrtoul(parser.buffer, 0, &val))
- 			break;
-@@ -753,7 +756,6 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
- 	if (!nr_pids) {
- 		/* Cleared the list of pids */
- 		trace_pid_list_free(pid_list);
--		read = ret;
- 		pid_list = NULL;
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 375f27ab9403..925324dece64 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1238,12 +1238,6 @@ static int qcom_pcie_init_2_7_0(struct qcom_pcie *pcie)
+ 		goto err_disable_clocks;
  	}
+ 
+-	ret = clk_prepare_enable(res->pipe_clk);
+-	if (ret) {
+-		dev_err(dev, "cannot prepare/enable pipe clock\n");
+-		goto err_disable_clocks;
+-	}
+-
+ 	/* Wait for reset to complete, required on SM8450 */
+ 	usleep_range(1000, 1500);
  
 
