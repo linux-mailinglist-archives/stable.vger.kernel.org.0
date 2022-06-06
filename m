@@ -2,139 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9BE653E744
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 726BB53E648
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239306AbiFFNuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 09:50:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59302 "EHLO
+        id S239502AbiFFOQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 10:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239337AbiFFNuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 09:50:54 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0CD6466
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 06:50:41 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id o10so18912576edi.1
-        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 06:50:41 -0700 (PDT)
+        with ESMTP id S239518AbiFFOPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 10:15:54 -0400
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FAAC2CDF5
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 07:15:53 -0700 (PDT)
+Received: by mail-qk1-x730.google.com with SMTP id 15so5740079qki.6
+        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 07:15:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=94FE0xqKYNBQJ8bbUNfhKNNPOc38KM25jE5hqWXLeJ4=;
-        b=njGgwq+RlzAsBcfL0XzSt3/2Y91tx/j+nzXXXisSVjQlJKExU9W7gepT36sGuddWOP
-         eNPO/18wRyj7AUGg13OBaXBQSDozf3bTaLxmz84Q5EfKJSSIbr6PZcIFtYtOneeFCR8o
-         eri5Yr644T3AoqXL0ACioFcT4CtEdYQXWNW3eCq+JtFy7580rDqd/sSAm3bLUQbn8xww
-         /BexYSLLvhIdrMh/O/Ogb9zxMHQTBpCZm+029GouRIFL18b+sYjMHasmLTkIYcpB2hfC
-         AfxTgNH2A1jjEKIAHRhIwv82TLR2mEEyM3cd5NVCA/tbpyJsCVM0hHfR88DEB206+rpw
-         L76w==
+        bh=xEOis3/9+WNqL+okO/nM+mCE4n6zlpF9a8nmfC3a1Y4=;
+        b=Nequnv7Vu2eziwSk9UbcGiZeLibDUHP4/DIVXLMXbVY4XeV7CK1NtAzF75zOpemFg3
+         gLorCmrqWA2L05gZ6vwc1Y3yn4ZKfoKmphKvJ4dmNybHbB+Cu+xHIUd+lsh+vBSiLNWq
+         9AxgD+zdVjrowADjTzRf5B5d+CddjQF0S21k32FWtMp7z2Z2BCMAaZBYymMN65X5WB+p
+         r4PeZyr7bpNhXp/G6W+GKLa4hP5fUEGBLWDo/HyHNqAdVoHsbyr0ZrU7iY3mivNHCCBP
+         7pFfk9AoRAmDR8kDBrJeI4D2XaTCuKzPTUJf+X7uxiQtKez/3fTYTBGwGeWyyNRA0OGX
+         Hg+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=94FE0xqKYNBQJ8bbUNfhKNNPOc38KM25jE5hqWXLeJ4=;
-        b=6HB3rKaQ3rkPf4U2Yfk2v7w3irdPbn+r1Nq1t+UveaVlqro8d3kDBtjhEQiruPN5fD
-         BPS/mDADKWU0hfh7AgXjrvsMnosN7sgji2ZD8FrcPbTTCBcf2cPjbkONfoeWcmPESe0+
-         aj3t4oo46zZcZe9rD/wumB9U3Hx8XD87AIannOIVXZFc1TrTb86mxT5I3vITUOuBCjSF
-         exwbaIlX4ii+NFEYYiwnkov+rUXHJpaSslxxkQHaLuUXcAc7+p8fp6tJ0EYGzAAPU6Bi
-         Hexy3CR4su7CuFE+Goh6jvWsjaycyWyBBECBKpxp4YtS4FSFFOIZbZ58a79FZYfMUD8L
-         w3FA==
-X-Gm-Message-State: AOAM531qUpsT4fWzsAd5qFGvdnqx2kDS5/6bmh/kx73KZWIWoj4dTlf4
-        SueNkeL2SvlUFi9a5aq6A1B/yfGmSAhph8Qcmro=
-X-Google-Smtp-Source: ABdhPJy3f68u+l90Hi1OHXalRlM3IDGthAzq8fJiGI7N2517O/72e9rf/8YhOrhEDwcD6zgscX1GtSK8O1XbcJ+6MeY=
-X-Received: by 2002:a05:6402:3224:b0:42d:e68c:2fd with SMTP id
- g36-20020a056402322400b0042de68c02fdmr26487315eda.282.1654523440263; Mon, 06
- Jun 2022 06:50:40 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xEOis3/9+WNqL+okO/nM+mCE4n6zlpF9a8nmfC3a1Y4=;
+        b=2E5rA0Eq5egh6QG3QgIRRKYAODmj7IFj/JRB/+pYio6hQANcXu0kWzWoNTiik31t79
+         52fm64+dxmbw+NUQ6dAn6MeGkQuhd4kbQWiy/WICMTkS65YpQQgtvEs+6Nacjhjvggna
+         /mo9E92UIPFBGs4z9Nxw2Bk150SKfhAGsPgYqjh9W75PSBCGjLTdn9AG45WnTKxgQkiP
+         r/3awS1Vu2xYk2hEXqsXzBF0P4MC++V/mbIRL33XUqDWdb9hQOImiwXuHy3XcNNWs5xI
+         CEvblCIR/QYb1zcp8zOxOqglbNX/4m8iqtASfTcDpxSfXrIu6a/JmrUVSFrgXwMwylQs
+         c5CQ==
+X-Gm-Message-State: AOAM5335wtq1q//5gTtw2phXYioZ1pHok7/ZKLDCD2Z8ArsmzoKknMTh
+        1nhR/6AXyfMz+4dpU9KOQpF2LWjvCK1C1w==
+X-Google-Smtp-Source: ABdhPJxGjwH3tCSHa4I0/2dWtRhZQ6SEBoHjBwszPibBqSBcXHMjIMCqLCEjuPSCUuZpUXECTPag3w==
+X-Received: by 2002:a05:620a:15b2:b0:6a6:b411:e290 with SMTP id f18-20020a05620a15b200b006a6b411e290mr4800186qkk.364.1654524952039;
+        Mon, 06 Jun 2022 07:15:52 -0700 (PDT)
+Received: from presto.localdomain (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
+        by smtp.gmail.com with ESMTPSA id x12-20020a05620a448c00b006a6d033782fsm447451qkp.63.2022.06.06.07.15.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jun 2022 07:15:51 -0700 (PDT)
+From:   Alex Elder <elder@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     kuba@kernel.org
+Subject: [PATCH 0/2] net: ipa: v5.18.2 backport to fix page free
+Date:   Mon,  6 Jun 2022 09:15:46 -0500
+Message-Id: <20220606141548.724917-1-elder@linaro.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Sender: jameswiliamsjw682@gmail.com
-Received: by 2002:ab4:9c0e:0:0:0:0:0 with HTTP; Mon, 6 Jun 2022 06:50:39 -0700 (PDT)
-From:   Dina Mckenna <dinamckenna1894@gmail.com>
-Date:   Mon, 6 Jun 2022 13:50:39 +0000
-X-Google-Sender-Auth: 562s56Njczy0nhWSF3Ht5vlGyrE
-Message-ID: <CAJMpOne6rROKerFnnZh2bTfk3q5fi8p2n=KKLTKfWL6iOqCeFg@mail.gmail.com>
-Subject: Please need your urgent assistance,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=7.7 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
-        BAYES_99,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,MONEY_FRAUD_8,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_MONEY,URG_BIZ autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:535 listed in]
-        [list.dnswl.org]
-        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
-        *      [score: 0.9963]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [jameswiliamsjw682[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [jameswiliamsjw682[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.6 URG_BIZ Contains urgent matter
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
-        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
-        *  0.6 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello my dear.,
+This series back-ports two bug fixes that landed very late in v5.18
+cycle and didn't make it to the final release.  They're present in
+v5.19-rc1, but don't cherry-pick cleanly onto v5.18.2.
 
- I sent this mail praying it will get to you in a good condition of
-health, since I myself are in a very critical health condition in
-which I sleep every night without knowing if I may be alive to see the
-next day. I bring peace and love to you.. It is by the grace of God, I
-had no choice than to do what is lawful and right in the sight of God
-for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
-y
-and glory upon my life. I am Mrs. Dina Howley Mckenna, a widow. I am
-suffering from a long time brain tumor, It has defiled all forms of
-medical treatment, and right now I have about a few months to leave,
-according to medical experts. The situation has gotten complicated
-recently with my inability to hear proper, am communicating with you
-with the help of the chief nurse herein the hospital, from all
-indication my conditions is really deteriorating and it is quite
-obvious that, according to my doctors they have advised me that I may
-not live too long, Because this illness has gotten to a very bad
-stage. I plead that you will not expose or betray this trust and
-confidence that I am about to repose on you for the mutual benefit of
-the orphans and the less privilege. I have some funds I inherited from
-my late husband, the sum of ($ 11,000,000.00, Eleven Million Dollars).
-Having known my condition, I decided to donate this fund to you
-believing that you will utilize it the way i am going to instruct
-herein. I need you to assist me and reclaim this money and use it for
-Charity works therein your country  for orphanages and gives justice
-and help to the poor, needy and widows says The Lord." Jeremiah
-22:15-16.=E2=80=9C and also build schools for less privilege that will be
-named after my late husband if possible and to promote the word of God
-and the effort that the house of God is maintained. I do not want a
-situation where this money will be used in an ungodly manner. That's
-why I'm taking this decision. I'm not afraid of death, so I know where
-I'm going. I accept this decision because I do not have any child who
-will inherit this money after I die.. Please I want your sincerely and
-urgent answer to know if you will be able to execute this project for
-the glory of God, and I will give you more information on how the fund
-will be transferred to your bank account. May the grace, peace, love
-and the truth in the Word of God be with you and all those that you
-love and care for..
+					-Alex
 
-I'm waiting for your immediate reply..
+Alex Elder (2):
+  net: ipa: fix page free in ipa_endpoint_trans_release()
+  net: ipa: fix page free in ipa_endpoint_replenish_one()
 
-May God Bless you.,
-Mrs. Dina Howley Mckenna..
+ drivers/net/ipa/ipa_endpoint.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+-- 
+2.32.0
+
