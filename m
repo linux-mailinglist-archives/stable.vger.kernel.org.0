@@ -2,50 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3443953EBA7
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6C753E623
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237681AbiFFMrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47820 "EHLO
+        id S237623AbiFFMn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237680AbiFFMrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:47:13 -0400
-X-Greylist: delayed 453 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 06 Jun 2022 05:47:08 PDT
-Received: from smtp-bc08.mail.infomaniak.ch (smtp-bc08.mail.infomaniak.ch [IPv6:2001:1600:4:17::bc08])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB458C27
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:47:08 -0700 (PDT)
-Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4LGtNM06qNzMpwFC;
-        Mon,  6 Jun 2022 14:39:31 +0200 (CEST)
-Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
-        by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4LGtNL5BhGzlkSxB;
-        Mon,  6 Jun 2022 14:39:30 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-        s=20191114; t=1654519171;
-        bh=CgfXZNwF9FNBkTT6uLFxz8GD5bFfog7serWtYIIGBJE=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To:From;
-        b=AQrUFKI5e06+sR9ghs0rXG+zpOfjCBW3SxQVUXuhYkmZ0TiWwSUeKa1aK1EDtvJcD
-         AC66GwWrCz/EUFludi4GFhHcVHFHpdghziGOIPj53xruUVS3OExp8B34h0XwCA7XKD
-         tSIf6uNsbRNahcrnvS8P4LOHAqdTwcu8qCO2VOps=
-Message-ID: <2daff73b-4d0a-7aaa-0047-026b66ccdf1d@digikod.net>
-Date:   Mon, 6 Jun 2022 14:39:30 +0200
+        with ESMTP id S237569AbiFFMn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:43:28 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7135C2CBD2D;
+        Mon,  6 Jun 2022 05:43:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=S17W/Pm9YVh/HqKMgj1KO/HjHX9HcDXOf/ffbUmqK5A=; b=JQGlU/poW50DIvWBX4d2F5pO8Q
+        e1ogrNiB9rn2MCX3s6dmk7hshynvkKeM0faugenizIbvxnGl1cG24z9+v+p+aj0Hfgx94Oh6K7kW2
+        G4gcHmYRcw11ZAUPDQFGHT28a7mGox27tNRn60+UBZQkwyxn3eOPfb9FvgnAU34anaLg=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1nyC4O-005mXJ-7M; Mon, 06 Jun 2022 14:42:56 +0200
+Date:   Mon, 6 Jun 2022 14:42:56 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Tan Tee Min <tee.min.tan@linux.intel.com>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Dan Murphy <dmurphy@ti.com>,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
+        Sit Michael Wei Hong <michael.wei.hong.sit@intel.com>,
+        Ling Pei Lee <pei.lee.ling@intel.com>,
+        Looi Hong Aun <hong.aun.looi@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Tan Tee Min <tee.min.tan@intel.com>
+Subject: Re: [PATCH net-next v2 1/1] net: phy: dp83867: retrigger SGMII AN
+ when link change
+Message-ID: <Yp32UDf7JO2pHE8z@lunn.ch>
+References: <20220526090347.128742-1-tee.min.tan@linux.intel.com>
+ <Yo9zTmMduwel8XeZ@lunn.ch>
+ <20220527014709.GA26992@linux.intel.com>
+ <YpDHWMe7aEVWtECd@lunn.ch>
+ <20220530073356.GA1199@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: 
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-References: <165450152566@kroah.com>
- <f4619c73-9ff1-db8e-de06-3ba984b24399@digikod.net>
- <Yp3i++t/OJVTdPyB@kroah.com>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Subject: Re: WTF: patch "[PATCH] selftests/landlock: Format with clang-format"
- was seriously submitted to be applied to the 5.18-stable tree?
-In-Reply-To: <Yp3i++t/OJVTdPyB@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220530073356.GA1199@linux.intel.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,83 +62,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> Below is the HW structure for Intel mGbE controller with external PHY.
+> The SERDES is located in the PHY IF in the diagram below and the EQoS
+> MAC uses pcs-xpcs driver for SGMII interface.
+> 
+>     <-----------------GBE Controller---------->|<---External PHY chip--->
+>     +----------+         +----+            +---+           +------------+
+>     |   EQoS   | <-GMII->| DW | < ------ > |PHY| <-SGMII-> |External PHY|
+>     |   MAC    |         |xPCS|            |IF |           |(TI DP83867)|
+>     +----------+         +----+            +---+           +------------+
+>            ^               ^                 ^                ^
+>            |               |                 |                |
+>            +---------------------MDIO-------------------------+
+> 
+> There are registers in the DW XPCS to read the SGMII AN status and
+> it's showing the SGMII AN has not completed and link status is down.
+> But TI PHY is showing SGMII AN is completed and the copper link is
+> established.
+> 
+> FYI, the current pcs-xpcs driver is configuring C37 SGMII as MAC-side
+> SGMII, so it's expecting to receive AN Tx Config from PHY about the
+> link state change after C28 AN is completed between PHY and Link Partner.
+> Here is the pcs-xpcs code for your reference:
+> https://elixir.bootlin.com/linux/latest/source/drivers/net/pcs/pcs-xpcs.c#L725
+> 
+> We faced a similar issue on MaxLinear GPY PHY in the past.
+> And, MaxLinear folks admitted the issue and implemented fixes/improvements
+> in the GPY PHY Firmware to overcome the SGMII AN issue.
+> Besides, they have also implemented this similar SW Workaround in their
+> PHY driver code to cater for the old Firmware.
+> Feel free to refer GPY driver code here:
+> https://elixir.bootlin.com/linux/latest/source/drivers/net/phy/mxl-gpy.c#L222
+> 
+> Apart from TI and MaxLinear PHY, we've also tested the Marvell 88E2110 and
+> 88E1512 PHY with the MAC/SERDES combination above, Marvell PHY is working
+> fine without any issue.
 
-On 06/06/2022 13:20, Greg KH wrote:
-> On Mon, Jun 06, 2022 at 12:59:56PM +0200, Mickaël Salaün wrote:
->> Hi Greg,
->>
->> The 21 Landlock commits merged for 5.19-rc1 and tagged with Cc stable@
->> should indeed be backported up to 5.15 . The first commits are pure cosmetic
->> changes but they need to be backported to avoid backport conflicts (for this
->> series and future backports). They help maintain this subsystem, including
->> to backport future changes.
-> 
-> Ick, that's not how to submit patches for backporting ideally.
-> 
-> Usually you submit the bugfixes first, and then we can backport them
-> easily.
+Thanks for the additional details.
 
-I understand, but this is are a one time cosmetic changes. Applying them 
-later would have been much more difficult to handle.
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-> 
-> If you decide to reformat the codebase, well, you get to deal with the
-> backport issues later on (why is it reformatted, isn't it checkpatch
-> clean already?
-Yes, the idea was to backport early on because until now all commits 
-(two) have been backported.
-
-> 
->> The following changes up to commit 8ba0005ff418
->> ("landlock: Fix same-layer rule unions") are required to fix some edge case
->> issues (i.e. syscall argument ordering checks and same-layer rule unions).
->> New tests are added to check that everything work as expected for these
->> backportable changes, and to make it possible for more test environments to
->> run. I successfully tested the backport of all these commits to 5.15 .
->> Please backport them to all stable branches.
-> 
-> This is just backporting all files here, which seems crazy.
-
-It is backporting 21/30 commits. As maintainer it makes our work easier. 
-There is no new feature introduced.
-
-> 
->>
->> Here is the full list of the commits to backport (already marked with Cc:
->> stable@vger.kernel.org):
->>
->> 8ba0005ff418 landlock: Fix same-layer rule unions
->> 2cd7cd6eed88 landlock: Create find_rule() from unmask_layers()
->> 75c542d6c6cc landlock: Reduce the maximum number of layers to 16
->> 5f2ff33e1084 landlock: Define access_mask_t to enforce a consistent access
->> mask size
->> 6533d0c3a86e selftests/landlock: Test landlock_create_ruleset(2) argument
->> check ordering
->> eba39ca4b155 landlock: Change landlock_restrict_self(2) check ordering
->> 589172e5636c landlock: Change landlock_add_rule(2) argument check ordering
->> d1788ad99087 selftests/landlock: Add tests for O_PATH
->> 6a1bdd4a0bfc selftests/landlock: Fully test file rename with "remove" access
->> d18955d094d0 selftests/landlock: Extend access right tests to directories
->> c56b3bf566da selftests/landlock: Add tests for unknown access rights
->> 291865bd7e8b selftests/landlock: Extend tests for minimal valid attribute
->> size
->> 87129ef13603 selftests/landlock: Make tests build with old libc
->> a13e248ff90e landlock: Fix landlock_add_rule(2) documentation
->> 81709f3dccac samples/landlock: Format with clang-format
->> 9805a722db07 samples/landlock: Add clang-format exceptions
->> 371183fa578a selftests/landlock: Format with clang-format
->> 135464f9d29c selftests/landlock: Normalize array assignment
->> 4598d9abf421 selftests/landlock: Add clang-format exceptions
->> 06a1c40a09a8 landlock: Format with clang-format
->> 6cc2df8e3a39 landlock: Add clang-format exceptions
-> 
-> What order is this in?  And what's the overall diffstat?  And again, why
-> use clang-format at all, what is it helping with here?
-
-It is the same order as in the master branch. I explain about 
-clang-format in the commit message and the related cover letter.
-
-> 
-> thanks,
-> 
-> greg k-h
+    Andrew
