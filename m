@@ -2,229 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9DD53EB1F
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 207BE53E6AC
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236226AbiFFMC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:02:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53388 "EHLO
+        id S236404AbiFFMJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:09:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236241AbiFFMCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:02:24 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18ED5FF4;
-        Mon,  6 Jun 2022 05:02:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1654516934;
-        bh=eL5kkVKKYcpReAYFFCPPQ5dnNHzUQyRBee9P97oXtkE=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=CblmNRUAjBfrY4z60anCkbcXEwz3pjdNTJRB4Ul/M3qE7Ps0HQovq+BhexxD5jkZE
-         kwPwNZs1TuwAvqfJfC37aK9HQn8t2mfvYBpftkX8e3NUNswGgKIc+WIZaAqKYPjAZD
-         pwMckrTcotk+cYEuJywhLAqDsOo7cuy6r8iVinDs=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx004
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1MUXpK-1oOTjB0PGS-00QSj8; Mon, 06
- Jun 2022 14:02:14 +0200
-Message-ID: <9bd0a9d5-cbba-4f1b-1624-42ce368e06c2@gmx.com>
-Date:   Mon, 6 Jun 2022 20:02:09 +0800
+        with ESMTP id S236407AbiFFMI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:08:59 -0400
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CEDD13E20;
+        Mon,  6 Jun 2022 05:08:58 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id E806C5C0129;
+        Mon,  6 Jun 2022 08:08:54 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 06 Jun 2022 08:08:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm2; t=1654517334; x=1654603734; bh=e6S+D7pnoC
+        BOsJkxb8MpQXTdJdiKsdb6ker+S/GBkJQ=; b=WL/j031teBBQfO8qk4FT+nxnPC
+        Y712qAlXLmvF++ZZI1V97ADRpR541FSY1IOKpQQtZha197GSuAooz81UGD+cNAkp
+        OqhEGjRp5HCclFiJaSTPcPKaImrmhXompvVymZRm/Nh9UUHqejd7X2BkxvtDfDSS
+        cx+bFnSWV+NRW3mElWYfS8YAdGIVvfnDrESIENO5tAJvnvgp1Jdao2wI3MTz7Rx2
+        ZEiRFMeXHNLgyo5wtBC29h1QtB7iWcH6xLqn5zitbX3sCXgBKHHZtELBMlY4zcvE
+        WqtAGebNn/4FUHlacA0IOe5Eot3ORX+WhWEja6XWa18mAiSf8A0SdGkieYBg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1654517334; x=1654603734; bh=e6S+D7pnoCBOsJkxb8MpQXTdJdiK
+        sdb6ker+S/GBkJQ=; b=Y/0dvS3FKw5kA01GayLjJxSLrsZNDDnpQDfIeXj74vsX
+        /8mG34Zmb949u5efxDh+YjAurmZzSlt7abNDvyl440BHvHPZu6Phcs2yNgZP9kTb
+        kIPe7qVp9h+Zr9fdyPjg99CHrqIW7WUaHF8R/6PtkkMqxFq1I85Li6gZOfkfpzUi
+        6g08gxBDgmsEB19Kyar15nSUYMtr5lsBjtp4cIZyhb9zNZqWHLweDacYNcUf1ymR
+        fbEneJigoeCGfBfoGU5ih5WM+AuSw8aDeYK36nEzZ2scNgFX5Ub5rK4llKOzpJ9Q
+        zqPeV6AdMF15+cb1zr1Vi/cNZSzooygj3xAUOgQ8mA==
+X-ME-Sender: <xms:Vu6dYlW-gpFLQbrgB1GsK7cPAJ9zrBpBBEyIFTBIuMaVLT-2lNnBew>
+    <xme:Vu6dYlmE_d-06gRWk3itCIR24WK9rA6hX2i6OQoCqEeKzQG6LPDiZbuRV8s9CKBa0
+    T8SiSzmH7fgnw>
+X-ME-Received: <xmr:Vu6dYhaoRUt7o8rT5XbZ8BxPKjIX1rPn0qRQi3RlA2-6BE9oduPox2E_3GflR8A1PqksjtL_YrXgEMdy4bKDzqkMmi-jOFfD>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedruddtvddggeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:Vu6dYoXB1-7c_tb_VaVnmiOQTcMjtKm9_WAOAkYCQefPno_bWNdIeQ>
+    <xmx:Vu6dYvmnmoJjqkhkcXr1z5oQx1hETiwH__bgV31UUEFBT5-gVfEaHQ>
+    <xmx:Vu6dYlfXNdeO74cIVeQ1I_rn-gqYrGny8jkllJAut1mCj-FtRkUyzA>
+    <xmx:Vu6dYj1NgJ9QgfZ_yAtdSaJS00oLs5EuhIZK1gtLV6QwiYl59d9iJw>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 6 Jun 2022 08:08:53 -0400 (EDT)
+Date:   Mon, 6 Jun 2022 14:08:49 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Ajay Kaher <akaher@vmware.com>
+Cc:     stable@vger.kernel.org, pablo@netfilter.org, kadlec@netfilter.org,
+        fw@strlen.de, davem@davemloft.net, netfilter-devel@vger.kernel.org,
+        srivatsab@vmware.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        anishs@vmware.com, vsirnapalli@vmware.com, er.ajay.kaher@gmail.com
+Subject: Re: [PATCH v5.4.y] netfilter: nf_tables: disallow non-stateful
+ expression in sets earlier
+Message-ID: <Yp3uURb8M7XWFw3E@kroah.com>
+References: <1654503264-47182-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] btrfs: add error messages to all unrecognized mount
- options
-Content-Language: en-US
-To:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20220606110819.3943-1-dsterba@suse.com>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220606110819.3943-1-dsterba@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:CiQl0+eUxoscmtkyCLHxBaXwsCtecfa4l4RXBvKsjda82S6U3+N
- ebRe5irxUaiczVJ3Ipdak4IsmbjwuMQGlHb3TATIoKtdVV6dSsW7H5sVIxZxTiT34EYodCR
- ZWfgvuYS6oH8q1pdV83Ht1rqONV7UD4NvhbZ0rgiuX4l3JdoEolJ4L4L5lRXx3jxhxKwQyS
- CZ+xB8zzNLiQoTV8/mgEA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Jx/Wu5kV8MM=:1xy//Uw7XvrNR4YSPakJwm
- opBsNz13aj1sdOUyQdQ1UGmpk0q3GHJPjz5xJRJ3nKYV/uxvwpf6bmGOxqYmx6nixB6fdFt2o
- WqoWw455OmC9cPNwCZJauafCnWGkyTOn3K1Xy5NUYzU8pNbcpLbHIjvGgDrerorzkYFW6AyE3
- eKqGN8zLHZ3FmErK2cHL0Lsb366QOhVkD6oW2FauQyeNfOBxRoOL1yZDv45no02p1spScvdZJ
- sauTmvvjv4/5Pu6SXm84of8dWIMG/kitMgV0Yv3YUWD84S+tdDTwzDHXbe/Ak7g8pfA6c2EXm
- KgPwioxfQ3qUBGub6bjJ+IE9sr23rjd+VXJceiCHja5BoZeFW3XGvRGfprQy3YOd+GAcQkEvs
- paKNvHze2SsA/5uKFLLHiQCIWKJtsaSZnfbE4psSf5HWqCWI0zcCRsqaHpSVNFHWQtbw/SQlN
- esfu1U8r0MRqBNX7JsXXJW4aI2O2J4w8Sdv7znVEAwurnyAwWNCVzqz/itej5pZ/3jsM93wZ8
- nLIBCENIono/78EgayTZlEvpC7bfRj4wQY+BayLAJYFc6Nmez19XD2tJB2IuX1vslUdij/llM
- tP6gqTxRXJWNYpUE/WLrLuEfhCUemJm3xELy8p/iGeTn27C96MuRqY4gWT8FTDVZfLxobvEqp
- dUY6cFxOReecbrGhKSEmWAF5x39T0y3NnkSgOs67REWYW6H+5a5fLtw/4wHaDr0jZ0D49oQH/
- 21fcpHOq47mKY6Ccg7n8OTf7mvchjy4re0t2bvW3Xrx4nylQ76t+HcHxLNolUrH42SW9BTuSF
- dIpRrhB3RambUaxW4FpyWwYjwbiEZTwFDYaLzAGG1ifh+C7oduYZFn4TeO7hNIaWGzu+3KE7r
- a/HRjdnltmlhLlOZOLJdoLjkFFr2CI58oDigdb1oFv/y3ctQi7y2X+tJ4RkJCusj0FE/AVJwf
- Rewv0uf4TkHrpUnRraVEYNzH4D4wDQv+EkD1GWBsVSsKhpzCV0NoaJVsm65HhC3Scx7TcmJb7
- jfVrDdm2Ubuo3APSaX8QRuEb2LahgeQsMI5aaKKmqHIx79JYyOGQ774w7W2PDh9HsIJYk53kV
- +1MXpt8CYpFRt8hm01GgBtEBLjypdkQVlFmSwO/U3av4U2sD9sa6vZcdQ==
-X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1654503264-47182-1-git-send-email-akaher@vmware.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2022/6/6 19:08, David Sterba wrote:
-> Almost none of the errors stemming from a valid mount option but wrong
-> value prints a descriptive message which would help to identify why
-> mount failed. Like in the linked report:
->
->    $ uname -r
->    v4.19
->    $ mount -o compress=3Dzstd /dev/sdb /mnt
->    mount: /mnt: wrong fs type, bad option, bad superblock on
->    /dev/sdb, missing codepage or helper program, or other error.
->    $ dmesg
->    ...
->    BTRFS error (device sdb): open_ctree failed
->
-> Errors caused by memory allocation failures are left out as it's not a
-> user error so reporting that would be confusing.
->
-> Link: https://lore.kernel.org/linux-btrfs/9c3fec36-fc61-3a33-4977-a7e207=
-c3fa4e@gmx.de/
-> CC: stable@vger.kernel.org # 4.9+
-> Signed-off-by: David Sterba <dsterba@suse.com>
-
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-
-Thanks,
-Qu
+On Mon, Jun 06, 2022 at 01:44:24PM +0530, Ajay Kaher wrote:
+> From: Pablo Neira Ayuso <pablo@netfilter.org>
+> 
+> commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
+> 
+> Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+> instantiation"), it is possible to attach stateful expressions to set
+> elements.
+> 
+> cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+> and destroy phase") introduces conditional destruction on the object to
+> accomodate transaction semantics.
+> 
+> nft_expr_init() calls expr->ops->init() first, then check for
+> NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+> lookup expressions which points to a set, which might lead to UAF since
+> the set is not properly detached from the set->binding for this case.
+> Anyway, this combination is non-sense from nf_tables perspective.
+> 
+> This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+> expr->ops->init() is called.
+> 
+> The reporter provides a KASAN splat and a poc reproducer (similar to
+> those autogenerated by syzbot to report use-after-free errors). It is
+> unknown to me if they are using syzbot or if they use similar automated
+> tool to locate the bug that they are reporting.
+> 
+> For the record, this is the KASAN splat.
+> 
+> [   85.431824] ==================================================================
+> [   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+> [   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+> [   85.434756]
+> [   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+> [   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+> 
+> Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+> Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+> [Ajay: Regenerated the patch for v5.4.y]
+> Signed-off-by: Ajay Kaher <akaher@vmware.com>
 > ---
->   fs/btrfs/super.c | 39 ++++++++++++++++++++++++++++++++-------
->   1 file changed, 32 insertions(+), 7 deletions(-)
->
-> diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-> index d8e2eac0417e..719dda57dc7a 100644
-> --- a/fs/btrfs/super.c
-> +++ b/fs/btrfs/super.c
-> @@ -764,6 +764,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, =
-char *options,
->   				compress_force =3D false;
->   				no_compress++;
->   			} else {
-> +				btrfs_err(info, "unrecognized compression value %s",
-> +					  args[0].from);
->   				ret =3D -EINVAL;
->   				goto out;
->   			}
-> @@ -822,8 +824,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info,=
- char *options,
->   		case Opt_thread_pool:
->   			ret =3D match_int(&args[0], &intarg);
->   			if (ret) {
-> +				btrfs_err(info, "unrecognized thread_pool value %s",
-> +					  args[0].from);
->   				goto out;
->   			} else if (intarg =3D=3D 0) {
-> +				btrfs_err(info, "invalid value 0 for thread_pool");
->   				ret =3D -EINVAL;
->   				goto out;
->   			}
-> @@ -884,8 +889,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info,=
- char *options,
->   			break;
->   		case Opt_ratio:
->   			ret =3D match_int(&args[0], &intarg);
-> -			if (ret)
-> +			if (ret) {
-> +				btrfs_err(info, "unrecognized metadata_ratio value %s",
-> +					  args[0].from);
->   				goto out;
-> +			}
->   			info->metadata_ratio =3D intarg;
->   			btrfs_info(info, "metadata ratio %u",
->   				   info->metadata_ratio);
-> @@ -902,6 +910,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, =
-char *options,
->   				btrfs_set_and_info(info, DISCARD_ASYNC,
->   						   "turning on async discard");
->   			} else {
-> +				btrfs_err(info, "unrecognized discard mode value %s",
-> +					  args[0].from);
->   				ret =3D -EINVAL;
->   				goto out;
->   			}
-> @@ -934,6 +944,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, =
-char *options,
->   				btrfs_set_and_info(info, FREE_SPACE_TREE,
->   						   "enabling free space tree");
->   			} else {
-> +				btrfs_err(info, "unrecognized space_cache value %s",
-> +					  args[0].from);
->   				ret =3D -EINVAL;
->   				goto out;
->   			}
-> @@ -1015,8 +1027,12 @@ int btrfs_parse_options(struct btrfs_fs_info *inf=
-o, char *options,
->   			break;
->   		case Opt_check_integrity_print_mask:
->   			ret =3D match_int(&args[0], &intarg);
-> -			if (ret)
-> +			if (ret) {
-> +				btrfs_err(info,
-> +				"unrecognized check_integrity_print_mask value %s",
-> +					args[0].from);
->   				goto out;
-> +			}
->   			info->check_integrity_print_mask =3D intarg;
->   			btrfs_info(info, "check_integrity_print_mask 0x%x",
->   				   info->check_integrity_print_mask);
-> @@ -1031,13 +1047,15 @@ int btrfs_parse_options(struct btrfs_fs_info *in=
-fo, char *options,
->   			goto out;
->   #endif
->   		case Opt_fatal_errors:
-> -			if (strcmp(args[0].from, "panic") =3D=3D 0)
-> +			if (strcmp(args[0].from, "panic") =3D=3D 0) {
->   				btrfs_set_opt(info->mount_opt,
->   					      PANIC_ON_FATAL_ERROR);
-> -			else if (strcmp(args[0].from, "bug") =3D=3D 0)
-> +			} else if (strcmp(args[0].from, "bug") =3D=3D 0) {
->   				btrfs_clear_opt(info->mount_opt,
->   					      PANIC_ON_FATAL_ERROR);
-> -			else {
-> +			} else {
-> +				btrfs_err(info, "unrecognized fatal_errors value %s",
-> +					  args[0].from);
->   				ret =3D -EINVAL;
->   				goto out;
->   			}
-> @@ -1045,8 +1063,12 @@ int btrfs_parse_options(struct btrfs_fs_info *inf=
-o, char *options,
->   		case Opt_commit_interval:
->   			intarg =3D 0;
->   			ret =3D match_int(&args[0], &intarg);
-> -			if (ret)
-> +			if (ret) {
-> +				btrfs_err(info, "unrecognized commit_interval value %s",
-> +					  args[0].from);
-> +				ret =3D -EINVAL;
->   				goto out;
-> +			}
->   			if (intarg =3D=3D 0) {
->   				btrfs_info(info,
->   					   "using default commit interval %us",
-> @@ -1060,8 +1082,11 @@ int btrfs_parse_options(struct btrfs_fs_info *inf=
-o, char *options,
->   			break;
->   		case Opt_rescue:
->   			ret =3D parse_rescue_options(info, args[0].from);
-> -			if (ret < 0)
-> +			if (ret < 0) {
-> +				btrfs_err(info, "unrecognized rescue value %s",
-> +					  args[0].from);
->   				goto out;
-> +			}
->   			break;
->   #ifdef CONFIG_BTRFS_DEBUG
->   		case Opt_fragment_all:
+>  net/netfilter/nf_tables_api.c | 16 ++++++++++------
+>  net/netfilter/nft_dynset.c    |  3 ---
+>  2 files changed, 10 insertions(+), 9 deletions(-)
+
+Both backports now queued up, thanks.
+
+greg k-h
