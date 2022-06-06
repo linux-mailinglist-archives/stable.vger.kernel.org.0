@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B451E53EBEB
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B66453E6D8
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239059AbiFFNps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 09:45:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60904 "EHLO
+        id S239039AbiFFNp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 09:45:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239068AbiFFNpr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 09:45:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56ABED8E4
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 06:45:46 -0700 (PDT)
+        with ESMTP id S239042AbiFFNp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 09:45:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A0F50023
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 06:45:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81A5661261
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 13:45:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D064C34115;
-        Mon,  6 Jun 2022 13:45:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 739FEB8191F
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 13:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B51D2C385A9;
+        Mon,  6 Jun 2022 13:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654523145;
-        bh=ZFDfGBOL5PpTFmlUnUJsDx9ovpd8nii7vvDBpvMUpnI=;
+        s=korg; t=1654523154;
+        bh=V8GzAagKjBAnbq0Jrl8uKDY6Kdl29HhukCt99LpJaRw=;
         h=Subject:To:Cc:From:Date:From;
-        b=glW1C/99c7fKZ/Pod75cvqdONdHKzB3dKnUdGES4R4wChk8xmoibNlz/oYKx6144I
-         GRm9EIQVexmclcXFR24JzTpHOHmu7rQQOFlMPFknlLA037/PooyRmeGrukFgMt9Trd
-         WR5+B2ECtk378IZsLTsZRpicrQCkUZNrRS/e0E1U=
-Subject: FAILED: patch "[PATCH] mtd: cfi_cmdset_0002: Move and rename" failed to apply to 4.9-stable tree
+        b=NpzrMyqAYFjMqwj4MsoLk2w3OKqgj1z9jH4ePeFbJgfq/fFA8uf0hwy3M0ggVVgDI
+         xRfUdPtPz0YQSJ7Houf+AVatZq/awFEIP74ROU5uirq0DT0Sjn3q+j+j5k8hz17oA4
+         krTGMiwfn5JQL7l/dFJdn0OL0WuKiKFbPxTJAPGw=
+Subject: FAILED: patch "[PATCH] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N" failed to apply to 5.4-stable tree
 To:     ikegami.t@gmail.com, miquel.raynal@bootlin.com, vigneshr@ti.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 15:45:33 +0200
-Message-ID: <1654523133765@kroah.com>
+Date:   Mon, 06 Jun 2022 15:45:51 +0200
+Message-ID: <16545231513970@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,268 +59,142 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 083084df578a8bdb18334f69e7b32d690aaa3247 Mon Sep 17 00:00:00 2001
+From 0a8e98305f63deaf0a799d5cf5532cc83af035d1 Mon Sep 17 00:00:00 2001
 From: Tokunori Ikegami <ikegami.t@gmail.com>
-Date: Thu, 24 Mar 2022 02:04:55 +0900
-Subject: [PATCH] mtd: cfi_cmdset_0002: Move and rename
- chip_check/chip_ready/chip_good_for_write
+Date: Thu, 24 Mar 2022 02:04:56 +0900
+Subject: [PATCH] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
 
-This is a preparation patch for the S29GL064N buffer writes fix. There
-is no functional change.
+Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
+check correct value") buffered writes fail on S29GL064N. This is
+because, on S29GL064N, reads return 0xFF at the end of DQ polling for
+write completion, where as, chip_good() check expects actual data
+written to the last location to be returned post DQ polling completion.
+Fix is to revert to using chip_good() for S29GL064N which only checks
+for DQ lines to settle down to determine write completion.
 
 Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
 Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
 Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-2-ikegami.t@gmail.com
+Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
 
 diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index a761134fd3be..9ccde90dc180 100644
+index 9ccde90dc180..59334530dd46 100644
 --- a/drivers/mtd/chips/cfi_cmdset_0002.c
 +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -802,21 +802,25 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
+@@ -59,6 +59,10 @@
+ #define CFI_SR_WBASB		BIT(3)
+ #define CFI_SR_SLSB		BIT(1)
+ 
++enum cfi_quirks {
++	CFI_QUIRK_DQ_TRUE_DATA = BIT(0),
++};
++
+ static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
+ static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
+ #if !FORCE_WORD_WRITE
+@@ -436,6 +440,15 @@ static void fixup_s29ns512p_sectors(struct mtd_info *mtd)
+ 		mtd->name);
  }
  
- /*
-- * Return true if the chip is ready.
-+ * Return true if the chip is ready and has the correct value.
-  *
-  * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
-  * non-suspended sector) and is indicated by no toggle bits toggling.
-  *
-+ * Error are indicated by toggling bits or bits held with the wrong value,
-+ * or with bits toggling.
-+ *
-  * Note that anything more complicated than checking if no bits are toggling
-  * (including checking DQ5 for an error status) is tricky to get working
-  * correctly and is therefore not done	(particularly with interleaved chips
-  * as each chip must be checked independently of the others).
-  */
- static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
--			       unsigned long addr)
-+			       unsigned long addr, map_word *expected)
- {
- 	struct cfi_private *cfi = map->fldrv_priv;
- 	map_word d, t;
-+	int ret;
- 
- 	if (cfi_use_status_reg(cfi)) {
- 		map_word ready = CMD(CFI_SR_DRB);
-@@ -826,57 +830,20 @@ static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
- 		 */
- 		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
- 				 cfi->device_type, NULL);
--		d = map_read(map, addr);
-+		t = map_read(map, addr);
- 
--		return map_word_andequal(map, d, ready, ready);
-+		return map_word_andequal(map, t, ready, ready);
- 	}
- 
- 	d = map_read(map, addr);
- 	t = map_read(map, addr);
- 
--	return map_word_equal(map, d, t);
--}
--
--/*
-- * Return true if the chip is ready and has the correct value.
-- *
-- * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
-- * non-suspended sector) and it is indicated by no bits toggling.
-- *
-- * Error are indicated by toggling bits or bits held with the wrong value,
-- * or with bits toggling.
-- *
-- * Note that anything more complicated than checking if no bits are toggling
-- * (including checking DQ5 for an error status) is tricky to get working
-- * correctly and is therefore not done	(particularly with interleaved chips
-- * as each chip must be checked independently of the others).
-- *
-- */
--static int __xipram chip_good(struct map_info *map, struct flchip *chip,
--			      unsigned long addr, map_word expected)
--{
--	struct cfi_private *cfi = map->fldrv_priv;
--	map_word oldd, curd;
--
--	if (cfi_use_status_reg(cfi)) {
--		map_word ready = CMD(CFI_SR_DRB);
--
--		/*
--		 * For chips that support status register, check device
--		 * ready bit
--		 */
--		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
--				 cfi->device_type, NULL);
--		curd = map_read(map, addr);
--
--		return map_word_andequal(map, curd, ready, ready);
--	}
-+	ret = map_word_equal(map, d, t);
- 
--	oldd = map_read(map, addr);
--	curd = map_read(map, addr);
-+	if (!ret || !expected)
-+		return ret;
- 
--	return	map_word_equal(map, oldd, curd) &&
--		map_word_equal(map, curd, expected);
-+	return map_word_equal(map, t, *expected);
++static void fixup_quirks(struct mtd_info *mtd)
++{
++	struct map_info *map = mtd->priv;
++	struct cfi_private *cfi = map->fldrv_priv;
++
++	if (cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01)
++		cfi->quirks |= CFI_QUIRK_DQ_TRUE_DATA;
++}
++
+ /* Used to fix CFI-Tables of chips without Extended Query Tables */
+ static struct cfi_fixup cfi_nopri_fixup_table[] = {
+ 	{ CFI_MFR_SST, 0x234a, fixup_sst39vf }, /* SST39VF1602 */
+@@ -474,6 +487,7 @@ static struct cfi_fixup cfi_fixup_table[] = {
+ #if !FORCE_WORD_WRITE
+ 	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
+ #endif
++	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_quirks },
+ 	{ 0, 0, NULL }
+ };
+ static struct cfi_fixup jedec_fixup_table[] = {
+@@ -846,6 +860,18 @@ static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
+ 	return map_word_equal(map, t, *expected);
  }
  
++static int __xipram chip_good(struct map_info *map, struct flchip *chip,
++			      unsigned long addr, map_word *expected)
++{
++	struct cfi_private *cfi = map->fldrv_priv;
++	map_word *datum = expected;
++
++	if (cfi->quirks & CFI_QUIRK_DQ_TRUE_DATA)
++		datum = NULL;
++
++	return chip_ready(map, chip, addr, datum);
++}
++
  static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
-@@ -893,7 +860,7 @@ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr
- 
- 	case FL_STATUS:
- 		for (;;) {
--			if (chip_ready(map, chip, adr))
-+			if (chip_ready(map, chip, adr, NULL))
- 				break;
- 
- 			if (time_after(jiffies, timeo)) {
-@@ -932,7 +899,7 @@ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr
- 		chip->state = FL_ERASE_SUSPENDING;
- 		chip->erase_suspended = 1;
- 		for (;;) {
--			if (chip_ready(map, chip, adr))
-+			if (chip_ready(map, chip, adr, NULL))
- 				break;
- 
- 			if (time_after(jiffies, timeo)) {
-@@ -1463,7 +1430,7 @@ static int do_otp_lock(struct map_info *map, struct flchip *chip, loff_t adr,
- 	/* wait for chip to become ready */
- 	timeo = jiffies + msecs_to_jiffies(2);
- 	for (;;) {
--		if (chip_ready(map, chip, adr))
-+		if (chip_ready(map, chip, adr, NULL))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
-@@ -1695,11 +1662,11 @@ static int __xipram do_write_oneword_once(struct map_info *map,
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -1662,11 +1688,11 @@ static int __xipram do_write_oneword_once(struct map_info *map,
  		}
  
  		/*
--		 * We check "time_after" and "!chip_good" before checking
--		 * "chip_good" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_ready" before checking
-+		 * "chip_ready" to avoid the failure due to scheduling.
+-		 * We check "time_after" and "!chip_ready" before checking
+-		 * "chip_ready" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
  		 */
  		if (time_after(jiffies, timeo) &&
--		    !chip_good(map, chip, adr, datum)) {
-+		    !chip_ready(map, chip, adr, &datum)) {
+-		    !chip_ready(map, chip, adr, &datum)) {
++		    !chip_good(map, chip, adr, &datum)) {
  			xip_enable(map, chip, adr);
  			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
  			xip_disable(map, chip, adr);
-@@ -1707,7 +1674,7 @@ static int __xipram do_write_oneword_once(struct map_info *map,
+@@ -1674,7 +1700,7 @@ static int __xipram do_write_oneword_once(struct map_info *map,
  			break;
  		}
  
--		if (chip_good(map, chip, adr, datum)) {
-+		if (chip_ready(map, chip, adr, &datum)) {
+-		if (chip_ready(map, chip, adr, &datum)) {
++		if (chip_good(map, chip, adr, &datum)) {
  			if (cfi_check_err_status(map, chip, adr))
  				ret = -EIO;
  			break;
-@@ -1975,18 +1942,18 @@ static int __xipram do_write_buffer_wait(struct map_info *map,
+@@ -1942,18 +1968,18 @@ static int __xipram do_write_buffer_wait(struct map_info *map,
  		}
  
  		/*
--		 * We check "time_after" and "!chip_good" before checking
--		 * "chip_good" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_ready" before checking
-+		 * "chip_ready" to avoid the failure due to scheduling.
+-		 * We check "time_after" and "!chip_ready" before checking
+-		 * "chip_ready" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
  		 */
  		if (time_after(jiffies, timeo) &&
--		    !chip_good(map, chip, adr, datum)) {
-+		    !chip_ready(map, chip, adr, &datum)) {
+-		    !chip_ready(map, chip, adr, &datum)) {
++		    !chip_good(map, chip, adr, &datum)) {
  			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
  			       __func__, adr);
  			ret = -EIO;
  			break;
  		}
  
--		if (chip_good(map, chip, adr, datum)) {
-+		if (chip_ready(map, chip, adr, &datum)) {
+-		if (chip_ready(map, chip, adr, &datum)) {
++		if (chip_good(map, chip, adr, &datum)) {
  			if (cfi_check_err_status(map, chip, adr))
  				ret = -EIO;
  			break;
-@@ -2195,7 +2162,7 @@ static int cfi_amdstd_panic_wait(struct map_info *map, struct flchip *chip,
- 	 * If the driver thinks the chip is idle, and no toggle bits
- 	 * are changing, then the chip is actually idle for sure.
- 	 */
--	if (chip->state == FL_READY && chip_ready(map, chip, adr))
-+	if (chip->state == FL_READY && chip_ready(map, chip, adr, NULL))
- 		return 0;
+diff --git a/include/linux/mtd/cfi.h b/include/linux/mtd/cfi.h
+index fd1ecb821106..d88bb56c18e2 100644
+--- a/include/linux/mtd/cfi.h
++++ b/include/linux/mtd/cfi.h
+@@ -286,6 +286,7 @@ struct cfi_private {
+ 	map_word sector_erase_cmd;
+ 	unsigned long chipshift; /* Because they're of the same type */
+ 	const char *im_name;	 /* inter_module name for cmdset_setup */
++	unsigned long quirks;
+ 	struct flchip chips[];  /* per-chip data structure for each chip */
+ };
  
- 	/*
-@@ -2212,7 +2179,7 @@ static int cfi_amdstd_panic_wait(struct map_info *map, struct flchip *chip,
- 
- 		/* wait for the chip to become ready */
- 		for (i = 0; i < jiffies_to_usecs(timeo); i++) {
--			if (chip_ready(map, chip, adr))
-+			if (chip_ready(map, chip, adr, NULL))
- 				return 0;
- 
- 			udelay(1);
-@@ -2276,13 +2243,13 @@ static int do_panic_write_oneword(struct map_info *map, struct flchip *chip,
- 	map_write(map, datum, adr);
- 
- 	for (i = 0; i < jiffies_to_usecs(uWriteTimeout); i++) {
--		if (chip_ready(map, chip, adr))
-+		if (chip_ready(map, chip, adr, NULL))
- 			break;
- 
- 		udelay(1);
- 	}
- 
--	if (!chip_good(map, chip, adr, datum) ||
-+	if (!chip_ready(map, chip, adr, &datum) ||
- 	    cfi_check_err_status(map, chip, adr)) {
- 		/* reset on all failures. */
- 		map_write(map, CMD(0xF0), chip->start);
-@@ -2424,6 +2391,7 @@ static int __xipram do_erase_chip(struct map_info *map, struct flchip *chip)
- 	DECLARE_WAITQUEUE(wait, current);
- 	int ret;
- 	int retry_cnt = 0;
-+	map_word datum = map_word_ff(map);
- 
- 	adr = cfi->addr_unlock1;
- 
-@@ -2478,7 +2446,7 @@ static int __xipram do_erase_chip(struct map_info *map, struct flchip *chip)
- 			chip->erase_suspended = 0;
- 		}
- 
--		if (chip_good(map, chip, adr, map_word_ff(map))) {
-+		if (chip_ready(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -2523,6 +2491,7 @@ static int __xipram do_erase_oneblock(struct map_info *map, struct flchip *chip,
- 	DECLARE_WAITQUEUE(wait, current);
- 	int ret;
- 	int retry_cnt = 0;
-+	map_word datum = map_word_ff(map);
- 
- 	adr += chip->start;
- 
-@@ -2577,7 +2546,7 @@ static int __xipram do_erase_oneblock(struct map_info *map, struct flchip *chip,
- 			chip->erase_suspended = 0;
- 		}
- 
--		if (chip_good(map, chip, adr, map_word_ff(map))) {
-+		if (chip_ready(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -2771,7 +2740,7 @@ static int __maybe_unused do_ppb_xxlock(struct map_info *map,
- 	 */
- 	timeo = jiffies + msecs_to_jiffies(2000);	/* 2s max (un)locking */
- 	for (;;) {
--		if (chip_ready(map, chip, adr))
-+		if (chip_ready(map, chip, adr, NULL))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
 
