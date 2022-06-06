@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B071853EA91
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FAA853EA9A
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235546AbiFFLmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 07:42:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46408 "EHLO
+        id S235551AbiFFLm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 07:42:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235592AbiFFLmX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:42:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB89A30F50
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:42:21 -0700 (PDT)
+        with ESMTP id S235550AbiFFLm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:42:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E9C31213
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D6E0B8180F
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41BFC385A9;
-        Mon,  6 Jun 2022 11:42:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A27EACE1A16
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D939C385A9;
+        Mon,  6 Jun 2022 11:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654515739;
-        bh=2TLt2Df4EKLWDuCn6oOBi7Y2YS9bpyLH8Gn0U2Y7pxI=;
+        s=korg; t=1654515742;
+        bh=C5GRCuOlA1FMyF8aZQ0i83PkQKG3V4FujtzuSS/OAXc=;
         h=Subject:To:Cc:From:Date:From;
-        b=Gpf4kNeOWHtEADt3gDKqPxk9H3FWP0rmAnP5b6llpIywQZLqQkGbasnxOsN6PfLxu
-         cvTp9Rvg5RScdWp4s4qfmr3CaojS0UP3BK3ZORZ5mWluf71O6gndc7CH327ZHTYuKM
-         4bYxXmVxQMlYxvYw83SMFBz4hQcwOLADuraDLfkM=
-Subject: WTF: patch "[PATCH] crypto: qat - add param check for DH" was seriously submitted to be applied to the 5.18-stable tree?
+        b=GK93QA2B2XGcRTx7p2sVqiYD5sLCuzn4S8jpLzKkzb6kuSgHP10Qnt2hyvWuGveIy
+         WQb8Q8EgIcBp2gszbqqWsGnZFD3NfOEVyfGhUzz9TvUQEHD6skc0gUhHFlZdpY3MD7
+         i/hklocrYFqRkeOaCFXh1XbonO/uh1dy31TnfBqU=
+Subject: WTF: patch "[PATCH] crypto: qat - re-enable registration of algorithms" was seriously submitted to be applied to the 5.18-stable tree?
 To:     giovanni.cabiddu@intel.com, adam.guerin@intel.com,
-        herbert@gondor.apana.org.au, wojciech.ziemba@intel.com
+        herbert@gondor.apana.org.au, marco.chiappero@intel.com,
+        wojciech.ziemba@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 13:42:11 +0200
-Message-ID: <165451573140170@kroah.com>
+Date:   Mon, 06 Jun 2022 13:42:13 +0200
+Message-ID: <165451573327129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -64,34 +65,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2acbb8771f6ac82422886e63832ee7a0f4b1635b Mon Sep 17 00:00:00 2001
+From d09144745959bf7852ccafd73243dd7d1eaeb163 Mon Sep 17 00:00:00 2001
 From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Date: Mon, 9 May 2022 14:34:15 +0100
-Subject: [PATCH] crypto: qat - add param check for DH
+Date: Mon, 9 May 2022 14:34:17 +0100
+Subject: [PATCH] crypto: qat - re-enable registration of algorithms
 
-Reject requests with a source buffer that is bigger than the size of the
-key. This is to prevent a possible integer underflow that might happen
-when copying the source scatterlist into a linear buffer.
+Re-enable the registration of algorithms after fixes to (1) use
+pre-allocated buffers in the datapath and (2) support the
+CRYPTO_TFM_REQ_MAY_BACKLOG flag.
+
+This reverts commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
 Reviewed-by: Adam Guerin <adam.guerin@intel.com>
 Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-index 947eeff181b4..7173a2a0a484 100644
---- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-@@ -235,6 +235,10 @@ static int qat_dh_compute_value(struct kpp_request *req)
- 		req->dst_len = ctx->p_size;
- 		return -EOVERFLOW;
- 	}
-+
-+	if (req->src_len > ctx->p_size)
-+		return -EINVAL;
-+
- 	memset(msg, '\0', sizeof(*msg));
- 	ICP_QAT_FW_PKE_HDR_VALID_FLAG_SET(msg->pke_hdr,
- 					  ICP_QAT_FW_COMN_REQ_FLAG_SET);
+diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
+index fa4c350c1bf9..a6c78b9c730b 100644
+--- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
++++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
+@@ -75,13 +75,6 @@ static int adf_crypto_dev_config(struct adf_accel_dev *accel_dev)
+ 	if (ret)
+ 		goto err;
+ 
+-	/* Temporarily set the number of crypto instances to zero to avoid
+-	 * registering the crypto algorithms.
+-	 * This will be removed when the algorithms will support the
+-	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
+-	 */
+-	instances = 0;
+-
+ 	for (i = 0; i < instances; i++) {
+ 		val = i;
+ 		bank = i * 2;
+diff --git a/drivers/crypto/qat/qat_common/qat_crypto.c b/drivers/crypto/qat/qat_common/qat_crypto.c
+index 80d905ed102e..9341d892533a 100644
+--- a/drivers/crypto/qat/qat_common/qat_crypto.c
++++ b/drivers/crypto/qat/qat_common/qat_crypto.c
+@@ -161,13 +161,6 @@ int qat_crypto_dev_config(struct adf_accel_dev *accel_dev)
+ 	if (ret)
+ 		goto err;
+ 
+-	/* Temporarily set the number of crypto instances to zero to avoid
+-	 * registering the crypto algorithms.
+-	 * This will be removed when the algorithms will support the
+-	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
+-	 */
+-	instances = 0;
+-
+ 	for (i = 0; i < instances; i++) {
+ 		val = i;
+ 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
 
