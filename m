@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B65053E6CF
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0975D53E878
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236678AbiFFMXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:23:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40216 "EHLO
+        id S236779AbiFFMXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:23:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236680AbiFFMXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:23:15 -0400
+        with ESMTP id S236773AbiFFMXW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:23:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544C92A278
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:23:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61989393E8
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:23:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05BA5B81920
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553BFC3411C;
-        Mon,  6 Jun 2022 12:23:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15F36B81923
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:23:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70AD7C3411D;
+        Mon,  6 Jun 2022 12:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518190;
-        bh=exZvUuXpOvASJBxAHBXg3k+wXSqYzQ2/6t5gbq3vkZ4=;
+        s=korg; t=1654518198;
+        bh=rIzOnwAfnnJzPq4bf1kc3i6pI8qCXB0i/J4QTEdcND0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Tfeb/fZb/1lkta5b+xlAIPwKqTeaLvrGk83OUA2Dmy3Mkpl3WJUQiIte9/Ee/iAeH
-         KHHRWUGUR7zZDWJWvvILar5xqpAzr8Z+CQDSFmv69L5Zb+hRk4ZcUHtPTfsfgMyt76
-         KlTPmuHjxaAiXfSgzX1ogveVn/aVkt9353q3P8qU=
-Subject: FAILED: patch "[PATCH] PCI: qcom: Fix unbalanced PHY init on probe errors" failed to apply to 4.9-stable tree
+        b=d/5NyyOiQd9KW5Y8KTb9g0XGcWsU5HtMmwcsDY02wxxxzeEja8HV1aN2oeMUDI1uK
+         MJCzyJIZBmjnmj8mdEH5qeydmdr24JZSWchB/gDGmiu5d6PpYS7+YN4kW5ZV0janKD
+         Lne6pauRvcMoFhQwJd7T/Fy6VrFqMsKRdGM66FYA=
+Subject: FAILED: patch "[PATCH] PCI: qcom: Fix unbalanced PHY init on probe errors" failed to apply to 4.14-stable tree
 To:     johan+linaro@kernel.org, bhelgaas@google.com,
         lorenzo.pieralisi@arm.com, manivannan.sadhasivam@linaro.org,
         svarbanov@mm-sol.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 06 Jun 2022 14:23:08 +0200
-Message-ID: <165451818820319@kroah.com>
+Message-ID: <165451818857192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
