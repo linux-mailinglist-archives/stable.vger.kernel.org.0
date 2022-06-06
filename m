@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB8653E24D
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8422F53E3C6
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 10:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232291AbiFFIk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 04:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
+        id S231785AbiFFIsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 04:48:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232283AbiFFIk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 04:40:57 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC388E180
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 01:40:53 -0700 (PDT)
+        with ESMTP id S233506AbiFFIrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 04:47:18 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D21154B17
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 01:44:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654504854; x=1686040854;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
+  t=1654505052; x=1686041052;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
   bh=6zkmf8dpJwqQab7Y0AsW0CgxvTOmU9yaEcr//UEsV20=;
-  b=WI8yjiBi+uBhnzf678MFvIwBD3AmMz9XL6zcxe/AMXvGI+H/Y2XC3too
-   YG1XpRPOeyS8AFjKtj+wiknFpvCnBRv3g0dxBiK4ugtEHSFmWRmmR5KxM
-   OXsLKLQzJh/Wf4HzxS8qlOGaLoOfEaLnH5cvMfBFu5ad92FPZ7Cp2qbIi
-   bAu37RB1QxjE8eMne7Hw57vUBP9TTxsxT9mjmBeqQJ9kAZCTnxHfoGRuz
-   Z2HZmkHXfzzc6fzITjx8HrQOEDZorrOwBeztvp8zflp8ZBwZlQIqBukGa
-   KhJmv3CSslihhZqupYP83NZIg+3GdkFcu3r0h2cDhVabJmOlYxwJOiIFg
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10369"; a="256475868"
+  b=CjNin7VuMfZGXWM/XBiVwThD9e3PyEvbzLwf3Zgdw6M2Q72TXW2C9LKa
+   emoWdtul4g4Gy2DWplm9vkeW+tf5Wl7rEkJphdPuGiPX08kUAura0lPuN
+   wXtNF8jjpBFBTWIQhBzj6W6DeT88KO3OriL9/cVJzatERpcqBnqjQlSre
+   bw5hkwlXboLRBqV0gRmY1qddxBsDXGpf4DWfX1b3aFsedDInktVQQjBF6
+   b09OuyTgZKrSkrZpwdmYvNurS8WXW0V5Co0+GwxREv1F+q58L9HsRBA9R
+   90Mf0u5sGFslpHCIAHo0UHrJjsceYTfa8y1Xvf/fZ0xa0UJ9gunBv9TCN
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10369"; a="339855237"
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="256475868"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 01:40:52 -0700
+   d="scan'208";a="339855237"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2022 01:42:56 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,280,1647327600"; 
-   d="scan'208";a="825710895"
+   d="scan'208";a="682161482"
 Received: from q.bj.intel.com ([10.238.154.102])
-  by fmsmga006.fm.intel.com with ESMTP; 06 Jun 2022 01:40:51 -0700
+  by fmsmga002.fm.intel.com with ESMTP; 06 Jun 2022 01:42:55 -0700
 From:   shaoqin.huang@intel.com
 To:     shaoqin.huang@intel.com
 Cc:     stable@vger.kernel.org
 Subject: [PATCH] KVM: x86/mmu: Check every prev_roots in __kvm_mmu_free_obsolete_roots()
-Date:   Mon,  6 Jun 2022 17:42:11 -0600
-Message-Id: <20220606234211.2931304-2-shaoqin.huang@intel.com>
+Date:   Mon,  6 Jun 2022 17:44:19 -0600
+Message-Id: <20220606234419.2931598-1-shaoqin.huang@intel.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220606234211.2931304-1-shaoqin.huang@intel.com>
-References: <20220606234211.2931304-1-shaoqin.huang@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DATE_IN_FUTURE_12_24,
         DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
