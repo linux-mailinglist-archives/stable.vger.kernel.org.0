@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE51053E7E9
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9ED553EC4B
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236798AbiFFM22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 08:28:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37060 "EHLO
+        id S236821AbiFFM23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 08:28:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236823AbiFFM2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:28:20 -0400
+        with ESMTP id S231854AbiFFM20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 08:28:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E226F49
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:28:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81C6E19C10
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 05:28:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED7F60FA4
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:28:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC7FEC3411F;
-        Mon,  6 Jun 2022 12:28:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 154FD611CA
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 12:28:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2929FC34119;
+        Mon,  6 Jun 2022 12:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654518495;
-        bh=73YI32Dg6CFn20IxBlhocPBMq+hhM8U74PShEhqhtNo=;
+        s=korg; t=1654518501;
+        bh=gDAwET0i4Gp8R16s1tiabmN6n/Mvixw1NJB6d1NBwaw=;
         h=Subject:To:Cc:From:Date:From;
-        b=pMin6mJjvMwaD9hqf2CLCR1WzmtmFM6LIwFsPeH/Z8zvEYGtxalUrbis/xvaKEFna
-         qLAvibwbaCUIV+S+JeivF2CCY8bDPozh3gKMEHjdZrbjPRxZuZOaSOf8hOThXzh+WY
-         0DdNHx79T2OfyOyu8T5U0VBKPoFAH569J95EoFZM=
-Subject: FAILED: patch "[PATCH] zonefs: Fix management of open zones" failed to apply to 5.10-stable tree
+        b=KUeDQoIlw1rBy0lnpWc5dI52TNO1HYRMqzhclYqldJhVfB78P1sR/CqPL9vpCVLh3
+         iS86Qmh/SmhHkVs70WK1YGuhWo89eUkUuXMYORWeQ/673aU9h7nuFFYFo1ttucgU/2
+         BM/jy94gY7GubbZhlfKGGoHBbL0PpVEH87X/vfts=
+Subject: FAILED: patch "[PATCH] zonefs: Clear inode information flags on inode creation" failed to apply to 5.18-stable tree
 To:     damien.lemoal@opensource.wdc.com, hans.holmberg@wdc.com,
-        johannes.thumshirn@wdc.com, stable@vger.kernel.org
+        johannes.thumshirn@wdc.com, kch@nvidia.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 14:28:02 +0200
-Message-ID: <1654518482188148@kroah.com>
+Date:   Mon, 06 Jun 2022 14:28:14 +0200
+Message-ID: <16545184941948@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,124 +60,32 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 19139539207934aef6335bdef09c9e4bd70d1808 Mon Sep 17 00:00:00 2001
+From b954ebba296bb2eb2e38322f17aaa6426934bd7e Mon Sep 17 00:00:00 2001
 From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Date: Tue, 12 Apr 2022 17:41:37 +0900
-Subject: [PATCH] zonefs: Fix management of open zones
+Date: Tue, 12 Apr 2022 20:52:35 +0900
+Subject: [PATCH] zonefs: Clear inode information flags on inode creation
 
-The mount option "explicit_open" manages the device open zone
-resources to ensure that if an application opens a sequential file for
-writing, the file zone can always be written by explicitly opening
-the zone and accounting for that state with the s_open_zones counter.
-
-However, if some zones are already open when mounting, the device open
-zone resource usage status will be larger than the initial s_open_zones
-value of 0. Ensure that this inconsistency does not happen by closing
-any sequential zone that is open when mounting.
-
-Furthermore, with ZNS drives, closing an explicitly open zone that has
-not been written will change the zone state to "closed", that is, the
-zone will remain in an active state. Since this can then cause failures
-of explicit open operations on other zones if the drive active zone
-resources are exceeded, we need to make sure that the zone is not
-active anymore by resetting it instead of closing it. To address this,
-zonefs_zone_mgmt() is modified to change a REQ_OP_ZONE_CLOSE request
-into a REQ_OP_ZONE_RESET for sequential zones that have not been
-written.
+Ensure that the i_flags field of struct zonefs_inode_info is cleared to
+0 when initializing a zone file inode, avoiding seeing the flag
+ZONEFS_ZONE_OPEN being incorrectly set.
 
 Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
 
 diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
-index 75d8dabe0807..e20e7c841489 100644
+index 3614c7834007..75d8dabe0807 100644
 --- a/fs/zonefs/super.c
 +++ b/fs/zonefs/super.c
-@@ -35,6 +35,17 @@ static inline int zonefs_zone_mgmt(struct inode *inode,
+@@ -1142,6 +1142,7 @@ static struct inode *zonefs_alloc_inode(struct super_block *sb)
+ 	inode_init_once(&zi->i_vnode);
+ 	mutex_init(&zi->i_truncate_mutex);
+ 	zi->i_wr_refcnt = 0;
++	zi->i_flags = 0;
  
- 	lockdep_assert_held(&zi->i_truncate_mutex);
- 
-+	/*
-+	 * With ZNS drives, closing an explicitly open zone that has not been
-+	 * written will change the zone state to "closed", that is, the zone
-+	 * will remain active. Since this can then cause failure of explicit
-+	 * open operation on other zones if the drive active zone resources
-+	 * are exceeded, make sure that the zone does not remain active by
-+	 * resetting it.
-+	 */
-+	if (op == REQ_OP_ZONE_CLOSE && !zi->i_wpoffset)
-+		op = REQ_OP_ZONE_RESET;
-+
- 	trace_zonefs_zone_mgmt(inode, op);
- 	ret = blkdev_zone_mgmt(inode->i_sb->s_bdev, op, zi->i_zsector,
- 			       zi->i_zone_size >> SECTOR_SHIFT, GFP_NOFS);
-@@ -1294,12 +1305,13 @@ static void zonefs_init_dir_inode(struct inode *parent, struct inode *inode,
- 	inc_nlink(parent);
+ 	return &zi->i_vnode;
  }
- 
--static void zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
--				   enum zonefs_ztype type)
-+static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
-+				  enum zonefs_ztype type)
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
- 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
-+	int ret = 0;
- 
- 	inode->i_ino = zone->start >> sbi->s_zone_sectors_shift;
- 	inode->i_mode = S_IFREG | sbi->s_perm;
-@@ -1324,6 +1336,22 @@ static void zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
- 	sb->s_maxbytes = max(zi->i_max_size, sb->s_maxbytes);
- 	sbi->s_blocks += zi->i_max_size >> sb->s_blocksize_bits;
- 	sbi->s_used_blocks += zi->i_wpoffset >> sb->s_blocksize_bits;
-+
-+	/*
-+	 * For sequential zones, make sure that any open zone is closed first
-+	 * to ensure that the initial number of open zones is 0, in sync with
-+	 * the open zone accounting done when the mount option
-+	 * ZONEFS_MNTOPT_EXPLICIT_OPEN is used.
-+	 */
-+	if (type == ZONEFS_ZTYPE_SEQ &&
-+	    (zone->cond == BLK_ZONE_COND_IMP_OPEN ||
-+	     zone->cond == BLK_ZONE_COND_EXP_OPEN)) {
-+		mutex_lock(&zi->i_truncate_mutex);
-+		ret = zonefs_zone_mgmt(inode, REQ_OP_ZONE_CLOSE);
-+		mutex_unlock(&zi->i_truncate_mutex);
-+	}
-+
-+	return ret;
- }
- 
- static struct dentry *zonefs_create_inode(struct dentry *parent,
-@@ -1333,6 +1361,7 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
- 	struct inode *dir = d_inode(parent);
- 	struct dentry *dentry;
- 	struct inode *inode;
-+	int ret;
- 
- 	dentry = d_alloc_name(parent, name);
- 	if (!dentry)
-@@ -1343,10 +1372,16 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
- 		goto dput;
- 
- 	inode->i_ctime = inode->i_mtime = inode->i_atime = dir->i_ctime;
--	if (zone)
--		zonefs_init_file_inode(inode, zone, type);
--	else
-+	if (zone) {
-+		ret = zonefs_init_file_inode(inode, zone, type);
-+		if (ret) {
-+			iput(inode);
-+			goto dput;
-+		}
-+	} else {
- 		zonefs_init_dir_inode(dir, inode, type);
-+	}
-+
- 	d_add(dentry, inode);
- 	dir->i_size++;
- 
 
