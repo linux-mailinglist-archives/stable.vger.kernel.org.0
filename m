@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2BC53E921
-	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EEE853E6F8
+	for <lists+stable@lfdr.de>; Mon,  6 Jun 2022 19:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236115AbiFFL6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 07:58:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
+        id S236047AbiFFL7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 07:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236182AbiFFL6O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:58:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC2464C7
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:57:50 -0700 (PDT)
+        with ESMTP id S236023AbiFFL7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 07:59:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B86B183B2
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 04:59:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD8A460FF4
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:57:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2E7C34119;
-        Mon,  6 Jun 2022 11:57:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 969C0CE1A25
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 11:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560A9C34119;
+        Mon,  6 Jun 2022 11:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654516668;
-        bh=3xRWkVWY2pP9B0M/ZAeUYhEawIcJgyAoY5ulpYyFMh0=;
+        s=korg; t=1654516738;
+        bh=XE4QfnbbEu3Pt1Xw5DnNqOnZeDMFGij64uH1lR0ZDRs=;
         h=Subject:To:Cc:From:Date:From;
-        b=eN87zd7rK2YO0CDiWzBYaQZVjGIh3jFM+Lp7snEx/qKEHlqluFFVFGq+9iVKWVdKa
-         xdVgJA5tt2QOfOIOo8I3jcDTLdabA5DYjFuZH5vgPnfRc8X982anCn0Az+lAMaOmyz
-         6u40o5u8ND2UozW7XEce5aA2mjV1nZMpSmVehT/U=
-Subject: FAILED: patch "[PATCH] bfq: Split shared queues on move between cgroups" failed to apply to 4.19-stable tree
-To:     jack@suse.cz, axboe@kernel.dk, hch@lst.de, yukuai3@huawei.com
+        b=R2a04fPPebrpzZyZf/aOo1ym2glekMDxQ1VM6LVFQGQ6tEiZgsF74XmGyjjQo+Lmj
+         SDOSuhorO/W1Q20MnJR8OGPmVKMfq0wEODzPbnt/BqnLY3i1f57b5HaRydGkUYjS8K
+         +ipPYqAXTRHIgONSU4gxJtaEExKdy7w7hAMhEHJc=
+Subject: FAILED: patch "[PATCH] iwlwifi: fw: init SAR GEO table only if data is present" failed to apply to 5.15-stable tree
+To:     johannes.berg@intel.com, gregory.greenman@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jun 2022 13:57:29 +0200
-Message-ID: <16545166495292@kroah.com>
+Date:   Mon, 06 Jun 2022 13:58:50 +0200
+Message-ID: <165451673017188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,99 +59,38 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3bc5e683c67d94bd839a1da2e796c15847b51b69 Mon Sep 17 00:00:00 2001
-From: Jan Kara <jack@suse.cz>
-Date: Fri, 1 Apr 2022 12:27:44 +0200
-Subject: [PATCH] bfq: Split shared queues on move between cgroups
+From d1f6530c3e373ddd7c76b05646052a27eead14ad Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Tue, 17 May 2022 12:05:08 +0300
+Subject: [PATCH] iwlwifi: fw: init SAR GEO table only if data is present
 
-When bfqq is shared by multiple processes it can happen that one of the
-processes gets moved to a different cgroup (or just starts submitting IO
-for different cgroup). In case that happens we need to split the merged
-bfqq as otherwise we will have IO for multiple cgroups in one bfqq and
-we will just account IO time to wrong entities etc.
+When no table data was read from ACPI, then filling the data
+and returning success here will fill zero values, which means
+transmit power will be limited to 0 dBm. This is clearly not
+intended.
 
-Similarly if the bfqq is scheduled to merge with another bfqq but the
-merge didn't happen yet, cancel the merge as it need not be valid
-anymore.
+Return an error from iwl_sar_geo_init() if there's no data to
+fill into the command structure.
 
-CC: stable@vger.kernel.org
-Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-3-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 78a19d5285d9 ("iwlwifi: mvm: Read the PPAG and SAR tables at INIT stage")
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Link: https://lore.kernel.org/r/20220517120044.bc45923b74e9.Id2b4362234b7f8ced82c591b95d4075dd2ec12f4@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index 420eda2589c0..9352f3cc2377 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -743,9 +743,39 @@ static struct bfq_group *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
- 	}
- 
- 	if (sync_bfqq) {
--		entity = &sync_bfqq->entity;
--		if (entity->sched_data != &bfqg->sched_data)
--			bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-+		if (!sync_bfqq->new_bfqq && !bfq_bfqq_coop(sync_bfqq)) {
-+			/* We are the only user of this bfqq, just move it */
-+			if (sync_bfqq->entity.sched_data != &bfqg->sched_data)
-+				bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-+		} else {
-+			struct bfq_queue *bfqq;
-+
-+			/*
-+			 * The queue was merged to a different queue. Check
-+			 * that the merge chain still belongs to the same
-+			 * cgroup.
-+			 */
-+			for (bfqq = sync_bfqq; bfqq; bfqq = bfqq->new_bfqq)
-+				if (bfqq->entity.sched_data !=
-+				    &bfqg->sched_data)
-+					break;
-+			if (bfqq) {
-+				/*
-+				 * Some queue changed cgroup so the merge is
-+				 * not valid anymore. We cannot easily just
-+				 * cancel the merge (by clearing new_bfqq) as
-+				 * there may be other processes using this
-+				 * queue and holding refs to all queues below
-+				 * sync_bfqq->new_bfqq. Similarly if the merge
-+				 * already happened, we need to detach from
-+				 * bfqq now so that we cannot merge bio to a
-+				 * request from the old cgroup.
-+				 */
-+				bfq_put_cooperator(sync_bfqq);
-+				bfq_release_process_ref(bfqd, sync_bfqq);
-+				bic_set_bfqq(bic, NULL, 1);
-+			}
-+		}
- 	}
- 
- 	return bfqg;
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7d00b21ebe5d..89fe3f85eb3c 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5315,7 +5315,7 @@ static void bfq_put_stable_ref(struct bfq_queue *bfqq)
- 	bfq_put_queue(bfqq);
- }
- 
--static void bfq_put_cooperator(struct bfq_queue *bfqq)
-+void bfq_put_cooperator(struct bfq_queue *bfqq)
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+index 33aae639ad37..e6d64152c81a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+@@ -937,6 +937,9 @@ int iwl_sar_geo_init(struct iwl_fw_runtime *fwrt,
  {
- 	struct bfq_queue *__bfqq, *next;
+ 	int i, j;
  
-diff --git a/block/bfq-iosched.h b/block/bfq-iosched.h
-index 3b83e3d1c2e5..a56763045d19 100644
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -979,6 +979,7 @@ void bfq_weights_tree_remove(struct bfq_data *bfqd,
- void bfq_bfqq_expire(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 		     bool compensate, enum bfqq_expiration reason);
- void bfq_put_queue(struct bfq_queue *bfqq);
-+void bfq_put_cooperator(struct bfq_queue *bfqq);
- void bfq_end_wr_async_queues(struct bfq_data *bfqd, struct bfq_group *bfqg);
- void bfq_release_process_ref(struct bfq_data *bfqd, struct bfq_queue *bfqq);
- void bfq_schedule_dispatch(struct bfq_data *bfqd);
++	if (!fwrt->geo_enabled)
++		return -ENODATA;
++
+ 	if (!iwl_sar_geo_support(fwrt))
+ 		return -EOPNOTSUPP;
+ 
 
