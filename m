@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E10565414C8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01590541C02
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359366AbiFGUWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47452 "EHLO
+        id S1382506AbiFGVz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376283AbiFGUVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B0F11D5004;
-        Tue,  7 Jun 2022 11:31:01 -0700 (PDT)
+        with ESMTP id S1382920AbiFGVwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6AC023F7F6;
+        Tue,  7 Jun 2022 12:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB203612EC;
-        Tue,  7 Jun 2022 18:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A048C34115;
-        Tue,  7 Jun 2022 18:30:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24722B823B1;
+        Tue,  7 Jun 2022 19:10:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AABFC385A5;
+        Tue,  7 Jun 2022 19:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626660;
-        bh=u9c66hxd3Gms4SPDAZa/wUClxIpzgAWDdqlqJK5JUd0=;
+        s=korg; t=1654629000;
+        bh=MUUEaXe42oEIFdsTF9pziCgPfvLKsA9Oo5uJ3FOrQY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1qr0wmI2qTDoGaOL4WcVjlbx2wGsaxAk8J0JKW0Xttpll4rnkY8R+ImeIV6Wj1Vm
-         4y3dj35ArXRSITfIcaoY75xcOhrHzmAB6HQ60MhQf8z4lVvw6batGICS/Bk4HQGwOB
-         nVRKRcfuylEYcIKy3LTgT9lZJEmTNZSQhbQBvbeE=
+        b=PrV7EgEi6jACndLdjFSuzYVQeKl7J9/czNtPpdNcnFkOC1HE9kwKsKQwwKVbvfTg1
+         ZS4sVm2gOzc9/yc4Pmhym6Er1Rgr43XN0bOiCjr15UyboPBZQuLE+83XjqcmbV0Q/D
+         z7/JTUZ6+H6I1S8zTAKnc5Tt1X9Lffj6ZKUc0pcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sean Young <sean@mess.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 457/772] soc: qcom: smp2p: Fix missing of_node_put() in smp2p_parse_ipc
-Date:   Tue,  7 Jun 2022 19:00:49 +0200
-Message-Id: <20220607165002.469105754@linuxfoundation.org>
+Subject: [PATCH 5.18 532/879] media: lirc: revert removal of unused feature flags
+Date:   Tue,  7 Jun 2022 19:00:50 +0200
+Message-Id: <20220607165018.315716427@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 8fd3f18ea31a398ecce4a6d3804433658678b0a3 ]
+[ Upstream commit e5499dd7253c8382d03f687f19a854adcc688357 ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+Commit b2a90f4fcb14 ("media: lirc: remove unused lirc features") removed
+feature flags which were never implemented, but they are still used by
+the lirc daemon went built from source.
 
-Fixes: 50e99641413e ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220308071942.22942-1-linmq006@gmail.com
+Reinstate these symbols in order not to break the lirc build.
+
+Fixes: b2a90f4fcb14 ("media: lirc: remove unused lirc features")
+Link: https://lore.kernel.org/all/a0470450-ecfd-2918-e04a-7b57c1fd7694@kernel.org/
+Reported-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smp2p.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/linux/lirc.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/soc/qcom/smp2p.c b/drivers/soc/qcom/smp2p.c
-index 4a157240f419..59dbf4b61e6c 100644
---- a/drivers/soc/qcom/smp2p.c
-+++ b/drivers/soc/qcom/smp2p.c
-@@ -493,6 +493,7 @@ static int smp2p_parse_ipc(struct qcom_smp2p *smp2p)
- 	}
+diff --git a/include/uapi/linux/lirc.h b/include/uapi/linux/lirc.h
+index 23b0f2c8ba81..8d7ca7c6af42 100644
+--- a/include/uapi/linux/lirc.h
++++ b/include/uapi/linux/lirc.h
+@@ -84,6 +84,13 @@
+ #define LIRC_CAN_SEND(x) ((x)&LIRC_CAN_SEND_MASK)
+ #define LIRC_CAN_REC(x) ((x)&LIRC_CAN_REC_MASK)
  
- 	smp2p->ipc_regmap = syscon_node_to_regmap(syscon);
-+	of_node_put(syscon);
- 	if (IS_ERR(smp2p->ipc_regmap))
- 		return PTR_ERR(smp2p->ipc_regmap);
++/*
++ * Unused features. These features were never implemented, in tree or
++ * out of tree. These definitions are here so not to break the lircd build.
++ */
++#define LIRC_CAN_SET_REC_FILTER		0
++#define LIRC_CAN_NOTIFY_DECODE		0
++
+ /*** IOCTL commands for lirc driver ***/
  
+ #define LIRC_GET_FEATURES              _IOR('i', 0x00000000, __u32)
 -- 
 2.35.1
 
