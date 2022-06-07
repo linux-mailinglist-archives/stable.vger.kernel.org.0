@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6B6954136B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B20C65404FC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352733AbiFGUCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:02:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
+        id S242935AbiFGRUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358077AbiFGT75 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:59:57 -0400
+        with ESMTP id S1346127AbiFGRUd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7CAC6853;
-        Tue,  7 Jun 2022 11:24:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACB61053CF;
+        Tue,  7 Jun 2022 10:20:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D11F561280;
-        Tue,  7 Jun 2022 18:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D718EC385A2;
-        Tue,  7 Jun 2022 18:24:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B67E7608CD;
+        Tue,  7 Jun 2022 17:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5BFAC385A5;
+        Tue,  7 Jun 2022 17:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626276;
-        bh=6nJOq9MQ93VP7Bh5TJSp2Vn6/b1Th3dFzAO8vkQA+ss=;
+        s=korg; t=1654622431;
+        bh=/EVIXbXHVhz6z6r4WZ74kyE/k9deasy2cPR5W3Pn0Rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYGcYPPtBRhdKqcXIcfK8dRCesf35RrSfB39cgI3mvwGyB/uxDZbWyz+FACPm+A2B
-         9xbm0aqeFcNZ8o68AD3fyKftWzW/QEQcftp50wBmkDZFvHEA6SqzKvigwqGXLpOtZ+
-         OOFj/WSk6egsdF7THUaqmOe+3cpSzfc5YntJ63UI=
+        b=dSiF5zoUK3mP3z+ZjH0FVQ2/hmao3WsavfPD3oofEgU9ln0dX0TyRZZm3eZyQf9A1
+         EqwVA2HlmPQjMkDgpZPCi+/eRGRuEvqPyW8S4Qf+NCMcVdkPIy4bBLghgGp9zVmnE/
+         HgnCnwzwkNAtAQEP7ioDkelz89Fn1XyxAabP7mt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 320/772] drm/msm/hdmi: check return value after calling platform_get_resource_byname()
+Subject: [PATCH 5.10 055/452] drm/plane: Move range check for format_count earlier
 Date:   Tue,  7 Jun 2022 18:58:32 +0200
-Message-Id: <20220607164958.453689205@linuxfoundation.org>
+Message-Id: <20220607164910.187820716@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit a36e506711548df923ceb7ec9f6001375be799a5 ]
+[ Upstream commit 4b674dd69701c2e22e8e7770c1706a69f3b17269 ]
 
-It will cause null-ptr-deref if platform_get_resource_byname() returns NULL,
-we need check the return value.
+While the check for format_count > 64 in __drm_universal_plane_init()
+shouldn't be hit (it's a WARN_ON), in its current position it will then
+leak the plane->format_types array and fail to call
+drm_mode_object_unregister() leaking the modeset identifier. Move it to
+the start of the function to avoid allocating those resources in the
+first place.
 
-Fixes: c6a57a50ad56 ("drm/msm/hdmi: add hdmi hdcp support (V3)")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/482992/
-Link: https://lore.kernel.org/r/20220422032227.2991553-1-yangyingliang@huawei.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://lore.kernel.org/dri-devel/20211203102815.38624-1-steven.price@arm.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/drm_plane.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index 719720709e9e..d3fea6ec5246 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -142,6 +142,10 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
- 	/* HDCP needs physical address of hdmi register */
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
- 		config->mmio_name);
-+	if (!res) {
-+		ret = -EINVAL;
-+		goto fail;
-+	}
- 	hdmi->mmio_phy_addr = res->start;
+diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+index affe1cfed009..24f643982903 100644
+--- a/drivers/gpu/drm/drm_plane.c
++++ b/drivers/gpu/drm/drm_plane.c
+@@ -186,6 +186,13 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
+ 	if (WARN_ON(config->num_total_plane >= 32))
+ 		return -EINVAL;
  
- 	hdmi->qfprom_mmio = msm_ioremap(pdev,
++	/*
++	 * First driver to need more than 64 formats needs to fix this. Each
++	 * format is encoded as a bit and the current code only supports a u64.
++	 */
++	if (WARN_ON(format_count > 64))
++		return -EINVAL;
++
+ 	WARN_ON(drm_drv_uses_atomic_modeset(dev) &&
+ 		(!funcs->atomic_destroy_state ||
+ 		 !funcs->atomic_duplicate_state));
+@@ -207,13 +214,6 @@ int drm_universal_plane_init(struct drm_device *dev, struct drm_plane *plane,
+ 		return -ENOMEM;
+ 	}
+ 
+-	/*
+-	 * First driver to need more than 64 formats needs to fix this. Each
+-	 * format is encoded as a bit and the current code only supports a u64.
+-	 */
+-	if (WARN_ON(format_count > 64))
+-		return -EINVAL;
+-
+ 	if (format_modifiers) {
+ 		const uint64_t *temp_modifiers = format_modifiers;
+ 
 -- 
 2.35.1
 
