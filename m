@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B4E5425F8
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B87542516
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237513AbiFHBaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 21:30:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33118 "EHLO
+        id S235197AbiFHDRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 23:17:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242760AbiFHBX2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 21:23:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF99B26F366;
-        Tue,  7 Jun 2022 12:22:59 -0700 (PDT)
+        with ESMTP id S1345151AbiFHDOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 23:14:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 079FA272370;
+        Tue,  7 Jun 2022 12:23:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B4DD60B01;
-        Tue,  7 Jun 2022 19:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3479BC3411C;
-        Tue,  7 Jun 2022 19:22:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57069B823CA;
+        Tue,  7 Jun 2022 19:23:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C59B8C36B00;
+        Tue,  7 Jun 2022 19:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629777;
-        bh=FfadC9C66rH2lacYrTMtOrPQ5n/QT/RHFNMsY8y2TuA=;
+        s=korg; t=1654629811;
+        bh=wICu+zwIpk9cOz0cgVef/aClc+PUiwlFhp12DqvOPWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMgvY5NcS8eAmpjOgOJDh0coi7s5FLSWqaEFe/n/i1TIaT9qS4uW6QSTdqQRBombf
-         FRzbn6xsSYu97/Lw4IJGTROv6TxHKgOz7w+mMb99d4HY4yceQL8rQOKm5+1AASxRi1
-         XdM4qPu4tcrFy9neec49FiXSHXed3P0sT/ykHvhg=
+        b=jWcwJSjkD/FwRDx6Ly8pB3O4hjwc8/dOQPzpg0Q6RipmiqDtj41RxB56iTMUtVIvo
+         QX0Ti87+rEJa9Gu1v8+LGW0SpnPLpMVbyWALbyVUz9af3McyBqvaJOQ3EttfAsZ8RP
+         Pqch06YCUB3jAwyvmExHE/dSbJWJmIPTfIaNc+ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.18 814/879] cfg80211: declare MODULE_FIRMWARE for regulatory.db
-Date:   Tue,  7 Jun 2022 19:05:32 +0200
-Message-Id: <20220607165026.485151127@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.18 825/879] iommu/msm: Fix an incorrect NULL check on list iterator
+Date:   Tue,  7 Jun 2022 19:05:43 +0200
+Message-Id: <20220607165026.801495263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,42 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 7bc7981eeebe1b8e603ad2ffc5e84f4df76920dd upstream.
+commit 8b9ad480bd1dd25f4ff4854af5685fa334a2f57a upstream.
 
-Add MODULE_FIRMWARE declarations for regulatory.db and
-regulatory.db.p7s such that userspace tooling can discover and include
-these files.
+The bug is here:
+	if (!iommu || iommu->dev->of_node != spec->np) {
+
+The list iterator value 'iommu' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found (in fact,
+it will point to a invalid structure object containing HEAD).
+
+To fix the bug, use a new value 'iter' as the list iterator, while use
+the old value 'iommu' as a dedicated variable to point to the found one,
+and remove the unneeded check for 'iommu->dev->of_node != spec->np'
+outside the loop.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Link: https://lore.kernel.org/r/20220414125004.267819-1-dimitri.ledkov@canonical.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220501132823.12714-1-xiam0nd.tong@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/reg.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iommu/msm_iommu.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -807,6 +807,8 @@ static int __init load_builtin_regdb_key
- 	return 0;
- }
- 
-+MODULE_FIRMWARE("regulatory.db.p7s");
-+
- static bool regdb_has_valid_signature(const u8 *data, unsigned int size)
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -610,16 +610,19 @@ static void insert_iommu_master(struct d
+ static int qcom_iommu_of_xlate(struct device *dev,
+ 			       struct of_phandle_args *spec)
  {
- 	const struct firmware *sig;
-@@ -1078,6 +1080,8 @@ static void regdb_fw_cb(const struct fir
- 	release_firmware(fw);
- }
+-	struct msm_iommu_dev *iommu;
++	struct msm_iommu_dev *iommu = NULL, *iter;
+ 	unsigned long flags;
+ 	int ret = 0;
  
-+MODULE_FIRMWARE("regulatory.db");
-+
- static int query_regdb_file(const char *alpha2)
- {
- 	ASSERT_RTNL();
+ 	spin_lock_irqsave(&msm_iommu_lock, flags);
+-	list_for_each_entry(iommu, &qcom_iommu_devices, dev_node)
+-		if (iommu->dev->of_node == spec->np)
++	list_for_each_entry(iter, &qcom_iommu_devices, dev_node) {
++		if (iter->dev->of_node == spec->np) {
++			iommu = iter;
+ 			break;
++		}
++	}
+ 
+-	if (!iommu || iommu->dev->of_node != spec->np) {
++	if (!iommu) {
+ 		ret = -ENODEV;
+ 		goto fail;
+ 	}
 
 
