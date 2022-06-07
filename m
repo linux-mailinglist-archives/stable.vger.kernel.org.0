@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67A35410BA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC4D541689
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346705AbiFGT3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39806 "EHLO
+        id S1376941AbiFGUxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355356AbiFGTZE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:25:04 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5390526ACC;
-        Tue,  7 Jun 2022 11:09:18 -0700 (PDT)
+        with ESMTP id S1378294AbiFGUvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B771FE8F0;
+        Tue,  7 Jun 2022 11:42:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3FD47CE243C;
-        Tue,  7 Jun 2022 18:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41CBC385A5;
-        Tue,  7 Jun 2022 18:09:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D451AB82239;
+        Tue,  7 Jun 2022 18:41:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F11C385A5;
+        Tue,  7 Jun 2022 18:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625355;
-        bh=BjxEpcP2HzpCATkyvGltIMNc7ZP1wLwyAcgCHfjDj8w=;
+        s=korg; t=1654627317;
+        bh=WFWag3G3r7NILMBL5Q25K81ZLI+l1okE9PH2R2dGTgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvHSYQsQXjUWTkloUfDOalMba3g799WvqZn8WXLsd9EkvvbB4GOYNVHQDpSju3dJM
-         Sf7FKRNbD6s4PrbUDBQnLrg0bPmGJVczyDo6KLGg5Zcu+apAGwVtE/In145N/sLU2j
-         AcEhlv08Sv/g9iI5CEPRMdxuw4/8gkscunpex7eA=
+        b=cfj3+e1fNNKJB5c2fEP1gAOtSOHBLRz2u7MJinJgNPVTWn7OF0VHSQ+p6RpwemU0v
+         g9oItqrio1IAoQMhBqADswxZbJqL+YzbNdP5WRPKciApVh/hNANhIG4Ec9G+TFeDU4
+         d0jYeCeJNvSC6G2yOCpe7OsIrbGkXcZ43cqZGW/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Yufan Chen <wiz.chen@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 616/667] ksmbd: fix outstanding credits related bugs
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.17 689/772] drm/amdgpu/cs: make commands with 0 chunks illegal behaviour.
 Date:   Tue,  7 Jun 2022 19:04:41 +0200
-Message-Id: <20220607164953.146624333@linuxfoundation.org>
+Message-Id: <20220607165009.357253473@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+From: Dave Airlie <airlied@redhat.com>
 
-commit 376b9133826865568167b4091ef92a68c4622b87 upstream.
+commit 31ab27b14daaa75541a415c6794d6f3567fea44a upstream.
 
-outstanding credits must be initialized to 0,
-because it means the sum of credits consumed by
-in-flight requests.
-And outstanding credits must be compared with
-total credits in smb2_validate_credit_charge(),
-because total credits are the sum of credits
-granted by ksmbd.
+Submitting a cs with 0 chunks, causes an oops later, found trying
+to execute the wrong userspace driver.
 
-This patch fix the following error,
-while frametest with Windows clients:
+MESA_LOADER_DRIVER_OVERRIDE=v3d glxinfo
 
-Limits exceeding the maximum allowable outstanding requests,
-given : 128, pending : 8065
+[172536.665184] BUG: kernel NULL pointer dereference, address: 00000000000001d8
+[172536.665188] #PF: supervisor read access in kernel mode
+[172536.665189] #PF: error_code(0x0000) - not-present page
+[172536.665191] PGD 6712a0067 P4D 6712a0067 PUD 5af9ff067 PMD 0
+[172536.665195] Oops: 0000 [#1] SMP NOPTI
+[172536.665197] CPU: 7 PID: 2769838 Comm: glxinfo Tainted: P           O      5.10.81 #1-NixOS
+[172536.665199] Hardware name: To be filled by O.E.M. To be filled by O.E.M./CROSSHAIR V FORMULA-Z, BIOS 2201 03/23/2015
+[172536.665272] RIP: 0010:amdgpu_cs_ioctl+0x96/0x1ce0 [amdgpu]
+[172536.665274] Code: 75 18 00 00 4c 8b b2 88 00 00 00 8b 46 08 48 89 54 24 68 49 89 f7 4c 89 5c 24 60 31 d2 4c 89 74 24 30 85 c0 0f 85 c0 01 00 00 <48> 83 ba d8 01 00 00 00 48 8b b4 24 90 00 00 00 74 16 48 8b 46 10
+[172536.665276] RSP: 0018:ffffb47c0e81bbe0 EFLAGS: 00010246
+[172536.665277] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[172536.665278] RDX: 0000000000000000 RSI: ffffb47c0e81be28 RDI: ffffb47c0e81bd68
+[172536.665279] RBP: ffff936524080010 R08: 0000000000000000 R09: ffffb47c0e81be38
+[172536.665281] R10: ffff936524080010 R11: ffff936524080000 R12: ffffb47c0e81bc40
+[172536.665282] R13: ffffb47c0e81be28 R14: ffff9367bc410000 R15: ffffb47c0e81be28
+[172536.665283] FS:  00007fe35e05d740(0000) GS:ffff936c1edc0000(0000) knlGS:0000000000000000
+[172536.665284] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[172536.665286] CR2: 00000000000001d8 CR3: 0000000532e46000 CR4: 00000000000406e0
+[172536.665287] Call Trace:
+[172536.665322]  ? amdgpu_cs_find_mapping+0x110/0x110 [amdgpu]
+[172536.665332]  drm_ioctl_kernel+0xaa/0xf0 [drm]
+[172536.665338]  drm_ioctl+0x201/0x3b0 [drm]
+[172536.665369]  ? amdgpu_cs_find_mapping+0x110/0x110 [amdgpu]
+[172536.665372]  ? selinux_file_ioctl+0x135/0x230
+[172536.665399]  amdgpu_drm_ioctl+0x49/0x80 [amdgpu]
+[172536.665403]  __x64_sys_ioctl+0x83/0xb0
+[172536.665406]  do_syscall_64+0x33/0x40
+[172536.665409]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: b589f5db6d4a ("ksmbd: limits exceeding the maximum allowable outstanding requests")
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2018
+Signed-off-by: Dave Airlie <airlied@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Reported-by: Yufan Chen <wiz.chen@gmail.com>
-Tested-by: Yufan Chen <wiz.chen@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/connection.c |    2 +-
- fs/ksmbd/smb2misc.c   |    2 +-
- fs/ksmbd/smb_common.c |    4 +++-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -62,7 +62,7 @@ struct ksmbd_conn *ksmbd_conn_alloc(void
- 	atomic_set(&conn->req_running, 0);
- 	atomic_set(&conn->r_count, 0);
- 	conn->total_credits = 1;
--	conn->outstanding_credits = 1;
-+	conn->outstanding_credits = 0;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -115,7 +115,7 @@ static int amdgpu_cs_parser_init(struct
+ 	int ret;
  
- 	init_waitqueue_head(&conn->req_running_q);
- 	INIT_LIST_HEAD(&conn->conns_list);
---- a/fs/ksmbd/smb2misc.c
-+++ b/fs/ksmbd/smb2misc.c
-@@ -339,7 +339,7 @@ static int smb2_validate_credit_charge(s
- 		ret = 1;
- 	}
+ 	if (cs->in.num_chunks == 0)
+-		return 0;
++		return -EINVAL;
  
--	if ((u64)conn->outstanding_credits + credit_charge > conn->vals->max_credits) {
-+	if ((u64)conn->outstanding_credits + credit_charge > conn->total_credits) {
- 		ksmbd_debug(SMB, "Limits exceeding the maximum allowable outstanding requests, given : %u, pending : %u\n",
- 			    credit_charge, conn->outstanding_credits);
- 		ret = 1;
---- a/fs/ksmbd/smb_common.c
-+++ b/fs/ksmbd/smb_common.c
-@@ -140,8 +140,10 @@ int ksmbd_verify_smb_message(struct ksmb
- 
- 	hdr = work->request_buf;
- 	if (*(__le32 *)hdr->Protocol == SMB1_PROTO_NUMBER &&
--	    hdr->Command == SMB_COM_NEGOTIATE)
-+	    hdr->Command == SMB_COM_NEGOTIATE) {
-+		work->conn->outstanding_credits++;
- 		return 0;
-+	}
- 
- 	return -EINVAL;
- }
+ 	chunk_array = kvmalloc_array(cs->in.num_chunks, sizeof(uint64_t), GFP_KERNEL);
+ 	if (!chunk_array)
 
 
