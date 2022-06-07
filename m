@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C90D8541013
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E4B5407F5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350164AbiFGTSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54680 "EHLO
+        id S1348719AbiFGRxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355944AbiFGTRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:17:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8FB9419AE;
-        Tue,  7 Jun 2022 11:08:01 -0700 (PDT)
+        with ESMTP id S1349659AbiFGRv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB5013C08E;
+        Tue,  7 Jun 2022 10:38:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8A61617AE;
-        Tue,  7 Jun 2022 18:07:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DDBC34119;
-        Tue,  7 Jun 2022 18:07:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2311AB80B66;
+        Tue,  7 Jun 2022 17:38:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8811EC385A5;
+        Tue,  7 Jun 2022 17:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625275;
-        bh=MNGbb0y6lx7BzfYUSDabvaF+OEPYHabK0nbEfAzr7mo=;
+        s=korg; t=1654623488;
+        bh=hDCiPEacoCm4kd0iu071/ZJvY3zZhf4KDgFQjIIqAsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPuepxEeHKK/FDk+YPxJclHDBS675hWc2PV0EOfPNvBt1NMUuNpy6g4A8DQTH+QA5
-         r2X4i1b6qf4KqaEW3l36MM9tI9G1ycQJvAjz34hJfyZueqpF+ywXuCuyGumsLF2Kdc
-         JNyxzmAjZhsbbKNwHWb4oxWC14ifMe2ZYD03dQjM=
+        b=td4OQds9+6+pz6g0lVhnCY3xBMtIlUafSxb78bnKVzhLmA17fv/8OLFOZytO95fHc
+         Ar7ZIX/PR2Tkfk3Bd4mn15JJ0jyFnLtgjeeJjZ1jR1d9/v+qkUXjJXJzqUUJoP7oQP
+         JcTNG2bhU5yG8GBZSCzfD/d+78cMxqW1CYQv4p/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 629/667] bcache: improve multithreaded bch_btree_check()
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 437/452] xfs: assert in xfs_btree_del_cursor should take into account error
 Date:   Tue,  7 Jun 2022 19:04:54 +0200
-Message-Id: <20220607164953.533017559@linuxfoundation.org>
+Message-Id: <20220607164921.582897883@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,155 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Dave Chinner <dchinner@redhat.com>
 
-commit 622536443b6731ec82c563aae7807165adbe9178 upstream.
+commit 56486f307100e8fc66efa2ebd8a71941fa10bf6f upstream.
 
-Commit 8e7102273f59 ("bcache: make bch_btree_check() to be
-multithreaded") makes bch_btree_check() to be much faster when checking
-all btree nodes during cache device registration. But it isn't in ideal
-shap yet, still can be improved.
+xfs/538 on a 1kB block filesystem failed with this assert:
 
-This patch does the following thing to improve current parallel btree
-nodes check by multiple threads in bch_btree_check(),
-- Add read lock to root node while checking all the btree nodes with
-  multiple threads. Although currently it is not mandatory but it is
-  good to have a read lock in code logic.
-- Remove local variable 'char name[32]', and generate kernel thread name
-  string directly when calling kthread_run().
-- Allocate local variable "struct btree_check_state check_state" on the
-  stack and avoid unnecessary dynamic memory allocation for it.
-- Reduce BCH_BTR_CHKTHREAD_MAX from 64 to 12 which is enough indeed.
-- Increase check_state->started to count created kernel thread after it
-  succeeds to create.
-- When wait for all checking kernel threads to finish, use wait_event()
-  to replace wait_event_interruptible().
+XFS: Assertion failed: cur->bc_btnum != XFS_BTNUM_BMAP || cur->bc_ino.allocated == 0 || xfs_is_shutdown(cur->bc_mp), file: fs/xfs/libxfs/xfs_btree.c, line: 448
 
-With this change, the code is more clear, and some potential error
-conditions are avoided.
+The problem was that an allocation failed unexpectedly in
+xfs_bmbt_alloc_block() after roughly 150,000 minlen allocation error
+injections, resulting in an EFSCORRUPTED error being returned to
+xfs_bmapi_write(). The error occurred on extent-to-btree format
+conversion allocating the new root block:
 
-Fixes: 8e7102273f59 ("bcache: make bch_btree_check() to be multithreaded")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220524102336.10684-2-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ RIP: 0010:xfs_bmbt_alloc_block+0x177/0x210
+ Call Trace:
+  <TASK>
+  xfs_btree_new_iroot+0xdf/0x520
+  xfs_btree_make_block_unfull+0x10d/0x1c0
+  xfs_btree_insrec+0x364/0x790
+  xfs_btree_insert+0xaa/0x210
+  xfs_bmap_add_extent_hole_real+0x1fe/0x9a0
+  xfs_bmapi_allocate+0x34c/0x420
+  xfs_bmapi_write+0x53c/0x9c0
+  xfs_alloc_file_space+0xee/0x320
+  xfs_file_fallocate+0x36b/0x450
+  vfs_fallocate+0x148/0x340
+  __x64_sys_fallocate+0x3c/0x70
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xa
+
+Why the allocation failed at this point is unknown, but is likely
+that we ran the transaction out of reserved space and filesystem out
+of space with bmbt blocks because of all the minlen allocations
+being done causing worst case fragmentation of a large allocation.
+
+Regardless of the cause, we've then called xfs_bmapi_finish() which
+calls xfs_btree_del_cursor(cur, error) to tear down the cursor.
+
+So we have a failed operation, error != 0, cur->bc_ino.allocated > 0
+and the filesystem is still up. The assert fails to take into
+account that allocation can fail with an error and the transaction
+teardown will shut the filesystem down if necessary. i.e. the
+assert needs to check "|| error != 0" as well, because at this point
+shutdown is pending because the current transaction is dirty....
+
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/btree.c |   58 ++++++++++++++++++++--------------------------
- drivers/md/bcache/btree.h |    2 -
- 2 files changed, 27 insertions(+), 33 deletions(-)
+ fs/xfs/libxfs/xfs_btree.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2006,8 +2006,7 @@ int bch_btree_check(struct cache_set *c)
- 	int i;
- 	struct bkey *k = NULL;
- 	struct btree_iter iter;
--	struct btree_check_state *check_state;
--	char name[32];
-+	struct btree_check_state check_state;
- 
- 	/* check and mark root node keys */
- 	for_each_key_filter(&c->root->keys, k, &iter, bch_ptr_invalid)
-@@ -2018,63 +2017,58 @@ int bch_btree_check(struct cache_set *c)
- 	if (c->root->level == 0)
- 		return 0;
- 
--	check_state = kzalloc(sizeof(struct btree_check_state), GFP_KERNEL);
--	if (!check_state)
--		return -ENOMEM;
--
--	check_state->c = c;
--	check_state->total_threads = bch_btree_chkthread_nr();
--	check_state->key_idx = 0;
--	spin_lock_init(&check_state->idx_lock);
--	atomic_set(&check_state->started, 0);
--	atomic_set(&check_state->enough, 0);
--	init_waitqueue_head(&check_state->wait);
-+	check_state.c = c;
-+	check_state.total_threads = bch_btree_chkthread_nr();
-+	check_state.key_idx = 0;
-+	spin_lock_init(&check_state.idx_lock);
-+	atomic_set(&check_state.started, 0);
-+	atomic_set(&check_state.enough, 0);
-+	init_waitqueue_head(&check_state.wait);
- 
-+	rw_lock(0, c->root, c->root->level);
- 	/*
- 	 * Run multiple threads to check btree nodes in parallel,
--	 * if check_state->enough is non-zero, it means current
-+	 * if check_state.enough is non-zero, it means current
- 	 * running check threads are enough, unncessary to create
- 	 * more.
- 	 */
--	for (i = 0; i < check_state->total_threads; i++) {
--		/* fetch latest check_state->enough earlier */
-+	for (i = 0; i < check_state.total_threads; i++) {
-+		/* fetch latest check_state.enough earlier */
- 		smp_mb__before_atomic();
--		if (atomic_read(&check_state->enough))
-+		if (atomic_read(&check_state.enough))
+--- a/fs/xfs/libxfs/xfs_btree.c
++++ b/fs/xfs/libxfs/xfs_btree.c
+@@ -372,8 +372,14 @@ xfs_btree_del_cursor(
  			break;
- 
--		check_state->infos[i].result = 0;
--		check_state->infos[i].state = check_state;
--		snprintf(name, sizeof(name), "bch_btrchk[%u]", i);
--		atomic_inc(&check_state->started);
-+		check_state.infos[i].result = 0;
-+		check_state.infos[i].state = &check_state;
- 
--		check_state->infos[i].thread =
-+		check_state.infos[i].thread =
- 			kthread_run(bch_btree_check_thread,
--				    &check_state->infos[i],
--				    name);
--		if (IS_ERR(check_state->infos[i].thread)) {
-+				    &check_state.infos[i],
-+				    "bch_btrchk[%d]", i);
-+		if (IS_ERR(check_state.infos[i].thread)) {
- 			pr_err("fails to run thread bch_btrchk[%d]\n", i);
- 			for (--i; i >= 0; i--)
--				kthread_stop(check_state->infos[i].thread);
-+				kthread_stop(check_state.infos[i].thread);
- 			ret = -ENOMEM;
- 			goto out;
- 		}
-+		atomic_inc(&check_state.started);
  	}
  
- 	/*
- 	 * Must wait for all threads to stop.
- 	 */
--	wait_event_interruptible(check_state->wait,
--				 atomic_read(&check_state->started) == 0);
-+	wait_event(check_state.wait, atomic_read(&check_state.started) == 0);
- 
--	for (i = 0; i < check_state->total_threads; i++) {
--		if (check_state->infos[i].result) {
--			ret = check_state->infos[i].result;
-+	for (i = 0; i < check_state.total_threads; i++) {
-+		if (check_state.infos[i].result) {
-+			ret = check_state.infos[i].result;
- 			goto out;
- 		}
- 	}
- 
- out:
--	kfree(check_state);
-+	rw_unlock(0, c->root);
- 	return ret;
- }
- 
---- a/drivers/md/bcache/btree.h
-+++ b/drivers/md/bcache/btree.h
-@@ -226,7 +226,7 @@ struct btree_check_info {
- 	int				result;
- };
- 
--#define BCH_BTR_CHKTHREAD_MAX	64
-+#define BCH_BTR_CHKTHREAD_MAX	12
- struct btree_check_state {
- 	struct cache_set		*c;
- 	int				total_threads;
++	/*
++	 * If we are doing a BMBT update, the number of unaccounted blocks
++	 * allocated during this cursor life time should be zero. If it's not
++	 * zero, then we should be shut down or on our way to shutdown due to
++	 * cancelling a dirty transaction on error.
++	 */
+ 	ASSERT(cur->bc_btnum != XFS_BTNUM_BMAP || cur->bc_ino.allocated == 0 ||
+-	       XFS_FORCED_SHUTDOWN(cur->bc_mp));
++	       XFS_FORCED_SHUTDOWN(cur->bc_mp) || error != 0);
+ 	if (unlikely(cur->bc_flags & XFS_BTREE_STAGING))
+ 		kmem_free(cur->bc_ops);
+ 	kmem_cache_free(xfs_btree_cur_zone, cur);
 
 
