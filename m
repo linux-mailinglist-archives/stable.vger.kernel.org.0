@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F789541C0E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C76B05414D3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382826AbiFGV4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45340 "EHLO
+        id S1358927AbiFGUWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:22:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383052AbiFGVwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B149811178;
-        Tue,  7 Jun 2022 12:10:22 -0700 (PDT)
+        with ESMTP id S1359203AbiFGUWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091AD1451FD;
+        Tue,  7 Jun 2022 11:31:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D1BBB823B2;
-        Tue,  7 Jun 2022 19:10:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4747C385A5;
-        Tue,  7 Jun 2022 19:10:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97FC461295;
+        Tue,  7 Jun 2022 18:31:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4232C385A5;
+        Tue,  7 Jun 2022 18:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629020;
-        bh=ZTwSZD87fdAeVEUj2frEjr7IJiDfgHVX8UWIVufBZcQ=;
+        s=korg; t=1654626685;
+        bh=dJUCVa4nIa8YINdSoor1J/gc2l6XzUX9TFZT4NQvPgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJuBpY2Jog3Q3qyJWktTE1CbR9icjmqpNpXWeIGBPNeUmkaIxko16U33f+CJmbsGQ
-         +u7gi1hPvJs7JqZJ9cRTYZbQBCopsgGlQOmzAB9PsJvf5Fp9wwnJOWJghXvzIOduP+
-         R/NsfjDJNrkfb6LJaeW+PR3vmKzFPY/8Rr+AjBWI=
+        b=gGBcaAcT52IwaiFpdplmUD7TZPpWKAk3cG7lQtl4qcJ4NkqQq3bqaB5W3r8rvoPzv
+         MHQRNqMwz3jmCNISdT8scqtrRNj6XB6hq1u9+p//p6MUyxrU8eQxEV21iGZ/EjUcA4
+         r5U667Xv3skpMKnWKoraK855RWJLijqkn+181UGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 503/879] net: macb: Fix PTP one step sync support
-Date:   Tue,  7 Jun 2022 19:00:21 +0200
-Message-Id: <20220607165017.474449409@linuxfoundation.org>
+Subject: [PATCH 5.17 430/772] ASoC: max98090: Move check for invalid values before casting in max98090_put_enab_tlv()
+Date:   Tue,  7 Jun 2022 19:00:22 +0200
+Message-Id: <20220607165001.673831982@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,142 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
 
-[ Upstream commit 5cebb40bc9554aafcc492431181f43c6231b0459 ]
+[ Upstream commit f7a344468105ef8c54086dfdc800e6f5a8417d3e ]
 
-PTP one step sync packets cannot have CSUM padding and insertion in
-SW since time stamp is inserted on the fly by HW.
-In addition, ptp4l version 3.0 and above report an error when skb
-timestamps are reported for packets that not processed for TX TS
-after transmission.
-Add a helper to identify PTP one step sync and fix the above two
-errors. Add a common mask for PTP header flag field "twoStepflag".
-Also reset ptp OSS bit when one step is not selected.
+Validation of signed input should be done before casting to unsigned int.
 
-Fixes: ab91f0a9b5f4 ("net: macb: Add hardware PTP support")
-Fixes: 653e92a9175e ("net: macb: add support for padding and fcs computation")
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220518170756.7752-1-harini.katakam@xilinx.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Suggested-by: Mark Brown <broonie@kernel.org>
+Fixes: 2fbe467bcbfc ("ASoC: max98090: Reject invalid values in custom control put()")
+Link: https://lore.kernel.org/r/1652999486-29653-1-git-send-email-khoroshilov@ispras.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 40 +++++++++++++++++++++---
- drivers/net/ethernet/cadence/macb_ptp.c  |  4 ++-
- include/linux/ptp_classify.h             |  3 ++
- 3 files changed, 42 insertions(+), 5 deletions(-)
+ sound/soc/codecs/max98090.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index ed7c2c2c4401..e9e5c3f6027c 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -36,6 +36,7 @@
- #include <linux/iopoll.h>
- #include <linux/phy/phy.h>
- #include <linux/pm_runtime.h>
-+#include <linux/ptp_classify.h>
- #include <linux/reset.h>
- #include "macb.h"
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index 62b41ca050a2..5513acd360b8 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -393,7 +393,8 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
+ 	struct soc_mixer_control *mc =
+ 		(struct soc_mixer_control *)kcontrol->private_value;
+ 	unsigned int mask = (1 << fls(mc->max)) - 1;
+-	unsigned int sel = ucontrol->value.integer.value[0];
++	int sel_unchecked = ucontrol->value.integer.value[0];
++	unsigned int sel;
+ 	unsigned int val = snd_soc_component_read(component, mc->reg);
+ 	unsigned int *select;
  
-@@ -1124,6 +1125,36 @@ static void macb_tx_error_task(struct work_struct *work)
- 	spin_unlock_irqrestore(&bp->lock, flags);
- }
+@@ -413,8 +414,9 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
  
-+static bool ptp_one_step_sync(struct sk_buff *skb)
-+{
-+	struct ptp_header *hdr;
-+	unsigned int ptp_class;
-+	u8 msgtype;
-+
-+	/* No need to parse packet if PTP TS is not involved */
-+	if (likely(!(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP)))
-+		goto not_oss;
-+
-+	/* Identify and return whether PTP one step sync is being processed */
-+	ptp_class = ptp_classify_raw(skb);
-+	if (ptp_class == PTP_CLASS_NONE)
-+		goto not_oss;
-+
-+	hdr = ptp_parse_header(skb, ptp_class);
-+	if (!hdr)
-+		goto not_oss;
-+
-+	if (hdr->flag_field[0] & PTP_FLAG_TWOSTEP)
-+		goto not_oss;
-+
-+	msgtype = ptp_get_msgtype(hdr, ptp_class);
-+	if (msgtype == PTP_MSGTYPE_SYNC)
-+		return true;
-+
-+not_oss:
-+	return false;
-+}
-+
- static void macb_tx_interrupt(struct macb_queue *queue)
- {
- 	unsigned int tail;
-@@ -1168,8 +1199,8 @@ static void macb_tx_interrupt(struct macb_queue *queue)
+ 	val = (val >> mc->shift) & mask;
  
- 			/* First, update TX stats if needed */
- 			if (skb) {
--				if (unlikely(skb_shinfo(skb)->tx_flags &
--					     SKBTX_HW_TSTAMP) &&
-+				if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) &&
-+				    !ptp_one_step_sync(skb) &&
- 				    gem_ptp_do_txstamp(queue, skb, desc) == 0) {
- 					/* skb now belongs to timestamp buffer
- 					 * and will be removed later
-@@ -1999,7 +2030,8 @@ static unsigned int macb_tx_map(struct macb *bp,
- 			ctrl |= MACB_BF(TX_LSO, lso_ctrl);
- 			ctrl |= MACB_BF(TX_TCP_SEQ_SRC, seq_ctrl);
- 			if ((bp->dev->features & NETIF_F_HW_CSUM) &&
--			    skb->ip_summed != CHECKSUM_PARTIAL && !lso_ctrl)
-+			    skb->ip_summed != CHECKSUM_PARTIAL && !lso_ctrl &&
-+			    !ptp_one_step_sync(skb))
- 				ctrl |= MACB_BIT(TX_NOCRC);
- 		} else
- 			/* Only set MSS/MFS on payload descriptors
-@@ -2097,7 +2129,7 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
+-	if (sel < 0 || sel > mc->max)
++	if (sel_unchecked < 0 || sel_unchecked > mc->max)
+ 		return -EINVAL;
++	sel = sel_unchecked;
  
- 	if (!(ndev->features & NETIF_F_HW_CSUM) ||
- 	    !((*skb)->ip_summed != CHECKSUM_PARTIAL) ||
--	    skb_shinfo(*skb)->gso_size)	/* Not available for GSO */
-+	    skb_shinfo(*skb)->gso_size || ptp_one_step_sync(*skb))
- 		return 0;
+ 	*select = sel;
  
- 	if (padlen <= 0) {
-diff --git a/drivers/net/ethernet/cadence/macb_ptp.c b/drivers/net/ethernet/cadence/macb_ptp.c
-index fb6b27f46b15..9559c16078f9 100644
---- a/drivers/net/ethernet/cadence/macb_ptp.c
-+++ b/drivers/net/ethernet/cadence/macb_ptp.c
-@@ -470,8 +470,10 @@ int gem_set_hwtst(struct net_device *dev, struct ifreq *ifr, int cmd)
- 	case HWTSTAMP_TX_ONESTEP_SYNC:
- 		if (gem_ptp_set_one_step_sync(bp, 1) != 0)
- 			return -ERANGE;
--		fallthrough;
-+		tx_bd_control = TSTAMP_ALL_FRAMES;
-+		break;
- 	case HWTSTAMP_TX_ON:
-+		gem_ptp_set_one_step_sync(bp, 0);
- 		tx_bd_control = TSTAMP_ALL_FRAMES;
- 		break;
- 	default:
-diff --git a/include/linux/ptp_classify.h b/include/linux/ptp_classify.h
-index fefa7790dc46..2b6ea36ad162 100644
---- a/include/linux/ptp_classify.h
-+++ b/include/linux/ptp_classify.h
-@@ -43,6 +43,9 @@
- #define OFF_PTP_SOURCE_UUID	22 /* PTPv1 only */
- #define OFF_PTP_SEQUENCE_ID	30
- 
-+/* PTP header flag fields */
-+#define PTP_FLAG_TWOSTEP	BIT(1)
-+
- /* Below defines should actually be removed at some point in time. */
- #define IP6_HLEN	40
- #define UDP_HLEN	8
 -- 
 2.35.1
 
