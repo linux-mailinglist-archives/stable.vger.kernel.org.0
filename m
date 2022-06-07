@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59AC5540637
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7629541C2F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240226AbiFGReZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
+        id S1379051AbiFGV4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:56:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347639AbiFGRa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:56 -0400
+        with ESMTP id S1384053AbiFGVyE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3788113B7B;
-        Tue,  7 Jun 2022 10:27:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF7AC24851F;
+        Tue,  7 Jun 2022 12:12:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0D49B80B66;
-        Tue,  7 Jun 2022 17:27:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188C1C385A5;
-        Tue,  7 Jun 2022 17:27:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A131B82375;
+        Tue,  7 Jun 2022 19:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D7D2C3411C;
+        Tue,  7 Jun 2022 19:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622866;
-        bh=ZAMveTWAi+AXmb7bx/BqPzHEUjQdOAW3YaWQ5M7ujiQ=;
+        s=korg; t=1654629161;
+        bh=idSTYfKqID3ycqU0J+RD3lPvbre/1DQacziwM3YLQwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdMRwQuxOrflSg4ON0by82Cv03XJiW5n8DHK8RKrielgntYKgLsimyrRfVm+e6ImH
-         DgBvbh8IwOa00Zp/luINZ1NnH+h3OUi73/c7Me2wjln2GouJ8vz2a6rzFTZTTQeGAM
-         I8RdAJn/qH77UmQlHp527KLGKsWstzlUAaT4hgSM=
+        b=Eq9lXSCAsc8ZK1UDNFf9xI/MR8VlhGvdDsCh1lGHHkaDbvURjpb/kgxmgsZqY08VJ
+         wfs2dnIOeWvk8LtyFfEmU59FR9yvY7/kHuK62rCPtGjhKv/DblmSD5goMXoUodXWMw
+         f4UWindDtRxeAxq1zNcWWU6jeNVleBuv7bA+f8IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Krzysztof Zach <krzysztof.zach@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 212/452] media: exynos4-is: Change clk_disable to clk_disable_unprepare
+Subject: [PATCH 5.18 551/879] cxl/pci: Make cxl_dvsec_ranges() failure not fatal to cxl_pci
 Date:   Tue,  7 Jun 2022 19:01:09 +0200
-Message-Id: <20220607164914.879757424@linuxfoundation.org>
+Message-Id: <20220607165018.860048093@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit 9fadab72a6916c7507d7fedcd644859eef995078 ]
+[ Upstream commit 36bfc6ad508af38f212cf5a38147d867fb3f80a8 ]
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare,
-other than clk_disable.
+cxl_dvsec_ranges(), the helper for enumerating the presence of an active
+legacy CXL.mem configuration on a CXL 2.0 Memory Expander, is not fatal
+for cxl_pci because there is still value to enable mailbox operations
+even if CXL.mem operation is disabled. Recall that the reason cxl_pci
+does this initialization and not cxl_mem is to preserve the useful
+property (for unit testing) that cxl_mem is cxl_memdev + mmio generic,
+and does not require access to a 'struct pci_dev' to issue config
+cycles.
 
-Fix this by changing clk_disable to clk_disable_unprepare.
+Update 'struct cxl_endpoint_dvsec_info' to carry either a positive
+number of non-zero size legacy CXL DVSEC ranges, or the negative error
+code from __cxl_dvsec_ranges() in its @ranges member.
 
-Fixes: b4155d7d5b2c ("[media] exynos4-is: Ensure fimc-is clocks are not enabled until properly configured")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: Krzysztof Zach <krzysztof.zach@intel.com>
+Fixes: 560f78559006 ("cxl/pci: Retrieve CXL DVSEC memory info")
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
+Link: https://lore.kernel.org/r/164730735869.3806189.4032428192652531946.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cxl/pci.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index d4b31b3c9282..dc2a144cd29b 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -140,7 +140,7 @@ static int fimc_is_enable_clocks(struct fimc_is *is)
- 			dev_err(&is->pdev->dev, "clock %s enable failed\n",
- 				fimc_is_clocks[i]);
- 			for (--i; i >= 0; i--)
--				clk_disable(is->clocks[i]);
-+				clk_disable_unprepare(is->clocks[i]);
- 			return ret;
- 		}
- 		pr_debug("enabled clock: %s\n", fimc_is_clocks[i]);
+diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
+index c4941a3ca6a8..bb92853c3b93 100644
+--- a/drivers/cxl/pci.c
++++ b/drivers/cxl/pci.c
+@@ -462,13 +462,18 @@ static int wait_for_media_ready(struct cxl_dev_state *cxlds)
+ 	return 0;
+ }
+ 
+-static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
++/*
++ * Return positive number of non-zero ranges on success and a negative
++ * error code on failure. The cxl_mem driver depends on ranges == 0 to
++ * init HDM operation.
++ */
++static int __cxl_dvsec_ranges(struct cxl_dev_state *cxlds,
++			      struct cxl_endpoint_dvsec_info *info)
+ {
+-	struct cxl_endpoint_dvsec_info *info = &cxlds->info;
+ 	struct pci_dev *pdev = to_pci_dev(cxlds->dev);
++	int hdm_count, rc, i, ranges = 0;
+ 	struct device *dev = &pdev->dev;
+ 	int d = cxlds->cxl_dvsec;
+-	int hdm_count, rc, i;
+ 	u16 cap, ctrl;
+ 
+ 	if (!d) {
+@@ -545,10 +550,17 @@ static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
+ 		};
+ 
+ 		if (size)
+-			info->ranges++;
++			ranges++;
+ 	}
+ 
+-	return 0;
++	return ranges;
++}
++
++static void cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
++{
++	struct cxl_endpoint_dvsec_info *info = &cxlds->info;
++
++	info->ranges = __cxl_dvsec_ranges(cxlds, info);
+ }
+ 
+ static int cxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -617,10 +629,7 @@ static int cxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = cxl_dvsec_ranges(cxlds);
+-	if (rc)
+-		dev_warn(&pdev->dev,
+-			 "Failed to get DVSEC range information (%d)\n", rc);
++	cxl_dvsec_ranges(cxlds);
+ 
+ 	cxlmd = devm_cxl_add_memdev(cxlds);
+ 	if (IS_ERR(cxlmd))
 -- 
 2.35.1
 
