@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9BA541401
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C50E540585
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359226AbiFGUJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:09:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53662 "EHLO
+        id S1346445AbiFGR0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:26:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355482AbiFGUJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7459EEF066;
-        Tue,  7 Jun 2022 11:26:34 -0700 (PDT)
+        with ESMTP id S1346370AbiFGRYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B1604C78A;
+        Tue,  7 Jun 2022 10:22:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1774660906;
-        Tue,  7 Jun 2022 18:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F2EC385A5;
-        Tue,  7 Jun 2022 18:26:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF9D7B8220B;
+        Tue,  7 Jun 2022 17:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D48C385A5;
+        Tue,  7 Jun 2022 17:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626393;
-        bh=ldGhd7bSBWMTDEq9RvkJwTdry4k2qspt5cCyIwrHyVg=;
+        s=korg; t=1654622544;
+        bh=cEhWmMxXvdBKqxo8lID1YPL2df86SOavf20+AeO8pMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJBAWK+2ymkA68+2EBezP51M5jFl8GrqLFsWWS2ZZKNJfKltyFIbRoVxlkbOZel+l
-         NKl1hWkZJX2110P7Mt44NJicfeJ7W25ACYDiZ5REuVahyhfL7PQFehRRTkUNde59sM
-         8jGel4aajjOL+f954F/oAR9skHuELIMEBj1rs+W4=
+        b=qK8Tm20YbBD6WWgDZg2ICrUUyhuyTrvBQmoAi0vehrrhJYZyaHZqVLtVSm8vA+7sY
+         NHYqh6bCjj3pibI871SSBB8aE7wrymb9vYhgq8ePrPdRdW89wfLUp0N28aqPdiK0a2
+         Km1Ve3HVEo2YlwWraJpqjeYi1pVgvn0Ov61PuKbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 362/772] ASoC: samsung: Fix refcount leak in aries_audio_probe
+Subject: [PATCH 5.10 097/452] IB/rdmavt: add missing locks in rvt_ruc_loopback
 Date:   Tue,  7 Jun 2022 18:59:14 +0200
-Message-Id: <20220607164959.681023905@linuxfoundation.org>
+Message-Id: <20220607164911.449017513@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit bf4a9b2467b775717d0e9034ad916888e19713a3 ]
+[ Upstream commit 22cbc6c2681a0a4fe76150270426e763d52353a4 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-If extcon_find_edev_by_node() fails, it doesn't call of_node_put()
-Calling of_node_put() after extcon_find_edev_by_node() to fix this.
+The documentation of the function rvt_error_qp says both r_lock and
+s_lock need to be held when calling that function.
+It also asserts using lockdep that both of those locks are held.
+rvt_error_qp is called form rvt_send_cq, which is called from
+rvt_qp_complete_swqe, which is called from rvt_send_complete, which is
+called from rvt_ruc_loopback in two places. Both of these places do not
+hold r_lock. Fix this by acquiring a spin_lock of r_lock in both of
+these places.
+The r_lock acquiring cannot be added in rvt_qp_complete_swqe because
+some of its other callers already have r_lock acquired.
 
-Fixes: 7a3a7671fa6c ("ASoC: samsung: Add driver for Aries boards")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220512043828.496-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220228195144.71946-1-dossche.niels@gmail.com
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/aries_wm8994.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rdmavt/qp.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/samsung/aries_wm8994.c b/sound/soc/samsung/aries_wm8994.c
-index 5265e546b124..83acbe57b248 100644
---- a/sound/soc/samsung/aries_wm8994.c
-+++ b/sound/soc/samsung/aries_wm8994.c
-@@ -585,10 +585,10 @@ static int aries_audio_probe(struct platform_device *pdev)
+diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
+index d8d52a00a1be..585a9c76e518 100644
+--- a/drivers/infiniband/sw/rdmavt/qp.c
++++ b/drivers/infiniband/sw/rdmavt/qp.c
+@@ -2826,7 +2826,7 @@ void rvt_qp_iter(struct rvt_dev_info *rdi,
+ EXPORT_SYMBOL(rvt_qp_iter);
  
- 	extcon_np = of_parse_phandle(np, "extcon", 0);
- 	priv->usb_extcon = extcon_find_edev_by_node(extcon_np);
-+	of_node_put(extcon_np);
- 	if (IS_ERR(priv->usb_extcon))
- 		return dev_err_probe(dev, PTR_ERR(priv->usb_extcon),
- 				     "Failed to get extcon device");
--	of_node_put(extcon_np);
+ /*
+- * This should be called with s_lock held.
++ * This should be called with s_lock and r_lock held.
+  */
+ void rvt_send_complete(struct rvt_qp *qp, struct rvt_swqe *wqe,
+ 		       enum ib_wc_status status)
+@@ -3185,7 +3185,9 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
+ 	rvp->n_loop_pkts++;
+ flush_send:
+ 	sqp->s_rnr_retry = sqp->s_rnr_retry_cnt;
++	spin_lock(&sqp->r_lock);
+ 	rvt_send_complete(sqp, wqe, send_status);
++	spin_unlock(&sqp->r_lock);
+ 	if (local_ops) {
+ 		atomic_dec(&sqp->local_ops_pending);
+ 		local_ops = 0;
+@@ -3239,7 +3241,9 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
+ 	spin_unlock_irqrestore(&qp->r_lock, flags);
+ serr_no_r_lock:
+ 	spin_lock_irqsave(&sqp->s_lock, flags);
++	spin_lock(&sqp->r_lock);
+ 	rvt_send_complete(sqp, wqe, send_status);
++	spin_unlock(&sqp->r_lock);
+ 	if (sqp->ibqp.qp_type == IB_QPT_RC) {
+ 		int lastwqe;
  
- 	priv->adc = devm_iio_channel_get(dev, "headset-detect");
- 	if (IS_ERR(priv->adc))
 -- 
 2.35.1
 
