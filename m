@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D054541786
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6377F5417E7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378930AbiFGVDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49900 "EHLO
+        id S1379946AbiFGVGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:06:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379454AbiFGVC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:29 -0400
+        with ESMTP id S1357011AbiFGVCc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC201208A7;
-        Tue,  7 Jun 2022 11:48:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D48122B5E;
+        Tue,  7 Jun 2022 11:48:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3911616AF;
-        Tue,  7 Jun 2022 18:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFED0C385A2;
-        Tue,  7 Jun 2022 18:48:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B394661295;
+        Tue,  7 Jun 2022 18:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B89B9C34115;
+        Tue,  7 Jun 2022 18:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627688;
-        bh=s3qNkoIYVWMpejiHT67UNIh/odgE/06E//y1wED6l1c=;
+        s=korg; t=1654627691;
+        bh=bGvWXSsVYE8QDR2oEurh5TCb6bubWjqxrbK4wgMkhpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdkD928l9xjJw6ej7ZJuLIKEOPOPQNeEytjRTnaalqblOchgJSW1cEoMQ+QMSfP4W
-         iTK3VhBq496WlFjEQnX+GiiLaZNIzKmz4We1hz/MBX1LEaxZjuWgB/SRWjPu33yu/B
-         J1GyCjV/W1Yg7F6oilHehdNGwJtJGH+lkDgA9zZ8=
+        b=Tz4D3Hcgq38do1TTZ4LQ3aTjcO2QxLjNNQsSVuLFd4TLxoGvWdFb2KAGC2exPp+El
+         uPhHf+fPYCW+BvDTWZhQ/bsobl1c0QU0Po8YI3+RTxUZzoHplpjE0ivU2VXhPCGM8l
+         ah/J64mieIfWI4BIImBvMgch8cWDRX9ZKna2oR4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>,
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 056/879] drm/vmwgfx: validate the screen formats
-Date:   Tue,  7 Jun 2022 18:52:54 +0200
-Message-Id: <20220607165004.316743392@linuxfoundation.org>
+Subject: [PATCH 5.18 057/879] ath11k: fix the warning of dev_wake in mhi_pm_disable_transition()
+Date:   Tue,  7 Jun 2022 18:52:55 +0200
+Message-Id: <20220607165004.345715791@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,84 +54,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit 8bb75aeb58bd688d70827ae179bd3da57b6d975b ]
+[ Upstream commit 0d7a8a6204ea9271f1d0a8c66a9fd2f54d2e3cbc ]
 
-The kms code wasn't validating the modifiers and was letting through
-unsupported formats. rgb8 was never properly supported and has no
-matching svga screen target format so remove it.
-This fixes format/modifier failures in kms_addfb_basic from IGT.
+When test device recovery with below command, it has warning in message
+as below.
+echo assert > /sys/kernel/debug/ath11k/wcn6855\ hw2.0/simulate_fw_crash
+echo assert > /sys/kernel/debug/ath11k/qca6390\ hw2.0/simulate_fw_crash
 
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220318174332.440068-4-zack@kde.org
+warning message:
+[ 1965.642121] ath11k_pci 0000:06:00.0: simulating firmware assert crash
+[ 1968.471364] ieee80211 phy0: Hardware restart was requested
+[ 1968.511305] ------------[ cut here ]------------
+[ 1968.511368] WARNING: CPU: 3 PID: 1546 at drivers/bus/mhi/core/pm.c:505 mhi_pm_disable_transition+0xb37/0xda0 [mhi]
+[ 1968.511443] Modules linked in: ath11k_pci ath11k mac80211 libarc4 cfg80211 qmi_helpers qrtr_mhi mhi qrtr nvme nvme_core
+[ 1968.511563] CPU: 3 PID: 1546 Comm: kworker/u17:0 Kdump: loaded Tainted: G        W         5.17.0-rc3-wt-ath+ #579
+[ 1968.511629] Hardware name: Intel(R) Client Systems NUC8i7HVK/NUC8i7HVB, BIOS HNKBLi70.86A.0067.2021.0528.1339 05/28/2021
+[ 1968.511704] Workqueue: mhi_hiprio_wq mhi_pm_st_worker [mhi]
+[ 1968.511787] RIP: 0010:mhi_pm_disable_transition+0xb37/0xda0 [mhi]
+[ 1968.511870] Code: a9 fe ff ff 4c 89 ff 44 89 04 24 e8 03 46 f6 e5 44 8b 04 24 41 83 f8 01 0f 84 21 fe ff ff e9 4c fd ff ff 0f 0b e9 af f8 ff ff <0f> 0b e9 5c f8 ff ff 48 89 df e8 da 9e ee e3 e9 12 fd ff ff 4c 89
+[ 1968.511923] RSP: 0018:ffffc900024efbf0 EFLAGS: 00010286
+[ 1968.511969] RAX: 00000000ffffffff RBX: ffff88811d241250 RCX: ffffffffc0176922
+[ 1968.512014] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff888118a90a24
+[ 1968.512059] RBP: ffff888118a90800 R08: 0000000000000000 R09: ffff888118a90a27
+[ 1968.512102] R10: ffffed1023152144 R11: 0000000000000001 R12: ffff888118a908ac
+[ 1968.512229] R13: ffff888118a90928 R14: dffffc0000000000 R15: ffff888118a90a24
+[ 1968.512310] FS:  0000000000000000(0000) GS:ffff888234200000(0000) knlGS:0000000000000000
+[ 1968.512405] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1968.512493] CR2: 00007f5538f443a8 CR3: 000000016dc28001 CR4: 00000000003706e0
+[ 1968.512587] Call Trace:
+[ 1968.512672]  <TASK>
+[ 1968.512751]  ? _raw_spin_unlock_irq+0x1f/0x40
+[ 1968.512859]  mhi_pm_st_worker+0x3ac/0x790 [mhi]
+[ 1968.512959]  ? mhi_pm_mission_mode_transition.isra.0+0x7d0/0x7d0 [mhi]
+[ 1968.513063]  process_one_work+0x86a/0x1400
+[ 1968.513184]  ? pwq_dec_nr_in_flight+0x230/0x230
+[ 1968.513312]  ? move_linked_works+0x125/0x290
+[ 1968.513416]  worker_thread+0x6db/0xf60
+[ 1968.513536]  ? process_one_work+0x1400/0x1400
+[ 1968.513627]  kthread+0x241/0x2d0
+[ 1968.513733]  ? kthread_complete_and_exit+0x20/0x20
+[ 1968.513821]  ret_from_fork+0x22/0x30
+[ 1968.513924]  </TASK>
+
+Reason is mhi_deassert_dev_wake() from mhi_device_put() is called
+but mhi_assert_dev_wake() from __mhi_device_get_sync() is not called
+in progress of recovery. Commit 8e0559921f9a ("bus: mhi: core:
+Skip device wake in error or shutdown state") add check for the
+pm_state of mhi in __mhi_device_get_sync(), and the pm_state is not
+the normal state untill recovery is completed, so it leads the
+dev_wake is not 0 and above warning print in mhi_pm_disable_transition()
+while checking mhi_cntrl->dev_wake.
+
+Add check in ath11k_pci_write32()/ath11k_pci_read32() to skip call
+mhi_device_put() if mhi_device_get_sync() does not really do wake,
+then the warning gone.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03003-QCAHSPSWPL_V1_V2_SILICONZ_LITE-2
+
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220228064606.8981-5-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.c | 30 +++++++++++++++--------------
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.h |  1 -
- 2 files changed, 16 insertions(+), 15 deletions(-)
+ drivers/net/wireless/ath/ath11k/pci.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-index 93431e8f6606..9410152f9d6f 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-@@ -914,6 +914,15 @@ static int vmw_kms_new_framebuffer_surface(struct vmw_private *dev_priv,
- 	 * Sanity checks.
- 	 */
+diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
+index 903758751c99..8a3ff12057e8 100644
+--- a/drivers/net/wireless/ath/ath11k/pci.c
++++ b/drivers/net/wireless/ath/ath11k/pci.c
+@@ -191,6 +191,7 @@ void ath11k_pci_write32(struct ath11k_base *ab, u32 offset, u32 value)
+ {
+ 	struct ath11k_pci *ab_pci = ath11k_pci_priv(ab);
+ 	u32 window_start;
++	int ret = 0;
  
-+	if (!drm_any_plane_has_format(&dev_priv->drm,
-+				      mode_cmd->pixel_format,
-+				      mode_cmd->modifier[0])) {
-+		drm_dbg(&dev_priv->drm,
-+			"unsupported pixel format %p4cc / modifier 0x%llx\n",
-+			&mode_cmd->pixel_format, mode_cmd->modifier[0]);
-+		return -EINVAL;
-+	}
-+
- 	/* Surface must be marked as a scanout. */
- 	if (unlikely(!surface->metadata.scanout))
- 		return -EINVAL;
-@@ -1236,20 +1245,13 @@ static int vmw_kms_new_framebuffer_bo(struct vmw_private *dev_priv,
- 		return -EINVAL;
- 	}
+ 	/* for offset beyond BAR + 4K - 32, may
+ 	 * need to wakeup MHI to access.
+@@ -198,7 +199,7 @@ void ath11k_pci_write32(struct ath11k_base *ab, u32 offset, u32 value)
+ 	if (ab->hw_params.wakeup_mhi &&
+ 	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
+ 	    offset >= ACCESS_ALWAYS_OFF)
+-		mhi_device_get_sync(ab_pci->mhi_ctrl->mhi_dev);
++		ret = mhi_device_get_sync(ab_pci->mhi_ctrl->mhi_dev);
  
--	/* Limited framebuffer color depth support for screen objects */
--	if (dev_priv->active_display_unit == vmw_du_screen_object) {
--		switch (mode_cmd->pixel_format) {
--		case DRM_FORMAT_XRGB8888:
--		case DRM_FORMAT_ARGB8888:
--			break;
--		case DRM_FORMAT_XRGB1555:
--		case DRM_FORMAT_RGB565:
--			break;
--		default:
--			DRM_ERROR("Invalid pixel format: %p4cc\n",
--				  &mode_cmd->pixel_format);
--			return -EINVAL;
--		}
-+	if (!drm_any_plane_has_format(&dev_priv->drm,
-+				      mode_cmd->pixel_format,
-+				      mode_cmd->modifier[0])) {
-+		drm_dbg(&dev_priv->drm,
-+			"unsupported pixel format %p4cc / modifier 0x%llx\n",
-+			&mode_cmd->pixel_format, mode_cmd->modifier[0]);
-+		return -EINVAL;
- 	}
+ 	if (offset < WINDOW_START) {
+ 		iowrite32(value, ab->mem  + offset);
+@@ -222,7 +223,8 @@ void ath11k_pci_write32(struct ath11k_base *ab, u32 offset, u32 value)
  
- 	vfbd = kzalloc(sizeof(*vfbd), GFP_KERNEL);
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-index 4d36e8507380..d9ebd02099a6 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-@@ -247,7 +247,6 @@ struct vmw_framebuffer_bo {
- static const uint32_t __maybe_unused vmw_primary_plane_formats[] = {
- 	DRM_FORMAT_XRGB1555,
- 	DRM_FORMAT_RGB565,
--	DRM_FORMAT_RGB888,
- 	DRM_FORMAT_XRGB8888,
- 	DRM_FORMAT_ARGB8888,
- };
+ 	if (ab->hw_params.wakeup_mhi &&
+ 	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
+-	    offset >= ACCESS_ALWAYS_OFF)
++	    offset >= ACCESS_ALWAYS_OFF &&
++	    !ret)
+ 		mhi_device_put(ab_pci->mhi_ctrl->mhi_dev);
+ }
+ 
+@@ -230,6 +232,7 @@ u32 ath11k_pci_read32(struct ath11k_base *ab, u32 offset)
+ {
+ 	struct ath11k_pci *ab_pci = ath11k_pci_priv(ab);
+ 	u32 val, window_start;
++	int ret = 0;
+ 
+ 	/* for offset beyond BAR + 4K - 32, may
+ 	 * need to wakeup MHI to access.
+@@ -237,7 +240,7 @@ u32 ath11k_pci_read32(struct ath11k_base *ab, u32 offset)
+ 	if (ab->hw_params.wakeup_mhi &&
+ 	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
+ 	    offset >= ACCESS_ALWAYS_OFF)
+-		mhi_device_get_sync(ab_pci->mhi_ctrl->mhi_dev);
++		ret = mhi_device_get_sync(ab_pci->mhi_ctrl->mhi_dev);
+ 
+ 	if (offset < WINDOW_START) {
+ 		val = ioread32(ab->mem + offset);
+@@ -261,7 +264,8 @@ u32 ath11k_pci_read32(struct ath11k_base *ab, u32 offset)
+ 
+ 	if (ab->hw_params.wakeup_mhi &&
+ 	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
+-	    offset >= ACCESS_ALWAYS_OFF)
++	    offset >= ACCESS_ALWAYS_OFF &&
++	    !ret)
+ 		mhi_device_put(ab_pci->mhi_ctrl->mhi_dev);
+ 
+ 	return val;
 -- 
 2.35.1
 
