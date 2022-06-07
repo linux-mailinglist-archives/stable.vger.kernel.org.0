@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9EE541D90
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C459E54075E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243978AbiFGWRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:17:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37866 "EHLO
+        id S1348062AbiFGRrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384731AbiFGWQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:16:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6322612BA;
-        Tue,  7 Jun 2022 12:20:03 -0700 (PDT)
+        with ESMTP id S1349062AbiFGRqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A2562BC4;
+        Tue,  7 Jun 2022 10:36:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B49D36193E;
-        Tue,  7 Jun 2022 19:19:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3837C385A2;
-        Tue,  7 Jun 2022 19:19:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 979BF60DB5;
+        Tue,  7 Jun 2022 17:36:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65A9C385A5;
+        Tue,  7 Jun 2022 17:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629560;
-        bh=uDFJt36J43JNrQpnP2g5KapftTC+j4X2m4rJ87PLIAI=;
+        s=korg; t=1654623382;
+        bh=mLUZPnwtxYepKpeekuKglrgz00FKKljKZilx1rGoNw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWTiAM3bB7BjY7Bs3jCMoXBJixbsNaXqJ8SvVD7dgCUmonWebji2ybSySWCZizsmm
-         J2JIPuiGlTz41RZpWwo8tfxwfzzSs/l3vG/3MbOrREewHjUMIXO7a6XWaW7dOjNK06
-         cmebVmF57lPysuqRdWn4YUPP1qDvkrqm/IkoiI5o=
+        b=eeOKZbnL95rtuzSKH49pVZALv8rOdyxP41Vh8/HbPkRAcfyzcaszlqbhM2i74fL7w
+         p+bPqkUjT2I3YF37Udt7cp7WRXIefQGcvRLbSZoBeVO9ect5wyHliEfuWQInybuzaH
+         1DTKr95cGn5ETF63DlLQ1V8RpaFFXXzctGkZNopI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.18 736/879] ext4: mark group as trimmed only if it was fully scanned
+        stable@vger.kernel.org, Catrinel Catrinescu <cc@80211.de>,
+        Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 397/452] mac80211: upgrade passive scan to active scan on DFS channels after beacon rx
 Date:   Tue,  7 Jun 2022 19:04:14 +0200
-Message-Id: <20220607165024.220534344@linuxfoundation.org>
+Message-Id: <20220607164920.391930459@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit d63c00ea435a5352f486c259665a4ced60399421 upstream.
+commit b041b7b9de6e1d4362de855ab90f9d03ef323edd upstream.
 
-Otherwise nonaligned fstrim calls will works inconveniently for iterative
-scanners, for example:
+In client mode, we can't connect to hidden SSID APs or SSIDs not advertised
+in beacons on DFS channels, since we're forced to passive scan. Fix this by
+sending out a probe request immediately after the first beacon, if active
+scan was requested by the user.
 
-// trim [0,16MB] for group-1, but mark full group as trimmed
-fstrim  -o $((1024*1024*128)) -l $((1024*1024*16)) ./m
-// handle [16MB,16MB] for group-1, do nothing because group already has the flag.
-fstrim  -o $((1024*1024*144)) -l $((1024*1024*16)) ./m
-
-[ Update function documentation for ext4_trim_all_free -- TYT ]
-
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Link: https://lore.kernel.org/r/1650214995-860245-1-git-send-email-dmtrmonakhov@yandex-team.ru
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Cc: stable@vger.kernel.org
+Reported-by: Catrinel Catrinescu <cc@80211.de>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20220420104907.36275-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ net/mac80211/ieee80211_i.h |    5 +++++
+ net/mac80211/scan.c        |   20 ++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -6398,6 +6398,7 @@ __releases(ext4_group_lock_ptr(sb, e4b->
-  * @start:		first group block to examine
-  * @max:		last group block to examine
-  * @minblocks:		minimum extent block count
-+ * @set_trimmed:	set the trimmed flag if at least one block is trimmed
-  *
-  * ext4_trim_all_free walks through group's block bitmap searching for free
-  * extents. When the free extent is found, mark it as used in group buddy
-@@ -6407,7 +6408,7 @@ __releases(ext4_group_lock_ptr(sb, e4b->
- static ext4_grpblk_t
- ext4_trim_all_free(struct super_block *sb, ext4_group_t group,
- 		   ext4_grpblk_t start, ext4_grpblk_t max,
--		   ext4_grpblk_t minblocks)
-+		   ext4_grpblk_t minblocks, bool set_trimmed)
- {
- 	struct ext4_buddy e4b;
- 	int ret;
-@@ -6426,7 +6427,7 @@ ext4_trim_all_free(struct super_block *s
- 	if (!EXT4_MB_GRP_WAS_TRIMMED(e4b.bd_info) ||
- 	    minblocks < EXT4_SB(sb)->s_last_trim_minblks) {
- 		ret = ext4_try_to_trim_range(sb, &e4b, start, max, minblocks);
--		if (ret >= 0)
-+		if (ret >= 0 && set_trimmed)
- 			EXT4_MB_GRP_SET_TRIMMED(e4b.bd_info);
- 	} else {
- 		ret = 0;
-@@ -6463,6 +6464,7 @@ int ext4_trim_fs(struct super_block *sb,
- 	ext4_fsblk_t first_data_blk =
- 			le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block);
- 	ext4_fsblk_t max_blks = ext4_blocks_count(EXT4_SB(sb)->s_es);
-+	bool whole_group, eof = false;
- 	int ret = 0;
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1103,6 +1103,9 @@ struct tpt_led_trigger {
+  *	a scan complete for an aborted scan.
+  * @SCAN_HW_CANCELLED: Set for our scan work function when the scan is being
+  *	cancelled.
++ * @SCAN_BEACON_WAIT: Set whenever we're passive scanning because of radar/no-IR
++ *	and could send a probe request after receiving a beacon.
++ * @SCAN_BEACON_DONE: Beacon received, we can now send a probe request
+  */
+ enum {
+ 	SCAN_SW_SCANNING,
+@@ -1111,6 +1114,8 @@ enum {
+ 	SCAN_COMPLETED,
+ 	SCAN_ABORTED,
+ 	SCAN_HW_CANCELLED,
++	SCAN_BEACON_WAIT,
++	SCAN_BEACON_DONE,
+ };
  
- 	start = range->start >> sb->s_blocksize_bits;
-@@ -6481,8 +6483,10 @@ int ext4_trim_fs(struct super_block *sb,
- 		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
+ /**
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -277,6 +277,16 @@ void ieee80211_scan_rx(struct ieee80211_
+ 	if (likely(!sdata1 && !sdata2))
+ 		return;
+ 
++	if (test_and_clear_bit(SCAN_BEACON_WAIT, &local->scanning)) {
++		/*
++		 * we were passive scanning because of radar/no-IR, but
++		 * the beacon/proberesp rx gives us an opportunity to upgrade
++		 * to active scan
++		 */
++		 set_bit(SCAN_BEACON_DONE, &local->scanning);
++		 ieee80211_queue_delayed_work(&local->hw, &local->scan_work, 0);
++	}
++
+ 	if (ieee80211_is_probe_resp(mgmt->frame_control)) {
+ 		struct cfg80211_scan_request *scan_req;
+ 		struct cfg80211_sched_scan_request *sched_scan_req;
+@@ -783,6 +793,8 @@ static int __ieee80211_start_scan(struct
+ 						IEEE80211_CHAN_RADAR)) ||
+ 		    !req->n_ssids) {
+ 			next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
++			if (req->n_ssids)
++				set_bit(SCAN_BEACON_WAIT, &local->scanning);
+ 		} else {
+ 			ieee80211_scan_state_send_probe(local, &next_delay);
+ 			next_delay = IEEE80211_CHANNEL_TIME;
+@@ -994,6 +1006,8 @@ set_channel:
+ 	    !scan_req->n_ssids) {
+ 		*next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
+ 		local->next_scan_state = SCAN_DECISION;
++		if (scan_req->n_ssids)
++			set_bit(SCAN_BEACON_WAIT, &local->scanning);
+ 		return;
+ 	}
+ 
+@@ -1086,6 +1100,8 @@ void ieee80211_scan_work(struct work_str
  			goto out;
  	}
--	if (end >= max_blks)
-+	if (end >= max_blks - 1) {
- 		end = max_blks - 1;
-+		eof = true;
-+	}
- 	if (end <= first_data_blk)
- 		goto out;
- 	if (start < first_data_blk)
-@@ -6496,6 +6500,7 @@ int ext4_trim_fs(struct super_block *sb,
  
- 	/* end now represents the last cluster to discard in this group */
- 	end = EXT4_CLUSTERS_PER_GROUP(sb) - 1;
-+	whole_group = true;
++	clear_bit(SCAN_BEACON_WAIT, &local->scanning);
++
+ 	/*
+ 	 * as long as no delay is required advance immediately
+ 	 * without scheduling a new work
+@@ -1096,6 +1112,10 @@ void ieee80211_scan_work(struct work_str
+ 			goto out_complete;
+ 		}
  
- 	for (group = first_group; group <= last_group; group++) {
- 		grp = ext4_get_group_info(sb, group);
-@@ -6512,12 +6517,13 @@ int ext4_trim_fs(struct super_block *sb,
- 		 * change it for the last group, note that last_cluster is
- 		 * already computed earlier by ext4_get_group_no_and_offset()
- 		 */
--		if (group == last_group)
-+		if (group == last_group) {
- 			end = last_cluster;
--
-+			whole_group = eof ? true : end == EXT4_CLUSTERS_PER_GROUP(sb) - 1;
-+		}
- 		if (grp->bb_free >= minlen) {
- 			cnt = ext4_trim_all_free(sb, group, first_cluster,
--						end, minlen);
-+						 end, minlen, whole_group);
- 			if (cnt < 0) {
- 				ret = cnt;
- 				break;
++		if (test_and_clear_bit(SCAN_BEACON_DONE, &local->scanning) &&
++		    local->next_scan_state == SCAN_DECISION)
++			local->next_scan_state = SCAN_SEND_PROBE;
++
+ 		switch (local->next_scan_state) {
+ 		case SCAN_DECISION:
+ 			/* if no more bands/channels left, complete scan */
 
 
