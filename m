@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9F0D540FB3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6553354077A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353936AbiFGTLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44862 "EHLO
+        id S1348235AbiFGRrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:47:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354864AbiFGTJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:09:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23013192C40;
-        Tue,  7 Jun 2022 11:06:15 -0700 (PDT)
+        with ESMTP id S1349075AbiFGRqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507B033368;
+        Tue,  7 Jun 2022 10:36:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0331B82340;
-        Tue,  7 Jun 2022 18:06:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE2EEC385A5;
-        Tue,  7 Jun 2022 18:06:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A695DB822AD;
+        Tue,  7 Jun 2022 17:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F21C385A5;
+        Tue,  7 Jun 2022 17:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625172;
-        bh=MLkY1OvX2VTXtWkd4B2hKU9SxPB0F0RJYdX5ADWhvgw=;
+        s=korg; t=1654623390;
+        bh=sKpBeL53YXFBAGZGlTG8Z+eZAvIJG+BDY+MnwXXiUPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwxKA7/D3V6BQ5ytmRwgHQ70+LlisHCAx6tkooogRF/D5EF3jtcq52Ca5BWtMdgxC
-         OolL8ieNsf3QgKllQ67SoV1eAGr2mILyHPGeszSA9vU1JSiSdHQMWlOUyrQZ1QeojM
-         RjMV+fWwazAZUqQ/V6qiQ8O9XrDXUWobSdx6D+vI=
+        b=jRN7uyIdvNJ5Ta1wrGtMQrYsHzuC+yUlezjz93ILrZmO/1lyfJo6XyZoTq5AzR3Z+
+         iBi7xpoatZWw+xI5ZxhtFvCRw3z/79I7Tx5LNTqc3w2hbCRRKGFa4fDb9FTBnegCWv
+         TbRgKS7cXng2D9RJBpF9AvArIhz59QQBYqFtn1jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.15 591/667] drm/nouveau/clk: Fix an incorrect NULL check on list iterator
-Date:   Tue,  7 Jun 2022 19:04:16 +0200
-Message-Id: <20220607164952.409379485@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 400/452] kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
+Date:   Tue,  7 Jun 2022 19:04:17 +0200
+Message-Id: <20220607164920.480043935@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +55,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 1c3b2a27def609473ed13b1cd668cb10deab49b4 upstream.
+commit 3e35142ef99fe6b4fe5d834ad43ee13cca10a2dc upstream.
 
-The bug is here:
-	if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
-		return cstate;
+Since commit d1bcae833b32f1 ("ELF: Don't generate unused section
+symbols") [1], binutils (v2.36+) started dropping section symbols that
+it thought were unused.  This isn't an issue in general, but with
+kexec_file.c, gcc is placing kexec_arch_apply_relocations[_add] into a
+separate .text.unlikely section and the section symbol ".text.unlikely"
+is being dropped. Due to this, recordmcount is unable to find a non-weak
+symbol in .text.unlikely to generate a relocation record against.
 
-The list iterator value 'cstate' will *always* be set and non-NULL
-by list_for_each_entry_from_reverse(), so it is incorrect to assume
-that the iterator value will be unchanged if the list is empty or no
-element is found (In fact, it will be a bogus pointer to an invalid
-structure object containing the HEAD). Also it missed a NULL check
-at callsite and may lead to invalid memory access after that.
+Address this by dropping the weak attribute from these functions.
+Instead, follow the existing pattern of having architectures #define the
+name of the function they want to override in their headers.
 
-To fix this bug, just return 'encoder' when found, otherwise return
-NULL. And add the NULL check.
+[1] https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=d1bcae833b32f1
 
-Cc: stable@vger.kernel.org
-Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in nvkm_cstate_prog")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327075824.11806-1-xiam0nd.tong@gmail.com
+[akpm@linux-foundation.org: arch/s390/include/asm/kexec.h needs linux/module.h]
+Link: https://lkml.kernel.org/r/20220519091237.676736-1-naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/kexec.h |   10 +++++++++
+ arch/x86/include/asm/kexec.h  |    8 +++++++
+ include/linux/kexec.h         |   46 ++++++++++++++++++++++++++++++++++--------
+ kernel/kexec_file.c           |   34 -------------------------------
+ 4 files changed, 56 insertions(+), 42 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
-@@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *c
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -9,6 +9,8 @@
+ #ifndef _S390_KEXEC_H
+ #define _S390_KEXEC_H
  
- 	list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
- 		if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
--			break;
-+			return cstate;
- 	}
++#include <linux/module.h>
++
+ #include <asm/processor.h>
+ #include <asm/page.h>
+ #include <asm/setup.h>
+@@ -83,4 +85,12 @@ struct kimage_arch {
+ extern const struct kexec_file_ops s390_kexec_image_ops;
+ extern const struct kexec_file_ops s390_kexec_elf_ops;
  
--	return cstate;
-+	return NULL;
- }
++#ifdef CONFIG_KEXEC_FILE
++struct purgatory_info;
++int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
++				     Elf_Shdr *section,
++				     const Elf_Shdr *relsec,
++				     const Elf_Shdr *symtab);
++#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
++#endif
+ #endif /*_S390_KEXEC_H */
+--- a/arch/x86/include/asm/kexec.h
++++ b/arch/x86/include/asm/kexec.h
+@@ -191,6 +191,14 @@ extern int arch_kexec_post_alloc_pages(v
+ extern void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages);
+ #define arch_kexec_pre_free_pages arch_kexec_pre_free_pages
  
- static struct nvkm_cstate *
-@@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, s
- 	if (!list_empty(&pstate->list)) {
- 		cstate = nvkm_cstate_get(clk, pstate, cstatei);
- 		cstate = nvkm_cstate_find_best(clk, pstate, cstate);
-+		if (!cstate)
-+			return -EINVAL;
- 	} else {
- 		cstate = &pstate->base;
- 	}
++#ifdef CONFIG_KEXEC_FILE
++struct purgatory_info;
++int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
++				     Elf_Shdr *section,
++				     const Elf_Shdr *relsec,
++				     const Elf_Shdr *symtab);
++#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
++#endif
+ #endif
+ 
+ typedef void crash_vmclear_fn(void);
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -187,14 +187,6 @@ void *kexec_purgatory_get_symbol_addr(st
+ int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
+ 				  unsigned long buf_len);
+ void *arch_kexec_kernel_image_load(struct kimage *image);
+-int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+-				     Elf_Shdr *section,
+-				     const Elf_Shdr *relsec,
+-				     const Elf_Shdr *symtab);
+-int arch_kexec_apply_relocations(struct purgatory_info *pi,
+-				 Elf_Shdr *section,
+-				 const Elf_Shdr *relsec,
+-				 const Elf_Shdr *symtab);
+ int arch_kimage_file_post_load_cleanup(struct kimage *image);
+ #ifdef CONFIG_KEXEC_SIG
+ int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+@@ -223,6 +215,44 @@ extern int crash_exclude_mem_range(struc
+ 				   unsigned long long mend);
+ extern int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
+ 				       void **addr, unsigned long *sz);
++
++#ifndef arch_kexec_apply_relocations_add
++/*
++ * arch_kexec_apply_relocations_add - apply relocations of type RELA
++ * @pi:		Purgatory to be relocated.
++ * @section:	Section relocations applying to.
++ * @relsec:	Section containing RELAs.
++ * @symtab:	Corresponding symtab.
++ *
++ * Return: 0 on success, negative errno on error.
++ */
++static inline int
++arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
++				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
++{
++	pr_err("RELA relocation unsupported.\n");
++	return -ENOEXEC;
++}
++#endif
++
++#ifndef arch_kexec_apply_relocations
++/*
++ * arch_kexec_apply_relocations - apply relocations of type REL
++ * @pi:		Purgatory to be relocated.
++ * @section:	Section relocations applying to.
++ * @relsec:	Section containing RELs.
++ * @symtab:	Corresponding symtab.
++ *
++ * Return: 0 on success, negative errno on error.
++ */
++static inline int
++arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
++			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
++{
++	pr_err("REL relocation unsupported.\n");
++	return -ENOEXEC;
++}
++#endif
+ #endif /* CONFIG_KEXEC_FILE */
+ 
+ #ifdef CONFIG_KEXEC_ELF
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -109,40 +109,6 @@ int __weak arch_kexec_kernel_verify_sig(
+ #endif
+ 
+ /*
+- * arch_kexec_apply_relocations_add - apply relocations of type RELA
+- * @pi:		Purgatory to be relocated.
+- * @section:	Section relocations applying to.
+- * @relsec:	Section containing RELAs.
+- * @symtab:	Corresponding symtab.
+- *
+- * Return: 0 on success, negative errno on error.
+- */
+-int __weak
+-arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
+-				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
+-{
+-	pr_err("RELA relocation unsupported.\n");
+-	return -ENOEXEC;
+-}
+-
+-/*
+- * arch_kexec_apply_relocations - apply relocations of type REL
+- * @pi:		Purgatory to be relocated.
+- * @section:	Section relocations applying to.
+- * @relsec:	Section containing RELs.
+- * @symtab:	Corresponding symtab.
+- *
+- * Return: 0 on success, negative errno on error.
+- */
+-int __weak
+-arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
+-			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
+-{
+-	pr_err("REL relocation unsupported.\n");
+-	return -ENOEXEC;
+-}
+-
+-/*
+  * Free up memory used by kernel, initrd, and command line. This is temporary
+  * memory allocation which is not needed any more after these buffers have
+  * been loaded into separate segments and have been copied elsewhere.
 
 
