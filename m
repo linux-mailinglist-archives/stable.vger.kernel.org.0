@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD61541D1E
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF7154070B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355388AbiFGWIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:08:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
+        id S240600AbiFGRlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379276AbiFGWG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:56 -0400
+        with ESMTP id S1347508AbiFGRif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:38:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB50252C3E;
-        Tue,  7 Jun 2022 12:16:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09C62F037;
+        Tue,  7 Jun 2022 10:33:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9A4B61846;
-        Tue,  7 Jun 2022 19:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA9EC385A2;
-        Tue,  7 Jun 2022 19:15:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F61661521;
+        Tue,  7 Jun 2022 17:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D683C385A5;
+        Tue,  7 Jun 2022 17:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629359;
-        bh=yUA+1PtCRM+RBKp1Y/Q9h+SLDKv6zQr75eH5WKIP9g4=;
+        s=korg; t=1654623180;
+        bh=7S0X/2rDjYasBRbm7ISB6YfywzqMXtHO4NIuDKhaBGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQsVyM6UZF5zOexMPX61cZR1cCa1eU3Ocn91wzS6eNOAcMMT9XGkHHU+sviL6ODGO
-         949vCKN48PDhB4SfX/V5zoZn1bfrCXZMxio+JWYQnDfZo0QfRG1PFUSB/ckSUMlS2g
-         mkU0VCaOg52ESE3SbWtRC26llQE32pkCo78QXBpY=
+        b=topulX2guEeITxqF8OEUqqxEu1/ZVPWaw/y5W8ZMY78KLGui7yr/jssRev4xTnvvl
+         2yiSRR8b/3kq6uVEHpFkhD+J6LWTELIetrPt6N4K2BV2aLE6+hT4EPPnexfXkU8is8
+         SevhnNlmgojpJx/1ZkIRCCc86oDVSfaffOxW93JE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org, Jia-Wei Chang <jia-wei.chang@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 662/879] iommu/amd: Enable swiotlb in all cases
+Subject: [PATCH 5.10 323/452] cpufreq: mediatek: Use module_init and add module_exit
 Date:   Tue,  7 Jun 2022 19:03:00 +0200
-Message-Id: <20220607165022.062346337@linuxfoundation.org>
+Message-Id: <20220607164918.182807424@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Jia-Wei Chang <jia-wei.chang@mediatek.com>
 
-[ Upstream commit 121660bba631104154b7c15e88f208c48c8c3297 ]
+[ Upstream commit b7070187c81cb90549d7561c0e750d7c7eb751f4 ]
 
-Previously the AMD IOMMU would only enable SWIOTLB in certain
-circumstances:
- * IOMMU in passthrough mode
- * SME enabled
+- Use module_init instead of device_initcall.
+- Add a function for module_exit to unregister driver.
 
-This logic however doesn't work when an untrusted device is plugged in
-that doesn't do page aligned DMA transactions.  The expectation is
-that a bounce buffer is used for those transactions.
-
-This fails like this:
-
-swiotlb buffer is full (sz: 4096 bytes), total 0 (slots), used 0 (slots)
-
-That happens because the bounce buffers have been allocated, followed by
-freed during startup but the bounce buffering code expects that all IOMMUs
-have left it enabled.
-
-Remove the criteria to set up bounce buffers on AMD systems to ensure
-they're always available for supporting untrusted devices.
-
-Fixes: 82612d66d51d ("iommu: Allow the dma-iommu api to use bounce buffers")
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220404204723.9767-2-mario.limonciello@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Jia-Wei Chang <jia-wei.chang@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/iommu.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/cpufreq/mediatek-cpufreq.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index a1ada7bff44e..079694f894b8 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -1838,17 +1838,10 @@ void amd_iommu_domain_update(struct protection_domain *domain)
- 	amd_iommu_domain_flush_complete(domain);
+diff --git a/drivers/cpufreq/mediatek-cpufreq.c b/drivers/cpufreq/mediatek-cpufreq.c
+index f2e5ba3c539b..07ba238a0e0e 100644
+--- a/drivers/cpufreq/mediatek-cpufreq.c
++++ b/drivers/cpufreq/mediatek-cpufreq.c
+@@ -579,7 +579,13 @@ static int __init mtk_cpufreq_driver_init(void)
+ 
+ 	return 0;
  }
+-device_initcall(mtk_cpufreq_driver_init);
++module_init(mtk_cpufreq_driver_init)
++
++static void __exit mtk_cpufreq_driver_exit(void)
++{
++	platform_driver_unregister(&mtk_cpufreq_platdrv);
++}
++module_exit(mtk_cpufreq_driver_exit)
  
--static void __init amd_iommu_init_dma_ops(void)
--{
--	swiotlb = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
--}
--
- int __init amd_iommu_init_api(void)
- {
- 	int err;
- 
--	amd_iommu_init_dma_ops();
--
- 	err = bus_set_iommu(&pci_bus_type, &amd_iommu_ops);
- 	if (err)
- 		return err;
+ MODULE_DESCRIPTION("MediaTek CPUFreq driver");
+ MODULE_AUTHOR("Pi-Cheng Chen <pi-cheng.chen@linaro.org>");
 -- 
 2.35.1
 
