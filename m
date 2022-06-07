@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F8B541971
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54914540935
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378085AbiFGVWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S1351100AbiFGSGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:06:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380886AbiFGVRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D42E21F9EE;
-        Tue,  7 Jun 2022 11:58:02 -0700 (PDT)
+        with ESMTP id S1351486AbiFGSCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A66152BBC;
+        Tue,  7 Jun 2022 10:44:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A57D66176D;
-        Tue,  7 Jun 2022 18:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF3DCC34115;
-        Tue,  7 Jun 2022 18:58:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7ABEAB822CE;
+        Tue,  7 Jun 2022 17:44:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4911C34115;
+        Tue,  7 Jun 2022 17:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628281;
-        bh=NnXQHT5P4J/X8Kbs05INx5ZZMNbLDhdSV/Bsk9NGxg8=;
+        s=korg; t=1654623882;
+        bh=T15obBoK9jnnCw3q+tDyb87O4G8KAWIklECNXn5nR3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hy1zX11B7qN5NA+yYteD6KBhFHj8bX+LO9XH4afUXT16bKcx4QQBEJuG2+LyaztfW
-         JW3+otmueU8+EIA3TC6NlnGzEkP/dcmLDmxETbUoNnhruyxc7dEKH3zni5Q8KFAJpK
-         +qlIM5P56i1ClFIESZ+V55h0S6RFk4HTV2d6rZ8U=
+        b=LIhF/qshNzTBI5l7wEcl1OKJJ6g4ScLU4jqwDP/YqSUjIdNE6Z6EmFxl2f0tptFsu
+         dPoAJZGc979tyRQ3VQ7/7Wysbp6TvFSFsn1ZQK+HLBx60fetqoD4oOznZTSf9aO28m
+         upNxAWrQfji/Eilhe0x9PQHIvnjxxaumcpgPDxMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenli Looi <wlooi@ucalgary.ca>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Kyle Smith <kyles@hpe.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 271/879] ath9k: fix ar9003_get_eepmisc
+Subject: [PATCH 5.15 124/667] nvme-pci: fix a NULL pointer dereference in nvme_alloc_admin_tags
 Date:   Tue,  7 Jun 2022 18:56:29 +0200
-Message-Id: <20220607165010.715719433@linuxfoundation.org>
+Message-Id: <20220607164938.544698822@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenli Looi <wlooi@ucalgary.ca>
+From: Smith, Kyle Miller (Nimble Kernel) <kyles@hpe.com>
 
-[ Upstream commit 9aaff3864b603408c02c629957ae8d8ff5d5a4f2 ]
+[ Upstream commit da42761181627e9bdc37d18368b827948a583929 ]
 
-The current implementation is reading the wrong eeprom type.
+In nvme_alloc_admin_tags, the admin_q can be set to an error (typically
+-ENOMEM) if the blk_mq_init_queue call fails to set up the queue, which
+is checked immediately after the call. However, when we return the error
+message up the stack, to nvme_reset_work the error takes us to
+nvme_remove_dead_ctrl()
+  nvme_dev_disable()
+   nvme_suspend_queue(&dev->queues[0]).
 
-Fixes: d8ec2e2a63e8 ("ath9k: Add an eeprom_ops callback for retrieving the eepmisc value")
-Signed-off-by: Wenli Looi <wlooi@ucalgary.ca>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220320233010.123106-5-wlooi@ucalgary.ca
+Here, we only check that the admin_q is non-NULL, rather than not
+an error or NULL, and begin quiescing a queue that never existed, leading
+to bad / NULL pointer dereference.
+
+Signed-off-by: Kyle Smith <kyles@hpe.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-index b0a4ca3559fd..abed1effd95c 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-@@ -5615,7 +5615,7 @@ unsigned int ar9003_get_paprd_scale_factor(struct ath_hw *ah,
- 
- static u8 ar9003_get_eepmisc(struct ath_hw *ah)
- {
--	return ah->eeprom.map4k.baseEepHeader.eepMisc;
-+	return ah->eeprom.ar9300_eep.baseEepHeader.opCapFlags.eepMisc;
- }
- 
- const struct eeprom_ops eep_ar9300_ops = {
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index e6f55cf6e494..3ddd24a42043 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1680,6 +1680,7 @@ static int nvme_alloc_admin_tags(struct nvme_dev *dev)
+ 		dev->ctrl.admin_q = blk_mq_init_queue(&dev->admin_tagset);
+ 		if (IS_ERR(dev->ctrl.admin_q)) {
+ 			blk_mq_free_tag_set(&dev->admin_tagset);
++			dev->ctrl.admin_q = NULL;
+ 			return -ENOMEM;
+ 		}
+ 		if (!blk_get_queue(dev->ctrl.admin_q)) {
 -- 
 2.35.1
 
