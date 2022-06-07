@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5592E540A41
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8785F540B4E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243651AbiFGSTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:19:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
+        id S1350667AbiFGS1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:27:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352087AbiFGSQx (ORCPT
+        with ESMTP id S1352093AbiFGSQx (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61531134E13;
-        Tue,  7 Jun 2022 10:50:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 169BFD110;
+        Tue,  7 Jun 2022 10:50:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFACA6146F;
-        Tue,  7 Jun 2022 17:50:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14DD8C3411C;
-        Tue,  7 Jun 2022 17:50:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BDF6616A3;
+        Tue,  7 Jun 2022 17:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAACFC34119;
+        Tue,  7 Jun 2022 17:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624226;
-        bh=XldQ3pHSX4feMiGNiPXShHPmem0dUGG6WO6DOUYawLI=;
+        s=k20201202; t=1654624229;
+        bh=uR7CQe4V55FxsHzDZ0qleDY1nvIx7lIoX7D3hsclkWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hET+Pzd1AiVKxG9hIZ+SJnvHQBUMhqY2FqQyVJklmR1EUfCVBM8XAP9E0Zu5oPBhy
-         8SI4960TOxQ3DHliUWmGFl/w+yaGbUTfSZoXg6srrAhTY9J7racrVgLLQJdbz0+ENw
-         YxbJEWY3vrcHRp+71+dDI58XMf9QqIsUQ2an+WXNJYy18qQOCaQZnkLu5ISWRjtxzU
-         nxAOV2tpPtapAijOyS7D/2nb0/htP5ru+9gq0ZcacHMTTOpdfTLma/n+66SMMAMeBV
-         hTRkcc4tXVn9CIjo0t18ORgAiy1+c8KN6yLjVlSgMt1QUWrkN/olTTKmmrfJZaztop
-         c8F9hLxPccxbQ==
+        b=kP/Vq8LiuRq1IO9bMnesam9anPQZt6Qcix7OCGhnqWbLnZsjCu9rztmKHjDe0TCDE
+         OVJkDhDfp/22dju6CF8rhL7axWl1y77gFtSc1XDciMcowjp8OiUPdJp6/fO20JrNvb
+         c7PIZcR2t+EbuowwI1FJ3qBIiMuwTNEYHspTJO71YjNKscLszPRZeqX6EcNLr5E5JT
+         U8WKaTY2Vq5LWAR+ZKx5PzEx4Fo74WiaBnT37k/IANLpqzgEoZHobc8EsyuzIbJOBw
+         D+BvMsG7IgkBwrUQ5kVzcBH+8Z1gJFOt8Oc0kHbhWAckutv4s1aCrILOvf1a5/tFcm
+         vIlBamuJE/UbA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        agross@kernel.org, bjorn.andersson@linaro.org,
-        yung-chuan.liao@linux.intel.com, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 22/68] soundwire: qcom: adjust autoenumeration timeout
-Date:   Tue,  7 Jun 2022 13:47:48 -0400
-Message-Id: <20220607174846.477972-22-sashal@kernel.org>
+Cc:     Shuah Khan <skhan@linuxfoundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 23/68] misc: rtsx: set NULL intfdata when probe fails
+Date:   Tue,  7 Jun 2022 13:47:49 -0400
+Message-Id: <20220607174846.477972-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -59,40 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 74da272400b46f2e898f115d1b1cd60828766919 ]
+[ Upstream commit f861d36e021e1ac4a0a2a1f6411d623809975d63 ]
 
-Currently timeout for autoenumeration during probe and bus reset is set to
-2 secs which is really a big value. This can have an adverse effect on
-boot time if the slave device is not ready/reset.
-This was the case with wcd938x which was not reset yet but we spent 2
-secs waiting in the soundwire controller probe. Reduce this time to
-1/10 of Hz which should be good enough time to finish autoenumeration
-if any slaves are available on the bus.
+rtsx_usb_probe() doesn't call usb_set_intfdata() to null out the
+interface pointer when probe fails. This leaves a stale pointer.
+Noticed the missing usb_set_intfdata() while debugging an unrelated
+invalid DMA mapping problem.
 
-Reported-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220506084705.18525-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix it with a call to usb_set_intfdata(..., NULL).
+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220429210913.46804-1-skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/qcom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/cardreader/rtsx_usb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
-index da1ad7ebb1aa..22947e8297ac 100644
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -105,7 +105,7 @@
+diff --git a/drivers/misc/cardreader/rtsx_usb.c b/drivers/misc/cardreader/rtsx_usb.c
+index 59eda55d92a3..1ef9b61077c4 100644
+--- a/drivers/misc/cardreader/rtsx_usb.c
++++ b/drivers/misc/cardreader/rtsx_usb.c
+@@ -667,6 +667,7 @@ static int rtsx_usb_probe(struct usb_interface *intf,
+ 	return 0;
  
- #define SWRM_SPECIAL_CMD_ID	0xF
- #define MAX_FREQ_NUM		1
--#define TIMEOUT_MS		(2 * HZ)
-+#define TIMEOUT_MS		100
- #define QCOM_SWRM_MAX_RD_LEN	0x1
- #define QCOM_SDW_MAX_PORTS	14
- #define DEFAULT_CLK_FREQ	9600000
+ out_init_fail:
++	usb_set_intfdata(ucr->pusb_intf, NULL);
+ 	usb_free_coherent(ucr->pusb_dev, IOBUF_SIZE, ucr->iobuf,
+ 			ucr->iobuf_dma);
+ 	return ret;
 -- 
 2.35.1
 
