@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C5C54066D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3321540BA1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:31:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347374AbiFGRfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
+        id S1350850AbiFGS35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346880AbiFGR3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01228118D23;
-        Tue,  7 Jun 2022 10:24:52 -0700 (PDT)
+        with ESMTP id S1352734AbiFGS0s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:26:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D407617064E;
+        Tue,  7 Jun 2022 10:54:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3797FCE2018;
-        Tue,  7 Jun 2022 17:24:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C19DC385A5;
-        Tue,  7 Jun 2022 17:24:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ADB1611FE;
+        Tue,  7 Jun 2022 17:54:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27C20C3411F;
+        Tue,  7 Jun 2022 17:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622689;
-        bh=seCFZk7YL+TVjD/DOD0zsxuIbf6/QXBn7zKIHdKSTeo=;
+        s=korg; t=1654624476;
+        bh=5xT3StTozomk97q9GLO+zUdJSdBYW8t8IqqxoDMYyhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPeK23IdpqrZ4KHvKoeqNDZpBwN0C78Md9PngHaswo8hvlxuilVhfstSwik1bQ66L
-         BUd4G4EiGcQC8LL1VI0z7cyfQ5aToTNsxE3dF9Pm++xHJ1Li3G/fRm6PTZnFp/8h+z
-         A83v8L95jvqMIcMzHQTJLzpJPHvT48i231pJtNM0=
+        b=lOAlYUpazYFejpVc/6MUyZLJag2fCfEAVlBASHU7+6zwn8WMdo9LYNc1WqmDsX0P0
+         GLIqsRwT0F/Fqd4Y+v0rOTXUmBCE6ZeVmh2CLb6mtsugafEmEv6j3Ri78X2C+iH2Td
+         XJKfzI2q3L5e+NMGaDfRORCW17pSqUOHaPYekdbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Cai Huoqing <caihuoqing@baidu.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 148/452] mtd: rawnand: denali: Use managed device resources
+Subject: [PATCH 5.15 340/667] media: staging: media: rkvdec: Make use of the helper function devm_platform_ioremap_resource()
 Date:   Tue,  7 Jun 2022 19:00:05 +0200
-Message-Id: <20220607164912.968882142@linuxfoundation.org>
+Message-Id: <20220607164944.960879411@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Cai Huoqing <caihuoqing@baidu.com>
 
-[ Upstream commit 3a745b51cddafade99aaea1b93aad31e9614e230 ]
+[ Upstream commit 5a3683d60e56f4faa9552d3efafd87ef106dd393 ]
 
-All of the resources used by this driver has managed interfaces, so use
-them. Otherwise we will get the following splat:
+Use the devm_platform_ioremap_resource() helper instead of
+calling platform_get_resource() and devm_ioremap_resource()
+separately
 
-[    4.472703] denali-nand-pci 0000:00:05.0: timeout while waiting for irq 0x1000
-[    4.474071] denali-nand-pci: probe of 0000:00:05.0 failed with error -5
-[    4.473538] nand: No NAND device found
-[    4.474068] BUG: unable to handle page fault for address: ffffc90005000410
-[    4.475169] #PF: supervisor write access in kernel mode
-[    4.475579] #PF: error_code(0x0002) - not-present page
-[    4.478362] RIP: 0010:iowrite32+0x9/0x50
-[    4.486068] Call Trace:
-[    4.486269]  <IRQ>
-[    4.486443]  denali_isr+0x15b/0x300 [denali]
-[    4.486788]  ? denali_direct_write+0x50/0x50 [denali]
-[    4.487189]  __handle_irq_event_percpu+0x161/0x3b0
-[    4.487571]  handle_irq_event+0x7d/0x1b0
-[    4.487884]  handle_fasteoi_irq+0x2b0/0x770
-[    4.488219]  __common_interrupt+0xc8/0x1b0
-[    4.488549]  common_interrupt+0x9a/0xc0
-
-Fixes: 93db446a424c ("mtd: nand: move raw NAND related code to the raw/ subdir")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220411125808.958276-1-zheyuma97@gmail.com
+Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/denali_pci.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/denali_pci.c b/drivers/mtd/nand/raw/denali_pci.c
-index 20c085a30adc..de7e722d3826 100644
---- a/drivers/mtd/nand/raw/denali_pci.c
-+++ b/drivers/mtd/nand/raw/denali_pci.c
-@@ -74,22 +74,21 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 		return ret;
- 	}
+diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
+index 3f3f96488d74..4fd4a2907da7 100644
+--- a/drivers/staging/media/rkvdec/rkvdec.c
++++ b/drivers/staging/media/rkvdec/rkvdec.c
+@@ -967,7 +967,6 @@ static const char * const rkvdec_clk_names[] = {
+ static int rkvdec_probe(struct platform_device *pdev)
+ {
+ 	struct rkvdec_dev *rkvdec;
+-	struct resource *res;
+ 	unsigned int i;
+ 	int ret, irq;
  
--	denali->reg = ioremap(csr_base, csr_len);
-+	denali->reg = devm_ioremap(denali->dev, csr_base, csr_len);
- 	if (!denali->reg) {
- 		dev_err(&dev->dev, "Spectra: Unable to remap memory region\n");
- 		return -ENOMEM;
- 	}
+@@ -999,8 +998,7 @@ static int rkvdec_probe(struct platform_device *pdev)
+ 	 */
+ 	clk_set_rate(rkvdec->clocks[0].clk, 500 * 1000 * 1000);
  
--	denali->host = ioremap(mem_base, mem_len);
-+	denali->host = devm_ioremap(denali->dev, mem_base, mem_len);
- 	if (!denali->host) {
- 		dev_err(&dev->dev, "Spectra: ioremap failed!");
--		ret = -ENOMEM;
--		goto out_unmap_reg;
-+		return -ENOMEM;
- 	}
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	rkvdec->regs = devm_ioremap_resource(&pdev->dev, res);
++	rkvdec->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(rkvdec->regs))
+ 		return PTR_ERR(rkvdec->regs);
  
- 	ret = denali_init(denali);
- 	if (ret)
--		goto out_unmap_host;
-+		return ret;
- 
- 	nsels = denali->nbanks;
- 
-@@ -117,10 +116,6 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- out_remove_denali:
- 	denali_remove(denali);
--out_unmap_host:
--	iounmap(denali->host);
--out_unmap_reg:
--	iounmap(denali->reg);
- 	return ret;
- }
- 
-@@ -129,8 +124,6 @@ static void denali_pci_remove(struct pci_dev *dev)
- 	struct denali_controller *denali = pci_get_drvdata(dev);
- 
- 	denali_remove(denali);
--	iounmap(denali->reg);
--	iounmap(denali->host);
- }
- 
- static struct pci_driver denali_pci_driver = {
 -- 
 2.35.1
 
