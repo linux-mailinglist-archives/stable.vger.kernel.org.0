@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CDD8540713
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5FC3541569
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348032AbiFGRmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:42:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35244 "EHLO
+        id S1359649AbiFGUfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348394AbiFGRks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23FAE11CA16;
-        Tue,  7 Jun 2022 10:34:11 -0700 (PDT)
+        with ESMTP id S1377542AbiFGUdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3D681E4BDC;
+        Tue,  7 Jun 2022 11:35:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6F27B822B8;
-        Tue,  7 Jun 2022 17:33:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26081C385A5;
-        Tue,  7 Jun 2022 17:33:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A94DC612F2;
+        Tue,  7 Jun 2022 18:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB1BFC385A2;
+        Tue,  7 Jun 2022 18:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623219;
-        bh=nrQeSr+/kkhagHCqcL77mMePp0hOtwF9X5zPz7U52e4=;
+        s=korg; t=1654626923;
+        bh=RiYoesI/2/VhLz4xXzKPGtNRHm3pm6lxNILgLYxpFek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hn298LwsUn7ZvYr1shfwhwQ9KXgs5wuGQ3uRveDLQhG6KyFQm2DLSJlakElmctHGw
-         AkZq6CjMgjSZI9ZfxIdWXiMbQWC/+VmQsXXnEBJel8MTq7znAv3DFKSd5s/fbINiRP
-         dGOsbWXZvE/FfQ7MPkqNIkMib2nXP/ScKlbJJesg=
+        b=Ws2tMD87SHml2j2EfzpT8tADNnbVbAXS4Lj95z5w6j7FGyIanelvcFwAMa/+fmAHW
+         kpDc3iAJJk22TbcuZyYA7wSwFWA9KNkNRDYj+T5BHLCmKsyIYAFtr5vfqaNqNPpNMV
+         mkz2asn6Mfly9x6K0jsfcC/5lVr7E7FPyi5ErZCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 287/452] firmware: arm_scmi: Fix list protocols enumeration in the base protocol
+Subject: [PATCH 5.17 552/772] powerpc/xive: Fix refcount leak in xive_spapr_init
 Date:   Tue,  7 Jun 2022 19:02:24 +0200
-Message-Id: <20220607164917.103701260@linuxfoundation.org>
+Message-Id: <20220607165005.228266147@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8009120e0354a67068e920eb10dce532391361d0 ]
+[ Upstream commit 1d1fb9618bdd5a5fbf9a9eb75133da301d33721c ]
 
-While enumerating protocols implemented by the SCMI platform using
-BASE_DISCOVER_LIST_PROTOCOLS, the number of returned protocols is
-currently validated in an improper way since the check employs a sum
-between unsigned integers that could overflow and cause the check itself
-to be silently bypassed if the returned value 'loop_num_ret' is big
-enough.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fix the validation avoiding the addition.
-
-Link: https://lore.kernel.org/r/20220330150551.2573938-4-cristian.marussi@arm.com
-Fixes: b6f20ff8bd94 ("firmware: arm_scmi: add common infrastructure and support for base protocol")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220512090535.33397-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/sysdev/xive/spapr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/base.c b/drivers/firmware/arm_scmi/base.c
-index 017e5d8bd869..e51d28ba2833 100644
---- a/drivers/firmware/arm_scmi/base.c
-+++ b/drivers/firmware/arm_scmi/base.c
-@@ -188,7 +188,7 @@ static int scmi_base_implementation_list_get(const struct scmi_handle *handle,
- 			break;
+diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
+index 29456c255f9f..503f544d28e2 100644
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -830,12 +830,12 @@ bool __init xive_spapr_init(void)
+ 	/* Resource 1 is the OS ring TIMA */
+ 	if (of_address_to_resource(np, 1, &r)) {
+ 		pr_err("Failed to get thread mgmnt area resource\n");
+-		return false;
++		goto err_put;
+ 	}
+ 	tima = ioremap(r.start, resource_size(&r));
+ 	if (!tima) {
+ 		pr_err("Failed to map thread mgmnt area\n");
+-		return false;
++		goto err_put;
+ 	}
  
- 		loop_num_ret = le32_to_cpu(*num_ret);
--		if (tot_num_ret + loop_num_ret > MAX_PROTOCOLS_IMP) {
-+		if (loop_num_ret > MAX_PROTOCOLS_IMP - tot_num_ret) {
- 			dev_err(dev, "No. of Protocol > MAX_PROTOCOLS_IMP");
- 			break;
- 		}
+ 	if (!xive_get_max_prio(&max_prio))
+@@ -871,6 +871,7 @@ bool __init xive_spapr_init(void)
+ 	if (!xive_core_init(np, &xive_spapr_ops, tima, TM_QW1_OS, max_prio))
+ 		goto err_mem_free;
+ 
++	of_node_put(np);
+ 	pr_info("Using %dkB queues\n", 1 << (xive_queue_shift - 10));
+ 	return true;
+ 
+@@ -878,6 +879,8 @@ bool __init xive_spapr_init(void)
+ 	xive_irq_bitmap_remove_all();
+ err_unmap:
+ 	iounmap(tima);
++err_put:
++	of_node_put(np);
+ 	return false;
+ }
+ 
 -- 
 2.35.1
 
