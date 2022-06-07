@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC7E5404D8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF950541318
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345631AbiFGRTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:19:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41130 "EHLO
+        id S1357908AbiFGTz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:55:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345731AbiFGRTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D8B51059C5;
-        Tue,  7 Jun 2022 10:19:06 -0700 (PDT)
+        with ESMTP id S1358703AbiFGTxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFED26554;
+        Tue,  7 Jun 2022 11:22:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11677B822B0;
-        Tue,  7 Jun 2022 17:19:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C016C34115;
-        Tue,  7 Jun 2022 17:19:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE72A60DDF;
+        Tue,  7 Jun 2022 18:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA59C385A2;
+        Tue,  7 Jun 2022 18:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622343;
-        bh=86KqpkRvyExqnvYfKVZUj/+IcCqmxsSinK5pbA8cxTY=;
+        s=korg; t=1654626129;
+        bh=7QQ5grX8R7fbK834V+H9zWsoK0HdlbCrvTqdcW37FDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rm9UBIpNc1JEU4Q0yjleU253KkwZ5GC+Gb7Td3yb7qf1Ha68NAPg5Vpjlu7ToWFse
-         ++Fn79XzwH3IJl9c+H51a7+GH9hwMXFKxrXln/j2zEoyV1UTMM+5wYTZV7DNsOCSv1
-         FQAepR4HR1VuF/toZG2JUoUioMY/3OICSmUnAS+M=
+        b=NCNYoc1A6dH/JTx8AS0Y4W+qLj5XGMrFzV0csTqRTQKA936HFpD+Vyd5QX0ptSsb6
+         1qyXbiXigVegEM3p6f4Z8vAPBuNLBq9kY1fkV7xAHi3VGPNUPNI+mNYX+mwDPE9Wag
+         3tJtzc8bioYoDMkxf11+bwsniy9vFft6h/0uZgkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 004/452] riscv: Initialize thread pointer before calling C functions
+        stable@vger.kernel.org, Sinan Kaya <okaya@kernel.org>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 269/772] EDAC/dmc520: Dont print an error for each unconfigured interrupt line
 Date:   Tue,  7 Jun 2022 18:57:41 +0200
-Message-Id: <20220607164908.663048133@linuxfoundation.org>
+Message-Id: <20220607164956.951769630@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit 35d33c76d68dfacc330a8eb477b51cc647c5a847 upstream.
+[ Upstream commit ad2df24732e8956a45a00894d2163c4ee8fb0e1f ]
 
-Because of the stack canary feature that reads from the current task
-structure the stack canary value, the thread pointer register "tp" must
-be set before calling any C function from head.S: by chance, setup_vm
-and all the functions that it calls does not seem to be part of the
-functions where the canary check is done, but in the following commits,
-some functions will.
+The dmc520 driver requires that at least one interrupt line, out of the
+ten possible, is configured. The driver prints an error and returns
+-EINVAL from its .probe function if there are no interrupt lines
+configured.
 
-Fixes: f2c9699f65557a31 ("riscv: Add STACKPROTECTOR supported")
-Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Don't print a KERN_ERR level message for each interrupt line that's
+unconfigured as that can confuse users into thinking that there is an
+error condition.
+
+Before this change, the following KERN_ERR level messages would be
+reported if only dram_ecc_errc and dram_ecc_errd were configured in the
+device tree:
+
+  dmc520 68000000.dmc: IRQ ram_ecc_errc not found
+  dmc520 68000000.dmc: IRQ ram_ecc_errd not found
+  dmc520 68000000.dmc: IRQ failed_access not found
+  dmc520 68000000.dmc: IRQ failed_prog not found
+  dmc520 68000000.dmc: IRQ link_err not
+  dmc520 68000000.dmc: IRQ temperature_event not found
+  dmc520 68000000.dmc: IRQ arch_fsm not found
+  dmc520 68000000.dmc: IRQ phy_request not found
+
+Fixes: 1088750d7839 ("EDAC: Add EDAC driver for DMC520")
+Reported-by: Sinan Kaya <okaya@kernel.org>
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220111163800.22362-1-tyhicks@linux.microsoft.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/head.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/edac/dmc520_edac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/head.S
-+++ b/arch/riscv/kernel/head.S
-@@ -261,6 +261,7 @@ clear_bss_done:
- 	REG_S a0, (a2)
+diff --git a/drivers/edac/dmc520_edac.c b/drivers/edac/dmc520_edac.c
+index b8a7d9594afd..1fa5ca57e9ec 100644
+--- a/drivers/edac/dmc520_edac.c
++++ b/drivers/edac/dmc520_edac.c
+@@ -489,7 +489,7 @@ static int dmc520_edac_probe(struct platform_device *pdev)
+ 	dev = &pdev->dev;
  
- 	/* Initialize page tables and relocate to virtual addresses */
-+	la tp, init_task
- 	la sp, init_thread_union + THREAD_SIZE
- 	mv a0, s1
- 	call setup_vm
+ 	for (idx = 0; idx < NUMBER_OF_IRQS; idx++) {
+-		irq = platform_get_irq_byname(pdev, dmc520_irq_configs[idx].name);
++		irq = platform_get_irq_byname_optional(pdev, dmc520_irq_configs[idx].name);
+ 		irqs[idx] = irq;
+ 		masks[idx] = dmc520_irq_configs[idx].mask;
+ 		if (irq >= 0) {
+-- 
+2.35.1
+
 
 
