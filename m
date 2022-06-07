@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B90540ABE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A125413ED
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:09:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351497AbiFGSXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
+        id S1359019AbiFGUJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:09:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352404AbiFGSRI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5BE1222A2;
-        Tue,  7 Jun 2022 10:51:48 -0700 (PDT)
+        with ESMTP id S1359065AbiFGUIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:08:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0AD4EBEAE;
+        Tue,  7 Jun 2022 11:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A9261797;
-        Tue,  7 Jun 2022 17:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F42FC34119;
-        Tue,  7 Jun 2022 17:51:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FBC5B82340;
+        Tue,  7 Jun 2022 18:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B94C2C385A5;
+        Tue,  7 Jun 2022 18:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624307;
-        bh=eI1Prs6HZFky+OeyBZ/e+ucaVtq3KyroYdNwTACoPH4=;
+        s=korg; t=1654626365;
+        bh=LbqyjluyiwqorG7sAuTBbY2h6uEWrKDh7XnSBWLGDfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MuRfFyQJgaOikCSpqvq41IrgHypn7ftKkcCQqzvP0MDM4g8QRfqX3qZjiwKu/uHgz
-         JZqa7ER6ev7ctxOaD7O5iJo+bYiwqycxdvJO4gvuMwbvNvS9LMAC/JHOtJHdmD/mU1
-         GPikj789OdPhRzHyjQeRo55RxjI4OjkYTbDHpb14=
+        b=xp1UPVvtQKI9vFG6lhcZzqUdYkVXuuzY0FXTDpPIAHwNlc/qCUGaDusU6KgrgzlC/
+         lQzj5UHOWJ5IDQp7UfpQmPYd2KRG0ScUsvdQPZnDK1l+8uQqu+FWXwmMBj9/nWmq/Y
+         m0XKRIMKSqtjnmaTp0S3UKuFVDsJmkzHi0Vnj73c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 280/667] nl80211: dont hold RTNL in color change request
+        stable@vger.kernel.org, Ajay Singh <ajay.kathat@microchip.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 353/772] wilc1000: fix crash observed in AP mode with cfg80211_register_netdevice()
 Date:   Tue,  7 Jun 2022 18:59:05 +0200
-Message-Id: <20220607164943.183814493@linuxfoundation.org>
+Message-Id: <20220607164959.421406328@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Ajay Singh <ajay.kathat@microchip.com>
 
-[ Upstream commit 1b550a0bebfc0b69d6ec08fe6eb58953a8aec48a ]
+[ Upstream commit 868f0e28290c7a33e8cb79bfe97ebdcbb756e048 ]
 
-It's not necessary to hold the RTNL across color change
-requests, since all the inner locking needs only the
-wiphy mutex which we already hold as well.
+Monitor(mon.) interface is used for handling the AP mode and 'ieee80211_ptr'
+reference is not getting set for it. Like earlier implementation,
+use register_netdevice() instead of cfg80211_register_netdevice() which
+expects valid 'ieee80211_ptr' reference to avoid the possible crash.
 
-Fixes: 0d2ab3aea50b ("nl80211: add support for BSS coloring")
-Link: https://lore.kernel.org/r/20220414140402.32e03e8c261b.I5e7dc6bc563a129b938c43298da6bb4e812400a5@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 2fe8ef106238 ("cfg80211: change netdev registration/unregistration semantics")
+Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220504161924.2146601-3-ajay.kathat@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/microchip/wilc1000/mon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index dafa2c5b71a4..bb46a6a34614 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -15936,8 +15936,7 @@ static const struct genl_small_ops nl80211_small_ops[] = {
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = nl80211_color_change,
- 		.flags = GENL_UNS_ADMIN_PERM,
--		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
--				  NL80211_FLAG_NEED_RTNL,
-+		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP,
- 	},
- };
+diff --git a/drivers/net/wireless/microchip/wilc1000/mon.c b/drivers/net/wireless/microchip/wilc1000/mon.c
+index 6bd63934c2d8..b5a1b65c087c 100644
+--- a/drivers/net/wireless/microchip/wilc1000/mon.c
++++ b/drivers/net/wireless/microchip/wilc1000/mon.c
+@@ -233,7 +233,7 @@ struct net_device *wilc_wfi_init_mon_interface(struct wilc *wl,
+ 	wl->monitor_dev->netdev_ops = &wilc_wfi_netdev_ops;
+ 	wl->monitor_dev->needs_free_netdev = true;
  
+-	if (cfg80211_register_netdevice(wl->monitor_dev)) {
++	if (register_netdevice(wl->monitor_dev)) {
+ 		netdev_err(real_dev, "register_netdevice failed\n");
+ 		free_netdev(wl->monitor_dev);
+ 		return NULL;
+@@ -251,7 +251,7 @@ void wilc_wfi_deinit_mon_interface(struct wilc *wl, bool rtnl_locked)
+ 		return;
+ 
+ 	if (rtnl_locked)
+-		cfg80211_unregister_netdevice(wl->monitor_dev);
++		unregister_netdevice(wl->monitor_dev);
+ 	else
+ 		unregister_netdev(wl->monitor_dev);
+ 	wl->monitor_dev = NULL;
 -- 
 2.35.1
 
