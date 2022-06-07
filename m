@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD8B54196D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23ED6540926
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377720AbiFGVWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48424 "EHLO
+        id S1350208AbiFGSF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:05:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380975AbiFGVRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B01901455BA;
-        Tue,  7 Jun 2022 11:58:09 -0700 (PDT)
+        with ESMTP id S1351545AbiFGSCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE18154B26;
+        Tue,  7 Jun 2022 10:44:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2CDDB8220B;
-        Tue,  7 Jun 2022 18:58:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F624C3411F;
-        Tue,  7 Jun 2022 18:58:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 247B860C7C;
+        Tue,  7 Jun 2022 17:44:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35552C34119;
+        Tue,  7 Jun 2022 17:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628286;
-        bh=gbzerGw41nFYcSBVbgsHBzOTUnrtuO+DP0OSHhN634Y=;
+        s=korg; t=1654623890;
+        bh=BrmU2q/cxigeabEKhzsjzIcdbxKZm27SnJIADA1gcgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CL5GjuMgzMh/M2muJkCSJQx8PwE6PDfZJQyY7qdiahRsmmR2DJP+iOSL+ALV3hpyF
-         PGulaXvCEyWsNIK+GqMCDhlQoKKLjwJfs7nh9PI+Tjiev7vJ6gjK3rT1AuzdvntTVt
-         pfSqNdYtucJYbRSJbxNRHxdxFCraRYfV5f027Jcc=
+        b=KwDORkGfFGqYSHv0c91Af5paRoTlfvstkhup+aDaiGd7U1ZrsGaLNS8SE1WjboYEi
+         K73U2Ccn7BogMZ2CNBF/nSs5j3b/3Wvjl4TTe+VX/o9ecNhXAiSTBMZ8+jAZQynAyP
+         QKE2TETp5IMjuMkcK/1ytLAfhWkLyFfroqKgM8do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org,
+        Sathishkumar S <sathishkumar.sundararaju@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 273/879] drm/bridge: anx7625: add missing destroy_workqueue() in anx7625_i2c_probe()
-Date:   Tue,  7 Jun 2022 18:56:31 +0200
-Message-Id: <20220607165010.773878807@linuxfoundation.org>
+Subject: [PATCH 5.15 127/667] drm/amd/pm: update smartshift powerboost calc for smu12
+Date:   Tue,  7 Jun 2022 18:56:32 +0200
+Message-Id: <20220607164938.635222750@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +56,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sathishkumar S <sathishkumar.sundararaju@amd.com>
 
-[ Upstream commit 6f5efd118efafa22139e8670a4e4b506ba757dfd ]
+[ Upstream commit 138292f1dc00e7e0724f44769f9da39cf2f3bf0b ]
 
-Add the missing destroy_workqueue() before return from
-anx7625_i2c_probe() in the error handling case.
+smartshift apu and dgpu power boost are reported as percentage with
+respect to their power limits. This value[0-100] reflects the boost
+for the respective device.
 
-Fixes: adca62ec370c ("drm/bridge: anx7625: Support reading edid through aux channel")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220326073326.3389347-1-yangyingliang@huawei.com
+Signed-off-by: Sathishkumar S <sathishkumar.sundararaju@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix/anx7625.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c   | 60 ++++++++++++++-----
+ 1 file changed, 44 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/anx7625.c b/drivers/gpu/drm/bridge/analogix/anx7625.c
-index 8e1851a57638..a23e13c29a1d 100644
---- a/drivers/gpu/drm/bridge/analogix/anx7625.c
-+++ b/drivers/gpu/drm/bridge/analogix/anx7625.c
-@@ -2657,7 +2657,7 @@ static int anx7625_i2c_probe(struct i2c_client *client,
- 	if (ret) {
- 		if (ret != -EPROBE_DEFER)
- 			DRM_DEV_ERROR(dev, "fail to parse DT : %d\n", ret);
--		return ret;
-+		goto free_wq;
- 	}
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+index 145f13b8c977..138466081875 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+@@ -1127,6 +1127,39 @@ static int renoir_get_power_profile_mode(struct smu_context *smu,
+ 	return size;
+ }
  
- 	if (anx7625_register_i2c_dummy_clients(platform, client) != 0) {
-@@ -2672,7 +2672,7 @@ static int anx7625_i2c_probe(struct i2c_client *client,
- 	pm_suspend_ignore_children(dev, true);
- 	ret = devm_add_action_or_reset(dev, anx7625_runtime_disable, dev);
- 	if (ret)
--		return ret;
-+		goto free_wq;
++static void renoir_get_ss_power_percent(SmuMetrics_t *metrics,
++					uint32_t *apu_percent, uint32_t *dgpu_percent)
++{
++	uint32_t apu_boost = 0;
++	uint32_t dgpu_boost = 0;
++	uint16_t apu_limit = 0;
++	uint16_t dgpu_limit = 0;
++	uint16_t apu_power = 0;
++	uint16_t dgpu_power = 0;
++
++	apu_power = metrics->ApuPower;
++	apu_limit = metrics->StapmOriginalLimit;
++	if (apu_power > apu_limit && apu_limit != 0)
++		apu_boost =  ((apu_power - apu_limit) * 100) / apu_limit;
++	apu_boost = (apu_boost > 100) ? 100 : apu_boost;
++
++	dgpu_power = metrics->dGpuPower;
++	if (metrics->StapmCurrentLimit > metrics->StapmOriginalLimit)
++		dgpu_limit = metrics->StapmCurrentLimit - metrics->StapmOriginalLimit;
++	if (dgpu_power > dgpu_limit && dgpu_limit != 0)
++		dgpu_boost = ((dgpu_power - dgpu_limit) * 100) / dgpu_limit;
++	dgpu_boost = (dgpu_boost > 100) ? 100 : dgpu_boost;
++
++	if (dgpu_boost >= apu_boost)
++		apu_boost = 0;
++	else
++		dgpu_boost = 0;
++
++	*apu_percent = apu_boost;
++	*dgpu_percent = dgpu_boost;
++}
++
++
+ static int renoir_get_smu_metrics_data(struct smu_context *smu,
+ 				       MetricsMember_t member,
+ 				       uint32_t *value)
+@@ -1135,6 +1168,9 @@ static int renoir_get_smu_metrics_data(struct smu_context *smu,
  
- 	if (!platform->pdata.low_power_mode) {
- 		anx7625_disable_pd_protocol(platform);
+ 	SmuMetrics_t *metrics = (SmuMetrics_t *)smu_table->metrics_table;
+ 	int ret = 0;
++	uint32_t apu_percent = 0;
++	uint32_t dgpu_percent = 0;
++
+ 
+ 	mutex_lock(&smu->metrics_lock);
+ 
+@@ -1183,26 +1219,18 @@ static int renoir_get_smu_metrics_data(struct smu_context *smu,
+ 		*value = metrics->Voltage[1];
+ 		break;
+ 	case METRICS_SS_APU_SHARE:
+-		/* return the percentage of APU power with respect to APU's power limit.
+-		 * percentage is reported, this isn't boost value. Smartshift power
+-		 * boost/shift is only when the percentage is more than 100.
++		/* return the percentage of APU power boost
++		 * with respect to APU's power limit.
+ 		 */
+-		if (metrics->StapmOriginalLimit > 0)
+-			*value =  (metrics->ApuPower * 100) / metrics->StapmOriginalLimit;
+-		else
+-			*value = 0;
++		renoir_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
++		*value = apu_percent;
+ 		break;
+ 	case METRICS_SS_DGPU_SHARE:
+-		/* return the percentage of dGPU power with respect to dGPU's power limit.
+-		 * percentage is reported, this isn't boost value. Smartshift power
+-		 * boost/shift is only when the percentage is more than 100.
++		/* return the percentage of dGPU power boost
++		 * with respect to dGPU's power limit.
+ 		 */
+-		if ((metrics->dGpuPower > 0) &&
+-		    (metrics->StapmCurrentLimit > metrics->StapmOriginalLimit))
+-			*value = (metrics->dGpuPower * 100) /
+-				  (metrics->StapmCurrentLimit - metrics->StapmOriginalLimit);
+-		else
+-			*value = 0;
++		renoir_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
++		*value = dgpu_percent;
+ 		break;
+ 	default:
+ 		*value = UINT_MAX;
 -- 
 2.35.1
 
