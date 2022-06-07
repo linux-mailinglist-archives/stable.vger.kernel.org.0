@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0135407D2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 926AB541E3B
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347429AbiFGRw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
+        id S1359167AbiFGW1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:27:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349131AbiFGRud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4FA13AF13;
-        Tue,  7 Jun 2022 10:37:51 -0700 (PDT)
+        with ESMTP id S1382464AbiFGWYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:24:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFCC126EE9C;
+        Tue,  7 Jun 2022 12:22:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C15BEB820C3;
-        Tue,  7 Jun 2022 17:37:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 290CBC34119;
-        Tue,  7 Jun 2022 17:37:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35FFA608CD;
+        Tue,  7 Jun 2022 19:22:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43023C385A2;
+        Tue,  7 Jun 2022 19:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623469;
-        bh=OqZ1fM3XT7xiCBk1pwig0hnNmi/cqv4tqNiVLsVyCeY=;
+        s=korg; t=1654629766;
+        bh=NEWA8RjCSVtHMZ/gIwVntnVIbb+hxC/r1ater9BUcEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=imLsQ7q6b/R+FiHpbDkJpe3RObs7lMMBOcLXmWRc1egr3d4QXfky/ZNsJQb4GInR3
-         ZdFC3o154oWIgwmMUGycHCQnPdePPOYxsQfxBUiFZYQkYiqkaZ0DnfLM7I5U3q+qYp
-         x673Og6/80RYJbc77UOPJ1EOizN6huHkZYlMgQFQ=
+        b=luive1cWJcSyPlQ72CEUV6IiSXZT6jUR8KlmNM1Mt/n/9tdrprguJRLcMbb/Qq2qF
+         LHulWPLF5hYxSKyMgMaKB7mxGek1UTdpSBbZ73D4rjC+Qt5M1TRQHaHftK/V+4+WgX
+         g1lJj+5q81h3L9dbuKQXFgoHPGvRCqQjv9l+js+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 430/452] xfs: set inode size after creating symlink
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.18 769/879] scsi: ufs: qcom: Add a readl() to make sure ref_clk gets enabled
 Date:   Tue,  7 Jun 2022 19:04:47 +0200
-Message-Id: <20220607164921.367417409@linuxfoundation.org>
+Message-Id: <20220607165025.183175140@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit 8aa921a95335d0a8c8e2be35a44467e7c91ec3e4 upstream.
+commit 8eecddfca30e1651dc1c74531ed5eef21dcce7e3 upstream.
 
-When XFS creates a new symlink, it writes its size to disk but not to the
-VFS inode. This causes i_size_read() to return 0 for that symlink until
-it is re-read from disk, for example when the system is rebooted.
+In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
+stable for at least 1us. Even though there is wmb() to make sure the write
+gets "completed", there is no guarantee that the write actually reached the
+UFS device. There is a good chance that the write could be stored in a
+Write Buffer (WB). In that case, even though the CPU waits for 1us, the
+ref_clk might not be stable for that period.
 
-I found this inconsistency while protecting directories with eCryptFS.
-The command "stat path/to/symlink/in/ecryptfs" will report "Size: 0" if
-the symlink was created after the last reboot on an XFS root.
+So lets do a readl() to make sure that the previous write has reached the
+UFS device before udelay().
 
-Call i_size_write() in xfs_symlink()
+Also, the wmb() after writel_relaxed() is not really needed. Both writel()
+and readl() are ordered on all architectures and the CPU won't speculate
+instructions after readl() due to the in-built control dependency with read
+value on weakly ordered architectures. So it can be safely removed.
 
-Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Link: https://lore.kernel.org/r/20220504084212.11605-4-manivannan.sadhasivam@linaro.org
+Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
+Cc: stable@vger.kernel.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_symlink.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ufs/ufs-qcom.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/xfs_symlink.c
-+++ b/fs/xfs/xfs_symlink.c
-@@ -300,6 +300,7 @@ xfs_symlink(
- 		}
- 		ASSERT(pathlen == 0);
- 	}
-+	i_size_write(VFS_I(ip), ip->i_d.di_size);
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -682,8 +682,11 @@ static void ufs_qcom_dev_ref_clk_ctrl(st
  
- 	/*
- 	 * Create the directory entry for the symlink.
+ 		writel_relaxed(temp, host->dev_ref_clk_ctrl_mmio);
+ 
+-		/* ensure that ref_clk is enabled/disabled before we return */
+-		wmb();
++		/*
++		 * Make sure the write to ref_clk reaches the destination and
++		 * not stored in a Write Buffer (WB).
++		 */
++		readl(host->dev_ref_clk_ctrl_mmio);
+ 
+ 		/*
+ 		 * If we call hibern8 exit after this, we need to make sure that
 
 
