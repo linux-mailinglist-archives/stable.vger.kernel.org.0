@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE0B5413B7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94108540B74
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354363AbiFGUGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:06:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S1351254AbiFGS3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358503AbiFGUEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:04:09 -0400
+        with ESMTP id S1351429AbiFGSQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8931C2D50;
-        Tue,  7 Jun 2022 11:25:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C558C15FE05;
+        Tue,  7 Jun 2022 10:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85321611B9;
-        Tue,  7 Jun 2022 18:25:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961CBC385A2;
-        Tue,  7 Jun 2022 18:25:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A31D61732;
+        Tue,  7 Jun 2022 17:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C14C34115;
+        Tue,  7 Jun 2022 17:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626343;
-        bh=e3k05X3Y4XeqYlQTuCd7kBtR2dE2CgImtDFaVhzrFiA=;
+        s=korg; t=1654624167;
+        bh=qoPbMV8oPXml9N7dYYeY2+90OzfkkdGHN6XcgA1S0kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Re/8rVgWnP4KpqQYfJqC5EoMREFiigGJyn34+iVQzOFzLciGh0vp4/VQEmmoD3/v7
-         9dKKi64NP/mPkOYxrnAepKSW8zSjZFQAFpehN9B+sTSWA/wCPggoE0jL6dfnlyqRmj
-         ayBQQy7drOOVaExaXjRf0/lGX981PzIYLwXKAJwE=
+        b=wpcqDoEi0bn2NFKOADe4XcBWZDekxS3PyoE2Ys7xb6SD+aOB1dCQsOmRV0fd6KjOP
+         /uQYmH6zSuORYKxflmlvC1HQMjEpax5zLlrN492hgKnBC/k6kY729BoRsMVe+hgV3M
+         KICtGoxMZoHVdVFFhIukFjA+IlLC23uptQLTzIV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 303/772] scsi: ufs: core: Exclude UECxx from SFR dump list
+Subject: [PATCH 5.15 230/667] cpufreq: Fix possible race in cpufreq online error path
 Date:   Tue,  7 Jun 2022 18:58:15 +0200
-Message-Id: <20220607164957.953298727@linuxfoundation.org>
+Message-Id: <20220607164941.686333872@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit ef60031022eb6d972aac86ca26c98c33e1289436 ]
+[ Upstream commit f346e96267cd76175d6c201b40f770c0116a8a04 ]
 
-Some devices may return invalid or zeroed data during an UIC error
-condition. In addition, reading these SFRs will clear them. This means the
-subsequent error handling will not be able to see them and therefore no
-error handling will be scheduled.
+When cpufreq online fails, the policy->cpus mask is not cleared and
+policy->rwsem is released too early, so the driver can be invoked
+via the cpuinfo_cur_freq sysfs attribute while its ->offline() or
+->exit() callbacks are being run.
 
-Skip reading these SFRs in ufshcd_dump_regs().
+Take policy->clk as an example:
 
-Link: https://lore.kernel.org/r/1648689845-33521-1-git-send-email-kwmad.kim@samsung.com
-Fixes: d67247566450 ("scsi: ufs: Use explicit access size in ufshcd_dump_regs")
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+static int cpufreq_online(unsigned int cpu)
+{
+  ...
+  // policy->cpus != 0 at this time
+  down_write(&policy->rwsem);
+  ret = cpufreq_add_dev_interface(policy);
+  up_write(&policy->rwsem);
+
+  return 0;
+
+out_destroy_policy:
+	for_each_cpu(j, policy->real_cpus)
+		remove_cpu_dev_symlink(policy, get_cpu_device(j));
+    up_write(&policy->rwsem);
+...
+out_exit_policy:
+  if (cpufreq_driver->exit)
+    cpufreq_driver->exit(policy);
+      clk_put(policy->clk);
+      // policy->clk is a wild pointer
+...
+                                    ^
+                                    |
+                            Another process access
+                            __cpufreq_get
+                              cpufreq_verify_current_freq
+                                cpufreq_generic_get
+                                  // acces wild pointer of policy->clk;
+                                    |
+                                    |
+out_offline_policy:                 |
+  cpufreq_policy_free(policy);      |
+    // deleted here, and will wait for no body reference
+    cpufreq_policy_put_kobj(policy);
+}
+
+Address this by modifying cpufreq_online() to release policy->rwsem
+in the error path after the driver callbacks have run and to clear
+policy->cpus before releasing the semaphore.
+
+Fixes: 7106e02baed4 ("cpufreq: release policy->rwsem on error")
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 5696e52c76e9..05d2155dbf40 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -115,8 +115,13 @@ int ufshcd_dump_regs(struct ufs_hba *hba, size_t offset, size_t len,
- 	if (!regs)
- 		return -ENOMEM;
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index cddf7e13c232..502245710ee0 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1528,8 +1528,6 @@ static int cpufreq_online(unsigned int cpu)
+ 	for_each_cpu(j, policy->real_cpus)
+ 		remove_cpu_dev_symlink(policy, get_cpu_device(j));
  
--	for (pos = 0; pos < len; pos += 4)
-+	for (pos = 0; pos < len; pos += 4) {
-+		if (offset == 0 &&
-+		    pos >= REG_UIC_ERROR_CODE_PHY_ADAPTER_LAYER &&
-+		    pos <= REG_UIC_ERROR_CODE_DME)
-+			continue;
- 		regs[pos / 4] = ufshcd_readl(hba, offset + pos);
-+	}
+-	up_write(&policy->rwsem);
+-
+ out_offline_policy:
+ 	if (cpufreq_driver->offline)
+ 		cpufreq_driver->offline(policy);
+@@ -1538,6 +1536,9 @@ static int cpufreq_online(unsigned int cpu)
+ 	if (cpufreq_driver->exit)
+ 		cpufreq_driver->exit(policy);
  
- 	ufshcd_hex_dump(prefix, regs, len);
- 	kfree(regs);
++	cpumask_clear(policy->cpus);
++	up_write(&policy->rwsem);
++
+ out_free_policy:
+ 	cpufreq_policy_free(policy);
+ 	return ret;
 -- 
 2.35.1
 
