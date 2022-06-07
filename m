@@ -2,127 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DF453FA6C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 11:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B5B53FA90
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 11:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236668AbiFGJz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 05:55:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36246 "EHLO
+        id S240500AbiFGJ5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 05:57:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240371AbiFGJy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 05:54:56 -0400
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915F9D2444;
-        Tue,  7 Jun 2022 02:54:53 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 29B4632009B2;
-        Tue,  7 Jun 2022 05:54:50 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Tue, 07 Jun 2022 05:54:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1654595689; x=1654682089; bh=Hpeb2D3TKQ
-        4H2hp9llZjHy9pjNtHqPGHYAg6yQDNXIM=; b=QgVq+0Cts//N9rzEk3Gar9CVtB
-        Yu4kH/02B1QZNThE6M/E6U/ZI+kearWw63G8XfbiZwn2LxOiCmEJkh4FYZrOm0gN
-        mcl4qAAm3c4ceVrN4Mqs97tbpyo2I2toh15olHfdZWcHsdB+DpnQIGqvftnaxHCg
-        qrmBzHJ6jPHRcZ6nmz1oC72Tx1Zlcc2LqsHUUjwpiDR3h3EewyNC5R6G63OTfFTS
-        iJUc7ERBZDf2JNcXtCfdCH1pwAKRLC2eTXHiol3Crcag4d8GMn4VqJM6ajkMshUR
-        HcaEz1IVsWjyqmjMp/t6kEY3CLzZiX14MV9fubWvGPZHorwzvOPHj3CmqvoA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1654595689; x=1654682089; bh=Hpeb2D3TKQ4H2hp9llZjHy9pjNtH
-        qPGHYAg6yQDNXIM=; b=brhkbWnJQ3j0sGy328RgcklyTrNtBW22+700mu6rspgF
-        bBnLCgicsvVC51aOPX95zUsGsSAFUuROE5dfk4Tt3Pu99UVVV7WsD3XZcPhuMxGs
-        ntXVzpNafOtHHd1TmI3/qa9pEJdocCj87HDu6FSOnX1H4cdqTSGXU+Tdfd159+iG
-        DI0rDe2qYyQWP4sIG4D7OZukGRI1juzngL7lU3tAeWEPpIrosDB2KzfsfBl+zYZ1
-        G4MDuQWFfh+5+2hfS2vsn07NA8jJLtkmESf9PtlCfHMR4vgTU5BvXuJ2eLZsBTLe
-        tXrcD/5qxZfEU5bmMY9fTpD6Zos/M6qNKN5Yut8NYA==
-X-ME-Sender: <xms:aSCfYmQ1Tojaru80ntpwzXkeQBsruepS8u9pmiajNcNUSMbnn4cnEA>
-    <xme:aSCfYryvaoX8vAPJ7M-de9VUxFouc7FDClEtgC4AhGY0KOGHH0I05DAN3E7xuxtW0
-    JBhmL8SxpHjlQ>
-X-ME-Received: <xmr:aSCfYj0TAKmHtru_apxnwAzf7LXeFQPtZrreQ1_6gwO5UeMBgTA-fyilOinK>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedruddthedgvdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgeehue
-    ehgfdtledutdelkeefgeejteegieekheefudeiffdvudeffeelvedttddvnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:aSCfYiBrcO2sav_m2mSMHK2uhspP32DxZLWInanrhrO8Lk9hJCkC7w>
-    <xmx:aSCfYvgg4NYfmkSSlxfQcUswwpYPjhLjnFr24I3uF3UNuxKwx7LpTw>
-    <xmx:aSCfYup1k9DfVw5V84bV_EMIXGkh_rt9PPgwqPeztZD7YeHBuAkXwA>
-    <xmx:aSCfYkbh8M9J5ZZtiAJK1_q8OMu5q-FvTahOn_5KI8IPRhLPYA3kXg>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 7 Jun 2022 05:54:48 -0400 (EDT)
-Date:   Tue, 7 Jun 2022 11:54:46 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org, linux-ext4@vger.kernel.org,
-        linux-fscrypt@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Theodore Ts'o <tytso@mit.edu>
-Subject: Re: [PATCH 5.10] ext4: only allow test_dummy_encryption when
- supported
-Message-ID: <Yp8gZlE6oEhXIRzD@kroah.com>
-References: <20220606231233.165860-1-ebiggers@kernel.org>
+        with ESMTP id S240522AbiFGJ4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 05:56:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806F2EABA8;
+        Tue,  7 Jun 2022 02:56:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F15A96131B;
+        Tue,  7 Jun 2022 09:56:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2CBC34115;
+        Tue,  7 Jun 2022 09:56:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654595791;
+        bh=6spgyTbpIii4gmYFhWPeNPPcXX7gAjBVMayOdvFKAN4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gp7ykAPcCpfdf7Z8jBK5QW+wQQmC4l7nqKVgRzepadB/UkhwdPcwwgWINrCoRRVgD
+         T8qUzZQzQJFdtRxGOmEIhsU1MkDenbVEGnMS1GXxzVJ+KJyZrema/ZrXBgpM7feP/s
+         A+X+ZJbWE8WFS1GHtopU4qa/OMnCTT4Hynk8pWyA=
+Date:   Tue, 7 Jun 2022 11:56:25 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        patches@lists.linux.dev, Alex Elder <elder@linaro.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: Re: [PATCH 5.15 0/2] Fix suspend on qcom sc7180 SoCs
+Message-ID: <Yp8gycx3v2S6drG4@kroah.com>
+References: <20220606235155.2437168-1-swboyd@chromium.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220606231233.165860-1-ebiggers@kernel.org>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20220606235155.2437168-1-swboyd@chromium.org>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 06, 2022 at 04:12:33PM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
+On Mon, Jun 06, 2022 at 04:51:53PM -0700, Stephen Boyd wrote:
+> These two patches fix suspend on sc7180 boards, i.e. Trogdor, on 5.15
+> stable kernels. Without these two patches the IP0 interconnect is kept
+> on forever, and suspend fails because XO shutdown can't be achieved.
 > 
-> commit 5f41fdaea63ddf96d921ab36b2af4a90ccdb5744 upstream.
+> Mike Tipton (1):
+>   interconnect: qcom: icc-rpmh: Add BCMs to commit list in pre_aggregate
 > 
-> Make the test_dummy_encryption mount option require that the encrypt
-> feature flag be already enabled on the filesystem, rather than
-> automatically enabling it.  Practically, this means that "-O encrypt"
-> will need to be included in MKFS_OPTIONS when running xfstests with the
-> test_dummy_encryption mount option.  (ext4/053 also needs an update.)
+> Stephen Boyd (1):
+>   interconnect: qcom: sc7180: Drop IP0 interconnects
 > 
-> Moreover, as long as the preconditions for test_dummy_encryption are
-> being tightened anyway, take the opportunity to start rejecting it when
-> !CONFIG_FS_ENCRYPTION rather than ignoring it.
+>  drivers/interconnect/qcom/icc-rpmh.c | 10 +++++-----
+>  drivers/interconnect/qcom/sc7180.c   | 21 ---------------------
+>  drivers/interconnect/qcom/sm8150.c   |  1 -
+>  drivers/interconnect/qcom/sm8250.c   |  1 -
+>  drivers/interconnect/qcom/sm8350.c   |  1 -
+>  5 files changed, 5 insertions(+), 29 deletions(-)
 > 
-> The motivation for requiring the encrypt feature flag is that:
-> 
-> - Having the filesystem auto-enable feature flags is problematic, as it
->   bypasses the usual sanity checks.  The specific issue which came up
->   recently is that in kernel versions where ext4 supports casefold but
->   not encrypt+casefold (v5.1 through v5.10), the kernel will happily add
->   the encrypt flag to a filesystem that has the casefold flag, making it
->   unmountable -- but only for subsequent mounts, not the initial one.
->   This confused the casefold support detection in xfstests, causing
->   generic/556 to fail rather than be skipped.
-> 
-> - The xfstests-bld test runners (kvm-xfstests et al.) already use the
->   required mkfs flag, so they will not be affected by this change.  Only
->   users of test_dummy_encryption alone will be affected.  But, this
->   option has always been for testing only, so it should be fine to
->   require that the few users of this option update their test scripts.
-> 
-> - f2fs already requires it (for its equivalent feature flag).
-> 
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> Reviewed-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-> Link: https://lore.kernel.org/r/20220519204437.61645-1-ebiggers@kernel.org
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> -- 
+> https://chromeos.dev
+>
 
 Both now queued up, thanks.
 
