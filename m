@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C465413F4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45483540A58
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358136AbiFGUJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:09:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
+        id S1351476AbiFGSUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358128AbiFGUIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:08:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DA1EBAB5;
-        Tue,  7 Jun 2022 11:26:18 -0700 (PDT)
+        with ESMTP id S1352415AbiFGSRI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD082497A;
+        Tue,  7 Jun 2022 10:52:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 927CC6127C;
-        Tue,  7 Jun 2022 18:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A32FDC385A2;
-        Tue,  7 Jun 2022 18:26:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE42DB82354;
+        Tue,  7 Jun 2022 17:51:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54FB7C385A5;
+        Tue,  7 Jun 2022 17:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626377;
-        bh=PxGyuL6ReFTTSA/dQVTf/Ns6fdwTRWGkJOcMF8Ss+2k=;
+        s=korg; t=1654624318;
+        bh=9ngSOdPjjAPA6F7lCapsC6DrE+l8vaNY0CBrFpoeEAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xk7LmyQAafxWKY1JXc6kGdF0LbbaqE1jvUEXIR7xUuMJHE04K1+gXWLIiKovCvCKR
-         t40MWHODcml2eEGoAoTzRhdNUHiP05YZ1eOYzw+eLkuik8P/VaECK2yLyLkNxCAO6G
-         usnc0QA4yuJdFLFhBMTN0T0cjsD83rENA9lqqRpo=
+        b=iVzh1iFJF5aSAZY+f8IjXTeJWUXRKikalk8kftTlWkGTd/0MRMjRjZ7B4i+01TimX
+         AdEM54vgB0XZJ9n5IBr50SW5k193sNp4CFj6hhO1RqbK34gmDwqAiFCnaD3kSZApYI
+         NLhfjwvdKtGcFPaQ3T13zlxo9OCGKSrFEhnFfuro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 357/772] ASoC: imx-hdmi: Fix refcount leak in imx_hdmi_probe
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 284/667] irqchip/aspeed-scu-ic: Fix irq_of_parse_and_map() return value
 Date:   Tue,  7 Jun 2022 18:59:09 +0200
-Message-Id: <20220607164959.538606095@linuxfoundation.org>
+Message-Id: <20220607164943.299922954@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit ed46731d8e86c8d65f5fc717671e1f1f6c3146d2 ]
+[ Upstream commit f03a9670d27d23fe734a456f16e2579b21ec02b4 ]
 
-of_find_device_by_node() takes reference, we should use put_device()
-to release it. when devm_kzalloc() fails, it doesn't have a
-put_device(), it will cause refcount leak.
-Add missing put_device() to fix this.
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-Fixes: 6a5f850aa83a ("ASoC: fsl: Add imx-hdmi machine driver")
-Fixes: f670b274f7f6 ("ASoC: imx-hdmi: add put_device() after of_find_device_by_node()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511052740.46903-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 04f605906ff0 ("irqchip: Add Aspeed SCU interrupt controller")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220423094227.33148-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-hdmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-aspeed-scu-ic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/imx-hdmi.c b/sound/soc/fsl/imx-hdmi.c
-index 929f69b758af..ec149dc73938 100644
---- a/sound/soc/fsl/imx-hdmi.c
-+++ b/sound/soc/fsl/imx-hdmi.c
-@@ -126,6 +126,7 @@ static int imx_hdmi_probe(struct platform_device *pdev)
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		ret = -ENOMEM;
-+		put_device(&cpu_pdev->dev);
- 		goto fail;
+diff --git a/drivers/irqchip/irq-aspeed-scu-ic.c b/drivers/irqchip/irq-aspeed-scu-ic.c
+index 18b77c3e6db4..279e92cf0b16 100644
+--- a/drivers/irqchip/irq-aspeed-scu-ic.c
++++ b/drivers/irqchip/irq-aspeed-scu-ic.c
+@@ -157,8 +157,8 @@ static int aspeed_scu_ic_of_init_common(struct aspeed_scu_ic *scu_ic,
+ 	}
+ 
+ 	irq = irq_of_parse_and_map(node, 0);
+-	if (irq < 0) {
+-		rc = irq;
++	if (!irq) {
++		rc = -EINVAL;
+ 		goto err;
  	}
  
 -- 
