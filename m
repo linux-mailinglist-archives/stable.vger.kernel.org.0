@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A854541304
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AD45404C3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357574AbiFGTzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50210 "EHLO
+        id S1345599AbiFGRS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:18:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358899AbiFGTxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3624D64BE1;
-        Tue,  7 Jun 2022 11:23:02 -0700 (PDT)
+        with ESMTP id S1345653AbiFGRS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E99F1053D6;
+        Tue,  7 Jun 2022 10:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D244260DB7;
-        Tue,  7 Jun 2022 18:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF419C385A2;
-        Tue,  7 Jun 2022 18:23:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0A3B822AF;
+        Tue,  7 Jun 2022 17:18:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A794AC385A5;
+        Tue,  7 Jun 2022 17:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626181;
-        bh=nJKABFV7L4RLPvBO5QH7DR8OColWYo8kBeH2aJhbCnU=;
+        s=korg; t=1654622329;
+        bh=ur/6LP5MdmxKuqnuTWkZfJmKUn3UuwJwFhQ5S813QyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lc8E3I5FuHzPTdx1LIi/3lSfOHFP6J4pMUHo0vpHXdZzoxx6npkN3GGPZx2707if7
-         1IL2qGrLKbdZ5TlfLwSRjnfcabpOnBjuHSCxxaCSTMq/vTvpzAh0pIptdFJQyweavp
-         IkfBb2u+sFXvoJWeJUW9dhbOydrZZpJmYXHkLBOA=
+        b=rHNi/jxlpg2cXpf2ng6/sFbVS/oYLiB2rwGnJlHpi0pzC34MbBJJlyBBk8orz0JZ3
+         HhdajKNZpGVcMLn1YIuajCXMhY7dkxVlJCwKcVZWE5AFkxljWiWdNHhxDFK+qEZYDY
+         fSVgfTFtvXghVhwCdpimz0csQHzG9qlFHj0awtRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 285/772] ath9k_htc: fix potential out of bounds access with invalid rxstatus->rs_keyix
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.10 020/452] ptrace/xtensa: Replace PT_SINGLESTEP with TIF_SINGLESTEP
 Date:   Tue,  7 Jun 2022 18:57:57 +0200
-Message-Id: <20220607164957.423222535@linuxfoundation.org>
+Message-Id: <20220607164909.144022713@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 2dc509305cf956381532792cb8dceef2b1504765 ]
+commit 4a3d2717d140401df7501a95e454180831a0c5af upstream.
 
-The "rxstatus->rs_keyix" eventually gets passed to test_bit() so we need to
-ensure that it is within the bitmap.
+xtensa is the last user of the PT_SINGLESTEP flag.  Changing tsk->ptrace in
+user_enable_single_step and user_disable_single_step without locking could
+potentiallly cause problems.
 
-drivers/net/wireless/ath/ath9k/common.c:46 ath9k_cmn_rx_accept()
-error: passing untrusted data 'rx_stats->rs_keyix' to 'test_bit()'
+So use a thread info flag instead of a flag in tsk->ptrace.  Use TIF_SINGLESTEP
+that xtensa already had defined but unused.
 
-Fixes: 4ed1a8d4a257 ("ath9k_htc: use ath9k_cmn_rx_accept")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220409061225.GA5447@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove the definitions of PT_SINGLESTEP and PT_BLOCKSTEP as they have no more users.
+
+Cc: stable@vger.kernel.org
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Link: https://lkml.kernel.org/r/20220505182645.497868-4-ebiederm@xmission.com
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/xtensa/kernel/ptrace.c |    4 ++--
+ arch/xtensa/kernel/signal.c |    4 ++--
+ include/linux/ptrace.h      |    6 ------
+ 3 files changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 6a850a0bfa8a..a23eaca0326d 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -1016,6 +1016,14 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 		goto rx_next;
- 	}
+--- a/arch/xtensa/kernel/ptrace.c
++++ b/arch/xtensa/kernel/ptrace.c
+@@ -226,12 +226,12 @@ const struct user_regset_view *task_user
  
-+	if (rxstatus->rs_keyix >= ATH_KEYMAX &&
-+	    rxstatus->rs_keyix != ATH9K_RXKEYIX_INVALID) {
-+		ath_dbg(common, ANY,
-+			"Invalid keyix, dropping (keyix: %d)\n",
-+			rxstatus->rs_keyix);
-+		goto rx_next;
-+	}
-+
- 	/* Get the RX status information */
+ void user_enable_single_step(struct task_struct *child)
+ {
+-	child->ptrace |= PT_SINGLESTEP;
++	set_tsk_thread_flag(child, TIF_SINGLESTEP);
+ }
  
- 	memset(rx_status, 0, sizeof(struct ieee80211_rx_status));
--- 
-2.35.1
-
+ void user_disable_single_step(struct task_struct *child)
+ {
+-	child->ptrace &= ~PT_SINGLESTEP;
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ }
+ 
+ /*
+--- a/arch/xtensa/kernel/signal.c
++++ b/arch/xtensa/kernel/signal.c
+@@ -465,7 +465,7 @@ static void do_signal(struct pt_regs *re
+ 		/* Set up the stack frame */
+ 		ret = setup_frame(&ksig, sigmask_to_save(), regs);
+ 		signal_setup_done(ret, &ksig, 0);
+-		if (current->ptrace & PT_SINGLESTEP)
++		if (test_thread_flag(TIF_SINGLESTEP))
+ 			task_pt_regs(current)->icountlevel = 1;
+ 
+ 		return;
+@@ -491,7 +491,7 @@ static void do_signal(struct pt_regs *re
+ 	/* If there's no signal to deliver, we just restore the saved mask.  */
+ 	restore_saved_sigmask();
+ 
+-	if (current->ptrace & PT_SINGLESTEP)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		task_pt_regs(current)->icountlevel = 1;
+ 	return;
+ }
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -46,12 +46,6 @@ extern int ptrace_access_vm(struct task_
+ #define PT_EXITKILL		(PTRACE_O_EXITKILL << PT_OPT_FLAG_SHIFT)
+ #define PT_SUSPEND_SECCOMP	(PTRACE_O_SUSPEND_SECCOMP << PT_OPT_FLAG_SHIFT)
+ 
+-/* single stepping state bits (used on ARM and PA-RISC) */
+-#define PT_SINGLESTEP_BIT	31
+-#define PT_SINGLESTEP		(1<<PT_SINGLESTEP_BIT)
+-#define PT_BLOCKSTEP_BIT	30
+-#define PT_BLOCKSTEP		(1<<PT_BLOCKSTEP_BIT)
+-
+ extern long arch_ptrace(struct task_struct *child, long request,
+ 			unsigned long addr, unsigned long data);
+ extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char __user *dst, int len);
 
 
