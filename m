@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8EFE540AAC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EC7540ABB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351424AbiFGSX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41802 "EHLO
+        id S1351493AbiFGSXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352417AbiFGSRI (ORCPT
+        with ESMTP id S1352416AbiFGSRI (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22CFF248C9;
-        Tue,  7 Jun 2022 10:51:57 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505812716B;
+        Tue,  7 Jun 2022 10:52:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B24DF61797;
-        Tue,  7 Jun 2022 17:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01635C3411C;
-        Tue,  7 Jun 2022 17:51:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA53FB82366;
+        Tue,  7 Jun 2022 17:52:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCD5C34119;
+        Tue,  7 Jun 2022 17:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624316;
-        bh=i2gqG+rvriNRy8tZ4tU5UoL257WJO3AT0OxukhJJBOo=;
+        s=k20201202; t=1654624320;
+        bh=aqBhceqBGhC+HNxaI5YNjyD+0ZRKEAmv1OOd4cUY2SY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcV+WVGw7eoflsK8QJSxNLGjpx7bk/n/YlpGXXAJxpdxbaTlbyWu0/vFEUEMTbdRd
-         BAAeX6THOSxpSnA91G4qyxI7tzwHUM/s4WOR8g7HoymrMwmnMm8EJEhqKMZClpDkDb
-         xe06AWFkUp76NTJ6xLSSr9vOAtuy/v6gthljhGGT231WTLXT8eZkkOmslRrpLXl8pi
-         ZfbnArrK51PhCGMq9QhDvlILYlUhBxAFsbvbFlX1jClpXC+I8Ikl9w5JooRVrK0dl1
-         WEu3acCPBCwLCBHLz8Lw/QHLYTvajRDs3xZ3h8/Ak2cPglpYcJACDJAyqAo5yCeUGK
-         PEHzoOkjCIEEA==
+        b=WIO/KgIgI7mwWA611k4B0yOcu3Ja91pgk4SZDZuJ3xkQVpo0B8N8HEFrfOmJRgCAi
+         cFgl/HfzVsXp1O9KDhpov/SWJadfF6aYCuLeluMUVgrRJJ8hYjNcvPFTlGFpcJyQ0X
+         p18R5G32Wat0GE1QR84sRswIxVLvWN4a+0z+A28EZrKv01PAW0ljru7prAzF1w61FI
+         x1LYPIg7uRWXxptsSn+/SDN7WJii0LfsHvBKKOL1HA0aRSH38zPXg7wLSHCD1zqAlb
+         JdX/1O1FPxztGt3LoYVp3FimonQnRjw4Y8dnZB1JknmrvBzt7gNF2ieGqLSj84h6kA
+         vvFyDzIFnU+JQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gong Yuanjun <ruc_gongyuanjun@163.com>,
+Cc:     Lijo Lazar <lijo.lazar@amd.com>,
+        Yang Wang <kevinyang.wang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, ray.huang@amd.com, lijo.lazar@amd.com,
-        aaron.liu@amd.com, Xiaomeng.Hou@amd.com,
-        sathishkumar.sundararaju@amd.com, Perry.Yuan@amd.com,
-        yifan1.zhang@amd.com, mario.limonciello@amd.com,
+        daniel@ffwll.ch, kevin1.wang@amd.com, luben.tuikov@amd.com,
+        Stanley.Yang@amd.com, tao.zhou1@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 48/68] drm/amd/pm: fix a potential gpu_metrics_table memory leak
-Date:   Tue,  7 Jun 2022 13:48:14 -0400
-Message-Id: <20220607174846.477972-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 49/68] drm/amd/pm: Fix missing thermal throttler status
+Date:   Tue,  7 Jun 2022 13:48:15 -0400
+Message-Id: <20220607174846.477972-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -62,34 +61,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gong Yuanjun <ruc_gongyuanjun@163.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-[ Upstream commit d2f4460a3d9502513419f06cc376c7ade49d5753 ]
+[ Upstream commit b0f4d663fce6a4232d3c20ce820f919111b1c60b ]
 
-gpu_metrics_table is allocated in yellow_carp_init_smc_tables() but
-not freed in yellow_carp_fini_smc_tables().
+On aldebaran, when thermal throttling happens due to excessive GPU
+temperature, the reason for throttling event is missed in warning
+message. This patch fixes it.
 
-Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Yang Wang <kevinyang.wang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-index e2d099409123..c66c39ccf19c 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-@@ -190,6 +190,9 @@ static int yellow_carp_fini_smc_tables(struct smu_context *smu)
- 	kfree(smu_table->watermarks_table);
- 	smu_table->watermarks_table = NULL;
- 
-+	kfree(smu_table->gpu_metrics_table);
-+	smu_table->gpu_metrics_table = NULL;
-+
- 	return 0;
- }
- 
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
+index cd81f848d45a..7f998f24af81 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
+@@ -1664,6 +1664,7 @@ static const struct throttling_logging_label {
+ 	uint32_t feature_mask;
+ 	const char *label;
+ } logging_label[] = {
++	{(1U << THROTTLER_TEMP_GPU_BIT), "GPU"},
+ 	{(1U << THROTTLER_TEMP_MEM_BIT), "HBM"},
+ 	{(1U << THROTTLER_TEMP_VR_GFX_BIT), "VR of GFX rail"},
+ 	{(1U << THROTTLER_TEMP_VR_MEM_BIT), "VR of HBM rail"},
 -- 
 2.35.1
 
