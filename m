@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97700541E4B
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91862541E4D
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381676AbiFGW2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:28:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35094 "EHLO
+        id S1381775AbiFGW2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385260AbiFGW0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:26:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F23270428;
-        Tue,  7 Jun 2022 12:23:07 -0700 (PDT)
+        with ESMTP id S1385281AbiFGW0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:26:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB0927043B;
+        Tue,  7 Jun 2022 12:23:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B48FE60BA5;
-        Tue,  7 Jun 2022 19:23:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBEAFC385A2;
-        Tue,  7 Jun 2022 19:23:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CC8A60B01;
+        Tue,  7 Jun 2022 19:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78837C385A2;
+        Tue,  7 Jun 2022 19:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629786;
-        bh=WXRcVCPP2UKRCYY2jK+D9kxdNOkgPnIo2N2sDgEC/Ls=;
+        s=korg; t=1654629788;
+        bh=yBMfBMsenoejD3SJApeyaIR+DRPPPmmkDIHXMUaPI6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAfe5ZSyX26BqPN09JgplT2Bhy1gxxcaBE9hryuVNo+ApUHDE2fiqW9gLzdK0pHjM
-         VjNz6VkSQrwY2wZlWxWr/OOz5YVkHEx9LXEeCcQxfAuHknNeMZk0pftvA/gPq52zpW
-         JYytd31U2fKtJKGZU0dGf+/TywX350vovQmBe7ys=
+        b=v3dAg5pVbhizNsaW6/3KjHNsEyInK3GJ1O7sx827T+WK+HWKJI9XHLjDrBbGvVsbP
+         pB2tn9Sr6YpGgGu/FSi/HbfVWBKYM5tw/NG7j1VUNwDjX/2TljJu1tBj2HSb3Qq6ah
+         sj8rrRtOW6bsQu1/J1kKdi9b/gw0i4fXQ/7WSzhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.18 817/879] um: Use asm-generic/dma-mapping.h
-Date:   Tue,  7 Jun 2022 19:05:35 +0200
-Message-Id: <20220607165026.568459082@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.18 818/879] um: chan_user: Fix winch_tramp() return value
+Date:   Tue,  7 Jun 2022 19:05:36 +0200
+Message-Id: <20220607165026.597219329@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -56,42 +56,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit 365719035526e8eda214a1cedb2e1c96e969a0d7 upstream.
+commit 57ae0b67b747031bc41fb44643aa5344ab58607e upstream.
 
-If DMA (PCI over virtio) is enabled, then some drivers may
-enable CONFIG_DMA_OPS as well, and then we pull in the x86
-definition of get_arch_dma_ops(), which uses the dma_ops
-symbol, which isn't defined.
+The previous fix here was only partially correct, it did
+result in returning a proper error value in case of error,
+but it also clobbered the pid that we need to return from
+this function (not just zero for success).
 
-Since we don't have real DMA ops nor any kind of IOMMU fix
-this in the simplest possible way: pull in the asm-generic
-file instead of inheriting the x86 one. It's not clear why
-those drivers that do (e.g. VDPA) "select DMA_OPS", and if
-they'd even work with this, but chances are nobody will be
-wanting to do that anyway, so fixing the build failure is
-good enough.
+As a result, it returned 0 here, but later this is treated
+as a pid and used to kill the process, but since it's now
+0 we kill(0, SIGKILL), which makes UML kill itself rather
+than just the helper thread.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
+Fix that and make it more obvious by using a separate
+variable for the pid.
+
+Fixes: ccf1236ecac4 ("um: fix error return code in winch_tramp()")
+Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
 Cc: stable@vger.kernel.org
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/include/asm/Kbuild |    1 +
- 1 file changed, 1 insertion(+)
+ arch/um/drivers/chan_user.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/um/include/asm/Kbuild
-+++ b/arch/um/include/asm/Kbuild
-@@ -4,6 +4,7 @@ generic-y += bug.h
- generic-y += compat.h
- generic-y += current.h
- generic-y += device.h
-+generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
- generic-y += extable.h
+--- a/arch/um/drivers/chan_user.c
++++ b/arch/um/drivers/chan_user.c
+@@ -220,7 +220,7 @@ static int winch_tramp(int fd, struct tt
+ 		       unsigned long *stack_out)
+ {
+ 	struct winch_data data;
+-	int fds[2], n, err;
++	int fds[2], n, err, pid;
+ 	char c;
+ 
+ 	err = os_pipe(fds, 1, 1);
+@@ -238,8 +238,9 @@ static int winch_tramp(int fd, struct tt
+ 	 * problem with /dev/net/tun, which if held open by this
+ 	 * thread, prevents the TUN/TAP device from being reused.
+ 	 */
+-	err = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
+-	if (err < 0) {
++	pid = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
++	if (pid < 0) {
++		err = pid;
+ 		printk(UM_KERN_ERR "fork of winch_thread failed - errno = %d\n",
+ 		       -err);
+ 		goto out_close;
+@@ -263,7 +264,7 @@ static int winch_tramp(int fd, struct tt
+ 		goto out_close;
+ 	}
+ 
+-	return err;
++	return pid;
+ 
+  out_close:
+ 	close(fds[1]);
 
 
