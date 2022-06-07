@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9416A54105B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 356A554105A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350159AbiFGTXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:23:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34060 "EHLO
+        id S242324AbiFGTXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:23:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351539AbiFGTVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:21:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7787954024;
-        Tue,  7 Jun 2022 11:08:52 -0700 (PDT)
+        with ESMTP id S1352722AbiFGTVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:21:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B0219C3A0;
+        Tue,  7 Jun 2022 11:08:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FA84B81F38;
-        Tue,  7 Jun 2022 18:08:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1185EC385A5;
-        Tue,  7 Jun 2022 18:08:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA9E6192C;
+        Tue,  7 Jun 2022 18:08:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4DBBC385A5;
+        Tue,  7 Jun 2022 18:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625330;
-        bh=h34rondOn47nWzZpl0QqcrreH+sX+3Rn1+rYXxFag80=;
+        s=korg; t=1654625333;
+        bh=WGSj4W086o1+ZNgctrT1C4iZahxev2p7Ktexo1KmK6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLNV7qelLUKureDsMu91Jwe/3ZaMP1lykbieh+rIqajAMFL3gkIVBbqzmAVx2MFqJ
-         PCEbzlc+FCoyl4o/IzP4BaOKnSt3DyCEb+bVd0SeLpHPNyWf0lg0dq1hvQR8Tov1L5
-         6zrhBNrSX60F3fIvBQLLgqzbK/mr73q1Kd5b+Wdc=
+        b=U2ejnFWiGc/lZj7I+wwduRrRQ5K9q/WLalWGOYcYo88Sjn29AsPYKrDWe8zz8fu11
+         YBLPkgXL7poqjQwWD2N//3aQ6oOvnoZjF0rCmTMFceLiKi81p83qSObKjQGCycZxEm
+         GfonKigRp+zX24mfLrVJyEfputElLa1NB6RQHqws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Mao Jinlong <quic_jinlmao@quicinc.com>
-Subject: [PATCH 5.15 647/667] coresight: core: Fix coresight device probe failure issue
-Date:   Tue,  7 Jun 2022 19:05:12 +0200
-Message-Id: <20220607164954.059382356@linuxfoundation.org>
+        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 648/667] phy: qcom-qmp: fix reset-controller leak on probe errors
+Date:   Tue,  7 Jun 2022 19:05:13 +0200
+Message-Id: <20220607164954.088152006@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -54,122 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Jinlong <quic_jinlmao@quicinc.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 8c1d3f79d9ca48e406b78e90e94cf09a8c076bf2 upstream.
+commit 4d2900f20edfe541f75756a00deeb2ffe7c66bc1 upstream.
 
-It is possibe that probe failure issue happens when the device
-and its child_device's probe happens at the same time.
-In coresight_make_links, has_conns_grp is true for parent, but
-has_conns_grp is false for child device as has_conns_grp is set
-to true in coresight_create_conns_sysfs_group. The probe of parent
-device will fail at this condition. Add has_conns_grp check for
-child device before make the links and make the process from
-device_register to connection_create be atomic to avoid this
-probe failure issue.
+Make sure to release the lane reset controller in case of a late probe
+error (e.g. probe deferral).
 
-Cc: stable@vger.kernel.org
-Suggested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Suggested-by: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Mao Jinlong <quic_jinlmao@quicinc.com>
-Link: https://lore.kernel.org/r/20220309142206.15632-1-quic_jinlmao@quicinc.com
-[ Added Cc stable ]
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Note that due to the reset controller being defined in devicetree in
+"lane" child nodes, devm_reset_control_get_exclusive() cannot be used
+directly.
+
+Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220427063243.32576-3-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-core.c |   33 ++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/hwtracing/coresight/coresight-core.c
-+++ b/drivers/hwtracing/coresight/coresight-core.c
-@@ -1382,7 +1382,7 @@ static int coresight_fixup_device_conns(
- 			continue;
- 		conn->child_dev =
- 			coresight_find_csdev_by_fwnode(conn->child_fwnode);
--		if (conn->child_dev) {
-+		if (conn->child_dev && conn->child_dev->has_conns_grp) {
- 			ret = coresight_make_links(csdev, conn,
- 						   conn->child_dev);
- 			if (ret)
-@@ -1574,6 +1574,7 @@ struct coresight_device *coresight_regis
- 	int nr_refcnts = 1;
- 	atomic_t *refcnts = NULL;
- 	struct coresight_device *csdev;
-+	bool registered = false;
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -5382,6 +5382,11 @@ static const struct phy_ops qcom_qmp_pci
+ 	.owner		= THIS_MODULE,
+ };
  
- 	csdev = kzalloc(sizeof(*csdev), GFP_KERNEL);
- 	if (!csdev) {
-@@ -1594,7 +1595,8 @@ struct coresight_device *coresight_regis
- 	refcnts = kcalloc(nr_refcnts, sizeof(*refcnts), GFP_KERNEL);
- 	if (!refcnts) {
- 		ret = -ENOMEM;
--		goto err_free_csdev;
-+		kfree(csdev);
-+		goto err_out;
- 	}
- 
- 	csdev->refcnt = refcnts;
-@@ -1619,6 +1621,13 @@ struct coresight_device *coresight_regis
- 	csdev->dev.fwnode = fwnode_handle_get(dev_fwnode(desc->dev));
- 	dev_set_name(&csdev->dev, "%s", desc->name);
- 
-+	/*
-+	 * Make sure the device registration and the connection fixup
-+	 * are synchronised, so that we don't see uninitialised devices
-+	 * on the coresight bus while trying to resolve the connections.
-+	 */
-+	mutex_lock(&coresight_mutex);
++static void qcom_qmp_reset_control_put(void *data)
++{
++	reset_control_put(data);
++}
 +
- 	ret = device_register(&csdev->dev);
- 	if (ret) {
- 		put_device(&csdev->dev);
-@@ -1626,7 +1635,7 @@ struct coresight_device *coresight_regis
- 		 * All resources are free'd explicitly via
- 		 * coresight_device_release(), triggered from put_device().
- 		 */
--		goto err_out;
-+		goto out_unlock;
- 	}
- 
- 	if (csdev->type == CORESIGHT_DEV_TYPE_SINK ||
-@@ -1641,11 +1650,11 @@ struct coresight_device *coresight_regis
- 			 * from put_device(), which is in turn called from
- 			 * function device_unregister().
- 			 */
--			goto err_out;
-+			goto out_unlock;
+ static
+ int qcom_qmp_phy_create(struct device *dev, struct device_node *np, int id,
+ 			void __iomem *serdes, const struct qmp_phy_cfg *cfg)
+@@ -5476,6 +5481,10 @@ int qcom_qmp_phy_create(struct device *d
+ 			dev_err(dev, "failed to get lane%d reset\n", id);
+ 			return PTR_ERR(qphy->lane_rst);
  		}
- 	}
--
--	mutex_lock(&coresight_mutex);
-+	/* Device is now registered */
-+	registered = true;
- 
- 	ret = coresight_create_conns_sysfs_group(csdev);
- 	if (!ret)
-@@ -1655,16 +1664,18 @@ struct coresight_device *coresight_regis
- 	if (!ret && cti_assoc_ops && cti_assoc_ops->add)
- 		cti_assoc_ops->add(csdev);
- 
-+out_unlock:
- 	mutex_unlock(&coresight_mutex);
--	if (ret) {
-+	/* Success */
-+	if (!ret)
-+		return csdev;
-+
-+	/* Unregister the device if needed */
-+	if (registered) {
- 		coresight_unregister(csdev);
- 		return ERR_PTR(ret);
++		ret = devm_add_action_or_reset(dev, qcom_qmp_reset_control_put,
++					       qphy->lane_rst);
++		if (ret)
++			return ret;
  	}
  
--	return csdev;
--
--err_free_csdev:
--	kfree(csdev);
- err_out:
- 	/* Cleanup the connection information */
- 	coresight_release_platform_data(NULL, desc->pdata);
+ 	if (cfg->type == PHY_TYPE_UFS || cfg->type == PHY_TYPE_PCIE)
 
 
