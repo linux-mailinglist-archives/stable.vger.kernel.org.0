@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CADF5419D6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C6054093B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377979AbiFGVYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:24:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39208 "EHLO
+        id S1349562AbiFGSE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379003AbiFGVXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C3C226CC2;
-        Tue,  7 Jun 2022 12:00:35 -0700 (PDT)
+        with ESMTP id S1352060AbiFGSCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9B756B655;
+        Tue,  7 Jun 2022 10:46:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F93DB8239F;
-        Tue,  7 Jun 2022 19:00:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E04C385A2;
-        Tue,  7 Jun 2022 19:00:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71C53616B6;
+        Tue,  7 Jun 2022 17:46:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D8B1C34115;
+        Tue,  7 Jun 2022 17:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628410;
-        bh=TPRFP2xRp1bygFJ1WXucBwWn0OwIarywpK7WnUbnKmk=;
+        s=korg; t=1654624012;
+        bh=Z8axk3wY4vH8/Dseo94rtU2nY3WpgHiZ0Yz2/nELLWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXiJJUoLOyasTStMHctpWBorn+Ys1hW0EUDX3IJpWEtzseyLNWNpH3mY2sNVwFPuH
-         vv5/y2uBa9me+Hrw9HGVJJGfGa4DPXlPP2kZNtIMHQR0o6PWkUWQtX64PcOnqHBbi9
-         OHFt3PQrHMRqpaYDNc73RsX48NS89C6hpUh117G4=
+        b=oeUTkZn6+U3Y3Ifr5RPPALo4EyuxZ8MSwpoIgZ49FRW7+/ONWjrN2AIMwYcLsIROY
+         Su6d1p0y2u5DYJS7arfu7HuGHHI/xAq1QcMrVEfGx3QGagS1MEAW91bZrJO3wH51WW
+         U8GVMFeA55oN7apIOLkSK1UZpeTDh9+itusb6G6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 318/879] drbd: use bdev based limit helpers in drbd_send_sizes
+Subject: [PATCH 5.15 171/667] KVM: PPC: Book3S HV Nested: L2 LPCR should inherit L1 LPES setting
 Date:   Tue,  7 Jun 2022 18:57:16 +0200
-Message-Id: <20220607165012.080830401@linuxfoundation.org>
+Message-Id: <20220607164939.941318184@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 7a38acce229685968b770d1d9e64e01396b93643 ]
+[ Upstream commit 2852ebfa10afdcefff35ec72c8da97141df9845c ]
 
-Use the bdev based limits helpers where they exist.
+The L1 should not be able to adjust LPES mode for the L2. Setting LPES
+if the L0 needs it clear would cause external interrupts to be sent to
+L2 and missed by the L0.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Link: https://lore.kernel.org/r/20220415045258.199825-6-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Clearing LPES when it may be set, as typically happens with XIVE enabled
+could cause a performance issue despite having no native XIVE support in
+the guest, because it will cause mediated interrupts for the L2 to be
+taken in HV mode, which then have to be injected.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220303053315.1056880-7-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c        | 4 ++++
+ arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 367715205c86..c39b04bda261 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -924,7 +924,9 @@ int drbd_send_sizes(struct drbd_peer_device *peer_device, int trigger_reply, enu
- 
- 	memset(p, 0, packet_size);
- 	if (get_ldev_if_state(device, D_NEGOTIATING)) {
--		struct request_queue *q = bdev_get_queue(device->ldev->backing_bdev);
-+		struct block_device *bdev = device->ldev->backing_bdev;
-+		struct request_queue *q = bdev_get_queue(bdev);
-+
- 		d_size = drbd_get_max_capacity(device->ldev);
- 		rcu_read_lock();
- 		u_size = rcu_dereference(device->ldev->disk_conf)->disk_size;
-@@ -933,13 +935,13 @@ int drbd_send_sizes(struct drbd_peer_device *peer_device, int trigger_reply, enu
- 		max_bio_size = queue_max_hw_sectors(q) << 9;
- 		max_bio_size = min(max_bio_size, DRBD_MAX_BIO_SIZE);
- 		p->qlim->physical_block_size =
--			cpu_to_be32(queue_physical_block_size(q));
-+			cpu_to_be32(bdev_physical_block_size(bdev));
- 		p->qlim->logical_block_size =
--			cpu_to_be32(queue_logical_block_size(q));
-+			cpu_to_be32(bdev_logical_block_size(bdev));
- 		p->qlim->alignment_offset =
- 			cpu_to_be32(queue_alignment_offset(q));
--		p->qlim->io_min = cpu_to_be32(queue_io_min(q));
--		p->qlim->io_opt = cpu_to_be32(queue_io_opt(q));
-+		p->qlim->io_min = cpu_to_be32(bdev_io_min(bdev));
-+		p->qlim->io_opt = cpu_to_be32(bdev_io_opt(bdev));
- 		p->qlim->discard_enabled = blk_queue_discard(q);
- 		put_ldev(device);
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 7fa685711669..eba77096c443 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -5235,6 +5235,10 @@ static int kvmppc_core_init_vm_hv(struct kvm *kvm)
+ 		kvm->arch.host_lpcr = lpcr = mfspr(SPRN_LPCR);
+ 		lpcr &= LPCR_PECE | LPCR_LPES;
  	} else {
++		/*
++		 * The L2 LPES mode will be set by the L0 according to whether
++		 * or not it needs to take external interrupts in HV mode.
++		 */
+ 		lpcr = 0;
+ 	}
+ 	lpcr |= (4UL << LPCR_DPFD_SH) | LPCR_HDICE |
+diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
+index 6c4e0e93105f..ddea14e5cb5e 100644
+--- a/arch/powerpc/kvm/book3s_hv_nested.c
++++ b/arch/powerpc/kvm/book3s_hv_nested.c
+@@ -261,8 +261,7 @@ static void load_l2_hv_regs(struct kvm_vcpu *vcpu,
+ 	/*
+ 	 * Don't let L1 change LPCR bits for the L2 except these:
+ 	 */
+-	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD |
+-		LPCR_LPES | LPCR_MER;
++	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD | LPCR_MER;
+ 
+ 	/*
+ 	 * Additional filtering is required depending on hardware
 -- 
 2.35.1
 
