@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73639541CC5
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D7785406A7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382550AbiFGWEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:04:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40400 "EHLO
+        id S242746AbiFGRhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:37:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382817AbiFGWD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:03:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B63A19578A;
-        Tue,  7 Jun 2022 12:14:59 -0700 (PDT)
+        with ESMTP id S1347842AbiFGRfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB301109AB;
+        Tue,  7 Jun 2022 10:31:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD997B823C5;
-        Tue,  7 Jun 2022 19:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C37C385A2;
-        Tue,  7 Jun 2022 19:14:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EAE8614AE;
+        Tue,  7 Jun 2022 17:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649B5C385A5;
+        Tue,  7 Jun 2022 17:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629296;
-        bh=WiFCKulQ99PeGhv0WCZ7muvZMv1xXYlcq2nr0Cxd+lE=;
+        s=korg; t=1654623116;
+        bh=lnVIzLS/8oXyQGTC7yZ6FB72o8AH3PFI3K2kcM4Kszk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XKl8vAYrWVsubpREvEn4OvrpPSEN4LC2Bsda/wWa4aAqIpC6EcT6oCv+z0MxWBwVg
-         aay2zdoBtlxeqnJCV0AkOCXSmPvsgSEXDxHYBuMaWz6mcQyyCsqgt1nq7M1tJDztBX
-         3l/jiVeCvekMy/Pd86LN/LtaRtODsoQ1xcUNiLn4=
+        b=Vn8kahqCLkbPgRmgbmJq8yT4iAznZxksNVfsE135P/ugovFw6F+7iPXs/8SSwokZ2
+         yiXzyVyXObNGRwxFt4rM7CNWkK7bKHGouswN01VgLhS/CoQAdYikqPhXyBNr3VsxT2
+         diDkeiuvTGF0V5Z80YKndcNu3R6A3GY2h8e6Iz+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Richard Zhu <hongxing.zhu@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 641/879] powerpc/perf: Fix the threshold compare group constraint for power10
+Subject: [PATCH 5.10 302/452] PCI: imx6: Fix PERST# start-up sequence
 Date:   Tue,  7 Jun 2022 19:02:39 +0200
-Message-Id: <20220607165021.452557766@linuxfoundation.org>
+Message-Id: <20220607164917.558475881@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +57,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-[ Upstream commit 505d31650ba96d6032313480fdb566d289a4698c ]
+[ Upstream commit a6809941c1f17f455db2cf4ca19c6d8c8746ec25 ]
 
-Thresh compare bits for a event is used to program thresh compare
-field in Monitor Mode Control Register A (MMCRA: 8-18 bits for power10).
-When scheduling events as a group, all events in that group should
-match value in threshold bits. Otherwise event open for the sibling
-events should fail. But in the current code, incase thresh compare bits are
-not valid, we are not failing in group_constraint function which can result
-in invalid group schduling.
+According to the PCIe standard the PERST# signal (reset-gpio in
+fsl,imx* compatible dts) should be kept asserted for at least 100 usec
+before the PCIe refclock is stable, should be kept asserted for at
+least 100 msec after the power rails are stable and the host should wait
+at least 100 msec after it is de-asserted before accessing the
+configuration space of any attached device.
 
-Fix the issue by returning -1 incase event is threshold and threshold
-compare value is not valid in group_constraint function.
+>From PCIe CEM r2.0, sec 2.6.2
 
-Patch also fixes the p10_thresh_cmp_val function to return -1,
-incase threshold bits are not valid and changes corresponding check in
-is_thresh_cmp_valid function to return false only when the thresh_cmp
-value is less then 0.
+  T-PVPERL: Power stable to PERST# inactive - 100 msec
+  T-PERST-CLK: REFCLK stable before PERST# inactive - 100 usec.
 
-Thresh control bits in the event code is used to program thresh_ctl
-field in Monitor Mode Control Register A (MMCRA: 48-55). In below example,
-the scheduling of group events PM_MRK_INST_CMPL (3534401e0) and
-PM_THRESH_MET (34340101ec) is expected to fail as both event
-request different thresh control bits.
+>From PCIe r5.0, sec 6.6.1
 
-Result before the patch changes:
+  With a Downstream Port that does not support Link speeds greater than
+  5.0 GT/s, software must wait a minimum of 100 ms before sending a
+  Configuration Request to the device immediately below that Port.
 
-[command]# perf stat -e "{r35340401e0,r34340101ec}" sleep 1
+Failure to do so could prevent PCIe devices to be working correctly,
+and this was experienced with real devices.
 
- Performance counter stats for 'sleep 1':
+Move reset assert to imx6_pcie_assert_core_reset(), this way we ensure
+that PERST# is asserted before enabling any clock, move de-assert to the
+end of imx6_pcie_deassert_core_reset() after the clock is enabled and
+deemed stable and add a new delay of 100 msec just afterward.
 
-             8,482      r35340401e0
-                 0      r34340101ec
-
-       1.001474838 seconds time elapsed
-
-       0.001145000 seconds user
-       0.000000000 seconds sys
-
-Result after the patch changes:
-
-[command]# perf stat -e "{r35340401e0,r34340101ec}" sleep 1
-
- Performance counter stats for 'sleep 1':
-
-     <not counted>      r35340401e0
-   <not supported>      r34340101ec
-
-       1.001499607 seconds time elapsed
-
-       0.000204000 seconds user
-       0.000760000 seconds sys
-
-Fixes: 82d2c16b350f7 ("powerpc/perf: Adds support for programming of Thresholding in P10")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220506061015.43916-1-kjain@linux.ibm.com
+Link: https://lore.kernel.org/all/20220211152550.286821-1-francesco.dolcini@toradex.com
+Link: https://lore.kernel.org/r/20220404081509.94356-1-francesco.dolcini@toradex.com
+Fixes: bb38919ec56e ("PCI: imx6: Add support for i.MX6 PCIe controller")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Richard Zhu <hongxing.zhu@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/pci/controller/dwc/pci-imx6.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index a74d382ecbb7..013b06af6fe6 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -108,7 +108,7 @@ static void mmcra_sdar_mode(u64 event, unsigned long *mmcra)
- 		*mmcra |= MMCRA_SDAR_MODE_TLB;
+diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
+index 5cf1ef12fb9b..ceb4815379cd 100644
+--- a/drivers/pci/controller/dwc/pci-imx6.c
++++ b/drivers/pci/controller/dwc/pci-imx6.c
+@@ -401,6 +401,11 @@ static void imx6_pcie_assert_core_reset(struct imx6_pcie *imx6_pcie)
+ 			dev_err(dev, "failed to disable vpcie regulator: %d\n",
+ 				ret);
+ 	}
++
++	/* Some boards don't have PCIe reset GPIO. */
++	if (gpio_is_valid(imx6_pcie->reset_gpio))
++		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
++					imx6_pcie->gpio_active_high);
  }
  
--static u64 p10_thresh_cmp_val(u64 value)
-+static int p10_thresh_cmp_val(u64 value)
- {
- 	int exp = 0;
- 	u64 result = value;
-@@ -139,7 +139,7 @@ static u64 p10_thresh_cmp_val(u64 value)
- 		 * exponent is also zero.
- 		 */
- 		if (!(value & 0xC0) && exp)
--			result = 0;
-+			result = -1;
- 		else
- 			result = (exp << 8) | value;
+ static unsigned int imx6_pcie_grp_offset(const struct imx6_pcie *imx6_pcie)
+@@ -523,15 +528,6 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
+ 	/* allow the clocks to stabilize */
+ 	usleep_range(200, 500);
+ 
+-	/* Some boards don't have PCIe reset GPIO. */
+-	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
+-		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
+-					imx6_pcie->gpio_active_high);
+-		msleep(100);
+-		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
+-					!imx6_pcie->gpio_active_high);
+-	}
+-
+ 	switch (imx6_pcie->drvdata->variant) {
+ 	case IMX8MQ:
+ 		reset_control_deassert(imx6_pcie->pciephy_reset);
+@@ -574,6 +570,15 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
+ 		break;
  	}
-@@ -187,7 +187,7 @@ static bool is_thresh_cmp_valid(u64 event)
- 	unsigned int cmp, exp;
  
- 	if (cpu_has_feature(CPU_FTR_ARCH_31))
--		return p10_thresh_cmp_val(event) != 0;
-+		return p10_thresh_cmp_val(event) >= 0;
++	/* Some boards don't have PCIe reset GPIO. */
++	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
++		msleep(100);
++		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
++					!imx6_pcie->gpio_active_high);
++		/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
++		msleep(100);
++	}
++
+ 	return;
  
- 	/*
- 	 * Check the mantissa upper two bits are not zero, unless the
-@@ -502,7 +502,8 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp,
- 			value |= CNST_THRESH_CTL_SEL_VAL(event >> EVENT_THRESH_SHIFT);
- 			mask  |= p10_CNST_THRESH_CMP_MASK;
- 			value |= p10_CNST_THRESH_CMP_VAL(p10_thresh_cmp_val(event_config1));
--		}
-+		} else if (event_is_threshold(event))
-+			return -1;
- 	} else if (cpu_has_feature(CPU_FTR_ARCH_300))  {
- 		if (event_is_threshold(event) && is_thresh_cmp_valid(event)) {
- 			mask  |= CNST_THRESH_MASK;
+ err_ref_clk:
 -- 
 2.35.1
 
