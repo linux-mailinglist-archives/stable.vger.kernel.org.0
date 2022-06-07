@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05840541328
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C7F540A24
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354564AbiFGT4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49942 "EHLO
+        id S1351219AbiFGSSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:18:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354507AbiFGTxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08ED463515;
-        Tue,  7 Jun 2022 11:23:24 -0700 (PDT)
+        with ESMTP id S1351599AbiFGSQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9AA166684;
+        Tue,  7 Jun 2022 10:49:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7888BB82368;
-        Tue,  7 Jun 2022 18:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6A05C385A2;
-        Tue,  7 Jun 2022 18:23:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1BB3616A3;
+        Tue,  7 Jun 2022 17:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6E0C385A5;
+        Tue,  7 Jun 2022 17:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626202;
-        bh=+tuo2CRgp+QVPGwPvewXtMmsI8rHSTGcq5AMWNkynzk=;
+        s=korg; t=1654624184;
+        bh=qIYd8/ev6v0TAKf2EUSnVS6Vd+2qm0R8PpAvKOukWTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XW1e3QZbLw0GIqmXS2Sz7R44CpHRhmgjsiZrqAKTMeMz8ItEv3xiZ/aZ2QrqRhnU1
-         EhX+j6Dds+p9DMVyPqXXRpHYRvST5sahpl4OMXfvnehYVOji8nN7tNuiFY8bwEuOPt
-         JH3PsqkimvU7aCx0/pgmkofGbKFXXbuXCkwGf3Oo=
+        b=VVnyZQ93MTww2qVkrPt4+poZ2pZPGQ1TPW1lWASQPWEtpZRVa+qQHbwgQpAAw5XoI
+         mAw5uL2b+Tkosf5jSGKvEdfZ6sSzYyaRp+nfBZn4fSbKaasaxpH6nUIqkwGaWrtbyR
+         6ELXmZB/K9J1sVzKzbA3tbtRm1rjGOMOptFS4s2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 291/772] mtdblock: warn if opened on NAND
+Subject: [PATCH 5.15 218/667] drbd: fix duplicate array initializer
 Date:   Tue,  7 Jun 2022 18:58:03 +0200
-Message-Id: <20220607164957.599847200@linuxfoundation.org>
+Message-Id: <20220607164941.331261454@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjørn Mork <bjorn@mork.no>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 96a3295c351da82d7af99b2fc004a3cf9f4716a9 ]
+[ Upstream commit 33cb0917bbe241dd17a2b87ead63514c1b7e5615 ]
 
-Warning on every translated mtd partition results in excessive log noise
-if this driver is loaded:
+There are two initializers for P_RETRY_WRITE:
 
-  nand: device found, Manufacturer ID: 0xc2, Chip ID: 0xf1
-  nand: Macronix MX30LF1G18AC
-  nand: 128 MiB, SLC, erase size: 128 KiB, page size: 2048, OOB size: 64
-  mt7621-nand 1e003000.nand: ECC strength adjusted to 4 bits
-  read_bbt: found bbt at block 1023
-  10 fixed-partitions partitions found on MTD device mt7621-nand
-  Creating 10 MTD partitions on "mt7621-nand":
-  0x000000000000-0x000000080000 : "Bootloader"
-  mtdblock: MTD device 'Bootloader' is NAND, please consider using UBI block devices instead.
-  0x000000080000-0x000000100000 : "Config"
-  mtdblock: MTD device 'Config' is NAND, please consider using UBI block devices instead.
-  0x000000100000-0x000000140000 : "Factory"
-  mtdblock: MTD device 'Factory' is NAND, please consider using UBI block devices instead.
-  0x000000140000-0x000002000000 : "Kernel"
-  mtdblock: MTD device 'Kernel' is NAND, please consider using UBI block devices instead.
-  0x000000540000-0x000002000000 : "ubi"
-  mtdblock: MTD device 'ubi' is NAND, please consider using UBI block devices instead.
-  0x000002140000-0x000004000000 : "Kernel2"
-  mtdblock: MTD device 'Kernel2' is NAND, please consider using UBI block devices instead.
-  0x000004000000-0x000004100000 : "wwan"
-  mtdblock: MTD device 'wwan' is NAND, please consider using UBI block devices instead.
-  0x000004100000-0x000005100000 : "data"
-  mtdblock: MTD device 'data' is NAND, please consider using UBI block devices instead.
-  0x000005100000-0x000005200000 : "rom-d"
-  mtdblock: MTD device 'rom-d' is NAND, please consider using UBI block devices instead.
-  0x000005200000-0x000005280000 : "reserve"
-  mtdblock: MTD device 'reserve' is NAND, please consider using UBI block devices instead.
-  mtk_soc_eth 1e100000.ethernet eth0: mediatek frame engine at 0xbe100000, irq 21
+drivers/block/drbd/drbd_main.c:3676:22: warning: initialized field overwritten [-Woverride-init]
 
-This is more likely to annoy than to help users of embedded distros where
-this driver is enabled by default.  Making the blockdevs available does
-not imply that they are in use, and warning about bootloader partitions
-or other devices which obviously never will be mounted is more confusing
-than helpful.
+Remove the first one since it was already ignored by the compiler
+and reorder the list to match the enum definition. As P_ZEROES had
+no entry, add that one instead.
 
-Move the warning to open(), where it will be of more use - actually warning
-anyone who mounts a file system on NAND using mtdblock.
-
-Fixes: e07403a8c6be ("mtdblock: Warn if added for a NAND device")
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220328161108.87757-1-bjorn@mork.no
+Fixes: 036b17eaab93 ("drbd: Receiving part for the PROTOCOL_UPDATE packet")
+Fixes: f31e583aa2c2 ("drbd: introduce P_ZEROES (REQ_OP_WRITE_ZEROES on the "wire")")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Link: https://lore.kernel.org/r/20220406190715.1938174-2-christoph.boehmwalder@linbit.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdblock.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/block/drbd/drbd_main.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/mtdblock.c b/drivers/mtd/mtdblock.c
-index 03e3de3a5d79..1e94e7d10b8b 100644
---- a/drivers/mtd/mtdblock.c
-+++ b/drivers/mtd/mtdblock.c
-@@ -257,6 +257,10 @@ static int mtdblock_open(struct mtd_blktrans_dev *mbd)
- 		return 0;
- 	}
- 
-+	if (mtd_type_is_nand(mbd->mtd))
-+		pr_warn("%s: MTD device '%s' is NAND, please consider using UBI block devices instead.\n",
-+			mbd->tr->name, mbd->mtd->name);
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 6db0333b5b7a..8ba2fe356f01 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -3607,9 +3607,8 @@ const char *cmdname(enum drbd_packet cmd)
+ 	 * when we want to support more than
+ 	 * one PRO_VERSION */
+ 	static const char *cmdnames[] = {
 +
- 	/* OK, it's not open. Create cache info for it */
- 	mtdblk->count = 1;
- 	mutex_init(&mtdblk->cache_mutex);
-@@ -322,10 +326,6 @@ static void mtdblock_add_mtd(struct mtd_blktrans_ops *tr, struct mtd_info *mtd)
- 	if (!(mtd->flags & MTD_WRITEABLE))
- 		dev->mbd.readonly = 1;
+ 		[P_DATA]	        = "Data",
+-		[P_WSAME]	        = "WriteSame",
+-		[P_TRIM]	        = "Trim",
+ 		[P_DATA_REPLY]	        = "DataReply",
+ 		[P_RS_DATA_REPLY]	= "RSDataReply",
+ 		[P_BARRIER]	        = "Barrier",
+@@ -3620,7 +3619,6 @@ const char *cmdname(enum drbd_packet cmd)
+ 		[P_DATA_REQUEST]	= "DataRequest",
+ 		[P_RS_DATA_REQUEST]     = "RSDataRequest",
+ 		[P_SYNC_PARAM]	        = "SyncParam",
+-		[P_SYNC_PARAM89]	= "SyncParam89",
+ 		[P_PROTOCOL]            = "ReportProtocol",
+ 		[P_UUIDS]	        = "ReportUUIDs",
+ 		[P_SIZES]	        = "ReportSizes",
+@@ -3628,6 +3626,7 @@ const char *cmdname(enum drbd_packet cmd)
+ 		[P_SYNC_UUID]           = "ReportSyncUUID",
+ 		[P_AUTH_CHALLENGE]      = "AuthChallenge",
+ 		[P_AUTH_RESPONSE]	= "AuthResponse",
++		[P_STATE_CHG_REQ]       = "StateChgRequest",
+ 		[P_PING]		= "Ping",
+ 		[P_PING_ACK]	        = "PingAck",
+ 		[P_RECV_ACK]	        = "RecvAck",
+@@ -3638,23 +3637,25 @@ const char *cmdname(enum drbd_packet cmd)
+ 		[P_NEG_DREPLY]	        = "NegDReply",
+ 		[P_NEG_RS_DREPLY]	= "NegRSDReply",
+ 		[P_BARRIER_ACK]	        = "BarrierAck",
+-		[P_STATE_CHG_REQ]       = "StateChgRequest",
+ 		[P_STATE_CHG_REPLY]     = "StateChgReply",
+ 		[P_OV_REQUEST]          = "OVRequest",
+ 		[P_OV_REPLY]            = "OVReply",
+ 		[P_OV_RESULT]           = "OVResult",
+ 		[P_CSUM_RS_REQUEST]     = "CsumRSRequest",
+ 		[P_RS_IS_IN_SYNC]	= "CsumRSIsInSync",
++		[P_SYNC_PARAM89]	= "SyncParam89",
+ 		[P_COMPRESSED_BITMAP]   = "CBitmap",
+ 		[P_DELAY_PROBE]         = "DelayProbe",
+ 		[P_OUT_OF_SYNC]		= "OutOfSync",
+-		[P_RETRY_WRITE]		= "RetryWrite",
+ 		[P_RS_CANCEL]		= "RSCancel",
+ 		[P_CONN_ST_CHG_REQ]	= "conn_st_chg_req",
+ 		[P_CONN_ST_CHG_REPLY]	= "conn_st_chg_reply",
+ 		[P_PROTOCOL_UPDATE]	= "protocol_update",
++		[P_TRIM]	        = "Trim",
+ 		[P_RS_THIN_REQ]         = "rs_thin_req",
+ 		[P_RS_DEALLOCATED]      = "rs_deallocated",
++		[P_WSAME]	        = "WriteSame",
++		[P_ZEROES]		= "Zeroes",
  
--	if (mtd_type_is_nand(mtd))
--		pr_warn("%s: MTD device '%s' is NAND, please consider using UBI block devices instead.\n",
--			tr->name, mtd->name);
--
- 	if (add_mtd_blktrans_dev(&dev->mbd))
- 		kfree(dev);
- }
+ 		/* enum drbd_packet, but not commands - obsoleted flags:
+ 		 *	P_MAY_IGNORE
 -- 
 2.35.1
 
