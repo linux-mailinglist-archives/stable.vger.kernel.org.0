@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2143954184B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700175411F9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379217AbiFGVLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:11:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35116 "EHLO
+        id S1356730AbiFGTnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380186AbiFGVLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:40 -0400
+        with ESMTP id S1356749AbiFGTji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:39:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFAE81498FA;
-        Tue,  7 Jun 2022 11:53:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 353DBFD360;
+        Tue,  7 Jun 2022 11:14:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EE3612F2;
-        Tue,  7 Jun 2022 18:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34592C385A2;
-        Tue,  7 Jun 2022 18:53:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72412608CD;
+        Tue,  7 Jun 2022 18:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EEEBC385A2;
+        Tue,  7 Jun 2022 18:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628005;
-        bh=czw9kRjZG40hr+kia3G/03BugvUAA5H+FXWgSqt3PEs=;
+        s=korg; t=1654625664;
+        bh=j8Yt/rvyij5nfucFmUgDa7YJAs2n/VmhyAQLsHtBdKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfSQbZgG7daHKQL3Z17vMINZ9qFrnUxAhtm8vFj8HUBQ1cSgxvX4Aks3pAlRm9mqp
-         FWyVnXEyvuemmnd4zgUKwROlsw/rejIqX0MwUKbaivjNhxl1lD1Um7GUxtCL+4B46g
-         HR+OXdGHkTQQXP6TKIqK/BbebDgCO4l49GuwbVwc=
+        b=Zqae/b+WaSWApkKx1aRU9l1c7dkZI1jz8Lb/ZyRFGedI1MDaDHh+tExU9fZrOYFq+
+         2rfEoRHLf0Sx6Xc4qxe+nfUH95bQaOafXij4SjFIKkUIMPr1ztlJsHLDKzXi+H2K2J
+         hHkf37mrvr7+wtHZ1A1rgc1kKjDUtYfjWdLf7A8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Cochran <richardcochran@gmail.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Hari Chandrakanthan <quic_haric@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 172/879] bnxt_en: Configure ptp filters during bnxt open
-Date:   Tue,  7 Jun 2022 18:54:50 +0200
-Message-Id: <20220607165007.705141014@linuxfoundation.org>
+Subject: [PATCH 5.17 099/772] ath11k: disable spectral scan during spectral deinit
+Date:   Tue,  7 Jun 2022 18:54:51 +0200
+Message-Id: <20220607164951.966138341@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,143 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: Hari Chandrakanthan <quic_haric@quicinc.com>
 
-[ Upstream commit 11862689e8f117e4702f55000790d7bce6859e84 ]
+[ Upstream commit 161c64de239c7018e0295e7e0520a19f00aa32dc ]
 
-For correctness, we need to configure the packet filters for timestamping
-during bnxt_open.  This way they are always configured after firmware
-reset or chip reset.  We should not assume that the filters will always
-be retained across resets.
+When ath11k modules are removed using rmmod with spectral scan enabled,
+crash is observed. Different crash trace is observed for each crash.
 
-This patch modifies the ioctl handler and always configures the PTP
-filters in the bnxt_open() path.
+Send spectral scan disable WMI command to firmware before cleaning
+the spectral dbring in the spectral_deinit API to avoid this crash.
 
-Cc: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+call trace from one of the crash observed:
+[ 1252.880802] Unable to handle kernel NULL pointer dereference at virtual address 00000008
+[ 1252.882722] pgd = 0f42e886
+[ 1252.890955] [00000008] *pgd=00000000
+[ 1252.893478] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+[ 1253.093035] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.89 #0
+[ 1253.115261] Hardware name: Generic DT based system
+[ 1253.121149] PC is at ath11k_spectral_process_data+0x434/0x574 [ath11k]
+[ 1253.125940] LR is at 0x88e31017
+[ 1253.132448] pc : [<7f9387b8>]    lr : [<88e31017>]    psr: a0000193
+[ 1253.135488] sp : 80d01bc8  ip : 00000001  fp : 970e0000
+[ 1253.141737] r10: 88e31000  r9 : 970ec000  r8 : 00000080
+[ 1253.146946] r7 : 94734040  r6 : a0000113  r5 : 00000057  r4 : 00000000
+[ 1253.152159] r3 : e18cb694  r2 : 00000217  r1 : 1df1f000  r0 : 00000001
+[ 1253.158755] Flags: NzCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
+[ 1253.165266] Control: 10c0383d  Table: 5e71006a  DAC: 00000055
+[ 1253.172472] Process swapper/0 (pid: 0, stack limit = 0x60870141)
+[ 1253.458055] [<7f9387b8>] (ath11k_spectral_process_data [ath11k]) from [<7f917fdc>] (ath11k_dbring_buffer_release_event+0x214/0x2e4 [ath11k])
+[ 1253.466139] [<7f917fdc>] (ath11k_dbring_buffer_release_event [ath11k]) from [<7f8ea3c4>] (ath11k_wmi_tlv_op_rx+0x1840/0x29cc [ath11k])
+[ 1253.478807] [<7f8ea3c4>] (ath11k_wmi_tlv_op_rx [ath11k]) from [<7f8fe868>] (ath11k_htc_rx_completion_handler+0x180/0x4e0 [ath11k])
+[ 1253.490699] [<7f8fe868>] (ath11k_htc_rx_completion_handler [ath11k]) from [<7f91308c>] (ath11k_ce_per_engine_service+0x2c4/0x3b4 [ath11k])
+[ 1253.502386] [<7f91308c>] (ath11k_ce_per_engine_service [ath11k]) from [<7f9a4198>] (ath11k_pci_ce_tasklet+0x28/0x80 [ath11k_pci])
+[ 1253.514811] [<7f9a4198>] (ath11k_pci_ce_tasklet [ath11k_pci]) from [<8032227c>] (tasklet_action_common.constprop.2+0x64/0xe8)
+[ 1253.526476] [<8032227c>] (tasklet_action_common.constprop.2) from [<803021e8>] (__do_softirq+0x130/0x2d0)
+[ 1253.537756] [<803021e8>] (__do_softirq) from [<80322610>] (irq_exit+0xcc/0xe8)
+[ 1253.547304] [<80322610>] (irq_exit) from [<8036a4a4>] (__handle_domain_irq+0x60/0xb4)
+[ 1253.554428] [<8036a4a4>] (__handle_domain_irq) from [<805eb348>] (gic_handle_irq+0x4c/0x90)
+[ 1253.562321] [<805eb348>] (gic_handle_irq) from [<80301a78>] (__irq_svc+0x58/0x8c)
+
+Tested-on: QCN6122 hw1.0 AHB WLAN.HK.2.6.0.1-00851-QCAHKSWPL_SILICONZ-1
+
+Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/1649396345-349-1-git-send-email-quic_haric@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     |  1 +
- drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c | 56 ++++++++++++++-----
- drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h |  2 +
- 3 files changed, 46 insertions(+), 13 deletions(-)
+ drivers/net/wireless/ath/ath11k/spectral.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 1d69fe0737a1..d5149478a351 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10363,6 +10363,7 @@ static int __bnxt_open_nic(struct bnxt *bp, bool irq_re_init, bool link_re_init)
- 	if (BNXT_PF(bp))
- 		bnxt_vf_reps_open(bp);
- 	bnxt_ptp_init_rtc(bp, true);
-+	bnxt_ptp_cfg_tstamp_filters(bp);
- 	return 0;
+diff --git a/drivers/net/wireless/ath/ath11k/spectral.c b/drivers/net/wireless/ath/ath11k/spectral.c
+index 4100cc1449a2..e997426a1b4b 100644
+--- a/drivers/net/wireless/ath/ath11k/spectral.c
++++ b/drivers/net/wireless/ath/ath11k/spectral.c
+@@ -212,7 +212,10 @@ static int ath11k_spectral_scan_config(struct ath11k *ar,
+ 		return -ENODEV;
  
- open_err_irq:
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-index 00f2f80c0073..f9c94e5fe718 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-@@ -295,6 +295,27 @@ static int bnxt_ptp_cfg_event(struct bnxt *bp, u8 event)
- 	return hwrm_req_send(bp, req);
+ 	arvif->spectral_enabled = (mode != ATH11K_SPECTRAL_DISABLED);
++
++	spin_lock_bh(&ar->spectral.lock);
+ 	ar->spectral.mode = mode;
++	spin_unlock_bh(&ar->spectral.lock);
+ 
+ 	ret = ath11k_wmi_vdev_spectral_enable(ar, arvif->vdev_id,
+ 					      ATH11K_WMI_SPECTRAL_TRIGGER_CMD_CLEAR,
+@@ -843,9 +846,6 @@ static inline void ath11k_spectral_ring_free(struct ath11k *ar)
+ {
+ 	struct ath11k_spectral *sp = &ar->spectral;
+ 
+-	if (!sp->enabled)
+-		return;
+-
+ 	ath11k_dbring_srng_cleanup(ar, &sp->rx_ring);
+ 	ath11k_dbring_buf_cleanup(ar, &sp->rx_ring);
+ }
+@@ -897,15 +897,16 @@ void ath11k_spectral_deinit(struct ath11k_base *ab)
+ 		if (!sp->enabled)
+ 			continue;
+ 
+-		ath11k_spectral_debug_unregister(ar);
+-		ath11k_spectral_ring_free(ar);
++		mutex_lock(&ar->conf_mutex);
++		ath11k_spectral_scan_config(ar, ATH11K_SPECTRAL_DISABLED);
++		mutex_unlock(&ar->conf_mutex);
+ 
+ 		spin_lock_bh(&sp->lock);
+-
+-		sp->mode = ATH11K_SPECTRAL_DISABLED;
+ 		sp->enabled = false;
+-
+ 		spin_unlock_bh(&sp->lock);
++
++		ath11k_spectral_debug_unregister(ar);
++		ath11k_spectral_ring_free(ar);
+ 	}
  }
  
-+void bnxt_ptp_cfg_tstamp_filters(struct bnxt *bp)
-+{
-+	struct bnxt_ptp_cfg *ptp = bp->ptp_cfg;
-+	struct hwrm_port_mac_cfg_input *req;
-+
-+	if (!ptp || !ptp->tstamp_filters)
-+		return;
-+
-+	if (hwrm_req_init(bp, req, HWRM_PORT_MAC_CFG))
-+		goto out;
-+	req->flags = cpu_to_le32(ptp->tstamp_filters);
-+	req->enables = cpu_to_le32(PORT_MAC_CFG_REQ_ENABLES_RX_TS_CAPTURE_PTP_MSG_TYPE);
-+	req->rx_ts_capture_ptp_msg_type = cpu_to_le16(ptp->rxctl);
-+
-+	if (!hwrm_req_send(bp, req))
-+		return;
-+	ptp->tstamp_filters = 0;
-+out:
-+	netdev_warn(bp->dev, "Failed to configure HW packet timestamp filters\n");
-+}
-+
- void bnxt_ptp_reapply_pps(struct bnxt *bp)
- {
- 	struct bnxt_ptp_cfg *ptp = bp->ptp_cfg;
-@@ -435,27 +456,36 @@ static int bnxt_ptp_enable(struct ptp_clock_info *ptp_info,
- static int bnxt_hwrm_ptp_cfg(struct bnxt *bp)
- {
- 	struct bnxt_ptp_cfg *ptp = bp->ptp_cfg;
--	struct hwrm_port_mac_cfg_input *req;
- 	u32 flags = 0;
--	int rc;
-+	int rc = 0;
- 
--	rc = hwrm_req_init(bp, req, HWRM_PORT_MAC_CFG);
--	if (rc)
--		return rc;
-+	switch (ptp->rx_filter) {
-+	case HWTSTAMP_FILTER_NONE:
-+		flags = PORT_MAC_CFG_REQ_FLAGS_PTP_RX_TS_CAPTURE_DISABLE;
-+		break;
-+	case HWTSTAMP_FILTER_PTP_V2_EVENT:
-+	case HWTSTAMP_FILTER_PTP_V2_SYNC:
-+	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
-+		flags = PORT_MAC_CFG_REQ_FLAGS_PTP_RX_TS_CAPTURE_ENABLE;
-+		break;
-+	}
- 
--	if (ptp->rx_filter)
--		flags |= PORT_MAC_CFG_REQ_FLAGS_PTP_RX_TS_CAPTURE_ENABLE;
--	else
--		flags |= PORT_MAC_CFG_REQ_FLAGS_PTP_RX_TS_CAPTURE_DISABLE;
- 	if (ptp->tx_tstamp_en)
- 		flags |= PORT_MAC_CFG_REQ_FLAGS_PTP_TX_TS_CAPTURE_ENABLE;
- 	else
- 		flags |= PORT_MAC_CFG_REQ_FLAGS_PTP_TX_TS_CAPTURE_DISABLE;
--	req->flags = cpu_to_le32(flags);
--	req->enables = cpu_to_le32(PORT_MAC_CFG_REQ_ENABLES_RX_TS_CAPTURE_PTP_MSG_TYPE);
--	req->rx_ts_capture_ptp_msg_type = cpu_to_le16(ptp->rxctl);
- 
--	return hwrm_req_send(bp, req);
-+	ptp->tstamp_filters = flags;
-+
-+	if (netif_running(bp->dev)) {
-+		rc = bnxt_close_nic(bp, false, false);
-+		if (!rc)
-+			rc = bnxt_open_nic(bp, false, false);
-+		if (!rc && !ptp->tstamp_filters)
-+			rc = -EIO;
-+	}
-+
-+	return rc;
- }
- 
- int bnxt_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h
-index 530b9922608c..4ce0a14c1e23 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h
-@@ -113,6 +113,7 @@ struct bnxt_ptp_cfg {
- 					 BNXT_PTP_MSG_PDELAY_RESP)
- 	u8			tx_tstamp_en:1;
- 	int			rx_filter;
-+	u32			tstamp_filters;
- 
- 	u32			refclk_regs[2];
- 	u32			refclk_mapped_regs[2];
-@@ -133,6 +134,7 @@ do {						\
- int bnxt_ptp_parse(struct sk_buff *skb, u16 *seq_id, u16 *hdr_off);
- void bnxt_ptp_update_current_time(struct bnxt *bp);
- void bnxt_ptp_pps_event(struct bnxt *bp, u32 data1, u32 data2);
-+void bnxt_ptp_cfg_tstamp_filters(struct bnxt *bp);
- void bnxt_ptp_reapply_pps(struct bnxt *bp);
- int bnxt_hwtstamp_set(struct net_device *dev, struct ifreq *ifr);
- int bnxt_hwtstamp_get(struct net_device *dev, struct ifreq *ifr);
 -- 
 2.35.1
 
