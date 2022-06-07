@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79BC05410AA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE99654180E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353100AbiFGT2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50548 "EHLO
+        id S1359184AbiFGVHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356726AbiFGT2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:09 -0400
+        with ESMTP id S1379569AbiFGVGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6A71A0ACA;
-        Tue,  7 Jun 2022 11:10:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCA41F0FE8;
+        Tue,  7 Jun 2022 11:49:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE92AB82340;
-        Tue,  7 Jun 2022 18:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C94C385A2;
-        Tue,  7 Jun 2022 18:10:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1983B8220B;
+        Tue,  7 Jun 2022 18:49:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2141AC385A5;
+        Tue,  7 Jun 2022 18:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625433;
-        bh=Tc0Q39oyVnRW3866dz4/fiiECwqbaxKvAXBOFHJf6O0=;
+        s=korg; t=1654627785;
+        bh=NQr4DnHVulh4RbREC1iNFCv8RKjtbaKcjTm0ZM5tSvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUF+VOmUHeL9C/KTEpcHbay2R+Ap1/O1ahLuAx2st41mnwvMy1NEn+mPEzTL4gS2+
-         IPZ5LAHRlf4SstS1EAIHzs4K5xbBP8pARDN0fS6nvU3MRZ51nVqzyn4oZXQt/1nXfp
-         bod9j0Uc0pho3qB6Fg+z8hpaoX7Rs49pNVTPBt14=
+        b=lwza+0FIK/iHzE/JosxV+v1GpzIbRPfH+mdLT0pEPckaMC4pYyP3svFBgs3gxQTzF
+         nssUpM+fPEMzsaNb6dJV4uu2ePVZme6P64m+gli00cNiWgWi7RVXVvrP+RpxKHRIvq
+         GJ4Y5Vnrm0xi6tBjHUIWjCqvn/6DdHXgluyrViAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Albert Wang <albertccwang@google.com>
-Subject: [PATCH 5.17 018/772] usb: dwc3: gadget: Move null pinter check to proper place
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 092/879] scsi: lpfc: Fix call trace observed during I/O with CMF enabled
 Date:   Tue,  7 Jun 2022 18:53:30 +0200
-Message-Id: <20220607164949.544429132@linuxfoundation.org>
+Message-Id: <20220607165005.362959230@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Albert Wang <albertccwang@google.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 3c5880745b4439ac64eccdb040e37fc1cc4c5406 upstream.
+[ Upstream commit d6d45f67a11136cb88a70a29ab22ea6db8ae6bd5 ]
 
-When dwc3_gadget_ep_cleanup_completed_requests() called to
-dwc3_gadget_giveback() where the dwc3 lock is released, other thread is
-able to execute. In this situation, usb_ep_disable() gets the chance to
-clear endpoint descriptor pointer which leds to the null pointer
-dereference problem. So needs to move the null pointer check to a proper
-place.
+The following was seen with CMF enabled:
 
-Example call stack:
+BUG: using smp_processor_id() in preemptible
+code: systemd-udevd/31711
+kernel: caller is lpfc_update_cmf_cmd+0x214/0x420  [lpfc]
+kernel: CPU: 12 PID: 31711 Comm: systemd-udevd
+kernel: Call Trace:
+kernel: <TASK>
+kernel: dump_stack_lvl+0x44/0x57
+kernel: check_preemption_disabled+0xbf/0xe0
+kernel: lpfc_update_cmf_cmd+0x214/0x420 [lpfc]
+kernel: lpfc_nvme_fcp_io_submit+0x23b4/0x4df0 [lpfc]
 
-Thread#1:
-dwc3_thread_interrupt()
-  spin_lock
-  -> dwc3_process_event_buf()
-   -> dwc3_process_event_entry()
-    -> dwc3_endpoint_interrupt()
-     -> dwc3_gadget_endpoint_trbs_complete()
-      -> dwc3_gadget_ep_cleanup_completed_requests()
-       ...
-       -> dwc3_giveback()
-          spin_unlock
-          Thread#2 executes
+this_cpu_ptr() calls smp_processor_id() in a preemptible context.
 
-Thread#2:
-configfs_composite_disconnect()
-  -> __composite_disconnect()
-   -> ffs_func_disable()
-    -> ffs_func_set_alt()
-     -> ffs_func_eps_disable()
-      -> usb_ep_disable()
-         wait for dwc3 spin_lock
-         Thread#1 released lock
-         clear endpoint.desc
+Fix by using per_cpu_ptr() with raw_smp_processor_id() instead.
 
-Fixes: 26288448120b ("usb: dwc3: gadget: Fix null pointer exception")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Albert Wang <albertccwang@google.com>
-Link: https://lore.kernel.org/r/20220518061315.3359198-1-albertccwang@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220412222008.126521-16-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_scsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3335,14 +3335,14 @@ static bool dwc3_gadget_endpoint_trbs_co
- 	struct dwc3		*dwc = dep->dwc;
- 	bool			no_started_trb = true;
+diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
+index c4fa7d68fe03..f617a2ef6b0f 100644
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -3835,7 +3835,7 @@ lpfc_update_cmf_cmpl(struct lpfc_hba *phba,
+ 		else
+ 			time = div_u64(time + 500, 1000); /* round it */
  
--	if (!dep->endpoint.desc)
--		return no_started_trb;
--
- 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+-		cgs = this_cpu_ptr(phba->cmf_stat);
++		cgs = per_cpu_ptr(phba->cmf_stat, raw_smp_processor_id());
+ 		atomic64_add(size, &cgs->rcv_bytes);
+ 		atomic64_add(time, &cgs->rx_latency);
+ 		atomic_inc(&cgs->rx_io_cnt);
+@@ -3879,7 +3879,7 @@ lpfc_update_cmf_cmd(struct lpfc_hba *phba, uint32_t size)
+ 			atomic_set(&phba->rx_max_read_cnt, size);
+ 	}
  
- 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
- 		goto out;
- 
-+	if (!dep->endpoint.desc)
-+		return no_started_trb;
-+
- 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
- 		list_empty(&dep->started_list) &&
- 		(list_empty(&dep->pending_list) || status == -EXDEV))
+-	cgs = this_cpu_ptr(phba->cmf_stat);
++	cgs = per_cpu_ptr(phba->cmf_stat, raw_smp_processor_id());
+ 	atomic64_add(size, &cgs->total_bytes);
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
