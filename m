@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C25C540696
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F895415DA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346911AbiFGRhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
+        id S1377731AbiFGUnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347610AbiFGRf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:27 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6D2DED4;
-        Tue,  7 Jun 2022 10:30:59 -0700 (PDT)
+        with ESMTP id S1377279AbiFGUdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A4D14781D;
+        Tue,  7 Jun 2022 11:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2FF53CE23D0;
-        Tue,  7 Jun 2022 17:30:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FBE3C385A5;
-        Tue,  7 Jun 2022 17:30:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A60726157B;
+        Tue,  7 Jun 2022 18:34:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1557C385A2;
+        Tue,  7 Jun 2022 18:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623041;
-        bh=G+VmD+Gd+6D+I0VXQN+nuqorCTGsJh90QPeQSS1lKOo=;
+        s=korg; t=1654626882;
+        bh=BUUyuJwqsmQ8ppwNkzVju8FLysHPnnjZRg/0W7ctp2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/JS70GK3Ar+KTYVye2sQPWN2kd8LXbdvSu3mECJ11EoRs4HgcAKUVLF+Qm/mz7fx
-         smoz6SkxJ/qtU5YQ6K/0B82eTQzz7VNO3IX6PgyLyuXJqFoR3fq1RNSr/VuV8YP8kh
-         2Y2MZo/Ia4UvyMxOiaYIPilvAeDXABCBIpsWkvvY=
+        b=y78Z3kvcJKv0TJznatRB2DzaEmmOYa5Ko7OCPuZqCTk0MRyDrrsK/EhQAtMPX2C1/
+         dUEFv5hqQvhJ2SSq0oGeT2qU4wT/i/8hGR/xAizhl/6pra4xZsLBt8InsE3utzYNra
+         GFTnImjVdIbiA7+yX14wfnhKIGHGBf255gL3H/xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Eric Badger <ebadger@purestorage.com>,
+        Kuppuswamy Sathyanarayanan 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Ashok Raj <ashok.raj@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 273/452] can: xilinx_can: mark bit timing constants as const
+Subject: [PATCH 5.17 538/772] PCI/AER: Clear MULTI_ERR_COR/UNCOR_RCV bits
 Date:   Tue,  7 Jun 2022 19:02:10 +0200
-Message-Id: <20220607164916.685878302@linuxfoundation.org>
+Message-Id: <20220607165004.819665862@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +57,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-[ Upstream commit ae38fda02996d43d9fb09f16e81e0008704dd524 ]
+[ Upstream commit 203926da2bff8e172200a2f11c758987af112d4a ]
 
-This patch marks the bit timing constants as const.
+When a Root Port or Root Complex Event Collector receives an error Message
+e.g., ERR_COR, it sets PCI_ERR_ROOT_COR_RCV in the Root Error Status
+register and logs the Requester ID in the Error Source Identification
+register.  If it receives a second ERR_COR Message before software clears
+PCI_ERR_ROOT_COR_RCV, hardware sets PCI_ERR_ROOT_MULTI_COR_RCV and the
+Requester ID is lost.
 
-Fixes: c223da689324 ("can: xilinx_can: Add support for CANFD FD frames")
-Link: https://lore.kernel.org/all/20220317203119.792552-1-mkl@pengutronix.de
-Cc: Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>
-Cc: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+In the following scenario, PCI_ERR_ROOT_MULTI_COR_RCV was never cleared:
+
+  - hardware receives ERR_COR message
+  - hardware sets PCI_ERR_ROOT_COR_RCV
+  - aer_irq() entered
+  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
+  - aer_irq(): now status == PCI_ERR_ROOT_COR_RCV
+  - hardware receives second ERR_COR message
+  - hardware sets PCI_ERR_ROOT_MULTI_COR_RCV
+  - aer_irq(): pci_write_config_dword(PCI_ERR_ROOT_STATUS, status)
+  - PCI_ERR_ROOT_COR_RCV is cleared; PCI_ERR_ROOT_MULTI_COR_RCV is set
+  - aer_irq() entered again
+  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
+  - aer_irq(): now status == PCI_ERR_ROOT_MULTI_COR_RCV
+  - aer_irq() exits because PCI_ERR_ROOT_COR_RCV not set
+  - PCI_ERR_ROOT_MULTI_COR_RCV is still set
+
+The same problem occurred with ERR_NONFATAL/ERR_FATAL Messages and
+PCI_ERR_ROOT_UNCOR_RCV and PCI_ERR_ROOT_MULTI_UNCOR_RCV.
+
+Fix the problem by queueing an AER event and clearing the Root Error Status
+bits when any of these bits are set:
+
+  PCI_ERR_ROOT_COR_RCV
+  PCI_ERR_ROOT_UNCOR_RCV
+  PCI_ERR_ROOT_MULTI_COR_RCV
+  PCI_ERR_ROOT_MULTI_UNCOR_RCV
+
+See the bugzilla link for details from Eric about how to reproduce this
+problem.
+
+[bhelgaas: commit log, move repro details to bugzilla]
+Fixes: e167bfcaa4cd ("PCI: aerdrv: remove magical ROOT_ERR_STATUS_MASKS")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215992
+Link: https://lore.kernel.org/r/20220418150237.1021519-1-sathyanarayanan.kuppuswamy@linux.intel.com
+Reported-by: Eric Badger <ebadger@purestorage.com>
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/pcie/aer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index 375998263af7..1c42417810fc 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -239,7 +239,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd = {
- };
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index 9fa1f97e5b27..7952e5efd6cf 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -101,6 +101,11 @@ struct aer_stats {
+ #define ERR_COR_ID(d)			(d & 0xffff)
+ #define ERR_UNCOR_ID(d)			(d >> 16)
  
- /* AXI CANFD Data Bittiming constants as per AXI CANFD 1.0 specs */
--static struct can_bittiming_const xcan_data_bittiming_const_canfd = {
-+static const struct can_bittiming_const xcan_data_bittiming_const_canfd = {
- 	.name = DRIVER_NAME,
- 	.tseg1_min = 1,
- 	.tseg1_max = 16,
-@@ -265,7 +265,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd2 = {
- };
++#define AER_ERR_STATUS_MASK		(PCI_ERR_ROOT_UNCOR_RCV |	\
++					PCI_ERR_ROOT_COR_RCV |		\
++					PCI_ERR_ROOT_MULTI_COR_RCV |	\
++					PCI_ERR_ROOT_MULTI_UNCOR_RCV)
++
+ static int pcie_aer_disable;
+ static pci_ers_result_t aer_root_reset(struct pci_dev *dev);
  
- /* AXI CANFD 2.0 Data Bittiming constants as per AXI CANFD 2.0 spec */
--static struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
-+static const struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
- 	.name = DRIVER_NAME,
- 	.tseg1_min = 1,
- 	.tseg1_max = 32,
+@@ -1196,7 +1201,7 @@ static irqreturn_t aer_irq(int irq, void *context)
+ 	struct aer_err_source e_src = {};
+ 
+ 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_STATUS, &e_src.status);
+-	if (!(e_src.status & (PCI_ERR_ROOT_UNCOR_RCV|PCI_ERR_ROOT_COR_RCV)))
++	if (!(e_src.status & AER_ERR_STATUS_MASK))
+ 		return IRQ_NONE;
+ 
+ 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_ERR_SRC, &e_src.id);
 -- 
 2.35.1
 
