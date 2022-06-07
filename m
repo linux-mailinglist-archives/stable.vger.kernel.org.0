@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46ED6541896
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596E2541229
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379688AbiFGVNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40734 "EHLO
+        id S1357088AbiFGToZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379651AbiFGVMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:12:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1489D21A54F;
-        Tue,  7 Jun 2022 11:54:06 -0700 (PDT)
+        with ESMTP id S1357357AbiFGTl4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:41:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223BB1B2150;
+        Tue,  7 Jun 2022 11:15:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B18A616A9;
-        Tue,  7 Jun 2022 18:54:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C055C385A2;
-        Tue,  7 Jun 2022 18:54:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4F8D60B25;
+        Tue,  7 Jun 2022 18:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB299C385A5;
+        Tue,  7 Jun 2022 18:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628044;
-        bh=lyG/J14veE4PPv7P93S7wmHZ8PtfDwL4ePf9On8nxYM=;
+        s=korg; t=1654625703;
+        bh=0Q1yjL85Q9VVLMlGcX1RPSEALb25xYMd+h3KQ//cJgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZF6llAc5N8qTqgrsRaxfUi/1wwxDbdQuMJRn0aS9D2ogsmghHDyFtppIF7BktL9G3
-         Y+5fJ5OIerMTlD6/s+yQYlXszu2ELncY3BA3tMX82hpgyDmJbJZ90NDCx7Np7GVAdk
-         qeQMNfpaZnluzB58xtdxjKNbSuHrA1wV+4THaN8A=
+        b=t7eoTCwoIL/Z62CATZphrywVQbMUjblykHAr3T4a/0uj+Sn/NH6jQboaoXe3MkImK
+         dqLro0mDCV4+o7ZpTvjSmxlCoKipin93/cpJkXu2inFbIVlU1kbevbGa8xPx55VRih
+         kj+ol2WnsXjLnv+hYXHAIKxY/cuz+t7W/5eyPXUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Sebastian Fricke <sebastian.fricke@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 185/879] media: hantro: Stop using H.264 parameter pic_num
-Date:   Tue,  7 Jun 2022 18:55:03 +0200
-Message-Id: <20220607165008.213259241@linuxfoundation.org>
+Subject: [PATCH 5.17 112/772] ASoC: dapm: Dont fold register value changes into notifications
+Date:   Tue,  7 Jun 2022 18:55:04 +0200
+Message-Id: <20220607164952.349914626@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 831410700909f4e29d5af1ef26b8c59fc2d1988e ]
+[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
 
-The hardware expects FrameNumWrap or long_term_frame_idx. Picture
-numbers are per field, and are mostly used during the memory
-management process, which is done in userland. This fixes two
-ITU conformance tests:
+DAPM tracks and reports the value presented to the user from DAPM controls
+separately to the register value, these may diverge during initialisation
+or when an autodisable control is in use.
 
-  - MR6_BT_B
-  - MR8_BT_B
+When writing DAPM controls we currently report that a change has occurred
+if either the DAPM value or the value stored in the register has changed,
+meaning that if the two are out of sync we may appear to report a spurious
+event to userspace. Since we use this folded in value for nothing other
+than the value reported to userspace simply drop the folding in of the
+register change.
 
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_h264.c | 2 --
+ sound/soc/soc-dapm.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/drivers/staging/media/hantro/hantro_h264.c b/drivers/staging/media/hantro/hantro_h264.c
-index 0b4d2491be3b..228629fb3cdf 100644
---- a/drivers/staging/media/hantro/hantro_h264.c
-+++ b/drivers/staging/media/hantro/hantro_h264.c
-@@ -354,8 +354,6 @@ u16 hantro_h264_get_ref_nbr(struct hantro_ctx *ctx, unsigned int dpb_idx)
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index fb43b331a36e..f62dd119639d 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -3430,7 +3430,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
  
- 	if (!(dpb->flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE))
- 		return 0;
--	if (dpb->flags & V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM)
--		return dpb->pic_num;
- 	return dpb->frame_num;
- }
+ 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
+ 						  rconnect);
+@@ -3532,7 +3531,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
+ 
+ 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
  
 -- 
 2.35.1
