@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B53D541961
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0585540936
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359385AbiFGVVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
+        id S1349062AbiFGSGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:06:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378158AbiFGVS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:18:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F25224120;
-        Tue,  7 Jun 2022 11:59:24 -0700 (PDT)
+        with ESMTP id S1349606AbiFGSDl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:03:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0466950028;
+        Tue,  7 Jun 2022 10:47:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EBD1617D6;
-        Tue,  7 Jun 2022 18:59:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56771C385A2;
-        Tue,  7 Jun 2022 18:59:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36AD4B8233D;
+        Tue,  7 Jun 2022 17:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D263C385A5;
+        Tue,  7 Jun 2022 17:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628360;
-        bh=GO2/dJXxU3jn4w3PPMjapgOqxAc5x+7aKg2QIYd8dO4=;
+        s=korg; t=1654624027;
+        bh=Do59Zxbar/R53/RRVCDrJBRmogE79B0Y/2QF3y0rC8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MH31hcxO8Pk75agGzpy/6LET49xyVPmmBY1tgyt0TKuxQ0WPaXAknllJ6egI4SsgJ
-         +yP8/va0JTPvAI8Q9XOyX2sYuMyTYan02j78fBa+J3H0sWjGhkHUv0CK2gWS0FpbNS
-         xD49BhMvX2b0UHZ9jQfzu1la4Pbks7RE+C96kttI=
+        b=yDjx+zHsAtiyJdpmXMQe4e8AxI+yXpICds6vVbTWxQlfMunjwYrtarHRmjRBsbxZv
+         4Ux5vR69l3L08mDrOjSS3GtsOQCSheZF3f9WFIQ7PDTCqBWLYMGO0VmEDsTw9a1N0G
+         //hmqRnNXPDdimbfNMw1+OjsromIzax11tEObJBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Akira Yokosawa <akiyks@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        linux-pm@vger.kernel.org, linux-doc@vger.kernel.org,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 284/879] docs: driver-api/thermal/intel_dptf: Use copyright symbol
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 137/667] x86/microcode: Add explicit CPU vendor dependency
 Date:   Tue,  7 Jun 2022 18:56:42 +0200
-Message-Id: <20220607165011.091005074@linuxfoundation.org>
+Message-Id: <20220607164938.930244713@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,46 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Yokosawa <akiyks@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 2c2de6f2e2bc444eed65eaa949b4fdadab93f6b3 ]
+[ Upstream commit 9c55d99e099bd7aa6b91fce8718505c35d5dfc65 ]
 
-Using a substitution pattern of "|copy|" without including
-isonum.txt causes a doc build warning.
+Add an explicit dependency to the respective CPU vendor so that the
+respective microcode support for it gets built only when that support is
+enabled.
 
-Using the symbol "©" itself is a better choice for those
-who read .rst sources.
-
-Reported by: Randy Dunlap <rdunlap@infradead.org>
-
-Fixes: 16c02447f3e1 ("Documentation: thermal: DPTF Documentation")
-Suggested-by: Jonathan Corbet <corbet@lwn.net>
-Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-pm@vger.kernel.org
-Cc: linux-doc@vger.kernel.org
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/8ead0da9-9545-b10d-e3db-7df1a1f219e4@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/thermal/intel_dptf.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/driver-api/thermal/intel_dptf.rst b/Documentation/driver-api/thermal/intel_dptf.rst
-index 96668dca753a..372bdb4d04c6 100644
---- a/Documentation/driver-api/thermal/intel_dptf.rst
-+++ b/Documentation/driver-api/thermal/intel_dptf.rst
-@@ -4,7 +4,7 @@
- Intel(R) Dynamic Platform and Thermal Framework Sysfs Interface
- ===============================================================
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index d02b04d30096..1d0f16b53393 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1323,7 +1323,7 @@ config MICROCODE
  
--:Copyright: |copy| 2022 Intel Corporation
-+:Copyright: © 2022 Intel Corporation
+ config MICROCODE_INTEL
+ 	bool "Intel microcode loading support"
+-	depends on MICROCODE
++	depends on CPU_SUP_INTEL && MICROCODE
+ 	default MICROCODE
+ 	help
+ 	  This options enables microcode patch loading support for Intel
+@@ -1335,7 +1335,7 @@ config MICROCODE_INTEL
  
- :Author: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
- 
+ config MICROCODE_AMD
+ 	bool "AMD microcode loading support"
+-	depends on MICROCODE
++	depends on CPU_SUP_AMD && MICROCODE
+ 	help
+ 	  If you select this option, microcode patch loading support for AMD
+ 	  processors will be enabled.
 -- 
 2.35.1
 
