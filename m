@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A74540B81
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0092C540B85
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351536AbiFGS3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43378 "EHLO
+        id S1350653AbiFGS3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352114AbiFGSZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:25:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DA0ED8FD;
-        Tue,  7 Jun 2022 10:54:43 -0700 (PDT)
+        with ESMTP id S1352450AbiFGS0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:26:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6206B1406E5;
+        Tue,  7 Jun 2022 10:54:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAD74B82372;
-        Tue,  7 Jun 2022 17:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F087C34119;
-        Tue,  7 Jun 2022 17:54:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CAEA60DBA;
+        Tue,  7 Jun 2022 17:54:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE81C34119;
+        Tue,  7 Jun 2022 17:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624480;
-        bh=aitm0DDS0jj0cpMndljk1lZmzQ3kflQqheX4kr0zhTM=;
+        s=k20201202; t=1654624485;
+        bh=UuT5pcuIYfI0vQXMOvXgNqqRRJ+ochAjLD8cGR0HfcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PA7Y/G+PDxnB5sCNoC1wucF7uGT+HbLhDjb86JFodyk7RihgjqcPwgPvLfD1QREdY
-         hnFn7X06b56Xia91kCfm/rLj3J54J80SHohm3wA9+qgZJV5QT6tpsIatQGaj1jxJIq
-         ckmZ62+R9cggCWt1LEU0cmHxJEU88lFnr8wrGn8DrpENAtY/jMEEvUvwYsRKzmAY40
-         ExOxJgPJXT5EqFKs1HyjQx3S7NPnHT1w83jYGnOusxuvbX2+l+l/J84Pez2EioHJAs
-         B1pB7jH585SGUsfhzVsJltNb+aKVbtJSfgjdui1l95EEQSWriSv+NCBOGl7/nHBAOS
-         6cu9JLOUbx17Q==
+        b=d7LLBdMTMUuNAbZvaT3NDdgyrIJlKffEgKa577AOftX+/fEqSXVI1+ZHyL/SF9nzx
+         CDP8xaLQhI5BQT5XJfETMg3Njoum98+JHP9EWYeL7R9M+Un9YeePqcl5RhxP0vQZ+E
+         dGgFcZVCxeQVFCY9xntjrbXfj7LdEjPAxpReN55/m9LVqgjOTVX18oDVdnNEz9AneG
+         p+hJba+Jh1KUcq5LmTOz8MJi9Rk0dGFwlpN1+auD0CA0VWda1IEoeLiJhhfqPAQXaQ
+         KJgtET/uPt4gKn+vRcP1sFYr2kssgTepltCMkY8sJyAXKnjy6rVwvYvizvIjuFSHIS
+         HJLEClMZbnxfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        Yuwei Wang <wangyuweihx@gmail.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, dsahern@kernel.org,
-        yajun.deng@linux.dev, roopa@nvidia.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 40/60] net, neigh: Set lower cap for neigh_managed_work rearming
-Date:   Tue,  7 Jun 2022 13:52:37 -0400
-Message-Id: <20220607175259.478835-40-sashal@kernel.org>
+Cc:     David Galiffi <David.Galiffi@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, Hansen.Dsouza@amd.com, Charlene.Liu@amd.com,
+        HaoPing.Liu@amd.com, baihaowen@meizu.com, dillon.varone@amd.com,
+        alex.hung@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.17 41/60] drm/amd/display: Check if modulo is 0 before dividing.
+Date:   Tue,  7 Jun 2022 13:52:38 -0400
+Message-Id: <20220607175259.478835-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -60,41 +65,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: David Galiffi <David.Galiffi@amd.com>
 
-[ Upstream commit ed6cd6a17896561b9f51ab4c0d9bbb29e762b597 ]
+[ Upstream commit 49947b906a6bd9668eaf4f9cf691973c25c26955 ]
 
-Yuwei reported that plain reuse of DELAY_PROBE_TIME to rearm work queue
-in neigh_managed_work is problematic if user explicitly configures the
-DELAY_PROBE_TIME to 0 for a neighbor table. Such misconfig can then hog
-CPU to 100% processing the system work queue. Instead, set lower interval
-bound to HZ which is totally sufficient. Yuwei is additionally looking
-into making the interval separately configurable from DELAY_PROBE_TIME.
+[How & Why]
+If a value of 0 is read, then this will cause a divide-by-0 panic.
 
-Reported-by: Yuwei Wang <wangyuweihx@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/netdev/797c3c53-ce1b-9f60-e253-cda615788f4a@iogearbox.net
-Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://lore.kernel.org/r/3b8c5aa906c52c3a8c995d1b2e8ccf650ea7c716.1653432794.git.daniel@iogearbox.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: David Galiffi <David.Galiffi@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index ec0bf737b076..a252f4090d75 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1579,7 +1579,7 @@ static void neigh_managed_work(struct work_struct *work)
- 	list_for_each_entry(neigh, &tbl->managed_list, managed_list)
- 		neigh_event_send_probe(neigh, NULL, false);
- 	queue_delayed_work(system_power_efficient_wq, &tbl->managed_work,
--			   NEIGH_VAR(&tbl->parms, DELAY_PROBE_TIME));
-+			   max(NEIGH_VAR(&tbl->parms, DELAY_PROBE_TIME), HZ));
- 	write_unlock_bh(&tbl->lock);
- }
- 
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
+index 2c7eb982eabc..054823d12403 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_clock_source.c
+@@ -1013,9 +1013,12 @@ static bool get_pixel_clk_frequency_100hz(
+ 			 * not be programmed equal to DPREFCLK
+ 			 */
+ 			modulo_hz = REG_READ(MODULO[inst]);
+-			*pixel_clk_khz = div_u64((uint64_t)clock_hz*
+-				clock_source->ctx->dc->clk_mgr->dprefclk_khz*10,
+-				modulo_hz);
++			if (modulo_hz)
++				*pixel_clk_khz = div_u64((uint64_t)clock_hz*
++					clock_source->ctx->dc->clk_mgr->dprefclk_khz*10,
++					modulo_hz);
++			else
++				*pixel_clk_khz = 0;
+ 		} else {
+ 			/* NOTE: There is agreement with VBIOS here that MODULO is
+ 			 * programmed equal to DPREFCLK, in which case PHASE will be
 -- 
 2.35.1
 
