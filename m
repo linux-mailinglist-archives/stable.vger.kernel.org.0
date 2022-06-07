@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77638541D5B
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6C3540F89
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:09:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379044AbiFGWNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51164 "EHLO
+        id S1352343AbiFGTIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:08:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379288AbiFGWMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:12:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65E0225C1EE;
-        Tue,  7 Jun 2022 12:19:33 -0700 (PDT)
+        with ESMTP id S1354838AbiFGTGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:06:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F524190D0C;
+        Tue,  7 Jun 2022 11:05:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0086193C;
-        Tue,  7 Jun 2022 19:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6125C385A2;
-        Tue,  7 Jun 2022 19:18:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C505B6171C;
+        Tue,  7 Jun 2022 18:05:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D18C3C385A5;
+        Tue,  7 Jun 2022 18:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629538;
-        bh=e5wNp0liSpCAzGIDVPX0YO5ZBqBeAMUgByib04aqO7g=;
+        s=korg; t=1654625140;
+        bh=J9tuh9jTQAWUyz1dSmwcnH33w65DBg81WLoe1PgnrLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pAtNk5Z6TTYOv1DKz5jGccyfcgXfgVdIRafipAVT3bLwwjllxSq5baWtp09eROCh
-         NVjrF8P9bjBIQbi8ELM7WVbtoLdnTl/kQaIcXIPxUn3k6te36GnXGriFnzkaGP9YGy
-         Wc+/LG4UhE8Xi9N+Z4/fXI5457bMqAxLhPaCqsVw=
+        b=dNdH/XVKqFNWrPM4uH6YB0xU0BkRijwuZr+TcqD7zbJiQSTcQ4PeuuNygsYGpNCpI
+         IlJwT0gPgyebRdB2wrzEJimQJXYIyeYtI6pUGFYaZVchaGl2t5fqOpsSTRjLR1Ie65
+         tw1HMqdOasW98hz0uvPg8c0WqZS6AM2GpJh8Upzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 728/879] bfq: Avoid merging queues with different parents
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 581/667] landlock: Change landlock_add_rule(2) argument check ordering
 Date:   Tue,  7 Jun 2022 19:04:06 +0200
-Message-Id: <20220607165023.987810049@linuxfoundation.org>
+Message-Id: <20220607164952.112119922@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit c1cee4ab36acef271be9101590756ed0c0c374d9 upstream.
+commit 589172e5636c4d16c40b90e87543d43defe2d968 upstream.
 
-It can happen that the parent of a bfqq changes between the moment we
-decide two queues are worth to merge (and set bic->stable_merge_bfqq)
-and the moment bfq_setup_merge() is called. This can happen e.g. because
-the process submitted IO for a different cgroup and thus bfqq got
-reparented. It can even happen that the bfqq we are merging with has
-parent cgroup that is already offline and going to be destroyed in which
-case the merge can lead to use-after-free issues such as:
+This makes more sense to first check the ruleset FD and then the rule
+attribute.  It will be useful to factor out code for other rule types.
 
-BUG: KASAN: use-after-free in __bfq_deactivate_entity+0x9cb/0xa50
-Read of size 8 at addr ffff88800693c0c0 by task runc:[2:INIT]/10544
+Add inval_add_rule_arguments tests, extension of empty_path_beneath_attr
+tests, to also check error ordering for landlock_add_rule(2).
 
-CPU: 0 PID: 10544 Comm: runc:[2:INIT] Tainted: G            E     5.15.2-0.g5fb85fd-default #1 openSUSE Tumbleweed (unreleased) f1f3b891c72369aebecd2e43e4641a6358867c70
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
-Call Trace:
- <IRQ>
- dump_stack_lvl+0x46/0x5a
- print_address_description.constprop.0+0x1f/0x140
- ? __bfq_deactivate_entity+0x9cb/0xa50
- kasan_report.cold+0x7f/0x11b
- ? __bfq_deactivate_entity+0x9cb/0xa50
- __bfq_deactivate_entity+0x9cb/0xa50
- ? update_curr+0x32f/0x5d0
- bfq_deactivate_entity+0xa0/0x1d0
- bfq_del_bfqq_busy+0x28a/0x420
- ? resched_curr+0x116/0x1d0
- ? bfq_requeue_bfqq+0x70/0x70
- ? check_preempt_wakeup+0x52b/0xbc0
- __bfq_bfqq_expire+0x1a2/0x270
- bfq_bfqq_expire+0xd16/0x2160
- ? try_to_wake_up+0x4ee/0x1260
- ? bfq_end_wr_async_queues+0xe0/0xe0
- ? _raw_write_unlock_bh+0x60/0x60
- ? _raw_spin_lock_irq+0x81/0xe0
- bfq_idle_slice_timer+0x109/0x280
- ? bfq_dispatch_request+0x4870/0x4870
- __hrtimer_run_queues+0x37d/0x700
- ? enqueue_hrtimer+0x1b0/0x1b0
- ? kvm_clock_get_cycles+0xd/0x10
- ? ktime_get_update_offsets_now+0x6f/0x280
- hrtimer_interrupt+0x2c8/0x740
-
-Fix the problem by checking that the parent of the two bfqqs we are
-merging in bfq_setup_merge() is the same.
-
-Link: https://lore.kernel.org/linux-block/20211125172809.GC19572@quack2.suse.cz/
-CC: stable@vger.kernel.org
-Fixes: 430a67f9d616 ("block, bfq: merge bursts of newly-created queues")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-2-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220506160820.524344-9-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ security/landlock/syscalls.c                 |   22 ++++++++++-------
+ tools/testing/selftests/landlock/base_test.c |   34 +++++++++++++++++++++++++--
+ 2 files changed, 45 insertions(+), 11 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2762,6 +2762,14 @@ bfq_setup_merge(struct bfq_queue *bfqq,
- 	if (process_refs == 0 || new_process_refs == 0)
- 		return NULL;
+--- a/security/landlock/syscalls.c
++++ b/security/landlock/syscalls.c
+@@ -318,20 +318,24 @@ SYSCALL_DEFINE4(landlock_add_rule, const
+ 	if (flags)
+ 		return -EINVAL;
  
-+	/*
-+	 * Make sure merged queues belong to the same parent. Parents could
-+	 * have changed since the time we decided the two queues are suitable
-+	 * for merging.
-+	 */
-+	if (new_bfqq->entity.parent != bfqq->entity.parent)
-+		return NULL;
+-	if (rule_type != LANDLOCK_RULE_PATH_BENEATH)
+-		return -EINVAL;
+-
+-	/* Copies raw user space buffer, only one type for now. */
+-	res = copy_from_user(&path_beneath_attr, rule_attr,
+-			     sizeof(path_beneath_attr));
+-	if (res)
+-		return -EFAULT;
+-
+ 	/* Gets and checks the ruleset. */
+ 	ruleset = get_ruleset_from_fd(ruleset_fd, FMODE_CAN_WRITE);
+ 	if (IS_ERR(ruleset))
+ 		return PTR_ERR(ruleset);
+ 
++	if (rule_type != LANDLOCK_RULE_PATH_BENEATH) {
++		err = -EINVAL;
++		goto out_put_ruleset;
++	}
 +
- 	bfq_log_bfqq(bfqq->bfqd, bfqq, "scheduling merge with queue %d",
- 		new_bfqq->pid);
++	/* Copies raw user space buffer, only one type for now. */
++	res = copy_from_user(&path_beneath_attr, rule_attr,
++			     sizeof(path_beneath_attr));
++	if (res) {
++		err = -EFAULT;
++		goto out_put_ruleset;
++	}
++
+ 	/*
+ 	 * Informs about useless rule: empty allowed_access (i.e. deny rules)
+ 	 * are ignored in path walks.
+--- a/tools/testing/selftests/landlock/base_test.c
++++ b/tools/testing/selftests/landlock/base_test.c
+@@ -121,20 +121,50 @@ TEST(inval_create_ruleset_flags)
+ 	ASSERT_EQ(EINVAL, errno);
+ }
+ 
+-TEST(empty_path_beneath_attr)
++/* Tests ordering of syscall argument checks. */
++TEST(add_rule_checks_ordering)
+ {
+ 	const struct landlock_ruleset_attr ruleset_attr = {
+ 		.handled_access_fs = LANDLOCK_ACCESS_FS_EXECUTE,
+ 	};
++	struct landlock_path_beneath_attr path_beneath_attr = {
++		.allowed_access = LANDLOCK_ACCESS_FS_EXECUTE,
++		.parent_fd = -1,
++	};
+ 	const int ruleset_fd =
+ 		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+ 
+ 	ASSERT_LE(0, ruleset_fd);
+ 
+-	/* Similar to struct landlock_path_beneath_attr.parent_fd = 0 */
++	/* Checks invalid flags. */
++	ASSERT_EQ(-1, landlock_add_rule(-1, 0, NULL, 1));
++	ASSERT_EQ(EINVAL, errno);
++
++	/* Checks invalid ruleset FD. */
++	ASSERT_EQ(-1, landlock_add_rule(-1, 0, NULL, 0));
++	ASSERT_EQ(EBADF, errno);
++
++	/* Checks invalid rule type. */
++	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, 0, NULL, 0));
++	ASSERT_EQ(EINVAL, errno);
++
++	/* Checks invalid rule attr. */
+ 	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+ 					NULL, 0));
+ 	ASSERT_EQ(EFAULT, errno);
++
++	/* Checks invalid path_beneath.parent_fd. */
++	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
++					&path_beneath_attr, 0));
++	ASSERT_EQ(EBADF, errno);
++
++	/* Checks valid call. */
++	path_beneath_attr.parent_fd =
++		open("/tmp", O_PATH | O_NOFOLLOW | O_DIRECTORY | O_CLOEXEC);
++	ASSERT_LE(0, path_beneath_attr.parent_fd);
++	ASSERT_EQ(0, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
++				       &path_beneath_attr, 0));
++	ASSERT_EQ(0, close(path_beneath_attr.parent_fd));
+ 	ASSERT_EQ(0, close(ruleset_fd));
+ }
  
 
 
