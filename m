@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AD4F5410A2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F03BC5416BB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352234AbiFGT2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:28:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45808 "EHLO
+        id S1377609AbiFGUya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355548AbiFGTZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:25:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50E019D609;
-        Tue,  7 Jun 2022 11:09:25 -0700 (PDT)
+        with ESMTP id S1378982AbiFGUwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D90B5DD18;
+        Tue,  7 Jun 2022 11:43:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E8061927;
-        Tue,  7 Jun 2022 18:09:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88BF6C385A2;
-        Tue,  7 Jun 2022 18:09:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDDA4B82018;
+        Tue,  7 Jun 2022 18:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A11AC385A5;
+        Tue,  7 Jun 2022 18:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625364;
-        bh=yI9kI2cUy2EEHoPBVfyPg7NWlnZiJY+u04TNrxOuZLo=;
+        s=korg; t=1654627408;
+        bh=MLkY1OvX2VTXtWkd4B2hKU9SxPB0F0RJYdX5ADWhvgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDA1zE2Q0k+FiaYOgXcGeUxGsYejTl7acnLeThJsKS2SkEs2wip3xhLraPCimZMfc
-         ofsAt51xDvnwlWj+w9dDorbcJGuLTrdf8Byf8991dFobIuEGqTLxevdFawcStfC0GF
-         kg5Oy5ENTiz3EYVKbl0XwTsHczV1kvYuVonBJ9lM=
+        b=MESPoffPnVZJv0vEZT4cstW9C2cbGwnmDYkftCm3STc9zfQlWHu/8kpEO7hV36SKc
+         s12LtS92pUQcQ1dzJSBh5FF3JMtxDeqobAHyxA4GC7l4DRdFo+s61RXInh08DzCfei
+         YZyWuplz2AArz9Z6GDOEgt6IX//TPRa29GRJJSrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
-        Minchan Kim <minchan@kernel.org>,
-        David Hildenbrand <david@redhat.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Lecopzer Chen <lecopzer.chen@mediatek.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 619/667] Revert "mm/cma.c: remove redundant cma_mutex lock"
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.17 692/772] drm/nouveau/clk: Fix an incorrect NULL check on list iterator
 Date:   Tue,  7 Jun 2022 19:04:44 +0200
-Message-Id: <20220607164953.235548518@linuxfoundation.org>
+Message-Id: <20220607165009.444085967@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,97 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dong Aisheng <aisheng.dong@nxp.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 60a60e32cf91169840abcb4a80f0b0df31708ba7 upstream.
+commit 1c3b2a27def609473ed13b1cd668cb10deab49b4 upstream.
 
-This reverts commit a4efc174b382fcdb which introduced a regression issue
-that when there're multiple processes allocating dma memory in parallel by
-calling dma_alloc_coherent(), it may fail sometimes as follows:
+The bug is here:
+	if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+		return cstate;
 
-Error log:
-cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
-cma: number of available pages:
-3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
-108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
-7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
+The list iterator value 'cstate' will *always* be set and non-NULL
+by list_for_each_entry_from_reverse(), so it is incorrect to assume
+that the iterator value will be unchanged if the list is empty or no
+element is found (In fact, it will be a bogus pointer to an invalid
+structure object containing the HEAD). Also it missed a NULL check
+at callsite and may lead to invalid memory access after that.
 
-When issue happened, we saw there were still 33161 pages (129M) free CMA
-memory and a lot available free slots for 148 pages in CMA bitmap that we
-want to allocate.
+To fix this bug, just return 'encoder' when found, otherwise return
+NULL. And add the NULL check.
 
-When dumping memory info, we found that there was also ~342M normal
-memory, but only 1352K CMA memory left in buddy system while a lot of
-pageblocks were isolated.
-
-Memory info log:
-Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
-	    active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
-	    unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
-	    bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
-Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
-	36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
-	8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
-
-The root cause of this issue is that since commit a4efc174b382 ("mm/cma.c:
-remove redundant cma_mutex lock"), CMA supports concurrent memory
-allocation.  It's possible that the memory range process A trying to alloc
-has already been isolated by the allocation of process B during memory
-migration.
-
-The problem here is that the memory range isolated during one allocation
-by start_isolate_page_range() could be much bigger than the real size we
-want to alloc due to the range is aligned to MAX_ORDER_NR_PAGES.
-
-Taking an ARMv7 platform with 1G memory as an example, when
-MAX_ORDER_NR_PAGES is big (e.g.  32M with max_order 14) and CMA memory is
-relatively small (e.g.  128M), there're only 4 MAX_ORDER slot, then it's
-very easy that all CMA memory may have already been isolated by other
-processes when one trying to allocate memory using dma_alloc_coherent().
-Since current CMA code will only scan one time of whole available CMA
-memory, then dma_alloc_coherent() may easy fail due to contention with
-other processes.
-
-This patch simply falls back to the original method that using cma_mutex
-to make alloc_contig_range() run sequentially to avoid the issue.
-
-Link: https://lkml.kernel.org/r/20220509094551.3596244-1-aisheng.dong@nxp.com
-Link: https://lore.kernel.org/all/20220315144521.3810298-2-aisheng.dong@nxp.com/
-Fixes: a4efc174b382 ("mm/cma.c: remove redundant cma_mutex lock")
-Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Lecopzer Chen <lecopzer.chen@mediatek.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>	[5.11+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in nvkm_cstate_prog")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327075824.11806-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/cma.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -37,6 +37,7 @@
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+@@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *c
  
- struct cma cma_areas[MAX_CMA_AREAS];
- unsigned cma_area_count;
-+static DEFINE_MUTEX(cma_mutex);
+ 	list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
+ 		if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+-			break;
++			return cstate;
+ 	}
  
- phys_addr_t cma_get_base(const struct cma *cma)
- {
-@@ -471,9 +472,10 @@ struct page *cma_alloc(struct cma *cma,
- 		spin_unlock_irq(&cma->lock);
+-	return cstate;
++	return NULL;
+ }
  
- 		pfn = cma->base_pfn + (bitmap_no << cma->order_per_bit);
-+		mutex_lock(&cma_mutex);
- 		ret = alloc_contig_range(pfn, pfn + count, MIGRATE_CMA,
- 				     GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0));
--
-+		mutex_unlock(&cma_mutex);
- 		if (ret == 0) {
- 			page = pfn_to_page(pfn);
- 			break;
+ static struct nvkm_cstate *
+@@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, s
+ 	if (!list_empty(&pstate->list)) {
+ 		cstate = nvkm_cstate_get(clk, pstate, cstatei);
+ 		cstate = nvkm_cstate_find_best(clk, pstate, cstate);
++		if (!cstate)
++			return -EINVAL;
+ 	} else {
+ 		cstate = &pstate->base;
+ 	}
 
 
