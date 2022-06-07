@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8858C5408E9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67DC54122C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237139AbiFGSDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60996 "EHLO
+        id S1357115AbiFGTo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351469AbiFGSCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B741059FB;
-        Tue,  7 Jun 2022 10:44:41 -0700 (PDT)
+        with ESMTP id S1357937AbiFGTmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A7F7DFE5;
+        Tue,  7 Jun 2022 11:17:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B3A6B82239;
-        Tue,  7 Jun 2022 17:44:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E73C385A5;
-        Tue,  7 Jun 2022 17:44:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24A76B82368;
+        Tue,  7 Jun 2022 18:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94F45C385A2;
+        Tue,  7 Jun 2022 18:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623879;
-        bh=qGGdL1YoiHe0RVOyT8zumSlWU3J2LNiqdlPl8Ov1wKM=;
+        s=korg; t=1654625840;
+        bh=q4P0TgG5luIpHJz6sITHcKcCqK92PH1Nr8Ym2LquE5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJXD7QTesod54A21B8vepES7Taeur7z8h8dZSMF4HsN531gOSVpdA0PanMyb4ilAN
-         otcgtMyeFWWVsoJowKoO16p4rIZKe70caFL98K2TXZkG+gawiscla9fTlOO50jxURD
-         JFOxlWHJk+QW8ncHkNk6fEwsfGwF7wijhV11l9fw=
+        b=T9wpVXBgz6RrPUGvXGT8gas2gdpAvjxFK2yt6jMiKhH3jnU18o1w+TQRE76TqlhG6
+         /m3gG2Nnsg0dJY+kppRud0Gx6rjG/KAkDsEHYj4gIb5paTKq8cIp/XXCjUMSvOXJQ0
+         9sEkrO0vqnc2L0G/z4iq0XFHcIqZOoOQrDWwpg7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Abhishek Kumar <kuabhs@chromium.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/667] ath10k: skip ath10k_halt during suspend for driver state RESTARTING
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 161/772] rtw89: cfo: check mac_id to avoid out-of-bounds
 Date:   Tue,  7 Jun 2022 18:55:53 +0200
-Message-Id: <20220607164937.458777269@linuxfoundation.org>
+Message-Id: <20220607164953.784714247@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,112 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Kumar <kuabhs@chromium.org>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit b72a4aff947ba807177bdabb43debaf2c66bee05 ]
+[ Upstream commit 97df85871a5b187609d30fca6d85b912d9e02f29 ]
 
-Double free crash is observed when FW recovery(caused by wmi
-timeout/crash) is followed by immediate suspend event. The FW recovery
-is triggered by ath10k_core_restart() which calls driver clean up via
-ath10k_halt(). When the suspend event occurs between the FW recovery,
-the restart worker thread is put into frozen state until suspend completes.
-The suspend event triggers ath10k_stop() which again triggers ath10k_halt()
-The double invocation of ath10k_halt() causes ath10k_htt_rx_free() to be
-called twice(Note: ath10k_htt_rx_alloc was not called by restart worker
-thread because of its frozen state), causing the crash.
+Somehow, hardware reports incorrect mac_id and pollute memory. Check index
+before we access the array.
 
-To fix this, during the suspend flow, skip call to ath10k_halt() in
-ath10k_stop() when the current driver state is ATH10K_STATE_RESTARTING.
-Also, for driver state ATH10K_STATE_RESTARTING, call
-ath10k_wait_for_suspend() in ath10k_stop(). This is because call to
-ath10k_wait_for_suspend() is skipped later in
-[ath10k_halt() > ath10k_core_stop()] for the driver state
-ATH10K_STATE_RESTARTING.
+  UBSAN: array-index-out-of-bounds in rtw89/phy.c:2517:23
+  index 188 is out of range for type 's32 [64]'
+  CPU: 1 PID: 51550 Comm: irq/35-rtw89_pc Tainted: G           OE
+  Call Trace:
+   <IRQ>
+   show_stack+0x52/0x58
+   dump_stack_lvl+0x4c/0x63
+   dump_stack+0x10/0x12
+   ubsan_epilogue+0x9/0x45
+   __ubsan_handle_out_of_bounds.cold+0x44/0x49
+   ? __alloc_skb+0x92/0x1d0
+   rtw89_phy_cfo_parse+0x44/0x7f [rtw89_core]
+   rtw89_core_rx+0x261/0x871 [rtw89_core]
+   ? __alloc_skb+0xee/0x1d0
+   rtw89_pci_napi_poll+0x3fa/0x4ea [rtw89_pci]
+   __napi_poll+0x33/0x1a0
+   net_rx_action+0x126/0x260
+   ? __queue_work+0x217/0x4c0
+   __do_softirq+0xd9/0x315
+   ? disable_irq_nosync+0x10/0x10
+   do_softirq.part.0+0x6d/0x90
+   </IRQ>
+   <TASK>
+   __local_bh_enable_ip+0x62/0x70
+   rtw89_pci_interrupt_threadfn+0x182/0x1a6 [rtw89_pci]
+   irq_thread_fn+0x28/0x60
+   irq_thread+0xc8/0x190
+   ? irq_thread_fn+0x60/0x60
+   kthread+0x16b/0x190
+   ? irq_thread_check_affinity+0xe0/0xe0
+   ? set_kthread_struct+0x50/0x50
+   ret_from_fork+0x22/0x30
+   </TASK>
 
-The frozen restart worker thread will be cancelled during resume when the
-device comes out of suspend.
-
-Below is the crash stack for reference:
-
-[  428.469167] ------------[ cut here ]------------
-[  428.469180] kernel BUG at mm/slub.c:4150!
-[  428.469193] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-[  428.469219] Workqueue: events_unbound async_run_entry_fn
-[  428.469230] RIP: 0010:kfree+0x319/0x31b
-[  428.469241] RSP: 0018:ffffa1fac015fc30 EFLAGS: 00010246
-[  428.469247] RAX: ffffedb10419d108 RBX: ffff8c05262b0000
-[  428.469252] RDX: ffff8c04a8c07000 RSI: 0000000000000000
-[  428.469256] RBP: ffffa1fac015fc78 R08: 0000000000000000
-[  428.469276] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  428.469285] Call Trace:
-[  428.469295]  ? dma_free_attrs+0x5f/0x7d
-[  428.469320]  ath10k_core_stop+0x5b/0x6f
-[  428.469336]  ath10k_halt+0x126/0x177
-[  428.469352]  ath10k_stop+0x41/0x7e
-[  428.469387]  drv_stop+0x88/0x10e
-[  428.469410]  __ieee80211_suspend+0x297/0x411
-[  428.469441]  rdev_suspend+0x6e/0xd0
-[  428.469462]  wiphy_suspend+0xb1/0x105
-[  428.469483]  ? name_show+0x2d/0x2d
-[  428.469490]  dpm_run_callback+0x8c/0x126
-[  428.469511]  ? name_show+0x2d/0x2d
-[  428.469517]  __device_suspend+0x2e7/0x41b
-[  428.469523]  async_suspend+0x1f/0x93
-[  428.469529]  async_run_entry_fn+0x3d/0xd1
-[  428.469535]  process_one_work+0x1b1/0x329
-[  428.469541]  worker_thread+0x213/0x372
-[  428.469547]  kthread+0x150/0x15f
-[  428.469552]  ? pr_cont_work+0x58/0x58
-[  428.469558]  ? kthread_blkcg+0x31/0x31
-
-Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00288-QCARMSWPZ-1
-Co-developed-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Abhishek Kumar <kuabhs@chromium.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220426221859.v2.1.I650b809482e1af8d0156ed88b5dc2677a0711d46@changeid
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220516005215.5878-4-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtw89/phy.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 1f73fbfee0c0..8a80919b627f 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -5339,13 +5339,29 @@ static int ath10k_start(struct ieee80211_hw *hw)
- static void ath10k_stop(struct ieee80211_hw *hw)
- {
- 	struct ath10k *ar = hw->priv;
-+	u32 opt;
+diff --git a/drivers/net/wireless/realtek/rtw89/phy.c b/drivers/net/wireless/realtek/rtw89/phy.c
+index 147009888de0..777ad4e8f45f 100644
+--- a/drivers/net/wireless/realtek/rtw89/phy.c
++++ b/drivers/net/wireless/realtek/rtw89/phy.c
+@@ -1872,6 +1872,11 @@ void rtw89_phy_cfo_parse(struct rtw89_dev *rtwdev, s16 cfo_val,
+ 	struct rtw89_cfo_tracking_info *cfo = &rtwdev->cfo_tracking;
+ 	u8 macid = phy_ppdu->mac_id;
  
- 	ath10k_drain_tx(ar);
- 
- 	mutex_lock(&ar->conf_mutex);
- 	if (ar->state != ATH10K_STATE_OFF) {
--		if (!ar->hw_rfkill_on)
--			ath10k_halt(ar);
-+		if (!ar->hw_rfkill_on) {
-+			/* If the current driver state is RESTARTING but not yet
-+			 * fully RESTARTED because of incoming suspend event,
-+			 * then ath10k_halt() is already called via
-+			 * ath10k_core_restart() and should not be called here.
-+			 */
-+			if (ar->state != ATH10K_STATE_RESTARTING) {
-+				ath10k_halt(ar);
-+			} else {
-+				/* Suspending here, because when in RESTARTING
-+				 * state, ath10k_core_stop() skips
-+				 * ath10k_wait_for_suspend().
-+				 */
-+				opt = WMI_PDEV_SUSPEND_AND_DISABLE_INTR;
-+				ath10k_wait_for_suspend(ar, opt);
-+			}
-+		}
- 		ar->state = ATH10K_STATE_OFF;
- 	}
- 	mutex_unlock(&ar->conf_mutex);
++	if (macid >= CFO_TRACK_MAX_USER) {
++		rtw89_warn(rtwdev, "mac_id %d is out of range\n", macid);
++		return;
++	}
++
+ 	cfo->cfo_tail[macid] += cfo_val;
+ 	cfo->cfo_cnt[macid]++;
+ 	cfo->packet_count++;
 -- 
 2.35.1
 
