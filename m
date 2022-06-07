@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6965417E0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82EE954178B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358095AbiFGVDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
+        id S1378942AbiFGVED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:04:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379234AbiFGVCN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84DD34BA7;
-        Tue,  7 Jun 2022 11:47:02 -0700 (PDT)
+        with ESMTP id S1379241AbiFGVCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D012810FDA;
+        Tue,  7 Jun 2022 11:47:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 220466156D;
-        Tue,  7 Jun 2022 18:47:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA39C385A5;
-        Tue,  7 Jun 2022 18:47:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91E37B8220B;
+        Tue,  7 Jun 2022 18:47:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00AE1C3411F;
+        Tue,  7 Jun 2022 18:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627621;
-        bh=+XXbB3EX5auKXAmZDxmRIalEhFPa2J9WLidrIDueP3E=;
+        s=korg; t=1654627624;
+        bh=q2Xpkw+onYKKa4/Us+LoQ26hoDxY+NiVrhxSovEPERo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JV2IxWa4KIw7wv2ijXXLN4Sl0EcTHLjj60M2MCHGENxvsxcaGzHkewNOVuWaSm1Rj
-         RzcLOYzYU7wYMbBBpc3bUjnBzEWp32cYhaknAjnLks2eh4dJh5sPTRIaP2heiC0axs
-         HhkfdqwdLqOp7CJZgHWcw15vJRgzKxGWW0Rqr19k=
+        b=YTNvPsA/wGjRGdOr+24fjmGU7NGIaQUKbpsYFVKQpwfUSL34SUYKq/1nmb+tYz82A
+         Ft6VuTLlRYWXpyyGSSYzeXlFtVTdJ6r55jA3h1GErnlabaNnqVLc+uG6QmvTDrAKe5
+         6XRnzNK4R3FHfK/x/8IIEehl8uEb4LPqT1EVyfAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.18 034/879] xhci: Set HCD flag to defer primary roothub registration
-Date:   Tue,  7 Jun 2022 18:52:32 +0200
-Message-Id: <20220607165003.665844631@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.18 035/879] xhci: Allow host runtime PM as default for Intel Alder Lake N xHCI
+Date:   Tue,  7 Jun 2022 18:52:33 +0200
+Message-Id: <20220607165003.696732256@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,46 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit b7a4f9b5d0e4b6dd937678c546c0b322dd1a4054 upstream.
+commit 74f55a62c4c354f43a6d75f77dd184c4f57b9a26 upstream.
 
-Set "HCD_FLAG_DEFER_RH_REGISTER" to hcd->flags in xhci_run() to defer
-registering primary roothub in usb_add_hcd() if xhci has two roothubs.
-This will make sure both primary roothub and secondary roothub will be
-registered along with the second HCD.
-This is required for cold plugged USB devices to be detected in certain
-PCIe USB cards (like Inateck USB card connected to AM64 EVM or J7200 EVM).
+Alder Lake N TCSS xHCI needs to be runtime suspended whenever possible
+to allow the TCSS hardware block to enter D3 and thus save energy
 
-This patch has been added and reverted earier as it triggered a race
-in usb device enumeration.
-That race is now fixed in 5.16-rc3, and in stable back to 5.4
-commit 6cca13de26ee ("usb: hub: Fix locking issues with address0_mutex")
-commit 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0
-race")
-
-[minor rebase change, and commit message update -Mathias]
-
-CC: stable@vger.kernel.org # 5.4+
-Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Chris Chiu <chris.chiu@canonical.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Link: https://lore.kernel.org/r/20220510091630.16564-3-kishon@ti.com
+Cc: stable@kernel.org
+Suggested-by: Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220511220450.85367-10-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    2 ++
+ drivers/usb/host/xhci-pci.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -696,6 +696,8 @@ int xhci_run(struct usb_hcd *hcd)
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"Finished xhci_run for USB2 roothub");
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI		0x464e
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
  
-+	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
-+
- 	xhci_create_dbc_dev(xhci);
+ #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
+@@ -268,6 +269,7 @@ static void xhci_pci_quirks(struct devic
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI))
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
  
- 	xhci_debugfs_init(xhci);
 
 
