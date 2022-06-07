@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF4D5407CF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BAB5416ED
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347299AbiFGRw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47544 "EHLO
+        id S1377292AbiFGU4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:56:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349135AbiFGRud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:33 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1FEBF62;
-        Tue,  7 Jun 2022 10:37:52 -0700 (PDT)
+        with ESMTP id S1377925AbiFGUvM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165A91FD9F1;
+        Tue,  7 Jun 2022 11:40:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E90CDCE23E3;
-        Tue,  7 Jun 2022 17:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 030CFC385A5;
-        Tue,  7 Jun 2022 17:37:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7918460B3D;
+        Tue,  7 Jun 2022 18:40:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88AA3C385A5;
+        Tue,  7 Jun 2022 18:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623453;
-        bh=FqbAfxcxcuXLPn4tKsTqBKMe/aX6rtH9hlkUAjtInLs=;
+        s=korg; t=1654627256;
+        bh=54fPIN8G1JovSP05z2k3xNR+dvWsXyhzfXkHCXyejmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGwsx0cqZUFY4hHkKGbVTzlEF7Q/UMw+PYHrpAi2efpSVSaQ6nFrreqPcTr8S6zMx
-         A+T1CYBFWTHBSF0CUeHdM2hh85E47HZzyWXukzdtNWcBNIWuE1/lw1WMaRXPzI0Hha
-         8rIPkU2N+toqxXsAgSuoNao03vbUz5h35ia2Xc88=
+        b=NITToR77fQ1HHQxhFqZonpx4EsqD/ZPFHCDUCCcXP8BOisaTqQf0giiEDzUSRYkm7
+         EqBz3qDLhsr/IrBNfr//tlX5aqV9RcsIDwKu0Dp2Y1OdrbIuvb8EJ6LoCk+AngfVpB
+         MT1cFGWKrsAvNrCs6gbM4Ya/gjOZiKmxU1Uzivvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 5.10 382/452] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.17 647/772] ACPI: property: Release subnode properties with data nodes
 Date:   Tue,  7 Jun 2022 19:03:59 +0200
-Message-Id: <20220607164919.948327236@linuxfoundation.org>
+Message-Id: <20220607165008.130213600@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
+commit 3bd561e1572ee02a50cd1a5be339abf1a5b78d56 upstream.
 
-If the display is not enable()d, then we aren't holding a runtime PM
-reference here. Thus, it's easy to accidentally cause a hang, if user
-space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
+struct acpi_device_properties describes one source of properties present
+on either struct acpi_device or struct acpi_data_node. When properties are
+parsed, both are populated but when released, only those properties that
+are associated with the device node are freed.
 
-Let's get a runtime PM reference, and check that we "see" the panel.
-Don't force any panel power-up, etc., because that can be intrusive, and
-that's not what other drivers do (see
-drivers/gpu/drm/bridge/ti-sn65dsi86.c and
-drivers/gpu/drm/bridge/parade-ps8640.c.)
+Fix this by also releasing memory of the data node properties.
 
-Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
-Cc: <stable@vger.kernel.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
+Fixes: 5f5e4890d57a ("ACPI / property: Allow multiple property compatible _DSD entries")
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/acpi/property.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1639,8 +1639,19 @@ static ssize_t analogix_dpaux_transfer(s
- 				       struct drm_dp_aux_msg *msg)
- {
- 	struct analogix_dp_device *dp = to_dp(aux);
-+	int ret;
- 
--	return analogix_dp_transfer(dp, msg);
-+	pm_runtime_get_sync(dp->dev);
-+
-+	ret = analogix_dp_detect_hpd(dp);
-+	if (ret)
-+		goto out;
-+
-+	ret = analogix_dp_transfer(dp, msg);
-+out:
-+	pm_runtime_put(dp->dev);
-+
-+	return ret;
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -433,6 +433,16 @@ void acpi_init_properties(struct acpi_de
+ 		acpi_extract_apple_properties(adev);
  }
  
- struct analogix_dp_device *
++static void acpi_free_device_properties(struct list_head *list)
++{
++	struct acpi_device_properties *props, *tmp;
++
++	list_for_each_entry_safe(props, tmp, list, list) {
++		list_del(&props->list);
++		kfree(props);
++	}
++}
++
+ static void acpi_destroy_nondev_subnodes(struct list_head *list)
+ {
+ 	struct acpi_data_node *dn, *next;
+@@ -445,22 +455,18 @@ static void acpi_destroy_nondev_subnodes
+ 		wait_for_completion(&dn->kobj_done);
+ 		list_del(&dn->sibling);
+ 		ACPI_FREE((void *)dn->data.pointer);
++		acpi_free_device_properties(&dn->data.properties);
+ 		kfree(dn);
+ 	}
+ }
+ 
+ void acpi_free_properties(struct acpi_device *adev)
+ {
+-	struct acpi_device_properties *props, *tmp;
+-
+ 	acpi_destroy_nondev_subnodes(&adev->data.subnodes);
+ 	ACPI_FREE((void *)adev->data.pointer);
+ 	adev->data.of_compatible = NULL;
+ 	adev->data.pointer = NULL;
+-	list_for_each_entry_safe(props, tmp, &adev->data.properties, list) {
+-		list_del(&props->list);
+-		kfree(props);
+-	}
++	acpi_free_device_properties(&adev->data.properties);
+ }
+ 
+ /**
 
 
