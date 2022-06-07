@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46505541E5D
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FD4F541E8A
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382223AbiFGW3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59530 "EHLO
+        id S1385675AbiFGWbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:31:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381082AbiFGW2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:28:00 -0400
+        with ESMTP id S1380592AbiFGW2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:28:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E2E2717B3;
-        Tue,  7 Jun 2022 12:23:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1108727228F;
+        Tue,  7 Jun 2022 12:23:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 610BA60B07;
-        Tue,  7 Jun 2022 19:23:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E043C385A2;
-        Tue,  7 Jun 2022 19:23:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F59F60BA5;
+        Tue,  7 Jun 2022 19:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E72DC385A2;
+        Tue,  7 Jun 2022 19:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629799;
-        bh=KQhNUBLOLtZcrsJx4S47bHKKob7oUfommlWDtlE6Xv8=;
+        s=korg; t=1654629802;
+        bh=Aa+EBXFXJvhgvt6aSkdEeRxVBndXcjyTK4PNsyQwF60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtJ4lUdEHczcLWeK68cU1vPOl/tEEb4vEgO9qMuF01u+jEub8Nt85QlrdG2Apwwxp
-         tyHihSMbbjZqeMhUIRJnh0Nra0Cmkw1qg6ryhbaXQAJa2pTXo34nMZ72JV+Kgn7lyc
-         +STSFDIEl5VvV5BzvEpY29X8AOY50CHq55zh/IaQ=
+        b=1Q47Ay48Lge+sJh9m0q5aCsFR4qZ/1k+0X6qym5+iwkJ8w60+b/WyKKpGBA1BWGsS
+         s4RqZ8U8VEXlxY/Fp5I+E+2orABxnYnOizEFcL4+pT+9htW0vwG5i1huTHj1IsCe0c
+         c0swsBw5ZsII9FwhEYOhGeSVV5sG5UfBzj1JEP7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 822/879] kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
-Date:   Tue,  7 Jun 2022 19:05:40 +0200
-Message-Id: <20220607165026.712596078@linuxfoundation.org>
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.18 823/879] ftrace: Clean up hash direct_functions on register failures
+Date:   Tue,  7 Jun 2022 19:05:41 +0200
+Message-Id: <20220607165026.742988474@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,184 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Song Liu <song@kernel.org>
 
-commit 3e35142ef99fe6b4fe5d834ad43ee13cca10a2dc upstream.
+commit 7d54c15cb89a29a5f59e5ffc9ee62e6591769ef1 upstream.
 
-Since commit d1bcae833b32f1 ("ELF: Don't generate unused section
-symbols") [1], binutils (v2.36+) started dropping section symbols that
-it thought were unused.  This isn't an issue in general, but with
-kexec_file.c, gcc is placing kexec_arch_apply_relocations[_add] into a
-separate .text.unlikely section and the section symbol ".text.unlikely"
-is being dropped. Due to this, recordmcount is unable to find a non-weak
-symbol in .text.unlikely to generate a relocation record against.
+We see the following GPF when register_ftrace_direct fails:
 
-Address this by dropping the weak attribute from these functions.
-Instead, follow the existing pattern of having architectures #define the
-name of the function they want to override in their headers.
+[ ] general protection fault, probably for non-canonical address \
+  0x200000000000010: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
+[...]
+[ ] RIP: 0010:ftrace_find_rec_direct+0x53/0x70
+[ ] Code: 48 c1 e0 03 48 03 42 08 48 8b 10 31 c0 48 85 d2 74 [...]
+[ ] RSP: 0018:ffffc9000138bc10 EFLAGS: 00010206
+[ ] RAX: 0000000000000000 RBX: ffffffff813e0df0 RCX: 000000000000003b
+[ ] RDX: 0200000000000000 RSI: 000000000000000c RDI: ffffffff813e0df0
+[ ] RBP: ffffffffa00a3000 R08: ffffffff81180ce0 R09: 0000000000000001
+[ ] R10: ffffc9000138bc18 R11: 0000000000000001 R12: ffffffff813e0df0
+[ ] R13: ffffffff813e0df0 R14: ffff888171b56400 R15: 0000000000000000
+[ ] FS:  00007fa9420c7780(0000) GS:ffff888ff6a00000(0000) knlGS:000000000
+[ ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ ] CR2: 000000000770d000 CR3: 0000000107d50003 CR4: 0000000000370ee0
+[ ] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ ] Call Trace:
+[ ]  <TASK>
+[ ]  register_ftrace_direct+0x54/0x290
+[ ]  ? render_sigset_t+0xa0/0xa0
+[ ]  bpf_trampoline_update+0x3f5/0x4a0
+[ ]  ? 0xffffffffa00a3000
+[ ]  bpf_trampoline_link_prog+0xa9/0x140
+[ ]  bpf_tracing_prog_attach+0x1dc/0x450
+[ ]  bpf_raw_tracepoint_open+0x9a/0x1e0
+[ ]  ? find_held_lock+0x2d/0x90
+[ ]  ? lock_release+0x150/0x430
+[ ]  __sys_bpf+0xbd6/0x2700
+[ ]  ? lock_is_held_type+0xd8/0x130
+[ ]  __x64_sys_bpf+0x1c/0x20
+[ ]  do_syscall_64+0x3a/0x80
+[ ]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ ] RIP: 0033:0x7fa9421defa9
+[ ] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 9 f8 [...]
+[ ] RSP: 002b:00007ffed743bd78 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
+[ ] RAX: ffffffffffffffda RBX: 00000000069d2480 RCX: 00007fa9421defa9
+[ ] RDX: 0000000000000078 RSI: 00007ffed743bd80 RDI: 0000000000000011
+[ ] RBP: 00007ffed743be00 R08: 0000000000bb7270 R09: 0000000000000000
+[ ] R10: 00000000069da210 R11: 0000000000000246 R12: 0000000000000001
+[ ] R13: 00007ffed743c4b0 R14: 00000000069d2480 R15: 0000000000000001
+[ ]  </TASK>
+[ ] Modules linked in: klp_vm(OK)
+[ ] ---[ end trace 0000000000000000 ]---
 
-[1] https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=d1bcae833b32f1
+One way to trigger this is:
+  1. load a livepatch that patches kernel function xxx;
+  2. run bpftrace -e 'kfunc:xxx {}', this will fail (expected for now);
+  3. repeat #2 => gpf.
 
-[akpm@linux-foundation.org: arch/s390/include/asm/kexec.h needs linux/module.h]
-Link: https://lkml.kernel.org/r/20220519091237.676736-1-naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+This is because the entry is added to direct_functions, but not removed.
+Fix this by remove the entry from direct_functions when
+register_ftrace_direct fails.
+
+Also remove the last trailing space from ftrace.c, so we don't have to
+worry about it anymore.
+
+Link: https://lkml.kernel.org/r/20220524170839.900849-1-song@kernel.org
+
+Cc: stable@vger.kernel.org
+Fixes: 763e34e74bb7 ("ftrace: Add register_ftrace_direct()")
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/kexec.h |   10 +++++++++
- arch/x86/include/asm/kexec.h  |    8 +++++++
- include/linux/kexec.h         |   46 ++++++++++++++++++++++++++++++++++--------
- kernel/kexec_file.c           |   34 -------------------------------
- 4 files changed, 56 insertions(+), 42 deletions(-)
+ kernel/trace/ftrace.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/kexec.h
-+++ b/arch/s390/include/asm/kexec.h
-@@ -9,6 +9,8 @@
- #ifndef _S390_KEXEC_H
- #define _S390_KEXEC_H
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -4465,7 +4465,7 @@ int ftrace_func_mapper_add_ip(struct ftr
+  * @ip: The instruction pointer address to remove the data from
+  *
+  * Returns the data if it is found, otherwise NULL.
+- * Note, if the data pointer is used as the data itself, (see 
++ * Note, if the data pointer is used as the data itself, (see
+  * ftrace_func_mapper_find_ip(), then the return value may be meaningless,
+  * if the data pointer was set to zero.
+  */
+@@ -5195,8 +5195,6 @@ int register_ftrace_direct(unsigned long
+ 		goto out_unlock;
  
-+#include <linux/module.h>
-+
- #include <asm/processor.h>
- #include <asm/page.h>
- #include <asm/setup.h>
-@@ -83,4 +85,12 @@ struct kimage_arch {
- extern const struct kexec_file_ops s390_kexec_image_ops;
- extern const struct kexec_file_ops s390_kexec_elf_ops;
+ 	ret = ftrace_set_filter_ip(&direct_ops, ip, 0, 0);
+-	if (ret)
+-		remove_hash_entry(direct_functions, entry);
  
-+#ifdef CONFIG_KEXEC_FILE
-+struct purgatory_info;
-+int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-+				     Elf_Shdr *section,
-+				     const Elf_Shdr *relsec,
-+				     const Elf_Shdr *symtab);
-+#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
-+#endif
- #endif /*_S390_KEXEC_H */
---- a/arch/x86/include/asm/kexec.h
-+++ b/arch/x86/include/asm/kexec.h
-@@ -186,6 +186,14 @@ extern int arch_kexec_post_alloc_pages(v
- extern void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages);
- #define arch_kexec_pre_free_pages arch_kexec_pre_free_pages
+ 	if (!ret && !(direct_ops.flags & FTRACE_OPS_FL_ENABLED)) {
+ 		ret = register_ftrace_function(&direct_ops);
+@@ -5205,6 +5203,7 @@ int register_ftrace_direct(unsigned long
+ 	}
  
-+#ifdef CONFIG_KEXEC_FILE
-+struct purgatory_info;
-+int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-+				     Elf_Shdr *section,
-+				     const Elf_Shdr *relsec,
-+				     const Elf_Shdr *symtab);
-+#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
-+#endif
- #endif
- 
- typedef void crash_vmclear_fn(void);
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -193,14 +193,6 @@ void *kexec_purgatory_get_symbol_addr(st
- int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
- 				  unsigned long buf_len);
- void *arch_kexec_kernel_image_load(struct kimage *image);
--int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
--				     Elf_Shdr *section,
--				     const Elf_Shdr *relsec,
--				     const Elf_Shdr *symtab);
--int arch_kexec_apply_relocations(struct purgatory_info *pi,
--				 Elf_Shdr *section,
--				 const Elf_Shdr *relsec,
--				 const Elf_Shdr *symtab);
- int arch_kimage_file_post_load_cleanup(struct kimage *image);
- #ifdef CONFIG_KEXEC_SIG
- int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
-@@ -229,6 +221,44 @@ extern int crash_exclude_mem_range(struc
- 				   unsigned long long mend);
- extern int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
- 				       void **addr, unsigned long *sz);
-+
-+#ifndef arch_kexec_apply_relocations_add
-+/*
-+ * arch_kexec_apply_relocations_add - apply relocations of type RELA
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELAs.
-+ * @symtab:	Corresponding symtab.
-+ *
-+ * Return: 0 on success, negative errno on error.
-+ */
-+static inline int
-+arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
-+				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
-+{
-+	pr_err("RELA relocation unsupported.\n");
-+	return -ENOEXEC;
-+}
-+#endif
-+
-+#ifndef arch_kexec_apply_relocations
-+/*
-+ * arch_kexec_apply_relocations - apply relocations of type REL
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELs.
-+ * @symtab:	Corresponding symtab.
-+ *
-+ * Return: 0 on success, negative errno on error.
-+ */
-+static inline int
-+arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
-+			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
-+{
-+	pr_err("REL relocation unsupported.\n");
-+	return -ENOEXEC;
-+}
-+#endif
- #endif /* CONFIG_KEXEC_FILE */
- 
- #ifdef CONFIG_KEXEC_ELF
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -109,40 +109,6 @@ int __weak arch_kexec_kernel_verify_sig(
- #endif
- 
- /*
-- * arch_kexec_apply_relocations_add - apply relocations of type RELA
-- * @pi:		Purgatory to be relocated.
-- * @section:	Section relocations applying to.
-- * @relsec:	Section containing RELAs.
-- * @symtab:	Corresponding symtab.
-- *
-- * Return: 0 on success, negative errno on error.
-- */
--int __weak
--arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
--				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
--{
--	pr_err("RELA relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
--/*
-- * arch_kexec_apply_relocations - apply relocations of type REL
-- * @pi:		Purgatory to be relocated.
-- * @section:	Section relocations applying to.
-- * @relsec:	Section containing RELs.
-- * @symtab:	Corresponding symtab.
-- *
-- * Return: 0 on success, negative errno on error.
-- */
--int __weak
--arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
--			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
--{
--	pr_err("REL relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
--/*
-  * Free up memory used by kernel, initrd, and command line. This is temporary
-  * memory allocation which is not needed any more after these buffers have
-  * been loaded into separate segments and have been copied elsewhere.
+ 	if (ret) {
++		remove_hash_entry(direct_functions, entry);
+ 		kfree(entry);
+ 		if (!direct->count) {
+ 			list_del_rcu(&direct->next);
 
 
