@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A1854091B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF2E541297
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349967AbiFGSFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33600 "EHLO
+        id S1356236AbiFGTyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347924AbiFGSCn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69A71059F5;
-        Tue,  7 Jun 2022 10:47:02 -0700 (PDT)
+        with ESMTP id S1358020AbiFGTv2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:51:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F758CCE7;
+        Tue,  7 Jun 2022 11:19:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ED08616B8;
-        Tue,  7 Jun 2022 17:47:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E581C385A5;
-        Tue,  7 Jun 2022 17:47:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C32CB8237D;
+        Tue,  7 Jun 2022 18:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A67C385A5;
+        Tue,  7 Jun 2022 18:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624021;
-        bh=/iCZ2BVshjySAe77EuvghJEaNfvlxU8WQgSj30O2C0A=;
+        s=korg; t=1654625983;
+        bh=rZ2OXPCITf7LRFHCb0HH1soMLzMUo8JEpL8zp4zSYqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swNcfZJBIUsrAN7IqEyMve15sjQpSuFoPAGI5Tjr4WFnMpWNpDP+Gg4e5igRwTV/6
-         OgKJNBInvV5KE1zbUMqJENxKIu217MqFmgPBbU/MHJGeHPJvl1yXS65aYDKKy5rS1+
-         Md5tfSnoxUcgntO+Ib0lhXhVLfdt8FTVfUrN3jA8=
+        b=USlYvuf9x/KvX+i/Vs8kAYBe9Y78GKIxwg76e2J+f73fcdsMjxwriYkqR+XLoIva6
+         s5VAy4oHHA1+39RWsgHijsZH6QY6Z/lMFfZ8YNjMtmZ0Nr6TCGi7za9CBqOrodxE92
+         o5KOsEqbivkCRCy4ahOS35eqe41RkbWwcLo/XyI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaitanya Kulkarni <kch@nvidia.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 135/667] nvme: set non-mdts limits in nvme_scan_work
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 208/772] powerpc/rtas: Keep MSR[RI] set when calling RTAS
 Date:   Tue,  7 Jun 2022 18:56:40 +0200
-Message-Id: <20220607164938.870888451@linuxfoundation.org>
+Message-Id: <20220607164955.162505805@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +55,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <kch@nvidia.com>
+From: Laurent Dufour <ldufour@linux.ibm.com>
 
-[ Upstream commit 78288665b5d0154978fed431985310cb4f166836 ]
+[ Upstream commit b6b1c3ce06ca438eb24e0f45bf0e63ecad0369f5 ]
 
-In current implementation we set the non-mdts limits by calling
-nvme_init_non_mdts_limits() from nvme_init_ctrl_finish().
-This also tries to set the limits for the discovery controller which
-has no I/O queues resulting in the warning message reported by the
-nvme_log_error() when running blktest nvme/002: -
+RTAS runs in real mode (MSR[DR] and MSR[IR] unset) and in 32-bit big
+endian mode (MSR[SF,LE] unset).
 
-[ 2005.155946] run blktests nvme/002 at 2022-04-09 16:57:47
-[ 2005.192223] loop: module loaded
-[ 2005.196429] nvmet: adding nsid 1 to subsystem blktests-subsystem-0
-[ 2005.200334] nvmet: adding nsid 1 to subsystem blktests-subsystem-1
+The change in MSR is done in enter_rtas() in a relatively complex way,
+since the MSR value could be hardcoded.
 
-<------------------------------SNIP---------------------------------->
+Furthermore, a panic has been reported when hitting the watchdog interrupt
+while running in RTAS, this leads to the following stack trace:
 
-[ 2008.958108] nvmet: adding nsid 1 to subsystem blktests-subsystem-997
-[ 2008.962082] nvmet: adding nsid 1 to subsystem blktests-subsystem-998
-[ 2008.966102] nvmet: adding nsid 1 to subsystem blktests-subsystem-999
-[ 2008.973132] nvmet: creating discovery controller 1 for subsystem nqn.2014-08.org.nvmexpress.discovery for NQN testhostnqn.
-*[ 2008.973196] nvme1: Identify(0x6), Invalid Field in Command (sct 0x0 / sc 0x2) MORE DNR*
-[ 2008.974595] nvme nvme1: new ctrl: "nqn.2014-08.org.nvmexpress.discovery"
-[ 2009.103248] nvme nvme1: Removing ctrl: NQN "nqn.2014-08.org.nvmexpress.discovery"
-
-Move the call of nvme_init_non_mdts_limits() to nvme_scan_work() after
-we verify that I/O queues are created since that is a converging point
-for each transport where these limits are actually used.
-
-1. FC :
-nvme_fc_create_association()
- ...
- nvme_fc_create_io_queues(ctrl);
- ...
- nvme_start_ctrl()
-  nvme_scan_queue()
-   nvme_scan_work()
-
-2. PCIe:-
-nvme_reset_work()
- ...
- nvme_setup_io_queues()
-  nvme_create_io_queues()
-   nvme_alloc_queue()
- ...
- nvme_start_ctrl()
-  nvme_scan_queue()
-   nvme_scan_work()
-
-3. RDMA :-
-nvme_rdma_setup_ctrl
- ...
-  nvme_rdma_configure_io_queues
+  watchdog: CPU 24 Hard LOCKUP
+  watchdog: CPU 24 TB:997512652051031, last heartbeat TB:997504470175378 (15980ms ago)
   ...
-  nvme_start_ctrl()
-   nvme_scan_queue()
-    nvme_scan_work()
-
-4. TCP :-
-nvme_tcp_setup_ctrl
- ...
-  nvme_tcp_configure_io_queues
+  Supported: No, Unreleased kernel
+  CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Tainted: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
+  NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0000000000000000
+  REGS: c00000000fc33d60 TRAP: 0100   Tainted: G            E  X     (5.14.21-150400.71.1.bz196362_2-default)
+  MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 48800002  XER: 20040020
+  CFAR: 000000000000011c IRQMASK: 1
+  GPR00: 0000000000000003 ffffffffffffffff 0000000000000001 00000000000050dc
+  GPR04: 000000001ffb6100 0000000000000020 0000000000000001 000000001fb09010
+  GPR08: 0000000020000000 0000000000000000 0000000000000000 0000000000000000
+  GPR12: 80040000072a40a8 c00000000ff8b680 0000000000000007 0000000000000034
+  GPR16: 000000001fbf6e94 000000001fbf6d84 000000001fbd1db0 000000001fb3f008
+  GPR20: 000000001fb41018 ffffffffffffffff 000000000000017f fffffffffffff68f
+  GPR24: 000000001fb18fe8 000000001fb3e000 000000001fb1adc0 000000001fb1cf40
+  GPR28: 000000001fb26000 000000001fb460f0 000000001fb17f18 000000001fb17000
+  NIP [000000001fb41050] 0x1fb41050
+  LR [000000001fb4104c] 0x1fb4104c
+  Call Trace:
+  Instruction dump:
+  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+  Oops: Unrecoverable System Reset, sig: 6 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
   ...
-  nvme_start_ctrl()
-   nvme_scan_queue()
-    nvme_scan_work()
+  Supported: No, Unreleased kernel
+  CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Tainted: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
+  NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0000000000000000
+  REGS: c00000000fc33d60 TRAP: 0100   Tainted: G            E  X     (5.14.21-150400.71.1.bz196362_2-default)
+  MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 48800002  XER: 20040020
+  CFAR: 000000000000011c IRQMASK: 1
+  GPR00: 0000000000000003 ffffffffffffffff 0000000000000001 00000000000050dc
+  GPR04: 000000001ffb6100 0000000000000020 0000000000000001 000000001fb09010
+  GPR08: 0000000020000000 0000000000000000 0000000000000000 0000000000000000
+  GPR12: 80040000072a40a8 c00000000ff8b680 0000000000000007 0000000000000034
+  GPR16: 000000001fbf6e94 000000001fbf6d84 000000001fbd1db0 000000001fb3f008
+  GPR20: 000000001fb41018 ffffffffffffffff 000000000000017f fffffffffffff68f
+  GPR24: 000000001fb18fe8 000000001fb3e000 000000001fb1adc0 000000001fb1cf40
+  GPR28: 000000001fb26000 000000001fb460f0 000000001fb17f18 000000001fb17000
+  NIP [000000001fb41050] 0x1fb41050
+  LR [000000001fb4104c] 0x1fb4104c
+  Call Trace:
+  Instruction dump:
+  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+  ---[ end trace 3ddec07f638c34a2 ]---
 
-* nvme_scan_work()
-...
-nvme_validate_or_alloc_ns()
-  nvme_alloc_ns()
-   nvme_update_ns_info()
-    nvme_update_disk_info()
-     nvme_config_discard() <---
-     blk_queue_max_write_zeroes_sectors() <---
+This happens because MSR[RI] is unset when entering RTAS but there is no
+valid reason to not set it here.
 
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+RTAS is expected to be called with MSR[RI] as specified in PAPR+ section
+"7.2.1 Machine State":
+
+  R1–7.2.1–9. If called with MSR[RI] equal to 1, then RTAS must protect
+  its own critical regions from recursion by setting the MSR[RI] bit to
+  0 when in the critical regions.
+
+Fixing this by reviewing the way MSR is compute before calling RTAS. Now a
+hardcoded value meaning real mode, 32 bits big endian mode and Recoverable
+Interrupt is loaded. In the case MSR[S] is set, it will remain set while
+entering RTAS as only urfid can unset it (thanks Fabiano).
+
+In addition a check is added in do_enter_rtas() to detect calls made with
+MSR[RI] unset, as we are forcing it on later.
+
+This patch has been tested on the following machines:
+Power KVM Guest
+  P8 S822L (host Ubuntu kernel 5.11.0-49-generic)
+PowerVM LPAR
+  P8 9119-MME (FW860.A1)
+  p9 9008-22L (FW950.00)
+  P10 9080-HEX (FW1010.00)
+
+Suggested-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220504101244.12107-1-ldufour@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/entry_64.S | 24 ++++++++++++------------
+ arch/powerpc/kernel/rtas.c     |  9 +++++++++
+ 2 files changed, 21 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 87877397d1ad..711b89424bd0 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3032,10 +3032,6 @@ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl)
- 	if (ret)
- 		return ret;
+diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
+index 9581906b5ee9..da18f83ef883 100644
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -330,22 +330,22 @@ _GLOBAL(enter_rtas)
+ 	clrldi	r4,r4,2			/* convert to realmode address */
+        	mtlr	r4
  
--	ret = nvme_init_non_mdts_limits(ctrl);
--	if (ret < 0)
--		return ret;
+-	li	r0,0
+-	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
+-	andc	r0,r6,r0
+-	
+-        li      r9,1
+-        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
+-	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
+-	andc	r6,r0,r9
 -
- 	ret = nvme_configure_apst(ctrl);
- 	if (ret < 0)
- 		return ret;
-@@ -4096,11 +4092,26 @@ static void nvme_scan_work(struct work_struct *work)
- {
- 	struct nvme_ctrl *ctrl =
- 		container_of(work, struct nvme_ctrl, scan_work);
-+	int ret;
- 
- 	/* No tagset on a live ctrl means IO queues could not created */
- 	if (ctrl->state != NVME_CTRL_LIVE || !ctrl->tagset)
- 		return;
- 
-+	/*
-+	 * Identify controller limits can change at controller reset due to
-+	 * new firmware download, even though it is not common we cannot ignore
-+	 * such scenario. Controller's non-mdts limits are reported in the unit
-+	 * of logical blocks that is dependent on the format of attached
-+	 * namespace. Hence re-read the limits at the time of ns allocation.
-+	 */
-+	ret = nvme_init_non_mdts_limits(ctrl);
-+	if (ret < 0) {
-+		dev_warn(ctrl->device,
-+			"reading non-mdts-limits failed: %d\n", ret);
-+		return;
-+	}
+ __enter_rtas:
+-	sync				/* disable interrupts so SRR0/1 */
+-	mtmsrd	r0			/* don't get trashed */
+-
+ 	LOAD_REG_ADDR(r4, rtas)
+ 	ld	r5,RTASENTRY(r4)	/* get the rtas->entry value */
+ 	ld	r4,RTASBASE(r4)		/* get the rtas->base value */
 +
- 	if (test_and_clear_bit(NVME_AER_NOTICE_NS_CHANGED, &ctrl->events)) {
- 		dev_info(ctrl->device, "rescanning namespaces.\n");
- 		nvme_clear_changed_ns_log(ctrl);
++	/*
++	 * RTAS runs in 32-bit big endian real mode, but leave MSR[RI] on as we
++	 * may hit NMI (SRESET or MCE) while in RTAS. RTAS should disable RI in
++	 * its critical regions (as specified in PAPR+ section 7.2.1). MSR[S]
++	 * is not impacted by RFI_TO_KERNEL (only urfid can unset it). So if
++	 * MSR[S] is set, it will remain when entering RTAS.
++	 */
++	LOAD_REG_IMMEDIATE(r6, MSR_ME | MSR_RI)
++
++	li      r0,0
++	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
+ 	
+ 	mtspr	SPRN_SRR0,r5
+ 	mtspr	SPRN_SRR1,r6
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 1f42aabbbab3..6bc89d9ccf63 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -49,6 +49,15 @@ void enter_rtas(unsigned long);
+ 
+ static inline void do_enter_rtas(unsigned long args)
+ {
++	unsigned long msr;
++
++	/*
++	 * Make sure MSR[RI] is currently enabled as it will be forced later
++	 * in enter_rtas.
++	 */
++	msr = mfmsr();
++	BUG_ON(!(msr & MSR_RI));
++
+ 	enter_rtas(args);
+ 
+ 	srr_regs_clobbered(); /* rtas uses SRRs, invalidate */
 -- 
 2.35.1
 
