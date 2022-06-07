@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE46540CAF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4275415F9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351739AbiFGSiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:38:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
+        id S1376377AbiFGUng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344407AbiFGSiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:38:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820AA3B3E7;
-        Tue,  7 Jun 2022 10:58:15 -0700 (PDT)
+        with ESMTP id S1376390AbiFGU0i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:26:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6D41D8089;
+        Tue,  7 Jun 2022 11:32:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29533618D2;
-        Tue,  7 Jun 2022 17:58:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A1B8C36B00;
-        Tue,  7 Jun 2022 17:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0134AB82340;
+        Tue,  7 Jun 2022 18:32:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46522C385A5;
+        Tue,  7 Jun 2022 18:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624692;
-        bh=f+U1OkGMCasbcTsAbpK24GfUNZ9VX0StZI8RsX++zvc=;
+        s=korg; t=1654626754;
+        bh=eQUZ+ey7/BLiW6pckJTv8Wved40zL6Bggxfybl1hKZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJjbRUSVO5JJrqt6fS7Vqnv17OG1gpqNOK5FJdReqOxBu5WOlBeY60n3kVgzALDmh
-         QwbGA6o0aGQrEsM6Ljtb2oSBYyYILABGknvaxkKYqV6TndjxcBMA5+08VJ0NMWOmJC
-         SO0kCvoHyR746L3h/YN5Jis3pb4DLKQKcZTVO8Ps=
+        b=im0KpbnXxCo6NqRU9qSe3rXrwjNYXWvUE8tyedoEjVnEJs+BEIFbCzri7VWVs9++W
+         xCmspGyLG/UDR+TfsopIhmdtKCzjixsYBjPPX9tceJ8pKvhOCI/XSbzxpCjv7O8l2H
+         esRLjqwjLbPuGNnfSeTAl7CEXWVUyl/Le/PD8zRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
         Michael Kelley <mikelley@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 419/667] Drivers: hv: vmbus: Fix handling of messages with transaction ID of zero
+Subject: [PATCH 5.17 492/772] Drivers: hv: vmbus: Fix handling of messages with transaction ID of zero
 Date:   Tue,  7 Jun 2022 19:01:24 +0200
-Message-Id: <20220607164947.301937816@linuxfoundation.org>
+Message-Id: <20220607165003.481988539@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -94,10 +94,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index f3761c73b074..6b967bb38690 100644
+index dc5c35210c16..20fc8d50a039 100644
 --- a/drivers/hv/channel.c
 +++ b/drivers/hv/channel.c
-@@ -1221,7 +1221,9 @@ u64 vmbus_next_request_id(struct vmbus_channel *channel, u64 rqst_addr)
+@@ -1245,7 +1245,9 @@ u64 vmbus_next_request_id(struct vmbus_channel *channel, u64 rqst_addr)
  
  	/*
  	 * Cannot return an ID of 0, which is reserved for an unsolicited
@@ -108,7 +108,7 @@ index f3761c73b074..6b967bb38690 100644
  	 */
  	return current_id + 1;
  }
-@@ -1246,7 +1248,7 @@ u64 vmbus_request_addr(struct vmbus_channel *channel, u64 trans_id)
+@@ -1270,7 +1272,7 @@ u64 vmbus_request_addr(struct vmbus_channel *channel, u64 trans_id)
  
  	/* Hyper-V can send an unsolicited message with ID of 0 */
  	if (!trans_id)
