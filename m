@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524BB540BA9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62C98541BEC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351567AbiFGSaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
+        id S1381908AbiFGVzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242745AbiFGS2S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:28:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8905817127C;
-        Tue,  7 Jun 2022 10:55:05 -0700 (PDT)
+        with ESMTP id S1382421AbiFGVv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B5E220759;
+        Tue,  7 Jun 2022 12:08:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B8B0B82371;
-        Tue,  7 Jun 2022 17:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC9CC385A5;
-        Tue,  7 Jun 2022 17:55:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 174576188D;
+        Tue,  7 Jun 2022 19:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 261C3C385A2;
+        Tue,  7 Jun 2022 19:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624501;
-        bh=Wv8LqfiVahQyHFgoG9Vecq8fraqBk8Ym4cTjhUqnw5A=;
+        s=korg; t=1654628926;
+        bh=aYqZE8TxvhvL5QEdtOPcHD/GbVTx3XHTQlLjadvSmYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1nl/kEpPHGYvsRiHdr0NtJWpMpn8VV8v0FPEbx/2n6i0TJNEUJVURtWaPajWkXULq
-         qDEIJGFk26pPtf2YcNxdIW5llzq3AiYWkmH9fmx+T5DRMpSqwqPSAjXOO+jcl/hiyG
-         9w1fMZbMb/nTpQMxcgx8mNR/EtocmY0NY850l63w=
+        b=uAb5FAC9zlJaxQa4VPY7NkrRxVLsS5mTLb0SQA2SZZgk8DHSloYuSycu3PeTlSCxD
+         x5XzPeCPs1lDFbb2qpTEYof1mTjb7p2mGZ2V+WzVqTJqYSy0QsvkuWlNRAVFmAtVCx
+         U5aVW9p9UlP9yg69qledYX7bScsn3G/Hib+LEEjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yake Yang <yake.yang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 309/667] regulator: pfuze100: Fix refcount leak in pfuze_parse_regulators_dt
+Subject: [PATCH 5.18 456/879] Bluetooth: btmtksdio: fix use-after-free at btmtksdio_recv_event
 Date:   Tue,  7 Jun 2022 18:59:34 +0200
-Message-Id: <20220607164944.041318317@linuxfoundation.org>
+Message-Id: <20220607165016.107348190@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit afaa7b933ef00a2d3262f4d1252087613fb5c06d ]
+[ Upstream commit 0fab6361c4ba17d1b43a991bef4238a3c1754d35 ]
 
-of_node_get() returns a node with refcount incremented.
-Calling of_node_put() to drop the reference when not needed anymore.
+We should not access skb buffer data anymore after hci_recv_frame was
+called.
 
-Fixes: 3784b6d64dc5 ("regulator: pfuze100: add pfuze100 regulator driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511113506.45185-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[   39.634809] BUG: KASAN: use-after-free in btmtksdio_recv_event+0x1b0
+[   39.634855] Read of size 1 at addr ffffff80cf28a60d by task kworker
+[   39.634962] Call trace:
+[   39.634974]  dump_backtrace+0x0/0x3b8
+[   39.634999]  show_stack+0x20/0x2c
+[   39.635016]  dump_stack_lvl+0x60/0x78
+[   39.635040]  print_address_description+0x70/0x2f0
+[   39.635062]  kasan_report+0x154/0x194
+[   39.635079]  __asan_report_load1_noabort+0x44/0x50
+[   39.635099]  btmtksdio_recv_event+0x1b0/0x1c4
+[   39.635129]  btmtksdio_txrx_work+0x6cc/0xac4
+[   39.635157]  process_one_work+0x560/0xc5c
+[   39.635177]  worker_thread+0x7ec/0xcc0
+[   39.635195]  kthread+0x2d0/0x3d0
+[   39.635215]  ret_from_fork+0x10/0x20
+[   39.635247] Allocated by task 0:
+[   39.635260] (stack is not available)
+[   39.635281] Freed by task 2392:
+[   39.635295]  kasan_save_stack+0x38/0x68
+[   39.635319]  kasan_set_track+0x28/0x3c
+[   39.635338]  kasan_set_free_info+0x28/0x4c
+[   39.635357]  ____kasan_slab_free+0x104/0x150
+[   39.635374]  __kasan_slab_free+0x18/0x28
+[   39.635391]  slab_free_freelist_hook+0x114/0x248
+[   39.635410]  kfree+0xf8/0x2b4
+[   39.635427]  skb_free_head+0x58/0x98
+[   39.635447]  skb_release_data+0x2f4/0x410
+[   39.635464]  skb_release_all+0x50/0x60
+[   39.635481]  kfree_skb+0xc8/0x25c
+[   39.635498]  hci_event_packet+0x894/0xca4 [bluetooth]
+[   39.635721]  hci_rx_work+0x1c8/0x68c [bluetooth]
+[   39.635925]  process_one_work+0x560/0xc5c
+[   39.635951]  worker_thread+0x7ec/0xcc0
+[   39.635970]  kthread+0x2d0/0x3d0
+[   39.635990]  ret_from_fork+0x10/0x20
+[   39.636021] The buggy address belongs to the object at ffffff80cf28a600
+                which belongs to the cache kmalloc-512 of size 512
+[   39.636039] The buggy address is located 13 bytes inside of
+                512-byte region [ffffff80cf28a600, ffffff80cf28a800)
+
+Fixes: 9aebfd4a2200 ("Bluetooth: mediatek: add support for MediaTek MT7663S and MT7668S SDIO devices")
+Co-developed-by: Yake Yang <yake.yang@mediatek.com>
+Signed-off-by: Yake Yang <yake.yang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bluetooth/btmtksdio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index d60d7d1b7fa2..aa55cfca9e40 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -521,6 +521,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
- 	parent = of_get_child_by_name(np, "regulators");
- 	if (!parent) {
- 		dev_err(dev, "regulators node not found\n");
-+		of_node_put(np);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
+index b6d77e04240c..4ae6631a7c29 100644
+--- a/drivers/bluetooth/btmtksdio.c
++++ b/drivers/bluetooth/btmtksdio.c
+@@ -379,6 +379,7 @@ static int btmtksdio_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
+ {
+ 	struct btmtksdio_dev *bdev = hci_get_drvdata(hdev);
+ 	struct hci_event_hdr *hdr = (void *)skb->data;
++	u8 evt = hdr->evt;
+ 	int err;
  
-@@ -550,6 +551,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
- 	}
+ 	/* When someone waits for the WMT event, the skb is being cloned
+@@ -396,7 +397,7 @@ static int btmtksdio_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
+ 	if (err < 0)
+ 		goto err_free_skb;
  
- 	of_node_put(parent);
-+	of_node_put(np);
- 	if (ret < 0) {
- 		dev_err(dev, "Error parsing regulator init data: %d\n",
- 			ret);
+-	if (hdr->evt == HCI_EV_WMT) {
++	if (evt == HCI_EV_WMT) {
+ 		if (test_and_clear_bit(BTMTKSDIO_TX_WAIT_VND_EVT,
+ 				       &bdev->tx_state)) {
+ 			/* Barrier to sync with other CPUs */
 -- 
 2.35.1
 
