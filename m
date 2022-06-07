@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BEC5541238
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D853541901
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357200AbiFGTok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55168 "EHLO
+        id S1346748AbiFGVTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:19:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357979AbiFGTmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8043BDFF7;
-        Tue,  7 Jun 2022 11:17:46 -0700 (PDT)
+        with ESMTP id S1381371AbiFGVRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7409D2228C7;
+        Tue,  7 Jun 2022 11:58:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F61A60A21;
-        Tue,  7 Jun 2022 18:17:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 343ECC385A2;
-        Tue,  7 Jun 2022 18:17:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D61DB82391;
+        Tue,  7 Jun 2022 18:58:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8974BC385A2;
+        Tue,  7 Jun 2022 18:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625865;
-        bh=s4KO1UgUY/B996K+l2DBDtuWNiu3YWMyS23OqCyZMqk=;
+        s=korg; t=1654628324;
+        bh=nDm+GwDgvJjU1T4VnyQabcgcfISjgZ8P6P4og/v0WJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLElJCGoKQ8e6b/TEFFwMblh7JcSIvGG3aUUbixUWFoaa2ZhqpHb1XJRn09hduY7T
-         A/lQJWPjCFr0kbjXPfhKc4uPj+l0HcMWujYKND40xNYj7H1O+RXFFXsS3yxDkmR0th
-         V7BJXaZK0grpd3mCsgp34F2O0cvmRisVqXM2RpVw=
+        b=EdBuuDd/+eqoke2WVzJXiBt4ngWA1+yYjxVcdaDIDFaWQxINmnlzXZgthufHU7TOj
+         h9H0xv21Hs/Wi/vI7Mb/spKiiDPlc5N3T55B1DrEw40/1P6UepkicTQltBgtxGTJjd
+         XC+Hcb4Z53czd2gGM/pGiB1li/l+2SCX/BM5/eyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Peng Wu <wupeng58@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 173/772] rxrpc: Return an error to sendmsg if call failed
+Subject: [PATCH 5.18 247/879] powerpc/iommu: Add missing of_node_put in iommu_init_early_dart
 Date:   Tue,  7 Jun 2022 18:56:05 +0200
-Message-Id: <20220607164954.139253582@linuxfoundation.org>
+Message-Id: <20220607165010.021667638@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Peng Wu <wupeng58@huawei.com>
 
-[ Upstream commit 4ba68c5192554876bd8c3afd904e3064d2915341 ]
+[ Upstream commit 57b742a5b8945118022973e6416b71351df512fb ]
 
-If at the end of rxrpc sendmsg() or rxrpc_kernel_send_data() the call that
-was being given data was aborted remotely or otherwise failed, return an
-error rather than returning the amount of data buffered for transmission.
+The device_node pointer is returned by of_find_compatible_node
+with refcount incremented. We should use of_node_put() to avoid
+the refcount leak.
 
-The call (presumably) did not complete, so there's not much point
-continuing with it.  AF_RXRPC considers it "complete" and so will be
-unwilling to do anything else with it - and won't send a notification for
-it, deeming the return from sendmsg sufficient.
-
-Not returning an error causes afs to incorrectly handle a StoreData
-operation that gets interrupted by a change of address due to NAT
-reconfiguration.
-
-This doesn't normally affect most operations since their request parameters
-tend to fit into a single UDP packet and afs_make_call() returns before the
-server responds; StoreData is different as it involves transmission of a
-lot of data.
-
-This can be triggered on a client by doing something like:
-
-	dd if=/dev/zero of=/afs/example.com/foo bs=1M count=512
-
-at one prompt, and then changing the network address at another prompt,
-e.g.:
-
-	ifconfig enp6s0 inet 192.168.6.2 && route add 192.168.6.1 dev enp6s0
-
-Tracing packets on an Auristor fileserver looks something like:
-
-192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
-192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
-192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-<ARP exchange for 192.168.6.2>
-192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
-192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
-192.168.6.1 -> 192.168.6.2  RX 107 ACK Exceeds Window  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 29321  Call: 4  Source Port: 7000  Destination Port: 7001
-
-The Auristor fileserver logs code -453 (RXGEN_SS_UNMARSHAL), but the abort
-code received by kafs is -5 (RX_PROTOCOL_ERROR) as the rx layer sees the
-condition and generates an abort first and the unmarshal error is a
-consequence of that at the application layer.
-
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lists.infradead.org/pipermail/linux-afs/2021-December/004810.html # v1
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Peng Wu <wupeng58@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220425081245.21705-1-wupeng58@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sendmsg.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/sysdev/dart_iommu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
-index af8ad6c30b9f..1d38e279e2ef 100644
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -444,6 +444,12 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
+diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
+index be6b99b1b352..9a02aed886a0 100644
+--- a/arch/powerpc/sysdev/dart_iommu.c
++++ b/arch/powerpc/sysdev/dart_iommu.c
+@@ -404,9 +404,10 @@ void __init iommu_init_early_dart(struct pci_controller_ops *controller_ops)
+ 	}
  
- success:
- 	ret = copied;
-+	if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE) {
-+		read_lock_bh(&call->state_lock);
-+		if (call->error < 0)
-+			ret = call->error;
-+		read_unlock_bh(&call->state_lock);
+ 	/* Initialize the DART HW */
+-	if (dart_init(dn) != 0)
++	if (dart_init(dn) != 0) {
++		of_node_put(dn);
+ 		return;
+-
 +	}
- out:
- 	call->tx_pending = skb;
- 	_leave(" = %d", ret);
+ 	/*
+ 	 * U4 supports a DART bypass, we use it for 64-bit capable devices to
+ 	 * improve performance.  However, that only works for devices connected
+@@ -419,6 +420,7 @@ void __init iommu_init_early_dart(struct pci_controller_ops *controller_ops)
+ 
+ 	/* Setup pci_dma ops */
+ 	set_pci_dma_ops(&dma_iommu_ops);
++	of_node_put(dn);
+ }
+ 
+ #ifdef CONFIG_PM
 -- 
 2.35.1
 
