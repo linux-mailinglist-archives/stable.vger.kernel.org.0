@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E41540736
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:44:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E083540EFA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347768AbiFGRo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        id S1353215AbiFGS6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:58:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347964AbiFGRnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:43:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44AE512E816;
-        Tue,  7 Jun 2022 10:35:09 -0700 (PDT)
+        with ESMTP id S1354722AbiFGS4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:56:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA82814CA20;
+        Tue,  7 Jun 2022 11:04:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 871A1B822BF;
-        Tue,  7 Jun 2022 17:34:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5E24C341C8;
-        Tue,  7 Jun 2022 17:34:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B09406183C;
+        Tue,  7 Jun 2022 18:04:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C026EC385A5;
+        Tue,  7 Jun 2022 18:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623266;
-        bh=J6+5wNIGk5VQH6bbzau39NXxNcohMGEmwwQLsllSQM8=;
+        s=korg; t=1654625047;
+        bh=jk3GPX/z1hEDFjC03/RcNKJq/h0HQGSSLN8X7A3cII8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qG2GpdN/VqDRl13HCY0s6acH394WBqrRuXEQb2EzrJr+I89ETpsKTCNUn1aBYdTuP
-         OCOQGwMMpjqqKatnmb52W1TmOHQhaPXJ8be+D/NO0+AaNHpB/r6RWoVcabmTQLMI3F
-         k/CNn9ISmDGwIT96MgAGcyvK1we41lEqo4nyAaX8=
+        b=RLecwzocdie/lKTjJKWaoJiQu2kAefLxCY8pSCs6l2EJVBbd9n/dj0ShkWXHYjf/P
+         Quq9FnyeT1OHwn+y37O3NshUHHIt/zCzqdhDcATLVbl7xfUoE+wg/WCgOAGV/wMh4S
+         vuxb8c9D60ARDyPSaxYujMswGITBYYgC9iWVKvpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.10 355/452] efi: Do not import certificates from UEFI Secure Boot for T2 Macs
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 547/667] ext4: verify dir block before splitting it
 Date:   Tue,  7 Jun 2022 19:03:32 +0200
-Message-Id: <20220607164919.141704266@linuxfoundation.org>
+Message-Id: <20220607164951.106046109@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,133 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 155ca952c7ca19aa32ecfb7373a32bbc2e1ec6eb upstream.
+commit 46c116b920ebec58031f0a78c5ea9599b0d2a371 upstream.
 
-On Apple T2 Macs, when Linux attempts to read the db and dbx efi variables
-at early boot to load UEFI Secure Boot certificates, a page fault occurs
-in Apple firmware code and EFI runtime services are disabled with the
-following logs:
-
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffb1edc0068000
-WARNING: CPU: 3 PID: 104 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x50/0xf0
-(Removed some logs from here)
-Call Trace:
- <TASK>
- page_fault_oops+0x4f/0x2c0
- ? search_bpf_extables+0x6b/0x80
- ? search_module_extables+0x50/0x80
- ? search_exception_tables+0x5b/0x60
- kernelmode_fixup_or_oops+0x9e/0x110
- __bad_area_nosemaphore+0x155/0x190
- bad_area_nosemaphore+0x16/0x20
- do_kern_addr_fault+0x8c/0xa0
- exc_page_fault+0xd8/0x180
- asm_exc_page_fault+0x1e/0x30
-(Removed some logs from here)
- ? __efi_call+0x28/0x30
- ? switch_mm+0x20/0x30
- ? efi_call_rts+0x19a/0x8e0
- ? process_one_work+0x222/0x3f0
- ? worker_thread+0x4a/0x3d0
- ? kthread+0x17a/0x1a0
- ? process_one_work+0x3f0/0x3f0
- ? set_kthread_struct+0x40/0x40
- ? ret_from_fork+0x22/0x30
- </TASK>
----[ end trace 1f82023595a5927f ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get mokx list
-integrity: Couldn't get size: 0x80000000
-
-So we avoid reading these UEFI variables and thus prevent the crash.
+Before splitting a directory block verify its directory entries are sane
+so that the splitting code does not access memory it should not.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220518093332.13986-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/platform_certs/keyring_handler.h |    8 ++++
- security/integrity/platform_certs/load_uefi.c       |   33 ++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+ fs/ext4/namei.c |   32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
---- a/security/integrity/platform_certs/keyring_handler.h
-+++ b/security/integrity/platform_certs/keyring_handler.h
-@@ -30,3 +30,11 @@ efi_element_handler_t get_handler_for_db
- efi_element_handler_t get_handler_for_dbx(const efi_guid_t *sig_type);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -277,9 +277,9 @@ static struct dx_frame *dx_probe(struct
+ 				 struct dx_hash_info *hinfo,
+ 				 struct dx_frame *frame);
+ static void dx_release(struct dx_frame *frames);
+-static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
+-		       unsigned blocksize, struct dx_hash_info *hinfo,
+-		       struct dx_map_entry map[]);
++static int dx_make_map(struct inode *dir, struct buffer_head *bh,
++		       struct dx_hash_info *hinfo,
++		       struct dx_map_entry *map_tail);
+ static void dx_sort_map(struct dx_map_entry *map, unsigned count);
+ static struct ext4_dir_entry_2 *dx_move_dirents(struct inode *dir, char *from,
+ 					char *to, struct dx_map_entry *offsets,
+@@ -1249,15 +1249,23 @@ static inline int search_dirblock(struct
+  * Create map of hash values, offsets, and sizes, stored at end of block.
+  * Returns number of entries mapped.
+  */
+-static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
+-		       unsigned blocksize, struct dx_hash_info *hinfo,
++static int dx_make_map(struct inode *dir, struct buffer_head *bh,
++		       struct dx_hash_info *hinfo,
+ 		       struct dx_map_entry *map_tail)
+ {
+ 	int count = 0;
+-	char *base = (char *) de;
++	struct ext4_dir_entry_2 *de = (struct ext4_dir_entry_2 *)bh->b_data;
++	unsigned int buflen = bh->b_size;
++	char *base = bh->b_data;
+ 	struct dx_hash_info h = *hinfo;
  
- #endif
+-	while ((char *) de < base + blocksize) {
++	if (ext4_has_metadata_csum(dir->i_sb))
++		buflen -= sizeof(struct ext4_dir_entry_tail);
 +
-+#ifndef UEFI_QUIRK_SKIP_CERT
-+#define UEFI_QUIRK_SKIP_CERT(vendor, product) \
-+		 .matches = { \
-+			DMI_MATCH(DMI_BOARD_VENDOR, vendor), \
-+			DMI_MATCH(DMI_PRODUCT_NAME, product), \
-+		},
-+#endif
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -3,6 +3,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/cred.h>
-+#include <linux/dmi.h>
- #include <linux/err.h>
- #include <linux/efi.h>
- #include <linux/slab.h>
-@@ -12,6 +13,31 @@
- #include "keyring_handler.h"
++	while ((char *) de < base + buflen) {
++		if (ext4_check_dir_entry(dir, NULL, de, bh, base, buflen,
++					 ((char *)de) - base))
++			return -EFSCORRUPTED;
+ 		if (de->name_len && de->inode) {
+ 			if (ext4_hash_in_dirent(dir))
+ 				h.hash = EXT4_DIRENT_HASH(de);
+@@ -1270,8 +1278,7 @@ static int dx_make_map(struct inode *dir
+ 			count++;
+ 			cond_resched();
+ 		}
+-		/* XXX: do we need to check rec_len == 0 case? -Chris */
+-		de = ext4_next_entry(de, blocksize);
++		de = ext4_next_entry(de, dir->i_sb->s_blocksize);
+ 	}
+ 	return count;
+ }
+@@ -1943,8 +1950,11 @@ static struct ext4_dir_entry_2 *do_split
  
- /*
-+ * On T2 Macs reading the db and dbx efi variables to load UEFI Secure Boot
-+ * certificates causes occurrence of a page fault in Apple's firmware and
-+ * a crash disabling EFI runtime services. The following quirk skips reading
-+ * these variables.
-+ */
-+static const struct dmi_system_id uefi_skip_cert[] = {
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,3") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,4") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,3") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,4") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
-+	{ }
-+};
-+
-+/*
-  * Look to see if a UEFI variable called MokIgnoreDB exists and return true if
-  * it does.
-  *
-@@ -137,6 +163,13 @@ static int __init load_uefi_certs(void)
- 	unsigned long dbsize = 0, dbxsize = 0, mokxsize = 0;
- 	efi_status_t status;
- 	int rc = 0;
-+	const struct dmi_system_id *dmi_id;
-+
-+	dmi_id = dmi_first_match(uefi_skip_cert);
-+	if (dmi_id) {
-+		pr_err("Reading UEFI Secure Boot Certs is not supported on T2 Macs.\n");
-+		return false;
+ 	/* create map in the end of data2 block */
+ 	map = (struct dx_map_entry *) (data2 + blocksize);
+-	count = dx_make_map(dir, (struct ext4_dir_entry_2 *) data1,
+-			     blocksize, hinfo, map);
++	count = dx_make_map(dir, *bh, hinfo, map);
++	if (count < 0) {
++		err = count;
++		goto journal_error;
 +	}
- 
- 	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE))
- 		return false;
+ 	map -= count;
+ 	dx_sort_map(map, count);
+ 	/* Ensure that neither split block is over half full */
 
 
