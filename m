@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C18D7540C42
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB41540623
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352475AbiFGSeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:34:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41756 "EHLO
+        id S1347236AbiFGReQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352049AbiFGSdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0261EEC7;
-        Tue,  7 Jun 2022 10:57:18 -0700 (PDT)
+        with ESMTP id S1347596AbiFGRaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF6D4FF5AE;
+        Tue,  7 Jun 2022 10:27:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68F5E617A8;
-        Tue,  7 Jun 2022 17:57:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA78C341C0;
-        Tue,  7 Jun 2022 17:57:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78EC9B822B0;
+        Tue,  7 Jun 2022 17:27:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE9BBC385A5;
+        Tue,  7 Jun 2022 17:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624637;
-        bh=rdliBjpFc9bgEznuRvfseb7ZktFQVP/K/ATuVGwkgkU=;
+        s=korg; t=1654622855;
+        bh=f15wNlRoY4rStJEgJPLKlAn0P6gzOzR/k90BBXc8Atk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qK3Tj+feWbL4NbjeJQsFOujkZBtfD4NXL5a0bXqIBrlspuE2dYdqTOueXG0KeBW+d
-         mYvKXaUsOQiWsPuZM+AXkDSIlFiPPaLWCjjFhmGHvJizMDaEa4yi3/fH91goR/nLkC
-         wzXhHG3yhGHZ4OPpyk1WTKP6nn8l1nZ0qD+Ouapk=
+        b=kRNTOM63kj/fkrmDxCpK7gnXZjmu1wlIF2atS2UJpxL16CrQClTFh8G+0aDAiaHkS
+         i6FhHC/iyoVubKnv9J6uxFSXF1gEHzZIiYqOKjGwIURJTVWIdEDLtdiqs2MW4vKzHy
+         Lo6iGDHyPyxa5XQAB7vSMDhrahDzj905PMp+TkO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 392/667] PCI: mediatek: Fix refcount leak in mtk_pcie_subsys_powerup()
+        stable@vger.kernel.org,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 200/452] perf/amd/ibs: Use interrupt regs ip for stack unwinding
 Date:   Tue,  7 Jun 2022 19:00:57 +0200
-Message-Id: <20220607164946.502511810@linuxfoundation.org>
+Message-Id: <20220607164914.523627774@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ravi Bangoria <ravi.bangoria@amd.com>
 
-[ Upstream commit 214e0d8fe4a813ae6ffd62bc2dfe7544c20914f4 ]
+[ Upstream commit 3d47083b9ff46863e8374ad3bb5edb5e464c75f8 ]
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+IbsOpRip is recorded when IBS interrupt is triggered. But there is
+a skid from the time IBS interrupt gets triggered to the time the
+interrupt is presented to the core. Meanwhile processor would have
+moved ahead and thus IbsOpRip will be inconsistent with rsp and rbp
+recorded as part of the interrupt regs. This causes issues while
+unwinding stack using the ORC unwinder as it needs consistent rip,
+rsp and rbp. Fix this by using rip from interrupt regs instead of
+IbsOpRip for stack unwinding.
 
-Link: https://lore.kernel.org/r/20220309091953.5630-1-linmq006@gmail.com
-Fixes: 87e8657ba99c ("PCI: mediatek: Add new method to get shared pcie-cfg base address")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Miles Chen <miles.chen@mediatek.com>
-Acked-by: Rob Herring <robh@kernel.org>
+Fixes: ee9f8fce99640 ("x86/unwind: Add the ORC unwinder")
+Reported-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220429051441.14251-1-ravi.bangoria@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mediatek.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/events/amd/ibs.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
-index 2f3f974977a3..5273cb5ede0f 100644
---- a/drivers/pci/controller/pcie-mediatek.c
-+++ b/drivers/pci/controller/pcie-mediatek.c
-@@ -1008,6 +1008,7 @@ static int mtk_pcie_subsys_powerup(struct mtk_pcie *pcie)
- 					   "mediatek,generic-pciecfg");
- 	if (cfg_node) {
- 		pcie->cfg = syscon_node_to_regmap(cfg_node);
-+		of_node_put(cfg_node);
- 		if (IS_ERR(pcie->cfg))
- 			return PTR_ERR(pcie->cfg);
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 780d89d2ae32..8a85658a24cc 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -312,6 +312,16 @@ static int perf_ibs_init(struct perf_event *event)
+ 	hwc->config_base = perf_ibs->msr;
+ 	hwc->config = config;
+ 
++	/*
++	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
++	 * recorded as part of interrupt regs. Thus we need to use rip from
++	 * interrupt regs while unwinding call stack. Setting _EARLY flag
++	 * makes sure we unwind call-stack before perf sample rip is set to
++	 * IbsOpRip.
++	 */
++	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
++		event->attr.sample_type |= __PERF_SAMPLE_CALLCHAIN_EARLY;
++
+ 	return 0;
+ }
+ 
+@@ -692,6 +702,14 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+ 		data.raw = &raw;
  	}
+ 
++	/*
++	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
++	 * recorded as part of interrupt regs. Thus we need to use rip from
++	 * interrupt regs while unwinding call stack.
++	 */
++	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
++		data.callchain = perf_callchain(event, iregs);
++
+ 	throttle = perf_event_overflow(event, &data, &regs);
+ out:
+ 	if (throttle) {
 -- 
 2.35.1
 
