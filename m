@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46EE7541B29
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5FE5540A8A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381010AbiFGVml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47060 "EHLO
+        id S238123AbiFGSWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381234AbiFGVkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2E5152DA7;
-        Tue,  7 Jun 2022 12:06:01 -0700 (PDT)
+        with ESMTP id S1352717AbiFGSR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0415313C4D4;
+        Tue,  7 Jun 2022 10:52:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C16BBB823AF;
-        Tue,  7 Jun 2022 19:05:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F3BC385A2;
-        Tue,  7 Jun 2022 19:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 669D9B82372;
+        Tue,  7 Jun 2022 17:52:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC266C34115;
+        Tue,  7 Jun 2022 17:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628758;
-        bh=l+0I0SbIqtb+A2f2/RYmBLgaBp3aFf+0oUxXgNg1N6s=;
+        s=korg; t=1654624357;
+        bh=KiuEdUl3ZoqaVdbcPHKU7Vq4wAsnggBmi1U9dgSex3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvCHNBvSPsGsGIwRzcXTsoehpmxLn8QURMCdNdVAMQdiexUzZ/XUfeuyMXnbUJgQj
-         32LwdnypIy8KiUq5IPhwJyC2lWkCBgLaq278IfrolGYoHvHTgA7Nj/zAyhadfOGzb/
-         I0UuFd1Z/lCtKUeRQRoPhNsTx4GSWSJI9eQ34nnw=
+        b=LvyeDuH3hvbhXkR1kdG6PnNqvNnvVtgr2mZSXFGINebsTzhk8zHhIq6xRaR1FL54e
+         4gUk08LxvCWgxVB7plysBsG7zXE8MyuGKAVAguP2qCrVJUjqt1hbbomi/zcKEp7ZNl
+         af+qeJy+jIf0u27sns/KnBt9MqGM4CcLAucEua7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 444/879] media: i2c: rdacm2x: properly set subdev entity function
+Subject: [PATCH 5.15 297/667] Revert "cpufreq: Fix possible race in cpufreq online error path"
 Date:   Tue,  7 Jun 2022 18:59:22 +0200
-Message-Id: <20220607165015.760039300@linuxfoundation.org>
+Message-Id: <20220607164943.686564091@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,58 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit d2facee67b4883bb3e7461a0a93fd70d0c7b7261 ]
+[ Upstream commit 85f0e42bd65d01b351d561efb38e584d4c596553 ]
 
-The subdevice entity function was left unset, which produces a warning
-when probing the device:
+This reverts commit f346e96267cd76175d6c201b40f770c0116a8a04.
 
-mxc-md bus@58000000:camera: Entity type for entity rdacm20 19-0051 was
-not initialized!
+The commit tried to fix a possible real bug but it made it even worse.
+The fix was simply buggy as now an error out to out_offline_policy or
+out_exit_policy will try to release a semaphore which was never taken in
+the first place. This works fine only if we failed late, i.e. via
+out_destroy_policy.
 
-This patch will set entity function to MEDIA_ENT_F_CAM_SENSOR and leave
-flags unset.
-
-Fixes: 34009bffc1c6 ("media: i2c: Add RDACM20 driver")
-Fixes: a59f853b3b4b ("media: i2c: Add driver for RDACM21 camera module")
-Signed-off-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
-Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: f346e96267cd ("cpufreq: Fix possible race in cpufreq online error path")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/rdacm20.c | 2 +-
- drivers/media/i2c/rdacm21.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/cpufreq/cpufreq.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/rdacm20.c b/drivers/media/i2c/rdacm20.c
-index 025a610de893..9c6f66cab564 100644
---- a/drivers/media/i2c/rdacm20.c
-+++ b/drivers/media/i2c/rdacm20.c
-@@ -611,7 +611,7 @@ static int rdacm20_probe(struct i2c_client *client)
- 		goto error_free_ctrls;
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 502245710ee0..cddf7e13c232 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1528,6 +1528,8 @@ static int cpufreq_online(unsigned int cpu)
+ 	for_each_cpu(j, policy->real_cpus)
+ 		remove_cpu_dev_symlink(policy, get_cpu_device(j));
  
- 	dev->pad.flags = MEDIA_PAD_FL_SOURCE;
--	dev->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
-+	dev->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
- 	ret = media_entity_pads_init(&dev->sd.entity, 1, &dev->pad);
- 	if (ret < 0)
- 		goto error_free_ctrls;
-diff --git a/drivers/media/i2c/rdacm21.c b/drivers/media/i2c/rdacm21.c
-index 12ec5467ed1e..ef31cf5f23ca 100644
---- a/drivers/media/i2c/rdacm21.c
-+++ b/drivers/media/i2c/rdacm21.c
-@@ -583,7 +583,7 @@ static int rdacm21_probe(struct i2c_client *client)
- 		goto error_free_ctrls;
++	up_write(&policy->rwsem);
++
+ out_offline_policy:
+ 	if (cpufreq_driver->offline)
+ 		cpufreq_driver->offline(policy);
+@@ -1536,9 +1538,6 @@ static int cpufreq_online(unsigned int cpu)
+ 	if (cpufreq_driver->exit)
+ 		cpufreq_driver->exit(policy);
  
- 	dev->pad.flags = MEDIA_PAD_FL_SOURCE;
--	dev->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
-+	dev->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
- 	ret = media_entity_pads_init(&dev->sd.entity, 1, &dev->pad);
- 	if (ret < 0)
- 		goto error_free_ctrls;
+-	cpumask_clear(policy->cpus);
+-	up_write(&policy->rwsem);
+-
+ out_free_policy:
+ 	cpufreq_policy_free(policy);
+ 	return ret;
 -- 
 2.35.1
 
