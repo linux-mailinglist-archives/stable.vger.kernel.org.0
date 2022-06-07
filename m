@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4960B541916
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC796540941
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378394AbiFGVTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S231426AbiFGSGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380829AbiFGVRB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F2531213;
-        Tue,  7 Jun 2022 11:57:50 -0700 (PDT)
+        with ESMTP id S1351440AbiFGSCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D11152B8C;
+        Tue,  7 Jun 2022 10:44:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6EECB82399;
-        Tue,  7 Jun 2022 18:57:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF11C385A2;
-        Tue,  7 Jun 2022 18:57:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5ED9EB822B8;
+        Tue,  7 Jun 2022 17:44:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4CEEC385A5;
+        Tue,  7 Jun 2022 17:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628267;
-        bh=lVb6UTuygucsmz/MH5XjePqf9ciEP9xuVs7XAYlBMbk=;
+        s=korg; t=1654623871;
+        bh=FXpiOAXaZbLiKNiDcTOuQElJDUuEn+qZXqf2OSRLOuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLTCL0yz5KAkJhPhYG9q/kAW54YnsHw6foCpsgLHAqi+qc7vCPUq7Kdq+lLBz0Mv1
-         I98qJWHbovsjGxgRu/Sygv5rI+CT9Ay3b5zw5tDaPe5ia8eGhdrMLnS1wqwXb9M+Kd
-         txslBV5J/2X9ug/JNJgTlfdmzxzqy/Lb4sVzg9OE=
+        b=EoSLgle7z1F6Ih3mbDhp8ex8fiw+Vdsf5kFXOa2Z223ijNTErk0BN2Gjkr42bzvau
+         ERra7Cfp+IVqXpaI31O/8gWkQ1hAGh9/a8krUu9HbVueUixWgFwQGeorJWho3x6IBA
+         +MYGk9gAGo0MRf8ub93ieYj2VKDXEaLa9lPYDuwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Chuck Lever III <chuck.lever@oracle.com>,
-        Martin Krastev <krastevm@vmware.com>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 267/879] drm/vmwgfx: Fix an invalid read
-Date:   Tue,  7 Jun 2022 18:56:25 +0200
-Message-Id: <20220607165010.599841412@linuxfoundation.org>
+Subject: [PATCH 5.15 121/667] media: cec-adap.c: fix is_configuring state
+Date:   Tue,  7 Jun 2022 18:56:26 +0200
+Message-Id: <20220607164938.453287910@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 10a26e0d5fc3574f63ce8a6cf28381b126317f40 ]
+[ Upstream commit 59267fc34f4900dcd2ec3295f6be04b79aee2186 ]
 
-vmw_move assumed that buffers to be moved would always be
-vmw_buffer_object's but after introduction of new placement for mob
-pages that's no longer the case.
-The resulting invalid read didn't have any practical consequences
-because the memory isn't used unless the object actually is a
-vmw_buffer_object.
-Fix it by moving the cast to the spot where the results are used.
+If an adapter is trying to claim a free logical address then it is
+in the 'is_configuring' state. If during that process the cable is
+disconnected (HPD goes low, which in turn invalidates the physical
+address), then cec_adap_unconfigure() is called, and that set the
+is_configuring boolean to false, even though the thread that's
+trying to claim an LA is still running.
 
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: f6be23264bba ("drm/vmwgfx: Introduce a new placement for MOB page tables")
-Reported-by: Chuck Lever III <chuck.lever@oracle.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Tested-by: Chuck Lever <chuck.lever@oracle.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220318174332.440068-2-zack@kde.org
+Don't touch the is_configuring bool in cec_adap_unconfigure(), it
+will eventually be cleared by the thread. By making that change
+the cec_config_log_addr() function also had to change: it was
+aborting if is_configuring became false (since that is what
+cec_adap_unconfigure() did), but that no longer works. Instead
+check if the physical address is invalid. That is a much
+more appropriate check anyway.
+
+This fixes a bug where the the adapter could be disabled even
+though the device was still configuring. This could cause POLL
+transmits to time out.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_resource.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/media/cec/core/cec-adap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c b/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
-index 708899ba2102..6542f1498651 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
-@@ -859,22 +859,21 @@ void vmw_query_move_notify(struct ttm_buffer_object *bo,
- 	struct ttm_device *bdev = bo->bdev;
- 	struct vmw_private *dev_priv;
+diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
+index 1f599e300e42..67776a0d31e8 100644
+--- a/drivers/media/cec/core/cec-adap.c
++++ b/drivers/media/cec/core/cec-adap.c
+@@ -1272,7 +1272,7 @@ static int cec_config_log_addr(struct cec_adapter *adap,
+ 		 * While trying to poll the physical address was reset
+ 		 * and the adapter was unconfigured, so bail out.
+ 		 */
+-		if (!adap->is_configuring)
++		if (adap->phys_addr == CEC_PHYS_ADDR_INVALID)
+ 			return -EINTR;
  
--
- 	dev_priv = container_of(bdev, struct vmw_private, bdev);
- 
- 	mutex_lock(&dev_priv->binding_mutex);
- 
--	dx_query_mob = container_of(bo, struct vmw_buffer_object, base);
--	if (!dx_query_mob || !dx_query_mob->dx_query_ctx) {
--		mutex_unlock(&dev_priv->binding_mutex);
--		return;
--	}
--
- 	/* If BO is being moved from MOB to system memory */
- 	if (new_mem->mem_type == TTM_PL_SYSTEM &&
- 	    old_mem->mem_type == VMW_PL_MOB) {
- 		struct vmw_fence_obj *fence;
- 
-+		dx_query_mob = container_of(bo, struct vmw_buffer_object, base);
-+		if (!dx_query_mob || !dx_query_mob->dx_query_ctx) {
-+			mutex_unlock(&dev_priv->binding_mutex);
-+			return;
-+		}
-+
- 		(void) vmw_query_readback_all(dx_query_mob);
- 		mutex_unlock(&dev_priv->binding_mutex);
- 
-@@ -888,7 +887,6 @@ void vmw_query_move_notify(struct ttm_buffer_object *bo,
- 		(void) ttm_bo_wait(bo, false, false);
- 	} else
- 		mutex_unlock(&dev_priv->binding_mutex);
--
+ 		if (err)
+@@ -1329,7 +1329,6 @@ static void cec_adap_unconfigure(struct cec_adapter *adap)
+ 	    adap->phys_addr != CEC_PHYS_ADDR_INVALID)
+ 		WARN_ON(adap->ops->adap_log_addr(adap, CEC_LOG_ADDR_INVALID));
+ 	adap->log_addrs.log_addr_mask = 0;
+-	adap->is_configuring = false;
+ 	adap->is_configured = false;
+ 	cec_flush(adap);
+ 	wake_up_interruptible(&adap->kthread_waitq);
+@@ -1521,9 +1520,10 @@ static int cec_config_thread_func(void *arg)
+ 	for (i = 0; i < las->num_log_addrs; i++)
+ 		las->log_addr[i] = CEC_LOG_ADDR_INVALID;
+ 	cec_adap_unconfigure(adap);
++	adap->is_configuring = false;
+ 	adap->kthread_config = NULL;
+-	mutex_unlock(&adap->lock);
+ 	complete(&adap->config_completion);
++	mutex_unlock(&adap->lock);
+ 	return 0;
  }
  
- /**
 -- 
 2.35.1
 
