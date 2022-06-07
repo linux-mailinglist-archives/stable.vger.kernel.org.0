@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4903541994
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26135541210
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378007AbiFGVWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52376 "EHLO
+        id S1356899AbiFGTnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380616AbiFGVQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274A321E320;
-        Tue,  7 Jun 2022 11:55:38 -0700 (PDT)
+        with ESMTP id S1357828AbiFGTmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8719715AB15;
+        Tue,  7 Jun 2022 11:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B63CDB8220B;
-        Tue,  7 Jun 2022 18:55:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20042C385A2;
-        Tue,  7 Jun 2022 18:55:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49929B81FE1;
+        Tue,  7 Jun 2022 18:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADF86C385A2;
+        Tue,  7 Jun 2022 18:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628135;
-        bh=etlSzNB3grrboXbbp7K/HPtPiQ3/vS9tQOuqaVtCEwM=;
+        s=korg; t=1654625791;
+        bh=1QCkvUVKkSssoNrecKUlG97xKfGrKuMFunKfeuff/Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9p03+Txtx5dYwz4YRWmVLTumSRQPf8r16ZTj4WkYIJWC0Zb9FwsgbOEJcX8A1+8C
-         LJo3oSxdapE0PM79lPtTc8azCPlPNd0nNpqCb2Aw0imkneib6yrotRTkU0tr0j26Fq
-         YSMMMm2qAx5znGYCXeitvI7USMXcQjY8PrqBeFuA=
+        b=FmfcLUd+66pRmQc3dWaW2IEdzA1//6Q0NAj03KxBXlLwzrAj5Gl8e7+ai3LONQ2hE
+         z4CHNpY8lneCW5O8cpA93ukEkPlTihWkvQw82nwzb9dpG6O/owDX+oXj95aEViq9sP
+         lGI885ac2fIExrFNZ8+4V5wMMB1gPY0RT8dLOm5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 219/879] crypto: qat - fix off-by-one error in PFVF debug print
+Subject: [PATCH 5.17 145/772] media: cec-adap.c: fix is_configuring state
 Date:   Tue,  7 Jun 2022 18:55:37 +0200
-Message-Id: <20220607165009.211537519@linuxfoundation.org>
+Message-Id: <20220607164953.317291423@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Chiappero <marco.chiappero@intel.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit dd3d081b7ea6754913222ed0313fcf644edcc7e6 ]
+[ Upstream commit 59267fc34f4900dcd2ec3295f6be04b79aee2186 ]
 
-PFVF Block Message requests for CRC use 0-based values to indicate
-amounts, which have to be remapped to 1-based values on the receiving
-side.
+If an adapter is trying to claim a free logical address then it is
+in the 'is_configuring' state. If during that process the cable is
+disconnected (HPD goes low, which in turn invalidates the physical
+address), then cec_adap_unconfigure() is called, and that set the
+is_configuring boolean to false, even though the thread that's
+trying to claim an LA is still running.
 
-This patch fixes one debug print which was however using the wire value.
+Don't touch the is_configuring bool in cec_adap_unconfigure(), it
+will eventually be cleared by the thread. By making that change
+the cec_config_log_addr() function also had to change: it was
+aborting if is_configuring became false (since that is what
+cec_adap_unconfigure() did), but that no longer works. Instead
+check if the physical address is invalid. That is a much
+more appropriate check anyway.
 
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This fixes a bug where the the adapter could be disabled even
+though the device was still configuring. This could cause POLL
+transmits to time out.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/cec/core/cec-adap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c b/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
-index 588352de1ef0..d17318d3f63a 100644
---- a/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
-+++ b/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
-@@ -154,7 +154,7 @@ static struct pfvf_message handle_blkmsg_req(struct adf_accel_vf_info *vf_info,
- 	if (FIELD_GET(ADF_VF2PF_BLOCK_CRC_REQ_MASK, req.data)) {
- 		dev_dbg(&GET_DEV(vf_info->accel_dev),
- 			"BlockMsg of type %d for CRC over %d bytes received from VF%d\n",
--			blk_type, blk_byte, vf_info->vf_nr);
-+			blk_type, blk_byte + 1, vf_info->vf_nr);
+diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
+index 2e12331c12a9..01766e744772 100644
+--- a/drivers/media/cec/core/cec-adap.c
++++ b/drivers/media/cec/core/cec-adap.c
+@@ -1278,7 +1278,7 @@ static int cec_config_log_addr(struct cec_adapter *adap,
+ 		 * While trying to poll the physical address was reset
+ 		 * and the adapter was unconfigured, so bail out.
+ 		 */
+-		if (!adap->is_configuring)
++		if (adap->phys_addr == CEC_PHYS_ADDR_INVALID)
+ 			return -EINTR;
  
- 		if (!adf_pf2vf_blkmsg_get_data(vf_info, blk_type, blk_byte,
- 					       byte_max, &resp_data,
+ 		if (err)
+@@ -1335,7 +1335,6 @@ static void cec_adap_unconfigure(struct cec_adapter *adap)
+ 	    adap->phys_addr != CEC_PHYS_ADDR_INVALID)
+ 		WARN_ON(adap->ops->adap_log_addr(adap, CEC_LOG_ADDR_INVALID));
+ 	adap->log_addrs.log_addr_mask = 0;
+-	adap->is_configuring = false;
+ 	adap->is_configured = false;
+ 	cec_flush(adap);
+ 	wake_up_interruptible(&adap->kthread_waitq);
+@@ -1527,9 +1526,10 @@ static int cec_config_thread_func(void *arg)
+ 	for (i = 0; i < las->num_log_addrs; i++)
+ 		las->log_addr[i] = CEC_LOG_ADDR_INVALID;
+ 	cec_adap_unconfigure(adap);
++	adap->is_configuring = false;
+ 	adap->kthread_config = NULL;
+-	mutex_unlock(&adap->lock);
+ 	complete(&adap->config_completion);
++	mutex_unlock(&adap->lock);
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
