@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 837B354053E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB83541B2B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345724AbiFGRXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:23:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
+        id S1352717AbiFGVmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346019AbiFGRWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:22:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AB1108A89;
-        Tue,  7 Jun 2022 10:21:30 -0700 (PDT)
+        with ESMTP id S1381304AbiFGVk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2003C232379;
+        Tue,  7 Jun 2022 12:06:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A52316009B;
-        Tue,  7 Jun 2022 17:21:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4923C385A5;
-        Tue,  7 Jun 2022 17:21:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F066617DA;
+        Tue,  7 Jun 2022 19:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB508C385A2;
+        Tue,  7 Jun 2022 19:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622489;
-        bh=B5GNaQpb3YP1aqvByEDzMbFq8eopAP8XA9OqX5EGz9A=;
+        s=korg; t=1654628794;
+        bh=wXml3vOeHTe2aPhXSByfJUBg4hzCXWKnW4+DgntOpHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vk9pWuGWSr717YyJQA95Mv8J2o5+5YCn/g8PMx+qz0OUtVhUxWoZfT6rgAkRHfTCt
-         DE8pWEiBikGVa5ohzI8dalCkNKSbD032+KRyZD7WaKu0Aojca18h4RQk1KcCL+Z3+O
-         RMbrAThDv0TfsNxO5g6qLGcd9D9cha0xJt/x2AN0=
+        b=D8h9eeSWYvamRFXthoFfu2XooO8kURGeHAXBkXYsSzt4pDAjPicrGsS7YEVj+N3mC
+         lj/C9pgvWQ1ltljXEsRxXpxOKZktD/L/AhYymnNJhQ7twZECADeJDuViVNLdDfVSq5
+         ZPdiEpU9lHTQ3FrkuVcNkbs1kKcUQemrMlpDtNZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 078/452] media: coda: limit frame interval enumeration to supported encoder frame sizes
+Subject: [PATCH 5.18 417/879] ASoC: fsl: Fix refcount leak in imx_sgtl5000_probe
 Date:   Tue,  7 Jun 2022 18:58:55 +0200
-Message-Id: <20220607164910.877785198@linuxfoundation.org>
+Message-Id: <20220607165014.964887113@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 67e33dd957880879e785cfea83a3aa24bd5c5577 ]
+[ Upstream commit 41cd312dfe980af869c3503b4d38e62ed20dd3b7 ]
 
-Let VIDIOC_ENUM_FRAMEINTERVALS return -EINVAL if userspace queries
-frame intervals for frame sizes unsupported by the encoder. Fixes the
-following v4l2-compliance failure:
+of_find_i2c_device_by_node() takes a reference,
+In error paths, we should call put_device() to drop
+the reference to aviod refount leak.
 
-		fail: v4l2-test-formats.cpp(123): found frame intervals for invalid size 47x16
-		fail: v4l2-test-formats.cpp(282): node->codec_mask & STATEFUL_ENCODER
-	test VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS: FAIL
-
-[hverkuil: drop incorrect 'For decoder devices, return -ENOTTY.' in the commit log]
-
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20220511065803.3957-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-common.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ sound/soc/fsl/imx-sgtl5000.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index 2333079a83c7..99f6d22e0c3c 100644
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -1318,7 +1318,8 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
- 				    struct v4l2_frmivalenum *f)
- {
- 	struct coda_ctx *ctx = fh_to_ctx(fh);
--	int i;
-+	struct coda_q_data *q_data;
-+	const struct coda_codec *codec;
- 
- 	if (f->index)
- 		return -EINVAL;
-@@ -1327,12 +1328,19 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
- 	if (!ctx->vdoa && f->pixel_format == V4L2_PIX_FMT_YUYV)
- 		return -EINVAL;
- 
--	for (i = 0; i < CODA_MAX_FORMATS; i++) {
--		if (f->pixel_format == ctx->cvd->src_formats[i] ||
--		    f->pixel_format == ctx->cvd->dst_formats[i])
--			break;
-+	if (coda_format_normalize_yuv(f->pixel_format) == V4L2_PIX_FMT_YUV420) {
-+		q_data = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-+		codec = coda_find_codec(ctx->dev, f->pixel_format,
-+					q_data->fourcc);
-+	} else {
-+		codec = coda_find_codec(ctx->dev, V4L2_PIX_FMT_YUV420,
-+					f->pixel_format);
+diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
+index 8daced42d55e..580a0d963f0e 100644
+--- a/sound/soc/fsl/imx-sgtl5000.c
++++ b/sound/soc/fsl/imx-sgtl5000.c
+@@ -120,19 +120,19 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
  	}
--	if (i == CODA_MAX_FORMATS)
-+	if (!codec)
-+		return -EINVAL;
-+
-+	if (f->width < MIN_W || f->width > codec->max_w ||
-+	    f->height < MIN_H || f->height > codec->max_h)
- 		return -EINVAL;
  
- 	f->type = V4L2_FRMIVAL_TYPE_CONTINUOUS;
+ 	comp = devm_kzalloc(&pdev->dev, 3 * sizeof(*comp), GFP_KERNEL);
+ 	if (!comp) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->codec_clk = clk_get(&codec_dev->dev, NULL);
+ 	if (IS_ERR(data->codec_clk)) {
+ 		ret = PTR_ERR(data->codec_clk);
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->clk_frequency = clk_get_rate(data->codec_clk);
+@@ -158,10 +158,10 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	data->card.dev = &pdev->dev;
+ 	ret = snd_soc_of_parse_card_name(&data->card, "model");
+ 	if (ret)
+-		goto fail;
++		goto put_device;
+ 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
+ 	if (ret)
+-		goto fail;
++		goto put_device;
+ 	data->card.num_links = 1;
+ 	data->card.owner = THIS_MODULE;
+ 	data->card.dai_link = &data->dai;
+@@ -174,7 +174,7 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	ret = devm_snd_soc_register_card(&pdev->dev, &data->card);
+ 	if (ret) {
+ 		dev_err_probe(&pdev->dev, ret, "snd_soc_register_card failed\n");
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	of_node_put(ssi_np);
+@@ -182,6 +182,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++put_device:
++	put_device(&codec_dev->dev);
+ fail:
+ 	if (data && !IS_ERR(data->codec_clk))
+ 		clk_put(data->codec_clk);
 -- 
 2.35.1
 
