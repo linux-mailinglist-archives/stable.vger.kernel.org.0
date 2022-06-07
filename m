@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE7F5415EB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9281A541D12
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376314AbiFGUnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57484 "EHLO
+        id S1378661AbiFGWHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376937AbiFGUkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:40:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8BD71EEBA9;
-        Tue,  7 Jun 2022 11:38:33 -0700 (PDT)
+        with ESMTP id S1383880AbiFGWGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DA6D195976;
+        Tue,  7 Jun 2022 12:17:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5F7B8237E;
-        Tue,  7 Jun 2022 18:38:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BCE9C385A2;
-        Tue,  7 Jun 2022 18:38:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D3EB6192F;
+        Tue,  7 Jun 2022 19:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D84C385A2;
+        Tue,  7 Jun 2022 19:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627111;
-        bh=DWWQnprN+kklfnxxfGaSSrsNVdWKU38XVsj5mB66ck8=;
+        s=korg; t=1654629450;
+        bh=+7xftkGjyf+e5zg4DgvqH+lSjN974cPn3Aj+rSWqdhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8lOcxAgCrzEjXuPajCV7QG/tHGl1xpWWhb9O9BjC3Y3hw1qe5WPPe2fYmqEejbL1
-         Pp/1v0DLSS5lvmE5CJv7sYcOmCnfYwH/dZq2wV6+0bvYQLdZqajYet8VdHXpmR9aWo
-         xElTSDYMbX/9jtcDhp6JLIkE77yBYHDXe9inH/Lo=
+        b=h2koyuUbLehMc2Vhtb15rsQ/cp9RuRj91HP6wLbK5f0kT3q7ND3raPaAtGur13NEp
+         JUx4N1ESdCUTFvS7htmWWikgvRFee05IeNCx3ioa242eoKclYbQKcjhFXCp1dzvg+m
+         +nHmGFYvjk5Ckhm6BoHvgsD+orSzymY+xtko0wuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Gregory Greenman <gregory.greenman@intel.com>
-Subject: [PATCH 5.17 621/772] iwlwifi: fw: init SAR GEO table only if data is present
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 695/879] MIPS: RALINK: Define pci_remap_iospace under CONFIG_PCI_DRIVERS_GENERIC
 Date:   Tue,  7 Jun 2022 19:03:33 +0200
-Message-Id: <20220607165007.234863541@linuxfoundation.org>
+Message-Id: <20220607165023.019728967@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-commit d1f6530c3e373ddd7c76b05646052a27eead14ad upstream.
+[ Upstream commit 7e4fd16b38923028b01d3dbadf4ca973d885c53e ]
 
-When no table data was read from ACPI, then filling the data
-and returning success here will fill zero values, which means
-transmit power will be limited to 0 dBm. This is clearly not
-intended.
+kernel test robot reports a build error used with clang compiler and
+mips-randconfig [1]:
 
-Return an error from iwl_sar_geo_init() if there's no data to
-fill into the command structure.
+    ld.lld: error: undefined symbol: pci_remap_iospace
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 78a19d5285d9 ("iwlwifi: mvm: Read the PPAG and SAR tables at INIT stage")
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Link: https://lore.kernel.org/r/20220517120044.bc45923b74e9.Id2b4362234b7f8ced82c591b95d4075dd2ec12f4@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+we can see the following configs in the mips-randconfig file:
+
+    CONFIG_RALINK=y
+    CONFIG_SOC_MT7620=y
+    CONFIG_PCI_DRIVERS_LEGACY=y
+    CONFIG_PCI=y
+
+CONFIG_RALINK is set, so pci_remap_iospace is defined in the related
+arch/mips/include/asm/mach-ralink/spaces.h header file:
+
+    #define pci_remap_iospace pci_remap_iospace
+
+CONFIG_PCI is set, so pci_remap_iospace() in drivers/pci/pci.c is not
+built due to pci_remap_iospace is defined under CONFIG_RALINK.
+
+    #ifndef pci_remap_iospace
+    int pci_remap_iospace(const struct resource *res, ...)
+
+    $ objdump -d drivers/pci/pci.o | grep pci_remap_iospace
+    00004cc8 <devm_pci_remap_iospace>:
+        4d18:	10400008 	beqz	v0,4d3c <devm_pci_remap_iospace+0x74>
+        4d2c:	1040000c 	beqz	v0,4d60 <devm_pci_remap_iospace+0x98>
+        4d70:	1000fff3 	b	4d40 <devm_pci_remap_iospace+0x78>
+
+In addition, CONFIG_PCI_DRIVERS_GENERIC is not set, so pci_remap_iospace()
+in arch/mips/pci/pci-generic.c is not built too.
+
+    #ifdef pci_remap_iospace
+    int pci_remap_iospace(const struct resource *res, ...)
+
+For the above reasons, undefined reference pci_remap_iospace() looks like
+reasonable.
+
+Here are simple steps to reproduce used with gcc and defconfig:
+
+    cd mips.git
+    make vocore2_defconfig # set RALINK, SOC_MT7620, PCI_DRIVERS_LEGACY
+    make menuconfig        # set PCI
+    make
+
+there exists the following build error:
+
+      LD      vmlinux.o
+      MODPOST vmlinux.symvers
+      MODINFO modules.builtin.modinfo
+      GEN     modules.builtin
+      LD      .tmp_vmlinux.kallsyms1
+    drivers/pci/pci.o: In function `devm_pci_remap_iospace':
+    pci.c:(.text+0x4d24): undefined reference to `pci_remap_iospace'
+    Makefile:1158: recipe for target 'vmlinux' failed
+    make: *** [vmlinux] Error 1
+
+Define pci_remap_iospace under CONFIG_PCI_DRIVERS_GENERIC can fix the build
+error, with this patch, no build error remains. This patch is similar with
+commit e538e8649892 ("MIPS: asm: pci: define arch-specific
+'pci_remap_iospace()' dependent on 'CONFIG_PCI_DRIVERS_GENERIC'").
+
+[1] https://lore.kernel.org/lkml/202205251247.nQ5cxSV6-lkp@intel.com/
+
+Fixes: 09d97da660ff ("MIPS: Only define pci_remap_iospace() for Ralink")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/acpi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/include/asm/mach-ralink/spaces.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-@@ -902,6 +902,9 @@ int iwl_sar_geo_init(struct iwl_fw_runti
- {
- 	int i, j;
+diff --git a/arch/mips/include/asm/mach-ralink/spaces.h b/arch/mips/include/asm/mach-ralink/spaces.h
+index f7af11ea2d61..a9f0570d0f04 100644
+--- a/arch/mips/include/asm/mach-ralink/spaces.h
++++ b/arch/mips/include/asm/mach-ralink/spaces.h
+@@ -6,7 +6,9 @@
+ #define PCI_IOSIZE	SZ_64K
+ #define IO_SPACE_LIMIT	(PCI_IOSIZE - 1)
  
-+	if (!fwrt->geo_enabled)
-+		return -ENODATA;
-+
- 	if (!iwl_sar_geo_support(fwrt))
- 		return -EOPNOTSUPP;
++#ifdef CONFIG_PCI_DRIVERS_GENERIC
+ #define pci_remap_iospace pci_remap_iospace
++#endif
  
+ #include <asm/mach-generic/spaces.h>
+ #endif
+-- 
+2.35.1
+
 
 
