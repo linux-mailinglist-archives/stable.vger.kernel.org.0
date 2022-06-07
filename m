@@ -2,72 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5429153FD38
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 13:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8ABB53FDA4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 13:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242745AbiFGLRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 07:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58024 "EHLO
+        id S241907AbiFGLie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 07:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242765AbiFGLR3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 07:17:29 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E8EF6830C;
-        Tue,  7 Jun 2022 04:17:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1654600620;
-        bh=EzjI/SzZhivYF0P4SXAXlJ8k5nYDwDTxNs/9flEB4OM=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=SA/W3UgG4Mw+8zxE88wy7ArEj7ZTBg301Yqw4XcvHEjJLFltszm9H49LcUOQZWQQ+
-         2HLPIVh15O0i8B0OM2dMHDgxEVD7gwb8qdiT3WRJBFIRBjvb5u8g863rYbtj27W97a
-         qP7nuF0rJhWfhfpPqYgbGrWXHNfPv7XJem0o6dg4=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx005
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1Mr9Fs-1nSArC0BV8-00oHiM; Tue, 07
- Jun 2022 13:17:00 +0200
-Message-ID: <12b47c70-965d-1679-6982-909e2b489b41@gmx.com>
-Date:   Tue, 7 Jun 2022 19:16:56 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] btrfs: correctly populate
- btrfs_super_block::log_root_transid
-Content-Language: en-US
-To:     Filipe Manana <fdmanana@kernel.org>
-Cc:     Qu Wenruo <wqu@suse.com>, linux-btrfs@vger.kernel.org,
-        stable@vger.kernel.org
-References: <f7ae86f509d11d941ceac2a153b38a4f3bc5d342.1654578537.git.wqu@suse.com>
- <20220607094055.GB3554947@falcondesktop>
- <532d5fd2-e93b-2fec-72d3-d0b0f099e541@gmx.com>
- <20220607104533.GA3559971@falcondesktop>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220607104533.GA3559971@falcondesktop>
+        with ESMTP id S237616AbiFGLid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 07:38:33 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0076928E33;
+        Tue,  7 Jun 2022 04:38:29 -0700 (PDT)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2579YKw1001822;
+        Tue, 7 Jun 2022 11:38:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=gPd7/KqY2HDEwxgs4yebUWk3WNhqRYkOpikLXYW4EyI=;
+ b=n8rB2LVjagYRcRVnT/Di5Nv8i22VUYQ4D5EOyWfKoPUv3my2v1sLKMpzTe+urx/IiDP3
+ ij46KTUzZxgtcKCHCg2CIZzNULzqk793FHxm37qQgh4S4R+7fC5eioIIGnchwHmDMObn
+ qmVBJoVMocef41MlXtzE/ANF5/ju+AkvyJwYKuwbFEjGhCJkOy0uzL5mfJnPYONbbctN
+ ihX+GYWUMWSxJDH4cvicy7loN5B5+MIXBFc79BAzbWdocCaUGHFtOPPu9Et0G5oplFAx
+ RIkvsPE4fF45QH0f7FrDTTA4V18W1dJriCZ3y1qt2Sa0mGK0T3fJzEVa4vwL6V2K3DtV mA== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gfyxsdncp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 07 Jun 2022 11:38:26 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 257BaQFQ018999;
+        Tue, 7 Jun 2022 11:38:26 GMT
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2104.outbound.protection.outlook.com [104.47.55.104])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3gfwu2ee91-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 07 Jun 2022 11:38:26 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BrGWMrUjBxP7RqynG3avawYYqVZewBWfwylMXxzfNZgFwULeNfYtrCGJWuaR1krhHGuRzDeDbllVDBDL2QpxdFRdegPK6JpH/AGEQWWAGMv8C3gu1bAmcH3WOPFHwNS1FMXQeO9rPMjNAU9dkx9GReq45b+d24YtQO3JTGZGY/qRI3m7D6iIU818HX9vFO39gc2VF/JjQflVAJ3hwXib62GvRSZtHlIr+qmvsUJzPuGJ/QWHR0aecQOgvLKGqxo5+alM+Drmm8hd3AJrT71R8C+fkaFtaaBXnjNKXkDWKqnquXKWZv9nrXElhtoIgZ2aSb50THmcUcs7ftTskc9U7g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=gPd7/KqY2HDEwxgs4yebUWk3WNhqRYkOpikLXYW4EyI=;
+ b=NQn5oIvtKw6fEL85hXoRv7WzCtQIw9gfC/yuWHPpM1Xi5xwyaZger2FQ+NGJhf/RAxFdzWZT49V3IPBHJ5Kq9ZIe1zIsKiTKFGUTRjzp+PKPKsL0rgQJLl8L/KMSEdpYVn2OYxnGEgIMBJ9/+KMskK4ycFVTZqcLeZ0ZHLaxbdOZMFPxG+byBwcIQHpk8tT4S/07WZfDmPeINzv1l1TX9Usj6W7Cs86ISJpsui1g3co6D5ji63Woeopy5wfIUM4SoaMNhynFf74Tuf5ST3sfBN3p6seIrMSZtfLMJ+4T3LNw+cfMkM2ql/smlCFqEMi4sOzxVEdojmQ36F8fge6ToA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=gPd7/KqY2HDEwxgs4yebUWk3WNhqRYkOpikLXYW4EyI=;
+ b=VJzO9Mior3lEoOnPOAn0xLI7L1llUEgrjihQ7aLUKkkwhsx2KG0nsEeu9AiqssXrGjB7RcPxP4pzOzs+zDx3Bqpetcnr1tf6axCS6iQEmUzskYNr1MgKm1robeteLiavEm3Bxv3vNc/41/B6arluZTWKnUQkx4Ht8c6FEgICh0g=
+Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
+ by DM5PR10MB1402.namprd10.prod.outlook.com (2603:10b6:3:c::22) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5314.13; Tue, 7 Jun 2022 11:38:24 +0000
+Received: from PH0PR10MB5706.namprd10.prod.outlook.com
+ ([fe80::138:2847:c75d:b5cf]) by PH0PR10MB5706.namprd10.prod.outlook.com
+ ([fe80::138:2847:c75d:b5cf%3]) with mapi id 15.20.5314.013; Tue, 7 Jun 2022
+ 11:38:24 +0000
+Message-ID: <80a1469f-e5ce-11e1-b637-dba40706ce80@oracle.com>
+Date:   Tue, 7 Jun 2022 17:07:55 +0530
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: [PATCH] btrfs: add error messages to all unrecognized mount
+ options
+To:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20220606110819.3943-1-dsterba@suse.com>
+From:   Anand Jain <anand.jain@oracle.com>
+In-Reply-To: <20220606110819.3943-1-dsterba@suse.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:vzJe7WwW6kxeWI7DGBEahxgLE/VqriJzER10SAAB3upypChBpVl
- W34raouxWrv3zamD2wKcyJF4ECG22VwT+QhjfybhwiMSR9d5LCy28bIIL2P9yp0keGkg7Tl
- c057CnaYlxfPQv3CJFct5chZwWcyIxVcwF4e4KrCe5yBaTVBSy+QE83P3KyLDDbN2VMHW6B
- h7wAQ76wk3OZQ2I5H9fgw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:vCgFv2LojVo=:TnyWdsF3IKo6RSBe/CGpDu
- P2UruEQVE60TRasHjoplfviIq8LB4okZDzmkcoZNYKDawfN+X+R/HOahzIkQM45IoO/T5tILX
- SRHDjpYobg+fAjkDnuiQpSfMcnV+g5zuXwGq5Pqr+DKTP1lilY0SWPfrt92TfvCJVfqMAqDIA
- Bhryo96sJcMo5eUpl6ZQvqUbw1sor1ytqnogaMzIUeBFGh/OmiNE/Iis6A/WyzkUlVRnDbT+o
- qyOFS1CZP8rBNFQOX+mQXR9q6SPk17IEmFEC5P14u4oCvyKyyDO0HC/+o28mMWQyGZ7zQhe2e
- rJraAITva3ircu7FbRB1zQ/WLfklrAHWs0qr3zfBh24YMRot+pypnDDEVFBLWc+F4CIsU3jtw
- ZYNFaAb5nLt7VeWbLbbPukc5uz0ibapMMrRdvppnFHSoi+qM5Wzs9AlSeUy0QXfaDBDfJETWK
- 1rXSoKK22t80GMinU7cFAB2Mrrc2MQ6SVrfhue043K7RGo43lnxXqcwWnoz7guz6Ld9f6DW4y
- LJaOmYkBIPUvOJmc29Mu3AbiKAXbWyPtXB+VV1jziYqpUazbRKMZ1Ajuu2gLV/tD1ln2Fvxyj
- GnuWqDtR856PhhtHd8fgbFHOLxfwE4c/Ya9UolFC0F4yJ2sI8KSTgkf0dGgG2j8oc99L7/vFQ
- x8DRUiyL8ZuBUlzuxxJsIM8qKDEUMuVNpBCEziqal83gioq9QDOYv25YvdMTztbyvoyGt9XfI
- 0+q45CLxj1Wb2J8stCyBwMpYe8YAB9p1+yNmWd7bODSkRGiEt9etOM1RpEtbK+PWwyhQdIeuC
- CnNFHTryRsnzPgXMgk/vBSv0+iF+rJHkoqz1FeK7x24X4CAL159f1Xr8tSbHKvtDQMpdvfkrr
- HyAj4aX+dUn0LsPQLo7ivdFenZSqCKySsYtJ94jz/gSLr1MSUtT0s0E+ILug3Rtst+HUxL3r/
- KrJ0+P+SlfIRyNEjjAWVIRq88X/2EV3oGBdWY3A35bVLl/w7NnbuHIqwXZ3eU1khU2X67KGjJ
- GYmLd8waw0pZJXNVfOPnQR5TisjaAa9AxFGo1hBZMNjCdq/+sb4d4pllzyKAU/tNkAIyQIl9y
- zdNGFxFMfQL8ANE/dCEBtlCewCJHKHgIeyQ/F3w8SD2mq1Y0aWjLb6nFw==
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MAXPR0101CA0053.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:e::15) To PH0PR10MB5706.namprd10.prod.outlook.com
+ (2603:10b6:510:148::10)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2b975094-db7d-4536-72ea-08da487a3b12
+X-MS-TrafficTypeDiagnostic: DM5PR10MB1402:EE_
+X-Microsoft-Antispam-PRVS: <DM5PR10MB140200027B3231C12FEC1B09E5A59@DM5PR10MB1402.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: m0L/gi4FXeig6uaUBAUlYG7uL7A+kGtlmVwQ2AgYONrJmB5QsI5wP37cx1M2YOrSuzq8eGahEBsTShXVibXNEIsSEejXqrEX9aJ3y0QdSDocNt7zo8RmNXegeITcFkxI6nCK5wj7hc35fcVAD52AJM0B53cJpjLGKJpLJEGdgjiHapsrneI4cqw57PurWSVoCyfxUeBuxVqHC1vYDXYGezR2+T9JWCWOXDU1LdjCBMPRSEYcMkwtpfIgBBjh3vFkwQvpMJd4f3FlBOy4+bF+BnFrOW3BpPARogJpmf1IqSSWSk733WnGj3cSNTgR3EwhSXMEhchTm1Lm0Bs7/XdcfS6T2ih8k9r+7kVbCyTe89StojOPaKROany61PFzzs3FOLgi2Qu4+NvdO9ErmH+oy8oQagtQYsjjF+F9GXb02UFl+A3AsOZ1pEGaDZb+TRZsVavb7MiT+sKdiwD6lrYgPqY3immlhFIFML7vGkuat5EQmRe6pOFlF/FwJeT9sp9/mDjekv4WGfyLbTqb71KKZIV31yNn6uXh1Tkdk9daoV868jdzo2zRbnLqiTsgrL6fbEqDAhxBayD1ps1QX4p+k/874y0SV1v3fhX2tx45GUmXI37mrBDL/lW6bug/rDcrHF4naRwffvFdQyEfsu88+ezPyRx8FFNV04BuIac66RmsAbOkXeCCcLab77b1aB6gbLb69HmV+W8yt6jsOKGx8Rbjm5RbQIZTHWCL12B6cLQ4n/CkVDRNERe4PzBaQxnHIvm7y2JJARRcOfDaY5IHjCsVC522t0J32lS5kehWtZ4jgGEURqYsKDcxFKtbRGA4
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(53546011)(2906002)(6666004)(15650500001)(38100700002)(6512007)(44832011)(316002)(36756003)(86362001)(83380400001)(6506007)(31696002)(66476007)(8676002)(2616005)(4326008)(31686004)(6486002)(66946007)(966005)(5660300002)(66556008)(508600001)(186003)(8936002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VE1wQlZaRUNpbitMMXB4TmRRK0twQ2l5MTRQOHRqN3lra1Erb011cTFYcUwx?=
+ =?utf-8?B?cy9LOTFmTlFwUmw3NTUzdFNpb2daS1ZQT3ovWUFNVjd4TXV6OHRhS1Y0WW9R?=
+ =?utf-8?B?akxsM09rTlNsUzM4WVg4N3F1WDBmd2V0cUtDR255cVhFVlpYVi9jbGFEb2Z3?=
+ =?utf-8?B?WlVwOXhSMS8yYlV3cDFXSllDL2krWTViNmxBNmtDSjBBVnd2MnBPWHArc2hR?=
+ =?utf-8?B?bmdMVWd2R1NoMlIxWWs3TXc4Z1BXeHpabEdJbWxUQjFkSVJXeGI4MEo1dUJt?=
+ =?utf-8?B?eHdsaVluSDBGK3RBQi80SklJTThSejM4K2lUUUNzYmJMTVZFQXFORHc1YVZE?=
+ =?utf-8?B?QlBldHZSR2pncnFiZ1RpTG5wWi91Z0Ira0ZTRWhzTXVnNVkyKytrd1l4eGtr?=
+ =?utf-8?B?MHBSV3pHczNWeDZZV0xqQlFNSWdkbVkrRkFIU3Boa0ZJMmJKWjRXcFpoalZM?=
+ =?utf-8?B?MUk5a1VUSXFjTDF6Ny9YZHNvSDZIZGRsUTVONVlycTdPRHFQZjhmSVk0QjNM?=
+ =?utf-8?B?d3pZWmFiVVloZmhGNnRrWHBPZ1Y2RzVaOUJQTUgrMVB2eVUxNTJSQ0hxRmpP?=
+ =?utf-8?B?T0M5aVdsVEkxYTdWWUQwTnRaaDB0NU1yNEloRnJpZnVFa1pWTzRLanQ4OHJ2?=
+ =?utf-8?B?anRqd2tMSzI4Y29BVmlMTmFIWjgxTXlZUXJ3M00wNGVJbGRsK25FMEhrRXlv?=
+ =?utf-8?B?amhnSWtndkFGZVN2R0lYblNPSnc2VFQ2QnpSZTgyQmNUbC82VkNHY0dCS01q?=
+ =?utf-8?B?WmhWblRoc2tNRzN4Sk1UQzJjV0VPRDhsalpuSWdJY3cvWDdPaVZKVDlsZDlK?=
+ =?utf-8?B?QnkrN2lDN0lISlJabzRZd1dDRmVYRGRVKzlML0c3NHJpNWE3aUZkZEk4TUl5?=
+ =?utf-8?B?WStmVWFqV29jVlMvVVNJL0xPMG1uSktBdkVJS2w5Sm54dGU0ZVV0T2VtTHda?=
+ =?utf-8?B?NFBFdi9sK0tnS044V0lMQllvR09xRGZvMmY2b1dJSFFUanREV21MaEliU2ZE?=
+ =?utf-8?B?a1ZiQ0Y2K2tRZXZQZUxTWnRiVGhCay9KK0ZDc3Vxa1lNRXNtamtnZnRKNEtX?=
+ =?utf-8?B?aG1kMGdMMkEzcVo5SlFxdS9FdjdxVXo4dU9wUEZlWTZicEh1Tm1pNFkvVlZz?=
+ =?utf-8?B?b01QVjloMXRza0RlWkZ4VFh2a0kydkFGZjRqZzhVdzJaVW1qMnliSEdkdkhD?=
+ =?utf-8?B?WXhhQkxDVmlDdnVqSzNEc1pwWUJFN0pSZ2hyZVUyNVVGR1VFWUtqVTd1M0N4?=
+ =?utf-8?B?Y0ttUVp6MEQzM3doQ1pkR1kwS0R1ZHMxemRXNkl3ZnNGWWt1RWIzb3FwWHNy?=
+ =?utf-8?B?Yi9BbHNaZ212NCtjdkt4MWJjNTNIbkZMWDhocE1uSXZmeXg2b05sWXZ1cW9l?=
+ =?utf-8?B?VmFubjhURVV4OCtZNFB3SzlpZnRZTzhsSW5FSDhsODZobi9nN0tuaGlrMk41?=
+ =?utf-8?B?TUZaQmVJWDlCU2YrWVNwajB2M2xhVURuQmwxZUsrc0NUbVNCT3p6QWdZRkJR?=
+ =?utf-8?B?b0hQbEZQaWFIS3MxcFhVQzN3bkRPRUVHN0tBaHU3WjN0cVRzU1lvQm1GTS8x?=
+ =?utf-8?B?VmxpeThUT2tnWmlpSXh0QS9PUjZ6a1NnYjVkVFQwR0s2TjhQaGNUNzZoK2JZ?=
+ =?utf-8?B?b1p3dnN6VjBUSnI1WWFFMFhrSUZmQ2lBMlVPQmNmNldhazZwMWlLSlZtRDZK?=
+ =?utf-8?B?ZHpnL3RsRkl3bG5YTzZXWTA0Uis5azlqVCtyODJaMnROdk9vUmppeXpvTXI0?=
+ =?utf-8?B?U2Vibng2Y0cxMHg0QjhCYWZJaEFQTUxBQVQ4Z2xUeXJlVkxvTEt2SElRSVV1?=
+ =?utf-8?B?bDluMDkrV3RRSnhhOE85bUJpU3lXSXIvUTBINkRKcW02L21SdTZvQlBTZUhB?=
+ =?utf-8?B?TFBiQmJ2ZDdRT0RtSGlhVGJucUZTNldKTEhlMWNWOEpOeVRjeEt3NWd3YTJ6?=
+ =?utf-8?B?L2dSaDQ2Nlg4TkZjbkRSV1BOQll4RUxNMi9tZkkzdFI4YzUzYzdieWx2eGor?=
+ =?utf-8?B?UXQvK2EvY21tTkNUTkwzYitjaGd2NGhiY0tCQWNvR0RseVVWdnBBUzY1TXlt?=
+ =?utf-8?B?bGlxaG1zSUxTQ2R4WiswZDhuUDNwTHppZ05rK0tPYzRpeUVlSVhBWGw4MERo?=
+ =?utf-8?B?bXpXNENKeHd1RDdKcys1QnpPUC9mcFBNb2Vxc2V4ZWhybE8xQ0tsaDJheUJU?=
+ =?utf-8?B?c1lPa1hHV0wxQURJSlhjMGVnTS90V2l0a3lIT3pxekwwQUZKNEhGQVJwUU83?=
+ =?utf-8?B?eE9acFJOY2NaY2xiak12MjBmY1NBYmFpaXVOSzBvemRVZnpBZUd1bWZiaVlG?=
+ =?utf-8?B?dEdmVlk0S1IrYlZsMmJGS1l5ZXM3M0VzeGVKVjRhVERoSEhRV05pWGlmL1dh?=
+ =?utf-8?Q?Tigs7MY2khnfrzTbAw6QAzt4Sf4oUg4yH699Akuqrh89v?=
+X-MS-Exchange-AntiSpam-MessageData-1: Birv7DJM3mQ1Eoi8Y1m4Vu/jnVSTqNP7obY=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2b975094-db7d-4536-72ea-08da487a3b12
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jun 2022 11:38:24.1558
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GeL33nOcHdZUyhV0VW2QQF8r+9zXCJqb5I+f/8/wZfCpEfgWedAFj6AIC2OWPZE3zoBgpSnXpDFLPZZclxsHKw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR10MB1402
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.517,18.0.874
+ definitions=2022-06-07_04:2022-06-07,2022-06-07 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 bulkscore=0 spamscore=0
+ phishscore=0 mlxscore=0 adultscore=0 suspectscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206070049
+X-Proofpoint-ORIG-GUID: KsXF-vYbDL6prZXkfWGJcuGlz33y36x8
+X-Proofpoint-GUID: KsXF-vYbDL6prZXkfWGJcuGlz33y36x8
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,198 +158,156 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+LGTM.
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
 
-On 2022/6/7 18:45, Filipe Manana wrote:
-> On Tue, Jun 07, 2022 at 06:30:03PM +0800, Qu Wenruo wrote:
->>
->>
->> On 2022/6/7 17:40, Filipe Manana wrote:
->>> On Tue, Jun 07, 2022 at 01:09:13PM +0800, Qu Wenruo wrote:
->>>> [BUG]
->>>> After creating a dirty log tree, although
->>>> btrfs_super_block::log_root and log_root_level is correctly populated=
-,
->>>> its generation is still left 0:
->>>>
->>>>    log_root                30474240
->>>>    log_root_transid        0 <<<
->>>>    log_root_level          0
->>>>
->>>> [CAUSE]
->>>> We just forgot to update btrfs_super_block::log_root_transid complete=
-ly.
->>>>
->>>> Thus it's always the original value (0) from the initial super block.
->>>>
->>>> Thankfully this old behavior won't break log replay, as in
->>>> btrfs_read_tree(), parent generation 0 means we just skip the generat=
-ion
->>>
->>> btrfs_read_tree() does not exists, it's btrfs_read_tree_root().
->>>
->>> This is actually irrelevant, because we don't read the root log tree w=
-ith
->>> btrfs_read_tree_root(). We use read_tree_block() for that (at btrfs_re=
-play_log()),
->>
->> Oh, right, I forgot to check that code, and just assumed every root rea=
-d
->> from superblock would has its generation checked, but it's not the case
->> for log tree root.
->>
->>> and we use a generation matching the committed transaction + 1 (as it =
-can never
->>> be anything else).
->>>
->>> For every other log tree, we use btrfs_read_tree_root(), but the gener=
-ation is
->>> stored in the root's root item stored in the root log tree.
->>>
->>> The log_root_transid field was added to the super block by:
->>>
->>> commit c3027eb5523d6983f12628f3fe13d8a7576db701
->>> Author: Chris Mason <chris.mason@oracle.com>
->>> Date:   Mon Dec 8 16:40:21 2008 -0500
->>>
->>>       Btrfs: Add inode sequence number for NFS and reserved space in a=
- few structs
->>>
->>> But it was never used.
->>>
->>> So this change is not needed.
->>
->> Then, considering we have never really set log_root_transid anywhere,
->> and in theory we're always using btrfs_super_block::generation + 1, why
->
-> It's not in theory only, it's in practice too.
-> We use committed generation + 1 since the first day the log tree was add=
-ed:
->
-> commit e02119d5a7b4396c5a872582fddc8bd6d305a70a
-> Author: Chris Mason <chris.mason@oracle.com>
-> Date:   Fri Sep 5 16:13:11 2008 -0400
->
->      Btrfs: Add a write ahead tree log to optimize synchronous operation=
-s
->
-> (back then we read the root log tree directly at open_ctree()).
->
->> not just deprecate that member?
->>
->> In fact, every time (thankfully not that many times for me) I checked
->> log_root_transid, I can not help but to wonder why it's always 0.
->
-> You'd have to ask Chris why he added the field if it was never used and,
-> as far as I can see, was always useless since the life of a log tree
-> has never spanned more than 1 transaction, its generation must necessari=
-ly
-> be "committed transaction generation + 1".
->
-> Maybe just add a comment on top of the field saying it's unused and shou=
-ld
-> always be 0.
->
-> It's technically part of the disk format, so it's probably better not be=
-ing
-> renamed to '__le64 unused;'.
+While we are on this topic-
+Not all valid mount options get printed either. I sent a patch a long 
+time back [1] to fix it. If there is enough interest, I could revive it.
 
-OK, I'd follow the old leafsize way to rename it to __le64
-__unused_log_root_transid.
+[1]
+[PATCH v2] btrfs: add mount umount logs
 
 
-I'm asking because some newer feature will going to add something very
-similar to log tree (write-intent tree, just like the write-intent
-bitmap from DM code, for RAID56 mount time scrub).
 
-Initially I was not that confident about the extra tree root, tree
-level, tree transid, extra write-intent generation.
+On 6/6/22 16:38, David Sterba wrote:
+> Almost none of the errors stemming from a valid mount option but wrong
+> value prints a descriptive message which would help to identify why
+> mount failed. Like in the linked report:
+> 
+>    $ uname -r
+>    v4.19
+>    $ mount -o compress=zstd /dev/sdb /mnt
+>    mount: /mnt: wrong fs type, bad option, bad superblock on
+>    /dev/sdb, missing codepage or helper program, or other error.
+>    $ dmesg
+>    ...
+>    BTRFS error (device sdb): open_ctree failed
+> 
+> Errors caused by memory allocation failures are left out as it's not a
+> user error so reporting that would be confusing.
+> 
+> Link: https://lore.kernel.org/linux-btrfs/9c3fec36-fc61-3a33-4977-a7e207c3fa4e@gmx.de/
+> CC: stable@vger.kernel.org # 4.9+
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> ---
+>   fs/btrfs/super.c | 39 ++++++++++++++++++++++++++++++++-------
+>   1 file changed, 32 insertions(+), 7 deletions(-)
+> 
+> diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+> index d8e2eac0417e..719dda57dc7a 100644
+> --- a/fs/btrfs/super.c
+> +++ b/fs/btrfs/super.c
+> @@ -764,6 +764,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   				compress_force = false;
+>   				no_compress++;
+>   			} else {
+> +				btrfs_err(info, "unrecognized compression value %s",
+> +					  args[0].from);
+>   				ret = -EINVAL;
+>   				goto out;
+>   			}
+> @@ -822,8 +824,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   		case Opt_thread_pool:
+>   			ret = match_int(&args[0], &intarg);
+>   			if (ret) {
+> +				btrfs_err(info, "unrecognized thread_pool value %s",
+> +					  args[0].from);
+>   				goto out;
+>   			} else if (intarg == 0) {
+> +				btrfs_err(info, "invalid value 0 for thread_pool");
+>   				ret = -EINVAL;
+>   				goto out;
+>   			}
+> @@ -884,8 +889,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   			break;
+>   		case Opt_ratio:
+>   			ret = match_int(&args[0], &intarg);
+> -			if (ret)
+> +			if (ret) {
+> +				btrfs_err(info, "unrecognized metadata_ratio value %s",
+> +					  args[0].from);
+>   				goto out;
+> +			}
+>   			info->metadata_ratio = intarg;
+>   			btrfs_info(info, "metadata ratio %u",
+>   				   info->metadata_ratio);
+> @@ -902,6 +910,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   				btrfs_set_and_info(info, DISCARD_ASYNC,
+>   						   "turning on async discard");
+>   			} else {
+> +				btrfs_err(info, "unrecognized discard mode value %s",
+> +					  args[0].from);
+>   				ret = -EINVAL;
+>   				goto out;
+>   			}
+> @@ -934,6 +944,8 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   				btrfs_set_and_info(info, FREE_SPACE_TREE,
+>   						   "enabling free space tree");
+>   			} else {
+> +				btrfs_err(info, "unrecognized space_cache value %s",
+> +					  args[0].from);
+>   				ret = -EINVAL;
+>   				goto out;
+>   			}
+> @@ -1015,8 +1027,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   			break;
+>   		case Opt_check_integrity_print_mask:
+>   			ret = match_int(&args[0], &intarg);
+> -			if (ret)
+> +			if (ret) {
+> +				btrfs_err(info,
+> +				"unrecognized check_integrity_print_mask value %s",
+> +					args[0].from);
+>   				goto out;
+> +			}
+>   			info->check_integrity_print_mask = intarg;
+>   			btrfs_info(info, "check_integrity_print_mask 0x%x",
+>   				   info->check_integrity_print_mask);
+> @@ -1031,13 +1047,15 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   			goto out;
+>   #endif
+>   		case Opt_fatal_errors:
+> -			if (strcmp(args[0].from, "panic") == 0)
+> +			if (strcmp(args[0].from, "panic") == 0) {
+>   				btrfs_set_opt(info->mount_opt,
+>   					      PANIC_ON_FATAL_ERROR);
+> -			else if (strcmp(args[0].from, "bug") == 0)
+> +			} else if (strcmp(args[0].from, "bug") == 0) {
+>   				btrfs_clear_opt(info->mount_opt,
+>   					      PANIC_ON_FATAL_ERROR);
+> -			else {
+> +			} else {
+> +				btrfs_err(info, "unrecognized fatal_errors value %s",
+> +					  args[0].from);
+>   				ret = -EINVAL;
+>   				goto out;
+>   			}
+> @@ -1045,8 +1063,12 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   		case Opt_commit_interval:
+>   			intarg = 0;
+>   			ret = match_int(&args[0], &intarg);
+> -			if (ret)
+> +			if (ret) {
+> +				btrfs_err(info, "unrecognized commit_interval value %s",
+> +					  args[0].from);
+> +				ret = -EINVAL;
+>   				goto out;
+> +			}
+>   			if (intarg == 0) {
+>   				btrfs_info(info,
+>   					   "using default commit interval %us",
+> @@ -1060,8 +1082,11 @@ int btrfs_parse_options(struct btrfs_fs_info *info, char *options,
+>   			break;
+>   		case Opt_rescue:
+>   			ret = parse_rescue_options(info, args[0].from);
+> -			if (ret < 0)
+> +			if (ret < 0) {
+> +				btrfs_err(info, "unrecognized rescue value %s",
+> +					  args[0].from);
+>   				goto out;
+> +			}
+>   			break;
+>   #ifdef CONFIG_BTRFS_DEBUG
+>   		case Opt_fragment_all:
 
-But it looks like we're fine to contain at least 25 u64, so it should be
-mostly fine, and no need to reuse old members like leafsize nor this
-log_tree_transid.
-
-Thanks,
-Qu
->
-> Thanks.
->
->>
->> Thanks,
->> Qu
->>
->>>
->>> Thanks.
->>>
->>>
->>>> check.
->>>>
->>>> And per-root log tree is still done properly using the root generatio=
-n,
->>>> so here we really only missed the generation check for log tree root,
->>>> and even we fixed it, it should not cause any compatible problem.
->>>>
->>>> [FIX]
->>>> Just update btrfs_super_block::log_root_transid properly.
->>>
->>> We don't need this.
->>>
->>> The log_root_transid field was added to the super block by:
->>>
->>> commit c3027eb5523d6983f12628f3fe13d8a7576db701
->>> Author: Chris Mason <chris.mason@oracle.com>
->>> Date:   Mon Dec 8 16:40:21 2008 -0500
->>>
->>>       Btrfs: Add inode sequence number for NFS and reserved space in a=
- few structs
->>>
->>> But it was never used.
->>> For btrfs_read_tree_root(), what we use is the
->>>
->>>
->>>
->>>>
->>>> Cc: stable@vger.kernel.org #4.9+
->>>> Signed-off-by: Qu Wenruo <wqu@suse.com>
->>>> ---
->>>>    fs/btrfs/tree-log.c | 5 ++++-
->>>>    1 file changed, 4 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
->>>> index 370388fadf96..27a76d6fef8c 100644
->>>> --- a/fs/btrfs/tree-log.c
->>>> +++ b/fs/btrfs/tree-log.c
->>>> @@ -3083,7 +3083,8 @@ int btrfs_sync_log(struct btrfs_trans_handle *t=
-rans,
->>>>    	struct btrfs_log_ctx root_log_ctx;
->>>>    	struct blk_plug plug;
->>>>    	u64 log_root_start;
->>>> -	u64 log_root_level;
->>>> +	u64 log_root_transid;
->>>> +	u8 log_root_level;
->>>>
->>>>    	mutex_lock(&root->log_mutex);
->>>>    	log_transid =3D ctx->log_transid;
->>>> @@ -3297,6 +3298,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *t=
-rans,
->>>>
->>>>    	log_root_start =3D log_root_tree->node->start;
->>>>    	log_root_level =3D btrfs_header_level(log_root_tree->node);
->>>> +	log_root_transid =3D btrfs_header_generation(log_root_tree->node);
->>>>    	log_root_tree->log_transid++;
->>>>    	mutex_unlock(&log_root_tree->log_mutex);
->>>>
->>>> @@ -3334,6 +3336,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *t=
-rans,
->>>>
->>>>    	btrfs_set_super_log_root(fs_info->super_for_commit, log_root_star=
-t);
->>>>    	btrfs_set_super_log_root_level(fs_info->super_for_commit, log_roo=
-t_level);
->>>> +	btrfs_set_super_log_root_transid(fs_info->super_for_commit, log_roo=
-t_transid);
->>>>    	ret =3D write_all_supers(fs_info, 1);
->>>>    	mutex_unlock(&fs_info->tree_log_mutex);
->>>>    	if (ret) {
->>>> --
->>>> 2.36.1
->>>>
