@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E0B540FB1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FE6540FAF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351395AbiFGTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1351355AbiFGTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Jun 2022 15:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58644 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354933AbiFGTKI (ORCPT
+        with ESMTP id S1354931AbiFGTKI (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:10:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A605010FE3;
-        Tue,  7 Jun 2022 11:06:45 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3175417590;
+        Tue,  7 Jun 2022 11:06:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29B0FB82182;
-        Tue,  7 Jun 2022 18:06:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937D1C34115;
-        Tue,  7 Jun 2022 18:06:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAD32B81F38;
+        Tue,  7 Jun 2022 18:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 416B8C385A5;
+        Tue,  7 Jun 2022 18:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625202;
-        bh=mTdIDoujXMOK+HqZWo1bcLLznZ0mfsHSUpSPn8Lcwd8=;
+        s=korg; t=1654625205;
+        bh=RgCuTiD3kozF3mlD2ezwdETxBXaIcFW+5/2P0Urfp64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ETH8PypAeZT/P+j60Z3etmMkzEheiGC7TZlq0hcTqQolV4paQ6LbtCcPW/lvbMIkQ
-         etjbD3Cc3N2gR6uCpgEyvCG+dTePiAJQm4pwfODU9J2I0BXYs1StoYYNUJHKUV6rfR
-         0WXZ9VNm0Kl8EOIFdp051eGTI+jtZgkGOiiTC+do=
+        b=12tFEJCitpKNIU4YPXHNw/3S1Qbsp0qYzXZ1kAWm9NOiRnQd5LWI3JUjGwSS+M/4I
+         m3Drg97rYmG+PQ48vBjk+mw3A2my3ZEm4vRY/otVWiOEfkr/5pk4BCAoTJzW7jl55Q
+         aEaQY9Yecaptz4lEMBrHGdTfqpChRUQWQsBTHYZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, GUO Zihua <guozihua@huawei.com>,
-        Stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.15 601/667] ima: remove the IMA_TEMPLATE Kconfig option
-Date:   Tue,  7 Jun 2022 19:04:26 +0200
-Message-Id: <20220607164952.704992700@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 602/667] Kconfig: Add option for asm goto w/ tied outputs to workaround clang-13 bug
+Date:   Tue,  7 Jun 2022 19:04:27 +0200
+Message-Id: <20220607164952.734571545@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -53,100 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 891163adf180bc369b2f11c9dfce6d2758d2a5bd upstream.
+commit 1aa0e8b144b6474c4914439d232d15bfe883636b upstream.
 
-The original 'ima' measurement list template contains a hash, defined
-as 20 bytes, and a null terminated pathname, limited to 255
-characters.  Other measurement list templates permit both larger hashes
-and longer pathnames.  When the "ima" template is configured as the
-default, a new measurement list template (ima_template=) must be
-specified before specifying a larger hash algorithm (ima_hash=) on the
-boot command line.
+Add a config option to guard (future) usage of asm_volatile_goto() that
+includes "tied outputs", i.e. "+" constraints that specify both an input
+and output parameter.  clang-13 has a bug[1] that causes compilation of
+such inline asm to fail, and KVM wants to use a "+m" constraint to
+implement a uaccess form of CMPXCHG[2].  E.g. the test code fails with
 
-To avoid this boot command line ordering issue, remove the legacy "ima"
-template configuration option, allowing it to still be specified on the
-boot command line.
+  <stdin>:1:29: error: invalid operand in inline asm: '.long (${1:l}) - .'
+  int foo(int *x) { asm goto (".long (%l[bar]) - .\n": "+m"(*x) ::: bar); return *x; bar: return 0; }
+                            ^
+  <stdin>:1:29: error: unknown token in expression
+  <inline asm>:1:9: note: instantiated into assembly here
+          .long () - .
+                 ^
+  2 errors generated.
 
-The root cause of this issue is that during the processing of ima_hash,
-we would try to check whether the hash algorithm is compatible with the
-template. If the template is not set at the moment we do the check, we
-check the algorithm against the configured default template. If the
-default template is "ima", then we reject any hash algorithm other than
-sha1 and md5.
+on clang-13, but passes on gcc (with appropriate asm goto support).  The
+bug is fixed in clang-14, but won't be backported to clang-13 as the
+changes are too invasive/risky.
 
-For example, if the compiled default template is "ima", and the default
-algorithm is sha1 (which is the current default). In the cmdline, we put
-in "ima_hash=sha256 ima_template=ima-ng". The expected behavior would be
-that ima starts with ima-ng as the template and sha256 as the hash
-algorithm. However, during the processing of "ima_hash=",
-"ima_template=" has not been processed yet, and hash_setup would check
-the configured hash algorithm against the compiled default: ima, and
-reject sha256. So at the end, the hash algorithm that is actually used
-will be sha1.
+gcc also had a similar bug[3], fixed in gcc-11, where gcc failed to
+account for its behavior of assigning two numbers to tied outputs (one
+for input, one for output) when evaluating symbolic references.
 
-With template "ima" removed from the configured default, we ensure that
-the default tempalte would at least be "ima-ng" which allows for
-basically any hash algorithm.
+[1] https://github.com/ClangBuiltLinux/linux/issues/1512
+[2] https://lore.kernel.org/all/YfMruK8%2F1izZ2VHS@google.com
+[3] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98096
 
-This change would not break the algorithm compatibility checks for IMA.
-
-Fixes: 4286587dccd43 ("ima: add Kconfig default measurement list template")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220202004945.2540433-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/Kconfig |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ init/Kconfig |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -69,10 +69,9 @@ choice
- 	  hash, defined as 20 bytes, and a null terminated pathname,
- 	  limited to 255 characters.  The 'ima-ng' measurement list
- 	  template permits both larger hash digests and longer
--	  pathnames.
-+	  pathnames. The configured default template can be replaced
-+	  by specifying "ima_template=" on the boot command line.
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -77,6 +77,11 @@ config CC_HAS_ASM_GOTO_OUTPUT
+ 	depends on CC_HAS_ASM_GOTO
+ 	def_bool $(success,echo 'int foo(int x) { asm goto ("": "=r"(x) ::: bar); return x; bar: return 0; }' | $(CC) -x c - -c -o /dev/null)
  
--	config IMA_TEMPLATE
--		bool "ima"
- 	config IMA_NG_TEMPLATE
- 		bool "ima-ng (default)"
- 	config IMA_SIG_TEMPLATE
-@@ -82,7 +81,6 @@ endchoice
- config IMA_DEFAULT_TEMPLATE
- 	string
- 	depends on IMA
--	default "ima" if IMA_TEMPLATE
- 	default "ima-ng" if IMA_NG_TEMPLATE
- 	default "ima-sig" if IMA_SIG_TEMPLATE
++config CC_HAS_ASM_GOTO_TIED_OUTPUT
++	depends on CC_HAS_ASM_GOTO_OUTPUT
++	# Detect buggy gcc and clang, fixed in gcc-11 clang-14.
++	def_bool $(success,echo 'int foo(int *x) { asm goto (".long (%l[bar]) - .\n": "+m"(*x) ::: bar); return *x; bar: return 0; }' | $CC -x c - -c -o /dev/null)
++
+ config TOOLS_SUPPORT_RELR
+ 	def_bool $(success,env "CC=$(CC)" "LD=$(LD)" "NM=$(NM)" "OBJCOPY=$(OBJCOPY)" $(srctree)/scripts/tools-support-relr.sh)
  
-@@ -102,19 +100,19 @@ choice
- 
- 	config IMA_DEFAULT_HASH_SHA256
- 		bool "SHA256"
--		depends on CRYPTO_SHA256=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SHA256=y
- 
- 	config IMA_DEFAULT_HASH_SHA512
- 		bool "SHA512"
--		depends on CRYPTO_SHA512=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SHA512=y
- 
- 	config IMA_DEFAULT_HASH_WP512
- 		bool "WP512"
--		depends on CRYPTO_WP512=y && !IMA_TEMPLATE
-+		depends on CRYPTO_WP512=y
- 
- 	config IMA_DEFAULT_HASH_SM3
- 		bool "SM3"
--		depends on CRYPTO_SM3=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SM3=y
- endchoice
- 
- config IMA_DEFAULT_HASH
 
 
