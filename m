@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA49054183D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB24D54189F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379209AbiFGVLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:11:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
+        id S1379819AbiFGVMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379682AbiFGVKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47721565D;
-        Tue,  7 Jun 2022 11:51:56 -0700 (PDT)
+        with ESMTP id S1379706AbiFGVKu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AFD215667;
+        Tue,  7 Jun 2022 11:52:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4888617A4;
-        Tue,  7 Jun 2022 18:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F74C341C7;
-        Tue,  7 Jun 2022 18:51:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D077B8239B;
+        Tue,  7 Jun 2022 18:51:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E0DC385A2;
+        Tue,  7 Jun 2022 18:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627915;
-        bh=31HpYQaWeWqtZN+AGWXO2osKlfGZ7/fW6vbdG5g5fus=;
+        s=korg; t=1654627917;
+        bh=BMxjupewSyN1zYjMGF8CZPdW+jWCEaz6ImvUq00v+cY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koQnRJnnVWWo5kDwuDW4MZxhZl4XbuCBe0t7hyQC5PUhRhXmyQlVZt2b+hnOKJ139
-         TpWKa4T1nullHKoMKS2XK/3e6nrP8mikClaqf/4CI55K5+Xx9vjDC+rpgwWWulvvmK
-         NFBff4JPPO1D5efzdRW5V0uZ2NytP7ZrcFgjVmNk=
+        b=zG0M8xtIikkBk9QtrkwQdUku1owQcHQzGwlf1a4pEESiNnI37oNOiiWpGSSEmqYa5
+         pM3RuauPJkbhK30WDA4Uo5KkBmYhA/DOWWTscBoEv8pk2Iv74vmplpfU1auDhQi06U
+         UtEyBBUYlI+6NsJuzod26KjSPy1Rh9+KVupUZiTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Rob Herring <robh@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 138/879] of: Support more than one crash kernel regions for kexec -s
-Date:   Tue,  7 Jun 2022 18:54:16 +0200
-Message-Id: <20220607165006.711247089@linuxfoundation.org>
+Subject: [PATCH 5.18 139/879] ASoC: tscs454: Add endianness flag in snd_soc_component_driver
+Date:   Tue,  7 Jun 2022 18:54:17 +0200
+Message-Id: <20220607165006.740371177@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,48 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 8af6b91f58341325bf74ecb0389ddc0039091d84 ]
+[ Upstream commit ff69ec96b87dccb3a29edef8cec5d4fefbbc2055 ]
 
-When "crashkernel=X,high" is used, there may be two crash regions:
-high=crashk_res and low=crashk_low_res. But now the syscall
-kexec_file_load() only add crashk_res into "linux,usable-memory-range",
-this may cause the second kernel to have no available dma memory.
+The endianness flag is used on the CODEC side to specify an
+ambivalence to endian, typically because it is lost over the hardware
+link. This device receives audio over an I2S DAI and as such should
+have endianness applied.
 
-Fix it like kexec-tools does for option -c, add both 'high' and 'low'
-regions into the dtb.
+A fixup is also required to use the width directly rather than relying
+on the format in hw_params, now both little and big endian would be
+supported. It is worth noting this changes the behaviour of S24_LE to
+use a word length of 24 rather than 32. This would appear to be a
+correction since the fact S24_LE is stored as 32 bits should not be
+presented over the bus.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Baoquan He <bhe@redhat.com>
-Link: https://lore.kernel.org/r/20220506114402.365-6-thunder.leizhen@huawei.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220504170905.332415-26-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/kexec.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/codecs/tscs454.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/of/kexec.c b/drivers/of/kexec.c
-index b9bd1cff1793..8d374cc552be 100644
---- a/drivers/of/kexec.c
-+++ b/drivers/of/kexec.c
-@@ -386,6 +386,15 @@ void *of_kexec_alloc_and_setup_fdt(const struct kimage *image,
- 				crashk_res.end - crashk_res.start + 1);
- 		if (ret)
- 			goto out;
-+
-+		if (crashk_low_res.end) {
-+			ret = fdt_appendprop_addrrange(fdt, 0, chosen_node,
-+					"linux,usable-memory-range",
-+					crashk_low_res.start,
-+					crashk_low_res.end - crashk_low_res.start + 1);
-+			if (ret)
-+				goto out;
-+		}
- 	}
+diff --git a/sound/soc/codecs/tscs454.c b/sound/soc/codecs/tscs454.c
+index 7e1826d6f06f..32e6fa7b0a06 100644
+--- a/sound/soc/codecs/tscs454.c
++++ b/sound/soc/codecs/tscs454.c
+@@ -3120,18 +3120,17 @@ static int set_aif_sample_format(struct snd_soc_component *component,
+ 	unsigned int width;
+ 	int ret;
  
- 	/* add bootargs */
+-	switch (format) {
+-	case SNDRV_PCM_FORMAT_S16_LE:
++	switch (snd_pcm_format_width(format)) {
++	case 16:
+ 		width = FV_WL_16;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S20_3LE:
++	case 20:
+ 		width = FV_WL_20;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S24_3LE:
++	case 24:
+ 		width = FV_WL_24;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S24_LE:
+-	case SNDRV_PCM_FORMAT_S32_LE:
++	case 32:
+ 		width = FV_WL_32;
+ 		break;
+ 	default:
+@@ -3326,6 +3325,7 @@ static const struct snd_soc_component_driver soc_component_dev_tscs454 = {
+ 	.num_dapm_routes = ARRAY_SIZE(tscs454_intercon),
+ 	.controls =	tscs454_snd_controls,
+ 	.num_controls = ARRAY_SIZE(tscs454_snd_controls),
++	.endianness = 1,
+ };
+ 
+ #define TSCS454_RATES SNDRV_PCM_RATE_8000_96000
 -- 
 2.35.1
 
