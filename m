@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1732D5404E1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C1354131C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345818AbiFGRTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:19:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40184 "EHLO
+        id S1357996AbiFGT4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345750AbiFGRTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5AD104CB2;
-        Tue,  7 Jun 2022 10:19:11 -0700 (PDT)
+        with ESMTP id S1358751AbiFGTxI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60640AF1D3;
+        Tue,  7 Jun 2022 11:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 882DCB82239;
-        Tue,  7 Jun 2022 17:19:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0ACAC385A5;
-        Tue,  7 Jun 2022 17:19:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4967BCE244E;
+        Tue,  7 Jun 2022 18:22:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43967C385A2;
+        Tue,  7 Jun 2022 18:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622349;
-        bh=zpv29um/dWI23YVZluNHBcHbfAfuGpB5TvtabHfD68o=;
+        s=korg; t=1654626137;
+        bh=seCFZk7YL+TVjD/DOD0zsxuIbf6/QXBn7zKIHdKSTeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dN8/yTJ1lE/GrUAAVUJ1/FrDo1weKSVl7OWIEVfjHPHlIyur0XOuP1kKic/A+bkxE
-         HiuDPa8LZZwkS1kcVnjlM3AI8qfBeI3KOAnV/fEMsgarr3unuqd6UzUjrTvCP03F9q
-         ZCGYguG+OoXf9Vdw6bhy9N4/q2tPKH3g3/dO9eWk=
+        b=rbc+7LbVTmh2DvBoVKj9FBnFe0lrLH0YfLBSK+UXH2hB/YxLVBtsbKTIOmLZO3xBg
+         ClyeE/lblN6dN2sPbjxk8Ea6axratLC3eq6tQJ3i91mj7fNDafoF/dFXWOlsrJqttS
+         JD6zUdqRoDM4md8oC/W8/dyKLtSPJ/0w8yiT3YTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van der Kemp <rik@upto11.nl>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 006/452] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9520 laptop
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 271/772] mtd: rawnand: denali: Use managed device resources
 Date:   Tue,  7 Jun 2022 18:57:43 +0200
-Message-Id: <20220607164908.721449000@linuxfoundation.org>
+Message-Id: <20220607164957.011556358@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van der Kemp <rik@upto11.nl>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 15dad62f4bdb5dc0f0efde8181d680db9963544c upstream.
+[ Upstream commit 3a745b51cddafade99aaea1b93aad31e9614e230 ]
 
-The 2022-model XPS 15 appears to use the same 4-speakers-on-ALC289
-audio setup as the Dell XPS 15 9510, so requires the same quirk to
-enable woofer output. Tested on my own 9520.
+All of the resources used by this driver has managed interfaces, so use
+them. Otherwise we will get the following splat:
 
-[ Move the entry to the right position in the SSID order -- tiwai ]
+[    4.472703] denali-nand-pci 0000:00:05.0: timeout while waiting for irq 0x1000
+[    4.474071] denali-nand-pci: probe of 0000:00:05.0 failed with error -5
+[    4.473538] nand: No NAND device found
+[    4.474068] BUG: unable to handle page fault for address: ffffc90005000410
+[    4.475169] #PF: supervisor write access in kernel mode
+[    4.475579] #PF: error_code(0x0002) - not-present page
+[    4.478362] RIP: 0010:iowrite32+0x9/0x50
+[    4.486068] Call Trace:
+[    4.486269]  <IRQ>
+[    4.486443]  denali_isr+0x15b/0x300 [denali]
+[    4.486788]  ? denali_direct_write+0x50/0x50 [denali]
+[    4.487189]  __handle_irq_event_percpu+0x161/0x3b0
+[    4.487571]  handle_irq_event+0x7d/0x1b0
+[    4.487884]  handle_fasteoi_irq+0x2b0/0x770
+[    4.488219]  __common_interrupt+0xc8/0x1b0
+[    4.488549]  common_interrupt+0x9a/0xc0
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216035
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Rik van der Kemp <rik@upto11.nl>
-Link: https://lore.kernel.org/r/181056a137b.d14baf90133058.8425453735588429828@upto11.nl
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 93db446a424c ("mtd: nand: move raw NAND related code to the raw/ subdir")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220411125808.958276-1-zheyuma97@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/raw/denali_pci.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8651,6 +8651,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1028, 0x0a62, "Dell Precision 5560", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x0a9d, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x0a9e, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1028, 0x0b19, "Dell XPS 15 9520", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+diff --git a/drivers/mtd/nand/raw/denali_pci.c b/drivers/mtd/nand/raw/denali_pci.c
+index 20c085a30adc..de7e722d3826 100644
+--- a/drivers/mtd/nand/raw/denali_pci.c
++++ b/drivers/mtd/nand/raw/denali_pci.c
+@@ -74,22 +74,21 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return ret;
+ 	}
+ 
+-	denali->reg = ioremap(csr_base, csr_len);
++	denali->reg = devm_ioremap(denali->dev, csr_base, csr_len);
+ 	if (!denali->reg) {
+ 		dev_err(&dev->dev, "Spectra: Unable to remap memory region\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	denali->host = ioremap(mem_base, mem_len);
++	denali->host = devm_ioremap(denali->dev, mem_base, mem_len);
+ 	if (!denali->host) {
+ 		dev_err(&dev->dev, "Spectra: ioremap failed!");
+-		ret = -ENOMEM;
+-		goto out_unmap_reg;
++		return -ENOMEM;
+ 	}
+ 
+ 	ret = denali_init(denali);
+ 	if (ret)
+-		goto out_unmap_host;
++		return ret;
+ 
+ 	nsels = denali->nbanks;
+ 
+@@ -117,10 +116,6 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ out_remove_denali:
+ 	denali_remove(denali);
+-out_unmap_host:
+-	iounmap(denali->host);
+-out_unmap_reg:
+-	iounmap(denali->reg);
+ 	return ret;
+ }
+ 
+@@ -129,8 +124,6 @@ static void denali_pci_remove(struct pci_dev *dev)
+ 	struct denali_controller *denali = pci_get_drvdata(dev);
+ 
+ 	denali_remove(denali);
+-	iounmap(denali->reg);
+-	iounmap(denali->host);
+ }
+ 
+ static struct pci_driver denali_pci_driver = {
+-- 
+2.35.1
+
 
 
