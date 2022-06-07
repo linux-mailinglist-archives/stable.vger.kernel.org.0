@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12376541709
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19338541E36
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356449AbiFGU5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34932 "EHLO
+        id S1350860AbiFGW1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:27:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378197AbiFGUzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93ED812D159;
-        Tue,  7 Jun 2022 11:44:09 -0700 (PDT)
+        with ESMTP id S1384234AbiFGWZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:25:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98242270F0E;
+        Tue,  7 Jun 2022 12:23:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8E8B82182;
-        Tue,  7 Jun 2022 18:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D106AC385A2;
-        Tue,  7 Jun 2022 18:44:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D7B360BA3;
+        Tue,  7 Jun 2022 19:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28369C385A2;
+        Tue,  7 Jun 2022 19:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627447;
-        bh=92uU6VQZ8vRHI63+qTv3k7gUUiysfrjpvmX9xY6PYjY=;
+        s=korg; t=1654629791;
+        bh=bNxTvQwfvlCQhLBV5XP5eB24HHOeNW7RiIDKe2u+9rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TG/IN8F7iN1yRE9scQ/oRW0f7QpHv4AUczYG8d7zYrCqhbw7qGU43GHDkTg3cfy1a
-         rEoNKzbY66Qpl/KosObMfjNe3jJ1jf6xNJBy4e+nnbxe+kx3WTD00NWSXWxwp/ErWo
-         jnBB4msNGA0Rv5hvMphA+RxT1BrOhKYpv1OmoSoM=
+        b=koisK5YpfCZ+3r1SpMzmuJQltY9DE+gIk8rHBWkOlPojeKrMJG5NXQsNqlwqk0qhG
+         PSNdPg04qWLT1H+tQRH/O6jdvovGurjtL320CztkU6XBdyMF8LYLH6dw2DaOHPcp25
+         tJuEbkTFhFHpV/zE9umjoEbFLn3NR1WTJDtXd5Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.17 744/772] ARM: dts: s5pv210: Remove spi-cs-high on panel in Aries
-Date:   Tue,  7 Jun 2022 19:05:36 +0200
-Message-Id: <20220607165010.955362760@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.18 819/879] um: Fix out-of-bounds read in LDT setup
+Date:   Tue,  7 Jun 2022 19:05:37 +0200
+Message-Id: <20220607165026.625812779@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 096f58507374e1293a9e9cff8a1ccd5f37780a20 upstream.
+commit 2a4a62a14be1947fa945c5c11ebf67326381a568 upstream.
 
-Since commit 766c6b63aa04 ("spi: fix client driver breakages when using
-GPIO descriptors"), the panel has been blank due to an inverted CS GPIO.
-In order to correct this, drop the spi-cs-high from the panel SPI device.
+syscall_stub_data() expects the data_count parameter to be the number of
+longs, not bytes.
 
-Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/CY4PR04MB05670C771062570E911AF3B4CB1C9@CY4PR04MB0567.namprd04.prod.outlook.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+ ==================================================================
+ BUG: KASAN: stack-out-of-bounds in syscall_stub_data+0x70/0xe0
+ Read of size 128 at addr 000000006411f6f0 by task swapper/1
+
+ CPU: 0 PID: 1 Comm: swapper Not tainted 5.18.0+ #18
+ Call Trace:
+  show_stack.cold+0x166/0x2a7
+  __dump_stack+0x3a/0x43
+  dump_stack_lvl+0x1f/0x27
+  print_report.cold+0xdb/0xf81
+  kasan_report+0x119/0x1f0
+  kasan_check_range+0x3a3/0x440
+  memcpy+0x52/0x140
+  syscall_stub_data+0x70/0xe0
+  write_ldt_entry+0xac/0x190
+  init_new_ldt+0x515/0x960
+  init_new_context+0x2c4/0x4d0
+  mm_init.constprop.0+0x5ed/0x760
+  mm_alloc+0x118/0x170
+  0x60033f48
+  do_one_initcall+0x1d7/0x860
+  0x60003e7b
+  kernel_init+0x6e/0x3d4
+  new_thread_handler+0x1e7/0x2c0
+
+ The buggy address belongs to stack of task swapper/1
+  and is located at offset 64 in frame:
+  init_new_ldt+0x0/0x960
+
+ This frame has 2 objects:
+  [32, 40) 'addr'
+  [64, 80) 'desc'
+ ==================================================================
+
+Fixes: 858259cf7d1c443c83 ("uml: maintain own LDT entries")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/s5pv210-aries.dtsi |    1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/um/ldt.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/s5pv210-aries.dtsi
-+++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
-@@ -564,7 +564,6 @@
- 			reset-gpios = <&mp05 5 GPIO_ACTIVE_LOW>;
- 			vdd3-supply = <&ldo7_reg>;
- 			vci-supply = <&ldo17_reg>;
--			spi-cs-high;
- 			spi-max-frequency = <1200000>;
- 
- 			pinctrl-names = "default";
+--- a/arch/x86/um/ldt.c
++++ b/arch/x86/um/ldt.c
+@@ -23,9 +23,11 @@ static long write_ldt_entry(struct mm_id
+ {
+ 	long res;
+ 	void *stub_addr;
++
++	BUILD_BUG_ON(sizeof(*desc) % sizeof(long));
++
+ 	res = syscall_stub_data(mm_idp, (unsigned long *)desc,
+-				(sizeof(*desc) + sizeof(long) - 1) &
+-				    ~(sizeof(long) - 1),
++				sizeof(*desc) / sizeof(long),
+ 				addr, &stub_addr);
+ 	if (!res) {
+ 		unsigned long args[] = { func,
 
 
