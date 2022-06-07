@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C36E854085A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32BE454188A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347729AbiFGR5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:57:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
+        id S1379393AbiFGVMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348485AbiFGR5e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CAE23139D;
-        Tue,  7 Jun 2022 10:40:27 -0700 (PDT)
+        with ESMTP id S1380273AbiFGVLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4614321911C;
+        Tue,  7 Jun 2022 11:53:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 360376146F;
-        Tue,  7 Jun 2022 17:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45429C385A5;
-        Tue,  7 Jun 2022 17:40:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4FE8B82018;
+        Tue,  7 Jun 2022 18:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F29C385A5;
+        Tue,  7 Jun 2022 18:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623626;
-        bh=U6/EdSuc+660T/vtz96Q2XA9sTuGkSssNogEEj+9RrM=;
+        s=korg; t=1654628025;
+        bh=AXSUpGzFRrsZs0apkR/T9iXU45rGIqbP27cyfYEiBG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV5oOCP62re1cFkge9HwwcpsupilpkentZyhGcrRPKfLOKzffWNmpIJ+g5C1BcDPS
-         z1uN1Tfhus45kXKD47syfDRMAF7Dbmxrn7X7M/ADQFYzIDI5YDez0iKBpON8O5dgi+
-         qWM9tsXSDMHGjDE7upT67lKC65mxd3wp6WkLpKW8=
+        b=oPtVeumOIW8hs3+3JEZso3lx31X4KAYpbe9oxiuGxhQI/rzbv7drmDXcOHmKUdiHH
+         aYbmkLshpIlQDXNYX8Q7ir4hRDrAveebRJoT7KbBbaDcZvlex41GCEpQrLEqeblWte
+         yyCRnSbdigmf+eREqLbrVqsGGev0B0YJNQMA+YGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
-        Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 032/667] x86/MCE/AMD: Fix memory leak when threshold_create_bank() fails
+        Sathishkumar S <sathishkumar.sundararaju@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 179/879] drm/amd/pm: update smartshift powerboost calc for smu13
 Date:   Tue,  7 Jun 2022 18:54:57 +0200
-Message-Id: <20220607164935.759519492@linuxfoundation.org>
+Message-Id: <20220607165008.036733272@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,100 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Sathishkumar S <sathishkumar.sundararaju@amd.com>
 
-commit e5f28623ceb103e13fc3d7bd45edf9818b227fd0 upstream.
+[ Upstream commit cdf4c8ec39872a61a58d62f19b4db80f0f7bc586 ]
 
-In mce_threshold_create_device(), if threshold_create_bank() fails, the
-previously allocated threshold banks array @bp will be leaked because
-the call to mce_threshold_remove_device() will not free it.
+smartshift apu and dgpu power boost are reported as percentage
+with respect to their power limits. adjust the units of power before
+calculating the percentage of boost.
 
-This happens because mce_threshold_remove_device() fetches the pointer
-through the threshold_banks per-CPU variable but bp is written there
-only after the bank creation is successful, and not before, when
-threshold_create_bank() fails.
-
-Add a helper which unwinds all the bank creation work previously done
-and pass into it the previously allocated threshold banks array for
-freeing.
-
-  [ bp: Massage. ]
-
-Fixes: 6458de97fc15 ("x86/mce/amd: Straighten CPU hotplug path")
-Co-developed-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
-Signed-off-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
-Co-developed-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220329104705.65256-3-ammarfaizi2@gnuweeb.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sathishkumar S <sathishkumar.sundararaju@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/amd.c |   32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
+ .../drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c  | 62 ++++++++++++++-----
+ 1 file changed, 46 insertions(+), 16 deletions(-)
 
---- a/arch/x86/kernel/cpu/mce/amd.c
-+++ b/arch/x86/kernel/cpu/mce/amd.c
-@@ -1470,10 +1470,23 @@ out_free:
- 	kfree(bank);
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
+index e2d099409123..87257b1b028f 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
+@@ -276,6 +276,42 @@ static int yellow_carp_mode2_reset(struct smu_context *smu)
+ 	return yellow_carp_mode_reset(smu, SMU_RESET_MODE_2);
  }
  
-+static void __threshold_remove_device(struct threshold_bank **bp)
++
++static void yellow_carp_get_ss_power_percent(SmuMetrics_t *metrics,
++					uint32_t *apu_percent, uint32_t *dgpu_percent)
 +{
-+	unsigned int bank, numbanks = this_cpu_read(mce_num_banks);
++	uint32_t apu_boost = 0;
++	uint32_t dgpu_boost = 0;
++	uint16_t apu_limit = 0;
++	uint16_t dgpu_limit = 0;
++	uint16_t apu_power = 0;
++	uint16_t dgpu_power = 0;
 +
-+	for (bank = 0; bank < numbanks; bank++) {
-+		if (!bp[bank])
-+			continue;
++	/* APU and dGPU power values are reported in milli Watts
++	 * and STAPM power limits are in Watts */
++	apu_power = metrics->ApuPower/1000;
++	apu_limit = metrics->StapmOpnLimit;
++	if (apu_power > apu_limit && apu_limit != 0)
++		apu_boost =  ((apu_power - apu_limit) * 100) / apu_limit;
++	apu_boost = (apu_boost > 100) ? 100 : apu_boost;
 +
-+		threshold_remove_bank(bp[bank]);
-+		bp[bank] = NULL;
-+	}
-+	kfree(bp);
++	dgpu_power = metrics->dGpuPower/1000;
++	if (metrics->StapmCurrentLimit > metrics->StapmOpnLimit)
++		dgpu_limit = metrics->StapmCurrentLimit - metrics->StapmOpnLimit;
++	if (dgpu_power > dgpu_limit && dgpu_limit != 0)
++		dgpu_boost = ((dgpu_power - dgpu_limit) * 100) / dgpu_limit;
++	dgpu_boost = (dgpu_boost > 100) ? 100 : dgpu_boost;
++
++	if (dgpu_boost >= apu_boost)
++		apu_boost = 0;
++	else
++		dgpu_boost = 0;
++
++	*apu_percent = apu_boost;
++	*dgpu_percent = dgpu_boost;
++
 +}
 +
- int mce_threshold_remove_device(unsigned int cpu)
- {
- 	struct threshold_bank **bp = this_cpu_read(threshold_banks);
--	unsigned int bank, numbanks = this_cpu_read(mce_num_banks);
+ static int yellow_carp_get_smu_metrics_data(struct smu_context *smu,
+ 							MetricsMember_t member,
+ 							uint32_t *value)
+@@ -284,6 +320,8 @@ static int yellow_carp_get_smu_metrics_data(struct smu_context *smu,
  
- 	if (!bp)
- 		return 0;
-@@ -1484,13 +1497,7 @@ int mce_threshold_remove_device(unsigned
- 	 */
- 	this_cpu_write(threshold_banks, NULL);
+ 	SmuMetrics_t *metrics = (SmuMetrics_t *)smu_table->metrics_table;
+ 	int ret = 0;
++	uint32_t apu_percent = 0;
++	uint32_t dgpu_percent = 0;
  
--	for (bank = 0; bank < numbanks; bank++) {
--		if (bp[bank]) {
--			threshold_remove_bank(bp[bank]);
--			bp[bank] = NULL;
--		}
--	}
--	kfree(bp);
-+	__threshold_remove_device(bp);
- 	return 0;
- }
- 
-@@ -1527,15 +1534,14 @@ int mce_threshold_create_device(unsigned
- 		if (!(this_cpu_read(bank_map) & (1 << bank)))
- 			continue;
- 		err = threshold_create_bank(bp, cpu, bank);
--		if (err)
--			goto out_err;
-+		if (err) {
-+			__threshold_remove_device(bp);
-+			return err;
-+		}
- 	}
- 	this_cpu_write(threshold_banks, bp);
- 
- 	if (thresholding_irq_en)
- 		mce_threshold_vector = amd_threshold_interrupt;
- 	return 0;
--out_err:
--	mce_threshold_remove_device(cpu);
--	return err;
- }
+ 	ret = smu_cmn_get_metrics_table(smu, NULL, false);
+ 	if (ret)
+@@ -332,26 +370,18 @@ static int yellow_carp_get_smu_metrics_data(struct smu_context *smu,
+ 		*value = metrics->Voltage[1];
+ 		break;
+ 	case METRICS_SS_APU_SHARE:
+-		/* return the percentage of APU power with respect to APU's power limit.
+-		 * percentage is reported, this isn't boost value. Smartshift power
+-		 * boost/shift is only when the percentage is more than 100.
++		/* return the percentage of APU power boost
++		 * with respect to APU's power limit.
+ 		 */
+-		if (metrics->StapmOpnLimit > 0)
+-			*value =  (metrics->ApuPower * 100) / metrics->StapmOpnLimit;
+-		else
+-			*value = 0;
++		yellow_carp_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
++		*value = apu_percent;
+ 		break;
+ 	case METRICS_SS_DGPU_SHARE:
+-		/* return the percentage of dGPU power with respect to dGPU's power limit.
+-		 * percentage is reported, this isn't boost value. Smartshift power
+-		 * boost/shift is only when the percentage is more than 100.
++		/* return the percentage of dGPU power boost
++		 * with respect to dGPU's power limit.
+ 		 */
+-		if ((metrics->dGpuPower > 0) &&
+-		    (metrics->StapmCurrentLimit > metrics->StapmOpnLimit))
+-			*value = (metrics->dGpuPower * 100) /
+-				  (metrics->StapmCurrentLimit - metrics->StapmOpnLimit);
+-		else
+-			*value = 0;
++		yellow_carp_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
++		*value = dgpu_percent;
+ 		break;
+ 	default:
+ 		*value = UINT_MAX;
+-- 
+2.35.1
+
 
 
