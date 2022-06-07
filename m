@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72DC1540E81
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A60540690
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353748AbiFGSy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:54:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57914 "EHLO
+        id S1346702AbiFGRgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:36:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354048AbiFGSq3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A70C518F2E8;
-        Tue,  7 Jun 2022 11:00:01 -0700 (PDT)
+        with ESMTP id S1347429AbiFGRfP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F59710EA56;
+        Tue,  7 Jun 2022 10:30:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83ACF618FB;
-        Tue,  7 Jun 2022 18:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94338C385A5;
-        Tue,  7 Jun 2022 17:59:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0F457CE23CE;
+        Tue,  7 Jun 2022 17:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15897C34119;
+        Tue,  7 Jun 2022 17:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624799;
-        bh=Z2ikQh4GvH5/xZ/DTPW7k20APCT+ZlfJDSw0qWNiTLk=;
+        s=korg; t=1654623019;
+        bh=2jA/GTMKTJHBY2Oc4pOOiy4bZGaqPB82S9nyCCUHw2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+F7GpC9qB0i0Qexv5HWxhbe0Yh84rWNNj5NEmGlwhTBi/fa+ziSqUGcDPnCeYeEH
-         THgRE5TCyEh5ltNvNqL+RiDl90qFxvApFxMIdArcWw8xdg1VWmZc00y6/K/fZGdK4D
-         IRvduIxh63W5UBLh7y+zLUS37pyWEHTPk7JZrMjU=
+        b=dCMST/s8Bd1+zDcl+tMjmUgNL+UmMvEFPEC1OjLFnHX+NM8X7VW1KWrtSmdlJ22vd
+         3tbxojjYxXZOzUX011uDW+Y/HWlSirESN8GGJTxxQdYpjQkd1F1Jms1M7d9aFVfGL9
+         SAGUCTt8+gV+dpMGgDTJEbv/wkXLSfVuGBCOmeNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Thorsten Scherer <t.scherer@eckelmann.de>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 458/667] hugetlbfs: fix hugetlbfs_statfs() locking
+Subject: [PATCH 5.10 266/452] ARM: dts: ci4x10: Adapt to changes in imx6qdl.dtsi regarding fec clocks
 Date:   Tue,  7 Jun 2022 19:02:03 +0200
-Message-Id: <20220607164948.449157136@linuxfoundation.org>
+Message-Id: <20220607164916.479048330@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mina Almasry <almasrymina@google.com>
+From: Thorsten Scherer <t.scherer@eckelmann.de>
 
-[ Upstream commit 4b25f030ae69ba710eff587cabb4c57cb7e7a8a1 ]
+[ Upstream commit 3d397a1277853498e8b7b305f2610881357c033f ]
 
-After commit db71ef79b59b ("hugetlb: make free_huge_page irq safe"), the
-subpool lock should be locked with spin_lock_irq() and all call sites was
-modified as such, except for the ones in hugetlbfs_statfs().
+Commit f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk
+support") added another item to the list of clocks for the fec
+device. As imx6dl-eckelmann-ci4x10.dts only overwrites clocks,
+but not clock-names this resulted in an inconsistency with
+clocks having one item more than clock-names.
 
-Link: https://lkml.kernel.org/r/20220429202207.3045-1-almasrymina@google.com
-Fixes: db71ef79b59b ("hugetlb: make free_huge_page irq safe")
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Also overwrite clock-names with the same value as in
+imx6qdl.dtsi. This is a no-op today, but prevents similar
+inconsistencies if the soc file will be changed in a similar way
+in the future.
+
+Signed-off-by: Thorsten Scherer <t.scherer@eckelmann.de>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index bb0651a4a128..d74a49b188c2 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -1048,12 +1048,12 @@ static int hugetlbfs_statfs(struct dentry *dentry, struct kstatfs *buf)
- 		if (sbinfo->spool) {
- 			long free_pages;
+diff --git a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
+index b4a9523e325b..864dc5018451 100644
+--- a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
++++ b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
+@@ -297,7 +297,11 @@
+ 	phy-mode = "rmii";
+ 	phy-reset-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
+ 	phy-handle = <&phy>;
+-	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
++	clocks = <&clks IMX6QDL_CLK_ENET>,
++		 <&clks IMX6QDL_CLK_ENET>,
++		 <&rmii_clk>,
++		 <&clks IMX6QDL_CLK_ENET_REF>;
++	clock-names = "ipg", "ahb", "ptp", "enet_out";
+ 	status = "okay";
  
--			spin_lock(&sbinfo->spool->lock);
-+			spin_lock_irq(&sbinfo->spool->lock);
- 			buf->f_blocks = sbinfo->spool->max_hpages;
- 			free_pages = sbinfo->spool->max_hpages
- 				- sbinfo->spool->used_hpages;
- 			buf->f_bavail = buf->f_bfree = free_pages;
--			spin_unlock(&sbinfo->spool->lock);
-+			spin_unlock_irq(&sbinfo->spool->lock);
- 			buf->f_files = sbinfo->max_inodes;
- 			buf->f_ffree = sbinfo->free_inodes;
- 		}
+ 	mdio {
 -- 
 2.35.1
 
