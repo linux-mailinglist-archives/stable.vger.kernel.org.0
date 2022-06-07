@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C54541807
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1E4F5410A9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349550AbiFGVIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:08:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60288 "EHLO
+        id S1353023AbiFGT2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379441AbiFGVF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:05:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFEF18F2E1;
-        Tue,  7 Jun 2022 11:49:32 -0700 (PDT)
+        with ESMTP id S1356662AbiFGT2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA00D6B651;
+        Tue,  7 Jun 2022 11:10:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C712C616C3;
-        Tue,  7 Jun 2022 18:49:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84DEC385A2;
-        Tue,  7 Jun 2022 18:49:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67E17B80B66;
+        Tue,  7 Jun 2022 18:10:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA850C385A5;
+        Tue,  7 Jun 2022 18:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627771;
-        bh=MryhVYwL20qdpycWJZzLIYovOEL+Bs5lNHa/2TnV0EA=;
+        s=korg; t=1654625422;
+        bh=PQpjQG3pFURTCSgJVO1XL5DHQPOIXC4phwjj4OG20fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zR/0GN70zecaWHKTYH4KotHMeNz1X10cEx2N2EVOCkiaH6NH2cVM1yCjAq+CkbQfr
-         kvo/u1h5riHY99v0drcrUEXOPf5j2YdAlVPABp5jT6lzLSVe2RVvxDyg/BjXw00GTY
-         RGVzbBQkMJ9zEqgFQprX7GUuot439iFYa04l3WH0=
+        b=JfpSmkJfEa7LUKKdSZldc82pl4e0Qlksv2eU11VQ/5xOhm9MzVDO+CnDwPGraMAFa
+         m8HMpHph+oxVpkxmBut1Mc4T3Q4WfI6p+imsHICr2dDkr2bpT9+CHhKCzkejMZv4Sc
+         mR3PeWSMkD8v73W5+KXY75/7LK/uLdUfcnlNHtnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 087/879] loop: implement ->free_disk
-Date:   Tue,  7 Jun 2022 18:53:25 +0200
-Message-Id: <20220607165005.218796914@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Gary van der Merwe <gary.vandermerwe@fnb.co.za>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.17 014/772] USB: serial: pl2303: fix type detection for odd device
+Date:   Tue,  7 Jun 2022 18:53:26 +0200
+Message-Id: <20220607164949.421683229@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit d2c7f56f8b5256d57f9e3fc7794c31361d43bdd9 ]
+commit e82e7c6dde91acd6748d672a44dc1980ce239f86 upstream.
 
-Ensure that the lo_device which is stored in the gendisk private
-data is valid until the gendisk is freed.  Currently the loop driver
-uses a lot of effort to make sure a device is not freed when it is
-still in use, but to to fix a potential deadlock this will be relaxed
-a bit soon.
+At least one pl2303 device has a bcdUSB of 1.0.1 which most likely was
+was intended as 1.1.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220330052917.2566582-12-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Allow bcdDevice 1.0.1 but interpret it as 1.1.
+
+Fixes: 1e9faef4d26d ("USB: serial: pl2303: fix HX type detection")
+Cc: stable@vger.kernel.org      # 5.13
+Link: https://lore.kernel.org/linux-usb/CAJixRzqf4a9-ZKZDgWxicc_BpfdZVE9qqGmkiO7xEstOXUbGvQ@mail.gmail.com
+Reported-by: Gary van der Merwe <gary.vandermerwe@fnb.co.za>
+Link: https://lore.kernel.org/r/20220517161736.13313-1-johan@kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/loop.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/usb/serial/pl2303.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a58595f5ee2c..ed7bec11948c 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1768,6 +1768,14 @@ static void lo_release(struct gendisk *disk, fmode_t mode)
- 	mutex_unlock(&lo->lo_mutex);
- }
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -421,6 +421,9 @@ static int pl2303_detect_type(struct usb
+ 	bcdUSB = le16_to_cpu(desc->bcdUSB);
  
-+static void lo_free_disk(struct gendisk *disk)
-+{
-+	struct loop_device *lo = disk->private_data;
-+
-+	mutex_destroy(&lo->lo_mutex);
-+	kfree(lo);
-+}
-+
- static const struct block_device_operations lo_fops = {
- 	.owner =	THIS_MODULE,
- 	.open =		lo_open,
-@@ -1776,6 +1784,7 @@ static const struct block_device_operations lo_fops = {
- #ifdef CONFIG_COMPAT
- 	.compat_ioctl =	lo_compat_ioctl,
- #endif
-+	.free_disk =	lo_free_disk,
- };
- 
- /*
-@@ -2090,15 +2099,14 @@ static void loop_remove(struct loop_device *lo)
- {
- 	/* Make this loop device unreachable from pathname. */
- 	del_gendisk(lo->lo_disk);
--	blk_cleanup_disk(lo->lo_disk);
-+	blk_cleanup_queue(lo->lo_disk->queue);
- 	blk_mq_free_tag_set(&lo->tag_set);
- 
- 	mutex_lock(&loop_ctl_mutex);
- 	idr_remove(&loop_index_idr, lo->lo_number);
- 	mutex_unlock(&loop_ctl_mutex);
--	/* There is no route which can find this loop device. */
--	mutex_destroy(&lo->lo_mutex);
--	kfree(lo);
-+
-+	put_disk(lo->lo_disk);
- }
- 
- static void loop_probe(dev_t dev)
--- 
-2.35.1
-
+ 	switch (bcdUSB) {
++	case 0x101:
++		/* USB 1.0.1? Let's assume they meant 1.1... */
++		fallthrough;
+ 	case 0x110:
+ 		switch (bcdDevice) {
+ 		case 0x300:
 
 
