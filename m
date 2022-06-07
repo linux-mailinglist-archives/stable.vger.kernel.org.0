@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E6054177A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFAE954179C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378676AbiFGVDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50316 "EHLO
+        id S1357959AbiFGVEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:04:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379361AbiFGVCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:23 -0400
+        with ESMTP id S1377303AbiFGVCo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E08A813EF;
-        Tue,  7 Jun 2022 11:47:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A51EE123883;
+        Tue,  7 Jun 2022 11:48:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 304E4B81FE1;
-        Tue,  7 Jun 2022 18:47:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E439C36AFF;
-        Tue,  7 Jun 2022 18:47:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C35E4B8239B;
+        Tue,  7 Jun 2022 18:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12A42C385A5;
+        Tue,  7 Jun 2022 18:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627668;
-        bh=bH3s1BVToRvgFhBLsu+cvbtMNthczz1FNbaIJi0JObM=;
+        s=korg; t=1654627699;
+        bh=0wUPtvcxsDb/X2qUcKd/zlt/iXNEj20UtsVY8xySO5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqiiMYtDR5CpxGG5qVnxmDj0OvnHXIE9HKKBHxzWL7YRgDUFVWfeeniYDp8WerHc6
-         lgofgMp/U/KfyeMof9LF3TACsZWX3rwdICqnLl8BonvLqagGprVNNPvgf9BLYaeENm
-         o4UksWXCvDEUmysjb88NLuZYzQPJ2u6zc2Q6gMA0=
+        b=ebM/M2QKZ3ObhQ2hKSB9pjymjUlXMUkgQvluoOjQwRIQXzXGdnVZ3XGNyYS0s2eRI
+         7XFYMtXSxAGOkwuahU0wYgFyBJvgZQmpYXcRBzddAjB9ZmlSPsjVmbTyzoMuAz/ldF
+         3vDZ9m6AvIf+xv3AfHVueq4nvK6AQ0d0vJhEEIYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Ganapathi Kamath <hgkamath@hotmail.com>,
+        Kari Argillander <kari.argillander@gmail.com>,
         Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.18 023/879] fs/ntfs3: Fix fiemap + fix shrink file size (to remove preallocated space)
-Date:   Tue,  7 Jun 2022 18:52:21 +0200
-Message-Id: <20220607165003.348544698@linuxfoundation.org>
+Subject: [PATCH 5.18 024/879] fs/ntfs3: Keep preallocated only if option prealloc enabled
+Date:   Tue,  7 Jun 2022 18:52:22 +0200
+Message-Id: <20220607165003.376780972@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,68 +56,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 
-commit 3880f2b816a7e4ca889b7e8a42e6c62c5706ed36 upstream.
+commit e95113ed4d428219e3395044e29f5713fc446720 upstream.
 
-Two problems:
-1. ntfs3_setattr can't truncate preallocated space;
-2. if allocated fragment "cross" valid size, then fragment splits into two parts:
-- normal part;
-- unwritten part (here we must return FIEMAP_EXTENT_LAST).
-Before this commit we returned FIEMAP_EXTENT_LAST for whole fragment.
-Fixes xfstest generic/092
+If size of file was reduced, we still kept allocated blocks.
+This commit makes ntfs3 work as other fs like btrfs.
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214719
 Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
 
+Reported-by: Ganapathi Kamath <hgkamath@hotmail.com>
+Tested-by: Ganapathi Kamath <hgkamath@hotmail.com>
+Reviewed-by: Kari Argillander <kari.argillander@gmail.com>
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs3/file.c    |    2 +-
- fs/ntfs3/frecord.c |   10 +++++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ fs/ntfs3/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/fs/ntfs3/file.c
 +++ b/fs/ntfs3/file.c
-@@ -762,7 +762,7 @@ int ntfs3_setattr(struct user_namespace
- 		}
- 		inode_dio_wait(inode);
+@@ -495,7 +495,7 @@ static int ntfs_truncate(struct inode *i
  
--		if (attr->ia_size < oldsize)
-+		if (attr->ia_size <= oldsize)
- 			err = ntfs_truncate(inode, attr->ia_size);
- 		else if (attr->ia_size > oldsize)
- 			err = ntfs_extend(inode, attr->ia_size, 0, NULL);
---- a/fs/ntfs3/frecord.c
-+++ b/fs/ntfs3/frecord.c
-@@ -1964,10 +1964,8 @@ int ni_fiemap(struct ntfs_inode *ni, str
+ 	down_write(&ni->file.run_lock);
+ 	err = attr_set_size(ni, ATTR_DATA, NULL, 0, &ni->file.run, new_size,
+-			    &new_valid, true, NULL);
++			    &new_valid, ni->mi.sbi->options->prealloc, NULL);
+ 	up_write(&ni->file.run_lock);
  
- 		vcn += clen;
- 
--		if (vbo + bytes >= end) {
-+		if (vbo + bytes >= end)
- 			bytes = end - vbo;
--			flags |= FIEMAP_EXTENT_LAST;
--		}
- 
- 		if (vbo + bytes <= valid) {
- 			;
-@@ -1977,6 +1975,9 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 			/* vbo < valid && valid < vbo + bytes */
- 			u64 dlen = valid - vbo;
- 
-+			if (vbo + dlen >= end)
-+				flags |= FIEMAP_EXTENT_LAST;
-+
- 			err = fiemap_fill_next_extent(fieinfo, vbo, lbo, dlen,
- 						      flags);
- 			if (err < 0)
-@@ -1995,6 +1996,9 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 			flags |= FIEMAP_EXTENT_UNWRITTEN;
- 		}
- 
-+		if (vbo + bytes >= end)
-+			flags |= FIEMAP_EXTENT_LAST;
-+
- 		err = fiemap_fill_next_extent(fieinfo, vbo, lbo, bytes, flags);
- 		if (err < 0)
- 			break;
+ 	if (new_valid < ni->i_valid)
 
 
