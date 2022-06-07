@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A61E4541042
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D68715407DA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354642AbiFGTVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33272 "EHLO
+        id S243884AbiFGRwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355224AbiFGTTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:19:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A4D197614;
-        Tue,  7 Jun 2022 11:08:29 -0700 (PDT)
+        with ESMTP id S1349891AbiFGRvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B702013F402;
+        Tue,  7 Jun 2022 10:39:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 403DACE240B;
-        Tue,  7 Jun 2022 18:08:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B0DC385A5;
-        Tue,  7 Jun 2022 18:08:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB096615B9;
+        Tue,  7 Jun 2022 17:38:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095E7C385A5;
+        Tue,  7 Jun 2022 17:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625305;
-        bh=yKz92Rs+ai9VggpPna/8dc3IabP0a+76+lvyYYYL0Ks=;
+        s=korg; t=1654623519;
+        bh=4y7Ck14Sih/73YdOVk/1vvtwXXSAQU9vHJEbfiUYQ5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsTPBMGQPEa3JU5M1ht+Tsgdmg/W8wj1lUzBbRRmpD3Xygc8SsEHrelKi7V2kQkYt
-         PmdJ/lq1AEaUCt2/8tc5X7M5zBafXAEMZIgovhpsf/Cg4PfhXNSZoYs3GHZ1I8RZeT
-         hWH1B0QJ9qHfWY5hiOKI+Fj1GYJZZCeSspjEYjXg=
+        b=nCmLhlx36+O/kiKxIUCmU4b0ZBE3bH+5paHnsRv67XlzCcQ3nk6iDKdkpqw5qx/Ce
+         PzzIUrHJHZK17dbIGEPGNkgGjxqVx8SK8/t9EQBEL3Dia7vyBr8LEXFVIFHb4y8bz9
+         8BpUt/C7D+pSxzfrIXIJWDXothYimEG64Ub18Xb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 639/667] phy: qcom-qmp: fix struct clk leak on probe errors
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 447/452] Revert "random: use static branch for crng_ready()"
 Date:   Tue,  7 Jun 2022 19:05:04 +0200
-Message-Id: <20220607164953.823559268@linuxfoundation.org>
+Message-Id: <20220607164921.891640546@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit f0a4bc38a12f5a0cc5ad68670d9480e91e6a94df upstream.
+This reverts upstream commit f5bda35fba615ace70a656d4700423fa6c9bebee
+from stable. It's not essential and will take some time during 5.19 to
+work out properly.
 
-Make sure to release the pipe clock reference in case of a late probe
-error (e.g. probe deferral).
-
-Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20220427063243.32576-2-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/random.c |   12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -5454,7 +5454,7 @@ int qcom_qmp_phy_create(struct device *d
- 	 * all phys that don't need this.
- 	 */
- 	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
--	qphy->pipe_clk = of_clk_get_by_name(np, prop_name);
-+	qphy->pipe_clk = devm_get_clk_from_child(dev, np, prop_name);
- 	if (IS_ERR(qphy->pipe_clk)) {
- 		if (cfg->type == PHY_TYPE_PCIE ||
- 		    cfg->type == PHY_TYPE_USB3) {
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -79,8 +79,7 @@ static enum {
+ 	CRNG_EARLY = 1, /* At least POOL_EARLY_BITS collected */
+ 	CRNG_READY = 2  /* Fully initialized with POOL_READY_BITS collected */
+ } crng_init __read_mostly = CRNG_EMPTY;
+-static DEFINE_STATIC_KEY_FALSE(crng_is_ready);
+-#define crng_ready() (static_branch_likely(&crng_is_ready) || crng_init >= CRNG_READY)
++#define crng_ready() (likely(crng_init >= CRNG_READY))
+ /* Various types of waiters for crng_init->CRNG_READY transition. */
+ static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
+ static struct fasync_struct *fasync;
+@@ -110,11 +109,6 @@ bool rng_is_initialized(void)
+ }
+ EXPORT_SYMBOL(rng_is_initialized);
+ 
+-static void __cold crng_set_ready(struct work_struct *work)
+-{
+-	static_branch_enable(&crng_is_ready);
+-}
+-
+ /* Used by wait_for_random_bytes(), and considered an entropy collector, below. */
+ static void try_to_generate_entropy(void);
+ 
+@@ -268,7 +262,7 @@ static void crng_reseed(void)
+ 		++next_gen;
+ 	WRITE_ONCE(base_crng.generation, next_gen);
+ 	WRITE_ONCE(base_crng.birth, jiffies);
+-	if (!static_branch_likely(&crng_is_ready))
++	if (!crng_ready())
+ 		crng_init = CRNG_READY;
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
+ 	memzero_explicit(key, sizeof(key));
+@@ -711,7 +705,6 @@ static void extract_entropy(void *buf, s
+ 
+ static void __cold _credit_init_bits(size_t bits)
+ {
+-	static struct execute_work set_ready;
+ 	unsigned int new, orig, add;
+ 	unsigned long flags;
+ 
+@@ -727,7 +720,6 @@ static void __cold _credit_init_bits(siz
+ 
+ 	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
+ 		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
+-		execute_in_process_context(crng_set_ready, &set_ready);
+ 		process_random_ready_list();
+ 		wake_up_interruptible(&crng_init_wait);
+ 		kill_fasync(&fasync, SIGIO, POLL_IN);
 
 
