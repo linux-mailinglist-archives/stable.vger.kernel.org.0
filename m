@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B19C540611
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B93A254154A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347150AbiFGRdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
+        id S1378215AbiFGUe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:34:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347608AbiFGRax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CCD610173A;
-        Tue,  7 Jun 2022 10:27:41 -0700 (PDT)
+        with ESMTP id S1377018AbiFGU2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6861D9EDA;
+        Tue,  7 Jun 2022 11:33:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B0A06137B;
-        Tue,  7 Jun 2022 17:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9B7C34119;
-        Tue,  7 Jun 2022 17:27:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C44F61507;
+        Tue,  7 Jun 2022 18:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0B1C385A2;
+        Tue,  7 Jun 2022 18:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622860;
-        bh=VQNA4yHBmdMMVoQvvLliaYr67nNPoMKd062v5H5NFWs=;
+        s=korg; t=1654626821;
+        bh=z6gv72hpwSptSCQ7xX3FHP+uyddk98Y6OKh8o9Pf8MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PKoVqTO3uEtlsrJrq+sukYh2Q7dpyJ0ExaQzrca49ns2UI2x9uBMRTVl2CTWTFmGr
-         F8HRwX2cTxtl2Cl92EnMRjtUxGuHt34q9YB/I3JDMkXs2CMpaazAQPYXmJC48QLasc
-         Ti/DKW+TpNawA/SqXoqKA1uC9GbuM0XXEU7SLx4U=
+        b=aUCiYC+1oGJFuGjJwqWQZlR+Y1Wry1zA1FoaRCMrEeCxdmc+fWDKwfz64eUA6XBLr
+         htfZQPngGF/Pb5+WzGKBGVjwA9trV/WPIJOdlpJq38KIpwpg7VK5XVXBjysYWZ7O+8
+         HbSWHVWXUrMqvyIYeJaRkCRow87Cr4TJlkxPFGG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 210/452] media: exynos4-is: Fix PM disable depth imbalance in fimc_is_probe
+Subject: [PATCH 5.17 475/772] ARM: dts: qcom: sdx55: remove wrong unit address from RPMH RSC clocks
 Date:   Tue,  7 Jun 2022 19:01:07 +0200
-Message-Id: <20220607164914.820739773@linuxfoundation.org>
+Message-Id: <20220607165002.991491332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,46 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 5c0db68ce0faeb000c3540d095eb272d671a6e03 ]
+[ Upstream commit 97c246c825f73a018169834e56ffa9a89dea37a9 ]
 
-If probe fails then we need to call pm_runtime_disable() to balance
-out the previous pm_runtime_enable() call.
+The clock controller of RPMH RSC does not have 'reg' property, so should
+not have unit address.
 
-Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: bae2f5979c6e ("ARM: dts: qcom: Add SDX65 platform and MTP board support")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220411085935.130072-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-sdx65.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index d26fa5967d82..d4b31b3c9282 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -830,7 +830,7 @@ static int fimc_is_probe(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/qcom-sdx65.dtsi b/arch/arm/boot/dts/qcom-sdx65.dtsi
+index 796641d30e06..0c3f93603adc 100644
+--- a/arch/arm/boot/dts/qcom-sdx65.dtsi
++++ b/arch/arm/boot/dts/qcom-sdx65.dtsi
+@@ -202,7 +202,7 @@
+ 				<WAKE_TCS    2>,
+ 				<CONTROL_TCS 1>;
  
- 	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
--		goto err_irq;
-+		goto err_pm_disable;
- 
- 	vb2_dma_contig_set_max_seg_size(dev, DMA_BIT_MASK(32));
- 
-@@ -864,6 +864,8 @@ static int fimc_is_probe(struct platform_device *pdev)
- 	pm_runtime_put_noidle(dev);
- 	if (!pm_runtime_enabled(dev))
- 		fimc_is_runtime_suspend(dev);
-+err_pm_disable:
-+	pm_runtime_disable(dev);
- err_irq:
- 	free_irq(is->irq, is);
- err_clk:
+-			rpmhcc: clock-controller@1 {
++			rpmhcc: clock-controller {
+ 				compatible = "qcom,sdx65-rpmh-clk";
+ 				#clock-cells = <1>;
+ 				clock-names = "xo";
 -- 
 2.35.1
 
