@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52AC0540EE9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CECEA540EED
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352477AbiFGS6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:58:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51102 "EHLO
+        id S1352635AbiFGS6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353407AbiFGSx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F5514ACB5;
-        Tue,  7 Jun 2022 11:03:50 -0700 (PDT)
+        with ESMTP id S1352980AbiFGSym (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:54:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6258C14AF57;
+        Tue,  7 Jun 2022 11:03:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 956E66171C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ABB0617AE;
+        Tue,  7 Jun 2022 18:03:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8829BC36AFE;
         Tue,  7 Jun 2022 18:03:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E4BC36AFF;
-        Tue,  7 Jun 2022 18:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654625029;
-        bh=vdHmBAw1oESu3mBgdYJHfUNiSBmK3oQCUHtDEM6Fx5M=;
+        s=k20201202; t=1654625030;
+        bh=ggAdO0Ry7BMKXmTuMezMqaYPVCO6EkL3gl5dGlN1l4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8ueaBSdT9bbfvyBl6w0cUKikOjz8aomfpOUfWBZT5I4a4uHzb56K73H/AMseEeUS
-         Y+Y4O8seQA0PemojvQcyR1PhABPRTdZwgH20ZhAZXgH1Fa5ED6S6skDfjgMYNcBebQ
-         PtuV2hd4U9TALkI79Wa6T/6HYmUjxUfcOyPvjmbd4aSDe18pGrhMs9R9HCy+Wq4U9o
-         sq1lapWPPDIKlIcukwCALJR+ukV685yqlK4nflNC9S3nPm+82P7JwZ+2mmPG5Ppqc4
-         ULaKoO1leaLmSbuabDScO/DaecgLo0Zr9Lc7l8V01jIAqB02ZEhdolZ/AVdE0BDXTW
-         6o9ypRCiaFb1A==
+        b=mYzzqzK499ET1wsmZnghxVn+BkAe/pEDGWqy/W2I7xJEU5xqQJTla+lzq2EKr57+A
+         xfVn7LLr5SIrULYwxNS4lAsc3WjKAodj/WkunfA5tGXKGD0K7WV5WpVrrMl38KSwCn
+         EVZluW7AscXBLvNHYV1pC4S3olijG37G8o8qpjVC01WXFHIds1fLASG844w3/pz94t
+         JrvU4AjGsLub/rMbcCrx0uPWzg6JWDeyBvT2Tfd84et5+bgKfoXW19ERZrdz7RulCC
+         71jG2j6EtE411PD0EDaSZaqbncwgjH1XWcHmbmNlScus+2x/Xffe/XDbZLFbI9xoGx
+         EBEo9H5aqkCvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Ogness <john.ogness@linutronix.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        bjorn.andersson@linaro.org, jirislaby@kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 14/19] serial: msm_serial: disable interrupts in __msm_console_write()
-Date:   Tue,  7 Jun 2022 14:03:09 -0400
-Message-Id: <20220607180317.482354-14-sashal@kernel.org>
+Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Donald Buczek <buczek@molgen.mpg.de>,
+        Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 15/19] md: protect md_unregister_thread from reentrancy
+Date:   Tue,  7 Jun 2022 14:03:10 -0400
+Message-Id: <20220607180317.482354-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607180317.482354-1-sashal@kernel.org>
 References: <20220607180317.482354-1-sashal@kernel.org>
@@ -60,57 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit aabdbb1b7a5819e18c403334a31fb0cc2c06ad41 ]
+[ Upstream commit 1e267742283a4b5a8ca65755c44166be27e9aa0f ]
 
-__msm_console_write() assumes that interrupts are disabled, but
-with threaded console printers it is possible that the write()
-callback of the console is called with interrupts enabled.
+Generally, the md_unregister_thread is called with reconfig_mutex, but
+raid_message in dm-raid doesn't hold reconfig_mutex to unregister thread,
+so md_unregister_thread can be called simulitaneously from two call sites
+in theory.
 
-Explicitly disable interrupts using local_irq_save() to preserve
-the assumed context.
+Then after previous commit which remove the protection of reconfig_mutex
+for md_unregister_thread completely, the potential issue could be worse
+than before.
 
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Link: https://lore.kernel.org/r/20220506213324.470461-1-john.ogness@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's take pers_lock at the beginning of function to ensure reentrancy.
+
+Reported-by: Donald Buczek <buczek@molgen.mpg.de>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/msm_serial.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/md/md.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index c284e61ed4fc..33d035f9fded 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -1578,6 +1578,7 @@ static inline struct uart_port *msm_get_port_from_line(unsigned int line)
- static void __msm_console_write(struct uart_port *port, const char *s,
- 				unsigned int count, bool is_uartdm)
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 98c72dd56a2d..d2e2006ed792 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7252,17 +7252,22 @@ EXPORT_SYMBOL(md_register_thread);
+ 
+ void md_unregister_thread(struct md_thread **threadp)
  {
-+	unsigned long flags;
- 	int i;
- 	int num_newlines = 0;
- 	bool replaced = false;
-@@ -1595,6 +1596,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 			num_newlines++;
- 	count += num_newlines;
- 
-+	local_irq_save(flags);
+-	struct md_thread *thread = *threadp;
+-	if (!thread)
+-		return;
+-	pr_debug("interrupting MD-thread pid %d\n", task_pid_nr(thread->tsk));
+-	/* Locking ensures that mddev_unlock does not wake_up a
++	struct md_thread *thread;
 +
- 	if (port->sysrq)
- 		locked = 0;
- 	else if (oops_in_progress)
-@@ -1640,6 +1643,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
++	/*
++	 * Locking ensures that mddev_unlock does not wake_up a
+ 	 * non-existent thread
+ 	 */
+ 	spin_lock(&pers_lock);
++	thread = *threadp;
++	if (!thread) {
++		spin_unlock(&pers_lock);
++		return;
++	}
+ 	*threadp = NULL;
+ 	spin_unlock(&pers_lock);
  
- 	if (locked)
- 		spin_unlock(&port->lock);
-+
-+	local_irq_restore(flags);
++	pr_debug("interrupting MD-thread pid %d\n", task_pid_nr(thread->tsk));
+ 	kthread_stop(thread->tsk);
+ 	kfree(thread);
  }
- 
- static void msm_console_write(struct console *co, const char *s,
 -- 
 2.35.1
 
