@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B728F540A44
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 474E5540B18
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243458AbiFGSTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
+        id S1350152AbiFGSYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352159AbiFGSQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E011E084;
-        Tue,  7 Jun 2022 10:50:48 -0700 (PDT)
+        with ESMTP id S1352164AbiFGSQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3E9FD2E;
+        Tue,  7 Jun 2022 10:50:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADFF561650;
-        Tue,  7 Jun 2022 17:50:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B85A6C34115;
-        Tue,  7 Jun 2022 17:50:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E784B82340;
+        Tue,  7 Jun 2022 17:50:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DEB5C36B00;
+        Tue,  7 Jun 2022 17:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624247;
-        bh=4en+cC/nYj++7MgCIJDMIe5jSsByg+LEvsp7KKofpjw=;
+        s=korg; t=1654624250;
+        bh=KzaJ1FRibFPYJhAFTsNK5icMJ2UO3L8H+8cyEbXx5Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0bbyTv0bT37e8h5331qqDErv1bCAfGeqA7Exl5QBJk54iEnBIojvabepNVHJn6hn
-         aDQhWRqgdgpy4+5i4FKhHC2kdWBBDFDDb00Av+dFEK0VaunBiL/0fsTX7rKpXmwvaa
-         ZsgGC43ANmk/euYtbN14hISrO+5O9J0WaorlBhtI=
+        b=EigiQw1KZV0FQxAv0sYCCaWS3i1+D9WNipEwwM8sCSBFXjD3IhydmXuc0AVNvJVaZ
+         GKg/Juo1vwnWtsUZkS0s4YenEtj4wIAcDN45QBnrfTnHjVtjSvyOc9G1eYe5uc0F98
+         Mmhz/yNrMCl1WL9FYHf2FGl4xaZBY9XgZ/2vhPJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 256/667] selftests/resctrl: Fix null pointer dereference on open failed
-Date:   Tue,  7 Jun 2022 18:58:41 +0200
-Message-Id: <20220607164942.460918940@linuxfoundation.org>
+Subject: [PATCH 5.15 257/667] libbpf: Fix logic for finding matching program for CO-RE relocation
+Date:   Tue,  7 Jun 2022 18:58:42 +0200
+Message-Id: <20220607164942.490533877@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -54,48 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit c7b607fa9325ccc94982774c505176677117689c ]
+[ Upstream commit 966a7509325395c51c5f6d89e7352b0585e4804b ]
 
-Currently if opening /dev/null fails to open then file pointer fp
-is null and further access to fp via fprintf will cause a null
-pointer dereference. Fix this by returning a negative error value
-when a null fp is detected.
+Fix the bug in bpf_object__relocate_core() which can lead to finding
+invalid matching BPF program when processing CO-RE relocation. IF
+matching program is not found, last encountered program will be assumed
+to be correct program and thus error detection won't detect the problem.
 
-Detected using cppcheck static analysis:
-tools/testing/selftests/resctrl/fill_buf.c:124:6: note: Assuming
-that condition '!fp' is not redundant
- if (!fp)
-     ^
-tools/testing/selftests/resctrl/fill_buf.c:126:10: note: Null
-pointer dereference
- fprintf(fp, "Sum: %d ", ret);
-
-Fixes: a2561b12fe39 ("selftests/resctrl: Add built in benchmark")
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 9c82a63cf370 ("libbpf: Fix CO-RE relocs against .text section")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220426004511.2691730-4-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/fill_buf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/resctrl/fill_buf.c b/tools/testing/selftests/resctrl/fill_buf.c
-index 51e5cf22632f..56ccbeae0638 100644
---- a/tools/testing/selftests/resctrl/fill_buf.c
-+++ b/tools/testing/selftests/resctrl/fill_buf.c
-@@ -121,8 +121,10 @@ static int fill_cache_read(unsigned char *start_ptr, unsigned char *end_ptr,
- 
- 	/* Consume read result so that reading memory is not optimized out. */
- 	fp = fopen("/dev/null", "w");
--	if (!fp)
-+	if (!fp) {
- 		perror("Unable to write to /dev/null");
-+		return -1;
-+	}
- 	fprintf(fp, "Sum: %d ", ret);
- 	fclose(fp);
- 
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 5612d0938fc9..1ba2dd3523f8 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -5221,9 +5221,10 @@ bpf_object__relocate_core(struct bpf_object *obj, const char *targ_btf_path)
+ 		 */
+ 		prog = NULL;
+ 		for (i = 0; i < obj->nr_programs; i++) {
+-			prog = &obj->programs[i];
+-			if (strcmp(prog->sec_name, sec_name) == 0)
++			if (strcmp(obj->programs[i].sec_name, sec_name) == 0) {
++				prog = &obj->programs[i];
+ 				break;
++			}
+ 		}
+ 		if (!prog) {
+ 			pr_warn("sec '%s': failed to find a BPF program\n", sec_name);
 -- 
 2.35.1
 
