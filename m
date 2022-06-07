@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A677540E3A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 637BB5406D6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:39:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352155AbiFGSxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:53:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58420 "EHLO
+        id S245204AbiFGRjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:39:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354577AbiFGSrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CF2AE260;
-        Tue,  7 Jun 2022 11:02:21 -0700 (PDT)
+        with ESMTP id S1347470AbiFGRhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:37:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37AE29813;
+        Tue,  7 Jun 2022 10:33:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B831BB82366;
-        Tue,  7 Jun 2022 18:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF010C385A5;
-        Tue,  7 Jun 2022 18:02:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F131960BC6;
+        Tue,  7 Jun 2022 17:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E2B6C385A5;
+        Tue,  7 Jun 2022 17:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624939;
-        bh=6oCEsGrH4yCyfhP7SrWq+do8nPz28zA/Cu2zTNcGrHU=;
+        s=korg; t=1654623158;
+        bh=/kXF5EwV/X6EjUXiAUV7ID0fOWl4eERfxctu+CQl7TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w9xgKuRYtMH16fkrmY9E3mk+ZbN2a9AhnPigTJdbqBRqZ/kbx4n32DlV5aRMML531
-         eXt0i5tdsCnt46naQp06t6h/pZtjCtepcnhE6sE62wn5qjD8v2ggMU4wiTJKVevIDl
-         3Uj4kExPBSH4fsoRaK3cxei+8YEAYUphlj6mn4DY=
+        b=A4auHl+SQ98r/yRbzRnSJsdchyDNfFBel/jitQi5hjSwvGm3Gry4HvTnO+7S+g40X
+         /PyGmBpcYQmDL9799h6I0GoL2GuViTHTmxhx1Da/gfuvR97I+FY1kaXUMe7uMEqV1U
+         5HHYbYbTZYGTzSEG6rep8tg+DOojI7pfmeR9fQxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Douglas Miller <doug.miller@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 508/667] perf build: Fix btf__load_from_kernel_by_id() feature check
+Subject: [PATCH 5.10 316/452] RDMA/hfi1: Prevent use of lock before it is initialized
 Date:   Tue,  7 Jun 2022 19:02:53 +0200
-Message-Id: <20220607164949.936822050@linuxfoundation.org>
+Message-Id: <20220607164917.974785343@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,51 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Douglas Miller <doug.miller@cornelisnetworks.com>
 
-[ Upstream commit 73534617dfa3c4cd95fe5ffaeff5315e9ffc2de6 ]
+[ Upstream commit 05c03dfd09c069c4ffd783b47b2da5dcc9421f2c ]
 
-The btf__load_from_kernel_by_id() only takes one arg, not two.
+If there is a failure during probe of hfi1 before the sdma_map_lock is
+initialized, the call to hfi1_free_devdata() will attempt to use a lock
+that has not been initialized. If the locking correctness validator is on
+then an INFO message and stack trace resembling the following may be seen:
 
-Committer notes:
+  INFO: trying to register non-static key.
+  The code is fine but needs lockdep annotation, or maybe
+  you didn't initialize this object before use?
+  turning off the locking correctness validator.
+  Call Trace:
+  register_lock_class+0x11b/0x880
+  __lock_acquire+0xf3/0x7930
+  lock_acquire+0xff/0x2d0
+  _raw_spin_lock_irq+0x46/0x60
+  sdma_clean+0x42a/0x660 [hfi1]
+  hfi1_free_devdata+0x3a7/0x420 [hfi1]
+  init_one+0x867/0x11a0 [hfi1]
+  pci_device_probe+0x40e/0x8d0
 
-I tested it just with an older libbpf, one where
-btf__load_from_kernel_by_id() wasn't introduced yet.
+The use of sdma_map_lock in sdma_clean() is for freeing the sdma_map
+memory, and sdma_map is not allocated/initialized until after
+sdma_map_lock has been initialized. This code only needs to be run if
+sdma_map is not NULL, and so checking for that condition will avoid trying
+to use the lock before it is initialized.
 
-A test with a newer dynamic libbpf would fail because the
-btf__load_from_kernel_by_id() is there, but takes just one arg.
-
-Fixes: 0ae065a5d265bc5a ("perf build: Fix check for btf__load_from_kernel_by_id() in libbpf")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: http://lore.kernel.org/linux-perf-users/YozLKby7ITEtchC9@krava
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 473291b3ea0e ("IB/hfi1: Fix for early release of sdma context")
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20220520183701.48973.72434.stgit@awfm-01.cornelisnetworks.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../build/feature/test-libbpf-btf__load_from_kernel_by_id.c  | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/sdma.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
-index f7c084428735..a17647f7d5a4 100644
---- a/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
-+++ b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
-@@ -1,7 +1,8 @@
- // SPDX-License-Identifier: GPL-2.0
--#include <bpf/libbpf.h>
-+#include <bpf/btf.h>
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index 0b73dc7847aa..a044bee257f9 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -1330,11 +1330,13 @@ void sdma_clean(struct hfi1_devdata *dd, size_t num_engines)
+ 		kvfree(sde->tx_ring);
+ 		sde->tx_ring = NULL;
+ 	}
+-	spin_lock_irq(&dd->sde_map_lock);
+-	sdma_map_free(rcu_access_pointer(dd->sdma_map));
+-	RCU_INIT_POINTER(dd->sdma_map, NULL);
+-	spin_unlock_irq(&dd->sde_map_lock);
+-	synchronize_rcu();
++	if (rcu_access_pointer(dd->sdma_map)) {
++		spin_lock_irq(&dd->sde_map_lock);
++		sdma_map_free(rcu_access_pointer(dd->sdma_map));
++		RCU_INIT_POINTER(dd->sdma_map, NULL);
++		spin_unlock_irq(&dd->sde_map_lock);
++		synchronize_rcu();
++	}
+ 	kfree(dd->per_sdma);
+ 	dd->per_sdma = NULL;
  
- int main(void)
- {
--	return btf__load_from_kernel_by_id(20151128, NULL);
-+	btf__load_from_kernel_by_id(20151128);
-+	return 0;
- }
 -- 
 2.35.1
 
