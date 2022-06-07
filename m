@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBA054188E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 894B65410E6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349559AbiFGVM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
+        id S1355495AbiFGTaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379991AbiFGVLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375D713B2D6;
-        Tue,  7 Jun 2022 11:52:47 -0700 (PDT)
+        with ESMTP id S1355184AbiFGT2X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA9F1A29F4;
+        Tue,  7 Jun 2022 11:11:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFBE7B82018;
-        Tue,  7 Jun 2022 18:52:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D497C385A5;
-        Tue,  7 Jun 2022 18:52:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE528617B3;
+        Tue,  7 Jun 2022 18:11:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC175C36B0A;
+        Tue,  7 Jun 2022 18:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627964;
-        bh=YKSYJ8feQQUks/Q0dsbpP6LiQTbUiyPC+M1UieNFIdw=;
+        s=korg; t=1654625502;
+        bh=rRV2k8vNBsoHJtHe2nbd9LCfa5WbT4u7QV6hB3lAa2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UaDeTQzLcO9lgD+YswtR87Z1+jxvkxyz/oPXHJn3Bho2b1mKhsiJL0RnfnuretEn9
-         01LX2OIgEh0qo8Y9WRgNmehIjrHrgdQ3zLfn67MFm1Vl75q6oaF4SWI0O/IxH7riTU
-         0QGlFUs+1Op/8Bj3FacsKopGEvTKIZykKt8RfTeY=
+        b=M0xEF8+xKnDXeUcLdtxEJVm4q4Ftytmzz/Hi0yKgdlqjxgWtCx9UmMF1V6jtKIP+Z
+         +A3huGa1QrMOrXf/eBTzphw9deqVLj/PetH9s8DMmLKp2NvknCggiNqqcS/UEcclFx
+         92BoDAzFULASFLAkgP9ey53iG3/t9S3L6olcnShE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mukul Joshi <mukul.joshi@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 116/879] drm/amdkfd: Fix circular lock dependency warning
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 042/772] btrfs: add "0x" prefix for unsupported optional features
 Date:   Tue,  7 Jun 2022 18:53:54 +0200
-Message-Id: <20220607165006.068458107@linuxfoundation.org>
+Message-Id: <20220607164950.266139465@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,220 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukul Joshi <mukul.joshi@amd.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit b179fc28d521379ba7e0a38eec1a4c722e7ea634 ]
+commit d5321a0fa8bc49f11bea0b470800962c17d92d8f upstream.
 
-[  168.544078] ======================================================
-[  168.550309] WARNING: possible circular locking dependency detected
-[  168.556523] 5.16.0-kfd-fkuehlin #148 Tainted: G            E
-[  168.562558] ------------------------------------------------------
-[  168.568764] kfdtest/3479 is trying to acquire lock:
-[  168.573672] ffffffffc0927a70 (&topology_lock){++++}-{3:3}, at:
-		kfd_topology_device_by_id+0x16/0x60 [amdgpu] [  168.583663]
-                but task is already holding lock:
-[  168.589529] ffff97d303dee668 (&mm->mmap_lock#2){++++}-{3:3}, at:
-		vm_mmap_pgoff+0xa9/0x180 [  168.597755]
-                which lock already depends on the new lock.
+The following error message lack the "0x" obviously:
 
-[  168.605970]
-                the existing dependency chain (in reverse order) is:
-[  168.613487]
-                -> #3 (&mm->mmap_lock#2){++++}-{3:3}:
-[  168.619700]        lock_acquire+0xca/0x2e0
-[  168.623814]        down_read+0x3e/0x140
-[  168.627676]        do_user_addr_fault+0x40d/0x690
-[  168.632399]        exc_page_fault+0x6f/0x270
-[  168.636692]        asm_exc_page_fault+0x1e/0x30
-[  168.641249]        filldir64+0xc8/0x1e0
-[  168.645115]        call_filldir+0x7c/0x110
-[  168.649238]        ext4_readdir+0x58e/0x940
-[  168.653442]        iterate_dir+0x16a/0x1b0
-[  168.657558]        __x64_sys_getdents64+0x83/0x140
-[  168.662375]        do_syscall_64+0x35/0x80
-[  168.666492]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  168.672095]
-                -> #2 (&type->i_mutex_dir_key#6){++++}-{3:3}:
-[  168.679008]        lock_acquire+0xca/0x2e0
-[  168.683122]        down_read+0x3e/0x140
-[  168.686982]        path_openat+0x5b2/0xa50
-[  168.691095]        do_file_open_root+0xfc/0x190
-[  168.695652]        file_open_root+0xd8/0x1b0
-[  168.702010]        kernel_read_file_from_path_initns+0xc4/0x140
-[  168.709542]        _request_firmware+0x2e9/0x5e0
-[  168.715741]        request_firmware+0x32/0x50
-[  168.721667]        amdgpu_cgs_get_firmware_info+0x370/0xdd0 [amdgpu]
-[  168.730060]        smu7_upload_smu_firmware_image+0x53/0x190 [amdgpu]
-[  168.738414]        fiji_start_smu+0xcf/0x4e0 [amdgpu]
-[  168.745539]        pp_dpm_load_fw+0x21/0x30 [amdgpu]
-[  168.752503]        amdgpu_pm_load_smu_firmware+0x4b/0x80 [amdgpu]
-[  168.760698]        amdgpu_device_fw_loading+0xb8/0x140 [amdgpu]
-[  168.768412]        amdgpu_device_init.cold+0xdf6/0x1716 [amdgpu]
-[  168.776285]        amdgpu_driver_load_kms+0x15/0x120 [amdgpu]
-[  168.784034]        amdgpu_pci_probe+0x19b/0x3a0 [amdgpu]
-[  168.791161]        local_pci_probe+0x40/0x80
-[  168.797027]        work_for_cpu_fn+0x10/0x20
-[  168.802839]        process_one_work+0x273/0x5b0
-[  168.808903]        worker_thread+0x20f/0x3d0
-[  168.814700]        kthread+0x176/0x1a0
-[  168.819968]        ret_from_fork+0x1f/0x30
-[  168.825563]
-                -> #1 (&adev->pm.mutex){+.+.}-{3:3}:
-[  168.834721]        lock_acquire+0xca/0x2e0
-[  168.840364]        __mutex_lock+0xa2/0x930
-[  168.846020]        amdgpu_dpm_get_mclk+0x37/0x60 [amdgpu]
-[  168.853257]        amdgpu_amdkfd_get_local_mem_info+0xba/0xe0 [amdgpu]
-[  168.861547]        kfd_create_vcrat_image_gpu+0x1b1/0xbb0 [amdgpu]
-[  168.869478]        kfd_create_crat_image_virtual+0x447/0x510 [amdgpu]
-[  168.877884]        kfd_topology_add_device+0x5c8/0x6f0 [amdgpu]
-[  168.885556]        kgd2kfd_device_init.cold+0x385/0x4c5 [amdgpu]
-[  168.893347]        amdgpu_amdkfd_device_init+0x138/0x180 [amdgpu]
-[  168.901177]        amdgpu_device_init.cold+0x141b/0x1716 [amdgpu]
-[  168.909025]        amdgpu_driver_load_kms+0x15/0x120 [amdgpu]
-[  168.916458]        amdgpu_pci_probe+0x19b/0x3a0 [amdgpu]
-[  168.923442]        local_pci_probe+0x40/0x80
-[  168.929249]        work_for_cpu_fn+0x10/0x20
-[  168.935008]        process_one_work+0x273/0x5b0
-[  168.940944]        worker_thread+0x20f/0x3d0
-[  168.946623]        kthread+0x176/0x1a0
-[  168.951765]        ret_from_fork+0x1f/0x30
-[  168.957277]
-                -> #0 (&topology_lock){++++}-{3:3}:
-[  168.965993]        check_prev_add+0x8f/0xbf0
-[  168.971613]        __lock_acquire+0x1299/0x1ca0
-[  168.977485]        lock_acquire+0xca/0x2e0
-[  168.982877]        down_read+0x3e/0x140
-[  168.987975]        kfd_topology_device_by_id+0x16/0x60 [amdgpu]
-[  168.995583]        kfd_device_by_id+0xa/0x20 [amdgpu]
-[  169.002180]        kfd_mmap+0x95/0x200 [amdgpu]
-[  169.008293]        mmap_region+0x337/0x5a0
-[  169.013679]        do_mmap+0x3aa/0x540
-[  169.018678]        vm_mmap_pgoff+0xdc/0x180
-[  169.024095]        ksys_mmap_pgoff+0x186/0x1f0
-[  169.029734]        do_syscall_64+0x35/0x80
-[  169.035005]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  169.041754]
-                other info that might help us debug this:
+  cannot mount because of unsupported optional features (4000)
 
-[  169.053276] Chain exists of:
-                  &topology_lock --> &type->i_mutex_dir_key#6 --> &mm->mmap_lock#2
+Add the prefix to make it less confusing. This can happen on older
+kernels that try to mount a filesystem with newer features so it makes
+sense to backport to older trees.
 
-[  169.068389]  Possible unsafe locking scenario:
-
-[  169.076661]        CPU0                    CPU1
-[  169.082383]        ----                    ----
-[  169.088087]   lock(&mm->mmap_lock#2);
-[  169.092922]                                lock(&type->i_mutex_dir_key#6);
-[  169.100975]                                lock(&mm->mmap_lock#2);
-[  169.108320]   lock(&topology_lock);
-[  169.112957]
-                 *** DEADLOCK ***
-
-This commit fixes the deadlock warning by ensuring pm.mutex is not
-held while holding the topology lock. For this, kfd_local_mem_info
-is moved into the KFD dev struct and filled during device init.
-This cached value can then be used instead of querying the value
-again and again.
-
-Signed-off-by: Mukul Joshi <mukul.joshi@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c  | 7 ++-----
- drivers/gpu/drm/amd/amdkfd/kfd_crat.c     | 2 +-
- drivers/gpu/drm/amd/amdkfd/kfd_device.c   | 2 ++
- drivers/gpu/drm/amd/amdkfd/kfd_priv.h     | 1 +
- drivers/gpu/drm/amd/amdkfd/kfd_topology.c | 7 ++-----
- 5 files changed, 8 insertions(+), 11 deletions(-)
+ fs/btrfs/disk-io.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index 607f65ab39ac..10cc834a5ac3 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -944,8 +944,6 @@ static int kfd_ioctl_acquire_vm(struct file *filep, struct kfd_process *p,
- 
- bool kfd_dev_is_large_bar(struct kfd_dev *dev)
- {
--	struct kfd_local_mem_info mem_info;
--
- 	if (debug_largebar) {
- 		pr_debug("Simulate large-bar allocation on non large-bar machine\n");
- 		return true;
-@@ -954,9 +952,8 @@ bool kfd_dev_is_large_bar(struct kfd_dev *dev)
- 	if (dev->use_iommu_v2)
- 		return false;
- 
--	amdgpu_amdkfd_get_local_mem_info(dev->adev, &mem_info);
--	if (mem_info.local_mem_size_private == 0 &&
--			mem_info.local_mem_size_public > 0)
-+	if (dev->local_mem_info.local_mem_size_private == 0 &&
-+			dev->local_mem_info.local_mem_size_public > 0)
- 		return true;
- 	return false;
- }
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
-index 1eaabd2cb41b..59b349a4c04a 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
-@@ -2152,7 +2152,7 @@ static int kfd_create_vcrat_image_gpu(void *pcrat_image,
- 	 * report the total FB size (public+private) as a single
- 	 * private heap.
- 	 */
--	amdgpu_amdkfd_get_local_mem_info(kdev->adev, &local_mem_info);
-+	local_mem_info = kdev->local_mem_info;
- 	sub_type_hdr = (typeof(sub_type_hdr))((char *)sub_type_hdr +
- 			sub_type_hdr->length);
- 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-index 62aa6c9d5123..c96d521447fc 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-@@ -575,6 +575,8 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
- 	if (kfd_resume(kfd))
- 		goto kfd_resume_error;
- 
-+	amdgpu_amdkfd_get_local_mem_info(kfd->adev, &kfd->local_mem_info);
-+
- 	if (kfd_topology_add_device(kfd)) {
- 		dev_err(kfd_device, "Error adding device to topology\n");
- 		goto kfd_topology_add_device_error;
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_priv.h b/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
-index 8f58fc491b28..49a29a60b71e 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_priv.h
-@@ -272,6 +272,7 @@ struct kfd_dev {
- 
- 	struct kgd2kfd_shared_resources shared_resources;
- 	struct kfd_vmid_info vm_info;
-+	struct kfd_local_mem_info local_mem_info;
- 
- 	const struct kfd2kgd_calls *kfd2kgd;
- 	struct mutex doorbell_mutex;
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-index 3bdcae239bc0..9fc24f6823df 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-@@ -1102,15 +1102,12 @@ static uint32_t kfd_generate_gpu_id(struct kfd_dev *gpu)
- 	uint32_t buf[7];
- 	uint64_t local_mem_size;
- 	int i;
--	struct kfd_local_mem_info local_mem_info;
- 
- 	if (!gpu)
- 		return 0;
- 
--	amdgpu_amdkfd_get_local_mem_info(gpu->adev, &local_mem_info);
--
--	local_mem_size = local_mem_info.local_mem_size_private +
--			local_mem_info.local_mem_size_public;
-+	local_mem_size = gpu->local_mem_info.local_mem_size_private +
-+			gpu->local_mem_info.local_mem_size_public;
- 
- 	buf[0] = gpu->pdev->devfn;
- 	buf[1] = gpu->pdev->subsystem_vendor |
--- 
-2.35.1
-
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3522,7 +3522,7 @@ int __cold open_ctree(struct super_block
+ 		~BTRFS_FEATURE_INCOMPAT_SUPP;
+ 	if (features) {
+ 		btrfs_err(fs_info,
+-		    "cannot mount because of unsupported optional features (%llx)",
++		    "cannot mount because of unsupported optional features (0x%llx)",
+ 		    features);
+ 		err = -EINVAL;
+ 		goto fail_alloc;
+@@ -3560,7 +3560,7 @@ int __cold open_ctree(struct super_block
+ 		~BTRFS_FEATURE_COMPAT_RO_SUPP;
+ 	if (!sb_rdonly(sb) && features) {
+ 		btrfs_err(fs_info,
+-	"cannot mount read-write because of unsupported optional features (%llx)",
++	"cannot mount read-write because of unsupported optional features (0x%llx)",
+ 		       features);
+ 		err = -EINVAL;
+ 		goto fail_alloc;
 
 
