@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F0D5410A0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A21BD541760
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352049AbiFGT2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:28:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51946 "EHLO
+        id S1377790AbiFGVCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355955AbiFGT0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:26:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06ED819F040;
-        Tue,  7 Jun 2022 11:09:37 -0700 (PDT)
+        with ESMTP id S1378791AbiFGVBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E725D20ED51;
+        Tue,  7 Jun 2022 11:45:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57CD9B82354;
-        Tue,  7 Jun 2022 18:09:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A50F4C385A2;
-        Tue,  7 Jun 2022 18:09:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 850666156D;
+        Tue,  7 Jun 2022 18:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91D39C385A2;
+        Tue,  7 Jun 2022 18:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625375;
-        bh=K0bdUzOfeyMkxgs4pOZ4/dubG5F1GljN0qv8FWivZ/Q=;
+        s=korg; t=1654627537;
+        bh=u3BGt4PKsLXxAzxsq/aZZArjOH52aSbr80e3Qobz3pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFSvHudnWn9LKIgcdiLVgXjdK1seMq28YmaNw6M1loFuaa+wRSLYHRrtMPX1coS+R
-         Tc9CSenlWtSLWjYKSEp2s1uTvnTnOIzshAZqj+3biQIOosuQcsVIUb1r/jgpaaGMox
-         toNgsGzN/26Zo7T6pqSslz0eKkrlZmlbpoaX0yqU=
+        b=CJncDHI+K2/qi/x2VCTbhK2e17siPUwwOTJP/kmxzxNN7wTbVigjYALaARLCVNZYh
+         sauF7+uYvZ9+V1oCBcWfQoOs/HU79aIu/J71ss5edt2pMQ13/xn3yTEMWiF4gJzAOH
+         QsBuuithAekQKCSCS1B8ZqUlIhKvQtSCg6qdDKGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fine Fan <ffan@redhat.com>,
-        Xiao Ni <xni@redhat.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.15 665/667] md: Dont set mddev private to NULL in raid0 pers->free
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Jyri Sarha <jyri.sarha@iki.fi>
+Subject: [PATCH 5.17 738/772] tilcdc: tilcdc_external: fix an incorrect NULL check on list iterator
 Date:   Tue,  7 Jun 2022 19:05:30 +0200
-Message-Id: <20220607164954.585737970@linuxfoundation.org>
+Message-Id: <20220607165010.783351592@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 0f2571ad7a30ff6b33cde142439f9378669f8b4f upstream.
+commit 8b917cbe38e9b0d002492477a9fc2bfee2412ce4 upstream.
 
-In normal stop process, it does like this:
-   do_md_stop
-      |
-   __md_stop (pers->free(); mddev->private=NULL)
-      |
-   md_free (free mddev)
-__md_stop sets mddev->private to NULL after pers->free. The raid device
-will be stopped and mddev memory is free. But in reshape, it doesn't
-free the mddev and mddev will still be used in new raid.
+The bug is here:
+	if (!encoder) {
 
-In reshape, it first sets mddev->private to new_pers and then runs
-old_pers->free(). Now raid0 sets mddev->private to NULL in raid0_free.
-The new raid can't work anymore. It will panic when dereference
-mddev->private because of NULL pointer dereference.
+The list iterator value 'encoder' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+is found.
 
-It can panic like this:
-[63010.814972] kernel BUG at drivers/md/raid10.c:928!
-[63010.819778] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-[63010.825011] CPU: 3 PID: 44437 Comm: md0_resync Kdump: loaded Not tainted 5.14.0-86.el9.x86_64 #1
-[63010.833789] Hardware name: Dell Inc. PowerEdge R6415/07YXFK, BIOS 1.15.0 09/11/2020
-[63010.841440] RIP: 0010:raise_barrier+0x161/0x170 [raid10]
-[63010.865508] RSP: 0018:ffffc312408bbc10 EFLAGS: 00010246
-[63010.870734] RAX: 0000000000000000 RBX: ffffa00bf7d39800 RCX: 0000000000000000
-[63010.877866] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffffa00bf7d39800
-[63010.884999] RBP: 0000000000000000 R08: fffffa4945e74400 R09: 0000000000000000
-[63010.892132] R10: ffffa00eed02f798 R11: 0000000000000000 R12: ffffa00bbc435200
-[63010.899266] R13: ffffa00bf7d39800 R14: 0000000000000400 R15: 0000000000000003
-[63010.906399] FS:  0000000000000000(0000) GS:ffffa00eed000000(0000) knlGS:0000000000000000
-[63010.914485] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[63010.920229] CR2: 00007f5cfbe99828 CR3: 0000000105efe000 CR4: 00000000003506e0
-[63010.927363] Call Trace:
-[63010.929822]  ? bio_reset+0xe/0x40
-[63010.933144]  ? raid10_alloc_init_r10buf+0x60/0xa0 [raid10]
-[63010.938629]  raid10_sync_request+0x756/0x1610 [raid10]
-[63010.943770]  md_do_sync.cold+0x3e4/0x94c
-[63010.947698]  md_thread+0xab/0x160
-[63010.951024]  ? md_write_inc+0x50/0x50
-[63010.954688]  kthread+0x149/0x170
-[63010.957923]  ? set_kthread_struct+0x40/0x40
-[63010.962107]  ret_from_fork+0x22/0x30
+To fix the bug, use a new variable 'iter' as the list iterator,
+while use the original variable 'encoder' as a dedicated pointer
+to point to the found element.
 
-Removing the code that sets mddev->private to NULL in raid0 can fix
-problem.
-
-Fixes: 0c031fd37f69 (md: Move alloc/free acct bioset in to personality)
-Reported-by: Fine Fan <ffan@redhat.com>
-Signed-off-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: ec9eab097a500 ("drm/tilcdc: Add drm bridge support for attaching drm bridge drivers")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Jyri Sarha <jyri.sarha@iki.fi>
+Tested-by: Jyri Sarha <jyri.sarha@iki.fi>
+Signed-off-by: Jyri Sarha <jyri.sarha@iki.fi>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327061516.5076-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid0.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/tilcdc/tilcdc_external.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -361,7 +361,6 @@ static void free_conf(struct mddev *mdde
- 	kfree(conf->strip_zone);
- 	kfree(conf->devlist);
- 	kfree(conf);
--	mddev->private = NULL;
- }
+--- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
+@@ -60,11 +60,13 @@ struct drm_connector *tilcdc_encoder_fin
+ int tilcdc_add_component_encoder(struct drm_device *ddev)
+ {
+ 	struct tilcdc_drm_private *priv = ddev->dev_private;
+-	struct drm_encoder *encoder;
++	struct drm_encoder *encoder = NULL, *iter;
  
- static void raid0_free(struct mddev *mddev, void *priv)
+-	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
+-		if (encoder->possible_crtcs & (1 << priv->crtc->index))
++	list_for_each_entry(iter, &ddev->mode_config.encoder_list, head)
++		if (iter->possible_crtcs & (1 << priv->crtc->index)) {
++			encoder = iter;
+ 			break;
++		}
+ 
+ 	if (!encoder) {
+ 		dev_err(ddev->dev, "%s: No suitable encoder found\n", __func__);
 
 
