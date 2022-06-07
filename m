@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 953A1541DAB
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D58C3540FDD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345325AbiFGWS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:18:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
+        id S1352193AbiFGTON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:14:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385037AbiFGWRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:17:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665CE262706;
-        Tue,  7 Jun 2022 12:20:20 -0700 (PDT)
+        with ESMTP id S1354874AbiFGTNm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:13:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E3D41CB36;
+        Tue,  7 Jun 2022 11:07:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E09E3B8233E;
-        Tue,  7 Jun 2022 19:19:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57601C385A5;
-        Tue,  7 Jun 2022 19:19:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D3405CE2427;
+        Tue,  7 Jun 2022 18:07:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E83C34115;
+        Tue,  7 Jun 2022 18:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629593;
-        bh=1xR0J75ZXSv9F3XwtXuUO8C7ILR4HML9B/tq5xySGAg=;
+        s=korg; t=1654625236;
+        bh=YIivGeXXRfB6Sue+gelH2WioHvR7o0hxg8DWNPtEYV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ev4CnCyW2zesNdcn8gvTabIncHOMAXpWIUikYPUAHboF4aeh9IBHpO6T3HrHv8yqH
-         PgQiPcNegbOqUeYrpc8WD8dfbtX3ZWIRR7tyyerA1TBo12t79OkNYjH1Q4ubQmYsTG
-         Bzna4iAvBDK74U95SSLYG0zoxwmekGs3JnL/2jj8=
+        b=BXY3k5lZlHniP/Ape95liqlv3fWbP99ohfX3twf2wW6AsC/7gCpAf8dvqRW9Rn16g
+         hd5CTruifsIVT/DXiftjMmu8WRnVdeL49giQOHRXlYnxfN198BdpATcMofBF6/UaVH
+         3DROswt8gAMYzRs5pqvqGG7Cm2tpKqeygt29CtSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Gregory Greenman <gregory.greenman@intel.com>
-Subject: [PATCH 5.18 720/879] iwlwifi: fw: init SAR GEO table only if data is present
-Date:   Tue,  7 Jun 2022 19:03:58 +0200
-Message-Id: <20220607165023.753760422@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 574/667] landlock: Fix landlock_add_rule(2) documentation
+Date:   Tue,  7 Jun 2022 19:03:59 +0200
+Message-Id: <20220607164951.909584843@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit d1f6530c3e373ddd7c76b05646052a27eead14ad upstream.
+commit a13e248ff90e81e9322406c0e618cf2168702f4e upstream.
 
-When no table data was read from ACPI, then filling the data
-and returning success here will fill zero values, which means
-transmit power will be limited to 0 dBm. This is clearly not
-intended.
+It is not mandatory to pass a file descriptor obtained with the O_PATH
+flag.  Also, replace rule's accesses with ruleset's accesses.
 
-Return an error from iwl_sar_geo_init() if there's no data to
-fill into the command structure.
-
+Link: https://lore.kernel.org/r/20220506160820.524344-2-mic@digikod.net
 Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 78a19d5285d9 ("iwlwifi: mvm: Read the PPAG and SAR tables at INIT stage")
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Link: https://lore.kernel.org/r/20220517120044.bc45923b74e9.Id2b4362234b7f8ced82c591b95d4075dd2ec12f4@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/acpi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/uapi/linux/landlock.h |    5 +++--
+ security/landlock/syscalls.c  |    7 +++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
-@@ -937,6 +937,9 @@ int iwl_sar_geo_init(struct iwl_fw_runti
- {
- 	int i, j;
- 
-+	if (!fwrt->geo_enabled)
-+		return -ENODATA;
-+
- 	if (!iwl_sar_geo_support(fwrt))
- 		return -EOPNOTSUPP;
- 
+--- a/include/uapi/linux/landlock.h
++++ b/include/uapi/linux/landlock.h
+@@ -62,8 +62,9 @@ struct landlock_path_beneath_attr {
+ 	 */
+ 	__u64 allowed_access;
+ 	/**
+-	 * @parent_fd: File descriptor, open with ``O_PATH``, which identifies
+-	 * the parent directory of a file hierarchy, or just a file.
++	 * @parent_fd: File descriptor, preferably opened with ``O_PATH``,
++	 * which identifies the parent directory of a file hierarchy, or just a
++	 * file.
+ 	 */
+ 	__s32 parent_fd;
+ 	/*
+--- a/security/landlock/syscalls.c
++++ b/security/landlock/syscalls.c
+@@ -292,14 +292,13 @@ out_fdput:
+  *
+  * - EOPNOTSUPP: Landlock is supported by the kernel but disabled at boot time;
+  * - EINVAL: @flags is not 0, or inconsistent access in the rule (i.e.
+- *   &landlock_path_beneath_attr.allowed_access is not a subset of the rule's
+- *   accesses);
++ *   &landlock_path_beneath_attr.allowed_access is not a subset of the
++ *   ruleset handled accesses);
+  * - ENOMSG: Empty accesses (e.g. &landlock_path_beneath_attr.allowed_access);
+  * - EBADF: @ruleset_fd is not a file descriptor for the current thread, or a
+  *   member of @rule_attr is not a file descriptor as expected;
+  * - EBADFD: @ruleset_fd is not a ruleset file descriptor, or a member of
+- *   @rule_attr is not the expected file descriptor type (e.g. file open
+- *   without O_PATH);
++ *   @rule_attr is not the expected file descriptor type;
+  * - EPERM: @ruleset_fd has no write access to the underlying ruleset;
+  * - EFAULT: @rule_attr inconsistency.
+  */
 
 
