@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 393D2541703
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C2B541E47
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377120AbiFGU5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
+        id S1379165AbiFGW2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378186AbiFGUzk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B55E12D157;
-        Tue,  7 Jun 2022 11:44:10 -0700 (PDT)
+        with ESMTP id S1385208AbiFGW0j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:26:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 709AA270F2B;
+        Tue,  7 Jun 2022 12:23:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E29661695;
-        Tue,  7 Jun 2022 18:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D334C385A2;
-        Tue,  7 Jun 2022 18:44:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB8DF60BAA;
+        Tue,  7 Jun 2022 19:23:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02BEEC34115;
+        Tue,  7 Jun 2022 19:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627449;
-        bh=mPewBoiGdgt0ZMOFYhhXllvEH0qMUNb+JQwB77vrY7Y=;
+        s=korg; t=1654629794;
+        bh=Gh2aEhAmI0pJgz2rAYq1FcDxdPMJDbcw7x4laZqox+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1Y8hWuA7hYORXMVftMribHgGV4WYV1ZfRGZnE7Z9DN5KeBhPaYFbNkTNDsoOEFeo
-         daMtBNCymzcB7a+b9Zw5aECi1dJJzQwMaJ1XGHi5bqSIgSz9GVHfLJb2FGNzVDZYnW
-         cIyO0r7z/r+JmfEwMIZkg9NH9Ozb4pgs6O1gslJ4=
+        b=IU0d4aAsMra/PjR+PCkj+1aCvYCrPhRcQFeM/F4RJESxSrIaJZlEbpNPz+ZBbj8p7
+         DyxYR1B/5YzuzPe37rk4I6sRoN37BFqbD44q1WIJFF/2BB9pQPBjToXZZXCcTQ0UZY
+         1tlrstDGAfZ1Fw80YmesIP2+gn7PD3RqdMZNcuAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Jarzmik <robert.jarzmik@free.fr>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.17 745/772] ARM: pxa: maybe fix gpio lookup tables
-Date:   Tue,  7 Jun 2022 19:05:37 +0200
-Message-Id: <20220607165010.983453535@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Stephen Zhang <starzhangzsd@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.18 820/879] MIPS: IP27: Remove incorrect `cpu_has_fpu override
+Date:   Tue,  7 Jun 2022 19:05:38 +0200
+Message-Id: <20220607165026.653464294@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 2672a4bff6c03a20d5ae460a091f67ee782c3eff upstream.
+commit 424c3781dd1cb401857585331eaaa425a13f2429 upstream.
 
->From inspection I found a couple of GPIO lookups that are
-listed with device "gpio-pxa", but actually have a number
-from a different gpio controller.
+Remove unsupported forcing of `cpu_has_fpu' to 1, which makes the `nofpu'
+kernel parameter non-functional, and also causes a link error:
 
-Try to rectify that here, with a guess of what the actual
-device name is.
+ld: arch/mips/kernel/traps.o: in function `trap_init':
+./arch/mips/include/asm/msa.h:(.init.text+0x348): undefined reference to `handle_fpe'
+ld: ./arch/mips/include/asm/msa.h:(.init.text+0x354): undefined reference to `handle_fpe'
+ld: ./arch/mips/include/asm/msa.h:(.init.text+0x360): undefined reference to `handle_fpe'
 
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+where the CONFIG_MIPS_FP_SUPPORT configuration option has been disabled.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Reported-by: Stephen Zhang <starzhangzsd@gmail.com>
+Fixes: 0ebb2f4159af ("MIPS: IP27: Update/restructure CPU overrides")
+Cc: stable@vger.kernel.org # v4.2+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-pxa/cm-x300.c  |    8 ++++----
- arch/arm/mach-pxa/magician.c |    2 +-
- arch/arm/mach-pxa/tosa.c     |    4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/mach-pxa/cm-x300.c
-+++ b/arch/arm/mach-pxa/cm-x300.c
-@@ -354,13 +354,13 @@ static struct platform_device cm_x300_sp
- static struct gpiod_lookup_table cm_x300_spi_gpiod_table = {
- 	.dev_id         = "spi_gpio",
- 	.table          = {
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_SCL,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_SCL - GPIO_LCD_BASE,
- 			    "sck", GPIO_ACTIVE_HIGH),
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_DIN,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_DIN - GPIO_LCD_BASE,
- 			    "mosi", GPIO_ACTIVE_HIGH),
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_DOUT,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_DOUT - GPIO_LCD_BASE,
- 			    "miso", GPIO_ACTIVE_HIGH),
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_CS,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_CS - GPIO_LCD_BASE,
- 			    "cs", GPIO_ACTIVE_HIGH),
- 		{ },
- 	},
---- a/arch/arm/mach-pxa/magician.c
-+++ b/arch/arm/mach-pxa/magician.c
-@@ -681,7 +681,7 @@ static struct platform_device bq24022 =
- static struct gpiod_lookup_table bq24022_gpiod_table = {
- 	.dev_id = "gpio-regulator",
- 	.table = {
--		GPIO_LOOKUP("gpio-pxa", EGPIO_MAGICIAN_BQ24022_ISET2,
-+		GPIO_LOOKUP("htc-egpio-0", EGPIO_MAGICIAN_BQ24022_ISET2 - MAGICIAN_EGPIO_BASE,
- 			    NULL, GPIO_ACTIVE_HIGH),
- 		GPIO_LOOKUP("gpio-pxa", GPIO30_MAGICIAN_BQ24022_nCHARGE_EN,
- 			    "enable", GPIO_ACTIVE_LOW),
---- a/arch/arm/mach-pxa/tosa.c
-+++ b/arch/arm/mach-pxa/tosa.c
-@@ -296,9 +296,9 @@ static struct gpiod_lookup_table tosa_mc
- 	.table = {
- 		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_nSD_DETECT,
- 			    "cd", GPIO_ACTIVE_LOW),
--		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_SD_WP,
-+		GPIO_LOOKUP("sharp-scoop.0", TOSA_GPIO_SD_WP - TOSA_SCOOP_GPIO_BASE,
- 			    "wp", GPIO_ACTIVE_LOW),
--		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_PWR_ON,
-+		GPIO_LOOKUP("sharp-scoop.0", TOSA_GPIO_PWR_ON - TOSA_SCOOP_GPIO_BASE,
- 			    "power", GPIO_ACTIVE_HIGH),
- 		{ },
- 	},
+--- a/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
++++ b/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
+@@ -25,7 +25,6 @@
+ #define cpu_has_4kex			1
+ #define cpu_has_3k_cache		0
+ #define cpu_has_4k_cache		1
+-#define cpu_has_fpu			1
+ #define cpu_has_nofpuex			0
+ #define cpu_has_32fpr			1
+ #define cpu_has_counter			1
 
 
