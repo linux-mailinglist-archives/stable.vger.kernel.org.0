@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA465406B1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F39541CAF
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347128AbiFGRhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60310 "EHLO
+        id S1378997AbiFGWEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348189AbiFGRgH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22329119047;
-        Tue,  7 Jun 2022 10:32:19 -0700 (PDT)
+        with ESMTP id S1382374AbiFGWDV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:03:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8263B2514B0;
+        Tue,  7 Jun 2022 12:15:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D4E60BC6;
-        Tue,  7 Jun 2022 17:32:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7A5C385A5;
-        Tue,  7 Jun 2022 17:32:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBF28B82368;
+        Tue,  7 Jun 2022 19:15:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B62BC385A2;
+        Tue,  7 Jun 2022 19:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623136;
-        bh=m4s0WglICdo491eXbZcJ6FwNYedwvtRMrugEDzy/LpQ=;
+        s=korg; t=1654629312;
+        bh=K1VJeX5GCDsY+9X8S0bObVsEpIXlCrJ6Ne/vbZkkzvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YivNSuWw1OjdRnh6zRjA62RImkH0f1MUsYtT+HJ0Ofc6pItvJA3gBuAvcNDXMEwUs
-         kJax9m0yRkn0HSZ4sG9zPFu2dt/350Rxo14p5iLxuHB06S4AhtL9LfN8sPGcVYVWw1
-         icJ9gtArlGIwbeTeI8hw1+7mtr4F0PdHLgKpkbWE=
+        b=UoIWpnSc8T8zAS+vo4YbLV+BOU8vfL6HoNWtfHbp8tz1kAS8rJH12g0oYcofekbtL
+         oysX0y5QgpJlM06Fsh/7ORe51/b5smeXHwdl2aAbSE1543Lt040HSXUuixHu4ZhlVH
+         A2h9zF0bF1mxznEv6Lc/v86uQx9ldB3dri62sc0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Badger <ebadger@purestorage.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ashok Raj <ashok.raj@intel.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 308/452] PCI/AER: Clear MULTI_ERR_COR/UNCOR_RCV bits
+Subject: [PATCH 5.18 647/879] powerpc/fsl_book3e: Dont set rodata RO too early
 Date:   Tue,  7 Jun 2022 19:02:45 +0200
-Message-Id: <20220607164917.736481207@linuxfoundation.org>
+Message-Id: <20220607165021.627479518@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,86 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 203926da2bff8e172200a2f11c758987af112d4a ]
+[ Upstream commit ad91f66f5fa7c6f9346e721c3159ce818568028b ]
 
-When a Root Port or Root Complex Event Collector receives an error Message
-e.g., ERR_COR, it sets PCI_ERR_ROOT_COR_RCV in the Root Error Status
-register and logs the Requester ID in the Error Source Identification
-register.  If it receives a second ERR_COR Message before software clears
-PCI_ERR_ROOT_COR_RCV, hardware sets PCI_ERR_ROOT_MULTI_COR_RCV and the
-Requester ID is lost.
+On fsl_book3e, rodata is set read-only at the same time as
+init text is set NX at the end of init. That's too early.
 
-In the following scenario, PCI_ERR_ROOT_MULTI_COR_RCV was never cleared:
+As both action are performed at the same time, delay both
+actions to the time rodata is expected to be made read-only.
 
-  - hardware receives ERR_COR message
-  - hardware sets PCI_ERR_ROOT_COR_RCV
-  - aer_irq() entered
-  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
-  - aer_irq(): now status == PCI_ERR_ROOT_COR_RCV
-  - hardware receives second ERR_COR message
-  - hardware sets PCI_ERR_ROOT_MULTI_COR_RCV
-  - aer_irq(): pci_write_config_dword(PCI_ERR_ROOT_STATUS, status)
-  - PCI_ERR_ROOT_COR_RCV is cleared; PCI_ERR_ROOT_MULTI_COR_RCV is set
-  - aer_irq() entered again
-  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
-  - aer_irq(): now status == PCI_ERR_ROOT_MULTI_COR_RCV
-  - aer_irq() exits because PCI_ERR_ROOT_COR_RCV not set
-  - PCI_ERR_ROOT_MULTI_COR_RCV is still set
+It means we will have a small window with init mem freed but
+still executable. It shouldn't be an issue though, especially
+because the said memory gets poisoned and should therefore
+result to a bad instruction fault in case it gets executed.
 
-The same problem occurred with ERR_NONFATAL/ERR_FATAL Messages and
-PCI_ERR_ROOT_UNCOR_RCV and PCI_ERR_ROOT_MULTI_UNCOR_RCV.
+mmu_mark_initmem_nx() is bailing out before doing anything when
+CONFIG_STRICT_KERNEL_RWX is not selected or rodata_enabled is false.
 
-Fix the problem by queueing an AER event and clearing the Root Error Status
-bits when any of these bits are set:
+mmu_mark_rodata_ro() is called only when CONFIG_STRICT_KERNEL_RWX
+is selected and rodata_enabled is true so this is equivalent.
 
-  PCI_ERR_ROOT_COR_RCV
-  PCI_ERR_ROOT_UNCOR_RCV
-  PCI_ERR_ROOT_MULTI_COR_RCV
-  PCI_ERR_ROOT_MULTI_UNCOR_RCV
+Move code from mmu_mark_initmem_nx() into mmu_mark_rodata_ro() and
+remove the call to strict_kernel_rwx_enabled() which is not needed
+anymore.
 
-See the bugzilla link for details from Eric about how to reproduce this
-problem.
-
-[bhelgaas: commit log, move repro details to bugzilla]
-Fixes: e167bfcaa4cd ("PCI: aerdrv: remove magical ROOT_ERR_STATUS_MASKS")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215992
-Link: https://lore.kernel.org/r/20220418150237.1021519-1-sathyanarayanan.kuppuswamy@linux.intel.com
-Reported-by: Eric Badger <ebadger@purestorage.com>
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Fixes: d5970045cf9e ("powerpc/fsl_booke: Update of TLBCAMs after init")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/2e35f0fd649c83c5add17a99514ac040767be93a.1652981047.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aer.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/mm/nohash/fsl_book3e.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
-index 65dff5f3457a..c40546eeecb3 100644
---- a/drivers/pci/pcie/aer.c
-+++ b/drivers/pci/pcie/aer.c
-@@ -101,6 +101,11 @@ struct aer_stats {
- #define ERR_COR_ID(d)			(d & 0xffff)
- #define ERR_UNCOR_ID(d)			(d >> 16)
+diff --git a/arch/powerpc/mm/nohash/fsl_book3e.c b/arch/powerpc/mm/nohash/fsl_book3e.c
+index dfe715e0f70a..388f7c7dabd3 100644
+--- a/arch/powerpc/mm/nohash/fsl_book3e.c
++++ b/arch/powerpc/mm/nohash/fsl_book3e.c
+@@ -287,22 +287,19 @@ void __init adjust_total_lowmem(void)
  
-+#define AER_ERR_STATUS_MASK		(PCI_ERR_ROOT_UNCOR_RCV |	\
-+					PCI_ERR_ROOT_COR_RCV |		\
-+					PCI_ERR_ROOT_MULTI_COR_RCV |	\
-+					PCI_ERR_ROOT_MULTI_UNCOR_RCV)
+ #ifdef CONFIG_STRICT_KERNEL_RWX
+ void mmu_mark_rodata_ro(void)
+-{
+-	/* Everything is done in mmu_mark_initmem_nx() */
+-}
+-#endif
+-
+-void mmu_mark_initmem_nx(void)
+ {
+ 	unsigned long remapped;
+ 
+-	if (!strict_kernel_rwx_enabled())
+-		return;
+-
+ 	remapped = map_mem_in_cams(__max_low_memory, CONFIG_LOWMEM_CAM_NUM, false, false);
+ 
+ 	WARN_ON(__max_low_memory != remapped);
+ }
++#endif
 +
- static int pcie_aer_disable;
- static pci_ers_result_t aer_root_reset(struct pci_dev *dev);
++void mmu_mark_initmem_nx(void)
++{
++	/* Everything is done in mmu_mark_rodata_ro() */
++}
  
-@@ -1187,7 +1192,7 @@ static irqreturn_t aer_irq(int irq, void *context)
- 	struct aer_err_source e_src = {};
- 
- 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_STATUS, &e_src.status);
--	if (!(e_src.status & (PCI_ERR_ROOT_UNCOR_RCV|PCI_ERR_ROOT_COR_RCV)))
-+	if (!(e_src.status & AER_ERR_STATUS_MASK))
- 		return IRQ_NONE;
- 
- 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_ERR_SRC, &e_src.id);
+ void setup_initial_memory_limit(phys_addr_t first_memblock_base,
+ 				phys_addr_t first_memblock_size)
 -- 
 2.35.1
 
