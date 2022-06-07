@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CED6754168F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5C954070F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376979AbiFGUxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:53:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S1347932AbiFGRl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:41:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376862AbiFGUsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:48:31 -0400
+        with ESMTP id S1348512AbiFGRlD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FC011F6B4F;
-        Tue,  7 Jun 2022 11:39:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 741981203D2;
+        Tue,  7 Jun 2022 10:34:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEEDEB8233E;
-        Tue,  7 Jun 2022 18:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E4AC34115;
-        Tue,  7 Jun 2022 18:39:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD154B820C3;
+        Tue,  7 Jun 2022 17:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A26C385A5;
+        Tue,  7 Jun 2022 17:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627184;
-        bh=Wzn/hK4cWaEOLU/IasUp3MU3BIEDv4cF6XkyHM9hXOA=;
+        s=korg; t=1654623230;
+        bh=dyRX6GXQh42NPE/QvtqTAJqN+LWYb6ytbMwcZJZrj6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7nWPFMCskisiW5a7nI0G9t5QuLEGcdZvUrObpiaFlSnGc/E8jj68Sf1XK8cEvuAh
-         hx5n0NYg+r49mObyq4ar4FEsGliIFs/H6dAXzfHDSAcIdTeA5Q6OIM3U8uQkr6fqay
-         HIDKcP7DyRkDrrIv9IaSzVAKcB44roFndTyqRhxc=
+        b=FK/E5UEV2gznv9Ia7n3UeS7zOQJf51zJ/fwDvDPdlIgCDy/2DmE/9wNkUJNbOTKB0
+         ddx0lv96POcwcD7WjcdCfvWbWOlXgD1LhqEOy+5+uAKbgEd6zyhwnSpfT2A1Z98Cph
+         MdeBS0tYLncFU+o8b+Ecg4Omz5uECWbhXcAe9lLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 608/772] NFSv4.1 mark qualified async operations as MOVEABLE tasks
+Subject: [PATCH 5.10 343/452] perf jevents: Fix event syntax error caused by ExtSel
 Date:   Tue,  7 Jun 2022 19:03:20 +0200
-Message-Id: <20220607165006.857293822@linuxfoundation.org>
+Message-Id: <20220607164918.778281311@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,188 +61,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-[ Upstream commit 118f09eda21d392e1eeb9f8a4bee044958cccf20 ]
+[ Upstream commit f4df0dbbe62ee8e4405a57b27ccd54393971c773 ]
 
-Mark async operations such as RENAME, REMOVE, COMMIT MOVEABLE
-for the nfsv4.1+ sessions.
+In the origin code, when "ExtSel" is 1, the eventcode will change to
+"eventcode |= 1 << 21”. For event “UNC_Q_RxL_CREDITS_CONSUMED_VN0.DRS",
+its "ExtSel" is "1", its eventcode will change from 0x1E to 0x20001E,
+but in fact the eventcode should <=0x1FF, so this will cause the parse
+fail:
 
-Fixes: 85e39feead948 ("NFSv4.1 identify and mark RPC tasks that can move between transports")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+  # perf stat -e "UNC_Q_RxL_CREDITS_CONSUMED_VN0.DRS" -a sleep 0.1
+  event syntax error: '.._RxL_CREDITS_CONSUMED_VN0.DRS'
+                                    \___ value too big for format, maximum is 511
+
+On the perf kernel side, the kernel assumes the valid bits are continuous.
+It will adjust the 0x100 (bit 8 for perf tool) to bit 21 in HW.
+
+DEFINE_UNCORE_FORMAT_ATTR(event_ext, event, "config:0-7,21");
+
+So the perf tool follows the kernel side and just set bit8 other than bit21.
+
+Fixes: fedb2b518239cbc0 ("perf jevents: Add support for parsing uncore json files")
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220525140410.1706851-1-zhengjun.xing@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c         | 26 ++++++++++++++------------
- fs/nfs/pagelist.c         |  3 +++
- fs/nfs/unlink.c           |  8 ++++++++
- fs/nfs/write.c            |  4 ++++
- include/linux/nfs_fs_sb.h |  1 +
- 5 files changed, 30 insertions(+), 12 deletions(-)
+ tools/perf/pmu-events/jevents.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index bbc99dbb3df5..476dca7ce7ab 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1162,7 +1162,7 @@ static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
- {
- 	unsigned short task_flags = 0;
- 
--	if (server->nfs_client->cl_minorversion)
-+	if (server->caps & NFS_CAP_MOVEABLE)
- 		task_flags = RPC_TASK_MOVEABLE;
- 	return nfs4_do_call_sync(clnt, server, msg, args, res, task_flags);
- }
-@@ -2573,7 +2573,7 @@ static int nfs4_run_open_task(struct nfs4_opendata *data,
- 	};
- 	int status;
- 
--	if (server->nfs_client->cl_minorversion)
-+	if (nfs_server_capable(dir, NFS_CAP_MOVEABLE))
- 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
- 
- 	kref_get(&data->kref);
-@@ -3736,7 +3736,7 @@ int nfs4_do_close(struct nfs4_state *state, gfp_t gfp_mask, int wait)
- 	};
- 	int status = -ENOMEM;
- 
--	if (server->nfs_client->cl_minorversion)
-+	if (nfs_server_capable(state->inode, NFS_CAP_MOVEABLE))
- 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
- 
- 	nfs4_state_protect(server->nfs_client, NFS_SP4_MACH_CRED_CLEANUP,
-@@ -4406,7 +4406,7 @@ static int _nfs4_proc_lookup(struct rpc_clnt *clnt, struct inode *dir,
- 	};
- 	unsigned short task_flags = 0;
- 
--	if (server->nfs_client->cl_minorversion)
-+	if (nfs_server_capable(dir, NFS_CAP_MOVEABLE))
- 		task_flags = RPC_TASK_MOVEABLE;
- 
- 	/* Is this is an attribute revalidation, subject to softreval? */
-@@ -6614,10 +6614,13 @@ static int _nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred,
- 		.rpc_client = server->client,
- 		.rpc_message = &msg,
- 		.callback_ops = &nfs4_delegreturn_ops,
--		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT | RPC_TASK_MOVEABLE,
-+		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT,
- 	};
- 	int status = 0;
- 
-+	if (nfs_server_capable(inode, NFS_CAP_MOVEABLE))
-+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
-+
- 	data = kzalloc(sizeof(*data), GFP_KERNEL);
- 	if (data == NULL)
- 		return -ENOMEM;
-@@ -6931,10 +6934,8 @@ static struct rpc_task *nfs4_do_unlck(struct file_lock *fl,
- 		.workqueue = nfsiod_workqueue,
- 		.flags = RPC_TASK_ASYNC,
- 	};
--	struct nfs_client *client =
--		NFS_SERVER(lsp->ls_state->inode)->nfs_client;
- 
--	if (client->cl_minorversion)
-+	if (nfs_server_capable(lsp->ls_state->inode, NFS_CAP_MOVEABLE))
- 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
- 
- 	nfs4_state_protect(NFS_SERVER(lsp->ls_state->inode)->nfs_client,
-@@ -7205,9 +7206,8 @@ static int _nfs4_do_setlk(struct nfs4_state *state, int cmd, struct file_lock *f
- 		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
- 	};
- 	int ret;
--	struct nfs_client *client = NFS_SERVER(state->inode)->nfs_client;
- 
--	if (client->cl_minorversion)
-+	if (nfs_server_capable(state->inode, NFS_CAP_MOVEABLE))
- 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
- 
- 	data = nfs4_alloc_lockdata(fl, nfs_file_open_context(fl->fl_file),
-@@ -10380,7 +10380,8 @@ static const struct nfs4_minor_version_ops nfs_v4_1_minor_ops = {
- 		| NFS_CAP_POSIX_LOCK
- 		| NFS_CAP_STATEID_NFSV41
- 		| NFS_CAP_ATOMIC_OPEN_V1
--		| NFS_CAP_LGOPEN,
-+		| NFS_CAP_LGOPEN
-+		| NFS_CAP_MOVEABLE,
- 	.init_client = nfs41_init_client,
- 	.shutdown_client = nfs41_shutdown_client,
- 	.match_stateid = nfs41_match_stateid,
-@@ -10415,7 +10416,8 @@ static const struct nfs4_minor_version_ops nfs_v4_2_minor_ops = {
- 		| NFS_CAP_LAYOUTSTATS
- 		| NFS_CAP_CLONE
- 		| NFS_CAP_LAYOUTERROR
--		| NFS_CAP_READ_PLUS,
-+		| NFS_CAP_READ_PLUS
-+		| NFS_CAP_MOVEABLE,
- 	.init_client = nfs41_init_client,
- 	.shutdown_client = nfs41_shutdown_client,
- 	.match_stateid = nfs41_match_stateid,
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 9157dd19b8b4..317cedfa52bf 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -767,6 +767,9 @@ int nfs_initiate_pgio(struct rpc_clnt *clnt, struct nfs_pgio_header *hdr,
- 		.flags = RPC_TASK_ASYNC | flags,
- 	};
- 
-+	if (nfs_server_capable(hdr->inode, NFS_CAP_MOVEABLE))
-+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
-+
- 	hdr->rw_ops->rw_initiate(hdr, &msg, rpc_ops, &task_setup_data, how);
- 
- 	dprintk("NFS: initiated pgio call "
-diff --git a/fs/nfs/unlink.c b/fs/nfs/unlink.c
-index 5fa11e1aca4c..d5ccf095b2a7 100644
---- a/fs/nfs/unlink.c
-+++ b/fs/nfs/unlink.c
-@@ -102,6 +102,10 @@ static void nfs_do_call_unlink(struct inode *inode, struct nfs_unlinkdata *data)
- 	};
- 	struct rpc_task *task;
- 	struct inode *dir = d_inode(data->dentry->d_parent);
-+
-+	if (nfs_server_capable(inode, NFS_CAP_MOVEABLE))
-+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
-+
- 	nfs_sb_active(dir->i_sb);
- 	data->args.fh = NFS_FH(dir);
- 	nfs_fattr_init(data->res.dir_attr);
-@@ -344,6 +348,10 @@ nfs_async_rename(struct inode *old_dir, struct inode *new_dir,
- 		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
- 	};
- 
-+	if (nfs_server_capable(old_dir, NFS_CAP_MOVEABLE) &&
-+	    nfs_server_capable(new_dir, NFS_CAP_MOVEABLE))
-+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
-+
- 	data = kzalloc(sizeof(*data), GFP_KERNEL);
- 	if (data == NULL)
- 		return ERR_PTR(-ENOMEM);
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 477162d2e8a2..fda854de808b 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1701,6 +1701,10 @@ int nfs_initiate_commit(struct rpc_clnt *clnt, struct nfs_commit_data *data,
- 		.flags = RPC_TASK_ASYNC | flags,
- 		.priority = priority,
- 	};
-+
-+	if (nfs_server_capable(data->inode, NFS_CAP_MOVEABLE))
-+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
-+
- 	/* Set up the initial task struct.  */
- 	nfs_ops->commit_setup(data, &msg, &task_setup_data.rpc_client);
- 	trace_nfs_initiate_commit(data);
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index ca0959e51e81..1fdf560dddd8 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -285,4 +285,5 @@ struct nfs_server {
- #define NFS_CAP_XATTR		(1U << 28)
- #define NFS_CAP_READ_PLUS	(1U << 29)
- #define NFS_CAP_FS_LOCATIONS	(1U << 30)
-+#define NFS_CAP_MOVEABLE	(1U << 31)
- #endif
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index c679a79aef51..1f20f587e053 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -579,7 +579,7 @@ static int json_events(const char *fn,
+ 			} else if (json_streq(map, field, "ExtSel")) {
+ 				char *code = NULL;
+ 				addfield(map, &code, "", "", val);
+-				eventcode |= strtoul(code, NULL, 0) << 21;
++				eventcode |= strtoul(code, NULL, 0) << 8;
+ 				free(code);
+ 			} else if (json_streq(map, field, "EventName")) {
+ 				addfield(map, &je.name, "", "", val);
 -- 
 2.35.1
 
