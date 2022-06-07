@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 089F153F3FD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 04:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0288353F3FE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 04:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236019AbiFGClm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 22:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
+        id S236020AbiFGClo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 22:41:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbiFGClm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 22:41:42 -0400
-Received: from mail-il1-x14a.google.com (mail-il1-x14a.google.com [IPv6:2607:f8b0:4864:20::14a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45F28C0477
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 19:41:41 -0700 (PDT)
-Received: by mail-il1-x14a.google.com with SMTP id e4-20020a056e020b2400b002d5509de6f3so1258117ilu.6
-        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 19:41:41 -0700 (PDT)
+        with ESMTP id S233017AbiFGCln (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 22:41:43 -0400
+Received: from mail-io1-xd4a.google.com (mail-io1-xd4a.google.com [IPv6:2607:f8b0:4864:20::d4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC460C0477
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 19:41:42 -0700 (PDT)
+Received: by mail-io1-xd4a.google.com with SMTP id c7-20020a6bec07000000b0066942b01338so3051552ioh.10
+        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 19:41:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=pUBRV97xthCU10usUAjhjvk0rgt9U50UKyWh+gTd9as=;
-        b=Dwo9rGUyrtrJqWbHf1aXycd1i5qlTGw23Ff3pPIf56mD0PDConQSxRPQZrFYDCrxrm
-         Z7WEnhJHlmYI42ROJuvMMY70BB9cYO7WtDXNMLByVns/Y999P9+WH6spKQWUKWMJZ1jF
-         yOLNYaIxkcg40adCfSvK7ZyhbPXJrdSTCxm3eVV2Vhk5Tv+uRSENkb/qmJZZDNAJC5UC
-         hcLY2LR7LSJ4f9bMU3hfAa+kcSm0MmxEzyLrFCBs4Pgub/23ufnxaPNcHqPGXyGGL3Ao
-         lgwJnDCNxWzfpf09IrYgdJbwDJN19FZOFpuPnf2ZXeqfkUMmvqz0X6io3fKcGCk6U8Ce
-         cfPg==
+        bh=YsSzLQtvb05lwsRO6DSGoB9POQF3dK+ytO7ed+ufu+c=;
+        b=WdnA6UAgApjfFPzxzwdpWa2URbqW1jXR9grpwuAv8ELRZ+Kg8N68zRVX8LxlKFBBFc
+         nZWlB1r+dShsSyRkGxHd0c4sU7ui6WBnYl2xQHPGGwuLZCKWTmUxYqZRDmBLNo5tMjI3
+         Ip4lzARFEmxg9kyrps7cXCytKw0l1OYM3LR6QQaEKl+Kq5Q8Yq9VfJvwSZczcCcKDSFP
+         dbyhDHox5pSKAI4BZ/XDlEZ4Rb2CtOUzscTiX0+K3wUR4HgF4d6IgQrAEpKOcNGgjQNJ
+         fOWnMDXTq1lEoAfW8vFdQpj45+gFPAs75PcHdSC/7JpJP/QK74yFgm3PQsQTRLYMiikf
+         19yg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=pUBRV97xthCU10usUAjhjvk0rgt9U50UKyWh+gTd9as=;
-        b=pCivas9dFfw9xf65JKKe+fGjN51Go7gx1OBvkNZepMbHRTO/p7mkPolvPqyMpoM6+u
-         JkGpH4UXFmD3QgX+WB5bpwBxSp0GZ7k+gWrTOIqU95Xwvoi+PYGE4GKp4oVnMxRbj/gk
-         /WUZ6z6GBVwv4pxuxj7uvPPWD5bSHklpzJ8mzAalD5oFOW2aqjfDaOYcX2YAcAORZE3L
-         IbMQkb0HiebeGlHn3WEKpjP0iZdnP/w/dDWJoFW7HCEI7+u0+WWt8HgYQt9gXVBlr/ms
-         p5l6+6mvWoponiRvqRd0+yo0EYSAKdsyoWHLD4U07fuTOIHR3jcUIosML58WmRGu0YtN
-         WHGA==
-X-Gm-Message-State: AOAM533bLMyBOTTm9pII2j5cBpIxYK3TIGqtfDYYkVzKTNUFDtYN+dRa
-        szkRNIOgGyiy4viqPF6eslfIGeVPx+OCqQM=
-X-Google-Smtp-Source: ABdhPJxtFBxYQjhnQmwigppwRSft0i6adwrkVaHDucdtyfIbE9fphCt5WETtSYbWY7Gvj7HmI1Uc3L9YLJSCiOQ=
+        bh=YsSzLQtvb05lwsRO6DSGoB9POQF3dK+ytO7ed+ufu+c=;
+        b=4iunld5bW4QWRPvJ65N4ukSsf4h9lqmx/auMdP/c2V4CDrN8N6E27qQth/oByAL+Ay
+         l3TkgmuHahRZKHKlxGtMD5nk2pa/4oK8iXUtdrA1JaK+7V3+NX3Uw5HmB3GXa7JC0Vi0
+         84MZRpwKrAd9iesPUDzVxvcb6eBN63MstswpF9iyv6dAGpuK0vc+P8jR3zftX60U5/Ae
+         X8opdahPjghb9tAv2fp+qf7TgqpLVd7gqagPHjLl6RkRukpGAJx2b21WQ6jMg2jYr8Kc
+         +m8T3h681Ka4HoLgOrRCy5TE1KaEIOncClNcAp3EbvbIjkxkzRzB6paaMxkHgHpfla9D
+         Bcsg==
+X-Gm-Message-State: AOAM532aHhv3+tDpBBkAKLz23T2psQMCHQTPqyfmVkxvemb+1aRE6Rsf
+        9WoyNj829WI9vW9JL5ND716vkszkT/fZcgw=
+X-Google-Smtp-Source: ABdhPJzpM0pEi5hybOzrYMYnJRQ7PLup0k9GfLP+X5rG7CEYLl8HE0At6sT6j3G2EuoeODsLdnIVoqpvFATH3i4=
 X-Received: from sunrising.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:fb8])
- (user=mfaltesek job=sendgmr) by 2002:a05:6638:1446:b0:32e:a9c4:10c3 with SMTP
- id l6-20020a056638144600b0032ea9c410c3mr14464981jad.280.1654569700648; Mon,
- 06 Jun 2022 19:41:40 -0700 (PDT)
-Date:   Mon,  6 Jun 2022 21:41:15 -0500
+ (user=mfaltesek job=sendgmr) by 2002:a05:6602:2a42:b0:65a:eb90:2a12 with SMTP
+ id k2-20020a0566022a4200b0065aeb902a12mr12681901iov.73.1654569702103; Mon, 06
+ Jun 2022 19:41:42 -0700 (PDT)
+Date:   Mon,  6 Jun 2022 21:41:16 -0500
 In-Reply-To: <20220607024117.1344044-1-mfaltesek@google.com>
-Message-Id: <20220607024117.1344044-2-mfaltesek@google.com>
+Message-Id: <20220607024117.1344044-3-mfaltesek@google.com>
 Mime-Version: 1.0
 References: <20220607024117.1344044-1-mfaltesek@google.com>
 X-Mailer: git-send-email 2.36.1.255.ge46751e96f-goog
-Subject: [PATCH net v3 1/3] nfc: st21nfca: fix incorrect validating logic in EVT_TRANSACTION
+Subject: [PATCH net v3 2/3] nfc: st21nfca: fix memory leaks in EVT_TRANSACTION handling
 From:   Martin Faltesek <mfaltesek@google.com>
 To:     martin.faltesek@gmail.com
 Cc:     Martin Faltesek <mfaltesek@google.com>, stable@vger.kernel.org
@@ -66,31 +66,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The first validation check for EVT_TRANSACTION has two different checks
-tied together with logical AND. One is a check for minimum packet length,
-and the other is for a valid aid_tag. If either condition is true (fails),
-then an error should be triggered.  The fix is to change && to ||.
+Error paths do not free previously allocated memory. Add devm_kfree() to
+those failure paths.
 
 Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
 Cc: stable@vger.kernel.org
 Signed-off-by: Martin Faltesek <mfaltesek@google.com>
 ---
- drivers/nfc/st21nfca/se.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/st21nfca/se.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
-index 7e213f8ddc98..9645777f2544 100644
+index 9645777f2544..8e1113ce139b 100644
 --- a/drivers/nfc/st21nfca/se.c
 +++ b/drivers/nfc/st21nfca/se.c
-@@ -315,7 +315,7 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
- 		 * AID		81	5 to 16
- 		 * PARAMETERS	82	0 to 255
- 		 */
--		if (skb->len < NFC_MIN_AID_LENGTH + 2 &&
-+		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
- 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
- 			return -EPROTO;
+@@ -326,22 +326,29 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
+ 		transaction->aid_len = skb->data[1];
  
+ 		/* Checking if the length of the AID is valid */
+-		if (transaction->aid_len > sizeof(transaction->aid))
++		if (transaction->aid_len > sizeof(transaction->aid)) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->aid, &skb->data[2],
+ 		       transaction->aid_len);
+ 
+ 		/* Check next byte is PARAMETERS tag (82) */
+ 		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG)
++		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
++			devm_kfree(dev, transaction);
+ 			return -EPROTO;
++		}
+ 
+ 		transaction->params_len = skb->data[transaction->aid_len + 3];
+ 
+ 		/* Total size is allocated (skb->len - 2) minus fixed array members */
+-		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
++		if (transaction->params_len > ((skb->len - 2) -
++		    sizeof(struct nfc_evt_transaction))) {
++			devm_kfree(dev, transaction);
+ 			return -EINVAL;
++		}
+ 
+ 		memcpy(transaction->params, skb->data +
+ 		       transaction->aid_len + 4, transaction->params_len);
 -- 
 2.36.1.255.ge46751e96f-goog
 
