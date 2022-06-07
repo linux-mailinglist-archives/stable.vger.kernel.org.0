@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1923540691
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F821540D77
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234157AbiFGRgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:36:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53292 "EHLO
+        id S1353875AbiFGSsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:48:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347481AbiFGRfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E865010F374;
-        Tue,  7 Jun 2022 10:30:46 -0700 (PDT)
+        with ESMTP id S1354108AbiFGSqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D6518FA5A;
+        Tue,  7 Jun 2022 11:00:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA69D6152A;
-        Tue,  7 Jun 2022 17:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B7AC385A5;
-        Tue,  7 Jun 2022 17:30:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DE60B8236D;
+        Tue,  7 Jun 2022 18:00:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58EC7C385A5;
+        Tue,  7 Jun 2022 18:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623022;
-        bh=20MCyB5rMbOhS6tJ+rz1pmkEOBZUeaGMgtx6VftxxMI=;
+        s=korg; t=1654624802;
+        bh=F+Ejk3TJqvM9iJL5X57Am9LXrVwli2Qkgi0+4c09buY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVzkVs1WmEfV8ILFMGDEZDc8o9c43zBz+GIy+S9Fvf6Isu/gCb9le4+bWuPs5nniI
-         Y048C1RqT9xt4qyg8VmQjmG3yX3Aqng/4aYPyZwyMj8qO7+vONVXrupSg47ljwCEUZ
-         BTMVkQVHNPt212S5hiADy0+I+2K5cnbqc8LS+KEA=
+        b=iXWU/oJ6MRWNLW3H+Coe/3IJwTsxAFg9sShc+mO3TvA0WuIueXkBtb+MqaAdQzX37
+         c3tcuKvT/b8u6H8SHBToo37wUbAKvevxv2V7rDHjkJy2Tm+CF5Jhs+S51D9G5Yk2od
+         iEP5YvHzdVKeOrT6YKcufAOL6Ha606f9L8PhTA+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 267/452] soc: qcom: llcc: Add MODULE_DEVICE_TABLE()
+Subject: [PATCH 5.15 459/667] Input: sparcspkr - fix refcount leak in bbc_beep_probe
 Date:   Tue,  7 Jun 2022 19:02:04 +0200
-Message-Id: <20220607164916.508371672@linuxfoundation.org>
+Message-Id: <20220607164948.479042560@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 5334a3b12a7233b31788de60d61bfd890059d783 ]
+[ Upstream commit c8994b30d71d64d5dcc9bc0edbfdf367171aa96f ]
 
-The llcc-qcom driver can be compiled as a module, but lacks
-MODULE_DEVICE_TABLE() and will therefore not be loaded automatically.
-Fix this.
+of_find_node_by_path() calls of_find_node_opts_by_path(),
+which returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220408213336.581661-3-bjorn.andersson@linaro.org
+Fixes: 9c1a5077fdca ("input: Rewrite sparcspkr device probing.")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220516081018.42728-1-linmq006@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/llcc-qcom.c | 1 +
+ drivers/input/misc/sparcspkr.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
-index 70fbe70c6213..2e06f48d683d 100644
---- a/drivers/soc/qcom/llcc-qcom.c
-+++ b/drivers/soc/qcom/llcc-qcom.c
-@@ -496,6 +496,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
- 	{ .compatible = "qcom,sdm845-llcc", .data = &sdm845_cfg },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, qcom_llcc_of_match);
+diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
+index fe43e5557ed7..cdcb7737c46a 100644
+--- a/drivers/input/misc/sparcspkr.c
++++ b/drivers/input/misc/sparcspkr.c
+@@ -205,6 +205,7 @@ static int bbc_beep_probe(struct platform_device *op)
  
- static struct platform_driver qcom_llcc_driver = {
- 	.driver = {
+ 	info = &state->u.bbc;
+ 	info->clock_freq = of_getintprop_default(dp, "clock-frequency", 0);
++	of_node_put(dp);
+ 	if (!info->clock_freq)
+ 		goto out_free;
+ 
 -- 
 2.35.1
 
