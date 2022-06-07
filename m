@@ -2,108 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 398C05412A7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6301540948
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356338AbiFGTyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
+        id S1349529AbiFGSHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:07:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357536AbiFGTu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:50:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF61A84A0D;
-        Tue,  7 Jun 2022 11:19:39 -0700 (PDT)
+        with ESMTP id S1350796AbiFGSB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F56514CDE0;
+        Tue,  7 Jun 2022 10:43:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 676A560DDE;
-        Tue,  7 Jun 2022 18:19:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FB60C385A2;
-        Tue,  7 Jun 2022 18:19:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C5F9B82324;
+        Tue,  7 Jun 2022 17:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6197C385A5;
+        Tue,  7 Jun 2022 17:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625977;
-        bh=y268Ia38mDcy8oVClEGS/uTeQtbK8P1DKzIAcwjQsRk=;
+        s=korg; t=1654623805;
+        bh=cB/zmou4JNBatz0EsRvy0e6Im6lxkG/oKJCnqFwoMfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vbip8lpYyVmHOfcVitaGhVfHATrM6gRTtgLLc+2A5XtVe55iEjtr87TmugqSVNoTF
-         kK9/y3u0h6l3Eh9gvRo/+/FqRLny0/2I7OqqztX2xbRRqhKiLb/n+nLeaN+MimiTQ/
-         bG7+2XKHNc+X+UTArQL5pfWqJAUPsOd+st1qxQUo=
+        b=ZXs60A+j1JAsbMtJ+X6/ncMMG1GLcCPgpdaza7dAN434Pf57CA/Sgq8atrSZThl1p
+         q826cYtVevIVe+E2bwc6HDZDydf1eqQurM27zwFgo0FH2M2aQ4xkc9z9JachgLSIzZ
+         GrQgVMFgPhtkH4spjYKqgNFjnnZPV0loAFNNEOL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
+        stable@vger.kernel.org,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 172/772] m68k: atari: Make Atari ROM port I/O write macros return void
+Subject: [PATCH 5.15 099/667] regulator: mt6315: Enforce regulator-compatible, not name
 Date:   Tue,  7 Jun 2022 18:56:04 +0200
-Message-Id: <20220607164954.109342359@linuxfoundation.org>
+Message-Id: <20220607164937.791000999@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit 30b5e6ef4a32ea4985b99200e06d6660a69f9246 ]
+[ Upstream commit 6d435a94ba5bb4f2ad381c0828fbae89c66b50fe ]
 
-The macros implementing Atari ROM port I/O writes do not cast away their
-output, unlike similar implementations for other I/O buses.
-When they are combined using conditional expressions in the definitions of
-outb() and friends, this triggers sparse warnings like:
+The MT6315 PMIC dt-binding should enforce that one of the valid
+regulator-compatible is set in each regulator node. However it was
+mistakenly matching against regulator-name instead.
 
-    drivers/net/appletalk/cops.c:382:17: error: incompatible types in conditional expression (different base types):
-    drivers/net/appletalk/cops.c:382:17:    unsigned char
-    drivers/net/appletalk/cops.c:382:17:    void
+Fix the typo. This not only fixes the compatible verification, but also
+lifts the regulator-name restriction, so that more meaningful names can
+be set for each platform.
 
-Fix this by adding casts to "void".
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-Link: https://lore.kernel.org/r/c15bedc83d90a14fffcd5b1b6bfb32b8a80282c5.1653057096.git.geert@linux-m68k.org
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Link: https://lore.kernel.org/r/20220429201325.2205799-1-nfraprado@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/raw_io.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../devicetree/bindings/regulator/mt6315-regulator.yaml         | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/include/asm/raw_io.h b/arch/m68k/include/asm/raw_io.h
-index 80eb2396d01e..3ba40bc1dfaa 100644
---- a/arch/m68k/include/asm/raw_io.h
-+++ b/arch/m68k/include/asm/raw_io.h
-@@ -80,14 +80,14 @@
- 	({ u16 __v = le16_to_cpu(*(__force volatile u16 *) (addr)); __v; })
+diff --git a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+index 61dd5af80db6..5d2d989de893 100644
+--- a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
++++ b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+@@ -31,7 +31,7 @@ properties:
+         $ref: "regulator.yaml#"
  
- #define rom_out_8(addr, b)	\
--	({u8 __maybe_unused __w, __v = (b);  u32 _addr = ((u32) (addr)); \
-+	(void)({u8 __maybe_unused __w, __v = (b);  u32 _addr = ((u32) (addr)); \
- 	__w = ((*(__force volatile u8 *)  ((_addr | 0x10000) + (__v<<1)))); })
- #define rom_out_be16(addr, w)	\
--	({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
-+	(void)({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
- 	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v & 0xFF)<<1)))); \
- 	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v >> 8)<<1)))); })
- #define rom_out_le16(addr, w)	\
--	({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
-+	(void)({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
- 	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v >> 8)<<1)))); \
- 	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v & 0xFF)<<1)))); })
+         properties:
+-          regulator-name:
++          regulator-compatible:
+             pattern: "^vbuck[1-4]$"
  
+     additionalProperties: false
 -- 
 2.35.1
 
