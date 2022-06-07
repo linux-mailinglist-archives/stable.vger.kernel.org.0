@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A811C54158B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6737D5406AB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376535AbiFGUgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:36:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42656 "EHLO
+        id S1347165AbiFGRhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377886AbiFGUei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F52C1E7BE2;
-        Tue,  7 Jun 2022 11:36:30 -0700 (PDT)
+        with ESMTP id S1348332AbiFGRgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B9BF5F27C;
+        Tue,  7 Jun 2022 10:32:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB2516156D;
-        Tue,  7 Jun 2022 18:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04882C385A2;
-        Tue,  7 Jun 2022 18:36:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD0C3B82185;
+        Tue,  7 Jun 2022 17:32:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F00C385A5;
+        Tue,  7 Jun 2022 17:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626989;
-        bh=qOG8Y18WbTQ5OroftqQAArGQvZPIVLqJFUdTH/Dey4Y=;
+        s=korg; t=1654623147;
+        bh=b2xI1vAuWumL9Pl1KLY/AKMQ4JmYs0MYUQwUJwyOSvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9cxfMtOajDcK7Dndn4BBpAFiLJsrbv4Ety0uT7fbtFviAUiF+3IBB7JwhaTACxnR
-         xTKR3MSzL8yESJzZPzYa/dkr4lqbJjozDbtC8bl3HKCPLWCITOT8uVTvIiaWhKoza8
-         gpQhyPPoGBNKFPf+rze8aIKeAIGo0ylnMmoBKxzM=
+        b=NJI8BHwTNBQ6IhCGWPOZXFDs3NQ6n8sSQ0cvZrfEQkkZg02FHkiesAxv88/S4OmhW
+         RKhwzOE0xJF+dNa3Vl3d056UdrhYkW6Pnm6/3uX7LJ9U1hIhlxBR9K6XpFzB/6OF2q
+         nPl0VMQfRdzwqO6Zre/vqxEBn65zHsfWDXANH/+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Yong Wu <yong.wu@mediatek.com>,
-        kernel test robot <lkp@intel.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 577/772] iommu/mediatek: Fix NULL pointer dereference when printing dev_name
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 312/452] macintosh: via-pmu and via-cuda need RTC_LIB
 Date:   Tue,  7 Jun 2022 19:02:49 +0200
-Message-Id: <20220607165005.953607487@linuxfoundation.org>
+Message-Id: <20220607164917.858473363@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,132 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit de78657e16f41417da9332f09c2d67d100096939 ]
+[ Upstream commit 9a9c5ff5fff87eb1a43db0d899473554e408fd7b ]
 
-When larbdev is NULL (in the case I hit, the node is incorrectly set
-iommus = <&iommu NUM>), it will cause device_link_add() fail and
-kernel crashes when we try to print dev_name(larbdev).
+Fix build when RTC_LIB is not set/enabled.
+Eliminates these build errors:
 
-Let's fail the probe if a larbdev is NULL to avoid invalid inputs from
-dts.
+m68k-linux-ld: drivers/macintosh/via-pmu.o: in function `pmu_set_rtc_time':
+drivers/macintosh/via-pmu.c:1769: undefined reference to `rtc_tm_to_time64'
+m68k-linux-ld: drivers/macintosh/via-cuda.o: in function `cuda_set_rtc_time':
+drivers/macintosh/via-cuda.c:797: undefined reference to `rtc_tm_to_time64'
 
-It should work for normal correct setting and avoid the crash caused
-by my incorrect setting.
-
-Error log:
-[   18.189042][  T301] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000050
-...
-[   18.344519][  T301] pstate: a0400005 (NzCv daif +PAN -UAO)
-[   18.345213][  T301] pc : mtk_iommu_probe_device+0xf8/0x118 [mtk_iommu]
-[   18.346050][  T301] lr : mtk_iommu_probe_device+0xd0/0x118 [mtk_iommu]
-[   18.346884][  T301] sp : ffffffc00a5635e0
-[   18.347392][  T301] x29: ffffffc00a5635e0 x28: ffffffd44a46c1d8
-[   18.348156][  T301] x27: ffffff80c39a8000 x26: ffffffd44a80cc38
-[   18.348917][  T301] x25: 0000000000000000 x24: ffffffd44a80cc38
-[   18.349677][  T301] x23: ffffffd44e4da4c6 x22: ffffffd44a80cc38
-[   18.350438][  T301] x21: ffffff80cecd1880 x20: 0000000000000000
-[   18.351198][  T301] x19: ffffff80c439f010 x18: ffffffc00a50d0c0
-[   18.351959][  T301] x17: ffffffffffffffff x16: 0000000000000004
-[   18.352719][  T301] x15: 0000000000000004 x14: ffffffd44eb5d420
-[   18.353480][  T301] x13: 0000000000000ad2 x12: 0000000000000003
-[   18.354241][  T301] x11: 00000000fffffad2 x10: c0000000fffffad2
-[   18.355003][  T301] x9 : a0d288d8d7142d00 x8 : a0d288d8d7142d00
-[   18.355763][  T301] x7 : ffffffd44c2bc640 x6 : 0000000000000000
-[   18.356524][  T301] x5 : 0000000000000080 x4 : 0000000000000001
-[   18.357284][  T301] x3 : 0000000000000000 x2 : 0000000000000005
-[   18.358045][  T301] x1 : 0000000000000000 x0 : 0000000000000000
-[   18.360208][  T301] Hardware name: MT6873 (DT)
-[   18.360771][  T301] Call trace:
-[   18.361168][  T301]  dump_backtrace+0xf8/0x1f0
-[   18.361737][  T301]  dump_stack_lvl+0xa8/0x11c
-[   18.362305][  T301]  dump_stack+0x1c/0x2c
-[   18.362816][  T301]  mrdump_common_die+0x184/0x40c [mrdump]
-[   18.363575][  T301]  ipanic_die+0x24/0x38 [mrdump]
-[   18.364230][  T301]  atomic_notifier_call_chain+0x128/0x2b8
-[   18.364937][  T301]  die+0x16c/0x568
-[   18.365394][  T301]  __do_kernel_fault+0x1e8/0x214
-[   18.365402][  T301]  do_page_fault+0xb8/0x678
-[   18.366934][  T301]  do_translation_fault+0x48/0x64
-[   18.368645][  T301]  do_mem_abort+0x68/0x148
-[   18.368652][  T301]  el1_abort+0x40/0x64
-[   18.368660][  T301]  el1h_64_sync_handler+0x54/0x88
-[   18.368668][  T301]  el1h_64_sync+0x68/0x6c
-[   18.368673][  T301]  mtk_iommu_probe_device+0xf8/0x118 [mtk_iommu]
-...
-
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Yong Wu <yong.wu@mediatek.com>
+Fixes: 0792a2c8e0bb ("macintosh: Use common code to access RTC")
 Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 635319a4a744 ("media: iommu/mediatek: Add device_link between the consumer and the larb devices")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220505132731.21628-1-miles.chen@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220410161035.592-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c    | 6 ++++++
- drivers/iommu/mtk_iommu_v1.c | 7 +++++++
- 2 files changed, 13 insertions(+)
+ drivers/macintosh/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 9b3ded518f83..2ae46fa6b3de 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -586,6 +586,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 	 * All the ports in each a device should be in the same larbs.
- 	 */
- 	larbid = MTK_M4U_TO_LARB(fwspec->ids[0]);
-+	if (larbid >= MTK_LARB_NR_MAX)
-+		return ERR_PTR(-EINVAL);
-+
- 	for (i = 1; i < fwspec->num_ids; i++) {
- 		larbidx = MTK_M4U_TO_LARB(fwspec->ids[i]);
- 		if (larbid != larbidx) {
-@@ -595,6 +598,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 		}
- 	}
- 	larbdev = data->larb_imu[larbid].dev;
-+	if (!larbdev)
-+		return ERR_PTR(-EINVAL);
-+
- 	link = device_link_add(dev, larbdev,
- 			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
- 	if (!link)
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index bc7ee90b9373..254530ad6c48 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -80,6 +80,7 @@
- /* MTK generation one iommu HW only support 4K size mapping */
- #define MT2701_IOMMU_PAGE_SHIFT			12
- #define MT2701_IOMMU_PAGE_SIZE			(1UL << MT2701_IOMMU_PAGE_SHIFT)
-+#define MT2701_LARB_NR_MAX			3
- 
- /*
-  * MTK m4u support 4GB iova address space, and only support 4K page
-@@ -457,6 +458,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 
- 	/* Link the consumer device with the smi-larb device(supplier) */
- 	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
-+	if (larbid >= MT2701_LARB_NR_MAX)
-+		return ERR_PTR(-EINVAL);
-+
- 	for (idx = 1; idx < fwspec->num_ids; idx++) {
- 		larbidx = mt2701_m4u_to_larb(fwspec->ids[idx]);
- 		if (larbid != larbidx) {
-@@ -467,6 +471,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 	}
- 
- 	larbdev = data->larb_imu[larbid].dev;
-+	if (!larbdev)
-+		return ERR_PTR(-EINVAL);
-+
- 	link = device_link_add(dev, larbdev,
- 			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
- 	if (!link)
+diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
+index 3942db15a2b8..539a2ed4e13d 100644
+--- a/drivers/macintosh/Kconfig
++++ b/drivers/macintosh/Kconfig
+@@ -44,6 +44,7 @@ config ADB_IOP
+ config ADB_CUDA
+ 	bool "Support for Cuda/Egret based Macs and PowerMacs"
+ 	depends on (ADB || PPC_PMAC) && !PPC_PMAC64
++	select RTC_LIB
+ 	help
+ 	  This provides support for Cuda/Egret based Macintosh and
+ 	  Power Macintosh systems. This includes most m68k based Macs,
+@@ -57,6 +58,7 @@ config ADB_CUDA
+ config ADB_PMU
+ 	bool "Support for PMU based PowerMacs and PowerBooks"
+ 	depends on PPC_PMAC || MAC
++	select RTC_LIB
+ 	help
+ 	  On PowerBooks, iBooks, and recent iMacs and Power Macintoshes, the
+ 	  PMU is an embedded microprocessor whose primary function is to
 -- 
 2.35.1
 
