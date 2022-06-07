@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F38C54069A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A9B541C7F
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233249AbiFGRhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53224 "EHLO
+        id S1382366AbiFGWCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347648AbiFGRfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B2671D95;
-        Tue,  7 Jun 2022 10:31:05 -0700 (PDT)
+        with ESMTP id S1382561AbiFGV7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:59:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C135A1A045;
+        Tue,  7 Jun 2022 12:14:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D2F0614D2;
-        Tue,  7 Jun 2022 17:31:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32228C385A5;
-        Tue,  7 Jun 2022 17:31:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B11BB82182;
+        Tue,  7 Jun 2022 19:14:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88590C385A2;
+        Tue,  7 Jun 2022 19:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623063;
-        bh=ulQTVT6ZnXZ+m8mLeQxMtSc5sv6EYb6RAVOJ2jq00pE=;
+        s=korg; t=1654629246;
+        bh=doRABoW4tgNfRfhu2aDY35gvGWM6ReAS5XSiyNI3iSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKVCP3P6K+wQ3w6aJtpY07QAoX2Ngdat9m/QBToFUaNj1AtJiNF4ssDENgn7paGCQ
-         /M1dMqxOi8wlVyiBCVw3OkI77K1QZT0Qac3Aemh3w6KHwF/BhhzS6J7DK8vaGNvqOr
-         bUa4Lr+/azOdfANrH/eeVDy0Q4kuixaS8jNUwcWI=
+        b=goX7vsvuV/myiEUAe+iGvQgvN1d2y6vdcnvdiEiIv55RGpglQOgA3zyn5xtGR26Ly
+         5NmJ0sXw8XFV/67F5R3FuCVyXJBa+AowYonUv4YtI0maIkWiiIMPPFQ6n6X6XXLkPz
+         jMQ2eS3xTVB9SnSq62MgRZz8YZ9Xgf7S4YgtWqqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 281/452] gpiolib: of: Introduce hook for missing gpio-ranges
-Date:   Tue,  7 Jun 2022 19:02:18 +0200
-Message-Id: <20220607164916.923774152@linuxfoundation.org>
+Subject: [PATCH 5.18 621/879] crypto: sun8i-ss - rework handling of IV
+Date:   Tue,  7 Jun 2022 19:02:19 +0200
+Message-Id: <20220607165020.877431911@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +54,292 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 3550bba25d5587a701e6edf20e20984d2ee72c78 ]
+[ Upstream commit 359e893e8af456be2fefabe851716237df289cbf ]
 
-Since commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-the device tree nodes of GPIO controller need the gpio-ranges property to
-handle gpio-hogs. Unfortunately it's impossible to guarantee that every new
-kernel is shipped with an updated device tree binary.
+sun8i-ss fail handling IVs when doing decryption of multiple SGs in-place.
+It should backup the last block of each SG source for using it later as
+IVs.
+In the same time remove allocation on requests path for storing all
+IVs.
 
-In order to provide backward compatibility with those older DTB, we need a
-callback within of_gpiochip_add_pin_range() so the relevant platform driver
-can handle this case.
-
-Fixes: 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Link: https://lore.kernel.org/r/20220409095129.45786-2-stefan.wahren@i2se.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: f08fcced6d00 ("crypto: allwinner - Add sun8i-ss cryptographic offloader")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c   |  5 +++++
- include/linux/gpio/driver.h | 12 ++++++++++++
- 2 files changed, 17 insertions(+)
+ .../allwinner/sun8i-ss/sun8i-ss-cipher.c      | 115 ++++++++++++------
+ .../crypto/allwinner/sun8i-ss/sun8i-ss-core.c |  30 +++--
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h  |  14 ++-
+ 3 files changed, 107 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index 921a99578ff0..01424af654db 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -933,6 +933,11 @@ static int of_gpiochip_add_pin_range(struct gpio_chip *chip)
- 	if (!np)
- 		return 0;
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
+index 554e400d41ca..70e2e6e37389 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
+@@ -93,6 +93,68 @@ static int sun8i_ss_cipher_fallback(struct skcipher_request *areq)
+ 	return err;
+ }
  
-+	if (!of_property_read_bool(np, "gpio-ranges") &&
-+	    chip->of_gpio_ranges_fallback) {
-+		return chip->of_gpio_ranges_fallback(chip, np);
++static int sun8i_ss_setup_ivs(struct skcipher_request *areq)
++{
++	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(areq);
++	struct sun8i_cipher_tfm_ctx *op = crypto_skcipher_ctx(tfm);
++	struct sun8i_ss_dev *ss = op->ss;
++	struct sun8i_cipher_req_ctx *rctx = skcipher_request_ctx(areq);
++	struct scatterlist *sg = areq->src;
++	unsigned int todo, offset;
++	unsigned int len = areq->cryptlen;
++	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
++	struct sun8i_ss_flow *sf = &ss->flows[rctx->flow];
++	int i = 0;
++	u32 a;
++	int err;
++
++	rctx->ivlen = ivsize;
++	if (rctx->op_dir & SS_DECRYPTION) {
++		offset = areq->cryptlen - ivsize;
++		scatterwalk_map_and_copy(sf->biv, areq->src, offset,
++					 ivsize, 0);
 +	}
 +
- 	group_names = of_find_property(np, group_names_propname, NULL);
++	/* we need to copy all IVs from source in case DMA is bi-directionnal */
++	while (sg && len) {
++		if (sg_dma_len(sg) == 0) {
++			sg = sg_next(sg);
++			continue;
++		}
++		if (i == 0)
++			memcpy(sf->iv[0], areq->iv, ivsize);
++		a = dma_map_single(ss->dev, sf->iv[i], ivsize, DMA_TO_DEVICE);
++		if (dma_mapping_error(ss->dev, a)) {
++			memzero_explicit(sf->iv[i], ivsize);
++			dev_err(ss->dev, "Cannot DMA MAP IV\n");
++			err = -EFAULT;
++			goto dma_iv_error;
++		}
++		rctx->p_iv[i] = a;
++		/* we need to setup all others IVs only in the decrypt way */
++		if (rctx->op_dir & SS_ENCRYPTION)
++			return 0;
++		todo = min(len, sg_dma_len(sg));
++		len -= todo;
++		i++;
++		if (i < MAX_SG) {
++			offset = sg->length - ivsize;
++			scatterwalk_map_and_copy(sf->iv[i], sg, offset, ivsize, 0);
++		}
++		rctx->niv = i;
++		sg = sg_next(sg);
++	}
++
++	return 0;
++dma_iv_error:
++	i--;
++	while (i >= 0) {
++		dma_unmap_single(ss->dev, rctx->p_iv[i], ivsize, DMA_TO_DEVICE);
++		memzero_explicit(sf->iv[i], ivsize);
++	}
++	return err;
++}
++
+ static int sun8i_ss_cipher(struct skcipher_request *areq)
+ {
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(areq);
+@@ -101,9 +163,9 @@ static int sun8i_ss_cipher(struct skcipher_request *areq)
+ 	struct sun8i_cipher_req_ctx *rctx = skcipher_request_ctx(areq);
+ 	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+ 	struct sun8i_ss_alg_template *algt;
++	struct sun8i_ss_flow *sf = &ss->flows[rctx->flow];
+ 	struct scatterlist *sg;
+ 	unsigned int todo, len, offset, ivsize;
+-	void *backup_iv = NULL;
+ 	int nr_sgs = 0;
+ 	int nr_sgd = 0;
+ 	int err = 0;
+@@ -134,30 +196,9 @@ static int sun8i_ss_cipher(struct skcipher_request *areq)
  
- 	for (;; index++) {
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index b216899b4745..0552a9859a01 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -477,6 +477,18 @@ struct gpio_chip {
- 	 */
- 	int (*of_xlate)(struct gpio_chip *gc,
- 			const struct of_phandle_args *gpiospec, u32 *flags);
+ 	ivsize = crypto_skcipher_ivsize(tfm);
+ 	if (areq->iv && crypto_skcipher_ivsize(tfm) > 0) {
+-		rctx->ivlen = ivsize;
+-		rctx->biv = kzalloc(ivsize, GFP_KERNEL | GFP_DMA);
+-		if (!rctx->biv) {
+-			err = -ENOMEM;
++		err = sun8i_ss_setup_ivs(areq);
++		if (err)
+ 			goto theend_key;
+-		}
+-		if (rctx->op_dir & SS_DECRYPTION) {
+-			backup_iv = kzalloc(ivsize, GFP_KERNEL);
+-			if (!backup_iv) {
+-				err = -ENOMEM;
+-				goto theend_key;
+-			}
+-			offset = areq->cryptlen - ivsize;
+-			scatterwalk_map_and_copy(backup_iv, areq->src, offset,
+-						 ivsize, 0);
+-		}
+-		memcpy(rctx->biv, areq->iv, ivsize);
+-		rctx->p_iv = dma_map_single(ss->dev, rctx->biv, rctx->ivlen,
+-					    DMA_TO_DEVICE);
+-		if (dma_mapping_error(ss->dev, rctx->p_iv)) {
+-			dev_err(ss->dev, "Cannot DMA MAP IV\n");
+-			err = -ENOMEM;
+-			goto theend_iv;
+-		}
+ 	}
+ 	if (areq->src == areq->dst) {
+ 		nr_sgs = dma_map_sg(ss->dev, areq->src, sg_nents(areq->src),
+@@ -243,21 +284,19 @@ static int sun8i_ss_cipher(struct skcipher_request *areq)
+ 	}
+ 
+ theend_iv:
+-	if (rctx->p_iv)
+-		dma_unmap_single(ss->dev, rctx->p_iv, rctx->ivlen,
+-				 DMA_TO_DEVICE);
+-
+ 	if (areq->iv && ivsize > 0) {
+-		if (rctx->biv) {
+-			offset = areq->cryptlen - ivsize;
+-			if (rctx->op_dir & SS_DECRYPTION) {
+-				memcpy(areq->iv, backup_iv, ivsize);
+-				kfree_sensitive(backup_iv);
+-			} else {
+-				scatterwalk_map_and_copy(areq->iv, areq->dst, offset,
+-							 ivsize, 0);
+-			}
+-			kfree(rctx->biv);
++		for (i = 0; i < rctx->niv; i++) {
++			dma_unmap_single(ss->dev, rctx->p_iv[i], ivsize, DMA_TO_DEVICE);
++			memzero_explicit(sf->iv[i], ivsize);
++		}
 +
-+	/**
-+	 * @of_gpio_ranges_fallback:
-+	 *
-+	 * Optional hook for the case that no gpio-ranges property is defined
-+	 * within the device tree node "np" (usually DT before introduction
-+	 * of gpio-ranges). So this callback is helpful to provide the
-+	 * necessary backward compatibility for the pin ranges.
-+	 */
-+	int (*of_gpio_ranges_fallback)(struct gpio_chip *gc,
-+				       struct device_node *np);
++		offset = areq->cryptlen - ivsize;
++		if (rctx->op_dir & SS_DECRYPTION) {
++			memcpy(areq->iv, sf->biv, ivsize);
++			memzero_explicit(sf->biv, ivsize);
++		} else {
++			scatterwalk_map_and_copy(areq->iv, areq->dst, offset,
++					ivsize, 0);
+ 		}
+ 	}
+ 
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
+index 319fe3279a71..657530578643 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
+@@ -66,6 +66,7 @@ int sun8i_ss_run_task(struct sun8i_ss_dev *ss, struct sun8i_cipher_req_ctx *rctx
+ 		      const char *name)
+ {
+ 	int flow = rctx->flow;
++	unsigned int ivlen = rctx->ivlen;
+ 	u32 v = SS_START;
+ 	int i;
+ 
+@@ -104,15 +105,14 @@ int sun8i_ss_run_task(struct sun8i_ss_dev *ss, struct sun8i_cipher_req_ctx *rctx
+ 		mutex_lock(&ss->mlock);
+ 		writel(rctx->p_key, ss->base + SS_KEY_ADR_REG);
+ 
+-		if (i == 0) {
+-			if (rctx->p_iv)
+-				writel(rctx->p_iv, ss->base + SS_IV_ADR_REG);
+-		} else {
+-			if (rctx->biv) {
+-				if (rctx->op_dir == SS_ENCRYPTION)
+-					writel(rctx->t_dst[i - 1].addr + rctx->t_dst[i - 1].len * 4 - rctx->ivlen, ss->base + SS_IV_ADR_REG);
++		if (ivlen) {
++			if (rctx->op_dir == SS_ENCRYPTION) {
++				if (i == 0)
++					writel(rctx->p_iv[0], ss->base + SS_IV_ADR_REG);
+ 				else
+-					writel(rctx->t_src[i - 1].addr + rctx->t_src[i - 1].len * 4 - rctx->ivlen, ss->base + SS_IV_ADR_REG);
++					writel(rctx->t_dst[i - 1].addr + rctx->t_dst[i - 1].len * 4 - ivlen, ss->base + SS_IV_ADR_REG);
++			} else {
++				writel(rctx->p_iv[i], ss->base + SS_IV_ADR_REG);
+ 			}
+ 		}
+ 
+@@ -464,7 +464,7 @@ static void sun8i_ss_free_flows(struct sun8i_ss_dev *ss, int i)
+  */
+ static int allocate_flows(struct sun8i_ss_dev *ss)
+ {
+-	int i, err;
++	int i, j, err;
+ 
+ 	ss->flows = devm_kcalloc(ss->dev, MAXFLOW, sizeof(struct sun8i_ss_flow),
+ 				 GFP_KERNEL);
+@@ -474,6 +474,18 @@ static int allocate_flows(struct sun8i_ss_dev *ss)
+ 	for (i = 0; i < MAXFLOW; i++) {
+ 		init_completion(&ss->flows[i].complete);
+ 
++		ss->flows[i].biv = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
++						GFP_KERNEL | GFP_DMA);
++		if (!ss->flows[i].biv)
++			goto error_engine;
 +
- #endif /* CONFIG_OF_GPIO */
++		for (j = 0; j < MAX_SG; j++) {
++			ss->flows[i].iv[j] = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
++							  GFP_KERNEL | GFP_DMA);
++			if (!ss->flows[i].iv[j])
++				goto error_engine;
++		}
++
+ 		ss->flows[i].engine = crypto_engine_alloc_init(ss->dev, true);
+ 		if (!ss->flows[i].engine) {
+ 			dev_err(ss->dev, "Cannot allocate engine\n");
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h
+index 28188685b910..57ada8653855 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h
+@@ -121,11 +121,15 @@ struct sginfo {
+  * @complete:	completion for the current task on this flow
+  * @status:	set to 1 by interrupt if task is done
+  * @stat_req:	number of request done by this flow
++ * @iv:		list of IV to use for each step
++ * @biv:	buffer which contain the backuped IV
+  */
+ struct sun8i_ss_flow {
+ 	struct crypto_engine *engine;
+ 	struct completion complete;
+ 	int status;
++	u8 *iv[MAX_SG];
++	u8 *biv;
+ #ifdef CONFIG_CRYPTO_DEV_SUN8I_SS_DEBUG
+ 	unsigned long stat_req;
+ #endif
+@@ -164,28 +168,28 @@ struct sun8i_ss_dev {
+  * @t_src:		list of mapped SGs with their size
+  * @t_dst:		list of mapped SGs with their size
+  * @p_key:		DMA address of the key
+- * @p_iv:		DMA address of the IV
++ * @p_iv:		DMA address of the IVs
++ * @niv:		Number of IVs DMA mapped
+  * @method:		current algorithm for this request
+  * @op_mode:		op_mode for this request
+  * @op_dir:		direction (encrypt vs decrypt) for this request
+  * @flow:		the flow to use for this request
+- * @ivlen:		size of biv
++ * @ivlen:		size of IVs
+  * @keylen:		keylen for this request
+- * @biv:		buffer which contain the IV
+  * @fallback_req:	request struct for invoking the fallback skcipher TFM
+  */
+ struct sun8i_cipher_req_ctx {
+ 	struct sginfo t_src[MAX_SG];
+ 	struct sginfo t_dst[MAX_SG];
+ 	u32 p_key;
+-	u32 p_iv;
++	u32 p_iv[MAX_SG];
++	int niv;
+ 	u32 method;
+ 	u32 op_mode;
+ 	u32 op_dir;
+ 	int flow;
+ 	unsigned int ivlen;
+ 	unsigned int keylen;
+-	void *biv;
+ 	struct skcipher_request fallback_req;   // keep at the end
  };
  
 -- 
