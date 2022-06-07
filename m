@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35C09540BF5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4CE540C52
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351560AbiFGScd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:32:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47146 "EHLO
+        id S1351616AbiFGSdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352095AbiFGSao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43306144FFD;
-        Tue,  7 Jun 2022 10:55:58 -0700 (PDT)
+        with ESMTP id S1352391AbiFGSa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CF217B86A;
+        Tue,  7 Jun 2022 10:56:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE9A6B8236A;
-        Tue,  7 Jun 2022 17:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C56C2C3411C;
-        Tue,  7 Jun 2022 17:55:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FBAA617AE;
+        Tue,  7 Jun 2022 17:56:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B6FC34115;
+        Tue,  7 Jun 2022 17:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624555;
-        bh=aT6YvPhoPElGUTTysLZKWXB1UMLXmkhkzGyEYMZj38o=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QHzeFGt3jSq/+dlXkrpI9Movyc3Rgs5C1fOuzdZ11SuanpIpAIwH4JOTAMlTMZq7H
-         HuBSa6Qsh42AY41RkBkA0GW6qmQWhfaEZ75JxaE9KBHkD2ebG4NzBEjT7+DtkGSJd6
-         L3zPAHFtFRZGRy/ucE3eM3RNcxEp/UszX1KpY+aHy1pObLOmc4RaZYF4wc2Aw2BXb9
-         CMsfHoaTed/e2xQNTBT48oGJ1NeOuRSFjTzib4DQ+bYDV6GUOJ+siTNSCcGIP+ZfKs
-         DM4uYI6IydIa3PMIW+yEeasnO55F7fIQEgT9VWQdCMZ1BPvcdmx6+StLWpirxwSyrM
-         tUde5bOMAyW1Q==
+        s=k20201202; t=1654624563;
+        bh=IQLEsmrKiVuGX+dVFlCbbaUWubNS1XxR6sRXnYMgr/o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VHlyJnDLk84jld9H4PVjHVOwapr2M2hMszxM84W8zHqsyVEerQpFpf4eLf+w4KgHK
+         27Wy10vUbQkSgtNI3j28b3cEL95NsCht0216VupTUmp2/Qtj9zF0VGTuDl4BO1rqbq
+         vZQtR828XBeiHatAu+nCVfe8FzAu+bhnhoKWk5m3u2+3VKP2zEbveFSbArwZZqpQjT
+         fF/dkj4ZUqA60m9HxAsi5HpY34EOvDPqsLH9O8/Oqpko1hfmWqiuge0jFIGmvFCtAR
+         X6qGfZf3Ai+jo2DmmwLbBZwgD/y6KEQ0DES832asZ+WrzS5Z+kTYhc8c7d/hUjp2RD
+         jhBjz4nVgjm9Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/51] iio: dummy: iio_simple_dummy: check the return value of kstrdup()
-Date:   Tue,  7 Jun 2022 13:55:00 -0400
-Message-Id: <20220607175552.479948-1-sashal@kernel.org>
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Larry.Finger@lwfinger.net,
+        florian.c.schilhabel@googlemail.com, kuba@kernel.org,
+        paskripkin@gmail.com, len.baker@gmx.com, skumark1902@gmail.com,
+        wanngchenng@gmail.com, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 02/51] staging: rtl8712: fix a potential memory leak in r871xu_drv_init()
+Date:   Tue,  7 Jun 2022 13:55:01 -0400
+Message-Id: <20220607175552.479948-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220607175552.479948-1-sashal@kernel.org>
+References: <20220607175552.479948-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,83 +62,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit ba93642188a6fed754bf7447f638bc410e05a929 ]
+[ Upstream commit 7288ff561de650d4139fab80e9cb0da9b5b32434 ]
 
-kstrdup() is also a memory allocation-related function, it returns NULL
-when some memory errors happen. So it is better to check the return
-value of it so to catch the memory error in time. Besides, there should
-have a kfree() to clear up the allocation if we get a failure later in
-this function to prevent memory leak.
+In r871xu_drv_init(), if r8712_init_drv_sw() fails, then the memory
+allocated by r8712_alloc_io_queue() in r8712_usb_dvobj_init() is not
+properly released as there is no action will be performed by
+r8712_usb_dvobj_deinit().
+To properly release it, we should call r8712_free_io_queue() in
+r8712_usb_dvobj_deinit().
 
+Besides, in r871xu_dev_remove(), r8712_usb_dvobj_deinit() will be called
+by r871x_dev_unload() under condition `padapter->bup` and
+r8712_free_io_queue() is called by r8712_free_drv_sw().
+However, r8712_usb_dvobj_deinit() does not rely on `padapter->bup` and
+calling r8712_free_io_queue() in r8712_free_drv_sw() is negative for
+better understading the code.
+So I move r8712_usb_dvobj_deinit() into r871xu_dev_remove(), and remove
+r8712_free_io_queue() from r8712_free_drv_sw().
+
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_C920CFCC33B9CC1C63141FE1334A39FF8508@qq.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lore.kernel.org/r/tencent_B8048C592777830380A23A7C4409F9DF1305@qq.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dummy/iio_simple_dummy.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/staging/rtl8712/os_intfs.c | 1 -
+ drivers/staging/rtl8712/usb_intf.c | 6 +++---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/dummy/iio_simple_dummy.c b/drivers/iio/dummy/iio_simple_dummy.c
-index c0b7ef900735..c24f609c2ade 100644
---- a/drivers/iio/dummy/iio_simple_dummy.c
-+++ b/drivers/iio/dummy/iio_simple_dummy.c
-@@ -575,10 +575,9 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
- 	 */
+diff --git a/drivers/staging/rtl8712/os_intfs.c b/drivers/staging/rtl8712/os_intfs.c
+index 9502f6aa5306..bc033849fcea 100644
+--- a/drivers/staging/rtl8712/os_intfs.c
++++ b/drivers/staging/rtl8712/os_intfs.c
+@@ -332,7 +332,6 @@ void r8712_free_drv_sw(struct _adapter *padapter)
+ 	r8712_free_evt_priv(&padapter->evtpriv);
+ 	r8712_DeInitSwLeds(padapter);
+ 	r8712_free_mlme_priv(&padapter->mlmepriv);
+-	r8712_free_io_queue(padapter);
+ 	_free_xmit_priv(&padapter->xmitpriv);
+ 	_r8712_free_sta_priv(&padapter->stapriv);
+ 	_r8712_free_recv_priv(&padapter->recvpriv);
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index cae04272deff..a61dd96ab2a4 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -265,6 +265,7 @@ static uint r8712_usb_dvobj_init(struct _adapter *padapter)
  
- 	swd = kzalloc(sizeof(*swd), GFP_KERNEL);
--	if (!swd) {
--		ret = -ENOMEM;
--		goto error_kzalloc;
--	}
-+	if (!swd)
-+		return ERR_PTR(-ENOMEM);
-+
- 	/*
- 	 * Allocate an IIO device.
- 	 *
-@@ -590,7 +589,7 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
- 	indio_dev = iio_device_alloc(parent, sizeof(*st));
- 	if (!indio_dev) {
- 		ret = -ENOMEM;
--		goto error_ret;
-+		goto error_free_swd;
- 	}
- 
- 	st = iio_priv(indio_dev);
-@@ -616,6 +615,10 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
- 	 *    indio_dev->name = spi_get_device_id(spi)->name;
- 	 */
- 	indio_dev->name = kstrdup(name, GFP_KERNEL);
-+	if (!indio_dev->name) {
-+		ret = -ENOMEM;
-+		goto error_free_device;
-+	}
- 
- 	/* Provide description of available channels */
- 	indio_dev->channels = iio_dummy_channels;
-@@ -632,7 +635,7 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
- 
- 	ret = iio_simple_dummy_events_register(indio_dev);
- 	if (ret < 0)
--		goto error_free_device;
-+		goto error_free_name;
- 
- 	ret = iio_simple_dummy_configure_buffer(indio_dev);
- 	if (ret < 0)
-@@ -649,11 +652,12 @@ static struct iio_sw_device *iio_dummy_probe(const char *name)
- 	iio_simple_dummy_unconfigure_buffer(indio_dev);
- error_unregister_events:
- 	iio_simple_dummy_events_unregister(indio_dev);
-+error_free_name:
-+	kfree(indio_dev->name);
- error_free_device:
- 	iio_device_free(indio_dev);
--error_ret:
-+error_free_swd:
- 	kfree(swd);
--error_kzalloc:
- 	return ERR_PTR(ret);
+ static void r8712_usb_dvobj_deinit(struct _adapter *padapter)
+ {
++	r8712_free_io_queue(padapter);
  }
+ 
+ void rtl871x_intf_stop(struct _adapter *padapter)
+@@ -302,9 +303,6 @@ void r871x_dev_unload(struct _adapter *padapter)
+ 			rtl8712_hal_deinit(padapter);
+ 		}
+ 
+-		/*s6.*/
+-		if (padapter->dvobj_deinit)
+-			padapter->dvobj_deinit(padapter);
+ 		padapter->bup = false;
+ 	}
+ }
+@@ -607,6 +605,8 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
+ 	/* Stop driver mlme relation timer */
+ 	r8712_stop_drv_timers(padapter);
+ 	r871x_dev_unload(padapter);
++	if (padapter->dvobj_deinit)
++		padapter->dvobj_deinit(padapter);
+ 	r8712_free_drv_sw(padapter);
+ 	free_netdev(pnetdev);
  
 -- 
 2.35.1
