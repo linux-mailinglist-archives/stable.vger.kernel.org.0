@@ -2,194 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9194753FF6D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 14:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837E053FF78
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 14:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236159AbiFGMv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 08:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44142 "EHLO
+        id S244279AbiFGMzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 08:55:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233403AbiFGMv5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 08:51:57 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15EE01C136;
-        Tue,  7 Jun 2022 05:51:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1654606309;
-        bh=HzFWcgIGisyh0z7VYE8goP/Uy202HPcAMHiudtxqK/g=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=d7vcCvRcE4UKXED7OzF/gBn6I155B6AooTlbFWacd+SVpQO/rTzJj+qRMPr4JA255
-         Hj6ZmuPltUANgQF8TDM6yhcOCRNBoSZTNAHeaEYdkp/D87o/t/H7Xpf8TVfMG8vyrE
-         vc5EtH8oRhu2Dn2c0ifGlAS6iGtURv1XTBqMQFqQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx005
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1N9dsV-1nk6hF3UIv-015Wke; Tue, 07
- Jun 2022 14:51:49 +0200
-Message-ID: <398607e9-5dab-8280-6ff1-73f2eaa5a701@gmx.com>
-Date:   Tue, 7 Jun 2022 20:51:45 +0800
+        with ESMTP id S244270AbiFGMzE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 08:55:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B8D4C7892E
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 05:55:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654606501;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PikFI8IuFGilq0ztM72f7JxwavOO8rV8L+cu0/Iu4x8=;
+        b=EtyB1LWhWNfL63MlIGdNjX7xkKZh6WdCCsqcT1FhR6nbBrzqwI7jA/wQ061S55QEmUqJlM
+        ME6XiAPavt1U6eQjEnVpklA1DWoy/tSmKkiFA89EsdtrPhPvhpcE4GaFt1QynKfhlENZA/
+        /vLDx8E8zee/wo7xHV8+De7ZrsLyAsU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-139-2kApkOQWNHG5_X_vJrpCrQ-1; Tue, 07 Jun 2022 08:54:21 -0400
+X-MC-Unique: 2kApkOQWNHG5_X_vJrpCrQ-1
+Received: by mail-wr1-f71.google.com with SMTP id i10-20020a5d55ca000000b002103d76ffcaso3897419wrw.17
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 05:54:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=PikFI8IuFGilq0ztM72f7JxwavOO8rV8L+cu0/Iu4x8=;
+        b=3Chmi0r7ZxwjgC8bc8qQ3bBgWO22yVo3SiRv13z2elSY1BOZVEDuYkdLYLfYDXpBj6
+         MnuLgMwJd2rssVaxl+MQo2+HIZ3zYGq9rBYehRoopjcjoELzT8oTiZXC3/icPjvHCbsX
+         0bOUlPwgYGAaIrvvW4bJuS42wtrQ4Ea7OiSRnlwiUlqrj5R8YcZIh01rOuuJ6yeBdANz
+         PdL1Hp/5Rtrau8c0jKhkzAKNdZqqyOr65/Ds2THq+e/L3e/MkT/dRtHdJsiDxFVhG6Yl
+         kfQHqtNuEsh1YuHQPYYZxPl7557tXNQc7zeiwqekEI+YfyC69aWrSyITKrtU2TCxu05T
+         XiAg==
+X-Gm-Message-State: AOAM530es9zQn1W6iXbrOgbD0mHo7S2fufh8uzpkIFjpzJnVIM5iFXIq
+        lzlMdeLdM7bJYZT5AQ4dc2eTRdWeY1w8fPgj0nmLlXeDE+7dLqXUgYIpaOSKgNznnmRvi2C7jcH
+        paBBgxtxn3docspqX
+X-Received: by 2002:a7b:c401:0:b0:397:26fb:ebf7 with SMTP id k1-20020a7bc401000000b0039726fbebf7mr29011210wmi.90.1654606459916;
+        Tue, 07 Jun 2022 05:54:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwJa9Ztgs/feNXwUUZcblGX2ZWB3NuTx5Hif1QltOBA4EuHQl1hdGlGjZxUtoDL/Nv8LMki0A==
+X-Received: by 2002:a7b:c401:0:b0:397:26fb:ebf7 with SMTP id k1-20020a7bc401000000b0039726fbebf7mr29011177wmi.90.1654606459567;
+        Tue, 07 Jun 2022 05:54:19 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
+        by smtp.googlemail.com with ESMTPSA id g6-20020a056000118600b002183fabc53csm5233442wrx.17.2022.06.07.05.54.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jun 2022 05:54:18 -0700 (PDT)
+Message-ID: <9d336622-6964-454a-605f-1ca90b902836@redhat.com>
+Date:   Tue, 7 Jun 2022 14:54:14 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v2] btrfs: reject log replay if there is unsupported RO
- flag
+ Thunderbird/91.8.0
+Subject: Re: [PATCH AUTOSEL 5.16 07/28] x86/kvm/fpu: Limit guest
+ user_xfeatures to supported bits of XCR0
 Content-Language: en-US
-To:     Filipe Manana <fdmanana@kernel.org>, Qu Wenruo <wqu@suse.com>
-Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-References: <a6612cd9432b8ae6429cceee561c0259232cc554.1654602414.git.wqu@suse.com>
- <20220607123517.GB3568258@falcondesktop>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220607123517.GB3568258@falcondesktop>
+To:     Peter Xu <peterx@redhat.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Leonardo Bras <leobras@redhat.com>,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        chang.seok.bae@intel.com, luto@kernel.org, kvm@vger.kernel.org,
+        Sean Christopherson <seanjc@google.com>
+References: <20220301201344.18191-1-sashal@kernel.org>
+ <20220301201344.18191-7-sashal@kernel.org>
+ <5f2b7b93-d4c9-1d59-14df-6e8b2366ca8a@redhat.com>
+ <YppVupW+IWsm7Osr@xz-m1.local>
+ <2d9ba70b-ac18-a461-7a57-22df2c0165c6@redhat.com>
+ <Yp5xSi6P3q187+A+@xz-m1.local>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <Yp5xSi6P3q187+A+@xz-m1.local>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:lwjcWiSjhsVZY1AGP6Dzf0vLlFySeja0u6wLUTDG/23OLFPyRbE
- CqfnKYKlNxHCnRNjI7RK/G/fFEAx9msrl81aiJkY4HcAtfYU/OHCK3w9iz7hsGqCGRUvDjV
- ZBNGNbrwFsxYvsXXNIfIeUE0SWma7YCLPaWUCM+uuuqKSolfROTsczF5ySSvKEimdQI2ojn
- pFzgRI2fnPR07EkyPV+oA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Y+IT6xnmO9k=:YYOIkCiZtpqBVds01m7/PS
- G78UlRZobhVwhzhBGIXJiKJ6Cc/lpPGjlESQ65s5S4YsYBHO8QxSykJev9y3go0pfVsg53i8l
- /TUGVrqAz0AA2udcyes/8JVB5+nnszon2am02Ti+ag6pxCweDznLi6WAS2DELHNXFGI3XFDPG
- JmenJK1CkezDbsCyb8uYJ0DVZ22N/NXeRW8z2WeMLPU2iCaI+iomnmtpLBqfEq4QdmnsqKBqM
- Kl5li2C8iuFw/Yic/s8w+gq4+pA7LgCJaEgxysKJjxlD9kH9ODq8Z63V3NRzbJ/Ra/Ave6jhw
- etTafAdCjq9a6y6W4cXhG9ZcM0EhcsV1J91hUQPBw8c/iOUB/iz9nHIWQsaiYuZ6HN/hwJpj5
- TFiz1bCVdHWxRTkYvRvAAHSalR0PfIP60mIUxFjbZcq5o0MPfIUxY3dKYumI2KVeUNq8SdzN6
- wc9tfrcOWcJ8dBt3IjQftcqUOLPeAvYhqbSpWxJV8WAU5MtZJxYwIRYuJfJLVcnlhW3UQ6izi
- tI0RLNd5xSZ4ybEdCj8cEiYamk3uzoRjIQ+bgrsPpm3O3dYFauhd67+NennvDxddbm0Y5WhvV
- z4Klh+RTM6Uki1Nr1FjGYKIvFiyNhIGjVfieS5AHaTevS0F9uNQv3zsFMI1qWaXNktPal2xmJ
- bEftEXsDSKNytGKWl4j+Gga8kigT7WShcGnxmui4FgJXcDnSoVvahi//uFVqwDQIhAqtTcjYy
- psFjf1kecF98N5pdmBs+BSoU5+2NHvixr5V4Oow0xKDd8kOgR1Tzops2jS6K5mjvRccZTla4A
- VoxkrXcyOzjM23AHNcbcWnfWOHb4S8zxVqOmfdx9bnRhYV2hIYCju5NL78KET6Qn6/NhjWJJl
- vjmH1HsbkklEqfueqiekGpW65Hqvf4cnqLynmKfuM6ODLwFz8kcMo/gtGcRImulhXi7eowV6R
- Z3akuDa1IJPDuoWkGlCH2tuZtmy8Q3Ud2Df0jOvn/uddOy0tqrvXe9NwR/HQubII15dFt+6am
- 6ok026HtOuMyg3tJ1RGHoDXFKGIerWABEDVpzRnnkIXoT4HrK0mgxT6jWbOFnB60JiIFR1+7g
- J9BfSDZblvDoKdW69yqCZ10Bd2qSA5ZtrrtcaMJ600gfm7aiwGBvyexmQ==
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 6/6/22 23:27, Peter Xu wrote:
+> On Mon, Jun 06, 2022 at 06:18:12PM +0200, Paolo Bonzini wrote:
+>>> However there seems to be something missing at least to me, on why it'll
+>>> fail a migration from 5.15 (without this patch) to 5.18 (with this patch).
+>>> In my test case, user_xfeatures will be 0x7 (FP|SSE|YMM) if without this
+>>> patch, but 0x0 if with it.
+>>
+>> What CPU model are you using for the VM?
+> 
+> I didn't specify it, assuming it's qemu64 with no extra parameters.
 
+Ok, so indeed it lacks AVX and this patch can have an effect.
 
-On 2022/6/7 20:35, Filipe Manana wrote:
-> On Tue, Jun 07, 2022 at 07:48:24PM +0800, Qu Wenruo wrote:
->> [BUG]
->> If we have a btrfs image with dirty log, along with an unsupported RO
->> compatible flag:
+>> For example, if the source lacks this patch but the destination has it,
+>> the source will transmit YMM registers, but the destination will fail to
+>> set them if they are not available for the selected CPU model.
 >>
->> log_root		30474240
->> ...
->> compat_flags		0x0
->> compat_ro_flags		0x40000003
->> 			( FREE_SPACE_TREE |
->> 			  FREE_SPACE_TREE_VALID |
->> 			  unknown flag: 0x40000000 )
->>
->> Then even if we can only mount it RO, we will still cause metadata
->> update for log replay:
->>
->>   BTRFS info (device dm-1): flagging fs with big metadata feature
->>   BTRFS info (device dm-1): using free space tree
->>   BTRFS info (device dm-1): has skinny extents
->>   BTRFS info (device dm-1): start tree-log replay
->>
->> This is definitely against RO compact flag requirement.
->>
->> [CAUSE]
->> RO compact flag only forces us to do RO mount, but we will still do log
->> replay for plain RO mount.
->>
->> Thus this will result us to do log replay and update metadata.
->>
->> This can be very problematic for new RO compat flag, for example older
->> kernel can not understand v2 cache, and if we allow metadata update on
->> RO mount and invalidate/corrupt v2 cache.
->>
->> [FIX]
->> Just reject the mount unless rescue=3Dnologreplay is provided:
->>
->>    BTRFS error (device dm-1): cannot replay dirty log with unsupport op=
-tional features (0x40000000), try rescue=3Dnologreplay instead
->>
->> We don't want to set rescue=3Dnologreply directly, as this would make t=
-he
->> end user to read the old data, and cause confusion.
->>
->> Since the such case is really rare, we're mostly fine to just reject th=
-e
->> mount with an error message, which also includes the proper workaround.
->>
->> Cc: stable@vger.kernel.org #4.9+
->> Signed-off-by: Qu Wenruo <wqu@suse.com>
->> ---
->> Changelog:
->> v2:
->> - Reject the mount instead of setting nologreplay
->>    To avoid the confusion which can return old data.
->>    Unfortunately I don't have a better to shrink the new error message
->>    into one 80-char line.
->> ---
->>   fs/btrfs/disk-io.c | 14 ++++++++++++++
->>   1 file changed, 14 insertions(+)
->>
->> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
->> index fe309db9f5ff..f20bd8024334 100644
->> --- a/fs/btrfs/disk-io.c
->> +++ b/fs/btrfs/disk-io.c
->> @@ -3655,6 +3655,20 @@ int __cold open_ctree(struct super_block *sb, st=
-ruct btrfs_fs_devices *fs_device
->>   		err =3D -EINVAL;
->>   		goto fail_alloc;
->>   	}
->> +	/*
->> +	 * We have unsupported RO compat features, although RO mounted, we
->> +	 * should not cause any metadata write, including log replay.
->> +	 * Or we can screw up whatever the new feature requires.
->> +	 */
->> +	if (unlikely(features && btrfs_super_log_root(disk_super) &&
->> +		     !btrfs_test_opt(fs_info, NOLOGREPLAY))) {
->> +		btrfs_err(fs_info,
->> +"cannot replay dirty log with unsupport optional features (0x%llx), tr=
-y rescue=3Dnologreplay instead",
->
-> unsupport -> unsupported
->
-> The "optional" sounds superfluous.
->
-> You are CC'ing stable 4.9+, but IIRC the rescue=3D mount option is relat=
-ively
-> recent, so the message will need to be updated (4.9, at least, doesn't h=
-ave it).
+>> See the commit message: "As a bonus, it will also fail if userspace tries to
+>> set fpu features (with the KVM_SET_XSAVE ioctl) that are not compatible to
+>> the guest configuration.  Such features will never be returned by
+>> KVM_GET_XSAVE or KVM_GET_XSAVE2."
+> 
+> IIUC you meant we should have failed KVM_SET_XSAVE when they're not aligned
+> (probably by failing validate_user_xstate_header when checking against the
+> user_xfeatures on dest host). But that's probably not my case, because here
+> KVM_SET_XSAVE succeeded, it's just that the guest gets a double fault after
+> the precopy migration completes (or for postcopy when the switchover is
+> done).
 
-Yep, thus when this get merged, I'll manually backport the patch to
-older kernels.
+Difficult to say what's happening without seeing at least the guest code 
+around the double fault (above you said "fail a migration" and I thought 
+that was a different scenario than the double fault), and possibly which 
+was the first exception that contributed to the double fault.
 
-Thanks,
-Qu
->
-> Other than that it looks fine to me.
->
-> It's clear that it's a problem with the free space tree, but with verity=
- (the only
-> other RO compat feature), I'm not sure we need this constraint, and it m=
-ay happen
-> more often since verity support is recent, unlike the free space tree wh=
-ich has
-> been around for years.
->
-> Thanks.
->
->> +			  features);
->> +		err =3D -EINVAL;
->> +		goto fail_alloc;
->> +	}
->> +
->>
->>   	if (sectorsize < PAGE_SIZE) {
->>   		struct btrfs_subpage_info *subpage_info;
->> --
->> 2.36.1
->>
+Paolo
+
