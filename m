@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2DB2540C3F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85FA3540643
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352540AbiFGSes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:34:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
+        id S244116AbiFGRd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345885AbiFGSdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 568951476A4;
-        Tue,  7 Jun 2022 10:57:23 -0700 (PDT)
+        with ESMTP id S1347601AbiFGRaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6223B100524;
+        Tue,  7 Jun 2022 10:27:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB0F6B82368;
-        Tue,  7 Jun 2022 17:57:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28EA9C385A5;
-        Tue,  7 Jun 2022 17:57:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 98B95CE1D50;
+        Tue,  7 Jun 2022 17:27:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABFA9C385A5;
+        Tue,  7 Jun 2022 17:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624640;
-        bh=NUsqOlIV2ues7o06EedQ6OESJZJdTQzaewkTZyeho14=;
+        s=korg; t=1654622858;
+        bh=G8qUnbTp31LiWUYOdhxaEF0Eo0c93bjPktO+ImQYsLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNoHPGnM1jDgpz51pW6WkSwANDxL/G6GEi4lyhPaFn+uMFqhAFGeq31cr+KQBe9e3
-         M+Y262AX4nLIR28aoiJ0HX06kqJbdmEzTA/KMveu0KPl/hzdYdR8xJJYo7Ob8ZrkHv
-         usZDg8WqfR534/sYggAfeedT8F0JKirbFJKfLK4E=
+        b=QRdUzpvi3Yu1+pWrbWBicTIZ0V8iMHhSgqWB4LcNd1WiKp7C/P87IBN/VCtHK7mG3
+         KRGtjEKA+MYjBjahMm6KnhZw/XCE+65AzaduIoVcDOD3oUtdR5d2R65gjUxBXSLFVX
+         6fyrL2sXsYPlTtH/v31xVMVJNSCa7Hq5TzbuGxqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 401/667] crypto: qat - set COMPRESSION capability for DH895XCC
+Subject: [PATCH 5.10 209/452] media: aspeed: Fix an error handling path in aspeed_video_probe()
 Date:   Tue,  7 Jun 2022 19:01:06 +0200
-Message-Id: <20220607164946.770936609@linuxfoundation.org>
+Message-Id: <20220607164914.790856395@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 0eaa51543273fd0f4ba9bea83638f7033436e5eb ]
+[ Upstream commit 310fda622bbd38be17fb444f7f049b137af3bc0d ]
 
-The capability detection logic clears bits for the features that are
-disabled in a certain SKU. For example, if the bit associate to
-compression is not present in the LEGFUSE register, the correspondent
-bit is cleared in the capability mask.
-This change adds the compression capability to the mask as this was
-missing in the commit that enhanced the capability detection logic.
+A dma_free_coherent() call is missing in the error handling path of the
+probe, as already done in the remove function.
 
-Fixes: cfe4894eccdc ("crypto: qat - set COMPRESSION capability for QAT GEN2")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In fact, this call is included in aspeed_video_free_buf(). So use the
+latter both in the error handling path of the probe and in the remove
+function.
+It is easier to see the relation with aspeed_video_alloc_buf() this way.
+
+Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/aspeed-video.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-index 6499b9a2f38f..c2c73ee279b2 100644
---- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-+++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-@@ -87,7 +87,8 @@ static u32 get_accel_cap(struct adf_accel_dev *accel_dev)
- 	capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
- 		       ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
- 		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
--		       ICP_ACCEL_CAPABILITIES_CIPHER;
-+		       ICP_ACCEL_CAPABILITIES_CIPHER |
-+		       ICP_ACCEL_CAPABILITIES_COMPRESSION;
+diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
+index 757a58829a51..9d9124308f6a 100644
+--- a/drivers/media/platform/aspeed-video.c
++++ b/drivers/media/platform/aspeed-video.c
+@@ -1723,6 +1723,7 @@ static int aspeed_video_probe(struct platform_device *pdev)
  
- 	/* Read accelerator capabilities mask */
- 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
+ 	rc = aspeed_video_setup_video(video);
+ 	if (rc) {
++		aspeed_video_free_buf(video, &video->jpeg);
+ 		clk_unprepare(video->vclk);
+ 		clk_unprepare(video->eclk);
+ 		return rc;
+@@ -1748,8 +1749,7 @@ static int aspeed_video_remove(struct platform_device *pdev)
+ 
+ 	v4l2_device_unregister(v4l2_dev);
+ 
+-	dma_free_coherent(video->dev, VE_JPEG_HEADER_SIZE, video->jpeg.virt,
+-			  video->jpeg.dma);
++	aspeed_video_free_buf(video, &video->jpeg);
+ 
+ 	of_reserved_mem_device_release(dev);
+ 
 -- 
 2.35.1
 
