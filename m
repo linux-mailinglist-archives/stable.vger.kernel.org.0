@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77F865404A5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07595412F9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344724AbiFGRSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36864 "EHLO
+        id S1357453AbiFGTzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:55:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345516AbiFGRSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4B71021E7;
-        Tue,  7 Jun 2022 10:18:19 -0700 (PDT)
+        with ESMTP id S1358790AbiFGTxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D526E1B7038;
+        Tue,  7 Jun 2022 11:22:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E839B822AF;
-        Tue,  7 Jun 2022 17:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F57EC385A5;
-        Tue,  7 Jun 2022 17:18:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66461B8233E;
+        Tue,  7 Jun 2022 18:22:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDB38C385A5;
+        Tue,  7 Jun 2022 18:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622297;
-        bh=QooOaZj5AtTvxIJbbtRZNKitn1Re3sKl1qSBz6sPd1w=;
+        s=korg; t=1654626149;
+        bh=LQq/7blpbZyhfx4zRTEyWiRAUMsgZCLnSCZeVlsS+RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WqgqVgz6D6+eEGyOw53k6z4ATkm8JZDd8e8GbMCUbJ9x5nj3Y8sxRrbGXzT9VO3zq
-         r7kND3LBcreE13ZD0V12pJ2Q1oJ7GUNXtJZYhEaaW5ojRXDMQWfC5ZBRZdxCxVrY/W
-         mmwr8T7fm4ZzcCu0cHbbNuw/oqCZ1ycqX9tKLN/o=
+        b=BNvRjkyNOhmSHJW79omZQdVEmtu/ndPr6TSYxYgMEDoC3+ABSW+8PeZYxrEPPSUqH
+         KQBmVz7OphrdrjzCJLhN7XP0nQkcBh1+r5lEE+QcG1iIywatVs09eniBVL4+dLz80D
+         NR60bvYUwbps2lMZiBzmptwz99q6RqOLqhFD5434=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Monish Kumar R <monish.kumar.r@intel.com>
-Subject: [PATCH 5.10 010/452] USB: new quirk for Dell Gen 2 devices
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Adam Ward <Adam.Ward.Opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 275/772] regulator: da9121: Fix uninit-value in da9121_assign_chip_model()
 Date:   Tue,  7 Jun 2022 18:57:47 +0200
-Message-Id: <20220607164908.842229467@linuxfoundation.org>
+Message-Id: <20220607164957.130419825@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Monish Kumar R <monish.kumar.r@intel.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 97fa5887cf283bb75ffff5f6b2c0e71794c02400 upstream.
+[ Upstream commit bab76514aca36bc513224525d5598da676938218 ]
 
-Add USB_QUIRK_NO_LPM and USB_QUIRK_RESET_RESUME quirks for Dell usb gen
-2 device to not fail during enumeration.
+KASAN report slab-out-of-bounds in __regmap_init as follows:
 
-Found this bug on own testing
+BUG: KASAN: slab-out-of-bounds in __regmap_init drivers/base/regmap/regmap.c:841
+Read of size 1 at addr ffff88803678cdf1 by task xrun/9137
 
-Signed-off-by: Monish Kumar R <monish.kumar.r@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220520130044.17303-1-monish.kumar.r@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CPU: 0 PID: 9137 Comm: xrun Tainted: G        W         5.18.0-rc2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x15a lib/dump_stack.c:88
+ print_report.cold+0xcd/0x69b mm/kasan/report.c:313
+ kasan_report+0x8e/0xc0 mm/kasan/report.c:491
+ __regmap_init+0x4540/0x4ba0 drivers/base/regmap/regmap.c:841
+ __devm_regmap_init+0x7a/0x100 drivers/base/regmap/regmap.c:1266
+ __devm_regmap_init_i2c+0x65/0x80 drivers/base/regmap/regmap-i2c.c:394
+ da9121_i2c_probe+0x386/0x6d1 drivers/regulator/da9121-regulator.c:1039
+ i2c_device_probe+0x959/0xac0 drivers/i2c/i2c-core-base.c:563
+
+This happend when da9121 device is probe by da9121_i2c_id, but with
+invalid dts. Thus, chip->subvariant_id is set to -EINVAL, and later
+da9121_assign_chip_model() will access 'regmap' without init it.
+
+Fix it by return -EINVAL from da9121_assign_chip_model() if
+'chip->subvariant_id' is invalid.
+
+Fixes: f3fbd5566f6a ("regulator: da9121: Add device variants")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Adam Ward <Adam.Ward.Opensource@diasemi.com>
+Link: https://lore.kernel.org/r/20220421090335.1876149-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/regulator/da9121-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -511,6 +511,9 @@ static const struct usb_device_id usb_qu
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+diff --git a/drivers/regulator/da9121-regulator.c b/drivers/regulator/da9121-regulator.c
+index eb9df485bd8a..76e0e23bf598 100644
+--- a/drivers/regulator/da9121-regulator.c
++++ b/drivers/regulator/da9121-regulator.c
+@@ -1030,6 +1030,8 @@ static int da9121_assign_chip_model(struct i2c_client *i2c,
+ 		chip->variant_id = DA9121_TYPE_DA9142;
+ 		regmap = &da9121_2ch_regmap_config;
+ 		break;
++	default:
++		return -EINVAL;
+ 	}
  
-+	/* DELL USB GEN2 */
-+	{ USB_DEVICE(0x413c, 0xb062), .driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_RESET_RESUME },
-+
- 	/* VCOM device */
- 	{ USB_DEVICE(0x4296, 0x7570), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
- 
+ 	/* Set these up for of_regulator_match call which may want .of_map_modes */
+-- 
+2.35.1
+
 
 
