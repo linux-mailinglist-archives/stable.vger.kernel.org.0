@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3728A540A79
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5618540584
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352939AbiFGSWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42266 "EHLO
+        id S1346500AbiFGR0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:26:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348997AbiFGSSY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:18:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62EFDE732F;
-        Tue,  7 Jun 2022 10:53:21 -0700 (PDT)
+        with ESMTP id S1347018AbiFGRZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F76111B93;
+        Tue,  7 Jun 2022 10:23:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8897B8234A;
-        Tue,  7 Jun 2022 17:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22BA1C341C0;
-        Tue,  7 Jun 2022 17:53:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E20FFCE2015;
+        Tue,  7 Jun 2022 17:23:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0E4C385A5;
+        Tue,  7 Jun 2022 17:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624396;
-        bh=iNab9yIrCCieKssBqHt39K2CfW9y3HdUyNf5D2URuPc=;
+        s=korg; t=1654622636;
+        bh=IOLloMgWNNND+MG+cMpo8BWAM9qcdlYLA/9sHrIUEEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X80D5YbNMvu1KH4pFAECmBH/PMaFYWkMkeMSnzrFYWBOPmf54jZELxNLkhFOZSydC
-         +8oERdDcsaJeDtyjRvahvFfm5hG4TZXO0+YEVwWNsKOuIB6Do87Q6K4ohL5HHI6q4I
-         3Dnsgrj7XCmOdlbJukQd+g1xqqMsPSJkFV1LqyrY=
+        b=1ziiQU9de8IawnLC881D3uPkiZxji3DRJI/lu1gsTTuqRCmlKCYdn6cj9Crjzcp7j
+         agRvuCb39sxZpHqNXQaJrXBJQoqEsKe84pcDesbq64g3Ag1nVg0qr4uSJ+gWHR2K/d
+         /vDi0MUXbbTLvknO+C2T7S3TPVnJzMUYMY5E1Bp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vasily Averin <vvs@openvz.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 305/667] ASoC: fsl: Use dev_err_probe() helper
+Subject: [PATCH 5.10 113/452] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
 Date:   Tue,  7 Jun 2022 18:59:30 +0200
-Message-Id: <20220607164943.924793050@linuxfoundation.org>
+Message-Id: <20220607164911.923013028@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Vasily Averin <vvs@openvz.org>
 
-[ Upstream commit 2e6f557ca35aa330dbf31c5e1cc8119eff1526fa ]
+[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
 
-Use the dev_err_probe() helper, instead of open-coding the same
-operation.
+Fixes following sparse warnings:
 
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20211214020843.2225831-14-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  CHECK   mm/vmscan.c
+mm/vmscan.c: note: in included file (through
+include/trace/trace_events.h, include/trace/define_trace.h,
+include/trace/events/vmscan.h):
+./include/trace/events/vmscan.h:281:1: sparse: warning:
+ cast to restricted isolate_mode_t
+./include/trace/events/vmscan.h:281:1: sparse: warning:
+ restricted isolate_mode_t degrades to integer
+
+Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
+Signed-off-by: Vasily Averin <vvs@openvz.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl-asoc-card.c |  3 +--
- sound/soc/fsl/imx-card.c      | 17 ++++++-----------
- sound/soc/fsl/imx-sgtl5000.c  |  4 +---
- sound/soc/fsl/imx-spdif.c     |  4 ++--
- 4 files changed, 10 insertions(+), 18 deletions(-)
+ include/trace/events/vmscan.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl-asoc-card.c b/sound/soc/fsl/fsl-asoc-card.c
-index 06107ae46e20..95286c839b57 100644
---- a/sound/soc/fsl/fsl-asoc-card.c
-+++ b/sound/soc/fsl/fsl-asoc-card.c
-@@ -842,8 +842,7 @@ static int fsl_asoc_card_probe(struct platform_device *pdev)
+diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
+index 2070df64958e..b4feeb4b216a 100644
+--- a/include/trace/events/vmscan.h
++++ b/include/trace/events/vmscan.h
+@@ -283,7 +283,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
+ 		__field(unsigned long, nr_scanned)
+ 		__field(unsigned long, nr_skipped)
+ 		__field(unsigned long, nr_taken)
+-		__field(isolate_mode_t, isolate_mode)
++		__field(unsigned int, isolate_mode)
+ 		__field(int, lru)
+ 	),
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, &priv->card);
- 	if (ret) {
--		if (ret != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "snd_soc_register_card failed (%d)\n", ret);
-+		dev_err_probe(&pdev->dev, ret, "snd_soc_register_card failed\n");
- 		goto asrc_fail;
- 	}
+@@ -294,7 +294,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
+ 		__entry->nr_scanned = nr_scanned;
+ 		__entry->nr_skipped = nr_skipped;
+ 		__entry->nr_taken = nr_taken;
+-		__entry->isolate_mode = isolate_mode;
++		__entry->isolate_mode = (__force unsigned int)isolate_mode;
+ 		__entry->lru = lru;
+ 	),
  
-diff --git a/sound/soc/fsl/imx-card.c b/sound/soc/fsl/imx-card.c
-index db947180617a..55bc1bb0dbbd 100644
---- a/sound/soc/fsl/imx-card.c
-+++ b/sound/soc/fsl/imx-card.c
-@@ -579,9 +579,8 @@ static int imx_card_parse_of(struct imx_card_data *data)
- 
- 		ret = snd_soc_of_get_dai_name(cpu, &link->cpus->dai_name);
- 		if (ret) {
--			if (ret != -EPROBE_DEFER)
--				dev_err(card->dev, "%s: error getting cpu dai name: %d\n",
--					link->name, ret);
-+			dev_err_probe(card->dev, ret,
-+				      "%s: error getting cpu dai name\n", link->name);
- 			goto err;
- 		}
- 
-@@ -589,9 +588,8 @@ static int imx_card_parse_of(struct imx_card_data *data)
- 		if (codec) {
- 			ret = snd_soc_of_get_dai_link_codecs(dev, codec, link);
- 			if (ret < 0) {
--				if (ret != -EPROBE_DEFER)
--					dev_err(dev, "%s: codec dai not found: %d\n",
--						link->name, ret);
-+				dev_err_probe(dev, ret, "%s: codec dai not found\n",
-+						link->name);
- 				goto err;
- 			}
- 
-@@ -830,11 +828,8 @@ static int imx_card_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_snd_soc_register_card(&pdev->dev, &data->card);
--	if (ret) {
--		if (ret != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "snd_soc_register_card failed (%d)\n", ret);
--		return ret;
--	}
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret, "snd_soc_register_card failed\n");
- 
- 	return 0;
- }
-diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-index f45cb4bbb6c4..52bb1844f548 100644
---- a/sound/soc/fsl/imx-sgtl5000.c
-+++ b/sound/soc/fsl/imx-sgtl5000.c
-@@ -173,9 +173,7 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 
- 	ret = devm_snd_soc_register_card(&pdev->dev, &data->card);
- 	if (ret) {
--		if (ret != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "snd_soc_register_card failed (%d)\n",
--				ret);
-+		dev_err_probe(&pdev->dev, ret, "snd_soc_register_card failed\n");
- 		goto fail;
- 	}
- 
-diff --git a/sound/soc/fsl/imx-spdif.c b/sound/soc/fsl/imx-spdif.c
-index 6c4dadf60355..4446fba755b9 100644
---- a/sound/soc/fsl/imx-spdif.c
-+++ b/sound/soc/fsl/imx-spdif.c
-@@ -70,8 +70,8 @@ static int imx_spdif_audio_probe(struct platform_device *pdev)
- 		goto end;
- 
- 	ret = devm_snd_soc_register_card(&pdev->dev, &data->card);
--	if (ret && ret != -EPROBE_DEFER)
--		dev_err(&pdev->dev, "snd_soc_register_card failed: %d\n", ret);
-+	if (ret)
-+		dev_err_probe(&pdev->dev, ret, "snd_soc_register_card failed\n");
- 
- end:
- 	of_node_put(spdif_np);
 -- 
 2.35.1
 
