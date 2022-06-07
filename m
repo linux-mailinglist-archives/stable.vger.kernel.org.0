@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB6F5414EA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01293540CCC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355770AbiFGUX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:23:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
+        id S242489AbiFGSlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359352AbiFGUWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D6A146416;
-        Tue,  7 Jun 2022 11:31:32 -0700 (PDT)
+        with ESMTP id S1351738AbiFGSjD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:39:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9CD18484D;
+        Tue,  7 Jun 2022 10:58:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88E02B8233E;
-        Tue,  7 Jun 2022 18:31:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0270EC385A2;
-        Tue,  7 Jun 2022 18:31:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDD3617A7;
+        Tue,  7 Jun 2022 17:58:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D48AC34119;
+        Tue,  7 Jun 2022 17:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626690;
-        bh=iW6pen5y+S3/rYBo8G8g0LNm8PbgL0eXd/FJ8jNTCUU=;
+        s=korg; t=1654624698;
+        bh=2jA/GTMKTJHBY2Oc4pOOiy4bZGaqPB82S9nyCCUHw2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2Wq0MryzBWdDxSH+Yjjzyo4s+QsvM8q285Nl+WTu4khwQ03zd28Qtt1AlF3uqZX7
-         nzI57NCASPGClxuKiaKL4boybNU5afFQNaVccZDUuhXNqSJXhgxYUNLzWhm1f8vCtT
-         5IF8jpudP2zOGLkoggloTAgiPggRousfXAIZJTlE=
+        b=t9ZvgkFRs15gHm+zASOewDHlcIe/4ugLPehS2on8G0VTqWNrCmK4wNVWLV7wkGtHA
+         FOI++PMNesy0Vc87lwE7Q6o90r27sRwZihdAbZaFcNMSXMDHpQ57An9g2xRb2rHGeg
+         UkM8PgsCzkOZQPHSSm29S2nONCcZD6QExAX5tGH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Thorsten Scherer <t.scherer@eckelmann.de>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 467/772] crypto: qat - set CIPHER capability for DH895XCC
+Subject: [PATCH 5.15 394/667] ARM: dts: ci4x10: Adapt to changes in imx6qdl.dtsi regarding fec clocks
 Date:   Tue,  7 Jun 2022 19:00:59 +0200
-Message-Id: <20220607165002.759287676@linuxfoundation.org>
+Message-Id: <20220607164946.562434947@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Thorsten Scherer <t.scherer@eckelmann.de>
 
-[ Upstream commit 6a23804cb8bcb85c6998bf193d94d4036db26f51 ]
+[ Upstream commit 3d397a1277853498e8b7b305f2610881357c033f ]
 
-Set the CIPHER capability for QAT DH895XCC devices if the hardware supports
-it. This is done if both the CIPHER and the AUTHENTICATION engines are
-available on the device.
+Commit f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk
+support") added another item to the list of clocks for the fec
+device. As imx6dl-eckelmann-ci4x10.dts only overwrites clocks,
+but not clock-names this resulted in an inconsistency with
+clocks having one item more than clock-names.
 
-Fixes: ad1332aa67ec ("crypto: qat - add support for capability detection")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Also overwrite clock-names with the same value as in
+imx6qdl.dtsi. This is a no-op today, but prevents similar
+inconsistencies if the soc file will be changed in a similar way
+in the future.
+
+Signed-off-by: Thorsten Scherer <t.scherer@eckelmann.de>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk support")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c   | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-index 09599fe4d2f3..ff13047772e3 100644
---- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-+++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-@@ -58,17 +58,23 @@ static u32 get_accel_cap(struct adf_accel_dev *accel_dev)
+diff --git a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
+index b4a9523e325b..864dc5018451 100644
+--- a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
++++ b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
+@@ -297,7 +297,11 @@
+ 	phy-mode = "rmii";
+ 	phy-reset-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
+ 	phy-handle = <&phy>;
+-	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
++	clocks = <&clks IMX6QDL_CLK_ENET>,
++		 <&clks IMX6QDL_CLK_ENET>,
++		 <&rmii_clk>,
++		 <&clks IMX6QDL_CLK_ENET_REF>;
++	clock-names = "ipg", "ahb", "ptp", "enet_out";
+ 	status = "okay";
  
- 	capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
- 		       ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
--		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
-+		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
-+		       ICP_ACCEL_CAPABILITIES_CIPHER;
- 
- 	/* Read accelerator capabilities mask */
- 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
- 
--	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE)
-+	/* A set bit in legfuses means the feature is OFF in this SKU */
-+	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE) {
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC;
-+		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
-+	}
- 	if (legfuses & ICP_ACCEL_MASK_PKE_SLICE)
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC;
--	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE)
-+	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE) {
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
-+		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
-+	}
- 	if (legfuses & ICP_ACCEL_MASK_COMPRESS_SLICE)
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_COMPRESSION;
- 
+ 	mdio {
 -- 
 2.35.1
 
