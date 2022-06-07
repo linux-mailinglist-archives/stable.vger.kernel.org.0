@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 086B1541CA5
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13AB7540E60
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382484AbiFGWCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:02:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58104 "EHLO
+        id S1353694AbiFGSyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:54:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382702AbiFGV7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:59:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267EF24E009;
-        Tue,  7 Jun 2022 12:14:18 -0700 (PDT)
+        with ESMTP id S1354322AbiFGSqy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB1834663;
+        Tue,  7 Jun 2022 11:00:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3E056187F;
-        Tue,  7 Jun 2022 19:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A428C385A2;
-        Tue,  7 Jun 2022 19:14:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D926A617AE;
+        Tue,  7 Jun 2022 18:00:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1EF2C34115;
+        Tue,  7 Jun 2022 18:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629241;
-        bh=5NVwfizFJYa+rVoBcHgPIn0dLHQ3kWh10mrNptlL5ho=;
+        s=korg; t=1654624845;
+        bh=kEmGo7t2daCBSG2zdvMnZrbXfia1pM6bSCOpiyyNHU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puvmC65iLdPQEPaDzBB6WZ+9hwWLdiYexgbeKbCiT8CQNA3n/olqlt3DcsogJQYQl
-         g0dlelLIFyj9EE2Zins/eJJ2CtCYGjsg+nd3HDxNpQd31q4AMk3D3c53s2D8i9Kxy6
-         YpvP/fKtAs9Hp5Idre44q0LRsIjN9LhCS9dBnM18=
+        b=pXolH22qpSKci+v1ii+RMXvPRroxoKPMpb2rKOdzTpRfr/8Yc4Gv+feB2DcglN897
+         CN0SARUjmXV9n7pTnL3nB5iVzoZAxNDORJHmDYkQh3YLbtXbDBX3Phipr4kiP0qPvW
+         zuBclvadPtAj/uTxyyIqUCakWWGJsMoJuKhRmo38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Douglas Miller <doug.miller@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 619/879] module: fix [e_shstrndx].sh_size=0 OOB access
-Date:   Tue,  7 Jun 2022 19:02:17 +0200
-Message-Id: <20220607165020.817539600@linuxfoundation.org>
+Subject: [PATCH 5.15 473/667] RDMA/hfi1: Prevent use of lock before it is initialized
+Date:   Tue,  7 Jun 2022 19:02:18 +0200
+Message-Id: <20220607164948.891344653@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Douglas Miller <doug.miller@cornelisnetworks.com>
 
-[ Upstream commit 391e982bfa632b8315235d8be9c0a81374c6a19c ]
+[ Upstream commit 05c03dfd09c069c4ffd783b47b2da5dcc9421f2c ]
 
-It is trivial to craft a module to trigger OOB access in this line:
+If there is a failure during probe of hfi1 before the sdma_map_lock is
+initialized, the call to hfi1_free_devdata() will attempt to use a lock
+that has not been initialized. If the locking correctness validator is on
+then an INFO message and stack trace resembling the following may be seen:
 
-	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
+  INFO: trying to register non-static key.
+  The code is fine but needs lockdep annotation, or maybe
+  you didn't initialize this object before use?
+  turning off the locking correctness validator.
+  Call Trace:
+  register_lock_class+0x11b/0x880
+  __lock_acquire+0xf3/0x7930
+  lock_acquire+0xff/0x2d0
+  _raw_spin_lock_irq+0x46/0x60
+  sdma_clean+0x42a/0x660 [hfi1]
+  hfi1_free_devdata+0x3a7/0x420 [hfi1]
+  init_one+0x867/0x11a0 [hfi1]
+  pci_device_probe+0x40e/0x8d0
 
-BUG: unable to handle page fault for address: ffffc90000aa0fff
-PGD 100000067 P4D 100000067 PUD 100066067 PMD 10436f067 PTE 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 7 PID: 1215 Comm: insmod Not tainted 5.18.0-rc5-00007-g9bf578647087-dirty #10
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
-RIP: 0010:load_module+0x19b/0x2391
+The use of sdma_map_lock in sdma_clean() is for freeing the sdma_map
+memory, and sdma_map is not allocated/initialized until after
+sdma_map_lock has been initialized. This code only needs to be run if
+sdma_map is not NULL, and so checking for that condition will avoid trying
+to use the lock before it is initialized.
 
-Fixes: ec2a29593c83 ("module: harden ELF info handling")
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-[rebased patch onto modules-next]
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Fixes: 473291b3ea0e ("IB/hfi1: Fix for early release of sdma context")
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20220520183701.48973.72434.stgit@awfm-01.cornelisnetworks.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/infiniband/hw/hfi1/sdma.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 6cea788fd965..6529c84c536f 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3033,6 +3033,10 @@ static int elf_validity_check(struct load_info *info)
- 	 * strings in the section safe.
- 	 */
- 	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
-+	if (strhdr->sh_size == 0) {
-+		pr_err("empty section name table\n");
-+		goto no_exec;
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index f07d328689d3..a95b654f5254 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -1288,11 +1288,13 @@ void sdma_clean(struct hfi1_devdata *dd, size_t num_engines)
+ 		kvfree(sde->tx_ring);
+ 		sde->tx_ring = NULL;
+ 	}
+-	spin_lock_irq(&dd->sde_map_lock);
+-	sdma_map_free(rcu_access_pointer(dd->sdma_map));
+-	RCU_INIT_POINTER(dd->sdma_map, NULL);
+-	spin_unlock_irq(&dd->sde_map_lock);
+-	synchronize_rcu();
++	if (rcu_access_pointer(dd->sdma_map)) {
++		spin_lock_irq(&dd->sde_map_lock);
++		sdma_map_free(rcu_access_pointer(dd->sdma_map));
++		RCU_INIT_POINTER(dd->sdma_map, NULL);
++		spin_unlock_irq(&dd->sde_map_lock);
++		synchronize_rcu();
 +	}
- 	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
- 		pr_err("ELF Spec violation: section name table isn't null terminated\n");
- 		goto no_exec;
+ 	kfree(dd->per_sdma);
+ 	dd->per_sdma = NULL;
+ 
 -- 
 2.35.1
 
