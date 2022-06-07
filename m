@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C040541BE7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1CDF540631
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379118AbiFGVzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
+        id S1346833AbiFGRdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382610AbiFGVvi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED8282F02D;
-        Tue,  7 Jun 2022 12:09:06 -0700 (PDT)
+        with ESMTP id S1347245AbiFGRaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89BBB10F353;
+        Tue,  7 Jun 2022 10:26:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03C83618E2;
-        Tue,  7 Jun 2022 19:09:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137CEC385A2;
-        Tue,  7 Jun 2022 19:09:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3036B822B1;
+        Tue,  7 Jun 2022 17:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 601BFC385A5;
+        Tue,  7 Jun 2022 17:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628945;
-        bh=RLD4YtdsaYVnX+6jAT3sOdk/Zl8sOQA3J/lFzBYiBgs=;
+        s=korg; t=1654622765;
+        bh=GWRc+kAFAjOPErKv+G7Iow1IuvazDj6DgnxCEKcmZ9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUiGrv2263SsMgpmmmGaVSchA+A3JWWyoKZheAvfF2ICmoyKBe/ZQOn5rr8Ojq6Vh
-         5lldif4PSom6HUutcq2ExLl/3E0nslB4TP/KvZVuZCx8boVduXD3kMTwk177v4qukS
-         yJXEfb6HK3Jvt8Hbgi2n3IoyviAK5BAtcjvSfwD8=
+        b=hbNauST3jz1RH1mFHE7cLi7WN7xPDofV2fabkKCrGak1y0fc+54NzYhEU5J5pGEIQ
+         gldpyWsgrIrA5y7atmaLqnXcxZLXcn3uYmS2Wi63l+Q1N/9GJ0j19YFo6HXD+Tb8nJ
+         8xgWXj3XCff18i1grZYdQrEtsZf4usI2CrKoGv4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Iwona Winiarska <iwona.winiarska@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 514/879] hwmon: (dimmtemp) Fix bitmap handling
+Subject: [PATCH 5.10 175/452] drm/msm/dp: fix error check return value of irq_of_parse_and_map()
 Date:   Tue,  7 Jun 2022 19:00:32 +0200
-Message-Id: <20220607165017.796984550@linuxfoundation.org>
+Message-Id: <20220607164913.776149475@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 9baabde04de64137e86b39112c6259f3da512bd6 ]
+[ Upstream commit e92d0d93f86699b7b25c7906613fdc374d66c8ca ]
 
-Building arm:allmodconfig may fail with the following error.
+The irq_of_parse_and_map() function returns 0 on failure, and does not
+return an negative value.
 
-In function 'fortify_memcpy_chk',
-    inlined from 'bitmap_copy' at include/linux/bitmap.h:261:2,
-    inlined from 'bitmap_copy_clear_tail' at include/linux/bitmap.h:270:2,
-    inlined from 'bitmap_from_u64' at include/linux/bitmap.h:622:2,
-    inlined from 'check_populated_dimms' at
-	drivers/hwmon/peci/dimmtemp.c:284:2:
-include/linux/fortify-string.h:344:25: error:
-	call to '__write_overflow_field' declared with attribute warning:
-	detected write beyond size of field (1st parameter)
-
-The problematic code is
-	bitmap_from_u64(priv->dimm_mask, dimm_mask);
-
-dimm_mask is declared as u64, but the bitmap in priv->dimm_mask is only
-24 bit wide. On 32-bit systems, this results in writes over the end of
-the bitmap.
-
-Fix the problem by using u32 instead of u64 for dimm_mask. This is
-currently sufficient, and a compile time check to ensure that the number
-of dimms does not exceed the bit map size is already in place.
-
-Fixes: 73bc1b885dae ("hwmon: peci: Add dimmtemp driver")
-Cc: Iwona Winiarska <iwona.winiarska@intel.com>
-Reviewed-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/483176/
+Link: https://lore.kernel.org/r/20220424032418.3173632-1-lv.ruyi@zte.com.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/peci/dimmtemp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_display.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/peci/dimmtemp.c b/drivers/hwmon/peci/dimmtemp.c
-index c8222354c005..53e58a9c28ea 100644
---- a/drivers/hwmon/peci/dimmtemp.c
-+++ b/drivers/hwmon/peci/dimmtemp.c
-@@ -219,7 +219,7 @@ static int check_populated_dimms(struct peci_dimmtemp *priv)
- 	int chan_rank_max = priv->gen_info->chan_rank_max;
- 	int dimm_idx_max = priv->gen_info->dimm_idx_max;
- 	u32 chan_rank_empty = 0;
--	u64 dimm_mask = 0;
-+	u32 dimm_mask = 0;
- 	int chan_rank, dimm_idx, ret;
- 	u32 pcs;
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 36caf3d5a9f9..09c8e50da68d 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1147,10 +1147,9 @@ int dp_display_request_irq(struct msm_dp *dp_display)
+ 	dp = container_of(dp_display, struct dp_display_private, dp_display);
  
-@@ -278,9 +278,9 @@ static int check_populated_dimms(struct peci_dimmtemp *priv)
- 		return -EAGAIN;
+ 	dp->irq = irq_of_parse_and_map(dp->pdev->dev.of_node, 0);
+-	if (dp->irq < 0) {
+-		rc = dp->irq;
+-		DRM_ERROR("failed to get irq: %d\n", rc);
+-		return rc;
++	if (!dp->irq) {
++		DRM_ERROR("failed to get irq\n");
++		return -EINVAL;
  	}
  
--	dev_dbg(priv->dev, "Scanned populated DIMMs: %#llx\n", dimm_mask);
-+	dev_dbg(priv->dev, "Scanned populated DIMMs: %#x\n", dimm_mask);
- 
--	bitmap_from_u64(priv->dimm_mask, dimm_mask);
-+	bitmap_from_arr32(priv->dimm_mask, &dimm_mask, DIMM_NUMS_MAX);
- 
- 	return 0;
- }
+ 	rc = devm_request_irq(&dp->pdev->dev, dp->irq,
 -- 
 2.35.1
 
