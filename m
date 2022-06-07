@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD22C54101C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 779D4541DD6
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351264AbiFGTST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:18:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34210 "EHLO
+        id S1382864AbiFGWWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355885AbiFGTRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:17:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2BB65D1D;
-        Tue,  7 Jun 2022 11:07:55 -0700 (PDT)
+        with ESMTP id S1385139AbiFGWVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9C9265611;
+        Tue,  7 Jun 2022 12:21:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8F85617B0;
-        Tue,  7 Jun 2022 18:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D71F6C385A5;
-        Tue,  7 Jun 2022 18:07:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3857B60906;
+        Tue,  7 Jun 2022 19:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4076AC3411F;
+        Tue,  7 Jun 2022 19:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625264;
-        bh=4v+cu7e+Xt75WklgaATgEEarc6UDXVoriEbxTMfiz7c=;
+        s=korg; t=1654629660;
+        bh=lTwTaY+2If4wDUZGmjDJdw8w1OKq1JDGNaMxwCIgRvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0BIzarsI5b4eiqMF/ykTKG6GrXdisXFmfv+6IFcwbVW52HHsn9jbduOyLyyBrK6Z
-         P77E2qLhUddSF/IfhI2Wa+wgtQIJ4VwznXi/CunWUgyxNXwhSRJ8PLkz3C9ThGKYZe
-         DHGlZkRmxhbOePW2TcMErZv7xoMvT3oTG4f5NI8M=
+        b=YKizC3a0ReYfNbug4rbMpRqoYUGEalMZD+mrB0u9cOWIGy5vmqqhgWSZQcqWkteuZ
+         A4WB0vpvGNd/JkVKzsqZFMH7fMtYieL0FoC2hgzqFfCpzJ1rzk9gvs8B4c3LjnAZMM
+         Mn+754jBvphEtyhpp8IgDl36Br8zWudbX71lOKUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pa@panix.com,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 625/667] rtl818x: Prevent using not initialized queues
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.18 772/879] selftests/landlock: Add clang-format exceptions
 Date:   Tue,  7 Jun 2022 19:04:50 +0200
-Message-Id: <20220607164953.413859334@linuxfoundation.org>
+Message-Id: <20220607165025.269381194@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +53,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 746285cf81dc19502ab238249d75f5990bd2d231 upstream.
+commit 4598d9abf4215e1e371a35683350d50122793c80 upstream.
 
-Using not existing queues can panic the kernel with rtl8180/rtl8185 cards.
-Ignore the skb priority for those cards, they only have one tx queue. Pierre
-Asselin (pa@panix.com) reported the kernel crash in the Gentoo forum:
+In preparation to a following commit, add clang-format on and
+clang-format off stanzas around constant definitions and the TEST_F_FORK
+macro.  This enables to keep aligned values, which is much more readable
+than packed definitions.
 
-https://forums.gentoo.org/viewtopic-t-1147832-postdays-0-postorder-asc-start-25.html
+Add other clang-format exceptions for FIXTURE() and
+FIXTURE_VARIANT_ADD() declarations to force space before open brace,
+which is reported by checkpatch.pl .
 
-He also confirmed that this patch fixes the issue. In summary this happened:
-
-After updating wpa_supplicant from 2.9 to 2.10 the kernel crashed with a
-"divide error: 0000" when connecting to an AP. Control port tx now tries to
-use IEEE80211_AC_VO for the priority, which wpa_supplicants starts to use in
-2.10.
-
-Since only the rtl8187se part of the driver supports QoS, the priority
-of the skb is set to IEEE80211_AC_BE (2) by mac80211 for rtl8180/rtl8185
-cards.
-
-rtl8180 is then unconditionally reading out the priority and finally crashes on
-drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c line 544 without this
-patch:
-	idx = (ring->idx + skb_queue_len(&ring->queue)) % ring->entries
-
-"ring->entries" is zero for rtl8180/rtl8185 cards, tx_ring[2] never got
-initialized.
-
+Link: https://lore.kernel.org/r/20220506160513.523257-4-mic@digikod.net
 Cc: stable@vger.kernel.org
-Reported-by: pa@panix.com
-Tested-by: pa@panix.com
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220422145228.7567-1-alexander@wetzel-home.de
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/testing/selftests/landlock/common.h      |    2 ++
+ tools/testing/selftests/landlock/fs_test.c     |   23 +++++++++++++++++------
+ tools/testing/selftests/landlock/ptrace_test.c |   20 +++++++++++++++++++-
+ 3 files changed, 38 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
-@@ -460,8 +460,10 @@ static void rtl8180_tx(struct ieee80211_
- 	struct rtl8180_priv *priv = dev->priv;
- 	struct rtl8180_tx_ring *ring;
- 	struct rtl8180_tx_desc *entry;
-+	unsigned int prio = 0;
- 	unsigned long flags;
--	unsigned int idx, prio, hw_prio;
-+	unsigned int idx, hw_prio;
+--- a/tools/testing/selftests/landlock/common.h
++++ b/tools/testing/selftests/landlock/common.h
+@@ -25,6 +25,7 @@
+  * this to be possible, we must not call abort() but instead exit smoothly
+  * (hence the step print).
+  */
++/* clang-format off */
+ #define TEST_F_FORK(fixture_name, test_name) \
+ 	static void fixture_name##_##test_name##_child( \
+ 		struct __test_metadata *_metadata, \
+@@ -71,6 +72,7 @@
+ 		FIXTURE_DATA(fixture_name) __attribute__((unused)) *self, \
+ 		const FIXTURE_VARIANT(fixture_name) \
+ 			__attribute__((unused)) *variant)
++/* clang-format on */
+ 
+ #ifndef landlock_create_ruleset
+ static inline int landlock_create_ruleset(
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -221,8 +221,9 @@ static void remove_layout1(struct __test
+ 	EXPECT_EQ(0, remove_path(dir_s3d2));
+ }
+ 
+-FIXTURE(layout1) {
+-};
++/* clang-format off */
++FIXTURE(layout1) {};
++/* clang-format on */
+ 
+ FIXTURE_SETUP(layout1)
+ {
+@@ -376,6 +377,8 @@ TEST_F_FORK(layout1, inval)
+ 	ASSERT_EQ(0, close(ruleset_fd));
+ }
+ 
++/* clang-format off */
 +
- 	dma_addr_t mapping;
- 	u32 tx_flags;
- 	u8 rc_flags;
-@@ -470,7 +472,9 @@ static void rtl8180_tx(struct ieee80211_
- 	/* do arithmetic and then convert to le16 */
- 	u16 frame_duration = 0;
+ #define ACCESS_FILE ( \
+ 	LANDLOCK_ACCESS_FS_EXECUTE | \
+ 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
+@@ -396,6 +399,8 @@ TEST_F_FORK(layout1, inval)
+ 	LANDLOCK_ACCESS_FS_MAKE_BLOCK | \
+ 	ACCESS_LAST)
  
--	prio = skb_get_queue_mapping(skb);
-+	/* rtl8180/rtl8185 only has one useable tx queue */
-+	if (dev->queues > IEEE80211_AC_BK)
-+		prio = skb_get_queue_mapping(skb);
- 	ring = &priv->tx_ring[prio];
++/* clang-format on */
++
+ TEST_F_FORK(layout1, file_access_rights)
+ {
+ 	__u64 access;
+@@ -452,6 +457,8 @@ struct rule {
+ 	__u64 access;
+ };
  
- 	mapping = dma_map_single(&priv->pdev->dev, skb->data, skb->len,
++/* clang-format off */
++
+ #define ACCESS_RO ( \
+ 	LANDLOCK_ACCESS_FS_READ_FILE | \
+ 	LANDLOCK_ACCESS_FS_READ_DIR)
+@@ -460,6 +467,8 @@ struct rule {
+ 	ACCESS_RO | \
+ 	LANDLOCK_ACCESS_FS_WRITE_FILE)
+ 
++/* clang-format on */
++
+ static int create_ruleset(struct __test_metadata *const _metadata,
+ 		const __u64 handled_access_fs, const struct rule rules[])
+ {
+@@ -2070,8 +2079,9 @@ TEST_F_FORK(layout1, proc_pipe)
+ 	ASSERT_EQ(0, close(pipe_fds[1]));
+ }
+ 
+-FIXTURE(layout1_bind) {
+-};
++/* clang-format off */
++FIXTURE(layout1_bind) {};
++/* clang-format on */
+ 
+ FIXTURE_SETUP(layout1_bind)
+ {
+@@ -2411,8 +2421,9 @@ static const char (*merge_sub_files[])[]
+  *         └── work
+  */
+ 
+-FIXTURE(layout2_overlay) {
+-};
++/* clang-format off */
++FIXTURE(layout2_overlay) {};
++/* clang-format on */
+ 
+ FIXTURE_SETUP(layout2_overlay)
+ {
+--- a/tools/testing/selftests/landlock/ptrace_test.c
++++ b/tools/testing/selftests/landlock/ptrace_test.c
+@@ -59,7 +59,9 @@ static int test_ptrace_read(const pid_t
+ 	return 0;
+ }
+ 
+-FIXTURE(hierarchy) { };
++/* clang-format off */
++FIXTURE(hierarchy) {};
++/* clang-format on */
+ 
+ FIXTURE_VARIANT(hierarchy) {
+ 	const bool domain_both;
+@@ -83,7 +85,9 @@ FIXTURE_VARIANT(hierarchy) {
+  *       \              P2 -> P1 : allow
+  *        'P2
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = false,
+ 	.domain_child = false,
+@@ -98,7 +102,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
+  *        |  P2  |
+  *        '------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = false,
+ 	.domain_child = true,
+@@ -112,7 +118,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
+  *            '
+  *            P2
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = true,
+ 	.domain_child = false,
+@@ -127,7 +135,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
+  *         |  P2  |
+  *         '------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
++	/* clang-format on */
+ 	.domain_both = false,
+ 	.domain_parent = true,
+ 	.domain_child = true,
+@@ -142,7 +152,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
+  * |         P2  |
+  * '-------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = false,
+ 	.domain_child = false,
+@@ -158,7 +170,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_sib
+  * |        '------' |
+  * '-----------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = false,
+ 	.domain_child = true,
+@@ -174,7 +188,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
+  * |             P2  |
+  * '-----------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = true,
+ 	.domain_child = false,
+@@ -192,7 +208,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
+  * |        '------' |
+  * '-----------------'
+  */
++/* clang-format off */
+ FIXTURE_VARIANT_ADD(hierarchy, deny_with_forked_domain) {
++	/* clang-format on */
+ 	.domain_both = true,
+ 	.domain_parent = true,
+ 	.domain_child = true,
 
 
