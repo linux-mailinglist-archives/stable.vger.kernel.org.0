@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8FD540B6B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C265405B6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242955AbiFGS2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:28:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
+        id S235612AbiFGR2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350204AbiFGSXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2D4C5E5D;
-        Tue,  7 Jun 2022 10:54:19 -0700 (PDT)
+        with ESMTP id S1346521AbiFGR0Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:26:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6FA106379;
+        Tue,  7 Jun 2022 10:24:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50697617ED;
-        Tue,  7 Jun 2022 17:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2D6C385A5;
-        Tue,  7 Jun 2022 17:53:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7547660906;
+        Tue,  7 Jun 2022 17:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83856C34119;
+        Tue,  7 Jun 2022 17:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624437;
-        bh=Es88hOl7dOsT5p4S16j5QOi4YudCVRc+UBvDlBjPxw8=;
+        s=korg; t=1654622652;
+        bh=i0n7vj0XzvH+QmDSjXJOuvHN92orgDsJAIEJrLuSHVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NASDzK+Go+FaPliYVEVwMt2x0uRZ/kZbCG4vM/QkTFlsssnR14s9BnqbZEAScx5xh
-         3nPRkm2B34nZoFHWxma2ETQuqb6MfnoqR8sP03uGTgHWFF/fGX57GK4QSRRQvw7Avp
-         Wf5b353PhEspijPqBOi2eGeyj4io8K/AYvrUPFzo=
+        b=xj1XID5NXyNELUE77/0FvlgMgeT81uzmWeoT/j9l3i6pOLthlD0FLeILbTVRzwo3V
+         E++sX6wej/UwB9ajhChZIT3/1kGXeboPp4mIcULN5cs6A+6YI7JipRgQotH2wIJz+s
+         pxWFBLanveIO8gi1W9M3bAs2CM67Zui4LCY63Zh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 327/667] media: atmel: atmel-sama5d2-isc: fix wrong mask in YUYV format check
-Date:   Tue,  7 Jun 2022 18:59:52 +0200
-Message-Id: <20220607164944.576619529@linuxfoundation.org>
+Subject: [PATCH 5.10 136/452] bpf: Fix excessive memory allocation in stack_map_alloc()
+Date:   Tue,  7 Jun 2022 18:59:53 +0200
+Message-Id: <20220607164912.613808833@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Yuntao Wang <ytcoode@gmail.com>
 
-[ Upstream commit 91f49b80983f7bffdea9498209b2b896231ac776 ]
+[ Upstream commit b45043192b3e481304062938a6561da2ceea46a6 ]
 
-While this does not happen in production, this check should be done
-versus the mask, as checking with the YCYC value may not include
-some bits that may be set.
-It is correct and safe to check the whole mask.
+The 'n_buckets * (value_size + sizeof(struct stack_map_bucket))' part of the
+allocated memory for 'smap' is never used after the memlock accounting was
+removed, thus get rid of it.
 
-Fixes: 123aaf816b95 ("media: atmel: atmel-sama5d2-isc: fix YUYV format")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+[ Note, Daniel:
+
+Commit b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
+moved `cost += n_buckets * (value_size + sizeof(struct stack_map_bucket))`
+up and therefore before the bpf_map_area_alloc() allocation, sigh. In a later
+step commit c85d69135a91 ("bpf: move memory size checks to bpf_map_charge_init()"),
+and the overflow checks of `cost >= U32_MAX - PAGE_SIZE` moved into
+bpf_map_charge_init(). And then 370868107bf6 ("bpf: Eliminate rlimit-based
+memory accounting for stackmap maps") finally removed the bpf_map_charge_init().
+Anyway, the original code did the allocation same way as /after/ this fix. ]
+
+Fixes: b936ca643ade ("bpf: rework memlock-based memory accounting for maps")
+Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220407130423.798386-1-ytcoode@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/atmel/atmel-sama5d2-isc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/stackmap.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/media/platform/atmel/atmel-sama5d2-isc.c b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
-index c8ed9315ef31..7421bc51709c 100644
---- a/drivers/media/platform/atmel/atmel-sama5d2-isc.c
-+++ b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
-@@ -267,7 +267,7 @@ static void isc_sama5d2_config_rlp(struct isc_device *isc)
- 	 * Thus, if the YCYC mode is selected, replace it with the
- 	 * sama5d2-compliant mode which is YYCC .
- 	 */
--	if ((rlp_mode & ISC_RLP_CFG_MODE_YCYC) == ISC_RLP_CFG_MODE_YCYC) {
-+	if ((rlp_mode & ISC_RLP_CFG_MODE_MASK) == ISC_RLP_CFG_MODE_YCYC) {
- 		rlp_mode &= ~ISC_RLP_CFG_MODE_MASK;
- 		rlp_mode |= ISC_RLP_CFG_MODE_YYCC;
- 	}
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index 4575d2d60cb1..c19e669afba0 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -121,7 +121,6 @@ static struct bpf_map *stack_map_alloc(union bpf_attr *attr)
+ 		return ERR_PTR(-E2BIG);
+ 
+ 	cost = n_buckets * sizeof(struct stack_map_bucket *) + sizeof(*smap);
+-	cost += n_buckets * (value_size + sizeof(struct stack_map_bucket));
+ 	err = bpf_map_charge_init(&mem, cost);
+ 	if (err)
+ 		return ERR_PTR(err);
 -- 
 2.35.1
 
