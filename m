@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E66A85406BE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01275541D20
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346415AbiFGRiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53224 "EHLO
+        id S1379656AbiFGWIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:08:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347833AbiFGRfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D9E110985;
-        Tue,  7 Jun 2022 10:31:51 -0700 (PDT)
+        with ESMTP id S1379898AbiFGWG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8610F2534C6;
+        Tue,  7 Jun 2022 12:16:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5562BCE23D2;
-        Tue,  7 Jun 2022 17:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EFE5C385A5;
-        Tue,  7 Jun 2022 17:31:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F298B823CA;
+        Tue,  7 Jun 2022 19:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BB75C385A2;
+        Tue,  7 Jun 2022 19:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623108;
-        bh=2k//yvMXHuXRxoye9Uc9bkuApkOo3mD6RdJCNGJe7NE=;
+        s=korg; t=1654629403;
+        bh=2clv+eIChWCU75Deg8PZdCXvoxeLsnNaYAdk+/FkBa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CHpR38abb5BAlstR0/45csYjuXIGTJaw1Cd4D3hJSFdrxzTLCPXGETaMAgaru7J+
-         qFmwjieSWnRzxltIAGSZ8h5WPnRJ+EyIidYs9lFNjM9x8oACsruhTi3MhVtM+Gj8oJ
-         K01rjPb+bdXwruieTZT7kIHTk3i+glhcMMc+s0IE=
+        b=xDIR0CBrbPrZyYEnuuf6Sqtj/KyQJs9jOCiyckjAohhocKtyN9HEZPWtgbbAshA8Y
+         Iw0MFYI339yfAaoan4deGP28B0rsBk69LG36PkBwsQgqZLX1JfCAuUPz3ro47KHrAC
+         qAr4OX5AP3eJkb7HZwj38cRw0XQ21y5bYmhlx5E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 299/452] ASoC: atmel-classd: Remove endianness flag on class d component
+Subject: [PATCH 5.18 638/879] powerpc/64: Only WARN if __pa()/__va() called with bad addresses
 Date:   Tue,  7 Jun 2022 19:02:36 +0200
-Message-Id: <20220607164917.467415042@linuxfoundation.org>
+Message-Id: <20220607165021.366729178@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 0104d52a6a69b06b0e8167f7c1247e8c76aca070 ]
+[ Upstream commit c4bce84d0bd3f396f702d69be2e92bbd8af97583 ]
 
-The endianness flag should have been removed when the driver was
-ported across from having both a CODEC and CPU side component, to
-just having a CPU component and using the dummy for the CODEC. The
-endianness flag is used to indicate that the device is completely
-ambivalent to the endianness of the data, typically due to the
-endianness being lost over the hardware link (ie. the link defines
-bit ordering). It's usage didn't have any effect when the driver
-had both a CPU and CODEC component, since the union of those equals
-the CPU side settings, but now causes the driver to falsely report
-it supports big endian. Correct this by removing the flag.
+We added checks to __pa() / __va() to ensure they're only called with
+appropriate addresses. But using BUG_ON() is too strong, it means
+virt_addr_valid() will BUG when DEBUG_VIRTUAL is enabled.
 
-Fixes: 1dfdbe73ccf9 ("ASoC: atmel-classd: remove codec component")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220504170905.332415-4-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Instead switch them to warnings, arm64 does the same.
+
+Fixes: 4dd7554a6456 ("powerpc/64: Add VIRTUAL_BUG_ON checks for __va and __pa addresses")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220406145802.538416-5-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel-classd.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/include/asm/page.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/atmel/atmel-classd.c b/sound/soc/atmel/atmel-classd.c
-index b1a28a9382fb..f91a0e728ed5 100644
---- a/sound/soc/atmel/atmel-classd.c
-+++ b/sound/soc/atmel/atmel-classd.c
-@@ -458,7 +458,6 @@ static const struct snd_soc_component_driver atmel_classd_cpu_dai_component = {
- 	.num_controls		= ARRAY_SIZE(atmel_classd_snd_controls),
- 	.idle_bias_on		= 1,
- 	.use_pmdown_time	= 1,
--	.endianness		= 1,
- };
+diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
+index f2c5c26869f1..03ae544eb6cc 100644
+--- a/arch/powerpc/include/asm/page.h
++++ b/arch/powerpc/include/asm/page.h
+@@ -216,6 +216,9 @@ static inline bool pfn_valid(unsigned long pfn)
+ #define __pa(x) ((phys_addr_t)(unsigned long)(x) - VIRT_PHYS_OFFSET)
+ #else
+ #ifdef CONFIG_PPC64
++
++#define VIRTUAL_WARN_ON(x)	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && (x))
++
+ /*
+  * gcc miscompiles (unsigned long)(&static_var) - PAGE_OFFSET
+  * with -mcmodel=medium, so we use & and | instead of - and + on 64-bit.
+@@ -223,13 +226,13 @@ static inline bool pfn_valid(unsigned long pfn)
+  */
+ #define __va(x)								\
+ ({									\
+-	VIRTUAL_BUG_ON((unsigned long)(x) >= PAGE_OFFSET);		\
++	VIRTUAL_WARN_ON((unsigned long)(x) >= PAGE_OFFSET);		\
+ 	(void *)(unsigned long)((phys_addr_t)(x) | PAGE_OFFSET);	\
+ })
  
- /* ASoC sound card */
+ #define __pa(x)								\
+ ({									\
+-	VIRTUAL_BUG_ON((unsigned long)(x) < PAGE_OFFSET);		\
++	VIRTUAL_WARN_ON((unsigned long)(x) < PAGE_OFFSET);		\
+ 	(unsigned long)(x) & 0x0fffffffffffffffUL;			\
+ })
+ 
 -- 
 2.35.1
 
