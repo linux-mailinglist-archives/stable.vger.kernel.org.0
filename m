@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D19D541110
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84174541105
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355426AbiFGTcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:32:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59708 "EHLO
+        id S1355318AbiFGTcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:32:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355770AbiFGTao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:30:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5081A43C8;
-        Tue,  7 Jun 2022 11:12:01 -0700 (PDT)
+        with ESMTP id S1355735AbiFGTam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:30:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299611A448B;
+        Tue,  7 Jun 2022 11:12:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7418FB81F38;
-        Tue,  7 Jun 2022 18:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C46CDC385A5;
-        Tue,  7 Jun 2022 18:11:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F25D61985;
+        Tue,  7 Jun 2022 18:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CAE4C385A2;
+        Tue,  7 Jun 2022 18:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625516;
-        bh=GHSWOLtaRIxGcfDoMTvsX1OVEgJYxZloovcbfd7Oric=;
+        s=korg; t=1654625518;
+        bh=fu3hKi6Rwo9Qxne+luvdh8GJfotUrWq3TWXXU4Nq7uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mr+3p2Pnv/hkhS0l5Sw/rcjk4YGIyMf9JQ75pTkDj67kP/2otndFwMKBc9rn9etqK
-         IqXs3fUcfTsE0l0gCE5s02vUYxjZcoyUCzg+wylGzCL5k3jCR+NTwIn9MSpcPrrNOO
-         3s4VylXWpuul0n9/BMt0QE61aCUZ0hd3cQ30zGU4=
+        b=dot78FOvlmv/ilVTXJx+yRl/MTbo521Jd4kTlLm+aYv2P/iXQ2AE4rym02BrMantN
+         72nvX9WN9pWGklRBD337HrVdr4EYHuYHd+kKRySShbPX9OlRlTacdYkqrCQzFLPCXt
+         x64bTZmhP/6GPmrvLbNc4947Ehhkl3B8jVjSkOxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Pankaj Raghav <p.raghav@samsung.com>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         Naohiro Aota <naohiro.aota@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 047/772] btrfs: zoned: zone finish unused block group
-Date:   Tue,  7 Jun 2022 18:53:59 +0200
-Message-Id: <20220607164950.422368315@linuxfoundation.org>
+Subject: [PATCH 5.17 048/772] btrfs: zoned: finish block group when there are no more allocatable bytes left
+Date:   Tue,  7 Jun 2022 18:54:00 +0200
+Message-Id: <20220607164950.451573343@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -57,47 +57,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 74e91b12b11560f01d120751d99d91d54b265d3d upstream.
+commit 8b8a53998caefebfe5c8da7a74c2b601caf5dd48 upstream.
 
-While the active zones within an active block group are reset, and their
-active resource is released, the block group itself is kept in the active
-block group list and marked as active. As a result, the list will contain
-more than max_active_zones block groups. That itself is not fatal for the
-device as the zones are properly reset.
-
-However, that inflated list is, of course, strange. Also, a to-appear
-patch series, which deactivates an active block group on demand, gets
-confused with the wrong list.
-
-So, fix the issue by finishing the unused block group once it gets
-read-only, so that we can release the active resource in an early stage.
+Currently, btrfs_zone_finish_endio() finishes a block group only when the
+written region reaches the end of the block group. We can also finish the
+block group when no more allocation is possible.
 
 Fixes: be1a1d7a5d24 ("btrfs: zoned: finish fully written block group")
 CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Pankaj Raghav <p.raghav@samsung.com>
 Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/btrfs/zoned.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -1367,6 +1367,14 @@ void btrfs_delete_unused_bgs(struct btrf
- 			goto next;
- 		}
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1961,6 +1961,7 @@ void btrfs_zone_finish_endio(struct btrf
+ 	struct btrfs_block_group *block_group;
+ 	struct map_lookup *map;
+ 	struct btrfs_device *device;
++	u64 min_alloc_bytes;
+ 	u64 physical;
  
-+		ret = btrfs_zone_finish(block_group);
-+		if (ret < 0) {
-+			btrfs_dec_block_group_ro(block_group);
-+			if (ret == -EAGAIN)
-+				ret = 0;
-+			goto next;
-+		}
+ 	if (!btrfs_is_zoned(fs_info))
+@@ -1969,7 +1970,15 @@ void btrfs_zone_finish_endio(struct btrf
+ 	block_group = btrfs_lookup_block_group(fs_info, logical);
+ 	ASSERT(block_group);
+ 
+-	if (logical + length < block_group->start + block_group->zone_capacity)
++	/* No MIXED_BG on zoned btrfs. */
++	if (block_group->flags & BTRFS_BLOCK_GROUP_DATA)
++		min_alloc_bytes = fs_info->sectorsize;
++	else
++		min_alloc_bytes = fs_info->nodesize;
 +
- 		/*
- 		 * Want to do this before we do anything else so we can recover
- 		 * properly if we fail to join the transaction.
++	/* Bail out if we can allocate more data from this block group. */
++	if (logical + length + min_alloc_bytes <=
++	    block_group->start + block_group->zone_capacity)
+ 		goto out;
+ 
+ 	spin_lock(&block_group->lock);
 
 
