@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04152540D33
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F05C541C00
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352812AbiFGSrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:47:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38390 "EHLO
+        id S1382453AbiFGVzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352573AbiFGSnv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:43:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DBFF62131;
-        Tue,  7 Jun 2022 10:59:05 -0700 (PDT)
+        with ESMTP id S1384289AbiFGVyZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A6C24A1C8;
+        Tue,  7 Jun 2022 12:13:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BF58DCE243D;
-        Tue,  7 Jun 2022 17:59:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC48FC385A5;
-        Tue,  7 Jun 2022 17:59:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 283696187F;
+        Tue,  7 Jun 2022 19:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 326B4C385A5;
+        Tue,  7 Jun 2022 19:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624742;
-        bh=phDQkffaxgBWmEQlVnQKRUN5Nc+fbS8QmiKQQDMT5bc=;
+        s=korg; t=1654629166;
+        bh=RwPRQSyV833cnrScno/aj01YrPInxnibRG2Rvh6F6Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpeAxv8S5Bkl+tg/GWPmriy5GuDyvC8u35b6CCuzYxIW4KCWKm293i9wkdaKEXeWB
-         RUWOlpOjD4FNpFReuTNujk1LVba5zrxg8UMwTduQ3Lq2eCNNhAbwyjbN++/8DOkKKB
-         7igc/Hxziy3f4qRH4PUZLhB25KE0I/b4K7yJ2VCY=
+        b=C9pfNnbaFh6tCxsJwsE1Ea1sBsXSLViGMJlc2gg4YdE1CrT2G7SBwJzjP3itpGxWK
+         cS59g07JJDfd7vO9R/YLDdxRgegfDNXQBiA7IPCRY/3cpkkPlESDAbmtn8adyroBbT
+         kfDbs/i91/0I2/fLhQ+Oi9iUrkNw/eDFaPVaubzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 396/667] KVM: nVMX: Leave most VM-Exit info fields unmodified on failed VM-Entry
+Subject: [PATCH 5.18 543/879] PCI: rockchip: Fix find_first_zero_bit() limit
 Date:   Tue,  7 Jun 2022 19:01:01 +0200
-Message-Id: <20220607164946.622991370@linuxfoundation.org>
+Message-Id: <20220607165018.631420265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c3634d25fbee88e2368a8e0903ae0d0670eb9e71 ]
+[ Upstream commit 096950e230b8d83645c7cf408b9f399f58c08b96 ]
 
-Don't modify vmcs12 exit fields except EXIT_REASON and EXIT_QUALIFICATION
-when performing a nested VM-Exit due to failed VM-Entry.  Per the SDM,
-only the two aformentioned fields are filled and "All other VM-exit
-information fields are unmodified".
+The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
 
-Fixes: 4704d0befb07 ("KVM: nVMX: Exiting from L2 to L1")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220407002315.78092-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20220315065944.GB13572@kili
+Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/pci/controller/pcie-rockchip-ep.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 5eae69c8123b..e0b5a4a83241 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4185,12 +4185,12 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	if (to_vmx(vcpu)->exit_reason.enclave_mode)
- 		vmcs12->vm_exit_reason |= VMX_EXIT_REASONS_SGX_ENCLAVE_MODE;
- 	vmcs12->exit_qualification = exit_qualification;
--	vmcs12->vm_exit_intr_info = exit_intr_info;
--
--	vmcs12->idt_vectoring_info_field = 0;
--	vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
--	vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
+index 5fb9ce6e536e..d1a200b93b2b 100644
+--- a/drivers/pci/controller/pcie-rockchip-ep.c
++++ b/drivers/pci/controller/pcie-rockchip-ep.c
+@@ -264,8 +264,7 @@ static int rockchip_pcie_ep_map_addr(struct pci_epc *epc, u8 fn, u8 vfn,
+ 	struct rockchip_pcie *pcie = &ep->rockchip;
+ 	u32 r;
  
-+	/*
-+	 * On VM-Exit due to a failed VM-Entry, the VMCS isn't marked launched
-+	 * and only EXIT_REASON and EXIT_QUALIFICATION are updated, all other
-+	 * exit info fields are unmodified.
-+	 */
- 	if (!(vmcs12->vm_exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY)) {
- 		vmcs12->launch_state = 1;
- 
-@@ -4202,8 +4202,13 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 		 * Transfer the event that L0 or L1 may wanted to inject into
- 		 * L2 to IDT_VECTORING_INFO_FIELD.
- 		 */
-+		vmcs12->idt_vectoring_info_field = 0;
- 		vmcs12_save_pending_event(vcpu, vmcs12);
- 
-+		vmcs12->vm_exit_intr_info = exit_intr_info;
-+		vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
-+		vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
-+
- 		/*
- 		 * According to spec, there's no need to store the guest's
- 		 * MSRs if the exit is due to a VM-entry failure that occurs
+-	r = find_first_zero_bit(&ep->ob_region_map,
+-				sizeof(ep->ob_region_map) * BITS_PER_LONG);
++	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
+ 	/*
+ 	 * Region 0 is reserved for configuration space and shouldn't
+ 	 * be used elsewhere per TRM, so leave it out.
 -- 
 2.35.1
 
