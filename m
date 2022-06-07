@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AAE540CFC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 314A6540CF8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:44:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353196AbiFGSnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:43:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34846 "EHLO
+        id S1347096AbiFGSoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:44:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353202AbiFGSmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:42:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C24660DBB;
+        with ESMTP id S1353338AbiFGSmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:42:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E080664D0A;
         Tue,  7 Jun 2022 10:58:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31B7A616B6;
-        Tue,  7 Jun 2022 17:58:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C92CAC341C5;
-        Tue,  7 Jun 2022 17:58:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 545856170B;
+        Tue,  7 Jun 2022 17:58:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 123F5C3411C;
+        Tue,  7 Jun 2022 17:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624736;
-        bh=61LE+925SQ9LfGurc+pUTDU2OI/fL2ifgo1SqT+uFN4=;
+        s=k20201202; t=1654624737;
+        bh=FHa04+U7/9ZQSrSxeRHTSvx2vB3mDoBRDs2GGqtZP6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1a0MgxqrtuwS9Ru7tVsIB8CPvD+07e2WU4omgwmSLbzGHlA3mwkDP+zpsw5Fd7Cg
-         f6ftrJKGQYScIKkitbt5S0k6rCBguW2rlAUOPtHkv9Y9hGA0xox0wpZIrNS+ugyXtY
-         XOkyvWL13gHSrZhQQ7G6rXxoqDRrsYS7LqK4s557ksWHx0EVVrzW7fpdQsEpfdGR7H
-         QiuXgwKuSZl4zmXeliB5ZTFA/1D1DnfxoCEc1K0fo887XWx8kQUszRbPqnt40syT9J
-         0ZvVkfQKmaREtMMyU+WbcVdIBQcOJRzxkScJgXikh1cvi3Xo5cJ0JGBAopRFUNor8K
-         Zkcuw1zhRPf4Q==
+        b=PVtAJ74OhI8MhfReZg4khJ3J4KZxpUzFguv/9VNm3ITUNV1t9EvzDaeHKyTkS/1br
+         B1VcvDVBdFAOt9bMijvSmXlpoLN8U0FJeVqBDP/eI7IlfNVPA13V5EM1kW7zhA8R9n
+         D95ZspoXaLrIbr4ZAlVI1TyfHqEswzrzQzKq72kPFaaxWGY3nuB75ekcYyYayu6KvG
+         v3gRNP4uxDwjocOXmc0j6kBNMWyhAW6rqQJt+sxxsjHyYQY8P7coOURNlw+jmAmb0x
+         GgbvgGyV6+Gki1eacUgUj75NgW9gWdXgIKhp7qdcrL5yYh2jfMP0SouxL7Rr4n3xLy
+         oP1b3fh4y0I8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Jiri Slaby <jirislaby@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 04/38] lkdtm/usercopy: Expand size of "out of frame" object
-Date:   Tue,  7 Jun 2022 13:57:59 -0400
-Message-Id: <20220607175835.480735-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 05/38] tty: synclink_gt: Fix null-pointer-dereference in slgt_clean()
+Date:   Tue,  7 Jun 2022 13:58:00 -0400
+Message-Id: <20220607175835.480735-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175835.480735-1-sashal@kernel.org>
 References: <20220607175835.480735-1-sashal@kernel.org>
@@ -58,73 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit f387e86d3a74407bdd9c5815820ac9d060962840 ]
+[ Upstream commit 689ca31c542687709ba21ec2195c1fbce34fd029 ]
 
-To be sufficiently out of range for the usercopy test to see the lifetime
-mismatch, expand the size of the "bad" buffer, which will let it be
-beyond current_stack_pointer regardless of stack growth direction.
-Paired with the recent addition of stack depth checking under
-CONFIG_HARDENED_USERCOPY=y, this will correctly start tripping again.
+When the driver fails at alloc_hdlcdev(), and then we remove the driver
+module, we will get the following splat:
 
-Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Link: https://lore.kernel.org/lkml/762faf1b-0443-5ddf-4430-44a20cf2ec4d@collabora.com/
-Signed-off-by: Kees Cook <keescook@chromium.org>
+[   25.065966] general protection fault, probably for non-canonical address 0xdffffc0000000182: 0000 [#1] PREEMPT SMP KASAN PTI
+[   25.066914] KASAN: null-ptr-deref in range [0x0000000000000c10-0x0000000000000c17]
+[   25.069262] RIP: 0010:detach_hdlc_protocol+0x2a/0x3e0
+[   25.077709] Call Trace:
+[   25.077924]  <TASK>
+[   25.078108]  unregister_hdlc_device+0x16/0x30
+[   25.078481]  slgt_cleanup+0x157/0x9f0 [synclink_gt]
+
+Fix this by checking whether the 'info->netdev' is a null pointer first.
+
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220410114814.3920474-1-zheyuma97@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/usercopy.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/tty/synclink_gt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/misc/lkdtm/usercopy.c b/drivers/misc/lkdtm/usercopy.c
-index 109e8d4302c1..cde2655487ff 100644
---- a/drivers/misc/lkdtm/usercopy.c
-+++ b/drivers/misc/lkdtm/usercopy.c
-@@ -30,12 +30,12 @@ static const unsigned char test_text[] = "This is a test.\n";
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 1a0c7beec101..0569d5949133 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -1749,6 +1749,8 @@ static int hdlcdev_init(struct slgt_info *info)
   */
- static noinline unsigned char *trick_compiler(unsigned char *stack)
+ static void hdlcdev_exit(struct slgt_info *info)
  {
--	return stack + 0;
-+	return stack + unconst;
- }
- 
- static noinline unsigned char *do_usercopy_stack_callee(int value)
- {
--	unsigned char buf[32];
-+	unsigned char buf[128];
- 	int i;
- 
- 	/* Exercise stack to avoid everything living in registers. */
-@@ -43,7 +43,12 @@ static noinline unsigned char *do_usercopy_stack_callee(int value)
- 		buf[i] = value & 0xff;
- 	}
- 
--	return trick_compiler(buf);
-+	/*
-+	 * Put the target buffer in the middle of stack allocation
-+	 * so that we don't step on future stack users regardless
-+	 * of stack growth direction.
-+	 */
-+	return trick_compiler(&buf[(128/2)-32]);
- }
- 
- static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
-@@ -66,6 +71,12 @@ static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
- 		bad_stack -= sizeof(unsigned long);
- 	}
- 
-+#ifdef ARCH_HAS_CURRENT_STACK_POINTER
-+	pr_info("stack     : %px\n", (void *)current_stack_pointer);
-+#endif
-+	pr_info("good_stack: %px-%px\n", good_stack, good_stack + sizeof(good_stack));
-+	pr_info("bad_stack : %px-%px\n", bad_stack, bad_stack + sizeof(good_stack));
-+
- 	user_addr = vm_mmap(NULL, 0, PAGE_SIZE,
- 			    PROT_READ | PROT_WRITE | PROT_EXEC,
- 			    MAP_ANONYMOUS | MAP_PRIVATE, 0);
++	if (!info->netdev)
++		return;
+ 	unregister_hdlc_device(info->netdev);
+ 	free_netdev(info->netdev);
+ 	info->netdev = NULL;
 -- 
 2.35.1
 
