@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A79541C6A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E781E540687
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351278AbiFGV7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:59:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
+        id S1346263AbiFGRgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382646AbiFGV6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:58:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBFB19320D;
-        Tue,  7 Jun 2022 12:14:05 -0700 (PDT)
+        with ESMTP id S1347056AbiFGReW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:34:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41F98109180;
+        Tue,  7 Jun 2022 10:30:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AFF3618EC;
-        Tue,  7 Jun 2022 19:13:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65925C385A2;
-        Tue,  7 Jun 2022 19:13:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DECA3614B5;
+        Tue,  7 Jun 2022 17:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE5DC34119;
+        Tue,  7 Jun 2022 17:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629210;
-        bh=RSylWBOT06Wdk23LGMXkHUcaqoN3WSYyyZJD3MPQ8lQ=;
+        s=korg; t=1654623030;
+        bh=tG1zL6GalKriyQc71pB4vzEjNZy47Fpf0YjX5DFgr5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/ZTYw3bFDAV2g4HwP+zv0tR/tVjBKf2Fx199R7TiQmZ4eFw0Ykyy38X/vqFkpvHe
-         Hi6dpMCpe8n/2ug122evO2gysxGr2m//n3POhkRBmEQwqBUnvvVTIeZ+TbDWdVndBa
-         sPHnWVJERPWEMB0mRNVx3uPYHe0F5nTwMsk35q9I=
+        b=g9I4vEx/1JKOnMcAxv0TsE//wqU0o4BhxYkhYTeC3ts3x0+d4PHVnjfusEh//MpxC
+         zYAWdxyWNV3tbd/T3NQV1B8UsfnBZAhBKeOsgSjVm+cyNdR2t0xb7KmWkmLEO4CiHi
+         BfcLGDCHqGKge3ozOOrqe3r6R9mMcJF716OmvHPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 609/879] RDMA/hns: Add the detection for CMDQ status in the device initialization process
+Subject: [PATCH 5.10 270/452] platform/chrome: cros_ec: fix error handling in cros_ec_register()
 Date:   Tue,  7 Jun 2022 19:02:07 +0200
-Message-Id: <20220607165020.527312085@linuxfoundation.org>
+Message-Id: <20220607164916.597407000@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,130 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Tzung-Bi Shih <tzungbi@kernel.org>
 
-[ Upstream commit e8ea058edc2b225a68b307057a65599625daaebf ]
+[ Upstream commit 2cd01bd6b117df07b1bc2852f08694fdd29e40ed ]
 
-CMDQ may fail during HNS ROCEE initialization. The following is the log
-when the execution fails:
+Fix cros_ec_register() to unregister platform devices if
+blocking_notifier_chain_register() fails.
 
-  hns3 0000:bd:00.2: In reset process RoCE client reinit.
-  hns3 0000:bd:00.2: CMDQ move tail from 840 to 839
-  hns3 0000:bd:00.2 hns_2: failed to set gid, ret = -11!
-  hns3 0000:bd:00.2: CMDQ move tail from 840 to 839
-  <...>
-  hns3 0000:bd:00.2: CMDQ move tail from 840 to 839
-  hns3 0000:bd:00.2: CMDQ move tail from 840 to 0
-  hns3 0000:bd:00.2: [cmd]token 14e mailbox 20 timeout.
-  hns3 0000:bd:00.2 hns_2: set HEM step 0 failed!
-  hns3 0000:bd:00.2 hns_2: set HEM address to HW failed!
-  hns3 0000:bd:00.2 hns_2: failed to alloc mtpt, ret = -16.
-  infiniband hns_2: Couldn't create ib_mad PD
-  infiniband hns_2: Couldn't open port 1
-  hns3 0000:bd:00.2: Reset done, RoCE client reinit finished.
+Also use the single exit path to handle the platform device
+unregistration.
 
-However, even if ib_mad client registration failed, ib_register_device()
-still returns success to the driver.
-
-In the device initialization process, CMDQ execution fails because HW/FW
-is abnormal. Therefore, if CMDQ fails, the initialization function should
-set CMDQ to a fatal error state and return a failure to the caller.
-
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Link: https://lore.kernel.org/r/20220429093104.26687-1-liangwenpeng@huawei.com
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 42cd0ab476e2 ("platform/chrome: cros_ec: Query EC protocol version if EC transitions between RO/RW")
+Reviewed-by: Prashant Malani <pmalani@chromium.org>
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_device.h |  6 ++++++
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c  | 21 +++++++++++++++++++++
- 2 files changed, 27 insertions(+)
+ drivers/platform/chrome/cros_ec.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
-index 3083d6db1d68..8604d16db8c4 100644
---- a/drivers/infiniband/hw/hns/hns_roce_device.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_device.h
-@@ -535,6 +535,11 @@ struct hns_roce_cmd_context {
- 	u16			busy;
- };
+diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
+index 3104680b7485..979f92194e81 100644
+--- a/drivers/platform/chrome/cros_ec.c
++++ b/drivers/platform/chrome/cros_ec.c
+@@ -175,6 +175,8 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 	ec_dev->max_request = sizeof(struct ec_params_hello);
+ 	ec_dev->max_response = sizeof(struct ec_response_get_protocol_info);
+ 	ec_dev->max_passthru = 0;
++	ec_dev->ec = NULL;
++	ec_dev->pd = NULL;
  
-+enum hns_roce_cmdq_state {
-+	HNS_ROCE_CMDQ_STATE_NORMAL,
-+	HNS_ROCE_CMDQ_STATE_FATAL_ERR,
-+};
-+
- struct hns_roce_cmdq {
- 	struct dma_pool		*pool;
- 	struct semaphore	poll_sem;
-@@ -554,6 +559,7 @@ struct hns_roce_cmdq {
- 	 * close device, switch into poll mode(non event mode)
- 	 */
- 	u8			use_events;
-+	enum hns_roce_cmdq_state state;
- };
- 
- struct hns_roce_cmd_mailbox {
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 2b0cef17ad45..1946ad8410cc 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1265,6 +1265,16 @@ static int hns_roce_cmq_csq_done(struct hns_roce_dev *hr_dev)
- 	return tail == priv->cmq.csq.head;
- }
- 
-+static void update_cmdq_status(struct hns_roce_dev *hr_dev)
-+{
-+	struct hns_roce_v2_priv *priv = hr_dev->priv;
-+	struct hnae3_handle *handle = priv->handle;
-+
-+	if (handle->rinfo.reset_state == HNS_ROCE_STATE_RST_INIT ||
-+	    handle->rinfo.instance_state == HNS_ROCE_STATE_INIT)
-+		hr_dev->cmd.state = HNS_ROCE_CMDQ_STATE_FATAL_ERR;
-+}
-+
- static int __hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
- 			       struct hns_roce_cmq_desc *desc, int num)
- {
-@@ -1318,6 +1328,8 @@ static int __hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
- 			 csq->head, tail);
- 		csq->head = tail;
- 
-+		update_cmdq_status(hr_dev);
-+
- 		ret = -EAGAIN;
+ 	ec_dev->din = devm_kzalloc(dev, ec_dev->din_size, GFP_KERNEL);
+ 	if (!ec_dev->din)
+@@ -231,18 +233,16 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		if (IS_ERR(ec_dev->pd)) {
+ 			dev_err(ec_dev->dev,
+ 				"Failed to create CrOS PD platform device\n");
+-			platform_device_unregister(ec_dev->ec);
+-			return PTR_ERR(ec_dev->pd);
++			err = PTR_ERR(ec_dev->pd);
++			goto exit;
+ 		}
  	}
  
-@@ -1332,6 +1344,9 @@ static int hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
- 	bool busy;
- 	int ret;
+ 	if (IS_ENABLED(CONFIG_OF) && dev->of_node) {
+ 		err = devm_of_platform_populate(dev);
+ 		if (err) {
+-			platform_device_unregister(ec_dev->pd);
+-			platform_device_unregister(ec_dev->ec);
+ 			dev_err(dev, "Failed to register sub-devices\n");
+-			return err;
++			goto exit;
+ 		}
+ 	}
  
-+	if (hr_dev->cmd.state == HNS_ROCE_CMDQ_STATE_FATAL_ERR)
-+		return -EIO;
-+
- 	if (!v2_chk_mbox_is_avail(hr_dev, &busy))
- 		return busy ? -EBUSY : 0;
+@@ -264,12 +264,16 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		err = blocking_notifier_chain_register(&ec_dev->event_notifier,
+ 						      &ec_dev->notifier_ready);
+ 		if (err)
+-			return err;
++			goto exit;
+ 	}
  
-@@ -1528,6 +1543,9 @@ static void hns_roce_function_clear(struct hns_roce_dev *hr_dev)
- {
- 	int i;
+ 	dev_info(dev, "Chrome EC device registered\n");
  
-+	if (hr_dev->cmd.state == HNS_ROCE_CMDQ_STATE_FATAL_ERR)
-+		return;
-+
- 	for (i = hr_dev->func_num - 1; i >= 0; i--) {
- 		__hns_roce_function_clear(hr_dev, i);
- 		if (i != 0)
-@@ -3000,6 +3018,9 @@ static int v2_wait_mbox_complete(struct hns_roce_dev *hr_dev, u32 timeout,
- 	mb_st = (struct hns_roce_mbox_status *)desc.data;
- 	end = msecs_to_jiffies(timeout) + jiffies;
- 	while (v2_chk_mbox_is_avail(hr_dev, &busy)) {
-+		if (hr_dev->cmd.state == HNS_ROCE_CMDQ_STATE_FATAL_ERR)
-+			return -EIO;
-+
- 		status = 0;
- 		hns_roce_cmq_setup_basic_desc(&desc, HNS_ROCE_OPC_QUERY_MB_ST,
- 					      true);
+ 	return 0;
++exit:
++	platform_device_unregister(ec_dev->ec);
++	platform_device_unregister(ec_dev->pd);
++	return err;
+ }
+ EXPORT_SYMBOL(cros_ec_register);
+ 
 -- 
 2.35.1
 
