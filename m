@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 370A5540CA1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D93F55415F6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344586AbiFGSiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46680 "EHLO
+        id S1376397AbiFGUnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345751AbiFGSh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:37:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E0A183167;
-        Tue,  7 Jun 2022 10:58:05 -0700 (PDT)
+        with ESMTP id S1359741AbiFGUZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:25:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E71DA1D687D;
+        Tue,  7 Jun 2022 11:32:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CA516188F;
-        Tue,  7 Jun 2022 17:58:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2FE0C34115;
-        Tue,  7 Jun 2022 17:58:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 144FA60DDA;
+        Tue,  7 Jun 2022 18:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21AB2C385A2;
+        Tue,  7 Jun 2022 18:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624684;
-        bh=bRY/gw9+Ff/WWGwoCHJHW/oLysNKgFiDMq+PAeNHfTM=;
+        s=korg; t=1654626746;
+        bh=CakWQlkgcTcHycDmYfpLseC+49w5FLguEIomY2Elg2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2SiCmtd28Ai4u4Vzfjd/aumQ5rW1qaqqR+h/2Pvxv/L5A9MeoQXccf8Wal2d8t4a
-         quyzwB1O+nzrTdvwWP/4Hhel1GPxzJMkR78nrheqsocJ4pt1nxT32P7bFoGCAETGNb
-         7qK64MWQUYHV9IELM89G0TzU8sjdgLCRCxYU4+lg=
+        b=0kKpwASrQptcPb8ztDO3B2a0QlvsQM4tlSQ8y2LrcmfURu+g/NF1k/ksb087S3YXG
+         hrQHDRSxi+3KqBqGy6Z5LCDfW8NMx7Dw1qB4HiptSdr6xKjfSdKooMp0cnaCVK1rfc
+         gssmWQfMEGaLnUyV3u8h7YhrrBi4CXfRzHMly92s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Caleb Connolly <kc@postmarketos.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 416/667] pinctrl/rockchip: support deferring other gpio params
+Subject: [PATCH 5.17 489/772] pinctrl/rockchip: support deferring other gpio params
 Date:   Tue,  7 Jun 2022 19:01:21 +0200
-Message-Id: <20220607164947.214625947@linuxfoundation.org>
+Message-Id: <20220607165003.395135404@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,7 +75,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  3 files changed, 50 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
-index 24155c038f6d..22b8f0aa80f1 100644
+index 099e358d2491..bcf5214e3586 100644
 --- a/drivers/gpio/gpio-rockchip.c
 +++ b/drivers/gpio/gpio-rockchip.c
 @@ -19,6 +19,7 @@
@@ -86,7 +86,7 @@ index 24155c038f6d..22b8f0aa80f1 100644
  #include <linux/regmap.h>
  
  #include "../pinctrl/core.h"
-@@ -691,7 +692,7 @@ static int rockchip_gpio_probe(struct platform_device *pdev)
+@@ -706,7 +707,7 @@ static int rockchip_gpio_probe(struct platform_device *pdev)
  	struct device_node *pctlnp = of_get_parent(np);
  	struct pinctrl_dev *pctldev = NULL;
  	struct rockchip_pin_bank *bank = NULL;
@@ -95,7 +95,7 @@ index 24155c038f6d..22b8f0aa80f1 100644
  	static int gpio;
  	int id, ret;
  
-@@ -732,15 +733,22 @@ static int rockchip_gpio_probe(struct platform_device *pdev)
+@@ -747,15 +748,22 @@ static int rockchip_gpio_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -126,10 +126,10 @@ index 24155c038f6d..22b8f0aa80f1 100644
  	}
  
 diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index 543a4991cf70..d80842034939 100644
+index 65fa305b5f59..66ed3e4ceb20 100644
 --- a/drivers/pinctrl/pinctrl-rockchip.c
 +++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2107,19 +2107,20 @@ static bool rockchip_pinconf_pull_valid(struct rockchip_pin_ctrl *ctrl,
+@@ -2110,19 +2110,20 @@ static bool rockchip_pinconf_pull_valid(struct rockchip_pin_ctrl *ctrl,
  	return false;
  }
  
@@ -154,7 +154,7 @@ index 543a4991cf70..d80842034939 100644
  
  	return 0;
  }
-@@ -2140,6 +2141,25 @@ static int rockchip_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
+@@ -2143,6 +2144,25 @@ static int rockchip_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
  		param = pinconf_to_config_param(configs[i]);
  		arg = pinconf_to_config_argument(configs[i]);
  
@@ -180,7 +180,7 @@ index 543a4991cf70..d80842034939 100644
  		switch (param) {
  		case PIN_CONFIG_BIAS_DISABLE:
  			rc =  rockchip_set_pull(bank, pin - bank->pin_base,
-@@ -2168,22 +2188,6 @@ static int rockchip_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
+@@ -2171,22 +2191,6 @@ static int rockchip_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
  			if (rc != RK_FUNC_GPIO)
  				return -EINVAL;
  
@@ -203,7 +203,7 @@ index 543a4991cf70..d80842034939 100644
  			rc = gpio->direction_output(gpio, pin - bank->pin_base,
  						    arg);
  			if (rc)
-@@ -2504,7 +2508,7 @@ static int rockchip_pinctrl_register(struct platform_device *pdev,
+@@ -2500,7 +2504,7 @@ static int rockchip_pinctrl_register(struct platform_device *pdev,
  			pdesc++;
  		}
  
@@ -212,7 +212,7 @@ index 543a4991cf70..d80842034939 100644
  		mutex_init(&pin_bank->deferred_lock);
  	}
  
-@@ -2778,7 +2782,7 @@ static int rockchip_pinctrl_remove(struct platform_device *pdev)
+@@ -2763,7 +2767,7 @@ static int rockchip_pinctrl_remove(struct platform_device *pdev)
  {
  	struct rockchip_pinctrl *info = platform_get_drvdata(pdev);
  	struct rockchip_pin_bank *bank;
@@ -221,7 +221,7 @@ index 543a4991cf70..d80842034939 100644
  	int i;
  
  	of_platform_depopulate(&pdev->dev);
-@@ -2787,9 +2791,9 @@ static int rockchip_pinctrl_remove(struct platform_device *pdev)
+@@ -2772,9 +2776,9 @@ static int rockchip_pinctrl_remove(struct platform_device *pdev)
  		bank = &info->ctrl->pin_banks[i];
  
  		mutex_lock(&bank->deferred_lock);
