@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0BAC5405C5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09278540B73
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234895AbiFGR3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39748 "EHLO
+        id S1350675AbiFGS3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346702AbiFGR2i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:28:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E35FA115CAD;
-        Tue,  7 Jun 2022 10:24:35 -0700 (PDT)
+        with ESMTP id S1351460AbiFGSXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F5AC9ED5;
+        Tue,  7 Jun 2022 10:54:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1DA92CE2010;
-        Tue,  7 Jun 2022 17:24:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22518C385A5;
-        Tue,  7 Jun 2022 17:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D95461846;
+        Tue,  7 Jun 2022 17:54:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B820C385A5;
+        Tue,  7 Jun 2022 17:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622672;
-        bh=U+x5TZWNbv03DPm0IM26sxFNwql3Md+baw7T59Dj4ow=;
+        s=korg; t=1654624459;
+        bh=y1kr5Heb/C7va/aR2tlmANm0HN4/JLfZxF885GOasXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XX6IDM9HvTWcWWYVZFvf68o1FroEFgR7HSIX7AQJzs4jYuVOA5qJk73WrONHIAWJB
-         LPi22O7+IWxE7jOyMSCrTy7MeoHnvXel6N1Vqu7nnxlLx/etABhEmo1INKRSzBIZ/2
-         9fdL8skuLp23fd4MmoJsEaE6cQw5OfwDPZ4tBnk0=
+        b=gSD1qpS7jJBvXE4e0fFl7mIGYSX5iXXLT3wJgHfZz75N3VmLJkzKsNP9oMTCgmsw/
+         M3Db/tmZ7Z/5MaTpv53IJP5cmm/cQVMv6Rb9AbD+JIu+VuG64B3Y7P8Hy5V5Xmmo64
+         8jgLiUME68ko0cB+eifvmxlzi3dFDbzBeK/ebTUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 142/452] net: dsa: mt7530: 1G can also support 1000BASE-X link mode
+Subject: [PATCH 5.15 334/667] sctp: read sk->sk_bound_dev_if once in sctp_rcv()
 Date:   Tue,  7 Jun 2022 18:59:59 +0200
-Message-Id: <20220607164912.791607050@linuxfoundation.org>
+Message-Id: <20220607164944.784390057@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,67 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 66f862563ed68717dfd84e808ca12705ed275ced ]
+[ Upstream commit a20ea298071f46effa3aaf965bf9bb34c901db3f ]
 
-When using an external PHY connected using RGMII to mt7531 port 5, the
-PHY can be used to used support 1000BASE-X connections. Moreover, if
-1000BASE-T is supported, then we should allow 1000BASE-X as well, since
-which are supported is a property of the PHY.
+sctp_rcv() reads sk->sk_bound_dev_if twice while the socket
+is not locked. Another cpu could change this field under us.
 
-Therefore, it makes no sense to exclude this from the linkmodes when
-1000BASE-T is supported.
-
-Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
-Tested-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 0fd9a65a76e8 ("[SCTP] Support SO_BINDTODEVICE socket option on incoming packets.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ net/sctp/input.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index c355824ddb81..265620a81f9f 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -1952,13 +1952,7 @@ static void mt7531_sgmii_validate(struct mt7530_priv *priv, int port,
- 	/* Port5 supports ethier RGMII or SGMII.
- 	 * Port6 supports SGMII only.
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index 1f1786021d9c..d16b3885dccc 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -92,6 +92,7 @@ int sctp_rcv(struct sk_buff *skb)
+ 	struct sctp_chunk *chunk;
+ 	union sctp_addr src;
+ 	union sctp_addr dest;
++	int bound_dev_if;
+ 	int family;
+ 	struct sctp_af *af;
+ 	struct net *net = dev_net(skb->dev);
+@@ -169,7 +170,8 @@ int sctp_rcv(struct sk_buff *skb)
+ 	 * If a frame arrives on an interface and the receiving socket is
+ 	 * bound to another interface, via SO_BINDTODEVICE, treat it as OOTB
  	 */
--	switch (port) {
--	case 5:
--		if (mt7531_is_rgmii_port(priv, port))
--			break;
--		fallthrough;
--	case 6:
--		phylink_set(supported, 1000baseX_Full);
-+	if (port == 6) {
- 		phylink_set(supported, 2500baseX_Full);
- 		phylink_set(supported, 2500baseT_Full);
- 	}
-@@ -2315,8 +2309,6 @@ static void
- mt7530_mac_port_validate(struct dsa_switch *ds, int port,
- 			 unsigned long *supported)
- {
--	if (port == 5)
--		phylink_set(supported, 1000baseX_Full);
- }
- 
- static void mt7531_mac_port_validate(struct dsa_switch *ds, int port,
-@@ -2353,8 +2345,10 @@ mt753x_phylink_validate(struct dsa_switch *ds, int port,
- 	}
- 
- 	/* This switch only supports 1G full-duplex. */
--	if (state->interface != PHY_INTERFACE_MODE_MII)
-+	if (state->interface != PHY_INTERFACE_MODE_MII) {
- 		phylink_set(mask, 1000baseT_Full);
-+		phylink_set(mask, 1000baseX_Full);
-+	}
- 
- 	priv->info->mac_port_validate(ds, port, mask);
- 
+-	if (sk->sk_bound_dev_if && (sk->sk_bound_dev_if != af->skb_iif(skb))) {
++	bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
++	if (bound_dev_if && (bound_dev_if != af->skb_iif(skb))) {
+ 		if (transport) {
+ 			sctp_transport_put(transport);
+ 			asoc = NULL;
 -- 
 2.35.1
 
