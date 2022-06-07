@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99FF354058C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2918C54141C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346314AbiFGR0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46018 "EHLO
+        id S1359424AbiFGUNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:13:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346762AbiFGRZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEDC01105CE;
-        Tue,  7 Jun 2022 10:23:06 -0700 (PDT)
+        with ESMTP id S1358509AbiFGUJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 426236362;
+        Tue,  7 Jun 2022 11:27:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3909FB822B3;
-        Tue,  7 Jun 2022 17:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9286EC34115;
-        Tue,  7 Jun 2022 17:23:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1E2360906;
+        Tue,  7 Jun 2022 18:27:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A66C385A2;
+        Tue,  7 Jun 2022 18:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622583;
-        bh=3bFFMwh7UcBdAXXdvobbtik2xvYHlP3q36CF7S5HcJs=;
+        s=korg; t=1654626429;
+        bh=gLa8uGy3lTp016CIa3NVUC6HX8oJj8Hj922egc1Hvq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdw7bYcooLZDbcn6h0RCTAx6Pmd1lKTyiuusus/gH7/1djXVfFaWSeZarGVrlpS+Y
-         usLPCphMiN/9roGjrcJldxal8GbjX71yMEY+/1YkZtMgraBqwFXhE2X1YEMFxLTkVM
-         9dPklOMcXPzt7QRwBFY3M0ZGptNh26R/SHEbw6tY=
+        b=mztRufIlTjQT1iOEnklH0wlJyxYZiL2mMo2HQMWm+aCFaNcH/Uj+71Rol0fFLxEN7
+         VSNkikZsihT9z7ZKmKwLJpO872oa3z27zymSTw97O6El4TCMX7oHjoQiHETCAa8WVb
+         8mrP0gwlpOk4hzJT7Uzhl63KdBchQB3TwPpLWhNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Wu <wupeng58@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/452] ARM: versatile: Add missing of_node_put in dcscb_init
+        stable@vger.kernel.org, Peter Chiu <chui-hao.chiu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 374/772] mt76: mt7915: fix twt table_mask to u16 in mt7915_dev
 Date:   Tue,  7 Jun 2022 18:59:26 +0200
-Message-Id: <20220607164911.804125563@linuxfoundation.org>
+Message-Id: <20220607165000.035865412@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Wu <wupeng58@huawei.com>
+From: Peter Chiu <chui-hao.chiu@mediatek.com>
 
-[ Upstream commit 23b44f9c649bbef10b45fa33080cd8b4166800ae ]
+[ Upstream commit 3620c8821ae15902eb995a32918e34b7a0c773a3 ]
 
-The device_node pointer is returned by of_find_compatible_node
-with refcount incremented. We should use of_node_put() to avoid
-the refcount leak.
+mt7915 can support 16 twt stations so modify table_mask to u16.
 
-Signed-off-by: Peng Wu <wupeng58@huawei.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220428230356.69418-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 3782b69d03e7 ("mt76: mt7915: introduce mt7915_mac_add_twt_setup routine")
+Signed-off-by: Peter Chiu <chui-hao.chiu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-vexpress/dcscb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-vexpress/dcscb.c b/arch/arm/mach-vexpress/dcscb.c
-index a0554d7d04f7..e1adc098f89a 100644
---- a/arch/arm/mach-vexpress/dcscb.c
-+++ b/arch/arm/mach-vexpress/dcscb.c
-@@ -144,6 +144,7 @@ static int __init dcscb_init(void)
- 	if (!node)
- 		return -ENODEV;
- 	dcscb_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!dcscb_base)
- 		return -EADDRNOTAVAIL;
- 	cfg = readl_relaxed(dcscb_base + DCS_CFG_R);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
+index 12ca54566461..4f62dbb936db 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
+@@ -279,7 +279,7 @@ struct mt7915_dev {
+ 	void *cal;
+ 
+ 	struct {
+-		u8 table_mask;
++		u16 table_mask;
+ 		u8 n_agrt;
+ 	} twt;
+ };
 -- 
 2.35.1
 
