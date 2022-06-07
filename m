@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA535405D7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0779540BE8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346859AbiFGRcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39762 "EHLO
+        id S1344371AbiFGScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347404AbiFGRan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317BC1109BA;
-        Tue,  7 Jun 2022 10:26:37 -0700 (PDT)
+        with ESMTP id S1352017AbiFGSao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0102F02D;
+        Tue,  7 Jun 2022 10:55:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 71310CE21CD;
-        Tue,  7 Jun 2022 17:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FDDC385A5;
-        Tue,  7 Jun 2022 17:26:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 802F3B8236F;
+        Tue,  7 Jun 2022 17:55:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9957C34115;
+        Tue,  7 Jun 2022 17:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622793;
-        bh=uD3kUOkQq+jybqex1hsntI82/ulhgLwlE89synK6EKA=;
+        s=korg; t=1654624549;
+        bh=OiWcNo8ZYY30dH2anHOyo07VcMU3yIki7I1363nLZfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPhpahdBratiuYK3akUEUGixozf9Zcb0sTGcYXloVu/hgPbyzY0C6cD9p7paYL/BP
-         oS8m78/gFSC9kJ4TRj8/OFt6Yf1wHH8QyzI08BnqZnRoKLi6ZgmsHANrobeLG9xxB/
-         2AfQSAU7kneuKlckHKAepfm+Z3BvYbdK9a/dLZkg=
+        b=a4EaAwaVxRU95dfnkOXmowNT/ol44cqUm6rHTJZAefwwejOhYmiWYbQSGYAngcKzD
+         JVTofQN//zpFXuVbvFINCq09T0lFHqz96bGPrwpchMVNWprYnvGDUdRsZiOffubTAj
+         qLGB5u82lwCvUA2MPR4zeyi/nWdlngQF6k0xIvDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 158/452] ALSA: pcm: Check for null pointer of pointer substream before dereferencing it
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 350/667] selftests/bpf: Add missed ima_setup.sh in Makefile
 Date:   Tue,  7 Jun 2022 19:00:15 +0200
-Message-Id: <20220607164913.268195102@linuxfoundation.org>
+Message-Id: <20220607164945.254574806@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 011b559be832194f992f73d6c0d5485f5925a10b ]
+[ Upstream commit 70a1b25326dd77e145157ccf1a31c1948032eec4 ]
 
-Pointer substream is being dereferenced on the assignment of pointer card
-before substream is being null checked with the macro PCM_RUNTIME_CHECK.
-Although PCM_RUNTIME_CHECK calls BUG_ON, it still is useful to perform the
-the pointer check before card is assigned.
+When build bpf test and install it to another folder, e.g.
 
-Fixes: d4cfb30fce03 ("ALSA: pcm: Set per-card upper limit of PCM buffer allocations")
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Link: https://lore.kernel.org/r/20220424205945.1372247-1-colin.i.king@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  make -j10 install -C tools/testing/selftests/ TARGETS="bpf" \
+	SKIP_TARGETS="" INSTALL_PATH=/tmp/kselftests
+
+The ima_setup.sh is missed in target folder, which makes test_ima failed.
+
+Fix it by adding ima_setup.sh to TEST_PROGS_EXTENDED.
+
+Fixes: 34b82d3ac105 ("bpf: Add a selftest for bpf_ima_inode_hash")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220516040020.653291-1-liuhangbin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_memory.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/core/pcm_memory.c b/sound/core/pcm_memory.c
-index a9a0d74f3165..191883842a35 100644
---- a/sound/core/pcm_memory.c
-+++ b/sound/core/pcm_memory.c
-@@ -434,7 +434,6 @@ EXPORT_SYMBOL(snd_pcm_lib_malloc_pages);
-  */
- int snd_pcm_lib_free_pages(struct snd_pcm_substream *substream)
- {
--	struct snd_card *card = substream->pcm->card;
- 	struct snd_pcm_runtime *runtime;
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index 799b88152e9e..638966ae8ad9 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -78,7 +78,7 @@ TEST_PROGS := test_kmod.sh \
+ 	test_xsk.sh
  
- 	if (PCM_RUNTIME_CHECK(substream))
-@@ -443,6 +442,8 @@ int snd_pcm_lib_free_pages(struct snd_pcm_substream *substream)
- 	if (runtime->dma_area == NULL)
- 		return 0;
- 	if (runtime->dma_buffer_p != &substream->dma_buffer) {
-+		struct snd_card *card = substream->pcm->card;
-+
- 		/* it's a newly allocated buffer.  release it now. */
- 		do_free_pages(card, runtime->dma_buffer_p);
- 		kfree(runtime->dma_buffer_p);
+ TEST_PROGS_EXTENDED := with_addr.sh \
+-	with_tunnels.sh \
++	with_tunnels.sh ima_setup.sh \
+ 	test_xdp_vlan.sh test_bpftool.py
+ 
+ # Compile but not part of 'make run_tests'
 -- 
 2.35.1
 
