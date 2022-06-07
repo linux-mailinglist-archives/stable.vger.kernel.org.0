@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0779540BE8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D6E541BEF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344371AbiFGScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
+        id S1381952AbiFGVza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352017AbiFGSao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0102F02D;
-        Tue,  7 Jun 2022 10:55:51 -0700 (PDT)
+        with ESMTP id S1381899AbiFGVtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:49:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD12223B548;
+        Tue,  7 Jun 2022 12:08:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 802F3B8236F;
-        Tue,  7 Jun 2022 17:55:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9957C34115;
-        Tue,  7 Jun 2022 17:55:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00B3461768;
+        Tue,  7 Jun 2022 19:08:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05DB9C385A5;
+        Tue,  7 Jun 2022 19:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624549;
-        bh=OiWcNo8ZYY30dH2anHOyo07VcMU3yIki7I1363nLZfg=;
+        s=korg; t=1654628907;
+        bh=m0SeXDt7dXNDBS1M6Vwhu4t2wYrFNNLHH7CkYwqfgcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4EaAwaVxRU95dfnkOXmowNT/ol44cqUm6rHTJZAefwwejOhYmiWYbQSGYAngcKzD
-         JVTofQN//zpFXuVbvFINCq09T0lFHqz96bGPrwpchMVNWprYnvGDUdRsZiOffubTAj
-         qLGB5u82lwCvUA2MPR4zeyi/nWdlngQF6k0xIvDc=
+        b=zQyVf1WcSds4a/qWWTmGCNy2qlfzdei8M2wmL92vzM8LqOOGy6NntQjPoD4URbQo4
+         dcxq0e3GQuEKq5w7WODB49ZMVGUqsgbry+oax2YSUyZ54z8WoKjd335dXis5gR5N6P
+         ez7zacCP2tisLAVNn+EPa8ctwiA9Y2JrtWne4h3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 350/667] selftests/bpf: Add missed ima_setup.sh in Makefile
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 497/879] ASoC: codecs: lpass: Fix passing zero to PTR_ERR
 Date:   Tue,  7 Jun 2022 19:00:15 +0200
-Message-Id: <20220607164945.254574806@linuxfoundation.org>
+Message-Id: <20220607165017.297497708@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 70a1b25326dd77e145157ccf1a31c1948032eec4 ]
+[ Upstream commit 81e7b165c45e94188ae8f1134b57f27d1f35452f ]
 
-When build bpf test and install it to another folder, e.g.
+sound/soc/codecs/lpass-macro-common.c:28 lpass_macro_pds_init() warn: passing zero to 'PTR_ERR'
+sound/soc/codecs/lpass-macro-common.c:38 lpass_macro_pds_init() warn: passing zero to 'PTR_ERR'
+sound/soc/codecs/lpass-macro-common.c:54 lpass_macro_pds_init() warn: passing zero to 'ERR_PTR'
 
-  make -j10 install -C tools/testing/selftests/ TARGETS="bpf" \
-	SKIP_TARGETS="" INSTALL_PATH=/tmp/kselftests
+dev_pm_domain_attach_by_name() may return NULL, set 'ret' as
+-ENODATA to fix this warning.
 
-The ima_setup.sh is missed in target folder, which makes test_ima failed.
-
-Fix it by adding ima_setup.sh to TEST_PROGS_EXTENDED.
-
-Fixes: 34b82d3ac105 ("bpf: Add a selftest for bpf_ima_inode_hash")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220516040020.653291-1-liuhangbin@gmail.com
+Fixes: 1a8ee4cf8418 ("ASoC: codecs: Fix error handling in power domain init and exit handlers")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20220516120909.36356-1-yuehaibing@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/lpass-macro-common.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 799b88152e9e..638966ae8ad9 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -78,7 +78,7 @@ TEST_PROGS := test_kmod.sh \
- 	test_xsk.sh
+diff --git a/sound/soc/codecs/lpass-macro-common.c b/sound/soc/codecs/lpass-macro-common.c
+index 3c661fd61173..1b9082d237c1 100644
+--- a/sound/soc/codecs/lpass-macro-common.c
++++ b/sound/soc/codecs/lpass-macro-common.c
+@@ -25,7 +25,7 @@ struct lpass_macro *lpass_macro_pds_init(struct device *dev)
  
- TEST_PROGS_EXTENDED := with_addr.sh \
--	with_tunnels.sh \
-+	with_tunnels.sh ima_setup.sh \
- 	test_xdp_vlan.sh test_bpftool.py
+ 	l_pds->macro_pd = dev_pm_domain_attach_by_name(dev, "macro");
+ 	if (IS_ERR_OR_NULL(l_pds->macro_pd)) {
+-		ret = PTR_ERR(l_pds->macro_pd);
++		ret = l_pds->macro_pd ? PTR_ERR(l_pds->macro_pd) : -ENODATA;
+ 		goto macro_err;
+ 	}
  
- # Compile but not part of 'make run_tests'
+@@ -35,7 +35,7 @@ struct lpass_macro *lpass_macro_pds_init(struct device *dev)
+ 
+ 	l_pds->dcodec_pd = dev_pm_domain_attach_by_name(dev, "dcodec");
+ 	if (IS_ERR_OR_NULL(l_pds->dcodec_pd)) {
+-		ret = PTR_ERR(l_pds->dcodec_pd);
++		ret = l_pds->dcodec_pd ? PTR_ERR(l_pds->dcodec_pd) : -ENODATA;
+ 		goto dcodec_err;
+ 	}
+ 
 -- 
 2.35.1
 
