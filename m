@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC51541419
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7970D540BC4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359409AbiFGUM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51086 "EHLO
+        id S1350859AbiFGSbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359219AbiFGUJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DA78FD7D;
-        Tue,  7 Jun 2022 11:27:20 -0700 (PDT)
+        with ESMTP id S1351413AbiFGS32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B8517856D;
+        Tue,  7 Jun 2022 10:55:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD005B81FF8;
-        Tue,  7 Jun 2022 18:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39B78C385A5;
-        Tue,  7 Jun 2022 18:27:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8252617E1;
+        Tue,  7 Jun 2022 17:55:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C3DC385A5;
+        Tue,  7 Jun 2022 17:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626437;
-        bh=l+0I0SbIqtb+A2f2/RYmBLgaBp3aFf+0oUxXgNg1N6s=;
+        s=korg; t=1654624515;
+        bh=+UBMaOkH/rDx4NAaBtUx2K/VsqF7mQcqX0QNcmyUFeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fELWQ9OJ+KvnCLgA8z0AXDFvVCRifF4edTUPayvYILihzmuUHXZsJiTM/IxMa9yuj
-         2Qxu+monuv9qGzPXLnlQY4Y9NWZMKhy2mLyaaevllZ1tvCeNE9brMPKggYk7WASeNC
-         b1EWvNz+V4TmnQnmt2yZScYtQ85AUN9ovJfkOWbU=
+        b=vsj7csibKOZQQtpeBRlt+Gq2iyMHEjJwtzAA3pGHSmtsm58aadd89VDmHuO4Q2yV9
+         XVabm+qoFf+rBJ5Wnh2NBN97mnzCy6lJbYXmzUY3jhBlW91wkOEtqqfEJiwmIy5hFA
+         pYyC1PXuHuvzU1j6Ze9Op8xNP8pQeIBWCdZOnUPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 377/772] media: i2c: rdacm2x: properly set subdev entity function
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 304/667] HID: amd_sfh: Modify the hid name
 Date:   Tue,  7 Jun 2022 18:59:29 +0200
-Message-Id: <20220607165000.125041592@linuxfoundation.org>
+Message-Id: <20220607164943.894842846@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,58 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit d2facee67b4883bb3e7461a0a93fd70d0c7b7261 ]
+[ Upstream commit 10f865cdcf37d26ae5e9595a7b4f9e06538e84e5 ]
 
-The subdevice entity function was left unset, which produces a warning
-when probing the device:
+Modifying the amd-sfh hid name to meaningful name.
 
-mxc-md bus@58000000:camera: Entity type for entity rdacm20 19-0051 was
-not initialized!
-
-This patch will set entity function to MEDIA_ENT_F_CAM_SENSOR and leave
-flags unset.
-
-Fixes: 34009bffc1c6 ("media: i2c: Add RDACM20 driver")
-Fixes: a59f853b3b4b ("media: i2c: Add driver for RDACM21 camera module")
-Signed-off-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
-Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/rdacm20.c | 2 +-
- drivers/media/i2c/rdacm21.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/rdacm20.c b/drivers/media/i2c/rdacm20.c
-index 025a610de893..9c6f66cab564 100644
---- a/drivers/media/i2c/rdacm20.c
-+++ b/drivers/media/i2c/rdacm20.c
-@@ -611,7 +611,7 @@ static int rdacm20_probe(struct i2c_client *client)
- 		goto error_free_ctrls;
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+index 8b8a7c40ed4e..a4bda2ac713e 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+@@ -142,7 +142,7 @@ int amdtp_hid_probe(u32 cur_hid_dev, struct amdtp_cl_data *cli_data)
+ 	hid->bus = BUS_AMD_SFH;
+ 	hid->vendor = AMD_SFH_HID_VENDOR;
+ 	hid->product = AMD_SFH_HID_PRODUCT;
+-	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-amdtp",
++	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-amdsfh",
+ 		 hid->vendor, hid->product);
  
- 	dev->pad.flags = MEDIA_PAD_FL_SOURCE;
--	dev->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
-+	dev->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
- 	ret = media_entity_pads_init(&dev->sd.entity, 1, &dev->pad);
- 	if (ret < 0)
- 		goto error_free_ctrls;
-diff --git a/drivers/media/i2c/rdacm21.c b/drivers/media/i2c/rdacm21.c
-index 12ec5467ed1e..ef31cf5f23ca 100644
---- a/drivers/media/i2c/rdacm21.c
-+++ b/drivers/media/i2c/rdacm21.c
-@@ -583,7 +583,7 @@ static int rdacm21_probe(struct i2c_client *client)
- 		goto error_free_ctrls;
- 
- 	dev->pad.flags = MEDIA_PAD_FL_SOURCE;
--	dev->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
-+	dev->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
- 	ret = media_entity_pads_init(&dev->sd.entity, 1, &dev->pad);
- 	if (ret < 0)
- 		goto error_free_ctrls;
+ 	rc = hid_add_device(hid);
 -- 
 2.35.1
 
