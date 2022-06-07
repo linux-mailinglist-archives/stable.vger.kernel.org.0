@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C72335410B4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A90E05417E1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353449AbiFGT3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        id S1378377AbiFGVGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356600AbiFGT2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 657451A0766;
-        Tue,  7 Jun 2022 11:10:15 -0700 (PDT)
+        with ESMTP id S1379405AbiFGVFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:05:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F5118E47E;
+        Tue,  7 Jun 2022 11:49:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2261B61927;
-        Tue,  7 Jun 2022 18:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31E16C385A5;
-        Tue,  7 Jun 2022 18:10:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D5846156D;
+        Tue,  7 Jun 2022 18:49:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89095C385A5;
+        Tue,  7 Jun 2022 18:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625413;
-        bh=g1hLS+ya2aqBBFKEuQr7s2NPVCANtnGbX7JMaSlptaU=;
+        s=korg; t=1654627765;
+        bh=mFZmCmXfkFOAG5ewdktFRxWxnqMPBYAH8t2tEQhXe+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3hvmUr5bgolbWc47DkNuRszhWkwV+5N1JsMKt1zl+G2Z7czuxVIbacrjR//H6qSu
-         7V7tWPFr8BJuxe8880M2cP1ASMD7ESqFvJRmhWasE6aW7WW6frZRYfVlnYihSDwreB
-         9cQf2/Jkkvt7bjo88PWtARWYANTqJkBRbBOv4aQY=
+        b=P9HUP1DbnV8cFB12TOWTE+2ngn1VhqVZmh4XIQTzsQZJN1W3v5Rys8B1DpaQAANdy
+         Yf7rleUBjlq+5ktqe1K5bn2OUjFvbxxM5REgsUFbYqToigRVvryobppR8rj7EG9EkV
+         md58Gidu5+JaIbZrOi8htjOJ4JdwesIa+G0uuf0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van der Kemp <rik@upto11.nl>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 011/772] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9520 laptop
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 085/879] tools/power turbostat: fix ICX DRAM power numbers
 Date:   Tue,  7 Jun 2022 18:53:23 +0200
-Message-Id: <20220607164949.331836000@linuxfoundation.org>
+Message-Id: <20220607165005.159684515@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van der Kemp <rik@upto11.nl>
+From: Len Brown <len.brown@intel.com>
 
-commit 15dad62f4bdb5dc0f0efde8181d680db9963544c upstream.
+[ Upstream commit 6397b6418935773a34b533b3348b03f4ce3d7050 ]
 
-The 2022-model XPS 15 appears to use the same 4-speakers-on-ALC289
-audio setup as the Dell XPS 15 9510, so requires the same quirk to
-enable woofer output. Tested on my own 9520.
+ICX (and its duplicates) require special hard-coded DRAM RAPL units,
+rather than using the generic RAPL energy units.
 
-[ Move the entry to the right position in the SSID order -- tiwai ]
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216035
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Rik van der Kemp <rik@upto11.nl>
-Link: https://lore.kernel.org/r/181056a137b.d14baf90133058.8425453735588429828@upto11.nl
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
+ tools/power/x86/turbostat/turbostat.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8921,6 +8921,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1028, 0x0a62, "Dell Precision 5560", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x0a9d, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x0a9e, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1028, 0x0b19, "Dell XPS 15 9520", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index bc5ae0872fed..babede4486de 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4376,6 +4376,7 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
+ 	case INTEL_FAM6_BROADWELL_X:	/* BDX */
+ 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
+ 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
++	case INTEL_FAM6_ICELAKE_X:	/* ICX */
+ 		return (rapl_dram_energy_units = 15.3 / 1000000);
+ 	default:
+ 		return (rapl_energy_units);
+-- 
+2.35.1
+
 
 
