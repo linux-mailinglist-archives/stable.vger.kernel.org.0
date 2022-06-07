@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7F4554189C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA7E54086E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379697AbiFGVNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:13:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39970 "EHLO
+        id S1349029AbiFGR6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:58:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379464AbiFGVMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:12:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E6E21A540;
-        Tue,  7 Jun 2022 11:54:03 -0700 (PDT)
+        with ESMTP id S1349018AbiFGR5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C599F47AF8;
+        Tue,  7 Jun 2022 10:40:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C88861768;
-        Tue,  7 Jun 2022 18:54:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE02BC385A2;
-        Tue,  7 Jun 2022 18:54:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F046E61499;
+        Tue,  7 Jun 2022 17:40:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A06C385A5;
+        Tue,  7 Jun 2022 17:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628042;
-        bh=p85B30dk9OhAgqXpoKQRxZZSIMPJk0LPPpMeE1vocXM=;
+        s=korg; t=1654623640;
+        bh=ur/6LP5MdmxKuqnuTWkZfJmKUn3UuwJwFhQ5S813QyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJjwRd+RA5fp1FTIDVRUgx6BXNzs3q+vcU2J0K14KGncUXVADh2jAzsoUGipk+WSY
-         1/3CTCN8qs3COmMoRcFOu9Hxg6wq0HpfVHAPKYF+WK4rvEorOPRkvkjEXwt/uW/luw
-         PX44y6l0G2N+iPf16pj+QZxpGcvm2ERLp0foqqM4=
+        b=pvHxMMl1s3AI0bwwbuWZAq66W7YalJSFyi7doYJb84ig5Noy51/NqpWz2+onOmxr9
+         H7dlaKmzGW9WycLpeMdlKQnUYIv8onQuFOLTlEjp53SLuW85T9xlnOxLPfDFFojCV8
+         auQZbukaZEp4aX9JwfnMuzLQq5UnYFSFCXeEsv5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kwanghoon Son <k.son@samsung.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 184/879] media: exynos4-is: Fix compile warning
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.15 037/667] ptrace/xtensa: Replace PT_SINGLESTEP with TIF_SINGLESTEP
 Date:   Tue,  7 Jun 2022 18:55:02 +0200
-Message-Id: <20220607165008.184390262@linuxfoundation.org>
+Message-Id: <20220607164935.910211288@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kwanghoon Son <k.son@samsung.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit e080f5c1f2b6d02c02ee5d674e0e392ccf63bbaf ]
+commit 4a3d2717d140401df7501a95e454180831a0c5af upstream.
 
-Declare static on function 'fimc_isp_video_device_unregister'.
+xtensa is the last user of the PT_SINGLESTEP flag.  Changing tsk->ptrace in
+user_enable_single_step and user_disable_single_step without locking could
+potentiallly cause problems.
 
-When VIDEO_EXYNOS4_ISP_DMA_CAPTURE=n, compiler warns about
-warning: no previous prototype for function [-Wmissing-prototypes]
+So use a thread info flag instead of a flag in tsk->ptrace.  Use TIF_SINGLESTEP
+that xtensa already had defined but unused.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Kwanghoon Son <k.son@samsung.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove the definitions of PT_SINGLESTEP and PT_BLOCKSTEP as they have no more users.
+
+Cc: stable@vger.kernel.org
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Link: https://lkml.kernel.org/r/20220505182645.497868-4-ebiederm@xmission.com
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/kernel/ptrace.c |    4 ++--
+ arch/xtensa/kernel/signal.c |    4 ++--
+ include/linux/ptrace.h      |    6 ------
+ 3 files changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h b/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h
-index edcb3a5e3cb9..2dd4ddbc748a 100644
---- a/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h
-+++ b/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h
-@@ -32,7 +32,7 @@ static inline int fimc_isp_video_device_register(struct fimc_isp *isp,
- 	return 0;
+--- a/arch/xtensa/kernel/ptrace.c
++++ b/arch/xtensa/kernel/ptrace.c
+@@ -226,12 +226,12 @@ const struct user_regset_view *task_user
+ 
+ void user_enable_single_step(struct task_struct *child)
+ {
+-	child->ptrace |= PT_SINGLESTEP;
++	set_tsk_thread_flag(child, TIF_SINGLESTEP);
  }
  
--void fimc_isp_video_device_unregister(struct fimc_isp *isp,
-+static inline void fimc_isp_video_device_unregister(struct fimc_isp *isp,
- 				enum v4l2_buf_type type)
+ void user_disable_single_step(struct task_struct *child)
  {
+-	child->ptrace &= ~PT_SINGLESTEP;
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
  }
--- 
-2.35.1
-
+ 
+ /*
+--- a/arch/xtensa/kernel/signal.c
++++ b/arch/xtensa/kernel/signal.c
+@@ -465,7 +465,7 @@ static void do_signal(struct pt_regs *re
+ 		/* Set up the stack frame */
+ 		ret = setup_frame(&ksig, sigmask_to_save(), regs);
+ 		signal_setup_done(ret, &ksig, 0);
+-		if (current->ptrace & PT_SINGLESTEP)
++		if (test_thread_flag(TIF_SINGLESTEP))
+ 			task_pt_regs(current)->icountlevel = 1;
+ 
+ 		return;
+@@ -491,7 +491,7 @@ static void do_signal(struct pt_regs *re
+ 	/* If there's no signal to deliver, we just restore the saved mask.  */
+ 	restore_saved_sigmask();
+ 
+-	if (current->ptrace & PT_SINGLESTEP)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		task_pt_regs(current)->icountlevel = 1;
+ 	return;
+ }
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -46,12 +46,6 @@ extern int ptrace_access_vm(struct task_
+ #define PT_EXITKILL		(PTRACE_O_EXITKILL << PT_OPT_FLAG_SHIFT)
+ #define PT_SUSPEND_SECCOMP	(PTRACE_O_SUSPEND_SECCOMP << PT_OPT_FLAG_SHIFT)
+ 
+-/* single stepping state bits (used on ARM and PA-RISC) */
+-#define PT_SINGLESTEP_BIT	31
+-#define PT_SINGLESTEP		(1<<PT_SINGLESTEP_BIT)
+-#define PT_BLOCKSTEP_BIT	30
+-#define PT_BLOCKSTEP		(1<<PT_BLOCKSTEP_BIT)
+-
+ extern long arch_ptrace(struct task_struct *child, long request,
+ 			unsigned long addr, unsigned long data);
+ extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char __user *dst, int len);
 
 
