@@ -2,94 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E912A54148D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA6E540B82
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358852AbiFGUSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37196 "EHLO
+        id S1351367AbiFGS3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376274AbiFGUQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB8E1CC617;
-        Tue,  7 Jun 2022 11:28:50 -0700 (PDT)
+        with ESMTP id S1351682AbiFGSYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:24:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C8E7EBA94;
+        Tue,  7 Jun 2022 10:54:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F19F60DDA;
-        Tue,  7 Jun 2022 18:28:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFCFC385A2;
-        Tue,  7 Jun 2022 18:28:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9695D61782;
+        Tue,  7 Jun 2022 17:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D65DC3411C;
+        Tue,  7 Jun 2022 17:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626529;
-        bh=amM3zB8TSbCpz0UXWMHRJWN0tWfs7pexmWYwTkWIwvM=;
+        s=korg; t=1654624471;
+        bh=z9mF0vJTOcJM8P1H/x/lKWNpzNoK2T2OoNZu9lJkCpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2k8+pnjcFue56BE5DQVHLLYA4E+xjlaOL2nSbh1TBV3z6Uq2yQv+4N85H5ycpngR
-         D0wWuBHe69pFROk26v75z6eHucW51PLPHEo4uGhy9a2f3VkWav7AtmdN8t5PCEY8SN
-         4YbwiDrC8vupyFgOFluAaOzs7CY0cjonKId2ZSVw=
+        b=obKFz0lOQcm/Vl3kTnZ0rVIkb1Fz4XkR6pGFrfNNwtrRDuSgiuwALUxsaszqHVo03
+         Qdo26+9AgQOZ3thebxZYCx0q/qV/eBuz2gJqVTxubexzffFiyS55Hu24xi4awE/WKD
+         lwzk1YoJqr1np6W3wpdu2o6GWZ/CuNZ/qqdn5jjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 411/772] drm/msm/a6xx: Fix refcount leak in a6xx_gpu_init
+Subject: [PATCH 5.15 338/667] media: ov7670: remove ov7670_power_off from ov7670_remove
 Date:   Tue,  7 Jun 2022 19:00:03 +0200
-Message-Id: <20220607165001.118289994@linuxfoundation.org>
+Message-Id: <20220607164944.902771201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit c56de483093d7ad0782327f95dda7da97bc4c315 ]
+[ Upstream commit 5bf19572e31375368f19edd2dbb2e0789518bb99 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
+In ov7670_probe, it always invokes ov7670_power_off() no matter
+the execution is successful or failed. So we cannot invoke it
+agiain in ov7670_remove().
 
-a6xx_gmu_init() passes the node to of_find_device_by_node()
-and of_dma_configure(), of_find_device_by_node() will takes its
-reference, of_dma_configure() doesn't need the node after usage.
+Fix this by removing ov7670_power_off from ov7670_remove.
 
-Add missing of_node_put() to avoid refcount leak.
-
-Fixes: 4b565ca5a2cb ("drm/msm: Add A6XX device support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Link: https://lore.kernel.org/r/20220512121955.56937-1-linmq006@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 030f9f682e66 ("media: ov7670: control clock along with power")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/i2c/ov7670.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 19622fb1fa35..147e716108ba 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1875,6 +1875,7 @@ struct msm_gpu *a6xx_gpu_init(struct drm_device *dev)
- 	BUG_ON(!node);
+diff --git a/drivers/media/i2c/ov7670.c b/drivers/media/i2c/ov7670.c
+index 196746423116..1be2c0e5bdc1 100644
+--- a/drivers/media/i2c/ov7670.c
++++ b/drivers/media/i2c/ov7670.c
+@@ -2017,7 +2017,6 @@ static int ov7670_remove(struct i2c_client *client)
+ 	v4l2_async_unregister_subdev(sd);
+ 	v4l2_ctrl_handler_free(&info->hdl);
+ 	media_entity_cleanup(&info->sd.entity);
+-	ov7670_power_off(sd);
+ 	return 0;
+ }
  
- 	ret = a6xx_gmu_init(a6xx_gpu, node);
-+	of_node_put(node);
- 	if (ret) {
- 		a6xx_destroy(&(a6xx_gpu->base.base));
- 		return ERR_PTR(ret);
 -- 
 2.35.1
 
