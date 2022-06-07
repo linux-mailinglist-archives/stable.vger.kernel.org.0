@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FE8541BD9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9D05414E1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377656AbiFGVy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:54:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
+        id S1358905AbiFGUXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383249AbiFGVw6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:58 -0400
+        with ESMTP id S1359269AbiFGUWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CA12431B6;
-        Tue,  7 Jun 2022 12:10:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FC117CCA5;
+        Tue,  7 Jun 2022 11:31:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCCD361846;
-        Tue,  7 Jun 2022 19:10:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E85FBC385A2;
-        Tue,  7 Jun 2022 19:10:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 774BD61553;
+        Tue,  7 Jun 2022 18:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 858BAC341CA;
+        Tue,  7 Jun 2022 18:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629050;
-        bh=e7z7YYVlH1TL5GP3G+nujeATCGzehNUWZSCRno86fts=;
+        s=korg; t=1654626712;
+        bh=THnhl6EqQFhS3geuRLyG54hpkwuwb34QL3RX6SGZLlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLv9Sbuga5pyhfpXNTaHfGWtQqvTvQ35QI+55NbT9NIsbyj3tlGsmc4WNTfYvwg/B
-         0HcwMHJhTzQUx5xstON866oENR+zQhgWV0Wop54FsNPfdzjBsrwP/jlVTT8IY4RJs6
-         FmMcTiB3r4d74CGfsADZx7Iiy33xdfnyEkE+avu4=
+        b=XZcq+gm2NlmZ0Kmj4zThaUFpWA0NUWje8kWR1RMhYBhNyWQzQGEsHkmdOj2yQ72Fu
+         KHNzIlqhkzjR97Z+d+38XrBTHlONWRqvck+GYV2sNE7HrNGAf5tJrnnAuw3LWzTORj
+         hxkD702eLXyjhZUefeWWkveVTRPYY1bIYhf6Imy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 544/879] PCI: mediatek: Fix refcount leak in mtk_pcie_subsys_powerup()
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 470/772] ARM: dts: imx6dl-colibri: Fix I2C pinmuxing
 Date:   Tue,  7 Jun 2022 19:01:02 +0200
-Message-Id: <20220607165018.659861326@linuxfoundation.org>
+Message-Id: <20220607165002.847331484@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Max Krummenacher <max.krummenacher@toradex.com>
 
-[ Upstream commit 214e0d8fe4a813ae6ffd62bc2dfe7544c20914f4 ]
+[ Upstream commit 5f5c579a34a87117c20b411df583ae816c1ec84f ]
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+Fix names of extra pingroup node and property for gpio bus recovery.
+Without the change i2c2 is not functional.
 
-Link: https://lore.kernel.org/r/20220309091953.5630-1-linmq006@gmail.com
-Fixes: 87e8657ba99c ("PCI: mediatek: Add new method to get shared pcie-cfg base address")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Miles Chen <miles.chen@mediatek.com>
-Acked-by: Rob Herring <robh@kernel.org>
+Fixes: 56f0df6b6b58 ("ARM: dts: imx*(colibri|apalis): add missing recovery modes to i2c")
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mediatek.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/imx6qdl-colibri.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
-index ddfbd4aebdec..be8bd919cb88 100644
---- a/drivers/pci/controller/pcie-mediatek.c
-+++ b/drivers/pci/controller/pcie-mediatek.c
-@@ -1008,6 +1008,7 @@ static int mtk_pcie_subsys_powerup(struct mtk_pcie *pcie)
- 					   "mediatek,generic-pciecfg");
- 	if (cfg_node) {
- 		pcie->cfg = syscon_node_to_regmap(cfg_node);
-+		of_node_put(cfg_node);
- 		if (IS_ERR(pcie->cfg))
- 			return PTR_ERR(pcie->cfg);
- 	}
+diff --git a/arch/arm/boot/dts/imx6qdl-colibri.dtsi b/arch/arm/boot/dts/imx6qdl-colibri.dtsi
+index 4e2a309c93fa..1e86b3814708 100644
+--- a/arch/arm/boot/dts/imx6qdl-colibri.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-colibri.dtsi
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+ OR MIT
+ /*
+- * Copyright 2014-2020 Toradex
++ * Copyright 2014-2022 Toradex
+  * Copyright 2012 Freescale Semiconductor, Inc.
+  * Copyright 2011 Linaro Ltd.
+  */
+@@ -132,7 +132,7 @@
+ 	clock-frequency = <100000>;
+ 	pinctrl-names = "default", "gpio";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+-	pinctrl-0 = <&pinctrl_i2c2_gpio>;
++	pinctrl-1 = <&pinctrl_i2c2_gpio>;
+ 	scl-gpios = <&gpio2 30 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	sda-gpios = <&gpio3 16 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	status = "okay";
+@@ -488,7 +488,7 @@
+ 		>;
+ 	};
+ 
+-	pinctrl_i2c2_gpio: i2c2grp {
++	pinctrl_i2c2_gpio: i2c2gpiogrp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_EIM_EB2__GPIO2_IO30 0x4001b8b1
+ 			MX6QDL_PAD_EIM_D16__GPIO3_IO16 0x4001b8b1
 -- 
 2.35.1
 
