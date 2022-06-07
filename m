@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484A25419A9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 429325412E1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353531AbiFGVXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
+        id S1357099AbiFGTyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377404AbiFGVWc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:22:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB82F224D1C;
-        Tue,  7 Jun 2022 12:00:16 -0700 (PDT)
+        with ESMTP id S1358580AbiFGTwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFA05245A5;
+        Tue,  7 Jun 2022 11:21:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36A97612F2;
-        Tue,  7 Jun 2022 19:00:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D10DC385A2;
-        Tue,  7 Jun 2022 19:00:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 802F4B82239;
+        Tue,  7 Jun 2022 18:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE441C385A2;
+        Tue,  7 Jun 2022 18:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628415;
-        bh=BHm42J4EtXHmLewcSfTYir17/pQm9FwwdRgBDhV7gME=;
+        s=korg; t=1654626071;
+        bh=mns8rmwQw/CMrB31Feqgsy5ilPI03o9mbO4LP2pdbVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zc3xGvfaNp138jS0Nm5yEWfNbHATesp8u1f6LzpPaPcdEiUQY4w9cBUuZWDlRqpkT
-         N9K+mAiGDEUsDECAGD2pHf7lI5ljgtLBzsAV6OELvxdmYSy4OwypsT33abHfjYLlN0
-         TdEctNqTyP8A5BkWD8E3A300C/NwlOYQEAUXFnho=
+        b=YuPMivDV0xMpySL+9brk1us17FJvntKvxSL5ebh7VK3DdfVKIy0sKId5TvYCyWOl6
+         tSc3G1Hn5x+ATWpVayLuG8+O/VyuPZpoZWHa+nxvSc0g1wxaVOqDoBdc2TW7SrIKuw
+         WbFVqi6tLOMf3kFBjZEQCu+lnqCoMh6K/cTouf9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 320/879] drbd: fix duplicate array initializer
+Subject: [PATCH 5.17 246/772] drm/vc4: hvs: Fix frame count register readout
 Date:   Tue,  7 Jun 2022 18:57:18 +0200
-Message-Id: <20220607165012.141756926@linuxfoundation.org>
+Message-Id: <20220607164956.276023818@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 33cb0917bbe241dd17a2b87ead63514c1b7e5615 ]
+[ Upstream commit b51cd7ad143d2eb31a6df81c2183128920e47c2b ]
 
-There are two initializers for P_RETRY_WRITE:
+In order to get the field currently being output, the driver has been
+using the display FIFO frame count in the HVS, reading a 6-bit field at
+the offset 12 in the DISPSTATx register.
 
-drivers/block/drbd/drbd_main.c:3676:22: warning: initialized field overwritten [-Woverride-init]
+While that field is indeed at that location for the FIFO 1 and 2, the
+one for the FIFO0 is actually in the DISPSTAT1 register, at the offset
+18.
 
-Remove the first one since it was already ignored by the compiler
-and reorder the list to match the enum definition. As P_ZEROES had
-no entry, add that one instead.
-
-Fixes: 036b17eaab93 ("drbd: Receiving part for the PROTOCOL_UPDATE packet")
-Fixes: f31e583aa2c2 ("drbd: introduce P_ZEROES (REQ_OP_WRITE_ZEROES on the "wire")")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Link: https://lore.kernel.org/r/20220406190715.1938174-2-christoph.boehmwalder@linbit.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e538092cb15c ("drm/vc4: Enable precise vblank timestamping for interlaced modes.")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20220331143744.777652-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c |  2 +-
+ drivers/gpu/drm/vc4/vc4_drv.h  |  1 +
+ drivers/gpu/drm/vc4/vc4_hvs.c  | 23 +++++++++++++++++++++++
+ drivers/gpu/drm/vc4/vc4_regs.h | 12 ++++++++++--
+ 4 files changed, 35 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 7b501c8d5992..57b23e49ee91 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -3581,9 +3581,8 @@ const char *cmdname(enum drbd_packet cmd)
- 	 * when we want to support more than
- 	 * one PRO_VERSION */
- 	static const char *cmdnames[] = {
-+
- 		[P_DATA]	        = "Data",
--		[P_WSAME]	        = "WriteSame",
--		[P_TRIM]	        = "Trim",
- 		[P_DATA_REPLY]	        = "DataReply",
- 		[P_RS_DATA_REPLY]	= "RSDataReply",
- 		[P_BARRIER]	        = "Barrier",
-@@ -3594,7 +3593,6 @@ const char *cmdname(enum drbd_packet cmd)
- 		[P_DATA_REQUEST]	= "DataRequest",
- 		[P_RS_DATA_REQUEST]     = "RSDataRequest",
- 		[P_SYNC_PARAM]	        = "SyncParam",
--		[P_SYNC_PARAM89]	= "SyncParam89",
- 		[P_PROTOCOL]            = "ReportProtocol",
- 		[P_UUIDS]	        = "ReportUUIDs",
- 		[P_SIZES]	        = "ReportSizes",
-@@ -3602,6 +3600,7 @@ const char *cmdname(enum drbd_packet cmd)
- 		[P_SYNC_UUID]           = "ReportSyncUUID",
- 		[P_AUTH_CHALLENGE]      = "AuthChallenge",
- 		[P_AUTH_RESPONSE]	= "AuthResponse",
-+		[P_STATE_CHG_REQ]       = "StateChgRequest",
- 		[P_PING]		= "Ping",
- 		[P_PING_ACK]	        = "PingAck",
- 		[P_RECV_ACK]	        = "RecvAck",
-@@ -3612,23 +3611,25 @@ const char *cmdname(enum drbd_packet cmd)
- 		[P_NEG_DREPLY]	        = "NegDReply",
- 		[P_NEG_RS_DREPLY]	= "NegRSDReply",
- 		[P_BARRIER_ACK]	        = "BarrierAck",
--		[P_STATE_CHG_REQ]       = "StateChgRequest",
- 		[P_STATE_CHG_REPLY]     = "StateChgReply",
- 		[P_OV_REQUEST]          = "OVRequest",
- 		[P_OV_REPLY]            = "OVReply",
- 		[P_OV_RESULT]           = "OVResult",
- 		[P_CSUM_RS_REQUEST]     = "CsumRSRequest",
- 		[P_RS_IS_IN_SYNC]	= "CsumRSIsInSync",
-+		[P_SYNC_PARAM89]	= "SyncParam89",
- 		[P_COMPRESSED_BITMAP]   = "CBitmap",
- 		[P_DELAY_PROBE]         = "DelayProbe",
- 		[P_OUT_OF_SYNC]		= "OutOfSync",
--		[P_RETRY_WRITE]		= "RetryWrite",
- 		[P_RS_CANCEL]		= "RSCancel",
- 		[P_CONN_ST_CHG_REQ]	= "conn_st_chg_req",
- 		[P_CONN_ST_CHG_REPLY]	= "conn_st_chg_reply",
- 		[P_PROTOCOL_UPDATE]	= "protocol_update",
-+		[P_TRIM]	        = "Trim",
- 		[P_RS_THIN_REQ]         = "rs_thin_req",
- 		[P_RS_DEALLOCATED]      = "rs_deallocated",
-+		[P_WSAME]	        = "WriteSame",
-+		[P_ZEROES]		= "Zeroes",
+diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
+index 783890e8d43a..477b3c5ad089 100644
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -123,7 +123,7 @@ static bool vc4_crtc_get_scanout_position(struct drm_crtc *crtc,
+ 		*vpos /= 2;
  
- 		/* enum drbd_packet, but not commands - obsoleted flags:
- 		 *	P_MAY_IGNORE
+ 		/* Use hpos to correct for field offset in interlaced mode. */
+-		if (VC4_GET_FIELD(val, SCALER_DISPSTATX_FRAME_COUNT) % 2)
++		if (vc4_hvs_get_fifo_frame_count(dev, vc4_crtc_state->assigned_channel) % 2)
+ 			*hpos += mode->crtc_htotal / 2;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
+index 4329e09d357c..801da3e8ebdb 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.h
++++ b/drivers/gpu/drm/vc4/vc4_drv.h
+@@ -935,6 +935,7 @@ void vc4_irq_reset(struct drm_device *dev);
+ extern struct platform_driver vc4_hvs_driver;
+ void vc4_hvs_stop_channel(struct drm_device *dev, unsigned int output);
+ int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output);
++u8 vc4_hvs_get_fifo_frame_count(struct drm_device *dev, unsigned int fifo);
+ int vc4_hvs_atomic_check(struct drm_crtc *crtc, struct drm_atomic_state *state);
+ void vc4_hvs_atomic_begin(struct drm_crtc *crtc, struct drm_atomic_state *state);
+ void vc4_hvs_atomic_enable(struct drm_crtc *crtc, struct drm_atomic_state *state);
+diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
+index 604933e20e6a..c8cae10500b9 100644
+--- a/drivers/gpu/drm/vc4/vc4_hvs.c
++++ b/drivers/gpu/drm/vc4/vc4_hvs.c
+@@ -197,6 +197,29 @@ static void vc4_hvs_update_gamma_lut(struct drm_crtc *crtc)
+ 	vc4_hvs_lut_load(crtc);
+ }
+ 
++u8 vc4_hvs_get_fifo_frame_count(struct drm_device *dev, unsigned int fifo)
++{
++	struct vc4_dev *vc4 = to_vc4_dev(dev);
++	u8 field = 0;
++
++	switch (fifo) {
++	case 0:
++		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT1),
++				      SCALER_DISPSTAT1_FRCNT0);
++		break;
++	case 1:
++		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT1),
++				      SCALER_DISPSTAT1_FRCNT1);
++		break;
++	case 2:
++		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT2),
++				      SCALER_DISPSTAT2_FRCNT2);
++		break;
++	}
++
++	return field;
++}
++
+ int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output)
+ {
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+diff --git a/drivers/gpu/drm/vc4/vc4_regs.h b/drivers/gpu/drm/vc4/vc4_regs.h
+index 7538b84a6dca..e3761ffbac7b 100644
+--- a/drivers/gpu/drm/vc4/vc4_regs.h
++++ b/drivers/gpu/drm/vc4/vc4_regs.h
+@@ -379,8 +379,6 @@
+ # define SCALER_DISPSTATX_MODE_EOF		3
+ # define SCALER_DISPSTATX_FULL			BIT(29)
+ # define SCALER_DISPSTATX_EMPTY			BIT(28)
+-# define SCALER_DISPSTATX_FRAME_COUNT_MASK	VC4_MASK(17, 12)
+-# define SCALER_DISPSTATX_FRAME_COUNT_SHIFT	12
+ # define SCALER_DISPSTATX_LINE_MASK		VC4_MASK(11, 0)
+ # define SCALER_DISPSTATX_LINE_SHIFT		0
+ 
+@@ -403,9 +401,15 @@
+ 						 (x) * (SCALER_DISPBKGND1 - \
+ 							SCALER_DISPBKGND0))
+ #define SCALER_DISPSTAT1                        0x00000058
++# define SCALER_DISPSTAT1_FRCNT0_MASK		VC4_MASK(23, 18)
++# define SCALER_DISPSTAT1_FRCNT0_SHIFT		18
++# define SCALER_DISPSTAT1_FRCNT1_MASK		VC4_MASK(17, 12)
++# define SCALER_DISPSTAT1_FRCNT1_SHIFT		12
++
+ #define SCALER_DISPSTATX(x)			(SCALER_DISPSTAT0 +        \
+ 						 (x) * (SCALER_DISPSTAT1 - \
+ 							SCALER_DISPSTAT0))
++
+ #define SCALER_DISPBASE1                        0x0000005c
+ #define SCALER_DISPBASEX(x)			(SCALER_DISPBASE0 +        \
+ 						 (x) * (SCALER_DISPBASE1 - \
+@@ -415,7 +419,11 @@
+ 						 (x) * (SCALER_DISPCTRL1 - \
+ 							SCALER_DISPCTRL0))
+ #define SCALER_DISPBKGND2                       0x00000064
++
+ #define SCALER_DISPSTAT2                        0x00000068
++# define SCALER_DISPSTAT2_FRCNT2_MASK		VC4_MASK(17, 12)
++# define SCALER_DISPSTAT2_FRCNT2_SHIFT		12
++
+ #define SCALER_DISPBASE2                        0x0000006c
+ #define SCALER_DISPALPHA2                       0x00000070
+ #define SCALER_GAMADDR                          0x00000078
 -- 
 2.35.1
 
