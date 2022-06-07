@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A83B541AD4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BB9540A9D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380893AbiFGVix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:38:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35124 "EHLO
+        id S1351416AbiFGSXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380124AbiFGViN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:38:13 -0400
+        with ESMTP id S1352412AbiFGSRI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E6223144F;
-        Tue,  7 Jun 2022 12:05:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD54123BFB;
+        Tue,  7 Jun 2022 10:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26118B8220B;
-        Tue,  7 Jun 2022 19:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F138C385A2;
-        Tue,  7 Jun 2022 19:05:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7859BB8233E;
+        Tue,  7 Jun 2022 17:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7433C385A5;
+        Tue,  7 Jun 2022 17:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628711;
-        bh=enkXLlOMaVEcu6u+aCpOHVMFbZ5zMyBAllMcpO7dxzg=;
+        s=korg; t=1654624313;
+        bh=bdTf4FTALcawS8wv1YqA5rcTqD7jngUd2l9/EAtZxqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0r0vgYiYlZhsvc9jJ6R+Iyn+X1YR9fRk49A4u4/ZxKbRge/MK2ikCyHoXnnH4tZq
-         y7lcs15PG/yITIm1tBjEcQMKS1Q/eypvcm9wWvx5ST2cWFpFG2cgaJYTfVwsttOB30
-         EApQXeArKW47d7A5sj0gcyeNlRLdpkkn5ucqzJ84=
+        b=BqKxSavaaQIzx3LPWgPQZO6HU60sJXPBUpm620ndKQJZxgtYBUIGsSQKAsVS4jAsx
+         1+ihRp7sS4k5BK2yBUmpVMQr9xW2n4Wxb9v9GKD/XI9SFAAj99bPfv7Zp3eCnGRRZ3
+         0SPeO7DN0naUHQmbXAUnTgWiKlo0zHNCzOJ0CTog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 429/879] mt76: mt7915: fix DBDC default band selection on MT7915D
+        stable@vger.kernel.org,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 282/667] irqchip/exiu: Fix acknowledgment of edge triggered interrupts
 Date:   Tue,  7 Jun 2022 18:59:07 +0200
-Message-Id: <20220607165015.320549965@linuxfoundation.org>
+Message-Id: <20220607164943.241495557@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit 96c777708bcac53f73a1c079e416495647f69553 ]
+[ Upstream commit 4efc851c36e389f7ed432edac0149acc5f94b0c7 ]
 
-This code was accidentally dropped while adding 6 GHz support
+Currently the EXIU uses the fasteoi interrupt flow that is configured by
+it's parent (irq-gic-v3.c). With this flow the only chance to clear the
+interrupt request happens during .irq_eoi() and (obviously) this happens
+after the interrupt handler has run. EXIU requires edge triggered
+interrupts to be acked prior to interrupt handling. Without this we
+risk incorrect interrupt dismissal when a new interrupt is delivered
+after the handler reads and acknowledges the peripheral but before the
+irq_eoi() takes place.
 
-Fixes: b4d093e321bd ("mt76: mt7915: add 6 GHz support")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fix this by clearing the interrupt request from .irq_ack() if we are
+configured for edge triggered interrupts. This requires adopting the
+fasteoi-ack flow instead of the fasteoi to ensure the ack gets called.
+
+These changes have been tested using the power button on a
+Developerbox/SC2A11 combined with some hackery in gpio-keys so I can
+play with the different trigger mode [and an mdelay(500) so I can
+can check what happens on a double click in both modes].
+
+Fixes: 706cffc1b912 ("irqchip/exiu: Add support for Socionext Synquacer EXIU controller")
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220503134541.2566457-1-daniel.thompson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/Kconfig.platforms   |  1 +
+ drivers/irqchip/irq-sni-exiu.c | 25 ++++++++++++++++++++++---
+ 2 files changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-index 5b133bcdab17..4b1a9811646f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.c
-@@ -152,6 +152,8 @@ static void mt7915_eeprom_parse_band_config(struct mt7915_phy *phy)
- 			phy->mt76->cap.has_2ghz = true;
- 			return;
- 		}
-+	} else if (val == MT_EE_BAND_SEL_DEFAULT && dev->dbdc_support) {
-+		val = phy->band_idx ? MT_EE_BAND_SEL_5GHZ : MT_EE_BAND_SEL_2GHZ;
- 	}
+diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
+index b0ce18d4cc98..d7772a4c34fe 100644
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -259,6 +259,7 @@ config ARCH_INTEL_SOCFPGA
  
- 	switch (val) {
+ config ARCH_SYNQUACER
+ 	bool "Socionext SynQuacer SoC Family"
++	select IRQ_FASTEOI_HIERARCHY_HANDLERS
+ 
+ config ARCH_TEGRA
+ 	bool "NVIDIA Tegra SoC Family"
+diff --git a/drivers/irqchip/irq-sni-exiu.c b/drivers/irqchip/irq-sni-exiu.c
+index abd011fcecf4..c7db617e1a2f 100644
+--- a/drivers/irqchip/irq-sni-exiu.c
++++ b/drivers/irqchip/irq-sni-exiu.c
+@@ -37,11 +37,26 @@ struct exiu_irq_data {
+ 	u32		spi_base;
+ };
+ 
+-static void exiu_irq_eoi(struct irq_data *d)
++static void exiu_irq_ack(struct irq_data *d)
+ {
+ 	struct exiu_irq_data *data = irq_data_get_irq_chip_data(d);
+ 
+ 	writel(BIT(d->hwirq), data->base + EIREQCLR);
++}
++
++static void exiu_irq_eoi(struct irq_data *d)
++{
++	struct exiu_irq_data *data = irq_data_get_irq_chip_data(d);
++
++	/*
++	 * Level triggered interrupts are latched and must be cleared during
++	 * EOI or the interrupt will be jammed on. Of course if a level
++	 * triggered interrupt is still asserted then the write will not clear
++	 * the interrupt.
++	 */
++	if (irqd_is_level_type(d))
++		writel(BIT(d->hwirq), data->base + EIREQCLR);
++
+ 	irq_chip_eoi_parent(d);
+ }
+ 
+@@ -91,10 +106,13 @@ static int exiu_irq_set_type(struct irq_data *d, unsigned int type)
+ 	writel_relaxed(val, data->base + EILVL);
+ 
+ 	val = readl_relaxed(data->base + EIEDG);
+-	if (type == IRQ_TYPE_LEVEL_LOW || type == IRQ_TYPE_LEVEL_HIGH)
++	if (type == IRQ_TYPE_LEVEL_LOW || type == IRQ_TYPE_LEVEL_HIGH) {
+ 		val &= ~BIT(d->hwirq);
+-	else
++		irq_set_handler_locked(d, handle_fasteoi_irq);
++	} else {
+ 		val |= BIT(d->hwirq);
++		irq_set_handler_locked(d, handle_fasteoi_ack_irq);
++	}
+ 	writel_relaxed(val, data->base + EIEDG);
+ 
+ 	writel_relaxed(BIT(d->hwirq), data->base + EIREQCLR);
+@@ -104,6 +122,7 @@ static int exiu_irq_set_type(struct irq_data *d, unsigned int type)
+ 
+ static struct irq_chip exiu_irq_chip = {
+ 	.name			= "EXIU",
++	.irq_ack		= exiu_irq_ack,
+ 	.irq_eoi		= exiu_irq_eoi,
+ 	.irq_enable		= exiu_irq_enable,
+ 	.irq_mask		= exiu_irq_mask,
 -- 
 2.35.1
 
