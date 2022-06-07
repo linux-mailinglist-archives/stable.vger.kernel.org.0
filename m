@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D375416C1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D45541DE4
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377671AbiFGUyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:54:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51912 "EHLO
+        id S1381691AbiFGWWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:22:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378691AbiFGUwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:23 -0400
+        with ESMTP id S1381813AbiFGWVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F79E2B6;
-        Tue,  7 Jun 2022 11:42:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39AA526A90C;
+        Tue,  7 Jun 2022 12:22:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A395061295;
-        Tue,  7 Jun 2022 18:42:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4219C385A2;
-        Tue,  7 Jun 2022 18:42:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED83609D0;
+        Tue,  7 Jun 2022 19:21:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA755C385A2;
+        Tue,  7 Jun 2022 19:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627370;
-        bh=WXRcVCPP2UKRCYY2jK+D9kxdNOkgPnIo2N2sDgEC/Ls=;
+        s=korg; t=1654629711;
+        bh=JResAk/B+hthY8xeZahQu9QuVQDbRBIYLvFy6476UII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEjAZvOHa+snbgeFB7EqtWmXOnNeZGqQyTl/Up6A4MTjHaaPutG+XMTXPJuuRDZ6d
-         gNULFcyBaZFL1KqcQTHbgdC265NIhn0ERl4qH6fA5jC/qphrLe005NLhpxCqgcSfyX
-         S3VGKnhE3/rjsEAnA69JrqyZmF4pZKOL8lfYxtwc=
+        b=F5jxDbSK9KcMjB2kTdT5ByCgM7vBGSKauRJu90rTZ55c0ks9z1CzCiDm90euJGhIv
+         VcTMf/OS+jLM8OQIf40Hh1pWXM5tpYHvV8d9Wkqcl8c95V6QMXjjy3nDbfjr6e0MBO
+         jy64hhea+FQZejsMCebA4sVmeVMPHWwYfcVPTmNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.17 715/772] um: Use asm-generic/dma-mapping.h
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.18 789/879] landlock: Create find_rule() from unmask_layers()
 Date:   Tue,  7 Jun 2022 19:05:07 +0200
-Message-Id: <20220607165010.113455787@linuxfoundation.org>
+Message-Id: <20220607165025.766953867@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 365719035526e8eda214a1cedb2e1c96e969a0d7 upstream.
+commit 2cd7cd6eed88b8383cfddce589afe9c0ae1d19b4 upstream.
 
-If DMA (PCI over virtio) is enabled, then some drivers may
-enable CONFIG_DMA_OPS as well, and then we pull in the x86
-definition of get_arch_dma_ops(), which uses the dma_ops
-symbol, which isn't defined.
+This refactoring will be useful in a following commit.
 
-Since we don't have real DMA ops nor any kind of IOMMU fix
-this in the simplest possible way: pull in the asm-generic
-file instead of inheriting the x86 one. It's not clear why
-those drivers that do (e.g. VDPA) "select DMA_OPS", and if
-they'd even work with this, but chances are nobody will be
-wanting to do that anyway, so fixing the build failure is
-good enough.
-
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/20220506161102.525323-4-mic@digikod.net
 Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/include/asm/Kbuild |    1 +
- 1 file changed, 1 insertion(+)
+ security/landlock/fs.c |   41 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 13 deletions(-)
 
---- a/arch/um/include/asm/Kbuild
-+++ b/arch/um/include/asm/Kbuild
-@@ -4,6 +4,7 @@ generic-y += bug.h
- generic-y += compat.h
- generic-y += current.h
- generic-y += device.h
-+generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
- generic-y += extable.h
+--- a/security/landlock/fs.c
++++ b/security/landlock/fs.c
+@@ -183,23 +183,36 @@ int landlock_append_fs_rule(struct landl
+ 
+ /* Access-control management */
+ 
+-static inline layer_mask_t
+-unmask_layers(const struct landlock_ruleset *const domain,
+-	      const struct path *const path, const access_mask_t access_request,
+-	      layer_mask_t layer_mask)
++/*
++ * The lifetime of the returned rule is tied to @domain.
++ *
++ * Returns NULL if no rule is found or if @dentry is negative.
++ */
++static inline const struct landlock_rule *
++find_rule(const struct landlock_ruleset *const domain,
++	  const struct dentry *const dentry)
+ {
+ 	const struct landlock_rule *rule;
+ 	const struct inode *inode;
+-	size_t i;
+ 
+-	if (d_is_negative(path->dentry))
+-		/* Ignore nonexistent leafs. */
+-		return layer_mask;
+-	inode = d_backing_inode(path->dentry);
++	/* Ignores nonexistent leafs. */
++	if (d_is_negative(dentry))
++		return NULL;
++
++	inode = d_backing_inode(dentry);
+ 	rcu_read_lock();
+ 	rule = landlock_find_rule(
+ 		domain, rcu_dereference(landlock_inode(inode)->object));
+ 	rcu_read_unlock();
++	return rule;
++}
++
++static inline layer_mask_t unmask_layers(const struct landlock_rule *const rule,
++					 const access_mask_t access_request,
++					 layer_mask_t layer_mask)
++{
++	size_t layer_level;
++
+ 	if (!rule)
+ 		return layer_mask;
+ 
+@@ -210,8 +223,9 @@ unmask_layers(const struct landlock_rule
+ 	 * the remaining layers for each inode, from the first added layer to
+ 	 * the last one.
+ 	 */
+-	for (i = 0; i < rule->num_layers; i++) {
+-		const struct landlock_layer *const layer = &rule->layers[i];
++	for (layer_level = 0; layer_level < rule->num_layers; layer_level++) {
++		const struct landlock_layer *const layer =
++			&rule->layers[layer_level];
+ 		const layer_mask_t layer_bit = BIT_ULL(layer->level - 1);
+ 
+ 		/* Checks that the layer grants access to the full request. */
+@@ -269,8 +283,9 @@ static int check_access_path(const struc
+ 	while (true) {
+ 		struct dentry *parent_dentry;
+ 
+-		layer_mask = unmask_layers(domain, &walker_path, access_request,
+-					   layer_mask);
++		layer_mask =
++			unmask_layers(find_rule(domain, walker_path.dentry),
++				      access_request, layer_mask);
+ 		if (layer_mask == 0) {
+ 			/* Stops when a rule from each layer grants access. */
+ 			allowed = true;
 
 
