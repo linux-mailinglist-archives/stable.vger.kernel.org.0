@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A61895407C3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1251F540FAE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350215AbiFGRwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40372 "EHLO
+        id S1351278AbiFGTLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:11:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348413AbiFGRst (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:48:49 -0400
+        with ESMTP id S1354827AbiFGTJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:09:55 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCB31157F7;
-        Tue,  7 Jun 2022 10:37:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3944B1C8;
+        Tue,  7 Jun 2022 11:06:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BD54BCE23E2;
-        Tue,  7 Jun 2022 17:36:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B80AEC36B04;
-        Tue,  7 Jun 2022 17:36:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BEC23CE240C;
+        Tue,  7 Jun 2022 18:06:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94DAC34115;
+        Tue,  7 Jun 2022 18:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623415;
-        bh=fpAJU8/iPB4K4ACuHGmuYZDZKbmw+g26GaUydW1SeHg=;
+        s=korg; t=1654625200;
+        bh=1xc5jQNM+I3y7deb0EDoqbJ/IAyCQaB0nMgiegaJRZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qri32ebX99dhSnKc46sdHmIy5vNjzL31loRk6nKYr1eUQaW9c/YbZypzP5SAoqINd
-         r2d+wDjIlz9T1Zq7z7TNxwajlj6srN8LV9NeFnPeoUPO/gLtKgVdZuu3WVl++fRJTA
-         UKbgEhSdol/6v7bb3RWBfBwOq/QkGE43Wb/b90og=
+        b=s0MZtDjzgagAoj7EOLyDUnlACux4L9q/D0unD202jjrkoL0iBXD8zyXYkHRHRNad7
+         mTWwbpLpLJJm0vmaKDOaQNCZaChm/I3ER6J4W59SGcOtMByqrBNSo53bY6/XtpCc/w
+         Jjr2YzdtxbLm4DcJhUIhVfVcwE68iLWhVlsKGsbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>
-Subject: [PATCH 5.10 408/452] carl9170: tx: fix an incorrect use of list iterator
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Fabio Estevam <festevam@denx.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 600/667] media: coda: Add more H264 levels for CODA960
 Date:   Tue,  7 Jun 2022 19:04:25 +0200
-Message-Id: <20220607164920.717099002@linuxfoundation.org>
+Message-Id: <20220607164952.675759242@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-commit 54a6f29522da3c914da30e50721dedf51046449a upstream.
+commit eb2fd187abc878a2dfad46902becb74963473c7d upstream.
 
-If the previous list_for_each_entry_continue_rcu() don't exit early
-(no goto hit inside the loop), the iterator 'cvif' after the loop
-will be a bogus pointer to an invalid structure object containing
-the HEAD (&ar->vif_list). As a result, the use of 'cvif' after that
-will lead to a invalid memory access (i.e., 'cvif->id': the invalid
-pointer dereference when return back to/after the callsite in the
-carl9170_update_beacon()).
+Add H264 level 1.0, 4.1, 4.2 to the list of supported formats.
+While the hardware does not fully support these levels, it does support
+most of them. The constraints on frame size and pixel formats already
+cover the limitation.
 
-The original intention should have been to return the valid 'cvif'
-when found in list, NULL otherwise. So just return NULL when no
-entry found, to fix this bug.
+This fixes negotiation of level on GStreamer 1.17.1.
 
 Cc: stable@vger.kernel.org
-Fixes: 1f1d9654e183c ("carl9170: refactor carl9170_update_beacon")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220328122820.1004-1-xiam0nd.tong@gmail.com
+Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
+Suggested-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/carl9170/tx.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/coda/coda-common.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/tx.c
-+++ b/drivers/net/wireless/ath/carl9170/tx.c
-@@ -1557,6 +1557,9 @@ static struct carl9170_vif_info *carl917
- 					goto out;
- 			}
- 		} while (ar->beacon_enabled && i--);
-+
-+		/* no entry found in list */
-+		return NULL;
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -2361,12 +2361,15 @@ static void coda_encode_ctrls(struct cod
+ 	if (ctx->dev->devtype->product == CODA_960) {
+ 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+ 			V4L2_CID_MPEG_VIDEO_H264_LEVEL,
+-			V4L2_MPEG_VIDEO_H264_LEVEL_4_0,
+-			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
++			V4L2_MPEG_VIDEO_H264_LEVEL_4_2,
++			~((1 << V4L2_MPEG_VIDEO_H264_LEVEL_1_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_2_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_1) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_2) |
+-			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0)),
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_1) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_2)),
+ 			V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
  	}
- 
- out:
+ 	v4l2_ctrl_new_std(&ctx->ctrls, &coda_ctrl_ops,
 
 
