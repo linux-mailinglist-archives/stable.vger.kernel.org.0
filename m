@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9FC541234
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634E554087A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357189AbiFGToi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55144 "EHLO
+        id S242104AbiFGR7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357968AbiFGTmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CAB20F71;
-        Tue,  7 Jun 2022 11:17:35 -0700 (PDT)
+        with ESMTP id S1349168AbiFGR6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCCA766FBD;
+        Tue,  7 Jun 2022 10:41:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E1AB60C1C;
-        Tue,  7 Jun 2022 18:17:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D327C385A5;
-        Tue,  7 Jun 2022 18:17:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E50E5B81F38;
+        Tue,  7 Jun 2022 17:41:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560DEC385A5;
+        Tue,  7 Jun 2022 17:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625854;
-        bh=gKcwRvr/6BqBVIbomOy3/RTFlLhVqF37QDNwcoNSfjw=;
+        s=korg; t=1654623684;
+        bh=RsqfcE3Vlaza98kvhQkeITROjqKHS5OvbTROZhct/dA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uy/ULbXcj99m1lP3+iKyfyLbqSqJbJ4YNalvgNtCfGXAf0LoVgyIGYo+iChhNfakN
-         jDDZxRPnq4Waw2jhWofqWwB5TfbuItC/fZFG/I3LIF88ytGdCgIrteQfK4OjVieeoB
-         /pzGEwwx07fXeJ5TmMbfootH4wJUN03D3Vq8TeeM=
+        b=AZwYh/OiIwgLV77X3FB0FwV8PRxlsx3NtDj6M0VoBKBYuJP1MWSvSzl/beeRFgOoh
+         J7iO9Edw1fjjAwjKAWQ/eQ8BLfmCjgp+c6+Y2V+g1l87BNU7g1/vI4NmK+k78u10eL
+         YrLNL5RMwW2AaIsV6V4UQdjB6P1HVNfMP0gOhwkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Jia <jiahao.os@bytedance.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 128/772] sched/core: Avoid obvious double update_rq_clock warning
+Subject: [PATCH 5.15 055/667] ACPICA: Avoid cache flush inside virtual machines
 Date:   Tue,  7 Jun 2022 18:55:20 +0200
-Message-Id: <20220607164952.816957425@linuxfoundation.org>
+Message-Id: <20220607164936.463406492@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,257 +57,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Jia <jiahao.os@bytedance.com>
+From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-[ Upstream commit 2679a83731d51a744657f718fc02c3b077e47562 ]
+[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
 
-When we use raw_spin_rq_lock() to acquire the rq lock and have to
-update the rq clock while holding the lock, the kernel may issue
-a WARN_DOUBLE_CLOCK warning.
+While running inside virtual machine, the kernel can bypass cache
+flushing. Changing sleep state in a virtual machine doesn't affect the
+host system sleep state and cannot lead to data loss.
 
-Since we directly use raw_spin_rq_lock() to acquire rq lock instead of
-rq_lock(), there is no corresponding change to rq->clock_update_flags.
-In particular, we have obtained the rq lock of other CPUs, the
-rq->clock_update_flags of this CPU may be RQCF_UPDATED at this time, and
-then calling update_rq_clock() will trigger the WARN_DOUBLE_CLOCK warning.
+Before entering sleep states, the ACPI code flushes caches to prevent
+data loss using the WBINVD instruction.  This mechanism is required on
+bare metal.
 
-So we need to clear RQCF_UPDATED of rq->clock_update_flags to avoid
-the WARN_DOUBLE_CLOCK warning.
+But, any use WBINVD inside of a guest is worthless.  Changing sleep
+state in a virtual machine doesn't affect the host system sleep state
+and cannot lead to data loss, so most hypervisors simply ignore it.
+Despite this, the ACPI code calls WBINVD unconditionally anyway.
+It's useless, but also normally harmless.
 
-For the sched_rt_period_timer() and migrate_task_rq_dl() cases
-we simply replace raw_spin_rq_lock()/raw_spin_rq_unlock() with
-rq_lock()/rq_unlock().
+In TDX guests, though, WBINVD stops being harmless; it triggers a
+virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
+were left in place, TDX guests would need handling to recover from
+the exception.
 
-For the {pull,push}_{rt,dl}_task() cases, we add the
-double_rq_clock_clear_update() function to clear RQCF_UPDATED of
-rq->clock_update_flags, and call double_rq_clock_clear_update()
-before double_lock_balance()/double_rq_lock() returns to avoid the
-WARN_DOUBLE_CLOCK warning.
+Avoid using WBINVD whenever running under a hypervisor.  This both
+removes the useless WBINVDs and saves TDX from implementing WBINVD
+handling.
 
-Some call trace reports:
-Call Trace 1:
- <IRQ>
- sched_rt_period_timer+0x10f/0x3a0
- ? enqueue_top_rt_rq+0x110/0x110
- __hrtimer_run_queues+0x1a9/0x490
- hrtimer_interrupt+0x10b/0x240
- __sysvec_apic_timer_interrupt+0x8a/0x250
- sysvec_apic_timer_interrupt+0x9a/0xd0
- </IRQ>
- <TASK>
- asm_sysvec_apic_timer_interrupt+0x12/0x20
-
-Call Trace 2:
- <TASK>
- activate_task+0x8b/0x110
- push_rt_task.part.108+0x241/0x2c0
- push_rt_tasks+0x15/0x30
- finish_task_switch+0xaa/0x2e0
- ? __switch_to+0x134/0x420
- __schedule+0x343/0x8e0
- ? hrtimer_start_range_ns+0x101/0x340
- schedule+0x4e/0xb0
- do_nanosleep+0x8e/0x160
- hrtimer_nanosleep+0x89/0x120
- ? hrtimer_init_sleeper+0x90/0x90
- __x64_sys_nanosleep+0x96/0xd0
- do_syscall_64+0x34/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Call Trace 3:
- <TASK>
- deactivate_task+0x93/0xe0
- pull_rt_task+0x33e/0x400
- balance_rt+0x7e/0x90
- __schedule+0x62f/0x8e0
- do_task_dead+0x3f/0x50
- do_exit+0x7b8/0xbb0
- do_group_exit+0x2d/0x90
- get_signal+0x9df/0x9e0
- ? preempt_count_add+0x56/0xa0
- ? __remove_hrtimer+0x35/0x70
- arch_do_signal_or_restart+0x36/0x720
- ? nanosleep_copyout+0x39/0x50
- ? do_nanosleep+0x131/0x160
- ? audit_filter_inodes+0xf5/0x120
- exit_to_user_mode_prepare+0x10f/0x1e0
- syscall_exit_to_user_mode+0x17/0x30
- do_syscall_64+0x40/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Call Trace 4:
- update_rq_clock+0x128/0x1a0
- migrate_task_rq_dl+0xec/0x310
- set_task_cpu+0x84/0x1e4
- try_to_wake_up+0x1d8/0x5c0
- wake_up_process+0x1c/0x30
- hrtimer_wakeup+0x24/0x3c
- __hrtimer_run_queues+0x114/0x270
- hrtimer_interrupt+0xe8/0x244
- arch_timer_handler_phys+0x30/0x50
- handle_percpu_devid_irq+0x88/0x140
- generic_handle_domain_irq+0x40/0x60
- gic_handle_irq+0x48/0xe0
- call_on_irq_stack+0x2c/0x60
- do_interrupt_handler+0x80/0x84
-
-Steps to reproduce:
-1. Enable CONFIG_SCHED_DEBUG when compiling the kernel
-2. echo 1 > /sys/kernel/debug/clear_warn_once
-   echo "WARN_DOUBLE_CLOCK" > /sys/kernel/debug/sched/features
-   echo "NO_RT_PUSH_IPI" > /sys/kernel/debug/sched/features
-3. Run some rt/dl tasks that periodically work and sleep, e.g.
-Create 2*n rt or dl (90% running) tasks via rt-app (on a system
-with n CPUs), and Dietmar Eggemann reports Call Trace 4 when running
-on PREEMPT_RT kernel.
-
-Signed-off-by: Hao Jia <jiahao.os@bytedance.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lore.kernel.org/r/20220430085843.62939-2-jiahao.os@bytedance.com
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c     |  6 +++---
- kernel/sched/deadline.c |  5 +++--
- kernel/sched/rt.c       |  5 +++--
- kernel/sched/sched.h    | 28 ++++++++++++++++++++++++----
- 4 files changed, 33 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/acenv.h | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 1eec4925b8c6..a6722496ed5f 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -546,10 +546,10 @@ void double_rq_lock(struct rq *rq1, struct rq *rq2)
- 		swap(rq1, rq2);
+diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
+index 9aff97f0de7f..d937c55e717e 100644
+--- a/arch/x86/include/asm/acenv.h
++++ b/arch/x86/include/asm/acenv.h
+@@ -13,7 +13,19 @@
  
- 	raw_spin_rq_lock(rq1);
--	if (__rq_lockp(rq1) == __rq_lockp(rq2))
--		return;
-+	if (__rq_lockp(rq1) != __rq_lockp(rq2))
-+		raw_spin_rq_lock_nested(rq2, SINGLE_DEPTH_NESTING);
+ /* Asm macros */
  
--	raw_spin_rq_lock_nested(rq2, SINGLE_DEPTH_NESTING);
-+	double_rq_clock_clear_update(rq1, rq2);
- }
- #endif
- 
-diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 62f0cf842277..1571b775ec15 100644
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -1804,6 +1804,7 @@ select_task_rq_dl(struct task_struct *p, int cpu, int flags)
- 
- static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused)
- {
-+	struct rq_flags rf;
- 	struct rq *rq;
- 
- 	if (READ_ONCE(p->__state) != TASK_WAKING)
-@@ -1815,7 +1816,7 @@ static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused
- 	 * from try_to_wake_up(). Hence, p->pi_lock is locked, but
- 	 * rq->lock is not... So, lock it
- 	 */
--	raw_spin_rq_lock(rq);
-+	rq_lock(rq, &rf);
- 	if (p->dl.dl_non_contending) {
- 		update_rq_clock(rq);
- 		sub_running_bw(&p->dl, &rq->dl);
-@@ -1831,7 +1832,7 @@ static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused
- 			put_task_struct(p);
- 	}
- 	sub_rq_bw(&p->dl, &rq->dl);
--	raw_spin_rq_unlock(rq);
-+	rq_unlock(rq, &rf);
- }
- 
- static void check_preempt_equal_dl(struct rq *rq, struct task_struct *p)
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 14f273c29518..3b8a7e153367 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -885,6 +885,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
- 		int enqueue = 0;
- 		struct rt_rq *rt_rq = sched_rt_period_rt_rq(rt_b, i);
- 		struct rq *rq = rq_of_rt_rq(rt_rq);
-+		struct rq_flags rf;
- 		int skip;
- 
- 		/*
-@@ -899,7 +900,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
- 		if (skip)
- 			continue;
- 
--		raw_spin_rq_lock(rq);
-+		rq_lock(rq, &rf);
- 		update_rq_clock(rq);
- 
- 		if (rt_rq->rt_time) {
-@@ -937,7 +938,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
- 
- 		if (enqueue)
- 			sched_rt_rq_enqueue(rt_rq);
--		raw_spin_rq_unlock(rq);
-+		rq_unlock(rq, &rf);
- 	}
- 
- 	if (!throttled && (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF))
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index e8a5549488dd..3887f4aea160 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2494,6 +2494,24 @@ unsigned long arch_scale_freq_capacity(int cpu)
- }
- #endif
- 
-+#ifdef CONFIG_SCHED_DEBUG
+-#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
 +/*
-+ * In double_lock_balance()/double_rq_lock(), we use raw_spin_rq_lock() to
-+ * acquire rq lock instead of rq_lock(). So at the end of these two functions
-+ * we need to call double_rq_clock_clear_update() to clear RQCF_UPDATED of
-+ * rq->clock_update_flags to avoid the WARN_DOUBLE_CLOCK warning.
++ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
++ * It is required to prevent data loss.
++ *
++ * While running inside virtual machine, the kernel can bypass cache flushing.
++ * Changing sleep state in a virtual machine doesn't affect the host system
++ * sleep state and cannot lead to data loss.
 + */
-+static inline void double_rq_clock_clear_update(struct rq *rq1, struct rq *rq2)
-+{
-+	rq1->clock_update_flags &= (RQCF_REQ_SKIP|RQCF_ACT_SKIP);
-+	/* rq1 == rq2 for !CONFIG_SMP, so just clear RQCF_UPDATED once. */
-+#ifdef CONFIG_SMP
-+	rq2->clock_update_flags &= (RQCF_REQ_SKIP|RQCF_ACT_SKIP);
-+#endif
-+}
-+#else
-+static inline void double_rq_clock_clear_update(struct rq *rq1, struct rq *rq2) {}
-+#endif
++#define ACPI_FLUSH_CPU_CACHE()					\
++do {								\
++	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
++		wbinvd();					\
++} while (0)
  
- #ifdef CONFIG_SMP
- 
-@@ -2559,14 +2577,15 @@ static inline int _double_lock_balance(struct rq *this_rq, struct rq *busiest)
- 	__acquires(busiest->lock)
- 	__acquires(this_rq->lock)
- {
--	if (__rq_lockp(this_rq) == __rq_lockp(busiest))
--		return 0;
--
--	if (likely(raw_spin_rq_trylock(busiest)))
-+	if (__rq_lockp(this_rq) == __rq_lockp(busiest) ||
-+	    likely(raw_spin_rq_trylock(busiest))) {
-+		double_rq_clock_clear_update(this_rq, busiest);
- 		return 0;
-+	}
- 
- 	if (rq_order_less(this_rq, busiest)) {
- 		raw_spin_rq_lock_nested(busiest, SINGLE_DEPTH_NESTING);
-+		double_rq_clock_clear_update(this_rq, busiest);
- 		return 0;
- 	}
- 
-@@ -2660,6 +2679,7 @@ static inline void double_rq_lock(struct rq *rq1, struct rq *rq2)
- 	BUG_ON(rq1 != rq2);
- 	raw_spin_rq_lock(rq1);
- 	__acquire(rq2->lock);	/* Fake it out ;) */
-+	double_rq_clock_clear_update(rq1, rq2);
- }
- 
- /*
+ int __acpi_acquire_global_lock(unsigned int *lock);
+ int __acpi_release_global_lock(unsigned int *lock);
 -- 
 2.35.1
 
