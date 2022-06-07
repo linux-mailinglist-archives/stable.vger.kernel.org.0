@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8578C540796
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61895407C3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245414AbiFGRsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
+        id S1350215AbiFGRwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349164AbiFGRqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02A0B9FF3;
-        Tue,  7 Jun 2022 10:36:55 -0700 (PDT)
+        with ESMTP id S1348413AbiFGRst (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:48:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCB31157F7;
+        Tue,  7 Jun 2022 10:37:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3FEB60DB5;
-        Tue,  7 Jun 2022 17:36:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C39C34115;
-        Tue,  7 Jun 2022 17:36:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BD54BCE23E2;
+        Tue,  7 Jun 2022 17:36:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B80AEC36B04;
+        Tue,  7 Jun 2022 17:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623412;
-        bh=NSpYyGGJXBbVhvCEmdzTJ3lzz03ll/lczQXkZqe5C3Y=;
+        s=korg; t=1654623415;
+        bh=fpAJU8/iPB4K4ACuHGmuYZDZKbmw+g26GaUydW1SeHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZUnBJLRURvWF7w0fn74XVtshmjRCL2cPTIgDFRvIBxoY0K33H4gZCpj7IY8Yj3C4
-         qn21vxIeDpLQAHoTqrDLJ6ez20+RETtt/+edJEMq20yx/GtJmCcxRrR6KqkT5ah2bg
-         DqH1hw8GdANnSbK7mxK22SPqDZnwR0Z7fOjLZbME=
+        b=Qri32ebX99dhSnKc46sdHmIy5vNjzL31loRk6nKYr1eUQaW9c/YbZypzP5SAoqINd
+         r2d+wDjIlz9T1Zq7z7TNxwajlj6srN8LV9NeFnPeoUPO/gLtKgVdZuu3WVl++fRJTA
+         UKbgEhSdol/6v7bb3RWBfBwOq/QkGE43Wb/b90og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 407/452] ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
-Date:   Tue,  7 Jun 2022 19:04:24 +0200
-Message-Id: <20220607164920.687855439@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>
+Subject: [PATCH 5.10 408/452] carl9170: tx: fix an incorrect use of list iterator
+Date:   Tue,  7 Jun 2022 19:04:25 +0200
+Message-Id: <20220607164920.717099002@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
 References: <20220607164908.521895282@linuxfoundation.org>
@@ -52,34 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 4213ff556740bb45e2d9ff0f50d056c4e7dd0921 upstream.
+commit 54a6f29522da3c914da30e50721dedf51046449a upstream.
 
-The driver has a custom put function for "DSP Voice Wake Up" which does
-not generate event notifications on change, instead returning 0. Since we
-already exit early in the case that there is no change this can be fixed
-by unconditionally returning 1 at the end of the function.
+If the previous list_for_each_entry_continue_rcu() don't exit early
+(no goto hit inside the loop), the iterator 'cvif' after the loop
+will be a bogus pointer to an invalid structure object containing
+the HEAD (&ar->vif_list). As a result, the use of 'cvif' after that
+will lead to a invalid memory access (i.e., 'cvif->id': the invalid
+pointer dereference when return back to/after the callsite in the
+carl9170_update_beacon()).
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The original intention should have been to return the valid 'cvif'
+when found in list, NULL otherwise. So just return NULL when no
+entry found, to fix this bug.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220428162444.3883147-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1f1d9654e183c ("carl9170: refactor carl9170_update_beacon")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220328122820.1004-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5514.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/carl9170/tx.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/soc/codecs/rt5514.c
-+++ b/sound/soc/codecs/rt5514.c
-@@ -419,7 +419,7 @@ static int rt5514_dsp_voice_wake_up_put(
- 		}
+--- a/drivers/net/wireless/ath/carl9170/tx.c
++++ b/drivers/net/wireless/ath/carl9170/tx.c
+@@ -1557,6 +1557,9 @@ static struct carl9170_vif_info *carl917
+ 					goto out;
+ 			}
+ 		} while (ar->beacon_enabled && i--);
++
++		/* no entry found in list */
++		return NULL;
  	}
  
--	return 0;
-+	return 1;
- }
- 
- static const struct snd_kcontrol_new rt5514_snd_controls[] = {
+ out:
 
 
