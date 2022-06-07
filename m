@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51FDD54123E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD7054124E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357216AbiFGTos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47564 "EHLO
+        id S1357710AbiFGTqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:46:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354466AbiFGTmy (ORCPT
+        with ESMTP id S1354477AbiFGTmy (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E60931DC8;
-        Tue,  7 Jun 2022 11:17:54 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0892734BA6;
+        Tue,  7 Jun 2022 11:17:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50A1C60A21;
-        Tue,  7 Jun 2022 18:17:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65E74C385A2;
-        Tue,  7 Jun 2022 18:17:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0855B82367;
+        Tue,  7 Jun 2022 18:17:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FB6C385A5;
+        Tue,  7 Jun 2022 18:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625873;
-        bh=sm8MbBlNG5K6X9hLCmzFjLBYl5czMKscsEUm5HoPOMk=;
+        s=korg; t=1654625876;
+        bh=iNHK4FsWAeAmGLGVXN+d7gkN/OJ8GAY1t4eehMHASVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uclkpbLgGwMDu+8cKHb2tkcU4v0md7XI039ssj9EUvdxXxEzOt3N50HZLjeAdcBSC
-         anQjXmf3A16vwuZtaUdQoQTMWysI2TA/mGZUDbG/GvYwEV48N0rYzdlMZLk436xnkO
-         m92+uSGG1QIzlfMtFynunq+wocjPB6WgUC97Q48I=
+        b=Lp/qIlCy/88yYkgNLvzDM+ldS5Ghi6oxGQaSu2W/vACd+NrWkwC5C9mAuACoVatE0
+         hl/pot0YuSwAzJp4fJRP2zTmyL8imTIaD9MfYAFRipejvZpHqqM2O6Be3hysOLfmTB
+         3ar+gkSqtkN19EpP5NGHV2Nh49K0S4OdvnSHUtgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 176/772] eth: tg3: silence the GCC 12 array-bounds warning
-Date:   Tue,  7 Jun 2022 18:56:08 +0200
-Message-Id: <20220607164954.226644987@linuxfoundation.org>
+Subject: [PATCH 5.17 177/772] char: tpm: cr50_i2c: Suppress duplicated error message in .remove()
+Date:   Tue,  7 Jun 2022 18:56:09 +0200
+Message-Id: <20220607164954.255707356@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -54,42 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 9dec850fd7c210a04b4707df8e6c95bfafdd6a4b ]
+[ Upstream commit e0687fe958f763f1790f22ed5483025b7624e744 ]
 
-GCC 12 currently generates a rather inconsistent warning:
+Returning an error value in an i2c remove callback results in an error
+message being emitted by the i2c core, but otherwise it doesn't make a
+difference. The device goes away anyhow and the devm cleanups are
+called.
 
-drivers/net/ethernet/broadcom/tg3.c:17795:51: warning: array subscript 5 is above array bounds of ‘struct tg3_napi[5]’ [-Warray-bounds]
-17795 |                 struct tg3_napi *tnapi = &tp->napi[i];
-      |                                           ~~~~~~~~^~~
+As tpm_cr50_i2c_remove() emits an error message already and the
+additional error message by the i2c core doesn't add any useful
+information, change the return value to zero to suppress this error
+message.
 
-i is guaranteed < tp->irq_max which in turn is either 1 or 5.
-There are more loops like this one in the driver, but strangely
-GCC 12 dislikes only this single one.
+Note that if i2c_clientdata is NULL, there is something really fishy.
+Assuming no memory corruption happened (then all bets are lost anyhow),
+tpm_cr50_i2c_remove() is only called after tpm_cr50_i2c_probe() returned
+successfully. So there was a tpm chip registered before and after
+tpm_cr50_i2c_remove() its privdata is freed but the associated character
+device isn't removed. If after that happened userspace accesses the
+character device it's likely that the freed memory is accessed. For that
+reason the warning message is made a bit more frightening.
 
-Silence this silliness for now.
-
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/char/tpm/tpm_tis_i2c_cr50.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/Makefile b/drivers/net/ethernet/broadcom/Makefile
-index 0ddfb5b5d53c..2e6c5f258a1f 100644
---- a/drivers/net/ethernet/broadcom/Makefile
-+++ b/drivers/net/ethernet/broadcom/Makefile
-@@ -17,3 +17,8 @@ obj-$(CONFIG_BGMAC_BCMA) += bgmac-bcma.o bgmac-bcma-mdio.o
- obj-$(CONFIG_BGMAC_PLATFORM) += bgmac-platform.o
- obj-$(CONFIG_SYSTEMPORT) += bcmsysport.o
- obj-$(CONFIG_BNXT) += bnxt/
-+
-+# FIXME: temporarily silence -Warray-bounds on non W=1+ builds
-+ifndef KBUILD_EXTRA_WARN
-+CFLAGS_tg3.o += -Wno-array-bounds
-+endif
+diff --git a/drivers/char/tpm/tpm_tis_i2c_cr50.c b/drivers/char/tpm/tpm_tis_i2c_cr50.c
+index f6c0affbb456..bf608b6af339 100644
+--- a/drivers/char/tpm/tpm_tis_i2c_cr50.c
++++ b/drivers/char/tpm/tpm_tis_i2c_cr50.c
+@@ -768,8 +768,8 @@ static int tpm_cr50_i2c_remove(struct i2c_client *client)
+ 	struct device *dev = &client->dev;
+ 
+ 	if (!chip) {
+-		dev_err(dev, "Could not get client data at remove\n");
+-		return -ENODEV;
++		dev_crit(dev, "Could not get client data at remove, memory corruption ahead\n");
++		return 0;
+ 	}
+ 
+ 	tpm_chip_unregister(chip);
 -- 
 2.35.1
 
