@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FEC8540970
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B307541915
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349765AbiFGSIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:08:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41106 "EHLO
+        id S1351287AbiFGVT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349778AbiFGSA1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:27 -0400
+        with ESMTP id S1380545AbiFGVQb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16DBC149DB9;
-        Tue,  7 Jun 2022 10:42:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD38021DA39;
+        Tue,  7 Jun 2022 11:55:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA52C61660;
-        Tue,  7 Jun 2022 17:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B73C385A5;
-        Tue,  7 Jun 2022 17:42:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41FF861277;
+        Tue,  7 Jun 2022 18:55:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FBDC385A2;
+        Tue,  7 Jun 2022 18:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623723;
-        bh=lomCL3SMCuCPyBBX6Sr6ek2rUvKOf8qrpC5Gi64OfM8=;
+        s=korg; t=1654628124;
+        bh=5ijuIaRbgd+oSgheT9EPvH3wQ/y54m1bFMPcfGh+Pzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqEjcLELDKJ1Jdpxm0r7qnkE+gvRD02wFtrDbugYKhCkEg41TsdFmCE+Yrfsd6ddE
-         QakKfvuYGn1xYyUSGRMl4z+SjoYzt5ZKEKrvrrL3ESdXTga22yTfe4mv4IysAh6sAP
-         5nDco25dpe9HdMMlbS4nq/90ywlBinlTk4RBUOi4=
+        b=zsqatreeRUGkly+ZDvF9xkdAtRxu5QnkYK/yKUHD9C6YTsX8SRwo5c5cd2U6WiSWj
+         hVjZO40ZcVNc+xaWJDgcZ8aEZ7M5DFrJglmRt6StCIVioRzY5sOAYwdHwHd5dfBM6Z
+         Fd7qs+BA7qsKt4Rwg8hJROGW/3U1hf8XdUtT8MIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/667] scsi: lpfc: Fix call trace observed during I/O with CMF enabled
+Subject: [PATCH 5.18 215/879] arm64: dts: qcom: msm8994: Fix the cont_splash_mem address
 Date:   Tue,  7 Jun 2022 18:55:33 +0200
-Message-Id: <20220607164936.856331246@linuxfoundation.org>
+Message-Id: <20220607165009.094740814@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit d6d45f67a11136cb88a70a29ab22ea6db8ae6bd5 ]
+[ Upstream commit 049c46f31a726bf8d202ff1681661513447fac84 ]
 
-The following was seen with CMF enabled:
+The default memory map places cont_splash_mem at 3401000, which was
+overlooked.. Fix it!
 
-BUG: using smp_processor_id() in preemptible
-code: systemd-udevd/31711
-kernel: caller is lpfc_update_cmf_cmd+0x214/0x420  [lpfc]
-kernel: CPU: 12 PID: 31711 Comm: systemd-udevd
-kernel: Call Trace:
-kernel: <TASK>
-kernel: dump_stack_lvl+0x44/0x57
-kernel: check_preemption_disabled+0xbf/0xe0
-kernel: lpfc_update_cmf_cmd+0x214/0x420 [lpfc]
-kernel: lpfc_nvme_fcp_io_submit+0x23b4/0x4df0 [lpfc]
-
-this_cpu_ptr() calls smp_processor_id() in a preemptible context.
-
-Fix by using per_cpu_ptr() with raw_smp_processor_id() instead.
-
-Link: https://lore.kernel.org/r/20220412222008.126521-16-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220319174645.340379-9-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 4 ++--
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index 8c79264a935b..c6944b282e21 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -3917,7 +3917,7 @@ lpfc_update_cmf_cmpl(struct lpfc_hba *phba,
- 		else
- 			time = div_u64(time + 500, 1000); /* round it */
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index 8c1dc5155b71..c65618b95ce0 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -183,8 +183,8 @@
+ 			no-map;
+ 		};
  
--		cgs = this_cpu_ptr(phba->cmf_stat);
-+		cgs = per_cpu_ptr(phba->cmf_stat, raw_smp_processor_id());
- 		atomic64_add(size, &cgs->rcv_bytes);
- 		atomic64_add(time, &cgs->rx_latency);
- 		atomic_inc(&cgs->rx_io_cnt);
-@@ -3960,7 +3960,7 @@ lpfc_update_cmf_cmd(struct lpfc_hba *phba, uint32_t size)
- 			atomic_set(&phba->rx_max_read_cnt, size);
- 	}
+-		cont_splash_mem: memory@3800000 {
+-			reg = <0 0x03800000 0 0x2400000>;
++		cont_splash_mem: memory@3401000 {
++			reg = <0 0x03401000 0 0x2200000>;
+ 			no-map;
+ 		};
  
--	cgs = this_cpu_ptr(phba->cmf_stat);
-+	cgs = per_cpu_ptr(phba->cmf_stat, raw_smp_processor_id());
- 	atomic64_add(size, &cgs->total_bytes);
- 	return 0;
- }
 -- 
 2.35.1
 
