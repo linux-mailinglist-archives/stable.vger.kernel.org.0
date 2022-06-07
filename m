@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 742D45412F5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E255408FE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357423AbiFGTzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50236 "EHLO
+        id S1348512AbiFGSEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358625AbiFGTwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 594BB33A0A;
-        Tue,  7 Jun 2022 11:21:37 -0700 (PDT)
+        with ESMTP id S1351796AbiFGSCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E52131280;
+        Tue,  7 Jun 2022 10:45:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E74C960DDA;
-        Tue,  7 Jun 2022 18:21:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2616C385A2;
-        Tue,  7 Jun 2022 18:21:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20F51B80B66;
+        Tue,  7 Jun 2022 17:45:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D396C385A5;
+        Tue,  7 Jun 2022 17:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626096;
-        bh=ynjdX7sqIzj3XGbBUvL+J2pZWNuexzQpo7a/4F/yD1M=;
+        s=korg; t=1654623923;
+        bh=wVJOIouwpjt0F5qJWzZespttPe32/0Khj9xgQVTw0xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R36DDBDded6yZN0GPJTf+0wOoKAnyNbmX8WO7wAptbEtboP9HSqtKSyDacsUBT4hl
-         lKtbOfNZ2/oxKLGnhWmWSTjtFasHS+QO/8bgG2LNMFpH1/IEOnDF/w3MC7UMjBB5xo
-         arC2tJdHccBXZZG04dsaiDoOcC0vH7WX4KgHmnXk=
+        b=ydXwIQJzWVUMPtuDOqHMHC5KXjK+ysh2KbBB1KBo+f7eIm+Jrf2NnoQ3Ho/IShVOC
+         w9HkZcOiT32k4y9/9rYZ71AGAmnCGySh7GjkYNnc438XCGdIpzP0fKWoEwPJhS05h7
+         QnC70cAFYs6UjSTGJqLRs9IqdbW3ezgtgANwQ4tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Haren Myneni <haren@linux.ibm.com>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 215/772] powerpc/powernv/vas: Assign real address to rx_fifo in vas_rx_win_attr
+Subject: [PATCH 5.15 142/667] afs: Adjust ACK interpretation to try and cope with NAT
 Date:   Tue,  7 Jun 2022 18:56:47 +0200
-Message-Id: <20220607164955.369606920@linuxfoundation.org>
+Message-Id: <20220607164939.079364149@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +56,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haren Myneni <haren@linux.ibm.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit c127d130f6d59fa81701f6b04023cf7cd1972fb3 ]
+[ Upstream commit adc9613ff66c26ebaff9814973181ac178beb90b ]
 
-In init_winctx_regs(), __pa() is called on winctx->rx_fifo and this
-function is called to initialize registers for receive and fault
-windows. But the real address is passed in winctx->rx_fifo for
-receive windows and the virtual address for fault windows which
-causes errors with DEBUG_VIRTUAL enabled. Fixes this issue by
-assigning only real address to rx_fifo in vas_rx_win_attr struct
-for both receive and fault windows.
+If a client's address changes, say if it is NAT'd, this can disrupt an in
+progress operation.  For most operations, this is not much of a problem,
+but StoreData can be different as some servers modify the target file as
+the data comes in, so if a store request is disrupted, the file can get
+corrupted on the server.
 
-Reported-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Haren Myneni <haren@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/338e958c7ab8f3b266fa794a1f80f99b9671829e.camel@linux.ibm.com
+The problem is that the server doesn't recognise packets that come after
+the change of address as belonging to the original client and will bounce
+them, either by sending an OUT_OF_SEQUENCE ACK to the apparent new call if
+the packet number falls within the initial sequence number window of a call
+or by sending an EXCEEDS_WINDOW ACK if it falls outside and then aborting
+it.  In both cases, firstPacket will be 1 and previousPacket will be 0 in
+the ACK information.
+
+Fix this by the following means:
+
+ (1) If a client call receives an EXCEEDS_WINDOW ACK with firstPacket as 1
+     and previousPacket as 0, assume this indicates that the server saw the
+     incoming packets from a different peer and thus as a different call.
+     Fail the call with error -ENETRESET.
+
+ (2) Also fail the call if a similar OUT_OF_SEQUENCE ACK occurs if the
+     first packet has been hard-ACK'd.  If it hasn't been hard-ACK'd, the
+     ACK packet will cause it to get retransmitted, so the call will just
+     be repeated.
+
+ (3) Make afs_select_fileserver() treat -ENETRESET as a straight fail of
+     the operation.
+
+ (4) Prioritise the error code over things like -ECONNRESET as the server
+     did actually respond.
+
+ (5) Make writeback treat -ENETRESET as a retryable error and make it
+     redirty all the pages involved in a write so that the VM will retry.
+
+Note that there is still a circumstance that I can't easily deal with: if
+the operation is fully received and processed by the server, but the reply
+is lost due to address change.  There's no way to know if the op happened.
+We can examine the server, but a conflicting change could have been made by
+a third party - and we can't tell the difference.  In such a case, a
+message like:
+
+    kAFS: vnode modified {100058:146266} b7->b8 YFS.StoreData64 (op=2646a)
+
+will be logged to dmesg on the next op to touch the file and the client
+will reset the inode state, including invalidating clean parts of the
+pagecache.
+
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-December/004811.html # v1
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/vas.h              | 2 +-
- arch/powerpc/platforms/powernv/vas-fault.c  | 2 +-
- arch/powerpc/platforms/powernv/vas-window.c | 4 ++--
- arch/powerpc/platforms/powernv/vas.h        | 2 +-
- drivers/crypto/nx/nx-common-powernv.c       | 2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ fs/afs/misc.c     |  5 ++++-
+ fs/afs/rotate.c   |  4 ++++
+ fs/afs/write.c    |  1 +
+ net/rxrpc/input.c | 27 +++++++++++++++++++++++++++
+ 4 files changed, 36 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/vas.h b/arch/powerpc/include/asm/vas.h
-index 57573d9c1e09..56834a8a1465 100644
---- a/arch/powerpc/include/asm/vas.h
-+++ b/arch/powerpc/include/asm/vas.h
-@@ -112,7 +112,7 @@ static inline void vas_user_win_add_mm_context(struct vas_user_win_ref *ref)
-  * Receive window attributes specified by the (in-kernel) owner of window.
-  */
- struct vas_rx_win_attr {
--	void *rx_fifo;
-+	u64 rx_fifo;
- 	int rx_fifo_size;
- 	int wcreds_max;
+diff --git a/fs/afs/misc.c b/fs/afs/misc.c
+index 1d1a8debe472..933e67fcdab1 100644
+--- a/fs/afs/misc.c
++++ b/fs/afs/misc.c
+@@ -163,8 +163,11 @@ void afs_prioritise_error(struct afs_error *e, int error, u32 abort_code)
+ 		return;
  
-diff --git a/arch/powerpc/platforms/powernv/vas-fault.c b/arch/powerpc/platforms/powernv/vas-fault.c
-index a7aabc18039e..c1bfad56447d 100644
---- a/arch/powerpc/platforms/powernv/vas-fault.c
-+++ b/arch/powerpc/platforms/powernv/vas-fault.c
-@@ -216,7 +216,7 @@ int vas_setup_fault_window(struct vas_instance *vinst)
- 	vas_init_rx_win_attr(&attr, VAS_COP_TYPE_FAULT);
+ 	case -ECONNABORTED:
++		error = afs_abort_to_error(abort_code);
++		fallthrough;
++	case -ENETRESET: /* Responded, but we seem to have changed address */
+ 		e->responded = true;
+-		e->error = afs_abort_to_error(abort_code);
++		e->error = error;
+ 		return;
+ 	}
+ }
+diff --git a/fs/afs/rotate.c b/fs/afs/rotate.c
+index 79e1a5f6701b..a840c3588ebb 100644
+--- a/fs/afs/rotate.c
++++ b/fs/afs/rotate.c
+@@ -292,6 +292,10 @@ bool afs_select_fileserver(struct afs_operation *op)
+ 		op->error = error;
+ 		goto iterate_address;
  
- 	attr.rx_fifo_size = vinst->fault_fifo_size;
--	attr.rx_fifo = vinst->fault_fifo;
-+	attr.rx_fifo = __pa(vinst->fault_fifo);
- 
- 	/*
- 	 * Max creds is based on number of CRBs can fit in the FIFO.
-diff --git a/arch/powerpc/platforms/powernv/vas-window.c b/arch/powerpc/platforms/powernv/vas-window.c
-index 0f8d39fbf2b2..0072682531d8 100644
---- a/arch/powerpc/platforms/powernv/vas-window.c
-+++ b/arch/powerpc/platforms/powernv/vas-window.c
-@@ -404,7 +404,7 @@ static void init_winctx_regs(struct pnv_vas_window *window,
- 	 *
- 	 * See also: Design note in function header.
- 	 */
--	val = __pa(winctx->rx_fifo);
-+	val = winctx->rx_fifo;
- 	val = SET_FIELD(VAS_PAGE_MIGRATION_SELECT, val, 0);
- 	write_hvwc_reg(window, VREG(LFIFO_BAR), val);
- 
-@@ -739,7 +739,7 @@ static void init_winctx_for_rxwin(struct pnv_vas_window *rxwin,
- 		 */
- 		winctx->fifo_disable = true;
- 		winctx->intr_disable = true;
--		winctx->rx_fifo = NULL;
-+		winctx->rx_fifo = 0;
++	case -ENETRESET:
++		pr_warn("kAFS: Peer reset %s (op=%x)\n",
++			op->type ? op->type->name : "???", op->debug_id);
++		fallthrough;
+ 	case -ECONNRESET:
+ 		_debug("call reset");
+ 		op->error = error;
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index f24370f5c774..a75c4742062a 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -626,6 +626,7 @@ static ssize_t afs_write_back_from_locked_page(struct address_space *mapping,
+ 	case -EKEYEXPIRED:
+ 	case -EKEYREJECTED:
+ 	case -EKEYREVOKED:
++	case -ENETRESET:
+ 		afs_redirty_pages(wbc, mapping, start, len);
+ 		mapping_set_error(mapping, ret);
+ 		break;
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index dc201363f2c4..67d3eba60dc7 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -903,6 +903,33 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
+ 				  rxrpc_propose_ack_respond_to_ack);
  	}
  
- 	winctx->lnotify_lpid = rxattr->lnotify_lpid;
-diff --git a/arch/powerpc/platforms/powernv/vas.h b/arch/powerpc/platforms/powernv/vas.h
-index 8bb08e395de0..08d9d3d5a22b 100644
---- a/arch/powerpc/platforms/powernv/vas.h
-+++ b/arch/powerpc/platforms/powernv/vas.h
-@@ -376,7 +376,7 @@ struct pnv_vas_window {
-  * is a container for the register fields in the window context.
-  */
- struct vas_winctx {
--	void *rx_fifo;
-+	u64 rx_fifo;
- 	int rx_fifo_size;
- 	int wcreds_max;
- 	int rsvd_txbuf_count;
-diff --git a/drivers/crypto/nx/nx-common-powernv.c b/drivers/crypto/nx/nx-common-powernv.c
-index 32a036ada5d0..f418817c0f43 100644
---- a/drivers/crypto/nx/nx-common-powernv.c
-+++ b/drivers/crypto/nx/nx-common-powernv.c
-@@ -827,7 +827,7 @@ static int __init vas_cfg_coproc_info(struct device_node *dn, int chip_id,
- 		goto err_out;
- 
- 	vas_init_rx_win_attr(&rxattr, coproc->ct);
--	rxattr.rx_fifo = (void *)rx_fifo;
-+	rxattr.rx_fifo = rx_fifo;
- 	rxattr.rx_fifo_size = fifo_size;
- 	rxattr.lnotify_lpid = lpid;
- 	rxattr.lnotify_pid = pid;
++	/* If we get an EXCEEDS_WINDOW ACK from the server, it probably
++	 * indicates that the client address changed due to NAT.  The server
++	 * lost the call because it switched to a different peer.
++	 */
++	if (unlikely(buf.ack.reason == RXRPC_ACK_EXCEEDS_WINDOW) &&
++	    first_soft_ack == 1 &&
++	    prev_pkt == 0 &&
++	    rxrpc_is_client_call(call)) {
++		rxrpc_set_call_completion(call, RXRPC_CALL_REMOTELY_ABORTED,
++					  0, -ENETRESET);
++		return;
++	}
++
++	/* If we get an OUT_OF_SEQUENCE ACK from the server, that can also
++	 * indicate a change of address.  However, we can retransmit the call
++	 * if we still have it buffered to the beginning.
++	 */
++	if (unlikely(buf.ack.reason == RXRPC_ACK_OUT_OF_SEQUENCE) &&
++	    first_soft_ack == 1 &&
++	    prev_pkt == 0 &&
++	    call->tx_hard_ack == 0 &&
++	    rxrpc_is_client_call(call)) {
++		rxrpc_set_call_completion(call, RXRPC_CALL_REMOTELY_ABORTED,
++					  0, -ENETRESET);
++		return;
++	}
++
+ 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
+ 	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
+ 		trace_rxrpc_rx_discard_ack(call->debug_id, ack_serial,
 -- 
 2.35.1
 
