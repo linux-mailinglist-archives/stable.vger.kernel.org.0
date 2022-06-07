@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE84541E91
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB1B541748
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380738AbiFGWcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:32:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35126 "EHLO
+        id S1377490AbiFGVCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383847AbiFGWbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AF4DF06;
-        Tue,  7 Jun 2022 12:24:14 -0700 (PDT)
+        with ESMTP id S1378474AbiFGVBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9CE20E17B;
+        Tue,  7 Jun 2022 11:45:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 300F0B823CA;
-        Tue,  7 Jun 2022 19:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A2C2C385A2;
-        Tue,  7 Jun 2022 19:24:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0852261295;
+        Tue,  7 Jun 2022 18:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A3CC385A2;
+        Tue,  7 Jun 2022 18:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629852;
-        bh=MNGbb0y6lx7BzfYUSDabvaF+OEPYHabK0nbEfAzr7mo=;
+        s=korg; t=1654627510;
+        bh=/WUznTYi4+ekIcUEKN6koRodGOYPqPC/ciEieSmX2uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCiiG9nYlyF9+IsMSeAJ/rePXDTwn9TW35ST2NzQKV5xfvtD6GZVOKKEER6efKPe1
-         HxUWlJ8ZXX236Ow5rPpppJbOwDQmf++2XN3iHmhflaMXnahaIEQ/RjXIzyvFPwlC8R
-         znqhaetkCl2qdQwzZx2uLXa+opWu3EKJcjk+hCn8=
+        b=W+jE6+IOPUGdsL1q84SLM9F/Bw7oye6O7155f78egdleOWO6/0CfYvEszCpj+Vgjh
+         vd2ZLt3fLX1p0pVVuPsDU+l1LY3hpTwHOX7VKMPe2+Mj0GXNZKHbQKK0mTQAcBeGNV
+         U5ZnxFP0QKeb4KC6zShQeX1NXgQLtM12gR155c0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 839/879] bcache: improve multithreaded bch_btree_check()
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.17 765/772] ext4: only allow test_dummy_encryption when supported
 Date:   Tue,  7 Jun 2022 19:05:57 +0200
-Message-Id: <20220607165027.207360448@linuxfoundation.org>
+Message-Id: <20220607165011.565988027@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,155 +54,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 622536443b6731ec82c563aae7807165adbe9178 upstream.
+commit 5f41fdaea63ddf96d921ab36b2af4a90ccdb5744 upstream.
 
-Commit 8e7102273f59 ("bcache: make bch_btree_check() to be
-multithreaded") makes bch_btree_check() to be much faster when checking
-all btree nodes during cache device registration. But it isn't in ideal
-shap yet, still can be improved.
+Make the test_dummy_encryption mount option require that the encrypt
+feature flag be already enabled on the filesystem, rather than
+automatically enabling it.  Practically, this means that "-O encrypt"
+will need to be included in MKFS_OPTIONS when running xfstests with the
+test_dummy_encryption mount option.  (ext4/053 also needs an update.)
 
-This patch does the following thing to improve current parallel btree
-nodes check by multiple threads in bch_btree_check(),
-- Add read lock to root node while checking all the btree nodes with
-  multiple threads. Although currently it is not mandatory but it is
-  good to have a read lock in code logic.
-- Remove local variable 'char name[32]', and generate kernel thread name
-  string directly when calling kthread_run().
-- Allocate local variable "struct btree_check_state check_state" on the
-  stack and avoid unnecessary dynamic memory allocation for it.
-- Reduce BCH_BTR_CHKTHREAD_MAX from 64 to 12 which is enough indeed.
-- Increase check_state->started to count created kernel thread after it
-  succeeds to create.
-- When wait for all checking kernel threads to finish, use wait_event()
-  to replace wait_event_interruptible().
+Moreover, as long as the preconditions for test_dummy_encryption are
+being tightened anyway, take the opportunity to start rejecting it when
+!CONFIG_FS_ENCRYPTION rather than ignoring it.
 
-With this change, the code is more clear, and some potential error
-conditions are avoided.
+The motivation for requiring the encrypt feature flag is that:
 
-Fixes: 8e7102273f59 ("bcache: make bch_btree_check() to be multithreaded")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220524102336.10684-2-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+- Having the filesystem auto-enable feature flags is problematic, as it
+  bypasses the usual sanity checks.  The specific issue which came up
+  recently is that in kernel versions where ext4 supports casefold but
+  not encrypt+casefold (v5.1 through v5.10), the kernel will happily add
+  the encrypt flag to a filesystem that has the casefold flag, making it
+  unmountable -- but only for subsequent mounts, not the initial one.
+  This confused the casefold support detection in xfstests, causing
+  generic/556 to fail rather than be skipped.
+
+- The xfstests-bld test runners (kvm-xfstests et al.) already use the
+  required mkfs flag, so they will not be affected by this change.  Only
+  users of test_dummy_encryption alone will be affected.  But, this
+  option has always been for testing only, so it should be fine to
+  require that the few users of this option update their test scripts.
+
+- f2fs already requires it (for its equivalent feature flag).
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Link: https://lore.kernel.org/r/20220519204437.61645-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/btree.c |   58 ++++++++++++++++++++--------------------------
- drivers/md/bcache/btree.h |    2 -
- 2 files changed, 27 insertions(+), 33 deletions(-)
+ fs/ext4/ext4.h  |    6 -----
+ fs/ext4/super.c |   60 +++++++++++++++++++++++++++++++++++---------------------
+ 2 files changed, 38 insertions(+), 28 deletions(-)
 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2006,8 +2006,7 @@ int bch_btree_check(struct cache_set *c)
- 	int i;
- 	struct bkey *k = NULL;
- 	struct btree_iter iter;
--	struct btree_check_state *check_state;
--	char name[32];
-+	struct btree_check_state check_state;
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1438,12 +1438,6 @@ struct ext4_super_block {
  
- 	/* check and mark root node keys */
- 	for_each_key_filter(&c->root->keys, k, &iter, bch_ptr_invalid)
-@@ -2018,63 +2017,58 @@ int bch_btree_check(struct cache_set *c)
- 	if (c->root->level == 0)
- 		return 0;
+ #ifdef __KERNEL__
  
--	check_state = kzalloc(sizeof(struct btree_check_state), GFP_KERNEL);
--	if (!check_state)
--		return -ENOMEM;
+-#ifdef CONFIG_FS_ENCRYPTION
+-#define DUMMY_ENCRYPTION_ENABLED(sbi) ((sbi)->s_dummy_enc_policy.policy != NULL)
+-#else
+-#define DUMMY_ENCRYPTION_ENABLED(sbi) (0)
+-#endif
 -
--	check_state->c = c;
--	check_state->total_threads = bch_btree_chkthread_nr();
--	check_state->key_idx = 0;
--	spin_lock_init(&check_state->idx_lock);
--	atomic_set(&check_state->started, 0);
--	atomic_set(&check_state->enough, 0);
--	init_waitqueue_head(&check_state->wait);
-+	check_state.c = c;
-+	check_state.total_threads = bch_btree_chkthread_nr();
-+	check_state.key_idx = 0;
-+	spin_lock_init(&check_state.idx_lock);
-+	atomic_set(&check_state.started, 0);
-+	atomic_set(&check_state.enough, 0);
-+	init_waitqueue_head(&check_state.wait);
+ /* Number of quota types we support */
+ #define EXT4_MAXQUOTAS 3
  
-+	rw_lock(0, c->root, c->root->level);
- 	/*
- 	 * Run multiple threads to check btree nodes in parallel,
--	 * if check_state->enough is non-zero, it means current
-+	 * if check_state.enough is non-zero, it means current
- 	 * running check threads are enough, unncessary to create
- 	 * more.
- 	 */
--	for (i = 0; i < check_state->total_threads; i++) {
--		/* fetch latest check_state->enough earlier */
-+	for (i = 0; i < check_state.total_threads; i++) {
-+		/* fetch latest check_state.enough earlier */
- 		smp_mb__before_atomic();
--		if (atomic_read(&check_state->enough))
-+		if (atomic_read(&check_state.enough))
- 			break;
- 
--		check_state->infos[i].result = 0;
--		check_state->infos[i].state = check_state;
--		snprintf(name, sizeof(name), "bch_btrchk[%u]", i);
--		atomic_inc(&check_state->started);
-+		check_state.infos[i].result = 0;
-+		check_state.infos[i].state = &check_state;
- 
--		check_state->infos[i].thread =
-+		check_state.infos[i].thread =
- 			kthread_run(bch_btree_check_thread,
--				    &check_state->infos[i],
--				    name);
--		if (IS_ERR(check_state->infos[i].thread)) {
-+				    &check_state.infos[i],
-+				    "bch_btrchk[%d]", i);
-+		if (IS_ERR(check_state.infos[i].thread)) {
- 			pr_err("fails to run thread bch_btrchk[%d]\n", i);
- 			for (--i; i >= 0; i--)
--				kthread_stop(check_state->infos[i].thread);
-+				kthread_stop(check_state.infos[i].thread);
- 			ret = -ENOMEM;
- 			goto out;
- 		}
-+		atomic_inc(&check_state.started);
- 	}
- 
- 	/*
- 	 * Must wait for all threads to stop.
- 	 */
--	wait_event_interruptible(check_state->wait,
--				 atomic_read(&check_state->started) == 0);
-+	wait_event(check_state.wait, atomic_read(&check_state.started) == 0);
- 
--	for (i = 0; i < check_state->total_threads; i++) {
--		if (check_state->infos[i].result) {
--			ret = check_state->infos[i].result;
-+	for (i = 0; i < check_state.total_threads; i++) {
-+		if (check_state.infos[i].result) {
-+			ret = check_state.infos[i].result;
- 			goto out;
- 		}
- 	}
- 
- out:
--	kfree(check_state);
-+	rw_unlock(0, c->root);
- 	return ret;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -2428,11 +2428,12 @@ static int ext4_parse_param(struct fs_co
+ 		ctx->spec |= EXT4_SPEC_DUMMY_ENCRYPTION;
+ 		ctx->test_dummy_enc_arg = kmemdup_nul(param->string, param->size,
+ 						      GFP_KERNEL);
++		return 0;
+ #else
+ 		ext4_msg(NULL, KERN_WARNING,
+-			 "Test dummy encryption mount option ignored");
++			 "test_dummy_encryption option not supported");
++		return -EINVAL;
+ #endif
+-		return 0;
+ 	case Opt_dax:
+ 	case Opt_dax_type:
+ #ifdef CONFIG_FS_DAX
+@@ -2789,12 +2790,44 @@ err_jquota_specified:
+ #endif
  }
  
---- a/drivers/md/bcache/btree.h
-+++ b/drivers/md/bcache/btree.h
-@@ -226,7 +226,7 @@ struct btree_check_info {
- 	int				result;
- };
++static int ext4_check_test_dummy_encryption(const struct fs_context *fc,
++					    struct super_block *sb)
++{
++#ifdef CONFIG_FS_ENCRYPTION
++	const struct ext4_fs_context *ctx = fc->fs_private;
++	const struct ext4_sb_info *sbi = EXT4_SB(sb);
++
++	if (!(ctx->spec & EXT4_SPEC_DUMMY_ENCRYPTION))
++		return 0;
++
++	if (!ext4_has_feature_encrypt(sb)) {
++		ext4_msg(NULL, KERN_WARNING,
++			 "test_dummy_encryption requires encrypt feature");
++		return -EINVAL;
++	}
++	/*
++	 * This mount option is just for testing, and it's not worthwhile to
++	 * implement the extra complexity (e.g. RCU protection) that would be
++	 * needed to allow it to be set or changed during remount.  We do allow
++	 * it to be specified during remount, but only if there is no change.
++	 */
++	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE &&
++	    !sbi->s_dummy_enc_policy.policy) {
++		ext4_msg(NULL, KERN_WARNING,
++			 "Can't set test_dummy_encryption on remount");
++		return -EINVAL;
++	}
++#endif /* CONFIG_FS_ENCRYPTION */
++	return 0;
++}
++
+ static int ext4_check_opt_consistency(struct fs_context *fc,
+ 				      struct super_block *sb)
+ {
+ 	struct ext4_fs_context *ctx = fc->fs_private;
+ 	struct ext4_sb_info *sbi = fc->s_fs_info;
+ 	int is_remount = fc->purpose == FS_CONTEXT_FOR_RECONFIGURE;
++	int err;
  
--#define BCH_BTR_CHKTHREAD_MAX	64
-+#define BCH_BTR_CHKTHREAD_MAX	12
- struct btree_check_state {
- 	struct cache_set		*c;
- 	int				total_threads;
+ 	if ((ctx->opt_flags & MOPT_NO_EXT2) && IS_EXT2_SB(sb)) {
+ 		ext4_msg(NULL, KERN_ERR,
+@@ -2824,20 +2857,9 @@ static int ext4_check_opt_consistency(st
+ 				 "for blocksize < PAGE_SIZE");
+ 	}
+ 
+-#ifdef CONFIG_FS_ENCRYPTION
+-	/*
+-	 * This mount option is just for testing, and it's not worthwhile to
+-	 * implement the extra complexity (e.g. RCU protection) that would be
+-	 * needed to allow it to be set or changed during remount.  We do allow
+-	 * it to be specified during remount, but only if there is no change.
+-	 */
+-	if ((ctx->spec & EXT4_SPEC_DUMMY_ENCRYPTION) &&
+-	    is_remount && !sbi->s_dummy_enc_policy.policy) {
+-		ext4_msg(NULL, KERN_WARNING,
+-			 "Can't set test_dummy_encryption on remount");
+-		return -1;
+-	}
+-#endif
++	err = ext4_check_test_dummy_encryption(fc, sb);
++	if (err)
++		return err;
+ 
+ 	if ((ctx->spec & EXT4_SPEC_DATAJ) && is_remount) {
+ 		if (!sbi->s_journal) {
+@@ -5267,12 +5289,6 @@ no_journal:
+ 		goto failed_mount_wq;
+ 	}
+ 
+-	if (DUMMY_ENCRYPTION_ENABLED(sbi) && !sb_rdonly(sb) &&
+-	    !ext4_has_feature_encrypt(sb)) {
+-		ext4_set_feature_encrypt(sb);
+-		ext4_commit_super(sb);
+-	}
+-
+ 	/*
+ 	 * Get the # of file system overhead blocks from the
+ 	 * superblock if present.
 
 
