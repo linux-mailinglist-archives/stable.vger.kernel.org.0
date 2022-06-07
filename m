@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 653D3541B6C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F34541486
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378087AbiFGVrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:47:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60302 "EHLO
+        id S1358944AbiFGUSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:18:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381979AbiFGVpz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:45:55 -0400
+        with ESMTP id S1359822AbiFGUQb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A42235260;
-        Tue,  7 Jun 2022 12:07:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A21B1CAC37;
+        Tue,  7 Jun 2022 11:28:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CAA9B823B4;
-        Tue,  7 Jun 2022 19:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792E7C385A2;
-        Tue,  7 Jun 2022 19:07:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5BC9B822C0;
+        Tue,  7 Jun 2022 18:28:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8C2C385A5;
+        Tue,  7 Jun 2022 18:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628857;
-        bh=6Bw7n5DpPSq0LsUhzO7WxUFhcxXLj80U1w2T9SxWBAU=;
+        s=korg; t=1654626520;
+        bh=p/vWRLsXaxn69jFFiFCh3tIbEqu+F8JroeQeTdsr9i0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AgIvIOOvRxHv+KDQg+ytpz1YoatdXkkfWN23Vxb0Ff9F+liOHFHYsPyxgSkPbDcI
-         N+d3kH4SL4NT6hccUxTfCmN+Ilw6gOGr7LimBkDC5fRaAfd1mtCxsiBfORICqYLOX+
-         ZQAzPq6foLQtiikMBAPBg4u+B+WpXCkeyqGiNHY8=
+        b=2pc5R2CiGdbs7fxSq+E2FEM/m/pzORGeANDooQfrb4WUnkkqFLrE7fSR/Uf9t2+IE
+         73ug0xd6BRQptPMTD1OzRBwnKBVjxFwaO/cYdBmiivBes40y6yskxYxGLCzX4a5+fH
+         j8LJO7ddzmkG44vx1C4v7nx1kKWR0tpl+0GYxgUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Tal <moshet@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Yue Hu <huyue2@coolpad.com>,
+        Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 481/879] net/mlx5e: Correct the calculation of max channels for rep
-Date:   Tue,  7 Jun 2022 18:59:59 +0200
-Message-Id: <20220607165016.837135001@linuxfoundation.org>
+Subject: [PATCH 5.17 408/772] erofs: fix buffer copy overflow of ztailpacking feature
+Date:   Tue,  7 Jun 2022 19:00:00 +0200
+Message-Id: <20220607165001.030459703@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Tal <moshet@nvidia.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit 6d0ba49321a40a8dada22c223bbe91c063b08db4 ]
+[ Upstream commit dcbe6803fffd387f72b48c2373b5f5ed12a5804b ]
 
-Correct the calculation of maximum channels of rep to better utilize
-the hardware resources and allow a larger scale of reps.
+I got some KASAN report as below:
 
-This will allow creation of all virtual ports configured.
+[   46.959738] ==================================================================
+[   46.960430] BUG: KASAN: use-after-free in z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430] Read of size 4074 at addr ffff8880300c2f8e by task fssum/188
+...
+[   46.960430] Call Trace:
+[   46.960430]  <TASK>
+[   46.960430]  dump_stack_lvl+0x41/0x5e
+[   46.960430]  print_report.cold+0xb2/0x6b7
+[   46.960430]  ? z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430]  kasan_report+0x8a/0x140
+[   46.960430]  ? z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430]  kasan_check_range+0x14d/0x1d0
+[   46.960430]  memcpy+0x20/0x60
+[   46.960430]  z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430]  z_erofs_decompress_pcluster+0xaae/0x1080
 
-Fixes: 473baf2e9e8c ("net/mlx5e: Allow profile-specific limitation on max num of channels")
-Signed-off-by: Moshe Tal <moshet@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+The root cause is that the tail pcluster won't be a complete filesystem
+block anymore. So if ztailpacking is used, the second part of an
+uncompressed tail pcluster may not be ``rq->pageofs_out``.
+
+Fixes: ab749badf9f4 ("erofs: support unaligned data decompression")
+Fixes: cecf864d3d76 ("erofs: support inline data decompression")
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Link: https://lore.kernel.org/r/20220512115833.24175-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h      |  1 +
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |  9 +++++++++
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c  | 10 ++++++++--
- 3 files changed, 18 insertions(+), 2 deletions(-)
+ fs/erofs/decompressor.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index 8653ac0fd865..ee34e861d3af 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -1221,6 +1221,7 @@ mlx5e_tx_mpwqe_supported(struct mlx5_core_dev *mdev)
- 		MLX5_CAP_ETH(mdev, enhanced_multi_pkt_send_wqe);
- }
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 3efa686c7644..0e0d1fc0f130 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -322,6 +322,7 @@ static int z_erofs_shifted_transform(struct z_erofs_decompress_req *rq,
+ 		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
+ 	const unsigned int righthalf = min_t(unsigned int, rq->outputsize,
+ 					     PAGE_SIZE - rq->pageofs_out);
++	const unsigned int lefthalf = rq->outputsize - righthalf;
+ 	unsigned char *src, *dst;
  
-+int mlx5e_get_pf_num_tirs(struct mlx5_core_dev *mdev);
- int mlx5e_priv_init(struct mlx5e_priv *priv,
- 		    const struct mlx5e_profile *profile,
- 		    struct net_device *netdev,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index fa229998606c..72867a8ff48b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -5251,6 +5251,15 @@ mlx5e_calc_max_nch(struct mlx5_core_dev *mdev, struct net_device *netdev,
- 	return max_nch;
- }
- 
-+int mlx5e_get_pf_num_tirs(struct mlx5_core_dev *mdev)
-+{
-+	/* Indirect TIRS: 2 sets of TTCs (inner + outer steering)
-+	 * and 1 set of direct TIRS
-+	 */
-+	return 2 * MLX5E_NUM_INDIR_TIRS
-+		+ mlx5e_profile_max_num_channels(mdev, &mlx5e_nic_profile);
-+}
-+
- /* mlx5e generic netdev management API (move to en_common.c) */
- int mlx5e_priv_init(struct mlx5e_priv *priv,
- 		    const struct mlx5e_profile *profile,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index 6b7e7ea6ded2..a464461f1418 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -604,10 +604,16 @@ bool mlx5e_eswitch_vf_rep(const struct net_device *netdev)
- 	return netdev->netdev_ops == &mlx5e_netdev_ops_rep;
- }
- 
-+/* One indirect TIR set for outer. Inner not supported in reps. */
-+#define REP_NUM_INDIR_TIRS MLX5E_NUM_INDIR_TIRS
-+
- static int mlx5e_rep_max_nch_limit(struct mlx5_core_dev *mdev)
- {
--	return (1 << MLX5_CAP_GEN(mdev, log_max_tir)) /
--		mlx5_eswitch_get_total_vports(mdev);
-+	int max_tir_num = 1 << MLX5_CAP_GEN(mdev, log_max_tir);
-+	int num_vports = mlx5_eswitch_get_total_vports(mdev);
-+
-+	return (max_tir_num - mlx5e_get_pf_num_tirs(mdev)
-+		- (num_vports * REP_NUM_INDIR_TIRS)) / num_vports;
- }
- 
- static void mlx5e_build_rep_params(struct net_device *netdev)
+ 	if (nrpages_out > 2) {
+@@ -344,10 +345,10 @@ static int z_erofs_shifted_transform(struct z_erofs_decompress_req *rq,
+ 	if (nrpages_out == 2) {
+ 		DBG_BUGON(!rq->out[1]);
+ 		if (rq->out[1] == *rq->in) {
+-			memmove(src, src + righthalf, rq->pageofs_out);
++			memmove(src, src + righthalf, lefthalf);
+ 		} else {
+ 			dst = kmap_atomic(rq->out[1]);
+-			memcpy(dst, src + righthalf, rq->pageofs_out);
++			memcpy(dst, src + righthalf, lefthalf);
+ 			kunmap_atomic(dst);
+ 		}
+ 	}
 -- 
 2.35.1
 
