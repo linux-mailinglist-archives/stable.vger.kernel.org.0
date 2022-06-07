@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D595417F3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 618255410C7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377669AbiFGVHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50242 "EHLO
+        id S1355132AbiFGT3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379841AbiFGVGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCEF4211AB3;
-        Tue,  7 Jun 2022 11:50:27 -0700 (PDT)
+        with ESMTP id S1356868AbiFGT2S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6F51A196C;
+        Tue,  7 Jun 2022 11:11:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0343061777;
-        Tue,  7 Jun 2022 18:50:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10219C385A2;
-        Tue,  7 Jun 2022 18:50:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 46537CE2442;
+        Tue,  7 Jun 2022 18:11:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53CC2C385A2;
+        Tue,  7 Jun 2022 18:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627824;
-        bh=dnVq8A+QaRcFBuWkdXsDnNqK0ZQ2F6cv/bJXs+evh2Y=;
+        s=korg; t=1654625474;
+        bh=InTEJxokk0gSldDDmnuCDCLtUbImqooZSkroi+Xe/fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/HSI+I1TTmPGI7RFwuQj00kTe0GX8TEwKk428x3cFOf/kL+3S2uzDHO/xNoGpt0I
-         fJ2TKxNIG5+eoHQA+PpSyuTdf09Se2+oHSXUPIQ/QpMVXOcHzNAm/hzKgcvhseV4AP
-         CAirht/cVRug5i2C9g/I0H4sfTgnJuhq9f4Lok74=
+        b=HrmqVVRe+eUcDv5JwXhL8jLC+NS9nEEZtQNkYk4xbE94k8G8T9ciD/qRKLhNcjdIv
+         Gb/GQ9UMKqZO0eR6TrhcEgy8J4eaf/puwsUcWgWc3gFHYZZikwe2bU8ALEditKLzcZ
+         pSA8l1Pf/ke10LHc1kMhWoeWj1/58e0DHPf8Pf7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 104/879] media: pci: cx23885: Fix the error handling in cx23885_initdev()
+        stable@vger.kernel.org, Roberto Bergantinos <rbergant@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.17 030/772] cifs: fix potential double free during failed mount
 Date:   Tue,  7 Jun 2022 18:53:42 +0200
-Message-Id: <20220607165005.713750327@linuxfoundation.org>
+Message-Id: <20220607164949.907204065@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit e8123311cf06d7dae71e8c5fe78e0510d20cd30b ]
+commit 8378a51e3f8140f60901fb27208cc7a6e47047b5 upstream.
 
-When the driver fails to call the dma_set_mask(), the driver will get
-the following splat:
+RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=2088799
 
-[   55.853884] BUG: KASAN: use-after-free in __process_removed_driver+0x3c/0x240
-[   55.854486] Read of size 8 at addr ffff88810de60408 by task modprobe/590
-[   55.856822] Call Trace:
-[   55.860327]  __process_removed_driver+0x3c/0x240
-[   55.861347]  bus_for_each_dev+0x102/0x160
-[   55.861681]  i2c_del_driver+0x2f/0x50
-
-This is because the driver has initialized the i2c related resources
-in cx23885_dev_setup() but not released them in error handling, fix this
-bug by modifying the error path that jumps after failing to call the
-dma_set_mask().
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Roberto Bergantinos <rbergant@redhat.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/cx23885/cx23885-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/cifsfs.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-core.c b/drivers/media/pci/cx23885/cx23885-core.c
-index f8f2ff3b00c3..a07b18f2034e 100644
---- a/drivers/media/pci/cx23885/cx23885-core.c
-+++ b/drivers/media/pci/cx23885/cx23885-core.c
-@@ -2165,7 +2165,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
- 	err = dma_set_mask(&pci_dev->dev, 0xffffffff);
- 	if (err) {
- 		pr_err("%s/0: Oops: no 32bit PCI DMA ???\n", dev->name);
--		goto fail_ctrl;
-+		goto fail_dma_set_mask;
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -836,7 +836,7 @@ cifs_smb3_do_mount(struct file_system_ty
+ 	      int flags, struct smb3_fs_context *old_ctx)
+ {
+ 	int rc;
+-	struct super_block *sb;
++	struct super_block *sb = NULL;
+ 	struct cifs_sb_info *cifs_sb = NULL;
+ 	struct cifs_mnt_data mnt_data;
+ 	struct dentry *root;
+@@ -932,9 +932,11 @@ out_super:
+ 	return root;
+ out:
+ 	if (cifs_sb) {
+-		kfree(cifs_sb->prepath);
+-		smb3_cleanup_fs_context(cifs_sb->ctx);
+-		kfree(cifs_sb);
++		if (!sb || IS_ERR(sb)) {  /* otherwise kill_sb will handle */
++			kfree(cifs_sb->prepath);
++			smb3_cleanup_fs_context(cifs_sb->ctx);
++			kfree(cifs_sb);
++		}
  	}
- 
- 	err = request_irq(pci_dev->irq, cx23885_irq,
-@@ -2173,7 +2173,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
- 	if (err < 0) {
- 		pr_err("%s: can't get IRQ %d\n",
- 		       dev->name, pci_dev->irq);
--		goto fail_irq;
-+		goto fail_dma_set_mask;
- 	}
- 
- 	switch (dev->board) {
-@@ -2195,7 +2195,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
- 
- 	return 0;
- 
--fail_irq:
-+fail_dma_set_mask:
- 	cx23885_dev_unregister(dev);
- fail_ctrl:
- 	v4l2_ctrl_handler_free(hdl);
--- 
-2.35.1
-
+ 	return root;
+ }
 
 
