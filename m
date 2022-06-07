@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A8FB541D5E
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F27540F86
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383901AbiFGWM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51424 "EHLO
+        id S1352092AbiFGTJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382210AbiFGWMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:12:45 -0400
+        with ESMTP id S1353711AbiFGTIk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:08:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F090225BC21;
-        Tue,  7 Jun 2022 12:19:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9915159C;
+        Tue,  7 Jun 2022 11:06:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1F78B823CC;
-        Tue,  7 Jun 2022 19:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC26C385A2;
-        Tue,  7 Jun 2022 19:19:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D990B81F38;
+        Tue,  7 Jun 2022 18:06:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD83C385A5;
+        Tue,  7 Jun 2022 18:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629554;
-        bh=en8hNGfUSc9zRqvaL+iKZSJUvg3jICe8mOKD3yOmTqw=;
+        s=korg; t=1654625164;
+        bh=WFWag3G3r7NILMBL5Q25K81ZLI+l1okE9PH2R2dGTgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMJ/KyJBnXGPOlHwXG1Xu2UGWMpX1oMtr9QgYPArzN+5CvvGUqhxbO9V+vLHY333V
-         t5NkTuEWD7A1/3+0+LuaSaj8rB7QtBERvtpazuevuNxWcdoClilum61c/9mxAQgCi9
-         M3nG/ZxOFdii2hQwGnhOfHB+EnHg6ibESACnpXM0=
+        b=0jN2tYa86Is1DH8nfp/ZaHza8S8Z1bqGcIpaAs8SYbji0G45nGBWmcAOPRMRQlnQb
+         NNw9aT4iNQNDbmftvqeaxQUVoHHnsew7bStZlsoZw5+r0dqVqOZxhKBE7OTz4k5dEu
+         peln+wGQP1H50EB5HCrxP1TKdY7MT07C5MaZlePs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 734/879] bfq: Get rid of __bio_blkcg() usage
-Date:   Tue,  7 Jun 2022 19:04:12 +0200
-Message-Id: <20220607165024.162469192@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 588/667] drm/amdgpu/cs: make commands with 0 chunks illegal behaviour.
+Date:   Tue,  7 Jun 2022 19:04:13 +0200
+Message-Id: <20220607164952.320906067@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,197 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Dave Airlie <airlied@redhat.com>
 
-commit 4e54a2493e582361adc3bfbf06c7d50d19d18837 upstream.
+commit 31ab27b14daaa75541a415c6794d6f3567fea44a upstream.
 
-BFQ usage of __bio_blkcg() is a relict from the past. Furthermore if bio
-would not be associated with any blkcg, the usage of __bio_blkcg() in
-BFQ is prone to races with the task being migrated between cgroups as
-__bio_blkcg() calls at different places could return different blkcgs.
+Submitting a cs with 0 chunks, causes an oops later, found trying
+to execute the wrong userspace driver.
 
-Convert BFQ to the new situation where bio->bi_blkg is initialized in
-bio_set_dev() and thus practically always valid. This allows us to save
-blkcg_gq lookup and noticeably simplify the code.
+MESA_LOADER_DRIVER_OVERRIDE=v3d glxinfo
 
-CC: stable@vger.kernel.org
-Fixes: 0fe061b9f03c ("blkcg: fix ref count issue with bio_blkcg() using task_css")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-8-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[172536.665184] BUG: kernel NULL pointer dereference, address: 00000000000001d8
+[172536.665188] #PF: supervisor read access in kernel mode
+[172536.665189] #PF: error_code(0x0000) - not-present page
+[172536.665191] PGD 6712a0067 P4D 6712a0067 PUD 5af9ff067 PMD 0
+[172536.665195] Oops: 0000 [#1] SMP NOPTI
+[172536.665197] CPU: 7 PID: 2769838 Comm: glxinfo Tainted: P           O      5.10.81 #1-NixOS
+[172536.665199] Hardware name: To be filled by O.E.M. To be filled by O.E.M./CROSSHAIR V FORMULA-Z, BIOS 2201 03/23/2015
+[172536.665272] RIP: 0010:amdgpu_cs_ioctl+0x96/0x1ce0 [amdgpu]
+[172536.665274] Code: 75 18 00 00 4c 8b b2 88 00 00 00 8b 46 08 48 89 54 24 68 49 89 f7 4c 89 5c 24 60 31 d2 4c 89 74 24 30 85 c0 0f 85 c0 01 00 00 <48> 83 ba d8 01 00 00 00 48 8b b4 24 90 00 00 00 74 16 48 8b 46 10
+[172536.665276] RSP: 0018:ffffb47c0e81bbe0 EFLAGS: 00010246
+[172536.665277] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[172536.665278] RDX: 0000000000000000 RSI: ffffb47c0e81be28 RDI: ffffb47c0e81bd68
+[172536.665279] RBP: ffff936524080010 R08: 0000000000000000 R09: ffffb47c0e81be38
+[172536.665281] R10: ffff936524080010 R11: ffff936524080000 R12: ffffb47c0e81bc40
+[172536.665282] R13: ffffb47c0e81be28 R14: ffff9367bc410000 R15: ffffb47c0e81be28
+[172536.665283] FS:  00007fe35e05d740(0000) GS:ffff936c1edc0000(0000) knlGS:0000000000000000
+[172536.665284] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[172536.665286] CR2: 00000000000001d8 CR3: 0000000532e46000 CR4: 00000000000406e0
+[172536.665287] Call Trace:
+[172536.665322]  ? amdgpu_cs_find_mapping+0x110/0x110 [amdgpu]
+[172536.665332]  drm_ioctl_kernel+0xaa/0xf0 [drm]
+[172536.665338]  drm_ioctl+0x201/0x3b0 [drm]
+[172536.665369]  ? amdgpu_cs_find_mapping+0x110/0x110 [amdgpu]
+[172536.665372]  ? selinux_file_ioctl+0x135/0x230
+[172536.665399]  amdgpu_drm_ioctl+0x49/0x80 [amdgpu]
+[172536.665403]  __x64_sys_ioctl+0x83/0xb0
+[172536.665406]  do_syscall_64+0x33/0x40
+[172536.665409]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2018
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-cgroup.c  |   63 ++++++++++++++++++----------------------------------
- block/bfq-iosched.c |   11 ---------
- block/bfq-iosched.h |    3 --
- 3 files changed, 25 insertions(+), 52 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -586,27 +586,11 @@ static void bfq_group_set_parent(struct
- 	entity->sched_data = &parent->sched_data;
- }
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -115,7 +115,7 @@ static int amdgpu_cs_parser_init(struct
+ 	int ret;
  
--static struct bfq_group *bfq_lookup_bfqg(struct bfq_data *bfqd,
--					 struct blkcg *blkcg)
-+static void bfq_link_bfqg(struct bfq_data *bfqd, struct bfq_group *bfqg)
- {
--	struct blkcg_gq *blkg;
--
--	blkg = blkg_lookup(blkcg, bfqd->queue);
--	if (likely(blkg))
--		return blkg_to_bfqg(blkg);
--	return NULL;
--}
--
--struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd,
--				     struct blkcg *blkcg)
--{
--	struct bfq_group *bfqg, *parent;
-+	struct bfq_group *parent;
- 	struct bfq_entity *entity;
+ 	if (cs->in.num_chunks == 0)
+-		return 0;
++		return -EINVAL;
  
--	bfqg = bfq_lookup_bfqg(bfqd, blkcg);
--	if (unlikely(!bfqg))
--		return NULL;
--
- 	/*
- 	 * Update chain of bfq_groups as we might be handling a leaf group
- 	 * which, along with some of its relatives, has not been hooked yet
-@@ -623,8 +607,15 @@ struct bfq_group *bfq_find_set_group(str
- 			bfq_group_set_parent(curr_bfqg, parent);
- 		}
- 	}
-+}
- 
--	return bfqg;
-+struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
-+{
-+	struct blkcg_gq *blkg = bio->bi_blkg;
-+
-+	if (!blkg)
-+		return bfqd->root_group;
-+	return blkg_to_bfqg(blkg);
- }
- 
- /**
-@@ -714,25 +705,15 @@ void bfq_bfqq_move(struct bfq_data *bfqd
-  * Move bic to blkcg, assuming that bfqd->lock is held; which makes
-  * sure that the reference to cgroup is valid across the call (see
-  * comments in bfq_bic_update_cgroup on this issue)
-- *
-- * NOTE: an alternative approach might have been to store the current
-- * cgroup in bfqq and getting a reference to it, reducing the lookup
-- * time here, at the price of slightly more complex code.
-  */
--static struct bfq_group *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
--						struct bfq_io_cq *bic,
--						struct blkcg *blkcg)
-+static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
-+				     struct bfq_io_cq *bic,
-+				     struct bfq_group *bfqg)
- {
- 	struct bfq_queue *async_bfqq = bic_to_bfqq(bic, 0);
- 	struct bfq_queue *sync_bfqq = bic_to_bfqq(bic, 1);
--	struct bfq_group *bfqg;
- 	struct bfq_entity *entity;
- 
--	bfqg = bfq_find_set_group(bfqd, blkcg);
--
--	if (unlikely(!bfqg))
--		bfqg = bfqd->root_group;
--
- 	if (async_bfqq) {
- 		entity = &async_bfqq->entity;
- 
-@@ -784,20 +765,24 @@ static struct bfq_group *__bfq_bic_chang
- void bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio)
- {
- 	struct bfq_data *bfqd = bic_to_bfqd(bic);
--	struct bfq_group *bfqg = NULL;
-+	struct bfq_group *bfqg = bfq_bio_bfqg(bfqd, bio);
- 	uint64_t serial_nr;
- 
--	rcu_read_lock();
--	serial_nr = __bio_blkcg(bio)->css.serial_nr;
-+	serial_nr = bfqg_to_blkg(bfqg)->blkcg->css.serial_nr;
- 
- 	/*
- 	 * Check whether blkcg has changed.  The condition may trigger
- 	 * spuriously on a newly created cic but there's no harm.
- 	 */
- 	if (unlikely(!bfqd) || likely(bic->blkcg_serial_nr == serial_nr))
--		goto out;
-+		return;
- 
--	bfqg = __bfq_bic_change_cgroup(bfqd, bic, __bio_blkcg(bio));
-+	/*
-+	 * New cgroup for this process. Make sure it is linked to bfq internal
-+	 * cgroup hierarchy.
-+	 */
-+	bfq_link_bfqg(bfqd, bfqg);
-+	__bfq_bic_change_cgroup(bfqd, bic, bfqg);
- 	/*
- 	 * Update blkg_path for bfq_log_* functions. We cache this
- 	 * path, and update it here, for the following
-@@ -850,8 +835,6 @@ void bfq_bic_update_cgroup(struct bfq_io
- 	 */
- 	blkg_path(bfqg_to_blkg(bfqg), bfqg->blkg_path, sizeof(bfqg->blkg_path));
- 	bic->blkcg_serial_nr = serial_nr;
--out:
--	rcu_read_unlock();
- }
- 
- /**
-@@ -1469,7 +1452,7 @@ void bfq_end_wr_async(struct bfq_data *b
- 	bfq_end_wr_async_queues(bfqd, bfqd->root_group);
- }
- 
--struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd, struct blkcg *blkcg)
-+struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
- {
- 	return bfqd->root_group;
- }
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5730,14 +5730,7 @@ static struct bfq_queue *bfq_get_queue(s
- 	struct bfq_queue *bfqq;
- 	struct bfq_group *bfqg;
- 
--	rcu_read_lock();
--
--	bfqg = bfq_find_set_group(bfqd, __bio_blkcg(bio));
--	if (!bfqg) {
--		bfqq = &bfqd->oom_bfqq;
--		goto out;
--	}
--
-+	bfqg = bfq_bio_bfqg(bfqd, bio);
- 	if (!is_sync) {
- 		async_bfqq = bfq_async_queue_prio(bfqd, bfqg, ioprio_class,
- 						  ioprio);
-@@ -5783,8 +5776,6 @@ out:
- 
- 	if (bfqq != &bfqd->oom_bfqq && is_sync && !respawn)
- 		bfqq = bfq_do_or_sched_stable_merge(bfqd, bfqq, bic);
--
--	rcu_read_unlock();
- 	return bfqq;
- }
- 
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -1010,8 +1010,7 @@ void bfq_bfqq_move(struct bfq_data *bfqd
- void bfq_init_entity(struct bfq_entity *entity, struct bfq_group *bfqg);
- void bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio);
- void bfq_end_wr_async(struct bfq_data *bfqd);
--struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd,
--				     struct blkcg *blkcg);
-+struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio);
- struct blkcg_gq *bfqg_to_blkg(struct bfq_group *bfqg);
- struct bfq_group *bfqq_group(struct bfq_queue *bfqq);
- struct bfq_group *bfq_create_group_hierarchy(struct bfq_data *bfqd, int node);
+ 	chunk_array = kvmalloc_array(cs->in.num_chunks, sizeof(uint64_t), GFP_KERNEL);
+ 	if (!chunk_array)
 
 
