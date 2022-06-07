@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB37C54061F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF3D540D2D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347013AbiFGReM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45002 "EHLO
+        id S1354607AbiFGSr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:47:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348111AbiFGRbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1490D1157DF;
-        Tue,  7 Jun 2022 10:29:21 -0700 (PDT)
+        with ESMTP id S1353495AbiFGSmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:42:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45647187C0A;
+        Tue,  7 Jun 2022 10:59:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B875CB82285;
-        Tue,  7 Jun 2022 17:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C50C341C6;
-        Tue,  7 Jun 2022 17:29:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D57EACE243F;
+        Tue,  7 Jun 2022 17:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E961EC341C5;
+        Tue,  7 Jun 2022 17:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622958;
-        bh=SoOo2h6Nhp7TEngR14UaS1il1qki5xurOGhv/XXU878=;
+        s=korg; t=1654624739;
+        bh=WYUm3IfFlBJsTPpfZgfJ8+0Ib/s2pOnubORdt3YOv3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htZj+Ijoehyis5XOeW63vjPqHagHrsHJF53Z8uPMkIuZ18cPRcE996KIXkEEobeei
-         d/Wp9QO5uvH1JM+ytXtOkcWxqipXS//ExZlfzRpHbNCrK5CRzKFkvIVS08KtutbT0C
-         GjIrzSHDdV+Pqq7Y2h3DEgfzHcqqF6pCgkuatUU4=
+        b=rBJcchxRQ961HAFPPt4AtkPXB03Q24rbckphzimkkS0ebJk3VCVJtJWiVlQcRNlM4
+         c/4E4/0FR+0I5Zj0AlkmNddL3NuIXq2NTkny5+QOfcdKUzI9rlnsk1b+O4gr2Q4WT4
+         pLdQCoGD04uR5IA7mQ7xYnxgkpizfyajJgP15OI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Scott Cheloha <cheloha@linux.vnet.ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 242/452] thermal/core: Fix memory leak in __thermal_cooling_device_register()
+Subject: [PATCH 5.15 434/667] drivers/base/memory: fix an unlikely reference counting issue in __add_memory_block()
 Date:   Tue,  7 Jun 2022 19:01:39 +0200
-Message-Id: <20220607164915.770712234@linuxfoundation.org>
+Message-Id: <20220607164947.742315266@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 98a160e898c0f4a979af9de3ab48b4b1d42d1dbb ]
+[ Upstream commit f47f758cff59c68015d6b9b9c077110df7c2c828 ]
 
-I got memory leak as follows when doing fault injection test:
+__add_memory_block() calls both put_device() and device_unregister() when
+storing the memory block into the xarray.  This is incorrect because
+xarray doesn't take an additional reference and device_unregister()
+already calls put_device().
 
-unreferenced object 0xffff888010080000 (size 264312):
-  comm "182", pid 102533, jiffies 4296434960 (age 10.100s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 40 7f 1f b9 ff ff ff ff  ........@.......
-  backtrace:
-    [<0000000038b2f4fc>] kmalloc_order_trace+0x1d/0x110 mm/slab_common.c:969
-    [<00000000ebcb8da5>] __kmalloc+0x373/0x420 include/linux/slab.h:510
-    [<0000000084137f13>] thermal_cooling_device_setup_sysfs+0x15d/0x2d0 include/linux/slab.h:586
-    [<00000000352b8755>] __thermal_cooling_device_register+0x332/0xa60 drivers/thermal/thermal_core.c:927
-    [<00000000fb9f331b>] devm_thermal_of_cooling_device_register+0x6b/0xf0 drivers/thermal/thermal_core.c:1041
-    [<000000009b8012d2>] max6650_probe.cold+0x557/0x6aa drivers/hwmon/max6650.c:211
-    [<00000000da0b7e04>] i2c_device_probe+0x472/0xac0 drivers/i2c/i2c-core-base.c:561
+Triggering the issue looks really unlikely and its only effect should be
+to log a spurious warning about a ref counted issue.
 
-If device_register() fails, thermal_cooling_device_destroy_sysfs() need be called
-to free the memory allocated in thermal_cooling_device_setup_sysfs().
-
-Fixes: 8ea229511e06 ("thermal: Add cooling device's statistics in sysfs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220511020605.3096734-1-yangyingliang@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lkml.kernel.org/r/d44c63d78affe844f020dc02ad6af29abc448fc4.1650611702.git.christophe.jaillet@wanadoo.fr
+Fixes: 4fb6eabf1037 ("drivers/base/memory.c: cache memory blocks in xarray to accelerate lookup")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Scott Cheloha <cheloha@linux.vnet.ibm.com>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/memory.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index 1abef64ccb5f..5e48e9cfa044 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -1144,6 +1144,7 @@ __thermal_cooling_device_register(struct device_node *np,
- 	return cdev;
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 60c38f9cf1a7..c0d501a3a714 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -634,10 +634,9 @@ int register_memory(struct memory_block *memory)
+ 	}
+ 	ret = xa_err(xa_store(&memory_blocks, memory->dev.id, memory,
+ 			      GFP_KERNEL));
+-	if (ret) {
+-		put_device(&memory->dev);
++	if (ret)
+ 		device_unregister(&memory->dev);
+-	}
++
+ 	return ret;
+ }
  
- out_kfree_type:
-+	thermal_cooling_device_destroy_sysfs(cdev);
- 	kfree(cdev->type);
- 	put_device(&cdev->device);
- out_ida_remove:
 -- 
 2.35.1
 
