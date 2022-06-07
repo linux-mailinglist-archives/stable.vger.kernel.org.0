@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA31A54056A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5403B541AF2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:42:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236592AbiFGR0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
+        id S1378036AbiFGVmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346340AbiFGRYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F11522D1;
-        Tue,  7 Jun 2022 10:22:32 -0700 (PDT)
+        with ESMTP id S1380822AbiFGViz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:38:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518E233E39;
+        Tue,  7 Jun 2022 12:05:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84930B822B0;
-        Tue,  7 Jun 2022 17:22:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3547C385A5;
-        Tue,  7 Jun 2022 17:22:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7931BCE249F;
+        Tue,  7 Jun 2022 19:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62816C341C4;
+        Tue,  7 Jun 2022 19:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622550;
-        bh=87fusB1NbeF9d5w5FokHgelhk1HMeGJ7WnXMAGuYKQw=;
+        s=korg; t=1654628736;
+        bh=VvEMwFTsWdTGPEoYmkCgqck1dH6F3jcTrr8S+0Olq6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0FqJ0i9gm4Nz6QR/q8gc2i5/tWBCJPn2MfvlORhzOyAp3sYFmDwBjWGrmkjwRorT
-         jzmWypMimf/+bOgivJ5I4iCrQ1tR9LvKS8UK3jiM1tc44bIQgnSfHCb8+r3thXg0ut
-         +3mVpVDnGJnV+7TS8iF3wV6jzi0SDEkjNMiXUzUs=
+        b=OyZBzEgcsOdHoec92xQZXNvGZmJfRaSVX/INX6tc6Z6mHzgY6hZCHZR5NQ8jIaTSW
+         rYpp9xjf4M45wJVuyxMKSsbN4uxDUvpYkqAd/iVALLyi4L07vL4zGIvH/z/0YHX8Ak
+         k64Q+P+XfXmapEU1zZ3+MEpSk8ogzmpo1m7z6Tfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 098/452] ARM: dts: ox820: align interrupt controller node name with dtschema
+        stable@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 437/879] mt76: fix antenna config missing in 6G cap
 Date:   Tue,  7 Jun 2022 18:59:15 +0200
-Message-Id: <20220607164911.477344155@linuxfoundation.org>
+Message-Id: <20220607165015.554653307@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit fbcd5ad7a419ad40644a0bb8b4152bc660172d8a ]
+[ Upstream commit abba345311a740d9dca1b5eb293b3b1c296715dd ]
 
-Fixes dtbs_check warnings like:
+To make sure we have the proper antenna config in 6g cap,
+move IEEE80211_VHT_CAP_[T/R]X_ANTENNA_PATTERN to stream init.
 
-  gic@1000: $nodename:0: 'gic@1000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220317115705.450427-1-krzysztof.kozlowski@canonical.com
+Fixes: edf9dab8ba27 ("mt76: add 6GHz support")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ox820.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mac80211.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ox820.dtsi b/arch/arm/boot/dts/ox820.dtsi
-index 90846a7655b4..dde4364892bf 100644
---- a/arch/arm/boot/dts/ox820.dtsi
-+++ b/arch/arm/boot/dts/ox820.dtsi
-@@ -287,7 +287,7 @@
- 				clocks = <&armclk>;
- 			};
+diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
+index 5b53d008eb66..917ea20c026b 100644
+--- a/drivers/net/wireless/mediatek/mt76/mac80211.c
++++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
+@@ -248,6 +248,8 @@ static void mt76_init_stream_cap(struct mt76_phy *phy,
+ 		vht_cap->cap |= IEEE80211_VHT_CAP_TXSTBC;
+ 	else
+ 		vht_cap->cap &= ~IEEE80211_VHT_CAP_TXSTBC;
++	vht_cap->cap |= IEEE80211_VHT_CAP_TX_ANTENNA_PATTERN |
++			IEEE80211_VHT_CAP_RX_ANTENNA_PATTERN;
  
--			gic: gic@1000 {
-+			gic: interrupt-controller@1000 {
- 				compatible = "arm,arm11mp-gic";
- 				interrupt-controller;
- 				#interrupt-cells = <3>;
+ 	for (i = 0; i < 8; i++) {
+ 		if (i < nstream)
+@@ -323,8 +325,6 @@ mt76_init_sband(struct mt76_phy *phy, struct mt76_sband *msband,
+ 	vht_cap->cap |= IEEE80211_VHT_CAP_RXLDPC |
+ 			IEEE80211_VHT_CAP_RXSTBC_1 |
+ 			IEEE80211_VHT_CAP_SHORT_GI_80 |
+-			IEEE80211_VHT_CAP_RX_ANTENNA_PATTERN |
+-			IEEE80211_VHT_CAP_TX_ANTENNA_PATTERN |
+ 			(3 << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT);
+ 
+ 	return 0;
 -- 
 2.35.1
 
