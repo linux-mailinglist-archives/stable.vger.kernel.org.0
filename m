@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD185404DB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ED805419F5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238100AbiFGRTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:19:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40270 "EHLO
+        id S1378485AbiFGV1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345690AbiFGRTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B421053D6;
-        Tue,  7 Jun 2022 10:19:02 -0700 (PDT)
+        with ESMTP id S1378396AbiFGVY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:24:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 355DE14FC9E;
+        Tue,  7 Jun 2022 12:01:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1536618D2;
-        Tue,  7 Jun 2022 17:19:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0F9CC36AFF;
-        Tue,  7 Jun 2022 17:19:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A58BBB82391;
+        Tue,  7 Jun 2022 19:01:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0687C385A2;
+        Tue,  7 Jun 2022 19:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622341;
-        bh=OQNA3pbhO751SWW63OLtmzQBzHLEIHa7GSdyG62NU3k=;
+        s=korg; t=1654628470;
+        bh=d8rn+GMSsyVcqcclXF/X1Gus3C71I/FtkotnJluWPxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9eebfuhIetQ6x3asgmU4z2poKION1WJtKFKyCGYyakO3K9NaIQccvhRzk9J/HEJX
-         oxW7PNkSREWx0Yf1lJSVy5eMPkB6lWlDJ/FbHNkcKa5dDKPaXGkMdl5GDyTFih/AoA
-         hg0mKUt40yvUDzV5fIATJer696tMKW/6ld71A7yQ=
+        b=b+akAB8sdI3UtKyeT0TVwfVIwdROm666F3ULYcg3yqQVVfu+cMn5Du4cXO1ErOYrg
+         P+BwIu89PRbjN3aBlzGlPPyCzlzu9O3I2vqm3MvaiZL2wzA2iLK76ypklAoKom2/AA
+         5DXbG0Zxs3XcHMYiSx1ZHnCDcKEfR6qpiMz01Fbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 003/452] parisc/stifb: Implement fb_is_primary_device()
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 342/879] media: hantro: Empty encoder capture buffers by default
 Date:   Tue,  7 Jun 2022 18:57:40 +0200
-Message-Id: <20220607164908.631554091@linuxfoundation.org>
+Message-Id: <20220607165012.787189357@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,87 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-commit cf936af790a3ef5f41ff687ec91bfbffee141278 upstream.
+[ Upstream commit 309373a3571ef7175bd9da0c9b13476a718e8478 ]
 
-Implement fb_is_primary_device() function, so that fbcon detects if this
-framebuffer belongs to the default graphics card which was used to start
-the system.
+The payload size for encoder capture buffers is set by the driver upon
+finishing encoding each frame, based on the encoded length returned from
+hardware, and whatever header and padding length used. Setting a
+non-zero default serves no real purpose, and also causes issues if the
+capture buffer is returned to userspace unused, confusing the
+application.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org   # v5.10+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Instead, always set the payload size to 0 for encoder capture buffers
+when preparing them.
+
+Fixes: 775fec69008d ("media: add Rockchip VPU JPEG encoder driver")
+Fixes: 082aaecff35f ("media: hantro: Fix .buf_prepare")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/fb.h    |    4 ++++
- drivers/video/console/sticore.c |   17 +++++++++++++++++
- drivers/video/fbdev/stifb.c     |    4 ++--
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ drivers/staging/media/hantro/hantro_v4l2.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/include/asm/fb.h
-+++ b/arch/parisc/include/asm/fb.h
-@@ -12,9 +12,13 @@ static inline void fb_pgprotect(struct f
- 	pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
- }
+diff --git a/drivers/staging/media/hantro/hantro_v4l2.c b/drivers/staging/media/hantro/hantro_v4l2.c
+index 8b8276ff7b28..71a6279750bf 100644
+--- a/drivers/staging/media/hantro/hantro_v4l2.c
++++ b/drivers/staging/media/hantro/hantro_v4l2.c
+@@ -768,8 +768,12 @@ static int hantro_buf_prepare(struct vb2_buffer *vb)
+ 	 * (for OUTPUT buffers, if userspace passes 0 bytesused, v4l2-core sets
+ 	 * it to buffer length).
+ 	 */
+-	if (V4L2_TYPE_IS_CAPTURE(vq->type))
+-		vb2_set_plane_payload(vb, 0, pix_fmt->plane_fmt[0].sizeimage);
++	if (V4L2_TYPE_IS_CAPTURE(vq->type)) {
++		if (ctx->is_encoder)
++			vb2_set_plane_payload(vb, 0, 0);
++		else
++			vb2_set_plane_payload(vb, 0, pix_fmt->plane_fmt[0].sizeimage);
++	}
  
-+#if defined(CONFIG_STI_CONSOLE) || defined(CONFIG_FB_STI)
-+int fb_is_primary_device(struct fb_info *info);
-+#else
- static inline int fb_is_primary_device(struct fb_info *info)
- {
  	return 0;
  }
-+#endif
- 
- #endif /* _ASM_FB_H_ */
---- a/drivers/video/console/sticore.c
-+++ b/drivers/video/console/sticore.c
-@@ -30,6 +30,7 @@
- #include <asm/pdc.h>
- #include <asm/cacheflush.h>
- #include <asm/grfioctl.h>
-+#include <asm/fb.h>
- 
- #include "../fbdev/sticore.h"
- 
-@@ -1127,6 +1128,22 @@ int sti_call(const struct sti_struct *st
- 	return ret;
- }
- 
-+/* check if given fb_info is the primary device */
-+int fb_is_primary_device(struct fb_info *info)
-+{
-+	struct sti_struct *sti;
-+
-+	sti = sti_get_rom(0);
-+
-+	/* if no built-in graphics card found, allow any fb driver as default */
-+	if (!sti)
-+		return true;
-+
-+	/* return true if it's the default built-in framebuffer driver */
-+	return (sti->info == info);
-+}
-+EXPORT_SYMBOL(fb_is_primary_device);
-+
- MODULE_AUTHOR("Philipp Rumpf, Helge Deller, Thomas Bogendoerfer");
- MODULE_DESCRIPTION("Core STI driver for HP's NGLE series graphics cards in HP PARISC machines");
- MODULE_LICENSE("GPL v2");
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1317,11 +1317,11 @@ static int __init stifb_init_fb(struct s
- 		goto out_err3;
- 	}
- 
-+	/* save for primary gfx device detection & unregister_framebuffer() */
-+	sti->info = info;
- 	if (register_framebuffer(&fb->info) < 0)
- 		goto out_err4;
- 
--	sti->info = info; /* save for unregister_framebuffer() */
--
- 	fb_info(&fb->info, "%s %dx%d-%d frame buffer device, %s, id: %04x, mmio: 0x%04lx\n",
- 		fix->id,
- 		var->xres, 
+-- 
+2.35.1
+
 
 
