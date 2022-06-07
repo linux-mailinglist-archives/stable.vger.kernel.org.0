@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BEDA541CF7
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC20B540E1B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382895AbiFGWHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36750 "EHLO
+        id S1352868AbiFGSwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383625AbiFGWGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C258195937;
-        Tue,  7 Jun 2022 12:16:11 -0700 (PDT)
+        with ESMTP id S1353476AbiFGSrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DFDEEB6;
+        Tue,  7 Jun 2022 11:02:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 067AD61846;
-        Tue,  7 Jun 2022 19:16:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13502C385A2;
-        Tue,  7 Jun 2022 19:16:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B25F2B82375;
+        Tue,  7 Jun 2022 18:02:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD22BC341CF;
+        Tue,  7 Jun 2022 18:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629370;
-        bh=zpIlo2dhr55SAn7L6nptZO8nID03IAKitfbd/IXs1qc=;
+        s=korg; t=1654624975;
+        bh=YsbqfK4bDhrH0z3BIe/ryhtT8bg72/Iiz12ahGehA0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bT8TX9JOqz6rCmCZwtCZwTsuwLlw2j27aWO2M03AYBR9HhPNCCWVPDw4Z6x0+0RbV
-         E4BnoMFuhfp7tuLt0ZxUyNqc6GYUZdVjK74iGHxT2OZlKfKcBMWUIPOVKhwqkjdmkJ
-         OfK7pmgc5drp0GZoyOQ2WZah/IIOPyDkpxnOZ4nU=
+        b=H/RojdmLaxGdSdzAgxd9gm/e+2McS8G/2l6R+AKdFyYnhO9PkiERf1WO8tWgiiGh7
+         MfckLtNAgZ02cUplk+QJo6U3gv1rjCy9d6VBAuBVVsTKrgW2R5TS1bhok/ywPQpUER
+         xjt+RIKwKHNwJe3nbHmaUDOGQFK+645MpLrCA0fY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 666/879] iommu/mediatek: Remove clk_disable in mtk_iommu_remove
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 519/667] f2fs: fix deadloop in foreground GC
 Date:   Tue,  7 Jun 2022 19:03:04 +0200
-Message-Id: <20220607165022.177239560@linuxfoundation.org>
+Message-Id: <20220607164950.269772700@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,65 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 98df772bdd1c4ce717a26289efea15cbbe4b64ed ]
+commit cfd66bb715fd11fde3338d0660cffa1396adc27d upstream.
 
-After the commit b34ea31fe013 ("iommu/mediatek: Always enable the clk on
-resume"), the iommu clock is controlled by the runtime callback.
-thus remove the clk control in the mtk_iommu_remove.
+As Yanming reported in bugzilla:
 
-Otherwise, it will warning like:
+https://bugzilla.kernel.org/show_bug.cgi?id=215914
 
-echo 14018000.iommu > /sys/bus/platform/drivers/mtk-iommu/unbind
+The root cause is: in a very small sized image, it's very easy to
+exceed threshold of foreground GC, if we calculate free space and
+dirty data based on section granularity, in corner case,
+has_not_enough_free_secs() will always return true, result in
+deadloop in f2fs_gc().
 
-[   51.413044] ------------[ cut here ]------------
-[   51.413648] vpp0_smi_iommu already disabled
-[   51.414233] WARNING: CPU: 2 PID: 157 at */v5.15-rc1/kernel/mediatek/
-                          drivers/clk/clk.c:952 clk_core_disable+0xb0/0xb8
-[   51.417174] Hardware name: MT8195V/C(ENG) (DT)
-[   51.418635] pc : clk_core_disable+0xb0/0xb8
-[   51.419177] lr : clk_core_disable+0xb0/0xb8
-...
-[   51.429375] Call trace:
-[   51.429694]  clk_core_disable+0xb0/0xb8
-[   51.430193]  clk_core_disable_lock+0x24/0x40
-[   51.430745]  clk_disable+0x20/0x30
-[   51.431189]  mtk_iommu_remove+0x58/0x118
-[   51.431705]  platform_remove+0x28/0x60
-[   51.432197]  device_release_driver_internal+0x110/0x1f0
-[   51.432873]  device_driver_detach+0x18/0x28
-[   51.433418]  unbind_store+0xd4/0x108
-[   51.433886]  drv_attr_store+0x24/0x38
-[   51.434363]  sysfs_kf_write+0x40/0x58
-[   51.434843]  kernfs_fop_write_iter+0x164/0x1e0
+So this patch refactors has_not_enough_free_secs() as below to fix
+this issue:
+1. calculate needed space based on block granularity, and separate
+all blocks to two parts, section part, and block part, comparing
+section part to free section, and comparing block part to free space
+in openned log.
+2. account F2FS_DIRTY_NODES, F2FS_DIRTY_IMETA and F2FS_DIRTY_DENTS
+as node block consumer;
+3. account F2FS_DIRTY_DENTS as data block consumer;
 
-Fixes: b34ea31fe013 ("iommu/mediatek: Always enable the clk on resume")
-Reported-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20220503071427.2285-7-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/mtk_iommu.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/f2fs/segment.h |   32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index e4b4ebbcb73f..81b8db450eac 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -957,7 +957,6 @@ static int mtk_iommu_remove(struct platform_device *pdev)
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -571,11 +571,10 @@ static inline int reserved_sections(stru
+ 	return GET_SEC_FROM_SEG(sbi, reserved_segments(sbi));
+ }
  
- 	list_del(&data->list);
+-static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
++static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi,
++			unsigned int node_blocks, unsigned int dent_blocks)
+ {
+-	unsigned int node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
+-					get_pages(sbi, F2FS_DIRTY_DENTS);
+-	unsigned int dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++
+ 	unsigned int segno, left_blocks;
+ 	int i;
  
--	clk_disable_unprepare(data->bclk);
- 	device_link_remove(data->smicomm_dev, &pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	devm_free_irq(&pdev->dev, data->irq, data);
--- 
-2.35.1
-
+@@ -601,19 +600,28 @@ static inline bool has_curseg_enough_spa
+ static inline bool has_not_enough_free_secs(struct f2fs_sb_info *sbi,
+ 					int freed, int needed)
+ {
+-	int node_secs = get_blocktype_secs(sbi, F2FS_DIRTY_NODES);
+-	int dent_secs = get_blocktype_secs(sbi, F2FS_DIRTY_DENTS);
+-	int imeta_secs = get_blocktype_secs(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
++					get_pages(sbi, F2FS_DIRTY_DENTS) +
++					get_pages(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++	unsigned int node_secs = total_node_blocks / BLKS_PER_SEC(sbi);
++	unsigned int dent_secs = total_dent_blocks / BLKS_PER_SEC(sbi);
++	unsigned int node_blocks = total_node_blocks % BLKS_PER_SEC(sbi);
++	unsigned int dent_blocks = total_dent_blocks % BLKS_PER_SEC(sbi);
++	unsigned int free, need_lower, need_upper;
+ 
+ 	if (unlikely(is_sbi_flag_set(sbi, SBI_POR_DOING)))
+ 		return false;
+ 
+-	if (free_sections(sbi) + freed == reserved_sections(sbi) + needed &&
+-			has_curseg_enough_space(sbi))
++	free = free_sections(sbi) + freed;
++	need_lower = node_secs + dent_secs + reserved_sections(sbi) + needed;
++	need_upper = need_lower + (node_blocks ? 1 : 0) + (dent_blocks ? 1 : 0);
++
++	if (free > need_upper)
+ 		return false;
+-	return (free_sections(sbi) + freed) <=
+-		(node_secs + 2 * dent_secs + imeta_secs +
+-		reserved_sections(sbi) + needed);
++	else if (free <= need_lower)
++		return true;
++	return !has_curseg_enough_space(sbi, node_blocks, dent_blocks);
+ }
+ 
+ static inline bool f2fs_is_checkpoint_ready(struct f2fs_sb_info *sbi)
 
 
