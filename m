@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E66A54189A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8706554086C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379902AbiFGVNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:13:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44756 "EHLO
+        id S1348968AbiFGR6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:58:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379207AbiFGVLv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D592194F3;
-        Tue,  7 Jun 2022 11:54:01 -0700 (PDT)
+        with ESMTP id S1348979AbiFGR5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D73403D4;
+        Tue,  7 Jun 2022 10:40:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8894EB81F6D;
-        Tue,  7 Jun 2022 18:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4952C385A5;
-        Tue,  7 Jun 2022 18:53:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 493566137B;
+        Tue,  7 Jun 2022 17:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5431FC385A5;
+        Tue,  7 Jun 2022 17:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628039;
-        bh=Z9yF7wXK7FyIDA4sdjwhkOzBIa9BHIXOUCAnORgpRiU=;
+        s=korg; t=1654623637;
+        bh=ITUahHDwW1gTaJlV8oHzxviHbnKXY4XzaJ5No6iHqSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cU8G+cxUNtNJP+neZvtKwo/oE/6UL/3U+oaz2YV0ckKmuKcXxO2U5xG7WWKUBsxMz
-         nGuDldd4wltVGhoVMWVzX8kbykPzuGttNqlFRFGR9UFv3En7QfPeQlFhXnDNvEPLvL
-         zeziOASjjmth+To5D1dPrYPD7WYHaF3vKxkhnWEI=
+        b=RcKXqVhgi4I76MNFK9UgFE3m8e3FwS9Zay6p95caw9Qzmorf14RcwnzKrjnOdYJd6
+         1JEeqkqk1VNjSA4ZnIIOOflbGKYEuoJvkInIFEBpOF8bXfL8hMb9FomHindZaPdwx6
+         nDIXb4iXzyx6XnoIUuARWp8Nat+popoe1jq3rueQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 183/879] net: phy: micrel: Allow probing without .driver_data
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.15 036/667] ptrace/um: Replace PT_DTRACE with TIF_SINGLESTEP
 Date:   Tue,  7 Jun 2022 18:55:01 +0200
-Message-Id: <20220607165008.154283792@linuxfoundation.org>
+Message-Id: <20220607164935.880810460@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
+commit c200e4bb44e80b343c09841e7caaaca0aac5e5fa upstream.
 
-Currently, if the .probe element is present in the phy_driver structure
-and the .driver_data is not, a NULL pointer dereference happens.
+User mode linux is the last user of the PT_DTRACE flag.  Using the flag to indicate
+single stepping is a little confusing and worse changing tsk->ptrace without locking
+could potentionally cause problems.
 
-Allow passing .probe without .driver_data by inserting NULL checks
-for priv->type.
+So use a thread info flag with a better name instead of flag in tsk->ptrace.
 
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove the definition PT_DTRACE as uml is the last user.
+
+Cc: stable@vger.kernel.org
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Link: https://lkml.kernel.org/r/20220505182645.497868-3-ebiederm@xmission.com
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/micrel.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/um/include/asm/thread_info.h |    2 ++
+ arch/um/kernel/exec.c             |    2 +-
+ arch/um/kernel/process.c          |    2 +-
+ arch/um/kernel/ptrace.c           |    8 ++++----
+ arch/um/kernel/signal.c           |    4 ++--
+ include/linux/ptrace.h            |    1 -
+ 6 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index cd9aa353b653..48c7d715a9e3 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -497,7 +497,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
- 		}
- 	}
+--- a/arch/um/include/asm/thread_info.h
++++ b/arch/um/include/asm/thread_info.h
+@@ -64,6 +64,7 @@ static inline struct thread_info *curren
+ #define TIF_RESTORE_SIGMASK	7
+ #define TIF_NOTIFY_RESUME	8
+ #define TIF_SECCOMP		9	/* secure computing */
++#define TIF_SINGLESTEP		10	/* single stepping userspace */
  
--	if (priv->led_mode >= 0)
-+	if (priv->type && priv->led_mode >= 0)
- 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+@@ -72,5 +73,6 @@ static inline struct thread_info *curren
+ #define _TIF_MEMDIE		(1 << TIF_MEMDIE)
+ #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
++#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
  
- 	return 0;
-@@ -513,10 +513,10 @@ static int kszphy_config_init(struct phy_device *phydev)
+ #endif
+--- a/arch/um/kernel/exec.c
++++ b/arch/um/kernel/exec.c
+@@ -42,7 +42,7 @@ void start_thread(struct pt_regs *regs,
+ {
+ 	PT_REGS_IP(regs) = eip;
+ 	PT_REGS_SP(regs) = esp;
+-	current->ptrace &= ~PT_DTRACE;
++	clear_thread_flag(TIF_SINGLESTEP);
+ #ifdef SUBARCH_EXECVE1
+ 	SUBARCH_EXECVE1(regs->regs);
+ #endif
+--- a/arch/um/kernel/process.c
++++ b/arch/um/kernel/process.c
+@@ -339,7 +339,7 @@ int singlestepping(void * t)
+ {
+ 	struct task_struct *task = t ? t : current;
  
- 	type = priv->type;
+-	if (!(task->ptrace & PT_DTRACE))
++	if (!test_thread_flag(TIF_SINGLESTEP))
+ 		return 0;
  
--	if (type->has_broadcast_disable)
-+	if (type && type->has_broadcast_disable)
- 		kszphy_broadcast_disable(phydev);
+ 	if (task->thread.singlestep_syscall)
+--- a/arch/um/kernel/ptrace.c
++++ b/arch/um/kernel/ptrace.c
+@@ -12,7 +12,7 @@
  
--	if (type->has_nand_tree_disable)
-+	if (type && type->has_nand_tree_disable)
- 		kszphy_nand_tree_disable(phydev);
+ void user_enable_single_step(struct task_struct *child)
+ {
+-	child->ptrace |= PT_DTRACE;
++	set_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	child->thread.singlestep_syscall = 0;
  
- 	return kszphy_config_reset(phydev);
-@@ -1514,7 +1514,7 @@ static int kszphy_probe(struct phy_device *phydev)
+ #ifdef SUBARCH_SET_SINGLESTEPPING
+@@ -22,7 +22,7 @@ void user_enable_single_step(struct task
  
- 	priv->type = type;
+ void user_disable_single_step(struct task_struct *child)
+ {
+-	child->ptrace &= ~PT_DTRACE;
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	child->thread.singlestep_syscall = 0;
  
--	if (type->led_mode_reg) {
-+	if (type && type->led_mode_reg) {
- 		ret = of_property_read_u32(np, "micrel,led-mode",
- 				&priv->led_mode);
- 		if (ret)
-@@ -1535,7 +1535,8 @@ static int kszphy_probe(struct phy_device *phydev)
- 		unsigned long rate = clk_get_rate(clk);
- 		bool rmii_ref_clk_sel_25_mhz;
+ #ifdef SUBARCH_SET_SINGLESTEPPING
+@@ -121,7 +121,7 @@ static void send_sigtrap(struct uml_pt_r
+ }
  
--		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
-+		if (type)
-+			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
- 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
- 				"micrel,rmii-reference-clock-select-25-mhz");
+ /*
+- * XXX Check PT_DTRACE vs TIF_SINGLESTEP for singlestepping check and
++ * XXX Check TIF_SINGLESTEP for singlestepping check and
+  * PT_PTRACED vs TIF_SYSCALL_TRACE for syscall tracing check
+  */
+ int syscall_trace_enter(struct pt_regs *regs)
+@@ -145,7 +145,7 @@ void syscall_trace_leave(struct pt_regs
+ 	audit_syscall_exit(regs);
  
--- 
-2.35.1
-
+ 	/* Fake a debug trap */
+-	if (ptraced & PT_DTRACE)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		send_sigtrap(&regs->regs, 0);
+ 
+ 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+--- a/arch/um/kernel/signal.c
++++ b/arch/um/kernel/signal.c
+@@ -53,7 +53,7 @@ static void handle_signal(struct ksignal
+ 	unsigned long sp;
+ 	int err;
+ 
+-	if ((current->ptrace & PT_DTRACE) && (current->ptrace & PT_PTRACED))
++	if (test_thread_flag(TIF_SINGLESTEP) && (current->ptrace & PT_PTRACED))
+ 		singlestep = 1;
+ 
+ 	/* Did we come from a system call? */
+@@ -128,7 +128,7 @@ void do_signal(struct pt_regs *regs)
+ 	 * on the host.  The tracing thread will check this flag and
+ 	 * PTRACE_SYSCALL if necessary.
+ 	 */
+-	if (current->ptrace & PT_DTRACE)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		current->thread.singlestep_syscall =
+ 			is_syscall(PT_REGS_IP(&current->thread.regs));
+ 
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -30,7 +30,6 @@ extern int ptrace_access_vm(struct task_
+ 
+ #define PT_SEIZED	0x00010000	/* SEIZE used, enable new behavior */
+ #define PT_PTRACED	0x00000001
+-#define PT_DTRACE	0x00000002	/* delayed trace (used on m68k, i386) */
+ 
+ #define PT_OPT_FLAG_SHIFT	3
+ /* PT_TRACE_* event enable flags */
 
 
