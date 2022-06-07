@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59DF5540B6A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E226F54145C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351247AbiFGS2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:28:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
+        id S1356517AbiFGUR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237897AbiFGSXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0B6C5DA6;
-        Tue,  7 Jun 2022 10:54:18 -0700 (PDT)
+        with ESMTP id S1359666AbiFGUP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:15:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4B41C8A3C;
+        Tue,  7 Jun 2022 11:28:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 506E961825;
-        Tue,  7 Jun 2022 17:54:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC7EC385A5;
-        Tue,  7 Jun 2022 17:54:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7601B8237C;
+        Tue,  7 Jun 2022 18:28:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3046EC385A2;
+        Tue,  7 Jun 2022 18:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624448;
-        bh=wXAfGWgTE2nwx+GSzU2Lgt8EBZdj6oFr+d45/+PJBiU=;
+        s=korg; t=1654626509;
+        bh=wBHxjob7x0XzPX7Nk91SNo2LE9sqgvauDwTuTzLOtjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPQf1mpNDw6qZDoM+4VLDFJajNH6zSuGwPRUvjMN9DYxURqfDts84LmSX329u0BUi
-         vUtka1eB9MIA0H8kalfPawRUvGTMU3wi5nr9RwS5e609APnh1UTVboSdqf1b0Y1hYS
-         H7H4Z7g3THnGCeSrARagJv4+FJbC5Sl9sX/5x0bM=
+        b=U/B2umkPePpF9Q0R4EgjDwA1ofSclircTg3a7FWJihu509c4ruFbGgvZn1LeeKaot
+         q+KB7rw5LzAer9IrHcHicquFZ4X6Ci+lEgfaPxtJLqo7PHh4hN93ktRJdD/tBtXk1z
+         c6JZ/WrDjZgLjeD2a6465J/sO9Mv6OTtpn8jzMiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Sebastian Fricke <sebastian.fricke@collabora.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 331/667] Bluetooth: use hdev lock for accept_list and reject_list in conn req
+Subject: [PATCH 5.17 404/772] media: rkvdec: Stop overclocking the decoder
 Date:   Tue,  7 Jun 2022 18:59:56 +0200
-Message-Id: <20220607164944.696448493@linuxfoundation.org>
+Message-Id: <20220607165000.914511779@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +58,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit fb048cae51bacdfbbda2954af3c213fdb1d484f4 ]
+[ Upstream commit 9998943f6dfc5d5472bfab2e38527fb6ba5e9da7 ]
 
-All accesses (both reads and modifications) to
-hdev->{accept,reject}_list are protected by hdev lock,
-except the ones in hci_conn_request_evt. This can cause a race
-condition in the form of a list corruption.
-The solution is to protect these lists in hci_conn_request_evt as well.
+While this overclock hack seems to work on some implementations
+(some ChromeBooks, RockPi4) it also causes instability on other
+implementations (notably LibreComputer Renegade, but there were more
+reports in the LibreELEC project, where this has been removed). While
+performance is indeed affected (tested with GStreamer), 4K playback
+still works as long as you don't operate in lock step and keep at
+least 1 frame ahead of time in the decode queue.
 
-I was unable to find the exact commit that introduced the issue for the
-reject list, I was only able to find it for the accept list.
+After discussion with ChromeOS members, it would seem that their
+implementation indeed used to synchronously decode each frame, so
+this hack was simply compensating for their code being less
+efficient. In my opinion, this hack should not have been included
+upstream.
 
-Fixes: a55bd29d5227 ("Bluetooth: Add white list lookup for incoming connection requests")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index e984a8b4b914..5ac3aca6deeb 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2790,10 +2790,12 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 		return;
- 	}
+diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
+index c0cf3488f970..2df8cf4883e2 100644
+--- a/drivers/staging/media/rkvdec/rkvdec.c
++++ b/drivers/staging/media/rkvdec/rkvdec.c
+@@ -1027,12 +1027,6 @@ static int rkvdec_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
-+	hci_dev_lock(hdev);
-+
- 	if (hci_bdaddr_list_lookup(&hdev->reject_list, &ev->bdaddr,
- 				   BDADDR_BREDR)) {
- 		hci_reject_conn(hdev, &ev->bdaddr);
--		return;
-+		goto unlock;
- 	}
- 
- 	/* Require HCI_CONNECTABLE or an accept list entry to accept the
-@@ -2805,13 +2807,11 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	    !hci_bdaddr_list_lookup_with_flags(&hdev->accept_list, &ev->bdaddr,
- 					       BDADDR_BREDR)) {
- 		hci_reject_conn(hdev, &ev->bdaddr);
--		return;
-+		goto unlock;
- 	}
- 
- 	/* Connection accepted */
- 
--	hci_dev_lock(hdev);
+-	/*
+-	 * Bump ACLK to max. possible freq. (500 MHz) to improve performance
+-	 * When 4k video playback.
+-	 */
+-	clk_set_rate(rkvdec->clocks[0].clk, 500 * 1000 * 1000);
 -
- 	ie = hci_inquiry_cache_lookup(hdev, &ev->bdaddr);
- 	if (ie)
- 		memcpy(ie->data.dev_class, ev->dev_class, 3);
-@@ -2823,8 +2823,7 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 				    HCI_ROLE_SLAVE);
- 		if (!conn) {
- 			bt_dev_err(hdev, "no memory for new connection");
--			hci_dev_unlock(hdev);
--			return;
-+			goto unlock;
- 		}
- 	}
- 
-@@ -2864,6 +2863,10 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 		conn->state = BT_CONNECT2;
- 		hci_connect_cfm(conn, 0);
- 	}
-+
-+	return;
-+unlock:
-+	hci_dev_unlock(hdev);
- }
- 
- static u8 hci_to_mgmt_reason(u8 err)
+ 	rkvdec->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(rkvdec->regs))
+ 		return PTR_ERR(rkvdec->regs);
 -- 
 2.35.1
 
