@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 932BE5405DC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D214540CF9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:44:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346875AbiFGRcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42956 "EHLO
+        id S1346634AbiFGSmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348072AbiFGRbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58E111E48A;
-        Tue,  7 Jun 2022 10:29:13 -0700 (PDT)
+        with ESMTP id S1346131AbiFGSlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:41:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25503186BB4;
+        Tue,  7 Jun 2022 10:58:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5882C614C0;
-        Tue,  7 Jun 2022 17:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E21C34115;
-        Tue,  7 Jun 2022 17:29:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 364CA61883;
+        Tue,  7 Jun 2022 17:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46116C385A5;
+        Tue,  7 Jun 2022 17:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622952;
-        bh=7gLmPXzMhNy7D2VimkqVQcs4oFEM8KSRbDToOpCrFlw=;
+        s=korg; t=1654624733;
+        bh=zAI4Ecr07YE0jxsrG6iNMiep9L8whui7+AfVab8/K6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UvaAk1UVVQh+bFohJDr8YlXUysT1ScGjWkI5G8/snEqiO8T2G/y5zEdgJXa5qZMcd
-         mXeqGLhaQMELaAjuz3aFKDmAAe8ERWnkMngB40jRoj5zpRuloFNG49pfmgiWO0e/5w
-         w/yQeFt9pJp3fhMQxXjgcrBmm7i8I41wy80RbjXA=
+        b=D8PZVRQqt3WYJBlNDsKCDYul7RlCrVfYqD+Aa/XvNYqx5wvPG6ub5Lad0BeBhG+Fw
+         9o4bkVAYd4CezHMdKsDrLK4Ysocadp78/NWzpTuNevwRW2Qdar4l68IlWmpJXKOtXL
+         Q0ksq/eg3woXq1GCTg/b4NT1dZ4OVvaLAsHFCaGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Mel Gorman <mel@csn.ul.ie>,
+        Minchan Kim <minchan.kim@gmail.com>,
+        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 240/452] thermal/drivers/broadcom: Fix potential NULL dereference in sr_thermal_probe
+Subject: [PATCH 5.15 432/667] drivers/base/node.c: fix compaction sysfs file leak
 Date:   Tue,  7 Jun 2022 19:01:37 +0200
-Message-Id: <20220607164915.712144429@linuxfoundation.org>
+Message-Id: <20220607164947.682182691@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +59,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit e20d136ec7d6f309989c447638365840d3424c8e ]
+[ Upstream commit da63dc84befaa9e6079a0bc363ff0eaa975f9073 ]
 
-platform_get_resource() may return NULL, add proper check to
-avoid potential NULL dereferencing.
+Compaction sysfs file is created via compaction_register_node in
+register_node.  But we forgot to remove it in unregister_node.  Thus
+compaction sysfs file is leaked.  Using compaction_unregister_node to fix
+this issue.
 
-Fixes: 250e211057c72 ("thermal: broadcom: Add Stingray thermal driver")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220425092929.90412-1-zhengyongjun3@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lkml.kernel.org/r/20220401070905.43679-1-linmiaohe@huawei.com
+Fixes: ed4a6d7f0676 ("mm: compaction: add /sys trigger for per-node memory compaction")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Mel Gorman <mel@csn.ul.ie>
+Cc: Minchan Kim <minchan.kim@gmail.com>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/broadcom/sr-thermal.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/base/node.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/thermal/broadcom/sr-thermal.c b/drivers/thermal/broadcom/sr-thermal.c
-index 475ce2900771..85ab9edd580c 100644
---- a/drivers/thermal/broadcom/sr-thermal.c
-+++ b/drivers/thermal/broadcom/sr-thermal.c
-@@ -60,6 +60,9 @@ static int sr_thermal_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -ENOENT;
-+
- 	sr_thermal->regs = (void __iomem *)devm_memremap(&pdev->dev, res->start,
- 							 resource_size(res),
- 							 MEMREMAP_WB);
+diff --git a/drivers/base/node.c b/drivers/base/node.c
+index c56d34f8158f..0f5319b79fad 100644
+--- a/drivers/base/node.c
++++ b/drivers/base/node.c
+@@ -679,6 +679,7 @@ static int register_node(struct node *node, int num)
+  */
+ void unregister_node(struct node *node)
+ {
++	compaction_unregister_node(node);
+ 	hugetlb_unregister_node(node);		/* no-op, if memoryless node */
+ 	node_remove_accesses(node);
+ 	node_remove_caches(node);
 -- 
 2.35.1
 
