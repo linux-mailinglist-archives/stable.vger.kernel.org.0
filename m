@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57985542529
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BAE6542274
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234896AbiFHBap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 21:30:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50338 "EHLO
+        id S1349644AbiFHBOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:14:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231328AbiFHBWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 21:22:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AEC1957B6;
-        Tue,  7 Jun 2022 12:18:15 -0700 (PDT)
+        with ESMTP id S1841758AbiFHAIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 20:08:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D28C2534CD;
+        Tue,  7 Jun 2022 12:18:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BE3961976;
-        Tue,  7 Jun 2022 19:18:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A80C34115;
-        Tue,  7 Jun 2022 19:18:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E21C2B823DC;
+        Tue,  7 Jun 2022 19:18:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 571C6C36B0B;
+        Tue,  7 Jun 2022 19:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629493;
-        bh=ZarOxv6OC6Lb7v0F8skjQkznp1Vq8KrFhn6FrSySwWs=;
+        s=korg; t=1654629496;
+        bh=ibFWBZNYf96bTV+pa3KOvrMz/s+3mgQ+XsQOvLGXtoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGEBgJFUsqbipf/tCn/IpzP3HlBfKEunEBlY3Gz88iEvbTzdHB8xVB83OCC2LaMPp
-         zbE+7Z8zu1bz8apvB+tLXsy6q/uhe9VgAvsoPJxmOpINjQggasFk1R66bfY9WhkGCm
-         0Qgc4O4ylbZMFPCslNraHVXOYj+MdUbPNUi4Ptb4=
+        b=b6vvhIwyUI45QjjsH5EVcvWXUGIWuCcUOk2fyD+7XgOIL/DFj58/UjE0Nw1dVTgnB
+         06AZA1iRsPc2RHFFAOwG4ZKpx9QLjNQ1zMkR4jtoi008MQ51nytFwNqacrjB7Nfe2c
+         zlpZyBrVX+KjIMad9lpAdjRM0TS50J2fp4twPxhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
         Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.18 710/879] f2fs: fix to clear dirty inode in f2fs_evict_inode()
-Date:   Tue,  7 Jun 2022 19:03:48 +0200
-Message-Id: <20220607165023.462494488@linuxfoundation.org>
+Subject: [PATCH 5.18 711/879] f2fs: fix deadloop in foreground GC
+Date:   Tue,  7 Jun 2022 19:03:49 +0200
+Message-Id: <20220607165023.491299256@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,42 +55,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <chao@kernel.org>
 
-commit f2db71053dc0409fae785096ad19cce4c8a95af7 upstream.
+commit cfd66bb715fd11fde3338d0660cffa1396adc27d upstream.
 
 As Yanming reported in bugzilla:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215904
+https://bugzilla.kernel.org/show_bug.cgi?id=215914
 
-The kernel message is shown below:
+The root cause is: in a very small sized image, it's very easy to
+exceed threshold of foreground GC, if we calculate free space and
+dirty data based on section granularity, in corner case,
+has_not_enough_free_secs() will always return true, result in
+deadloop in f2fs_gc().
 
-kernel BUG at fs/f2fs/inode.c:825!
-Call Trace:
- evict+0x282/0x4e0
- __dentry_kill+0x2b2/0x4d0
- shrink_dentry_list+0x17c/0x4f0
- shrink_dcache_parent+0x143/0x1e0
- do_one_tree+0x9/0x30
- shrink_dcache_for_umount+0x51/0x120
- generic_shutdown_super+0x5c/0x3a0
- kill_block_super+0x90/0xd0
- kill_f2fs_super+0x225/0x310
- deactivate_locked_super+0x78/0xc0
- cleanup_mnt+0x2b7/0x480
- task_work_run+0xc8/0x150
- exit_to_user_mode_prepare+0x14a/0x150
- syscall_exit_to_user_mode+0x1d/0x40
- do_syscall_64+0x48/0x90
-
-The root cause is: inode node and dnode node share the same nid,
-so during f2fs_evict_inode(), dnode node truncation will invalidate
-its NAT entry, so when truncating inode node, it fails due to
-invalid NAT entry, result in inode is still marked as dirty, fix
-this issue by clearing dirty for inode and setting SBI_NEED_FSCK
-flag in filesystem.
-
-output from dump.f2fs:
-[print_node_info: 354] Node ID [0xf:15] is inode
-i_nid[0]                      		[0x       f : 15]
+So this patch refactors has_not_enough_free_secs() as below to fix
+this issue:
+1. calculate needed space based on block granularity, and separate
+all blocks to two parts, section part, and block part, comparing
+section part to free section, and comparing block part to free space
+in openned log.
+2. account F2FS_DIRTY_NODES, F2FS_DIRTY_IMETA and F2FS_DIRTY_DENTS
+as node block consumer;
+3. account F2FS_DIRTY_DENTS as data block consumer;
 
 Cc: stable@vger.kernel.org
 Reported-by: Ming Yan <yanming@tju.edu.cn>
@@ -98,34 +83,62 @@ Signed-off-by: Chao Yu <chao.yu@oppo.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/inode.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/f2fs/segment.h |   32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -796,8 +796,22 @@ retry:
- 		f2fs_lock_op(sbi);
- 		err = f2fs_remove_inode_page(inode);
- 		f2fs_unlock_op(sbi);
--		if (err == -ENOENT)
-+		if (err == -ENOENT) {
- 			err = 0;
-+
-+			/*
-+			 * in fuzzed image, another node may has the same
-+			 * block address as inode's, if it was truncated
-+			 * previously, truncation of inode node will fail.
-+			 */
-+			if (is_inode_flag_set(inode, FI_DIRTY_INODE)) {
-+				f2fs_warn(F2FS_I_SB(inode),
-+					"f2fs_evict_inode: inconsistent node id, ino:%lu",
-+					inode->i_ino);
-+				f2fs_inode_synced(inode);
-+				set_sbi_flag(sbi, SBI_NEED_FSCK);
-+			}
-+		}
- 	}
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -572,11 +572,10 @@ static inline int reserved_sections(stru
+ 	return GET_SEC_FROM_SEG(sbi, reserved_segments(sbi));
+ }
  
- 	/* give more chances, if ENOMEM case */
+-static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
++static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi,
++			unsigned int node_blocks, unsigned int dent_blocks)
+ {
+-	unsigned int node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
+-					get_pages(sbi, F2FS_DIRTY_DENTS);
+-	unsigned int dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++
+ 	unsigned int segno, left_blocks;
+ 	int i;
+ 
+@@ -602,19 +601,28 @@ static inline bool has_curseg_enough_spa
+ static inline bool has_not_enough_free_secs(struct f2fs_sb_info *sbi,
+ 					int freed, int needed)
+ {
+-	int node_secs = get_blocktype_secs(sbi, F2FS_DIRTY_NODES);
+-	int dent_secs = get_blocktype_secs(sbi, F2FS_DIRTY_DENTS);
+-	int imeta_secs = get_blocktype_secs(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
++					get_pages(sbi, F2FS_DIRTY_DENTS) +
++					get_pages(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++	unsigned int node_secs = total_node_blocks / BLKS_PER_SEC(sbi);
++	unsigned int dent_secs = total_dent_blocks / BLKS_PER_SEC(sbi);
++	unsigned int node_blocks = total_node_blocks % BLKS_PER_SEC(sbi);
++	unsigned int dent_blocks = total_dent_blocks % BLKS_PER_SEC(sbi);
++	unsigned int free, need_lower, need_upper;
+ 
+ 	if (unlikely(is_sbi_flag_set(sbi, SBI_POR_DOING)))
+ 		return false;
+ 
+-	if (free_sections(sbi) + freed == reserved_sections(sbi) + needed &&
+-			has_curseg_enough_space(sbi))
++	free = free_sections(sbi) + freed;
++	need_lower = node_secs + dent_secs + reserved_sections(sbi) + needed;
++	need_upper = need_lower + (node_blocks ? 1 : 0) + (dent_blocks ? 1 : 0);
++
++	if (free > need_upper)
+ 		return false;
+-	return (free_sections(sbi) + freed) <=
+-		(node_secs + 2 * dent_secs + imeta_secs +
+-		reserved_sections(sbi) + needed);
++	else if (free <= need_lower)
++		return true;
++	return !has_curseg_enough_space(sbi, node_blocks, dent_blocks);
+ }
+ 
+ static inline bool f2fs_is_checkpoint_ready(struct f2fs_sb_info *sbi)
 
 
