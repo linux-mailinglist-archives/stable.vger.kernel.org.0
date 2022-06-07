@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 137E25412EB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 604175419E2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357281AbiFGTzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
+        id S1356496AbiFGV1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358612AbiFGTwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:45 -0400
+        with ESMTP id S1377899AbiFGVXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C30D331374;
-        Tue,  7 Jun 2022 11:21:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB3F227360;
+        Tue,  7 Jun 2022 12:00:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74A92B82368;
-        Tue,  7 Jun 2022 18:21:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D147AC385A5;
-        Tue,  7 Jun 2022 18:21:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DD04B8239E;
+        Tue,  7 Jun 2022 19:00:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B41A1C385A5;
+        Tue,  7 Jun 2022 19:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626085;
-        bh=Aq7vSxKcjetfj93aKlRfrOrn3yESDQPRup+E2ckv/ac=;
+        s=korg; t=1654628429;
+        bh=seCFZk7YL+TVjD/DOD0zsxuIbf6/QXBn7zKIHdKSTeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vASabPSJBsihLSViFASSXL54vkjy/KLKUMIMWCGi6Rnue2CiXElGFnEvHS69WUQ8A
-         q+kua9bJXRcBHnOU19bFBOqLkozKVdMZdBtpxBexpWoU4aB0/Qf94QbZvYo87F/sbf
-         gaxw3ljY4TzTjAprFl9OYhKiAKztqRfVIYfvZKAI=
+        b=Ter55OunemYImBJbumkJt8sAzjR6vlDg7LxAy5DpO6pCXuGr1W1qlJQ+3EpZ4A/jL
+         01DvWnwQrDsycwegHahq+vVy+sP5Agfn0iRAdRDAifVfvsX8cfCLM87mveCDRbMzqm
+         0wGHEtW4EatDZby/wFkSHLGmeodXlq6kZGv0Xyfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 250/772] drm/vc4: txp: Force alpha to be 0xff if its disabled
+Subject: [PATCH 5.18 324/879] mtd: rawnand: denali: Use managed device resources
 Date:   Tue,  7 Jun 2022 18:57:22 +0200
-Message-Id: <20220607164956.393497105@linuxfoundation.org>
+Message-Id: <20220607165012.258107593@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 5453343a88ede8b12812fced81ecd24cb888ccc3 ]
+[ Upstream commit 3a745b51cddafade99aaea1b93aad31e9614e230 ]
 
-If we use a format that has padding instead of the alpha component (such
-as XRGB8888), it appears that the Transposer will fill the padding to 0,
-disregarding what was stored in the input buffer padding.
+All of the resources used by this driver has managed interfaces, so use
+them. Otherwise we will get the following splat:
 
-This leads to issues with IGT, since it will set the padding to 0xff,
-but will then compare the CRC of the two frames which will thus fail.
-Another nice side effect is that it is now possible to just use the
-buffer as ARGB.
+[    4.472703] denali-nand-pci 0000:00:05.0: timeout while waiting for irq 0x1000
+[    4.474071] denali-nand-pci: probe of 0000:00:05.0 failed with error -5
+[    4.473538] nand: No NAND device found
+[    4.474068] BUG: unable to handle page fault for address: ffffc90005000410
+[    4.475169] #PF: supervisor write access in kernel mode
+[    4.475579] #PF: error_code(0x0002) - not-present page
+[    4.478362] RIP: 0010:iowrite32+0x9/0x50
+[    4.486068] Call Trace:
+[    4.486269]  <IRQ>
+[    4.486443]  denali_isr+0x15b/0x300 [denali]
+[    4.486788]  ? denali_direct_write+0x50/0x50 [denali]
+[    4.487189]  __handle_irq_event_percpu+0x161/0x3b0
+[    4.487571]  handle_irq_event+0x7d/0x1b0
+[    4.487884]  handle_fasteoi_irq+0x2b0/0x770
+[    4.488219]  __common_interrupt+0xc8/0x1b0
+[    4.488549]  common_interrupt+0x9a/0xc0
 
-Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://lore.kernel.org/r/20220328153659.2382206-4-maxime@cerno.tech
+Fixes: 93db446a424c ("mtd: nand: move raw NAND related code to the raw/ subdir")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220411125808.958276-1-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_txp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mtd/nand/raw/denali_pci.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
-index ace2d03649ba..82beb8c159f2 100644
---- a/drivers/gpu/drm/vc4/vc4_txp.c
-+++ b/drivers/gpu/drm/vc4/vc4_txp.c
-@@ -304,6 +304,12 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
+diff --git a/drivers/mtd/nand/raw/denali_pci.c b/drivers/mtd/nand/raw/denali_pci.c
+index 20c085a30adc..de7e722d3826 100644
+--- a/drivers/mtd/nand/raw/denali_pci.c
++++ b/drivers/mtd/nand/raw/denali_pci.c
+@@ -74,22 +74,21 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return ret;
+ 	}
  
- 	if (fb->format->has_alpha)
- 		ctrl |= TXP_ALPHA_ENABLE;
-+	else
-+		/*
-+		 * If TXP_ALPHA_ENABLE isn't set and TXP_ALPHA_INVERT is, the
-+		 * hardware will force the output padding to be 0xff.
-+		 */
-+		ctrl |= TXP_ALPHA_INVERT;
+-	denali->reg = ioremap(csr_base, csr_len);
++	denali->reg = devm_ioremap(denali->dev, csr_base, csr_len);
+ 	if (!denali->reg) {
+ 		dev_err(&dev->dev, "Spectra: Unable to remap memory region\n");
+ 		return -ENOMEM;
+ 	}
  
- 	gem = drm_fb_cma_get_gem_obj(fb, 0);
- 	TXP_WRITE(TXP_DST_PTR, gem->paddr + fb->offsets[0]);
+-	denali->host = ioremap(mem_base, mem_len);
++	denali->host = devm_ioremap(denali->dev, mem_base, mem_len);
+ 	if (!denali->host) {
+ 		dev_err(&dev->dev, "Spectra: ioremap failed!");
+-		ret = -ENOMEM;
+-		goto out_unmap_reg;
++		return -ENOMEM;
+ 	}
+ 
+ 	ret = denali_init(denali);
+ 	if (ret)
+-		goto out_unmap_host;
++		return ret;
+ 
+ 	nsels = denali->nbanks;
+ 
+@@ -117,10 +116,6 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ out_remove_denali:
+ 	denali_remove(denali);
+-out_unmap_host:
+-	iounmap(denali->host);
+-out_unmap_reg:
+-	iounmap(denali->reg);
+ 	return ret;
+ }
+ 
+@@ -129,8 +124,6 @@ static void denali_pci_remove(struct pci_dev *dev)
+ 	struct denali_controller *denali = pci_get_drvdata(dev);
+ 
+ 	denali_remove(denali);
+-	iounmap(denali->reg);
+-	iounmap(denali->host);
+ }
+ 
+ static struct pci_driver denali_pci_driver = {
 -- 
 2.35.1
 
