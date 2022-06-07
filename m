@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC93054061A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B306541427
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347173AbiFGReO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45000 "EHLO
+        id S1358919AbiFGUNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:13:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346972AbiFGR3z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32FE39BA5;
-        Tue,  7 Jun 2022 10:25:17 -0700 (PDT)
+        with ESMTP id S1359659AbiFGUMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:12:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A09B8A3383;
+        Tue,  7 Jun 2022 11:27:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 285F760C7C;
-        Tue,  7 Jun 2022 17:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4E0C385A5;
-        Tue,  7 Jun 2022 17:25:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0293B82382;
+        Tue,  7 Jun 2022 18:27:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F185C385A5;
+        Tue,  7 Jun 2022 18:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622716;
-        bh=JBjv+jQepLBvTIwwa1vHNKEFcQiAbDMaYsOBLB880d4=;
+        s=korg; t=1654626470;
+        bh=fpu6zjifZacXCfoqg3slzQtn/2nAGxzDEeHjW3aa+ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cb4Z1Fg7DumhOJB42r9fdH5fVBMsJfDK9mu5gRxGe7UXras/H6ZjY6p+SkZ+UOumb
-         lc+qA4zT0RefwnK60EfZPIbuz00wf8PjBtkEvxbbIkZ3nSG1L/DD4eKX/EbTckwFvM
-         iZFI2+leeuZkqk93Eb9aIl5f2oQ8eORnHtfkwb/A=
+        b=gpAEN1d8OVkY5jfF+XpL49rc9V0aorSiGUnAyKgrzfhB1F6NmWpnaEeTMjn2P7cOc
+         8LQscEbbk8M4fDcJl+S/829d/1f9Wg7LKQGsJux84dzJb5aTezOHqBJSLS+Jca88dp
+         0qBFojwNkYBEgQ7H4MsUZz6our8HV40MKT8l+wgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Finn Thain <fthain@linux-m68k.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com,
+        Ying Hsu <yinghsu@chromium.org>,
+        Joseph Hwang <josephsih@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 117/452] macintosh/via-pmu: Fix build failure when CONFIG_INPUT is disabled
-Date:   Tue,  7 Jun 2022 18:59:34 +0200
-Message-Id: <20220607164912.045380871@linuxfoundation.org>
+Subject: [PATCH 5.17 383/772] Bluetooth: fix dangling sco_conn and use-after-free in sco_sock_timeout
+Date:   Tue,  7 Jun 2022 18:59:35 +0200
+Message-Id: <20220607165000.301923894@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,80 +57,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@linux-m68k.org>
+From: Ying Hsu <yinghsu@chromium.org>
 
-[ Upstream commit 86ce436e30d86327c9f5260f718104ae7b21f506 ]
+[ Upstream commit 7aa1e7d15f8a5b65f67bacb100d8fc033b21efa2 ]
 
-drivers/macintosh/via-pmu-event.o: In function `via_pmu_event':
-via-pmu-event.c:(.text+0x44): undefined reference to `input_event'
-via-pmu-event.c:(.text+0x68): undefined reference to `input_event'
-via-pmu-event.c:(.text+0x94): undefined reference to `input_event'
-via-pmu-event.c:(.text+0xb8): undefined reference to `input_event'
-drivers/macintosh/via-pmu-event.o: In function `via_pmu_event_init':
-via-pmu-event.c:(.init.text+0x20): undefined reference to `input_allocate_device'
-via-pmu-event.c:(.init.text+0xc4): undefined reference to `input_register_device'
-via-pmu-event.c:(.init.text+0xd4): undefined reference to `input_free_device'
-make[1]: *** [Makefile:1155: vmlinux] Error 1
-make: *** [Makefile:350: __build_one_by_one] Error 2
+Connecting the same socket twice consecutively in sco_sock_connect()
+could lead to a race condition where two sco_conn objects are created
+but only one is associated with the socket. If the socket is closed
+before the SCO connection is established, the timer associated with the
+dangling sco_conn object won't be canceled. As the sock object is being
+freed, the use-after-free problem happens when the timer callback
+function sco_sock_timeout() accesses the socket. Here's the call trace:
 
-Don't call into the input subsystem unless CONFIG_INPUT is built-in.
+dump_stack+0x107/0x163
+? refcount_inc+0x1c/
+print_address_description.constprop.0+0x1c/0x47e
+? refcount_inc+0x1c/0x7b
+kasan_report+0x13a/0x173
+? refcount_inc+0x1c/0x7b
+check_memory_region+0x132/0x139
+refcount_inc+0x1c/0x7b
+sco_sock_timeout+0xb2/0x1ba
+process_one_work+0x739/0xbd1
+? cancel_delayed_work+0x13f/0x13f
+? __raw_spin_lock_init+0xf0/0xf0
+? to_kthread+0x59/0x85
+worker_thread+0x593/0x70e
+kthread+0x346/0x35a
+? drain_workqueue+0x31a/0x31a
+? kthread_bind+0x4b/0x4b
+ret_from_fork+0x1f/0x30
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Finn Thain <fthain@linux-m68k.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5edbe76ce68227f71e09af4614cc4c1bd61c7ec8.1649326292.git.fthain@linux-m68k.org
+Link: https://syzkaller.appspot.com/bug?extid=2bef95d3ab4daa10155b
+Reported-by: syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com
+Fixes: e1dee2c1de2b ("Bluetooth: fix repeated calls to sco_sock_kill")
+Signed-off-by: Ying Hsu <yinghsu@chromium.org>
+Reviewed-by: Joseph Hwang <josephsih@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/Kconfig   | 4 ++++
- drivers/macintosh/Makefile  | 3 ++-
- drivers/macintosh/via-pmu.c | 2 +-
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ net/bluetooth/sco.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
-index 5cdc361da37c..3942db15a2b8 100644
---- a/drivers/macintosh/Kconfig
-+++ b/drivers/macintosh/Kconfig
-@@ -67,6 +67,10 @@ config ADB_PMU
- 	  this device; you should do so if your machine is one of those
- 	  mentioned above.
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 2a58c7d88433..1111da4e2f2b 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -574,19 +574,24 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
+ 	    addr->sa_family != AF_BLUETOOTH)
+ 		return -EINVAL;
  
-+config ADB_PMU_EVENT
-+	def_bool y
-+	depends on ADB_PMU && INPUT=y
-+
- config ADB_PMU_LED
- 	bool "Support for the Power/iBook front LED"
- 	depends on PPC_PMAC && ADB_PMU
-diff --git a/drivers/macintosh/Makefile b/drivers/macintosh/Makefile
-index 49819b1b6f20..712edcb3e0b0 100644
---- a/drivers/macintosh/Makefile
-+++ b/drivers/macintosh/Makefile
-@@ -12,7 +12,8 @@ obj-$(CONFIG_MAC_EMUMOUSEBTN)	+= mac_hid.o
- obj-$(CONFIG_INPUT_ADBHID)	+= adbhid.o
- obj-$(CONFIG_ANSLCD)		+= ans-lcd.o
+-	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND)
+-		return -EBADFD;
++	lock_sock(sk);
++	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND) {
++		err = -EBADFD;
++		goto done;
++	}
  
--obj-$(CONFIG_ADB_PMU)		+= via-pmu.o via-pmu-event.o
-+obj-$(CONFIG_ADB_PMU)		+= via-pmu.o
-+obj-$(CONFIG_ADB_PMU_EVENT)	+= via-pmu-event.o
- obj-$(CONFIG_ADB_PMU_LED)	+= via-pmu-led.o
- obj-$(CONFIG_PMAC_BACKLIGHT)	+= via-pmu-backlight.o
- obj-$(CONFIG_ADB_CUDA)		+= via-cuda.o
-diff --git a/drivers/macintosh/via-pmu.c b/drivers/macintosh/via-pmu.c
-index 73e6ae88fafd..aae6328b2429 100644
---- a/drivers/macintosh/via-pmu.c
-+++ b/drivers/macintosh/via-pmu.c
-@@ -1460,7 +1460,7 @@ pmu_handle_data(unsigned char *data, int len)
- 		pmu_pass_intr(data, len);
- 		/* len == 6 is probably a bad check. But how do I
- 		 * know what PMU versions send what events here? */
--		if (len == 6) {
-+		if (IS_ENABLED(CONFIG_ADB_PMU_EVENT) && len == 6) {
- 			via_pmu_event(PMU_EVT_POWER, !!(data[1]&8));
- 			via_pmu_event(PMU_EVT_LID, data[1]&1);
- 		}
+-	if (sk->sk_type != SOCK_SEQPACKET)
+-		return -EINVAL;
++	if (sk->sk_type != SOCK_SEQPACKET) {
++		err = -EINVAL;
++		goto done;
++	}
+ 
+ 	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
+-	if (!hdev)
+-		return -EHOSTUNREACH;
++	if (!hdev) {
++		err = -EHOSTUNREACH;
++		goto done;
++	}
+ 	hci_dev_lock(hdev);
+ 
+-	lock_sock(sk);
+-
+ 	/* Set destination address and psm */
+ 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+ 
 -- 
 2.35.1
 
