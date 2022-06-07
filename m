@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B00E2541B6D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD11C5405AF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381240AbiFGVrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
+        id S1346517AbiFGR3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381966AbiFGVpy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:45:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B5723524B;
-        Tue,  7 Jun 2022 12:07:35 -0700 (PDT)
+        with ESMTP id S1346514AbiFGR2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:28:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094A71157CB;
+        Tue,  7 Jun 2022 10:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A675BB823AE;
-        Tue,  7 Jun 2022 19:07:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19ECAC385A2;
-        Tue,  7 Jun 2022 19:07:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1D9D60906;
+        Tue,  7 Jun 2022 17:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC335C385A5;
+        Tue,  7 Jun 2022 17:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628852;
-        bh=4LbOCf92jl4mfacrch4WyVDplyojpAhQ5IeBDU0OlTs=;
+        s=korg; t=1654622664;
+        bh=1vuZle/aJdf8IXFfMGotKYrT8HQrM8syeDFZeWAjPJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luqYirGMxIhzwWLb9aTS8DZbjDvpmZkBNEhnUdsREqODuMXYP8b48XQKtZKNk8S4/
-         lmj5zYN9Jezg0DWygtwy24AgA14OH8Bs6z96nzfhalSxa6hq1Hxs2J4Fkimk3knSjQ
-         GALCixUi4Tr7SD0BzRhpGQNruBjTO6ipx18xRFSo=
+        b=eGu+foy4QfitlcHvl1N2W/rMnJk1x6L1xYtvmLlW9sqR+8sr562glPGpFomofbDbx
+         ltjZ1rk6USCE1D/Ik0d+g+0lik8fXqzs4uxdRlEldICWp1wipE0scKofLbmovCSRrT
+         pFP01huG+Onn/s5ZxZgNBaDDcgXitDOrY31MeyPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfgang Bumiller <w.bumiller@proxmox.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 479/879] blk-cgroup: always terminate io.stat lines
+Subject: [PATCH 5.10 140/452] spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
 Date:   Tue,  7 Jun 2022 18:59:57 +0200
-Message-Id: <20220607165016.781356822@linuxfoundation.org>
+Message-Id: <20220607164912.731402210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,155 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3607849df47822151b05df440759e2dc70160755 ]
+[ Upstream commit 8b1ea69a63eb62f97cef63e6d816b64ed84e8760 ]
 
-With the removal of seq_get_buf in blkcg_print_one_stat, we
-cannot make adding the newline conditional on there being
-relevant stats because the name was already written out
-unconditionally.
-Otherwise we may end up with multiple device names in one
-line which is confusing and doesn't follow the nested-keyed
-file format.
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Fixes: 252c651a4c85 ("blk-cgroup: stop using seq_get_buf")
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20220111083159.42340-1-w.bumiller@proxmox.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220411111034.24447-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c    | 9 ++-------
- block/blk-cgroup.h    | 2 +-
- block/blk-iocost.c    | 5 ++---
- block/blk-iolatency.c | 8 +++-----
- 4 files changed, 8 insertions(+), 16 deletions(-)
+ drivers/spi/spi-ti-qspi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 8dfe62786cd5..6f9aeb6a337d 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -905,7 +905,6 @@ static void blkcg_print_one_stat(struct blkcg_gq *blkg, struct seq_file *s)
- {
- 	struct blkg_iostat_set *bis = &blkg->iostat;
- 	u64 rbytes, wbytes, rios, wios, dbytes, dios;
--	bool has_stats = false;
- 	const char *dname;
- 	unsigned seq;
- 	int i;
-@@ -931,14 +930,12 @@ static void blkcg_print_one_stat(struct blkcg_gq *blkg, struct seq_file *s)
- 	} while (u64_stats_fetch_retry(&bis->sync, seq));
+diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
+index e06aafe169e0..081da1fd3fd7 100644
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -448,6 +448,7 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
+ 	enum dma_ctrl_flags flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+ 	struct dma_async_tx_descriptor *tx;
+ 	int ret;
++	unsigned long time_left;
  
- 	if (rbytes || wbytes || rios || wios) {
--		has_stats = true;
- 		seq_printf(s, "rbytes=%llu wbytes=%llu rios=%llu wios=%llu dbytes=%llu dios=%llu",
- 			rbytes, wbytes, rios, wios,
- 			dbytes, dios);
+ 	tx = dmaengine_prep_dma_memcpy(chan, dma_dst, dma_src, len, flags);
+ 	if (!tx) {
+@@ -467,9 +468,9 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
  	}
  
- 	if (blkcg_debug_stats && atomic_read(&blkg->use_delay)) {
--		has_stats = true;
- 		seq_printf(s, " use_delay=%d delay_nsec=%llu",
- 			atomic_read(&blkg->use_delay),
- 			atomic64_read(&blkg->delay_nsec));
-@@ -950,12 +947,10 @@ static void blkcg_print_one_stat(struct blkcg_gq *blkg, struct seq_file *s)
- 		if (!blkg->pd[i] || !pol->pd_stat_fn)
- 			continue;
- 
--		if (pol->pd_stat_fn(blkg->pd[i], s))
--			has_stats = true;
-+		pol->pd_stat_fn(blkg->pd[i], s);
- 	}
- 
--	if (has_stats)
--		seq_printf(s, "\n");
-+	seq_puts(s, "\n");
- }
- 
- static int blkcg_print_stat(struct seq_file *sf, void *v)
-diff --git a/block/blk-cgroup.h b/block/blk-cgroup.h
-index 47e1e38390c9..b56ba16fb6c5 100644
---- a/block/blk-cgroup.h
-+++ b/block/blk-cgroup.h
-@@ -63,7 +63,7 @@ typedef void (blkcg_pol_online_pd_fn)(struct blkg_policy_data *pd);
- typedef void (blkcg_pol_offline_pd_fn)(struct blkg_policy_data *pd);
- typedef void (blkcg_pol_free_pd_fn)(struct blkg_policy_data *pd);
- typedef void (blkcg_pol_reset_pd_stats_fn)(struct blkg_policy_data *pd);
--typedef bool (blkcg_pol_stat_pd_fn)(struct blkg_policy_data *pd,
-+typedef void (blkcg_pol_stat_pd_fn)(struct blkg_policy_data *pd,
- 				struct seq_file *s);
- 
- struct blkcg_policy {
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index 9bd670999d0a..16705fbd0699 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -3005,13 +3005,13 @@ static void ioc_pd_free(struct blkg_policy_data *pd)
- 	kfree(iocg);
- }
- 
--static bool ioc_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
-+static void ioc_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
- {
- 	struct ioc_gq *iocg = pd_to_iocg(pd);
- 	struct ioc *ioc = iocg->ioc;
- 
- 	if (!ioc->enabled)
--		return false;
-+		return;
- 
- 	if (iocg->level == 0) {
- 		unsigned vp10k = DIV64_U64_ROUND_CLOSEST(
-@@ -3027,7 +3027,6 @@ static bool ioc_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
- 			iocg->last_stat.wait_us,
- 			iocg->last_stat.indebt_us,
- 			iocg->last_stat.indelay_us);
--	return true;
- }
- 
- static u64 ioc_weight_prfill(struct seq_file *sf, struct blkg_policy_data *pd,
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index 2f33932e72e3..5b676c7cf2b6 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -891,7 +891,7 @@ static int iolatency_print_limit(struct seq_file *sf, void *v)
- 	return 0;
- }
- 
--static bool iolatency_ssd_stat(struct iolatency_grp *iolat, struct seq_file *s)
-+static void iolatency_ssd_stat(struct iolatency_grp *iolat, struct seq_file *s)
- {
- 	struct latency_stat stat;
- 	int cpu;
-@@ -914,17 +914,16 @@ static bool iolatency_ssd_stat(struct iolatency_grp *iolat, struct seq_file *s)
- 			(unsigned long long)stat.ps.missed,
- 			(unsigned long long)stat.ps.total,
- 			iolat->rq_depth.max_depth);
--	return true;
- }
- 
--static bool iolatency_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
-+static void iolatency_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
- {
- 	struct iolatency_grp *iolat = pd_to_lat(pd);
- 	unsigned long long avg_lat;
- 	unsigned long long cur_win;
- 
- 	if (!blkcg_debug_stats)
--		return false;
-+		return;
- 
- 	if (iolat->ssd)
- 		return iolatency_ssd_stat(iolat, s);
-@@ -937,7 +936,6 @@ static bool iolatency_pd_stat(struct blkg_policy_data *pd, struct seq_file *s)
- 	else
- 		seq_printf(s, " depth=%u avg_lat=%llu win=%llu",
- 			iolat->rq_depth.max_depth, avg_lat, cur_win);
--	return true;
- }
- 
- static struct blkg_policy_data *iolatency_pd_alloc(gfp_t gfp,
+ 	dma_async_issue_pending(chan);
+-	ret = wait_for_completion_timeout(&qspi->transfer_complete,
++	time_left = wait_for_completion_timeout(&qspi->transfer_complete,
+ 					  msecs_to_jiffies(len));
+-	if (ret <= 0) {
++	if (time_left == 0) {
+ 		dmaengine_terminate_sync(chan);
+ 		dev_err(qspi->dev, "DMA wait_for_completion_timeout\n");
+ 		return -ETIMEDOUT;
 -- 
 2.35.1
 
