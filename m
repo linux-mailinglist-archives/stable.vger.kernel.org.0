@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6257D540CE7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EE55405F7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353203AbiFGSmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
+        id S1347015AbiFGRci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353465AbiFGSlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:41:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21651862BB;
-        Tue,  7 Jun 2022 10:58:45 -0700 (PDT)
+        with ESMTP id S1348024AbiFGRb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38FA511E1DA;
+        Tue,  7 Jun 2022 10:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E00617A7;
-        Tue,  7 Jun 2022 17:58:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EACDC385A5;
-        Tue,  7 Jun 2022 17:58:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 36CEDCE0E13;
+        Tue,  7 Jun 2022 17:29:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FEDAC34119;
+        Tue,  7 Jun 2022 17:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624722;
-        bh=x0W6N9VmPJ+8e2PWz/8GEgmYtClvv+lyTohLYHBGjKc=;
+        s=korg; t=1654622941;
+        bh=3NVrkpZM0vx99wE1NC9rRmh0UfYplLuMiESkX4HrmcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPfLk3/r/hYt7SEERLNTFFQghOkiOawAzSibKNKbeVRwvKjOuAcrq+DkOJ3gaTUj5
-         QDYzBML60zfNRVoxg+/HEcpweG9cuhuDNQ2y0F8GVJgb60rdsuz7e9JOFqlrVlnVOX
-         RtS81C/eXY6WScuYn93z9JYdAgiBGVh06v6o/1cQ=
+        b=WcvyDqW8fIjKKI+itHmGPGVgMrCFAJ1H0U9ou3OUhADDYYRvWnN/RPoARr3WuFpLZ
+         s8pKgMIvEfNkkumVDm8r3zV+ARLXjWnLnb785+fzztgSRJyxK2omThnKX9l8Y08nvP
+         OP4tRbxcm5oF4MfRaKke8AWGjBipj+U/swKbTxuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 429/667] nvdimm: Fix firmware activation deadlock scenarios
+Subject: [PATCH 5.10 237/452] drm/msm/dpu: handle pm_runtime_get_sync() errors in bind path
 Date:   Tue,  7 Jun 2022 19:01:34 +0200
-Message-Id: <20220607164947.593329154@linuxfoundation.org>
+Message-Id: <20220607164915.622399147@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Abhinav Kumar <quic_abhinavk@quicinc.com>
 
-[ Upstream commit e6829d1bd3c4b58296ee9e412f7ed4d6cb390192 ]
+[ Upstream commit 64b22a0da12adb571c01edd671ee43634ebd7e41 ]
 
-Lockdep reports the following deadlock scenarios for CXL root device
-power-management, device_prepare(), operations, and device_shutdown()
-operations for 'nd_region' devices:
+If there are errors while trying to enable the pm in the
+bind path, it will lead to unclocked access of hw revision
+register thereby crashing the device.
 
- Chain exists of:
-   &nvdimm_region_key --> &nvdimm_bus->reconfig_mutex --> system_transition_mutex
+This will not address why the pm_runtime_get_sync() fails
+but at the very least we should be able to prevent the
+crash by handling the error and bailing out earlier.
 
-  Possible unsafe locking scenario:
+changes in v2:
+	- use pm_runtime_resume_and_get() instead of
+	  pm_runtime_get_sync()
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(system_transition_mutex);
-                                lock(&nvdimm_bus->reconfig_mutex);
-                                lock(system_transition_mutex);
-   lock(&nvdimm_region_key);
-
- Chain exists of:
-   &cxl_nvdimm_bridge_key --> acpi_scan_lock --> &cxl_root_key
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&cxl_root_key);
-                                lock(acpi_scan_lock);
-                                lock(&cxl_root_key);
-   lock(&cxl_nvdimm_bridge_key);
-
-These stem from holding nvdimm_bus_lock() over hibernate_quiet_exec()
-which walks the entire system device topology taking device_lock() along
-the way. The nvdimm_bus_lock() is protecting against unregistration,
-multiple simultaneous ops callers, and preventing activate_show() from
-racing activate_store(). For the first 2, the lock is redundant.
-Unregistration already flushes all ops users, and sysfs already prevents
-multiple threads to be active in an ops handler at the same time. For
-the last userspace should already be waiting for its last
-activate_store() to complete, and does not need activate_show() to flush
-the write side, so this lock usage can be deleted in these attributes.
-
-Fixes: 48001ea50d17 ("PM, libnvdimm: Add runtime firmware activation support")
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Link: https://lore.kernel.org/r/165074883800.4116052.10737040861825806582.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/486721/
+Link: https://lore.kernel.org/r/20220518223407.26147-1-quic_abhinavk@quicinc.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/core.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvdimm/core.c b/drivers/nvdimm/core.c
-index 7de592d7eff4..47625fe4276e 100644
---- a/drivers/nvdimm/core.c
-+++ b/drivers/nvdimm/core.c
-@@ -399,9 +399,7 @@ static ssize_t capability_show(struct device *dev,
- 	if (!nd_desc->fw_ops)
- 		return -EOPNOTSUPP;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index b05ff46d773d..7503f093f3b6 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -939,7 +939,9 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
  
--	nvdimm_bus_lock(dev);
- 	cap = nd_desc->fw_ops->capability(nd_desc);
--	nvdimm_bus_unlock(dev);
+ 	dpu_kms_parse_data_bus_icc_path(dpu_kms);
  
- 	switch (cap) {
- 	case NVDIMM_FWA_CAP_QUIESCE:
-@@ -426,10 +424,8 @@ static ssize_t activate_show(struct device *dev,
- 	if (!nd_desc->fw_ops)
- 		return -EOPNOTSUPP;
+-	pm_runtime_get_sync(&dpu_kms->pdev->dev);
++	rc = pm_runtime_resume_and_get(&dpu_kms->pdev->dev);
++	if (rc < 0)
++		goto error;
  
--	nvdimm_bus_lock(dev);
- 	cap = nd_desc->fw_ops->capability(nd_desc);
- 	state = nd_desc->fw_ops->activate_state(nd_desc);
--	nvdimm_bus_unlock(dev);
- 
- 	if (cap < NVDIMM_FWA_CAP_QUIESCE)
- 		return -EOPNOTSUPP;
-@@ -474,7 +470,6 @@ static ssize_t activate_store(struct device *dev,
- 	else
- 		return -EINVAL;
- 
--	nvdimm_bus_lock(dev);
- 	state = nd_desc->fw_ops->activate_state(nd_desc);
- 
- 	switch (state) {
-@@ -492,7 +487,6 @@ static ssize_t activate_store(struct device *dev,
- 	default:
- 		rc = -ENXIO;
- 	}
--	nvdimm_bus_unlock(dev);
- 
- 	if (rc == 0)
- 		rc = len;
-@@ -515,10 +509,7 @@ static umode_t nvdimm_bus_firmware_visible(struct kobject *kobj, struct attribut
- 	if (!nd_desc->fw_ops)
- 		return 0;
- 
--	nvdimm_bus_lock(dev);
- 	cap = nd_desc->fw_ops->capability(nd_desc);
--	nvdimm_bus_unlock(dev);
--
- 	if (cap < NVDIMM_FWA_CAP_QUIESCE)
- 		return 0;
+ 	dpu_kms->core_rev = readl_relaxed(dpu_kms->mmio + 0x0);
  
 -- 
 2.35.1
