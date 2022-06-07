@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73500540B13
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DF6E54059B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351020AbiFGSWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41808 "EHLO
+        id S1346586AbiFGR1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350849AbiFGSSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:18:34 -0400
+        with ESMTP id S1346930AbiFGRZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F0F6CC145;
-        Tue,  7 Jun 2022 10:53:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86BE6106A7B;
+        Tue,  7 Jun 2022 10:23:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0247F617B4;
-        Tue,  7 Jun 2022 17:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D58C385A5;
-        Tue,  7 Jun 2022 17:53:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2552D60BC6;
+        Tue,  7 Jun 2022 17:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33219C385A5;
+        Tue,  7 Jun 2022 17:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624407;
-        bh=G8qUnbTp31LiWUYOdhxaEF0Eo0c93bjPktO+ImQYsLg=;
+        s=korg; t=1654622619;
+        bh=Q0an++uLEZkQYHLau0WMcB+VRr/mj3whWEJw+BUnP+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTOqpTYvjYI4jprySkYWxQKCqErG7Ebnbm2abk3/VAfTnR3xq69Vd3lNIPMGaFl5O
-         QXje1rb820cQqYbM4Lkl5kRxXk2wvM3Cg60000RvMPGKF3skyJwzDF1Ap91j6xgngY
-         5eAG3IoSZR6ruDQwUep3O1fcU7ld0pECOFpwgB3I=
+        b=MCQD0bX0vHeSGeWdfb5MBNnQ09a9vvVK9csnbdCZoy3FoiaMEYX9o8i5yd8viPlmC
+         kVYdkKnKZ9Xl4b42sfkdBkb0k3Y6eTKJvz6L/n/o6+wHH4aWjrpqPusGxKr6TVE7Fr
+         nw7F6WyhS9byMKy0fA9gD/Z5gyjo881aoZw9+61I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 317/667] media: aspeed: Fix an error handling path in aspeed_video_probe()
+Subject: [PATCH 5.10 125/452] drm/bridge: adv7511: clean up CEC adapter when probe fails
 Date:   Tue,  7 Jun 2022 18:59:42 +0200
-Message-Id: <20220607164944.279053979@linuxfoundation.org>
+Message-Id: <20220607164912.283884064@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 310fda622bbd38be17fb444f7f049b137af3bc0d ]
+[ Upstream commit 7ed2b0dabf7a22874cb30f8878df239ef638eb53 ]
 
-A dma_free_coherent() call is missing in the error handling path of the
-probe, as already done in the remove function.
+When the probe routine fails we also need to clean up the
+CEC adapter registered in adv7511_cec_init().
 
-In fact, this call is included in aspeed_video_free_buf(). So use the
-latter both in the error handling path of the probe and in the remove
-function.
-It is easier to see the relation with aspeed_video_alloc_buf() this way.
-
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220321104705.2804423-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed-video.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index 757a58829a51..9d9124308f6a 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -1723,6 +1723,7 @@ static int aspeed_video_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index c6f059be4b89..aca2f14f04c2 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1306,6 +1306,7 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	return 0;
  
- 	rc = aspeed_video_setup_video(video);
- 	if (rc) {
-+		aspeed_video_free_buf(video, &video->jpeg);
- 		clk_unprepare(video->vclk);
- 		clk_unprepare(video->eclk);
- 		return rc;
-@@ -1748,8 +1749,7 @@ static int aspeed_video_remove(struct platform_device *pdev)
- 
- 	v4l2_device_unregister(v4l2_dev);
- 
--	dma_free_coherent(video->dev, VE_JPEG_HEADER_SIZE, video->jpeg.virt,
--			  video->jpeg.dma);
-+	aspeed_video_free_buf(video, &video->jpeg);
- 
- 	of_reserved_mem_device_release(dev);
- 
+ err_unregister_cec:
++	cec_unregister_adapter(adv7511->cec_adap);
+ 	i2c_unregister_device(adv7511->i2c_cec);
+ 	if (adv7511->cec_clk)
+ 		clk_disable_unprepare(adv7511->cec_clk);
 -- 
 2.35.1
 
