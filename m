@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA01E540EBC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F449541CB3
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353942AbiFGSzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42366 "EHLO
+        id S1382459AbiFGWEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:04:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353789AbiFGSqF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:05 -0400
+        with ESMTP id S1382442AbiFGWDy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:03:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7C4188EA4;
-        Tue,  7 Jun 2022 10:59:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A9024F979;
+        Tue,  7 Jun 2022 12:14:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8BC8B82368;
-        Tue,  7 Jun 2022 17:59:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B96AC385A5;
-        Tue,  7 Jun 2022 17:59:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23C85B822C0;
+        Tue,  7 Jun 2022 19:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A633C341C0;
+        Tue,  7 Jun 2022 19:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624769;
-        bh=cDGXQDzvZnIg4L2nHZB3SGryb9zKYnI5rFK0O1CZtEY=;
+        s=korg; t=1654629285;
+        bh=ZBQ4EFzhN4RnMkuYCNB/HRS9XOCUG2rEa2pgGyuxLhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGfbDzhr54u8zu/CX/CKuCSxrZjEY8YxBxppCQf7fLltTxiKz6ph5Ra1euKO4FIeX
-         qjsh5mPuLtnvl3TKltYy8hcrHyOuOfBsj/xFJ7DXKsYzoDwFB9gisFWIBo036M0/Co
-         JgpBqjwehrqnCbMACoZ5jDaSAMlRr5Ihe/9Kd3aQ=
+        b=IsjPHNy+g8ZPKqVq0mayJ2K4RCliPqjVNz5e4GUQpzLO3iW84/udeMOzjcJhDES+k
+         wyBSEeamRy09EvFxwGsSMGLVCxTd3uf2IoEdNgyLQTkbwWwTxY1AM2hsQn86fiIvGF
+         2vvDbMdQiNVfRbVIW3RroqB/ZruAEe7eOZ0Nn2IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Mel Gorman <mel@csn.ul.ie>,
+        Minchan Kim <minchan.kim@gmail.com>,
+        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 448/667] ASoC: atmel-pdmic: Remove endianness flag on pdmic component
+Subject: [PATCH 5.18 595/879] drivers/base/node.c: fix compaction sysfs file leak
 Date:   Tue,  7 Jun 2022 19:01:53 +0200
-Message-Id: <20220607164948.154491281@linuxfoundation.org>
+Message-Id: <20220607165020.123481067@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +59,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 52857c3baa0e5ddeba7b2c84e56bb71c9674e048 ]
+[ Upstream commit da63dc84befaa9e6079a0bc363ff0eaa975f9073 ]
 
-The endianness flag should have been removed when the driver was
-ported across from having both a CODEC and CPU side component, to
-just having a CPU component and using the dummy for the CODEC. The
-endianness flag is used to indicate that the device is completely
-ambivalent to the endianness of the data, typically due to the
-endianness being lost over the hardware link (ie. the link defines
-bit ordering). It's usage didn't have any effect when the driver
-had both a CPU and CODEC component, since the union of those equals
-the CPU side settings, but now causes the driver to falsely report
-it supports big endian. Correct this by removing the flag.
+Compaction sysfs file is created via compaction_register_node in
+register_node.  But we forgot to remove it in unregister_node.  Thus
+compaction sysfs file is leaked.  Using compaction_unregister_node to fix
+this issue.
 
-Fixes: f3c668074a04 ("ASoC: atmel-pdmic: remove codec component")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220504170905.332415-3-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20220401070905.43679-1-linmiaohe@huawei.com
+Fixes: ed4a6d7f0676 ("mm: compaction: add /sys trigger for per-node memory compaction")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Mel Gorman <mel@csn.ul.ie>
+Cc: Minchan Kim <minchan.kim@gmail.com>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel-pdmic.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/base/node.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/atmel/atmel-pdmic.c b/sound/soc/atmel/atmel-pdmic.c
-index 42117de299e7..ea34efac2fff 100644
---- a/sound/soc/atmel/atmel-pdmic.c
-+++ b/sound/soc/atmel/atmel-pdmic.c
-@@ -481,7 +481,6 @@ static const struct snd_soc_component_driver atmel_pdmic_cpu_dai_component = {
- 	.num_controls		= ARRAY_SIZE(atmel_pdmic_snd_controls),
- 	.idle_bias_on		= 1,
- 	.use_pmdown_time	= 1,
--	.endianness		= 1,
- };
- 
- /* ASoC sound card */
+diff --git a/drivers/base/node.c b/drivers/base/node.c
+index ec8bb24a5a22..0ac6376ef7a1 100644
+--- a/drivers/base/node.c
++++ b/drivers/base/node.c
+@@ -682,6 +682,7 @@ static int register_node(struct node *node, int num)
+  */
+ void unregister_node(struct node *node)
+ {
++	compaction_unregister_node(node);
+ 	hugetlb_unregister_node(node);		/* no-op, if memoryless node */
+ 	node_remove_accesses(node);
+ 	node_remove_caches(node);
 -- 
 2.35.1
 
