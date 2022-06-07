@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E5AB541797
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3506F541788
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378304AbiFGVDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50176 "EHLO
+        id S1357470AbiFGVDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:03:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379387AbiFGVCZ (ORCPT
+        with ESMTP id S1379395AbiFGVCZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B3F1D0C3;
-        Tue,  7 Jun 2022 11:47:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFAAAF1F5;
+        Tue,  7 Jun 2022 11:48:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD4086157E;
-        Tue,  7 Jun 2022 18:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11C1C385A5;
-        Tue,  7 Jun 2022 18:47:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F1386157E;
+        Tue,  7 Jun 2022 18:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C257C385A2;
+        Tue,  7 Jun 2022 18:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627677;
-        bh=EInUvTyG0QKxuaOKiE7JO3QEO7XmepPOp9648sfZpiI=;
+        s=korg; t=1654627680;
+        bh=xf9XcbXTutHEaP8Ja6L4CnA04pALN4aTf1DHiUc7ZXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcq1uQJV2Jfw8v0+StfnXC7Ym3D4tJHkjvia5VchRWjCqQYWT87ZMx8txtaoxJZG3
-         pTB1rdQpnGZTg2cS61Zt9vY629+qfiCZuHJWop3kUgT6ODrhrD8+6Nd+MpzPc6yp//
-         Vif8/mMUpgCfF4HmFGTIxStO9ctrff9n0IOuiFAg=
+        b=tazklCE7QNm9pWR7g1EDFOr6t5sp06H4DpPEIJIiINbT9BiicWyKSnmQVBnDuLD3z
+         P6LWWpmd5axd5zQHU0zlWKmbTybgdxJr19fLSOYyq9NTlXXBW6ZoQQIamLMjbREtb+
+         aDhy42rTmEEPZE43JGI2b9amWUm4ygaH52dgqJgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pankaj Raghav <p.raghav@samsung.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.18 052/879] btrfs: zoned: finish block group when there are no more allocatable bytes left
-Date:   Tue,  7 Jun 2022 18:52:50 +0200
-Message-Id: <20220607165004.197224164@linuxfoundation.org>
+Subject: [PATCH 5.18 053/879] btrfs: zoned: fix comparison of alloc_offset vs meta_write_pointer
+Date:   Tue,  7 Jun 2022 18:52:51 +0200
+Message-Id: <20220607165004.227971390@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -57,49 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 8b8a53998caefebfe5c8da7a74c2b601caf5dd48 upstream.
+commit aa9ffadfcae33e611d8c2d476bcc2aa0d273b587 upstream.
 
-Currently, btrfs_zone_finish_endio() finishes a block group only when the
-written region reaches the end of the block group. We can also finish the
-block group when no more allocation is possible.
+The block_group->alloc_offset is an offset from the start of the block
+group. OTOH, the ->meta_write_pointer is an address in the logical
+space. So, we should compare the alloc_offset shifted with the
+block_group->start.
 
-Fixes: be1a1d7a5d24 ("btrfs: zoned: finish fully written block group")
+Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
 CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Pankaj Raghav <p.raghav@samsung.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/zoned.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/btrfs/zoned.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/fs/btrfs/zoned.c
 +++ b/fs/btrfs/zoned.c
-@@ -2000,6 +2000,7 @@ void btrfs_zone_finish_endio(struct btrf
- 	struct btrfs_block_group *block_group;
- 	struct map_lookup *map;
- 	struct btrfs_device *device;
-+	u64 min_alloc_bytes;
- 	u64 physical;
- 
- 	if (!btrfs_is_zoned(fs_info))
-@@ -2008,7 +2009,15 @@ void btrfs_zone_finish_endio(struct btrf
- 	block_group = btrfs_lookup_block_group(fs_info, logical);
- 	ASSERT(block_group);
- 
--	if (logical + length < block_group->start + block_group->zone_capacity)
-+	/* No MIXED_BG on zoned btrfs. */
-+	if (block_group->flags & BTRFS_BLOCK_GROUP_DATA)
-+		min_alloc_bytes = fs_info->sectorsize;
-+	else
-+		min_alloc_bytes = fs_info->nodesize;
-+
-+	/* Bail out if we can allocate more data from this block group. */
-+	if (logical + length + min_alloc_bytes <=
-+	    block_group->start + block_group->zone_capacity)
- 		goto out;
- 
- 	spin_lock(&block_group->lock);
+@@ -1896,7 +1896,7 @@ int btrfs_zone_finish(struct btrfs_block
+ 	/* Check if we have unwritten allocated space */
+ 	if ((block_group->flags &
+ 	     (BTRFS_BLOCK_GROUP_METADATA | BTRFS_BLOCK_GROUP_SYSTEM)) &&
+-	    block_group->alloc_offset > block_group->meta_write_pointer) {
++	    block_group->start + block_group->alloc_offset > block_group->meta_write_pointer) {
+ 		spin_unlock(&block_group->lock);
+ 		return -EAGAIN;
+ 	}
 
 
