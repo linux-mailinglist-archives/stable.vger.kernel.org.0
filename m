@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B630D541D5F
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C62C0540F78
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383646AbiFGWNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52996 "EHLO
+        id S1352759AbiFGTJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:09:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383959AbiFGWMP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:12:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C6225A827;
-        Tue,  7 Jun 2022 12:19:19 -0700 (PDT)
+        with ESMTP id S1354372AbiFGTIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:08:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88EA1912D0;
+        Tue,  7 Jun 2022 11:05:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2D5D61956;
-        Tue,  7 Jun 2022 19:19:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B444CC385A2;
-        Tue,  7 Jun 2022 19:19:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A5626171C;
+        Tue,  7 Jun 2022 18:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC7AC385A5;
+        Tue,  7 Jun 2022 18:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629552;
-        bh=7z/LJZ+JUfk/CoOc11G3rJSu0+44RrtrKYssjymRpGI=;
+        s=korg; t=1654625154;
+        bh=JResAk/B+hthY8xeZahQu9QuVQDbRBIYLvFy6476UII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxrvjCEfky61S5wGXrSFy/zuNQHnzuMKkClXDg5ypuBnJDxI4d+1xPARz8SCExzt4
-         P7srWfX+sPW1Lu0YDBx1ARLtuZax6AJ67NbT4KkaRDLM8AiBnJf333o7zKv/OzxtIB
-         JwGQF8S/d5UlkTQlAZRcrqhhj9oV4j5c+ACWgxMc=
+        b=pPXapdlNjQ4XWZtHPYFoQdLy0VM36Cf2ehv9LyyqTPyIIEJPBgx0iSx8LtcCw/knn
+         xh39mvvMV1D30Oh6x5OUXLAYiyTiNB6S1RbdMmJEXb8MI92/p2wWou1bOjdgHMqvUk
+         /vN0uGe2DbbtHPOhvgIGHg5OsVRtRAbKdW6zt9PY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 733/879] bfq: Track whether bfq_group is still online
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 586/667] landlock: Create find_rule() from unmask_layers()
 Date:   Tue,  7 Jun 2022 19:04:11 +0200
-Message-Id: <20220607165024.133157498@linuxfoundation.org>
+Message-Id: <20220607164952.257711705@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 09f871868080c33992cd6a9b72a5ca49582578fa upstream.
+commit 2cd7cd6eed88b8383cfddce589afe9c0ae1d19b4 upstream.
 
-Track whether bfq_group is still online. We cannot rely on
-blkcg_gq->online because that gets cleared only after all policies are
-offlined and we need something that gets updated already under
-bfqd->lock when we are cleaning up our bfq_group to be able to guarantee
-that when we see online bfq_group, it will stay online while we are
-holding bfqd->lock lock.
+This refactoring will be useful in a following commit.
 
-CC: stable@vger.kernel.org
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-7-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/20220506161102.525323-4-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-cgroup.c  |    3 ++-
- block/bfq-iosched.h |    2 ++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ security/landlock/fs.c |   41 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 13 deletions(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -557,6 +557,7 @@ static void bfq_pd_init(struct blkg_poli
- 				   */
- 	bfqg->bfqd = bfqd;
- 	bfqg->active_entities = 0;
-+	bfqg->online = true;
- 	bfqg->rq_pos_tree = RB_ROOT;
- }
+--- a/security/landlock/fs.c
++++ b/security/landlock/fs.c
+@@ -183,23 +183,36 @@ int landlock_append_fs_rule(struct landl
  
-@@ -603,7 +604,6 @@ struct bfq_group *bfq_find_set_group(str
- 	struct bfq_entity *entity;
+ /* Access-control management */
  
- 	bfqg = bfq_lookup_bfqg(bfqd, blkcg);
--
- 	if (unlikely(!bfqg))
- 		return NULL;
+-static inline layer_mask_t
+-unmask_layers(const struct landlock_ruleset *const domain,
+-	      const struct path *const path, const access_mask_t access_request,
+-	      layer_mask_t layer_mask)
++/*
++ * The lifetime of the returned rule is tied to @domain.
++ *
++ * Returns NULL if no rule is found or if @dentry is negative.
++ */
++static inline const struct landlock_rule *
++find_rule(const struct landlock_ruleset *const domain,
++	  const struct dentry *const dentry)
+ {
+ 	const struct landlock_rule *rule;
+ 	const struct inode *inode;
+-	size_t i;
  
-@@ -979,6 +979,7 @@ static void bfq_pd_offline(struct blkg_p
+-	if (d_is_negative(path->dentry))
+-		/* Ignore nonexistent leafs. */
+-		return layer_mask;
+-	inode = d_backing_inode(path->dentry);
++	/* Ignores nonexistent leafs. */
++	if (d_is_negative(dentry))
++		return NULL;
++
++	inode = d_backing_inode(dentry);
+ 	rcu_read_lock();
+ 	rule = landlock_find_rule(
+ 		domain, rcu_dereference(landlock_inode(inode)->object));
+ 	rcu_read_unlock();
++	return rule;
++}
++
++static inline layer_mask_t unmask_layers(const struct landlock_rule *const rule,
++					 const access_mask_t access_request,
++					 layer_mask_t layer_mask)
++{
++	size_t layer_level;
++
+ 	if (!rule)
+ 		return layer_mask;
  
- put_async_queues:
- 	bfq_put_async_queues(bfqd, bfqg);
-+	bfqg->online = false;
+@@ -210,8 +223,9 @@ unmask_layers(const struct landlock_rule
+ 	 * the remaining layers for each inode, from the first added layer to
+ 	 * the last one.
+ 	 */
+-	for (i = 0; i < rule->num_layers; i++) {
+-		const struct landlock_layer *const layer = &rule->layers[i];
++	for (layer_level = 0; layer_level < rule->num_layers; layer_level++) {
++		const struct landlock_layer *const layer =
++			&rule->layers[layer_level];
+ 		const layer_mask_t layer_bit = BIT_ULL(layer->level - 1);
  
- 	spin_unlock_irqrestore(&bfqd->lock, flags);
- 	/*
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -929,6 +929,8 @@ struct bfq_group {
+ 		/* Checks that the layer grants access to the full request. */
+@@ -269,8 +283,9 @@ static int check_access_path(const struc
+ 	while (true) {
+ 		struct dentry *parent_dentry;
  
- 	/* reference counter (see comments in bfq_bic_update_cgroup) */
- 	int ref;
-+	/* Is bfq_group still online? */
-+	bool online;
- 
- 	struct bfq_entity entity;
- 	struct bfq_sched_data sched_data;
+-		layer_mask = unmask_layers(domain, &walker_path, access_request,
+-					   layer_mask);
++		layer_mask =
++			unmask_layers(find_rule(domain, walker_path.dentry),
++				      access_request, layer_mask);
+ 		if (layer_mask == 0) {
+ 			/* Stops when a rule from each layer grants access. */
+ 			allowed = true;
 
 
