@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB95540BE7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82917541C63
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239099AbiFGSdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36798 "EHLO
+        id S1382563AbiFGV7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352513AbiFGSbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAB5146414;
-        Tue,  7 Jun 2022 10:56:25 -0700 (PDT)
+        with ESMTP id S1382816AbiFGVv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9341423EF93;
+        Tue,  7 Jun 2022 12:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0BF2B8237D;
-        Tue,  7 Jun 2022 17:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9C7C36B05;
-        Tue,  7 Jun 2022 17:56:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09843617DA;
+        Tue,  7 Jun 2022 19:09:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE8CAC385A2;
+        Tue,  7 Jun 2022 19:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624582;
-        bh=l0FwX6vnSfPHMFtFGMF5ei/ho1GrpvkhyQLI9eGiIZA=;
+        s=korg; t=1654628981;
+        bh=e+hc29pBLZsMe6PI4BEPi4bMoIro/89iPVAskzB7OPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXDH4p7160mnUKQS3DYHLhqCgK5la9KnRvtHw1kU5N0LV33Dc+zdcE//WuyyKHhX2
-         x4gu8ZgDmoJq4grwouZHR6+io6h5dybejsO3vQVMH5YI0OYXf1yuSyj9cjZh/wGWJc
-         Cz3jnvntKSCjA/MFIJbheNx7bG3IR9gMRziQHkZY=
+        b=R45bRtOoQj/D2JUQb3lJPFOzuUgO6spJ+Epb3B4JCZf/SKo4A7E1Jtnu+TSLSiuac
+         tVj6u6KhPGQaZ06Sjyl5BYr0vkTZ9AwNAHHHEGPMoKRRj3KYYfNqSVCNbbEacl2kxB
+         t1pPc0GTrIa4D1ox6Gno6AOGfu343IMXO2dr1BlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 378/667] dma-direct: dont call dma_set_decrypted for remapped allocations
-Date:   Tue,  7 Jun 2022 19:00:43 +0200
-Message-Id: <20220607164946.086122133@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mans Rullgard <mans@mansr.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 526/879] net: dsa: restrict SMSC_LAN9303_I2C kconfig
+Date:   Tue,  7 Jun 2022 19:00:44 +0200
+Message-Id: <20220607165018.142208582@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +62,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5570449b6876f215d49ac4db9ccce6ff7aa1e20a ]
+[ Upstream commit 0a3ad7d323686fbaae8688326cc5ea0d185c6fca ]
 
-Remapped allocations handle the encrypted bit through the pgprot passed
-to vmap, so there is no call dma_set_decrypted.  Note that this case is
-currently entirely theoretical as no valid kernel configuration supports
-remapped allocations and memory encryption currently.
+Since kconfig 'select' does not follow dependency chains, if symbol KSA
+selects KSB, then KSA should also depend on the same symbols that KSB
+depends on, in order to prevent Kconfig warnings and possible build
+errors.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Change NET_DSA_SMSC_LAN9303_I2C and NET_DSA_SMSC_LAN9303_MDIO so that
+they are limited to VLAN_8021Q if the latter is enabled. This prevents
+the Kconfig warning:
+
+WARNING: unmet direct dependencies detected for NET_DSA_SMSC_LAN9303
+  Depends on [m]: NETDEVICES [=y] && NET_DSA [=y] && (VLAN_8021Q [=m] || VLAN_8021Q [=m]=n)
+  Selected by [y]:
+  - NET_DSA_SMSC_LAN9303_I2C [=y] && NETDEVICES [=y] && NET_DSA [=y] && I2C [=y]
+
+Fixes: 430065e26719 ("net: dsa: lan9303: add VLAN IDs to master device")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Vivien Didelot <vivien.didelot@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Vladimir Oltean <olteanv@gmail.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/dsa/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index b9513fd68239..473964620773 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -241,8 +241,6 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 				__builtin_return_address(0));
- 		if (!ret)
- 			goto out_free_pages;
--		if (dma_set_decrypted(dev, ret, size))
--			goto out_free_pages;
- 		memset(ret, 0, size);
- 		goto done;
- 	}
-@@ -316,12 +314,13 @@ void dma_direct_free(struct device *dev, size_t size,
- 	    dma_free_from_pool(dev, cpu_addr, PAGE_ALIGN(size)))
- 		return;
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index 37a3dabdce31..6d1fcb08bba1 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -72,7 +72,6 @@ source "drivers/net/dsa/realtek/Kconfig"
  
--	dma_set_encrypted(dev, cpu_addr, 1 << page_order);
--
--	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
-+	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr)) {
- 		vunmap(cpu_addr);
--	else if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
--		arch_dma_clear_uncached(cpu_addr, size);
-+	} else {
-+		if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
-+			arch_dma_clear_uncached(cpu_addr, size);
-+		dma_set_encrypted(dev, cpu_addr, 1 << page_order);
-+	}
- 
- 	__dma_direct_free_pages(dev, dma_direct_to_page(dev, dma_addr), size);
- }
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
+-	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_TAG_LAN9303
+ 	select REGMAP
+ 	help
+@@ -82,6 +81,7 @@ config NET_DSA_SMSC_LAN9303
+ config NET_DSA_SMSC_LAN9303_I2C
+ 	tristate "SMSC/Microchip LAN9303 3-ports 10/100 ethernet switch in I2C managed mode"
+ 	depends on I2C
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_SMSC_LAN9303
+ 	select REGMAP_I2C
+ 	help
+@@ -91,6 +91,7 @@ config NET_DSA_SMSC_LAN9303_I2C
+ config NET_DSA_SMSC_LAN9303_MDIO
+ 	tristate "SMSC/Microchip LAN9303 3-ports 10/100 ethernet switch in MDIO managed mode"
+ 	select NET_DSA_SMSC_LAN9303
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	help
+ 	  Enable access functions if the SMSC/Microchip LAN9303 is configured
+ 	  for MDIO managed mode.
 -- 
 2.35.1
 
