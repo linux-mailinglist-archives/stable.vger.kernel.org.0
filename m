@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D07BA540568
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A296541AD7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:39:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344991AbiFGRZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:25:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
+        id S1380655AbiFGVjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346277AbiFGRYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA6B91EC63;
-        Tue,  7 Jun 2022 10:22:17 -0700 (PDT)
+        with ESMTP id S1380851AbiFGViQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:38:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCEDE1C13A;
+        Tue,  7 Jun 2022 12:05:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 350EE60BC9;
-        Tue,  7 Jun 2022 17:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FCAFC385A5;
-        Tue,  7 Jun 2022 17:22:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78435617EE;
+        Tue,  7 Jun 2022 19:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849F4C385A2;
+        Tue,  7 Jun 2022 19:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622536;
-        bh=t7o3dVSPbYAXzDXsGXvIxTwGgdjNZH7ytre5uqNhv44=;
+        s=korg; t=1654628725;
+        bh=Whr85xBJzYK0FWJhwzET+EpOWlc68uR+NHnFIy1/Ln8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWF/3oROEhTdrSZT42qKjWm59IvZyvQvkp/6a7xT/s/84BvZG1maBQUvHCH0Wa8as
-         46olfDQmKbKumfVKVd3Sq1u+LSyM8+G4gcwALlylQ8tKcf17awGECJMbB9VB5TYtfJ
-         ep2y+wqQd8vMpYM06QMvMu09yfQmDy3nRg6lzjCo=
+        b=1vHMLFaMAKNoMUmufzO+LZ0KJhvjvNMsg+HtCBwU+a1ObRr+ZpQrAvpv62QMgeW+8
+         lUuREANm2icpYl66d3EssrGGrEdzZwe3bK44iAbXx1wWVLZ8Y672UnFvmHnvBFoJhe
+         gqnUrplXln30JVICLjrxSK9NBQlY6xDwqczDslss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/452] eth: tg3: silence the GCC 12 array-bounds warning
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 433/879] mt76: mt7915: fix possible uninitialized pointer dereference in mt7986_wmac_gpio_setup
 Date:   Tue,  7 Jun 2022 18:59:11 +0200
-Message-Id: <20220607164911.360854879@linuxfoundation.org>
+Message-Id: <20220607165015.438710968@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 9dec850fd7c210a04b4707df8e6c95bfafdd6a4b ]
+[ Upstream commit 9bd6823f5a64b6465708b244eecc9b7dd4b01bfc ]
 
-GCC 12 currently generates a rather inconsistent warning:
+Add default case for type switch in mt7986_wmac_gpio_setup routine in
+order to avoid a possible uninitialized pointer dereference.
 
-drivers/net/ethernet/broadcom/tg3.c:17795:51: warning: array subscript 5 is above array bounds of ‘struct tg3_napi[5]’ [-Warray-bounds]
-17795 |                 struct tg3_napi *tnapi = &tp->napi[i];
-      |                                           ~~~~~~~~^~~
-
-i is guaranteed < tp->irq_max which in turn is either 1 or 5.
-There are more loops like this one in the driver, but strangely
-GCC 12 dislikes only this single one.
-
-Silence this silliness for now.
-
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 99ad32a4ca3a2 ("mt76: mt7915: add support for MT7986")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/soc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/Makefile b/drivers/net/ethernet/broadcom/Makefile
-index 7046ad6d3d0e..ac50da49ca77 100644
---- a/drivers/net/ethernet/broadcom/Makefile
-+++ b/drivers/net/ethernet/broadcom/Makefile
-@@ -16,3 +16,8 @@ obj-$(CONFIG_BGMAC_BCMA) += bgmac-bcma.o bgmac-bcma-mdio.o
- obj-$(CONFIG_BGMAC_PLATFORM) += bgmac-platform.o
- obj-$(CONFIG_SYSTEMPORT) += bcmsysport.o
- obj-$(CONFIG_BNXT) += bnxt/
-+
-+# FIXME: temporarily silence -Warray-bounds on non W=1+ builds
-+ifndef KBUILD_EXTRA_WARN
-+CFLAGS_tg3.o += -Wno-array-bounds
-+endif
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/soc.c b/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
+index 3028c02cb840..be448d471b03 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
+@@ -210,6 +210,8 @@ static int mt7986_wmac_gpio_setup(struct mt7915_dev *dev)
+ 		if (IS_ERR_OR_NULL(state))
+ 			return -EINVAL;
+ 		break;
++	default:
++		return -EINVAL;
+ 	}
+ 
+ 	ret = pinctrl_select_state(pinctrl, state);
 -- 
 2.35.1
 
