@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6B4540636
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16307540C91
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236019AbiFGRdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39606 "EHLO
+        id S1345835AbiFGShY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347726AbiFGRa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:59 -0400
+        with ESMTP id S1352652AbiFGSe4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:34:56 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B4311AFEB;
-        Tue,  7 Jun 2022 10:28:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC1C5147828;
+        Tue,  7 Jun 2022 10:57:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 283C6CE0E13;
-        Tue,  7 Jun 2022 17:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F42C385A5;
-        Tue,  7 Jun 2022 17:28:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8C751CE2424;
+        Tue,  7 Jun 2022 17:57:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79F1CC36AFE;
+        Tue,  7 Jun 2022 17:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622885;
-        bh=E8QtK/qtvY0B9iXnVuByMA1wdsq/LdsG42DXw/oRoLU=;
+        s=korg; t=1654624667;
+        bh=iXUiLRDFdy3+PETYbFLXAMdORBW0W2MfQCe4DsTIHdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Iwi3S0+vbZ5ChfLo8KnYHX8nEEbfDOw9ul65PRe+mcarQ1RyWlY0gMhTB2pOWdTW
-         lYaY8BFYEt3D+L5lHE1Q0TSJ5+WU9V8ITghYOkLkgM5p4FsSXk0h17Ie76OiQZYic9
-         QVWbJiJr9tHtPYe+BIo3aIUUVFjWui5WWhB8B2Vw=
+        b=Ju9m4naQdYRfJNlnVLg7MG9Ydhzcq3Qwi9lQo8HAcamMd+QJ3OjnmwuHdySWpfrp+
+         kI6aLp8/c5UEcRufkcVl+A/f3LmRwybVA8epQyildNMQk5c35VpCXpog8HP8J5oBLm
+         0ZZxKhFBQU1VEXynx+T4VJBGM4TyMaOGgFUbP/DM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 201/452] ath11k: Dont check arvif->is_started before sending management frames
+        stable@vger.kernel.org, Jianrong Zhang <zhangjianrong5@huawei.com>,
+        Jiantao Zhang <water.zhangjiantao@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 393/667] PCI: dwc: Fix setting error return on MSI DMA mapping failure
 Date:   Tue,  7 Jun 2022 19:00:58 +0200
-Message-Id: <20220607164914.552880447@linuxfoundation.org>
+Message-Id: <20220607164946.533043960@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baochen Qiang <quic_bqiang@quicinc.com>
+From: Jiantao Zhang <water.zhangjiantao@huawei.com>
 
-[ Upstream commit 355333a217541916576351446b5832fec7930566 ]
+[ Upstream commit 88557685cd72cf0db686a4ebff3fad4365cb6071 ]
 
-Commit 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for
-deleted vdev") wants both of below two conditions are true before
-sending management frames:
+When dma_mapping_error() returns error because of no enough memory,
+but dw_pcie_host_init() returns success, which will mislead the callers.
 
-1: ar->allocated_vdev_map & (1LL << arvif->vdev_id)
-2: arvif->is_started
-
-Actually the second one is not necessary because with the first one
-we can make sure the vdev is present.
-
-Also use ar->conf_mutex to synchronize vdev delete and mgmt. TX.
-
-This issue is found in case of Passpoint scenario where ath11k
-needs to send action frames before vdev is started.
-
-Fix it by removing the second condition.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Fixes: 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for deleted vdev")
-Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220506013614.1580274-3-quic_bqiang@quicinc.com
+Link: https://lore.kernel.org/r/30170911-0e2f-98ce-9266-70465b9073e5@huawei.com
+Fixes: 07940c369a6b ("PCI: dwc: Fix MSI page leakage in suspend/resume")
+Signed-off-by: Jianrong Zhang <zhangjianrong5@huawei.com>
+Signed-off-by: Jiantao Zhang <water.zhangjiantao@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware-host.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index b2928a5cf72e..44282aec069d 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -4008,8 +4008,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 		}
- 
- 		arvif = ath11k_vif_to_arvif(skb_cb->vif);
--		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
--		    arvif->is_started) {
-+		mutex_lock(&ar->conf_mutex);
-+		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id)) {
- 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
- 			if (ret) {
- 				ath11k_warn(ar->ab, "failed to tx mgmt frame, vdev_id %d :%d\n",
-@@ -4025,6 +4025,7 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 				    arvif->is_started);
- 			ieee80211_free_txskb(ar->hw, skb);
- 		}
-+		mutex_unlock(&ar->conf_mutex);
- 	}
- }
- 
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index d1d9b8344ec9..bc0807fe3fc3 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -380,7 +380,8 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 						      sizeof(pp->msi_msg),
+ 						      DMA_FROM_DEVICE,
+ 						      DMA_ATTR_SKIP_CPU_SYNC);
+-			if (dma_mapping_error(pci->dev, pp->msi_data)) {
++			ret = dma_mapping_error(pci->dev, pp->msi_data);
++			if (ret) {
+ 				dev_err(pci->dev, "Failed to map MSI data\n");
+ 				pp->msi_data = 0;
+ 				goto err_free_msi;
 -- 
 2.35.1
 
