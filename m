@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3695410C5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04FAD54181B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355284AbiFGT32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
+        id S1378781AbiFGVHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356784AbiFGT2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:12 -0400
+        with ESMTP id S1379703AbiFGVGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 260801A1949;
-        Tue,  7 Jun 2022 11:10:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD3F52109D6;
+        Tue,  7 Jun 2022 11:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99781B82182;
-        Tue,  7 Jun 2022 18:10:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09FCDC385A2;
-        Tue,  7 Jun 2022 18:10:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED681B81FE1;
+        Tue,  7 Jun 2022 18:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 610DEC385A2;
+        Tue,  7 Jun 2022 18:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625444;
-        bh=bH3s1BVToRvgFhBLsu+cvbtMNthczz1FNbaIJi0JObM=;
+        s=korg; t=1654627796;
+        bh=Sn2E5T7+eZANOZsUBkk4ShXP8E0TUT3ruFCM8ktCFR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJFt1d+LMCoCyXg52VakFo12OLEZFEHNMBVkngUtXw9kYrkz8VFowzqmiyx/P3R9P
-         5fg5fiQYpfAUw/t3lVvHK0SybcE/0CEsBgOKd6DJxIWSPPagIUMfXtFyljvFY6nSUj
-         VE5/JdhXJZ8KT6f5a9DUfLR2NuIKpcHTJvCneXHc=
+        b=OYMn5ibTP6E5H8TS4asnICu2Yj7fngka75HK44yy2mj4sJHVQGayy+uD/cjS9ZZbv
+         GjmUPzzA63XgRnrVkGmZapuNJtaatKkRwEKrh7uhWah1wHxFq/j5VP292D+5r1vLOm
+         KvhEdfPOiUpObbgw3svBL0y/bXSK7I7KKk7xEhY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.17 021/772] fs/ntfs3: Fix fiemap + fix shrink file size (to remove preallocated space)
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 095/879] drm/amd/pm: fix double free in si_parse_power_table()
 Date:   Tue,  7 Jun 2022 18:53:33 +0200
-Message-Id: <20220607164949.635826369@linuxfoundation.org>
+Message-Id: <20220607165005.450407171@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-commit 3880f2b816a7e4ca889b7e8a42e6c62c5706ed36 upstream.
+[ Upstream commit f3fa2becf2fc25b6ac7cf8d8b1a2e4a86b3b72bd ]
 
-Two problems:
-1. ntfs3_setattr can't truncate preallocated space;
-2. if allocated fragment "cross" valid size, then fragment splits into two parts:
-- normal part;
-- unwritten part (here we must return FIEMAP_EXTENT_LAST).
-Before this commit we returned FIEMAP_EXTENT_LAST for whole fragment.
-Fixes xfstest generic/092
-Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
+In function si_parse_power_table(), array adev->pm.dpm.ps and its member
+is allocated. If the allocation of each member fails, the array itself
+is freed and returned with an error code. However, the array is later
+freed again in si_dpm_fini() function which is called when the function
+returns an error.
 
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This leads to potential double free of the array adev->pm.dpm.ps, as
+well as leak of its array members, since the members are not freed in
+the allocation function and the array is not nulled when freed.
+In addition adev->pm.dpm.num_ps, which keeps track of the allocated
+array member, is not updated until the member allocation is
+successfully finished, this could also lead to either use after free,
+or uninitialized variable access in si_dpm_fini().
+
+Fix this by postponing the free of the array until si_dpm_fini() and
+increment adev->pm.dpm.num_ps everytime the array member is allocated.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/file.c    |    2 +-
- fs/ntfs3/frecord.c |   10 +++++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/ntfs3/file.c
-+++ b/fs/ntfs3/file.c
-@@ -762,7 +762,7 @@ int ntfs3_setattr(struct user_namespace
- 		}
- 		inode_dio_wait(inode);
- 
--		if (attr->ia_size < oldsize)
-+		if (attr->ia_size <= oldsize)
- 			err = ntfs_truncate(inode, attr->ia_size);
- 		else if (attr->ia_size > oldsize)
- 			err = ntfs_extend(inode, attr->ia_size, 0, NULL);
---- a/fs/ntfs3/frecord.c
-+++ b/fs/ntfs3/frecord.c
-@@ -1964,10 +1964,8 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 
- 		vcn += clen;
- 
--		if (vbo + bytes >= end) {
-+		if (vbo + bytes >= end)
- 			bytes = end - vbo;
--			flags |= FIEMAP_EXTENT_LAST;
+diff --git a/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c b/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c
+index 633dab14f51c..49c398ec0aaf 100644
+--- a/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c
++++ b/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c
+@@ -7297,17 +7297,15 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 	if (!adev->pm.dpm.ps)
+ 		return -ENOMEM;
+ 	power_state_offset = (u8 *)state_array->states;
+-	for (i = 0; i < state_array->ucNumEntries; i++) {
++	for (adev->pm.dpm.num_ps = 0, i = 0; i < state_array->ucNumEntries; i++) {
+ 		u8 *idx;
+ 		power_state = (union pplib_power_state *)power_state_offset;
+ 		non_clock_array_index = power_state->v2.nonClockInfoIndex;
+ 		non_clock_info = (struct _ATOM_PPLIB_NONCLOCK_INFO *)
+ 			&non_clock_info_array->nonClockInfo[non_clock_array_index];
+ 		ps = kzalloc(sizeof(struct  si_ps), GFP_KERNEL);
+-		if (ps == NULL) {
+-			kfree(adev->pm.dpm.ps);
++		if (ps == NULL)
+ 			return -ENOMEM;
 -		}
- 
- 		if (vbo + bytes <= valid) {
- 			;
-@@ -1977,6 +1975,9 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 			/* vbo < valid && valid < vbo + bytes */
- 			u64 dlen = valid - vbo;
- 
-+			if (vbo + dlen >= end)
-+				flags |= FIEMAP_EXTENT_LAST;
-+
- 			err = fiemap_fill_next_extent(fieinfo, vbo, lbo, dlen,
- 						      flags);
- 			if (err < 0)
-@@ -1995,6 +1996,9 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 			flags |= FIEMAP_EXTENT_UNWRITTEN;
+ 		adev->pm.dpm.ps[i].ps_priv = ps;
+ 		si_parse_pplib_non_clock_info(adev, &adev->pm.dpm.ps[i],
+ 					      non_clock_info,
+@@ -7329,8 +7327,8 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 			k++;
  		}
+ 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
++		adev->pm.dpm.num_ps++;
+ 	}
+-	adev->pm.dpm.num_ps = state_array->ucNumEntries;
  
-+		if (vbo + bytes >= end)
-+			flags |= FIEMAP_EXTENT_LAST;
-+
- 		err = fiemap_fill_next_extent(fieinfo, vbo, lbo, bytes, flags);
- 		if (err < 0)
- 			break;
+ 	/* fill in the vce power states */
+ 	for (i = 0; i < adev->pm.dpm.num_of_vce_states; i++) {
+-- 
+2.35.1
+
 
 
