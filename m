@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E47541302
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FBFB540B87
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357564AbiFGTzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47130 "EHLO
+        id S1345873AbiFGS3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358868AbiFGTxT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21EB8AFB1B;
-        Tue,  7 Jun 2022 11:22:50 -0700 (PDT)
+        with ESMTP id S1350863AbiFGSPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:15:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1593415A772;
+        Tue,  7 Jun 2022 10:49:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C33A7B82368;
-        Tue,  7 Jun 2022 18:22:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3324CC385A2;
-        Tue,  7 Jun 2022 18:22:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C791B82349;
+        Tue,  7 Jun 2022 17:49:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C42C34115;
+        Tue,  7 Jun 2022 17:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626167;
-        bh=+zI6OmQ/T0upi5tdS+NukdBVJYLETxXO2Rr9cGXDaX4=;
+        s=korg; t=1654624148;
+        bh=vQUwpjNBc2/uBCLZmEOyoUfx/E7nhiAOOMBOrT/b+Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvJepqPfEUVShOUirAW0MPD99pDELsDyMvUmHb7OkJUvcPmpiYpe1K+QEOCMnxDJL
-         2sTyNiEXE4An4k76wbYFzCYci1DzM3XZUn8A3uUBJPjBhtkwxp7a/1RvUyIfjLCcQb
-         T+4NK8mkjq1ZriAke6EciXYzGe7DHuI3MZIZ0JPI=
+        b=hn0IX1IjKvy0KVEJW6iX5sjSbRyO9y3VNfIAa9NXWhFRxKdn3QU8uXe3O0Yx/zQqJ
+         qa26UzHlicyAZILH5FmnFSDa07X1yQA/iEI6/7VBwd1ICq5Y02tp6mCrGyUrNVlacV
+         GmWxGbquTdqS6+7uyNqNcqG/vwsGVhaMDHemyYAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 254/772] mptcp: reset the packet scheduler on incoming MP_PRIO
+Subject: [PATCH 5.15 181/667] Input: gpio-keys - cancel delayed work only in case of GPIO
 Date:   Tue,  7 Jun 2022 18:57:26 +0200
-Message-Id: <20220607164956.509615065@linuxfoundation.org>
+Message-Id: <20220607164940.237977755@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 43f5b111d1ff16161ce60e19aeddb999cb6f0b01 ]
+[ Upstream commit cee409bbba0d1bd3fb73064fb480ff365f453b5d ]
 
-When an incoming MP_PRIO option changes the backup
-status of any subflow, we need to reset the packet
-scheduler status, or the next send could keep using
-the previously selected subflow, without taking in account
-the new priorities.
+gpio_keys module can either accept gpios or interrupts. The module
+initializes delayed work in case of gpios only and is only used if
+debounce timer is not used, so make sure cancel_delayed_work_sync()
+is called only when its gpio-backed and debounce_use_hrtimer is false.
 
-Reported-by: Davide Caratti <dcaratti@redhat.com>
-Fixes: 40453a5c61f4 ("mptcp: add the incoming MP_PRIO support")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This fixes the issue seen below when the gpio_keys module is unloaded and
+an interrupt pin is used instead of GPIO:
+
+[  360.297569] ------------[ cut here ]------------
+[  360.302303] WARNING: CPU: 0 PID: 237 at kernel/workqueue.c:3066 __flush_work+0x414/0x470
+[  360.310531] Modules linked in: gpio_keys(-)
+[  360.314797] CPU: 0 PID: 237 Comm: rmmod Not tainted 5.18.0-rc5-arm64-renesas-00116-g73636105874d-dirty #166
+[  360.324662] Hardware name: Renesas SMARC EVK based on r9a07g054l2 (DT)
+[  360.331270] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  360.338318] pc : __flush_work+0x414/0x470
+[  360.342385] lr : __cancel_work_timer+0x140/0x1b0
+[  360.347065] sp : ffff80000a7fba00
+[  360.350423] x29: ffff80000a7fba00 x28: ffff000012b9c5c0 x27: 0000000000000000
+[  360.357664] x26: ffff80000a7fbb80 x25: ffff80000954d0a8 x24: 0000000000000001
+[  360.364904] x23: ffff800009757000 x22: 0000000000000000 x21: ffff80000919b000
+[  360.372143] x20: ffff00000f5974e0 x19: ffff00000f5974e0 x18: ffff8000097fcf48
+[  360.379382] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000053f40
+[  360.386622] x14: ffff800009850e88 x13: 0000000000000002 x12: 000000000000a60c
+[  360.393861] x11: 000000000000a610 x10: 0000000000000000 x9 : 0000000000000008
+[  360.401100] x8 : 0101010101010101 x7 : 00000000a473c394 x6 : 0080808080808080
+[  360.408339] x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffff80000919b458
+[  360.415578] x2 : ffff8000097577f0 x1 : 0000000000000001 x0 : 0000000000000000
+[  360.422818] Call trace:
+[  360.425299]  __flush_work+0x414/0x470
+[  360.429012]  __cancel_work_timer+0x140/0x1b0
+[  360.433340]  cancel_delayed_work_sync+0x10/0x18
+[  360.437931]  gpio_keys_quiesce_key+0x28/0x58 [gpio_keys]
+[  360.443327]  devm_action_release+0x10/0x18
+[  360.447481]  release_nodes+0x8c/0x1a0
+[  360.451194]  devres_release_all+0x90/0x100
+[  360.455346]  device_unbind_cleanup+0x14/0x60
+[  360.459677]  device_release_driver_internal+0xe8/0x168
+[  360.464883]  driver_detach+0x4c/0x90
+[  360.468509]  bus_remove_driver+0x54/0xb0
+[  360.472485]  driver_unregister+0x2c/0x58
+[  360.476462]  platform_driver_unregister+0x10/0x18
+[  360.481230]  gpio_keys_exit+0x14/0x828 [gpio_keys]
+[  360.486088]  __arm64_sys_delete_module+0x1e0/0x270
+[  360.490945]  invoke_syscall+0x40/0xf8
+[  360.494661]  el0_svc_common.constprop.3+0xf0/0x110
+[  360.499515]  do_el0_svc+0x20/0x78
+[  360.502877]  el0_svc+0x48/0xf8
+[  360.505977]  el0t_64_sync_handler+0x88/0xb0
+[  360.510216]  el0t_64_sync+0x148/0x14c
+[  360.513930] irq event stamp: 4306
+[  360.517288] hardirqs last  enabled at (4305): [<ffff8000080b0300>] __cancel_work_timer+0x130/0x1b0
+[  360.526359] hardirqs last disabled at (4306): [<ffff800008d194fc>] el1_dbg+0x24/0x88
+[  360.534204] softirqs last  enabled at (4278): [<ffff8000080104a0>] _stext+0x4a0/0x5e0
+[  360.542133] softirqs last disabled at (4267): [<ffff8000080932ac>] irq_exit_rcu+0x18c/0x1b0
+[  360.550591] ---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220524135822.14764-1-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm.c       | 19 +++++++++++++++----
- net/mptcp/protocol.c |  2 ++
- net/mptcp/protocol.h |  1 +
- 3 files changed, 18 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/gpio_keys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mptcp/pm.c b/net/mptcp/pm.c
-index 1eb83cbe8aae..770c4e36c776 100644
---- a/net/mptcp/pm.c
-+++ b/net/mptcp/pm.c
-@@ -261,14 +261,25 @@ void mptcp_pm_rm_addr_received(struct mptcp_sock *msk,
- 	spin_unlock_bh(&pm->lock);
- }
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 8dbf1e69c90a..22a91db645b8 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -131,7 +131,7 @@ static void gpio_keys_quiesce_key(void *data)
  
--void mptcp_pm_mp_prio_received(struct sock *sk, u8 bkup)
-+void mptcp_pm_mp_prio_received(struct sock *ssk, u8 bkup)
- {
--	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
-+	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
-+	struct sock *sk = subflow->conn;
-+	struct mptcp_sock *msk;
- 
- 	pr_debug("subflow->backup=%d, bkup=%d\n", subflow->backup, bkup);
--	subflow->backup = bkup;
-+	msk = mptcp_sk(sk);
-+	if (subflow->backup != bkup) {
-+		subflow->backup = bkup;
-+		mptcp_data_lock(sk);
-+		if (!sock_owned_by_user(sk))
-+			msk->last_snd = NULL;
-+		else
-+			__set_bit(MPTCP_RESET_SCHEDULER,  &msk->cb_flags);
-+		mptcp_data_unlock(sk);
-+	}
- 
--	mptcp_event(MPTCP_EVENT_SUB_PRIORITY, mptcp_sk(subflow->conn), sk, GFP_ATOMIC);
-+	mptcp_event(MPTCP_EVENT_SUB_PRIORITY, msk, ssk, GFP_ATOMIC);
- }
- 
- void mptcp_pm_mp_fail_received(struct sock *sk, u64 fail_seq)
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 7e8083d6f033..4a50906f4d8f 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -3098,6 +3098,8 @@ static void mptcp_release_cb(struct sock *sk)
- 			__mptcp_set_connected(sk);
- 		if (__test_and_clear_bit(MPTCP_ERROR_REPORT, &msk->cb_flags))
- 			__mptcp_error_report(sk);
-+		if (__test_and_clear_bit(MPTCP_RESET_SCHEDULER, &msk->cb_flags))
-+			msk->last_snd = NULL;
- 	}
- 
- 	__mptcp_update_rmem(sk);
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 46b343a0b17e..2ae8276b82fc 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -124,6 +124,7 @@
- #define MPTCP_RETRANSMIT	4
- #define MPTCP_FLUSH_JOIN_LIST	5
- #define MPTCP_CONNECTED		6
-+#define MPTCP_RESET_SCHEDULER	7
- 
- static inline bool before64(__u64 seq1, __u64 seq2)
- {
+ 	if (!bdata->gpiod)
+ 		hrtimer_cancel(&bdata->release_timer);
+-	if (bdata->debounce_use_hrtimer)
++	else if (bdata->debounce_use_hrtimer)
+ 		hrtimer_cancel(&bdata->debounce_timer);
+ 	else
+ 		cancel_delayed_work_sync(&bdata->work);
 -- 
 2.35.1
 
