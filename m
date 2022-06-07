@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17325540775
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8AFD541D78
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348233AbiFGRre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
+        id S1380111AbiFGWRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:17:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349078AbiFGRqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA0A1ADAE;
-        Tue,  7 Jun 2022 10:36:35 -0700 (PDT)
+        with ESMTP id S1384729AbiFGWQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:16:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7922E261291;
+        Tue,  7 Jun 2022 12:19:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7238CB822B1;
-        Tue,  7 Jun 2022 17:36:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF95C385A5;
-        Tue,  7 Jun 2022 17:36:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 965CE61947;
+        Tue,  7 Jun 2022 19:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F650C385A2;
+        Tue,  7 Jun 2022 19:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623393;
-        bh=sGmGcqaeMrXf95kZ8mefk5oX6FM7HbV7JXH1UsBZK2k=;
+        s=korg; t=1654629574;
+        bh=pKVlFhLgmigks0sdxgvJsyHBb00uGTtfbtvTCkZePqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1QBenn5ZPdNkWoiXzpOByo1iOwAad7HvucQ4Df2ZqDNkSoLbeZbss3OfR4VWZl0Gk
-         Dtm6iZhlmkrXxwGg9/ccWh3r7rYfUpjAVhE2FaGMuDtHRhto+Dmrau4rCJ4NGUxqLd
-         lWfmQp1LunuwX726kAS87lRvKt5FWH8g7vR0OZ90=
+        b=JXO5qqej5EyrLesh8WCrfMwEpEHvCfMSMXCwHCjpQkba597j1FyY87Z+4tt3FFrXE
+         azugKFPOkGQAHXzdMt2v1DIBi/45r4EgkDgkoNriVTDFR+bHwR9vDLXkyR7RTZw335
+         XFjHqsVwtkN3gkneCHMNTkvcEPh4HuLajpHUU6Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <song@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 401/452] ftrace: Clean up hash direct_functions on register failures
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.18 740/879] ext4: fix warning in ext4_handle_inode_extension
 Date:   Tue,  7 Jun 2022 19:04:18 +0200
-Message-Id: <20220607164920.509614425@linuxfoundation.org>
+Message-Id: <20220607165024.336913476@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <song@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 7d54c15cb89a29a5f59e5ffc9ee62e6591769ef1 upstream.
+commit f4534c9fc94d22383f187b9409abb3f9df2e3db3 upstream.
 
-We see the following GPF when register_ftrace_direct fails:
+We got issue as follows:
+EXT4-fs error (device loop0) in ext4_reserve_inode_write:5741: Out of memory
+EXT4-fs error (device loop0): ext4_setattr:5462: inode #13: comm syz-executor.0: mark_inode_dirty error
+EXT4-fs error (device loop0) in ext4_setattr:5519: Out of memory
+EXT4-fs error (device loop0): ext4_ind_map_blocks:595: inode #13: comm syz-executor.0: Can't allocate blocks for non-extent mapped inodes with bigalloc
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 4361 at fs/ext4/file.c:301 ext4_file_write_iter+0x11c9/0x1220
+Modules linked in:
+CPU: 1 PID: 4361 Comm: syz-executor.0 Not tainted 5.10.0+ #1
+RIP: 0010:ext4_file_write_iter+0x11c9/0x1220
+RSP: 0018:ffff924d80b27c00 EFLAGS: 00010282
+RAX: ffffffff815a3379 RBX: 0000000000000000 RCX: 000000003b000000
+RDX: ffff924d81601000 RSI: 00000000000009cc RDI: 00000000000009cd
+RBP: 000000000000000d R08: ffffffffbc5a2c6b R09: 0000902e0e52a96f
+R10: ffff902e2b7c1b40 R11: ffff902e2b7c1b40 R12: 000000000000000a
+R13: 0000000000000001 R14: ffff902e0e52aa10 R15: ffffffffffffff8b
+FS:  00007f81a7f65700(0000) GS:ffff902e3bc80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffff600400 CR3: 000000012db88001 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ do_iter_readv_writev+0x2e5/0x360
+ do_iter_write+0x112/0x4c0
+ do_pwritev+0x1e5/0x390
+ __x64_sys_pwritev2+0x7e/0xa0
+ do_syscall_64+0x37/0x50
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-[ ] general protection fault, probably for non-canonical address \
-  0x200000000000010: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-[...]
-[ ] RIP: 0010:ftrace_find_rec_direct+0x53/0x70
-[ ] Code: 48 c1 e0 03 48 03 42 08 48 8b 10 31 c0 48 85 d2 74 [...]
-[ ] RSP: 0018:ffffc9000138bc10 EFLAGS: 00010206
-[ ] RAX: 0000000000000000 RBX: ffffffff813e0df0 RCX: 000000000000003b
-[ ] RDX: 0200000000000000 RSI: 000000000000000c RDI: ffffffff813e0df0
-[ ] RBP: ffffffffa00a3000 R08: ffffffff81180ce0 R09: 0000000000000001
-[ ] R10: ffffc9000138bc18 R11: 0000000000000001 R12: ffffffff813e0df0
-[ ] R13: ffffffff813e0df0 R14: ffff888171b56400 R15: 0000000000000000
-[ ] FS:  00007fa9420c7780(0000) GS:ffff888ff6a00000(0000) knlGS:000000000
-[ ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ ] CR2: 000000000770d000 CR3: 0000000107d50003 CR4: 0000000000370ee0
-[ ] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ ] Call Trace:
-[ ]  <TASK>
-[ ]  register_ftrace_direct+0x54/0x290
-[ ]  ? render_sigset_t+0xa0/0xa0
-[ ]  bpf_trampoline_update+0x3f5/0x4a0
-[ ]  ? 0xffffffffa00a3000
-[ ]  bpf_trampoline_link_prog+0xa9/0x140
-[ ]  bpf_tracing_prog_attach+0x1dc/0x450
-[ ]  bpf_raw_tracepoint_open+0x9a/0x1e0
-[ ]  ? find_held_lock+0x2d/0x90
-[ ]  ? lock_release+0x150/0x430
-[ ]  __sys_bpf+0xbd6/0x2700
-[ ]  ? lock_is_held_type+0xd8/0x130
-[ ]  __x64_sys_bpf+0x1c/0x20
-[ ]  do_syscall_64+0x3a/0x80
-[ ]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ ] RIP: 0033:0x7fa9421defa9
-[ ] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 9 f8 [...]
-[ ] RSP: 002b:00007ffed743bd78 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
-[ ] RAX: ffffffffffffffda RBX: 00000000069d2480 RCX: 00007fa9421defa9
-[ ] RDX: 0000000000000078 RSI: 00007ffed743bd80 RDI: 0000000000000011
-[ ] RBP: 00007ffed743be00 R08: 0000000000bb7270 R09: 0000000000000000
-[ ] R10: 00000000069da210 R11: 0000000000000246 R12: 0000000000000001
-[ ] R13: 00007ffed743c4b0 R14: 00000000069d2480 R15: 0000000000000001
-[ ]  </TASK>
-[ ] Modules linked in: klp_vm(OK)
-[ ] ---[ end trace 0000000000000000 ]---
+Above issue may happen as follows:
+Assume
+inode.i_size=4096
+EXT4_I(inode)->i_disksize=4096
 
-One way to trigger this is:
-  1. load a livepatch that patches kernel function xxx;
-  2. run bpftrace -e 'kfunc:xxx {}', this will fail (expected for now);
-  3. repeat #2 => gpf.
+step 1: set inode->i_isize = 8192
+ext4_setattr
+  if (attr->ia_size != inode->i_size)
+    EXT4_I(inode)->i_disksize = attr->ia_size;
+    rc = ext4_mark_inode_dirty
+       ext4_reserve_inode_write
+          ext4_get_inode_loc
+            __ext4_get_inode_loc
+              sb_getblk --> return -ENOMEM
+   ...
+   if (!error)  ->will not update i_size
+     i_size_write(inode, attr->ia_size);
+Now:
+inode.i_size=4096
+EXT4_I(inode)->i_disksize=8192
 
-This is because the entry is added to direct_functions, but not removed.
-Fix this by remove the entry from direct_functions when
-register_ftrace_direct fails.
+step 2: Direct write 4096 bytes
+ext4_file_write_iter
+ ext4_dio_write_iter
+   iomap_dio_rw ->return error
+ if (extend)
+   ext4_handle_inode_extension
+     WARN_ON_ONCE(i_size_read(inode) < EXT4_I(inode)->i_disksize);
+->Then trigger warning.
 
-Also remove the last trailing space from ftrace.c, so we don't have to
-worry about it anymore.
+To solve above issue, if mark inode dirty failed in ext4_setattr just
+set 'EXT4_I(inode)->i_disksize' with old value.
 
-Link: https://lkml.kernel.org/r/20220524170839.900849-1-song@kernel.org
-
-Cc: stable@vger.kernel.org
-Fixes: 763e34e74bb7 ("ftrace: Add register_ftrace_direct()")
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220326065351.761952-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -4427,7 +4427,7 @@ int ftrace_func_mapper_add_ip(struct ftr
-  * @ip: The instruction pointer address to remove the data from
-  *
-  * Returns the data if it is found, otherwise NULL.
-- * Note, if the data pointer is used as the data itself, (see 
-+ * Note, if the data pointer is used as the data itself, (see
-  * ftrace_func_mapper_find_ip(), then the return value may be meaningless,
-  * if the data pointer was set to zero.
-  */
-@@ -5153,8 +5153,6 @@ int register_ftrace_direct(unsigned long
- 	__add_hash_entry(direct_functions, entry);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5389,6 +5389,7 @@ int ext4_setattr(struct user_namespace *
+ 	if (attr->ia_valid & ATTR_SIZE) {
+ 		handle_t *handle;
+ 		loff_t oldsize = inode->i_size;
++		loff_t old_disksize;
+ 		int shrink = (attr->ia_size < inode->i_size);
  
- 	ret = ftrace_set_filter_ip(&direct_ops, ip, 0, 0);
--	if (ret)
--		remove_hash_entry(direct_functions, entry);
+ 		if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
+@@ -5460,6 +5461,7 @@ int ext4_setattr(struct user_namespace *
+ 					inode->i_sb->s_blocksize_bits);
  
- 	if (!ret && !(direct_ops.flags & FTRACE_OPS_FL_ENABLED)) {
- 		ret = register_ftrace_function(&direct_ops);
-@@ -5163,6 +5161,7 @@ int register_ftrace_direct(unsigned long
- 	}
- 
- 	if (ret) {
-+		remove_hash_entry(direct_functions, entry);
- 		kfree(entry);
- 		if (!direct->count) {
- 			list_del_rcu(&direct->next);
+ 			down_write(&EXT4_I(inode)->i_data_sem);
++			old_disksize = EXT4_I(inode)->i_disksize;
+ 			EXT4_I(inode)->i_disksize = attr->ia_size;
+ 			rc = ext4_mark_inode_dirty(handle, inode);
+ 			if (!error)
+@@ -5471,6 +5473,8 @@ int ext4_setattr(struct user_namespace *
+ 			 */
+ 			if (!error)
+ 				i_size_write(inode, attr->ia_size);
++			else
++				EXT4_I(inode)->i_disksize = old_disksize;
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error)
 
 
