@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 454C15411EF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB338541848
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354243AbiFGTjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:39:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43444 "EHLO
+        id S1379368AbiFGVL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356411AbiFGTiy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:38:54 -0400
+        with ESMTP id S1380156AbiFGVLf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F8DFC4CC;
-        Tue,  7 Jun 2022 11:14:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0676E1498E3;
+        Tue,  7 Jun 2022 11:53:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C02B6B80B66;
-        Tue,  7 Jun 2022 18:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3781AC385A2;
-        Tue,  7 Jun 2022 18:14:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E3D4B81FE1;
+        Tue,  7 Jun 2022 18:53:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D99EAC385A2;
+        Tue,  7 Jun 2022 18:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625656;
-        bh=zgyO2gpZZw90ug3nLHg7ZzMYZjUrfV0DfpEeyX8JpOA=;
+        s=korg; t=1654627997;
+        bh=KPrctiGxlv//O7HkBngTp+QRuLCMbHbeWLwuZvRLw1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5Us739HxR80wRWtYsSKRp58fc0hLKM1AJ8Z5A6ohTPwQsY1KgSUwlX0jafwxlY0B
-         8Yd18/EZzZLxy+qQesfp8j7VnPsn6h5AlAcjqXAITU4CtHucDr9gShifzaY6cQ4y8f
-         yLAMwi8gQ0EJhgzg9bsV9villsMQ/an4du5sLH6E=
+        b=J1DxivFZTISPTZ5dAyk+9Ci2/1uQoakrb5aqj5JTbT782y40rPKllw+kgpcMeuQpn
+         pzZyot3jX29CrUURNRieuVCY/JMZtI85AWmPgHVvqVfgUaT5TJv3pkvayovthJ0bd3
+         orHMP35SvPLAes6BWym9Lk9ACukrDU5S8rAHVD80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Haohui Mai <ricetons@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 096/772] drm/amdgpu/sdma: Fix incorrect calculations of the wptr of the doorbells
+Subject: [PATCH 5.18 170/879] Bluetooth: btusb: Set HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN for QCA
 Date:   Tue,  7 Jun 2022 18:54:48 +0200
-Message-Id: <20220607164951.877120487@linuxfoundation.org>
+Message-Id: <20220607165007.644159709@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,97 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haohui Mai <ricetons@gmail.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 7dba6e838e741caadcf27ef717b6dcb561e77f89 ]
+[ Upstream commit d44e1dbda36fff5d7c2586683c4adc0963aef908 ]
 
-This patch fixes the issue where the driver miscomputes the 64-bit
-values of the wptr of the SDMA doorbell when initializing the
-hardware. SDMA engines v4 and later on have full 64-bit registers for
-wptr thus they should be set properly.
+This sets HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN for QCA controllers
+since SCO appear to not work when using HCI_OP_ENHANCED_SETUP_SYNC_CONN.
 
-Older generation hardwares like CIK / SI have only 16 / 20 / 24bits
-for the WPTR, where the calls of lower_32_bits() will be removed in a
-following patch.
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Haohui Mai <ricetons@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215576
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c | 4 ++--
- drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c | 8 ++++----
- drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c | 8 ++++----
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/bluetooth/btusb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-index f0638db57111..66b6b175ae90 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-@@ -772,8 +772,8 @@ static void sdma_v4_0_ring_set_wptr(struct amdgpu_ring *ring)
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 50df417207af..06a854a2507e 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -3335,6 +3335,11 @@ static int btusb_setup_qca(struct hci_dev *hdev)
+ 			msleep(QCA_BT_RESET_WAIT_MS);
+ 	}
  
- 		DRM_DEBUG("Using doorbell -- "
- 				"wptr_offs == 0x%08x "
--				"lower_32_bits(ring->wptr) << 2 == 0x%08x "
--				"upper_32_bits(ring->wptr) << 2 == 0x%08x\n",
-+				"lower_32_bits(ring->wptr << 2) == 0x%08x "
-+				"upper_32_bits(ring->wptr << 2) == 0x%08x\n",
- 				ring->wptr_offs,
- 				lower_32_bits(ring->wptr << 2),
- 				upper_32_bits(ring->wptr << 2));
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
-index 81e033549dda..6982735e88ba 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
-@@ -400,8 +400,8 @@ static void sdma_v5_0_ring_set_wptr(struct amdgpu_ring *ring)
- 	if (ring->use_doorbell) {
- 		DRM_DEBUG("Using doorbell -- "
- 				"wptr_offs == 0x%08x "
--				"lower_32_bits(ring->wptr) << 2 == 0x%08x "
--				"upper_32_bits(ring->wptr) << 2 == 0x%08x\n",
-+				"lower_32_bits(ring->wptr << 2) == 0x%08x "
-+				"upper_32_bits(ring->wptr << 2) == 0x%08x\n",
- 				ring->wptr_offs,
- 				lower_32_bits(ring->wptr << 2),
- 				upper_32_bits(ring->wptr << 2));
-@@ -780,9 +780,9 @@ static int sdma_v5_0_gfx_resume(struct amdgpu_device *adev)
++	/* Mark HCI_OP_ENHANCED_SETUP_SYNC_CONN as broken as it doesn't seem to
++	 * work with the likes of HSP/HFP mSBC.
++	 */
++	set_bit(HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN, &hdev->quirks);
++
+ 	return 0;
+ }
  
- 		if (!amdgpu_sriov_vf(adev)) { /* only bare-metal use register write for wptr */
- 			WREG32(sdma_v5_0_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR),
--			       lower_32_bits(ring->wptr) << 2);
-+			       lower_32_bits(ring->wptr << 2));
- 			WREG32(sdma_v5_0_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR_HI),
--			       upper_32_bits(ring->wptr) << 2);
-+			       upper_32_bits(ring->wptr << 2));
- 		}
- 
- 		doorbell = RREG32_SOC15_IP(GC, sdma_v5_0_get_reg_offset(adev, i, mmSDMA0_GFX_DOORBELL));
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-index d3d6d5b045b8..ce3a3d1bdaa8 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-@@ -287,8 +287,8 @@ static void sdma_v5_2_ring_set_wptr(struct amdgpu_ring *ring)
- 	if (ring->use_doorbell) {
- 		DRM_DEBUG("Using doorbell -- "
- 				"wptr_offs == 0x%08x "
--				"lower_32_bits(ring->wptr) << 2 == 0x%08x "
--				"upper_32_bits(ring->wptr) << 2 == 0x%08x\n",
-+				"lower_32_bits(ring->wptr << 2) == 0x%08x "
-+				"upper_32_bits(ring->wptr << 2) == 0x%08x\n",
- 				ring->wptr_offs,
- 				lower_32_bits(ring->wptr << 2),
- 				upper_32_bits(ring->wptr << 2));
-@@ -664,8 +664,8 @@ static int sdma_v5_2_gfx_resume(struct amdgpu_device *adev)
- 		WREG32_SOC15_IP(GC, sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_MINOR_PTR_UPDATE), 1);
- 
- 		if (!amdgpu_sriov_vf(adev)) { /* only bare-metal use register write for wptr */
--			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR), lower_32_bits(ring->wptr) << 2);
--			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR_HI), upper_32_bits(ring->wptr) << 2);
-+			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR), lower_32_bits(ring->wptr << 2));
-+			WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_RB_WPTR_HI), upper_32_bits(ring->wptr << 2));
- 		}
- 
- 		doorbell = RREG32_SOC15_IP(GC, sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_DOORBELL));
 -- 
 2.35.1
 
