@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1550541B4D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8D1540B64
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381730AbiFGVov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:44:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60302 "EHLO
+        id S1351228AbiFGS2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357031AbiFGVo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:44:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DF82342B7;
-        Tue,  7 Jun 2022 12:07:20 -0700 (PDT)
+        with ESMTP id S1352759AbiFGSVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:21:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DB0B36D4;
+        Tue,  7 Jun 2022 10:54:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C44061874;
-        Tue,  7 Jun 2022 19:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19EB3C385A2;
-        Tue,  7 Jun 2022 19:07:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A09EB8234A;
+        Tue,  7 Jun 2022 17:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F73C385A5;
+        Tue,  7 Jun 2022 17:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628838;
-        bh=wBHxjob7x0XzPX7Nk91SNo2LE9sqgvauDwTuTzLOtjg=;
+        s=korg; t=1654624443;
+        bh=ZZ8C+6QAKn6aChr34NI5Vxn3nKDglyGtahTGH2x3iT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFk1LpUG8Yp3dlnvFkOZxbtDyFSvTBjozgJzxJPqeEWMaMnieRTldHdBlTqsRTwWE
-         gQ4QmCM1mRGkPpKZaFGjpk2WjK5Tb7h9M2j9A/KHRIvbcIBFmxn07t1VHZrR+ZkDpR
-         fUEr3AxfIw+zLTqZeFFsjqrsYTnCB6zyzE+8P+aY=
+        b=QcUx1XolOX/OTJkLAc0KQDLLfKwKAxH09BwljpuGxe+5eNxVAoYMVpSIOREjZsSCm
+         4fuErdi2LBD0YS6A0RgYIJJMcK1yd1qqQVJh0aYchp8wBFJp0NcehZQhZ5HNwvtJZ/
+         3vdQDz3DgUNevQLh8sEgH7smF7JDNfiarRTxNSKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Sebastian Fricke <sebastian.fricke@collabora.com>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com,
+        Ying Hsu <yinghsu@chromium.org>,
+        Joseph Hwang <josephsih@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 475/879] media: rkvdec: Stop overclocking the decoder
-Date:   Tue,  7 Jun 2022 18:59:53 +0200
-Message-Id: <20220607165016.666307078@linuxfoundation.org>
+Subject: [PATCH 5.15 329/667] Bluetooth: fix dangling sco_conn and use-after-free in sco_sock_timeout
+Date:   Tue,  7 Jun 2022 18:59:54 +0200
+Message-Id: <20220607164944.636536276@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,52 +57,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: Ying Hsu <yinghsu@chromium.org>
 
-[ Upstream commit 9998943f6dfc5d5472bfab2e38527fb6ba5e9da7 ]
+[ Upstream commit 7aa1e7d15f8a5b65f67bacb100d8fc033b21efa2 ]
 
-While this overclock hack seems to work on some implementations
-(some ChromeBooks, RockPi4) it also causes instability on other
-implementations (notably LibreComputer Renegade, but there were more
-reports in the LibreELEC project, where this has been removed). While
-performance is indeed affected (tested with GStreamer), 4K playback
-still works as long as you don't operate in lock step and keep at
-least 1 frame ahead of time in the decode queue.
+Connecting the same socket twice consecutively in sco_sock_connect()
+could lead to a race condition where two sco_conn objects are created
+but only one is associated with the socket. If the socket is closed
+before the SCO connection is established, the timer associated with the
+dangling sco_conn object won't be canceled. As the sock object is being
+freed, the use-after-free problem happens when the timer callback
+function sco_sock_timeout() accesses the socket. Here's the call trace:
 
-After discussion with ChromeOS members, it would seem that their
-implementation indeed used to synchronously decode each frame, so
-this hack was simply compensating for their code being less
-efficient. In my opinion, this hack should not have been included
-upstream.
+dump_stack+0x107/0x163
+? refcount_inc+0x1c/
+print_address_description.constprop.0+0x1c/0x47e
+? refcount_inc+0x1c/0x7b
+kasan_report+0x13a/0x173
+? refcount_inc+0x1c/0x7b
+check_memory_region+0x132/0x139
+refcount_inc+0x1c/0x7b
+sco_sock_timeout+0xb2/0x1ba
+process_one_work+0x739/0xbd1
+? cancel_delayed_work+0x13f/0x13f
+? __raw_spin_lock_init+0xf0/0xf0
+? to_kthread+0x59/0x85
+worker_thread+0x593/0x70e
+kthread+0x346/0x35a
+? drain_workqueue+0x31a/0x31a
+? kthread_bind+0x4b/0x4b
+ret_from_fork+0x1f/0x30
 
-Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://syzkaller.appspot.com/bug?extid=2bef95d3ab4daa10155b
+Reported-by: syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com
+Fixes: e1dee2c1de2b ("Bluetooth: fix repeated calls to sco_sock_kill")
+Signed-off-by: Ying Hsu <yinghsu@chromium.org>
+Reviewed-by: Joseph Hwang <josephsih@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec.c | 6 ------
- 1 file changed, 6 deletions(-)
+ net/bluetooth/sco.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
-index c0cf3488f970..2df8cf4883e2 100644
---- a/drivers/staging/media/rkvdec/rkvdec.c
-+++ b/drivers/staging/media/rkvdec/rkvdec.c
-@@ -1027,12 +1027,6 @@ static int rkvdec_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 6e047e178c0a..c7b43c75677f 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -575,19 +575,24 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
+ 	    addr->sa_family != AF_BLUETOOTH)
+ 		return -EINVAL;
  
--	/*
--	 * Bump ACLK to max. possible freq. (500 MHz) to improve performance
--	 * When 4k video playback.
--	 */
--	clk_set_rate(rkvdec->clocks[0].clk, 500 * 1000 * 1000);
+-	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND)
+-		return -EBADFD;
++	lock_sock(sk);
++	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND) {
++		err = -EBADFD;
++		goto done;
++	}
+ 
+-	if (sk->sk_type != SOCK_SEQPACKET)
+-		return -EINVAL;
++	if (sk->sk_type != SOCK_SEQPACKET) {
++		err = -EINVAL;
++		goto done;
++	}
+ 
+ 	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
+-	if (!hdev)
+-		return -EHOSTUNREACH;
++	if (!hdev) {
++		err = -EHOSTUNREACH;
++		goto done;
++	}
+ 	hci_dev_lock(hdev);
+ 
+-	lock_sock(sk);
 -
- 	rkvdec->regs = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(rkvdec->regs))
- 		return PTR_ERR(rkvdec->regs);
+ 	/* Set destination address and psm */
+ 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+ 
 -- 
 2.35.1
 
