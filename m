@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A4B540FC8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05554540804
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbiFGTM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:12:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43174 "EHLO
+        id S1348791AbiFGRx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245137AbiFGTL0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:11:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B70194242;
-        Tue,  7 Jun 2022 11:07:06 -0700 (PDT)
+        with ESMTP id S1348889AbiFGRuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6FB136437;
+        Tue,  7 Jun 2022 10:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B532D618F6;
-        Tue,  7 Jun 2022 18:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F82C34119;
-        Tue,  7 Jun 2022 18:07:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96E13CE23E2;
+        Tue,  7 Jun 2022 17:37:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F9CC34115;
+        Tue,  7 Jun 2022 17:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625225;
-        bh=s88LYf1pFdDDcHZeXM4fiQIU0i0g0org+rLeRSkBlFg=;
+        s=korg; t=1654623439;
+        bh=a9ZKlcBnYsnE8aDqjIFcOyx82PBbPcD5L2D+T4nFJj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bC8td3iWGd2+bBj4d+PEoUp2JaBuikV7Er6VUl/R5SRCmCo0XepT2gCCYzF1AiAz9
-         K2wGxejlMQpycsXMXBr/zSxtU/cQHVMMhjhBi5W1Be8nsKH//SL7Hpzvxy8FX+C41s
-         dI1iWEO71zOnxDHCxClaJ9ACS2mbt29Kr6HEpFdU=
+        b=JWh2oqHHBUMN3+I4ggqnUAqGtxK4clCbUxyLOaefPwm5tPnjir1zb2SWIbO74bWMw
+         Q9gbnXnU0iMiOOm+SJRRKl3YzVGuyRn5u5wxHhvV7N6O10yDxGgHm6wvU39sskJd9e
+         Hpq3fvq8zaO5RJ88RiRXARXN5Tvx1CR0ZdmsBkc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kant Fan <kant@allwinnertech.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 608/667] thermal: devfreq_cooling: use local ops instead of global ops
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Subject: [PATCH 5.10 416/452] gma500: fix an incorrect NULL check on list iterator
 Date:   Tue,  7 Jun 2022 19:04:33 +0200
-Message-Id: <20220607164952.910130081@linuxfoundation.org>
+Message-Id: <20220607164920.952632644@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kant Fan <kant@allwinnertech.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit b947769b8f778db130aad834257fcaca25df2edc upstream.
+commit bdef417d84536715145f6dc9cc3275c46f26295a upstream.
 
-Fix access illegal address problem in following condition:
+The bug is here:
+	return crtc;
 
-There are multiple devfreq cooling devices in system, some of them has
-EM model but others do not. Energy model ops such as state2power will
-append to global devfreq_cooling_ops when the cooling device with
-EM model is registered. It makes the cooling device without EM model
-also use devfreq_cooling_ops after appending when registered later by
-of_devfreq_cooling_register_power() or of_devfreq_cooling_register().
+The list iterator value 'crtc' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found.
 
-The IPA governor regards the cooling devices without EM model as a power
-actor, because they also have energy model ops, and will access illegal
-address at dfc->em_pd when execute cdev->ops->get_requested_power,
-cdev->ops->state2power or cdev->ops->power2state.
+To fix the bug, return 'crtc' when found, otherwise return NULL.
 
-Fixes: 615510fe13bd2 ("thermal: devfreq_cooling: remove old power model and use EM")
-Cc: 5.13+ <stable@vger.kernel.org> # 5.13+
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+fixes: 89c78134cc54d ("gma500: Add Poulsbo support")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327052028.2013-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/devfreq_cooling.c |   25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/gma500/psb_intel_display.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/thermal/devfreq_cooling.c
-+++ b/drivers/thermal/devfreq_cooling.c
-@@ -358,21 +358,28 @@ of_devfreq_cooling_register_power(struct
- 	struct thermal_cooling_device *cdev;
- 	struct device *dev = df->dev.parent;
- 	struct devfreq_cooling_device *dfc;
-+	struct thermal_cooling_device_ops *ops;
- 	char *name;
- 	int err, num_opps;
+--- a/drivers/gpu/drm/gma500/psb_intel_display.c
++++ b/drivers/gpu/drm/gma500/psb_intel_display.c
+@@ -536,14 +536,15 @@ void psb_intel_crtc_init(struct drm_devi
  
--	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
--	if (!dfc)
-+	ops = kmemdup(&devfreq_cooling_ops, sizeof(*ops), GFP_KERNEL);
-+	if (!ops)
- 		return ERR_PTR(-ENOMEM);
- 
-+	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
-+	if (!dfc) {
-+		err = -ENOMEM;
-+		goto free_ops;
-+	}
-+
- 	dfc->devfreq = df;
- 
- 	dfc->em_pd = em_pd_get(dev);
- 	if (dfc->em_pd) {
--		devfreq_cooling_ops.get_requested_power =
-+		ops->get_requested_power =
- 			devfreq_cooling_get_requested_power;
--		devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
--		devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
-+		ops->state2power = devfreq_cooling_state2power;
-+		ops->power2state = devfreq_cooling_power2state;
- 
- 		dfc->power_ops = dfc_power;
- 
-@@ -407,8 +414,7 @@ of_devfreq_cooling_register_power(struct
- 	if (!name)
- 		goto remove_qos_req;
- 
--	cdev = thermal_of_cooling_device_register(np, name, dfc,
--						  &devfreq_cooling_ops);
-+	cdev = thermal_of_cooling_device_register(np, name, dfc, ops);
- 	kfree(name);
- 
- 	if (IS_ERR(cdev)) {
-@@ -429,6 +435,8 @@ free_table:
- 	kfree(dfc->freq_table);
- free_dfc:
- 	kfree(dfc);
-+free_ops:
-+	kfree(ops);
- 
- 	return ERR_PTR(err);
- }
-@@ -510,11 +518,13 @@ EXPORT_SYMBOL_GPL(devfreq_cooling_em_reg
- void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
+ struct drm_crtc *psb_intel_get_crtc_from_pipe(struct drm_device *dev, int pipe)
  {
- 	struct devfreq_cooling_device *dfc;
-+	const struct thermal_cooling_device_ops *ops;
- 	struct device *dev;
+-	struct drm_crtc *crtc = NULL;
++	struct drm_crtc *crtc;
  
- 	if (IS_ERR_OR_NULL(cdev))
- 		return;
- 
-+	ops = cdev->ops;
- 	dfc = cdev->devdata;
- 	dev = dfc->devfreq->dev.parent;
- 
-@@ -525,5 +535,6 @@ void devfreq_cooling_unregister(struct t
- 
- 	kfree(dfc->freq_table);
- 	kfree(dfc);
-+	kfree(ops);
+ 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
+ 		struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
++
+ 		if (gma_crtc->pipe == pipe)
+-			break;
++			return crtc;
+ 	}
+-	return crtc;
++	return NULL;
  }
- EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);
+ 
+ int gma_connector_clones(struct drm_device *dev, int type_mask)
 
 
