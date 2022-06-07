@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C175406F4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 898F954158E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343980AbiFGRl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45600 "EHLO
+        id S1376541AbiFGUgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347574AbiFGRjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:39:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD2E3DA6B;
-        Tue,  7 Jun 2022 10:33:31 -0700 (PDT)
+        with ESMTP id S1377931AbiFGUej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:39 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C909E17F83E;
+        Tue,  7 Jun 2022 11:36:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8053B820C3;
-        Tue,  7 Jun 2022 17:32:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C8CDC385A5;
-        Tue,  7 Jun 2022 17:32:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 104C7CE23F1;
+        Tue,  7 Jun 2022 18:36:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B31CC385A5;
+        Tue,  7 Jun 2022 18:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623169;
-        bh=803noPpmdd8jcZeDK1neNJXSR//7indM5D5x87bTTiQ=;
+        s=korg; t=1654627008;
+        bh=parI/TPNpyC+fEZbFJ+VeJJ70/4VagoOBOHtPQYuJsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y96/sb43bLojXtogTkp3nvQqm/pF1saeiaI2ikEmkAklJgeOJTOzrLn/5uY7gjyF9
-         BSaH/LHHZYT8NlW66m+wstbP+mh4ubOHcVyG7qwYD4ToDcVZ00uMkOUCXwTiv5gnvG
-         g+0xGp/6xPHUsVy/IYsEYYLoJPHCwzxxwCEt4BNk=
+        b=gCNpbgZHo3WX6TGmk+IpebpcdAxq5+lG2n8xwwbCI1nCmq7pi+0GgWHXyen0T6y7y
+         u8koI9p7ZZw10fNJrrAr0B/DU23bYI0xdB3bmEHL12/ZD2vZYnAYKIqyISiUA+xgm4
+         XklVA6jrCfZq90sBWIddrcPZHVLdUQUE3pcBAi50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 319/452] f2fs: fix dereference of stale list iterator after loop body
+Subject: [PATCH 5.17 584/772] NFS: Dont report errors from nfs_pageio_complete() more than once
 Date:   Tue,  7 Jun 2022 19:02:56 +0200
-Message-Id: <20220607164918.063298905@linuxfoundation.org>
+Message-Id: <20220607165006.156820962@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 2aaf51dd39afb6d01d13f1e6fe20b684733b37d5 ]
+[ Upstream commit c5e483b77cc2edb318da152abe07e33006b975fd ]
 
-The list iterator variable will be a bogus pointer if no break was hit.
-Dereferencing it (cur->page in this case) could load an out-of-bounds/undefined
-value making it unsafe to use that in the comparision to determine if the
-specific element was found.
+Since errors from nfs_pageio_complete() are already being reported
+through nfs_async_write_error(), we should not be returning them to the
+callers of do_writepages() as well. They will end up being reported
+through the generic mechanism instead.
 
-Since 'cur->page' *can* be out-ouf-bounds it cannot be guaranteed that
-by chance (or intention of an attacker) it matches the value of 'page'
-even though the correct element was not found.
-
-This is fixed by using a separate list iterator variable for the loop
-and only setting the original variable if a suitable element was found.
-Then determing if the element was found is simply checking if the
-variable is set.
-
-Fixes: 8c242db9b8c0 ("f2fs: fix stale ATOMIC_WRITTEN_PAGE private pointer")
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/nfs/write.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 49f5cb532738..736fb57423a6 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -356,16 +356,19 @@ void f2fs_drop_inmem_page(struct inode *inode, struct page *page)
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	struct list_head *head = &fi->inmem_pages;
- 	struct inmem_pages *cur = NULL;
-+	struct inmem_pages *tmp;
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 3cb948f13902..b28be2582c90 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -677,11 +677,7 @@ static int nfs_writepage_locked(struct page *page,
+ 	err = nfs_do_writepage(page, wbc, &pgio);
+ 	pgio.pg_error = 0;
+ 	nfs_pageio_complete(&pgio);
+-	if (err < 0)
+-		return err;
+-	if (nfs_error_is_fatal(pgio.pg_error))
+-		return pgio.pg_error;
+-	return 0;
++	return err;
+ }
  
- 	f2fs_bug_on(sbi, !IS_ATOMIC_WRITTEN_PAGE(page));
+ int nfs_writepage(struct page *page, struct writeback_control *wbc)
+@@ -739,9 +735,6 @@ int nfs_writepages(struct address_space *mapping, struct writeback_control *wbc)
  
- 	mutex_lock(&fi->inmem_lock);
--	list_for_each_entry(cur, head, list) {
--		if (cur->page == page)
-+	list_for_each_entry(tmp, head, list) {
-+		if (tmp->page == page) {
-+			cur = tmp;
- 			break;
-+		}
- 	}
- 
--	f2fs_bug_on(sbi, list_empty(head) || cur->page != page);
-+	f2fs_bug_on(sbi, !cur);
- 	list_del(&cur->list);
- 	mutex_unlock(&fi->inmem_lock);
- 
+ 	if (err < 0)
+ 		goto out_err;
+-	err = pgio.pg_error;
+-	if (nfs_error_is_fatal(err))
+-		goto out_err;
+ 	return 0;
+ out_err:
+ 	return err;
 -- 
 2.35.1
 
