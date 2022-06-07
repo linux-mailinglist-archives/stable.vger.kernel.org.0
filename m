@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 691585408C8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73CDA5418FC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352042AbiFGSCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:02:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39760 "EHLO
+        id S1378278AbiFGVTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:19:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349301AbiFGR7I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:59:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E321208B5;
-        Tue,  7 Jun 2022 10:41:42 -0700 (PDT)
+        with ESMTP id S1380301AbiFGVQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748F421C38E;
+        Tue,  7 Jun 2022 11:55:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A21614BC;
-        Tue,  7 Jun 2022 17:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5444C385A5;
-        Tue,  7 Jun 2022 17:41:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37D27617A0;
+        Tue,  7 Jun 2022 18:55:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41507C385A2;
+        Tue,  7 Jun 2022 18:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623701;
-        bh=lf/6Y4rbIRE2r8y1XIjTcfxBGOF6A6YKLaXjA0DcB9Y=;
+        s=korg; t=1654628099;
+        bh=BErCoeOcvUTLRD/LFFRzHxiI1/soPkkPoQKfGyEBg7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqY43FLI3nHfW7lp2brAJXxkdGR8NWT4Mq/ctmH1X/UqPF9qB89hxO0S7fz9l1Jj7
-         n6IJPcww2TsO22ZO9KDsm22SoMjkuQs5MwIRTzKnqJtcYOXZ61IjKEZNGoiawZlkTZ
-         9BmwJlR/her7HcaJLLofaIMjV1XWDL71Mf9s009o=
+        b=NfW8IKM/4ehD9JhHbG27g+j31QE2gooD9eoFOFkssAqyoGQPdyOe4jBA7Bkl0icyB
+         4evEQbX4vrq+WQIIGIpHnKn8hsYHPtYhop3wiLVqkd9O0mUADFUqGDgnLqYP8TgydM
+         y9fDp2YmQCstOfdAeulKGMOAToFlmLdieIgFwRVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/667] rcu: Make TASKS_RUDE_RCU select IRQ_WORK
+Subject: [PATCH 5.18 207/879] scsi: target: tcmu: Avoid holding XArray lock when calling lock_page
 Date:   Tue,  7 Jun 2022 18:55:25 +0200
-Message-Id: <20220607164936.613469572@linuxfoundation.org>
+Message-Id: <20220607165008.858395683@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Bodo Stroesser <bostroesser@gmail.com>
 
-[ Upstream commit 46e861be589881e0905b9ade3d8439883858721c ]
+[ Upstream commit 325d5c5fb216674296f3902a8902b942da3adc5b ]
 
-The TASKS_RUDE_RCU does not select IRQ_WORK, which can result in build
-failures for kernels that do not otherwise select IRQ_WORK.  This commit
-therefore causes the TASKS_RUDE_RCU Kconfig option to select IRQ_WORK.
+In tcmu_blocks_release(), lock_page() is called to prevent a race causing
+possible data corruption. Since lock_page() might sleep, calling it while
+holding XArray lock is a bug.
 
-Reported-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+To fix this, replace the xas_for_each() call with xa_for_each_range().
+Since the latter does its own handling of XArray locking, the xas_lock()
+and xas_unlock() calls around the original loop are no longer necessary.
+
+The switch to xa_for_each_range() slows down the loop slightly. This is
+acceptable since tcmu_blocks_release() is not relevant for performance.
+
+Link: https://lore.kernel.org/r/20220517192913.21405-1-bostroesser@gmail.com
+Fixes: bb9b9eb0ae2e ("scsi: target: tcmu: Fix possible data corruption")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/target/target_core_user.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/rcu/Kconfig b/kernel/rcu/Kconfig
-index 3128b7cf8e1f..f73cf17fcee9 100644
---- a/kernel/rcu/Kconfig
-+++ b/kernel/rcu/Kconfig
-@@ -86,6 +86,7 @@ config TASKS_RCU
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index b1fd06edea59..3deaeecb712e 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -1661,13 +1661,14 @@ static int tcmu_check_and_free_pending_cmd(struct tcmu_cmd *cmd)
+ static u32 tcmu_blocks_release(struct tcmu_dev *udev, unsigned long first,
+ 				unsigned long last)
+ {
+-	XA_STATE(xas, &udev->data_pages, first * udev->data_pages_per_blk);
+ 	struct page *page;
++	unsigned long dpi;
+ 	u32 pages_freed = 0;
  
- config TASKS_RUDE_RCU
- 	def_bool 0
-+	select IRQ_WORK
- 	help
- 	  This option enables a task-based RCU implementation that uses
- 	  only context switch (including preemption) and user-mode
+-	xas_lock(&xas);
+-	xas_for_each(&xas, page, (last + 1) * udev->data_pages_per_blk - 1) {
+-		xas_store(&xas, NULL);
++	first = first * udev->data_pages_per_blk;
++	last = (last + 1) * udev->data_pages_per_blk - 1;
++	xa_for_each_range(&udev->data_pages, dpi, page, first, last) {
++		xa_erase(&udev->data_pages, dpi);
+ 		/*
+ 		 * While reaching here there may be page faults occurring on
+ 		 * the to-be-released pages. A race condition may occur if
+@@ -1691,7 +1692,6 @@ static u32 tcmu_blocks_release(struct tcmu_dev *udev, unsigned long first,
+ 		__free_page(page);
+ 		pages_freed++;
+ 	}
+-	xas_unlock(&xas);
+ 
+ 	atomic_sub(pages_freed, &global_page_count);
+ 
 -- 
 2.35.1
 
