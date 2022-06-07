@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A73955414E9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 754C8541BF0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359056AbiFGUXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:23:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47474 "EHLO
+        id S1381958AbiFGVzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359039AbiFGUWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:11 -0400
+        with ESMTP id S1383055AbiFGVwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDAA2E098;
-        Tue,  7 Jun 2022 11:31:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D419812D1F9;
+        Tue,  7 Jun 2022 12:10:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0D7760906;
-        Tue,  7 Jun 2022 18:31:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 027DEC385A2;
-        Tue,  7 Jun 2022 18:31:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A456617D0;
+        Tue,  7 Jun 2022 19:10:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6760AC385A5;
+        Tue,  7 Jun 2022 19:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626682;
-        bh=POP9A37uRXlOW31AdVOeTleX5E/vQzKi4mA3ez0LcNE=;
+        s=korg; t=1654629022;
+        bh=u9c66hxd3Gms4SPDAZa/wUClxIpzgAWDdqlqJK5JUd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxAL/Vhr3ElPbhpA4k8/42G7usHx4IH1bjBdVvAqVKhm+bJjuN3l/XeKROCO07zSt
-         CqHr7GOilGvjohDWQvRiIU4NcadhUYg7q73L/s6/m5ViQHPu8QWh8Vna/1fMJ67rJd
-         rlr0zuQ29UIxBN36mDc4F9NvkFBAc7/L8FKNIHLg=
+        b=wpegZkBzqKmaCyw7rasOPPbDUWeQbgOhqjdgw/Io6CCF5ROWzE2BixXHRBqxTKkwJ
+         laxb3aywEpfOorW3H9vjE7RHsucXDmUsNOi+Fcm2XijxFQu0b90JUmQ/XhANDF38Ho
+         IAX6WZ1rQh36Gi52+F9xADTjHSQfE/KpkEIGgwLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 465/772] KVM: nVMX: Leave most VM-Exit info fields unmodified on failed VM-Entry
+Subject: [PATCH 5.18 539/879] soc: qcom: smp2p: Fix missing of_node_put() in smp2p_parse_ipc
 Date:   Tue,  7 Jun 2022 19:00:57 +0200
-Message-Id: <20220607165002.701018372@linuxfoundation.org>
+Message-Id: <20220607165018.517871860@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit c3634d25fbee88e2368a8e0903ae0d0670eb9e71 ]
+[ Upstream commit 8fd3f18ea31a398ecce4a6d3804433658678b0a3 ]
 
-Don't modify vmcs12 exit fields except EXIT_REASON and EXIT_QUALIFICATION
-when performing a nested VM-Exit due to failed VM-Entry.  Per the SDM,
-only the two aformentioned fields are filled and "All other VM-exit
-information fields are unmodified".
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: 4704d0befb07 ("KVM: nVMX: Exiting from L2 to L1")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220407002315.78092-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 50e99641413e ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308071942.22942-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/soc/qcom/smp2p.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 3237d804564b..2992db28c644 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4202,12 +4202,12 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	if (to_vmx(vcpu)->exit_reason.enclave_mode)
- 		vmcs12->vm_exit_reason |= VMX_EXIT_REASONS_SGX_ENCLAVE_MODE;
- 	vmcs12->exit_qualification = exit_qualification;
--	vmcs12->vm_exit_intr_info = exit_intr_info;
--
--	vmcs12->idt_vectoring_info_field = 0;
--	vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
--	vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+diff --git a/drivers/soc/qcom/smp2p.c b/drivers/soc/qcom/smp2p.c
+index 4a157240f419..59dbf4b61e6c 100644
+--- a/drivers/soc/qcom/smp2p.c
++++ b/drivers/soc/qcom/smp2p.c
+@@ -493,6 +493,7 @@ static int smp2p_parse_ipc(struct qcom_smp2p *smp2p)
+ 	}
  
-+	/*
-+	 * On VM-Exit due to a failed VM-Entry, the VMCS isn't marked launched
-+	 * and only EXIT_REASON and EXIT_QUALIFICATION are updated, all other
-+	 * exit info fields are unmodified.
-+	 */
- 	if (!(vmcs12->vm_exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY)) {
- 		vmcs12->launch_state = 1;
+ 	smp2p->ipc_regmap = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(smp2p->ipc_regmap))
+ 		return PTR_ERR(smp2p->ipc_regmap);
  
-@@ -4219,8 +4219,13 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 		 * Transfer the event that L0 or L1 may wanted to inject into
- 		 * L2 to IDT_VECTORING_INFO_FIELD.
- 		 */
-+		vmcs12->idt_vectoring_info_field = 0;
- 		vmcs12_save_pending_event(vcpu, vmcs12);
- 
-+		vmcs12->vm_exit_intr_info = exit_intr_info;
-+		vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
-+		vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
-+
- 		/*
- 		 * According to spec, there's no need to store the guest's
- 		 * MSRs if the exit is due to a VM-entry failure that occurs
 -- 
 2.35.1
 
