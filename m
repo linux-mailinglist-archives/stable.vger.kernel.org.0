@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B59541D7C
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B40AA5416F8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378843AbiFGWRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37168 "EHLO
+        id S1377202AbiFGU4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384712AbiFGWQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:16:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F149261285;
-        Tue,  7 Jun 2022 12:19:58 -0700 (PDT)
+        with ESMTP id S1377302AbiFGUuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70CB1F898C;
+        Tue,  7 Jun 2022 11:40:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B25561937;
-        Tue,  7 Jun 2022 19:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 483C2C385A2;
-        Tue,  7 Jun 2022 19:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53F38B8233E;
+        Tue,  7 Jun 2022 18:40:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEFC7C385A2;
+        Tue,  7 Jun 2022 18:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629546;
-        bh=u4cVDWE9ghJnWZVgnl39r4y8K2fhJNdkdYHrYy7ygyI=;
+        s=korg; t=1654627207;
+        bh=Rf2BtKigmj85vqHrqvMHp6RrUnAF/AVzeXa9HlfYhMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWBWwtM/NW10Lwhog8KB/ECDWlIxmU84zPUoVhZpAJApzVemiJSlWgdfTGRTRp3em
-         ATfM9w8NkdnifS8TkEd8WmbwrR8XzWRdptRjQOzX6e0FsA9Fl2WNgKOZwkcNw9T3Am
-         BCXEUScsve4NQQpfiw8d9tIyntJ8QcS7mD/hbK4U=
+        b=HlyL08KYpME8Elz2xH8PonHBATsjvqvwOFwHJXoiht+Zacy5SzqLfhNQEuGuuaR2J
+         3tYOYEsDFVmb9en2L/1NnG+RZoT1hGSy/SrS2x88R38cDfQP/F7NUnPJ0GBJ11Bhny
+         h73mCo2fxTtAdiAfYRhqh8uAvPhjlseA8otVr5Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 731/879] bfq: Drop pointless unlock-lock pair
+Subject: [PATCH 5.17 657/772] block: Fix potential deadlock in blk_ia_range_sysfs_show()
 Date:   Tue,  7 Jun 2022 19:04:09 +0200
-Message-Id: <20220607165024.074983777@linuxfoundation.org>
+Message-Id: <20220607165008.422498772@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit fc84e1f941b91221092da5b3102ec82da24c5673 upstream.
+commit 41e46b3c2aa24f755b2ae9ec4ce931ba5f0d8532 upstream.
 
-In bfq_insert_request() we unlock bfqd->lock only to call
-trace_block_rq_insert() and then lock bfqd->lock again. This is really
-pointless since tracing is disabled if we really care about performance
-and even if the tracepoint is enabled, it is a quick call.
+When being read, a sysfs attribute is already protected against removal
+with the kobject node active reference counter. As a result, in
+blk_ia_range_sysfs_show(), there is no need to take the queue sysfs
+lock when reading the value of a range attribute. Using the queue sysfs
+lock in this function creates a potential deadlock situation with the
+disk removal, something that a lockdep signals with a splat when the
+device is removed:
 
-CC: stable@vger.kernel.org
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-5-jack@suse.cz
+[  760.703551]  Possible unsafe locking scenario:
+[  760.703551]
+[  760.703554]        CPU0                    CPU1
+[  760.703556]        ----                    ----
+[  760.703558]   lock(&q->sysfs_lock);
+[  760.703565]                                lock(kn->active#385);
+[  760.703573]                                lock(&q->sysfs_lock);
+[  760.703579]   lock(kn->active#385);
+[  760.703587]
+[  760.703587]  *** DEADLOCK ***
+
+Solve this by removing the mutex_lock()/mutex_unlock() calls from
+blk_ia_range_sysfs_show().
+
+Fixes: a2247f19ee1c ("block: Add independent access ranges support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20220603021905.1441419-1-damien.lemoal@opensource.wdc.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    3 ---
- 1 file changed, 3 deletions(-)
+ block/blk-ia-ranges.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6154,11 +6154,8 @@ static void bfq_insert_request(struct bl
- 		return;
- 	}
+--- a/block/blk-ia-ranges.c
++++ b/block/blk-ia-ranges.c
+@@ -54,13 +54,8 @@ static ssize_t blk_ia_range_sysfs_show(s
+ 		container_of(attr, struct blk_ia_range_sysfs_entry, attr);
+ 	struct blk_independent_access_range *iar =
+ 		container_of(kobj, struct blk_independent_access_range, kobj);
+-	ssize_t ret;
  
--	spin_unlock_irq(&bfqd->lock);
+-	mutex_lock(&iar->queue->sysfs_lock);
+-	ret = entry->show(iar, buf);
+-	mutex_unlock(&iar->queue->sysfs_lock);
 -
- 	trace_block_rq_insert(rq);
+-	return ret;
++	return entry->show(iar, buf);
+ }
  
--	spin_lock_irq(&bfqd->lock);
- 	bfqq = bfq_init_rq(rq);
- 	if (!bfqq || at_head) {
- 		if (at_head)
+ static const struct sysfs_ops blk_ia_range_sysfs_ops = {
 
 
