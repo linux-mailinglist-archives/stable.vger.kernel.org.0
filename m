@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B63A541966
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4B25412B1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359578AbiFGVV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:21:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
+        id S1354517AbiFGTxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381130AbiFGVRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC5A132771;
-        Tue,  7 Jun 2022 11:58:21 -0700 (PDT)
+        with ESMTP id S1357337AbiFGTsc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:48:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B60C7B9E5;
+        Tue,  7 Jun 2022 11:19:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B86D5617E7;
-        Tue,  7 Jun 2022 18:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC352C385A2;
-        Tue,  7 Jun 2022 18:58:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B25F60DD7;
+        Tue,  7 Jun 2022 18:19:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E01C385A5;
+        Tue,  7 Jun 2022 18:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628300;
-        bh=eXwn9jpORhMFXa/l7hvpGfaQ1a87GZ++SVdKibfdzLY=;
+        s=korg; t=1654625966;
+        bh=CEB7zLhOIcLwSOQl4CUWTYbGqt5Qvom65s0Ym0hUi8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Av/vi081c7iyDUuIQjKun7wmELEqYYe2JspBvTNdCV0m1gQ3s7x9o4fgZx5VGj4ye
-         cMUct/oPSrcYxdHmTVcP3uUXXUa8yDNSTJamu89aydnJ3s7vrLRTz+/LQqhEfRKIMW
-         50YqO3YOg+D4XokKg1pjQYxCHzT5X0dFj1zr0X2M=
+        b=XuZkudGcgUTnI55H639MJVm+RLkN/BVffQqnot5y6uAYyliYyGAPIEh3s7BJ6IAvL
+         tP5HhFcSc3MrjoUi+jGSBkdGsZvcNfs7hy25k6KcffVKrTfhJH79zvAL20zvBsyVf1
+         hnXkEX202LVo+ct1uAsYhO1+CtK1UEGXEeLjRRFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.de>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 242/879] cifs: return ENOENT for DFS lookup_cache_entry()
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        kernel test robot <lkp@intel.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.17 168/772] can: mcp251xfd: silence clangs -Wunaligned-access warning
 Date:   Tue,  7 Jun 2022 18:56:00 +0200
-Message-Id: <20220607165009.877765372@linuxfoundation.org>
+Message-Id: <20220607164953.991436307@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,105 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enzo Matsumiya <ematsumiya@suse.de>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 337b8b0e4343567221ef8d88aac5e418208d4ac1 ]
+[ Upstream commit 1a6dd9996699889313327be03981716a8337656b ]
 
-EEXIST didn't make sense to use when dfs_cache_find() couldn't find a
-cache entry nor retrieve a referral target.
+clang emits a -Wunaligned-access warning on union
+mcp251xfd_tx_ojb_load_buf.
 
-It also doesn't make sense cifs_dfs_query_info_nonascii_quirk() to
-emulate ENOENT anymore.
+The reason is that field hw_tx_obj (not declared as packed) is being
+packed right after a 16 bits field inside a packed struct:
 
-Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+| union mcp251xfd_tx_obj_load_buf {
+| 	struct __packed {
+| 		struct mcp251xfd_buf_cmd cmd;
+| 		  /* ^ 16 bits fields */
+| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
+| 		  /* ^ not declared as packed */
+| 	} nocrc;
+| 	struct __packed {
+| 		struct mcp251xfd_buf_cmd_crc cmd;
+| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
+| 		__be16 crc;
+| 	} crc;
+| } ____cacheline_aligned;
+
+Starting from LLVM 14, having an unpacked struct nested in a packed
+struct triggers a warning. c.f. [1].
+
+This is a false positive because the field is always being accessed
+with the relevant put_unaligned_*() function. Adding __packed to the
+structure declaration silences the warning.
+
+[1] https://github.com/llvm/llvm-project/issues/55520
+
+Link: https://lore.kernel.org/all/20220518114357.55452-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Reported-by: kernel test robot <lkp@intel.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c   | 6 ++++--
- fs/cifs/dfs_cache.c | 6 +++---
- fs/cifs/misc.c      | 6 +-----
- 3 files changed, 8 insertions(+), 10 deletions(-)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 2a639fc79c30..b28b1ff39fed 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3406,8 +3406,9 @@ cifs_are_all_path_components_accessible(struct TCP_Server_Info *server,
- }
- 
- /*
-- * Check if path is remote (e.g. a DFS share). Return -EREMOTE if it is,
-- * otherwise 0.
-+ * Check if path is remote (i.e. a DFS share).
-+ *
-+ * Return -EREMOTE if it is, otherwise 0 or -errno.
+diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
+index f551c900803e..aed6e9d47517 100644
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
+@@ -434,7 +434,7 @@ struct mcp251xfd_hw_tef_obj {
+ /* The tx_obj_raw version is used in spi async, i.e. without
+  * regmap. We have to take care of endianness ourselves.
   */
- static int is_path_remote(struct mount_ctx *mnt_ctx)
- {
-@@ -3697,6 +3698,7 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb3_fs_context *ctx)
- 	if (!isdfs)
- 		goto out;
- 
-+	/* proceed as DFS mount */
- 	uuid_gen(&mnt_ctx.mount_id);
- 	rc = connect_dfs_root(&mnt_ctx, &tl);
- 	dfs_cache_free_tgts(&tl);
-diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
-index 956f8e5cf3e7..c5dd6f7305bd 100644
---- a/fs/cifs/dfs_cache.c
-+++ b/fs/cifs/dfs_cache.c
-@@ -654,7 +654,7 @@ static struct cache_entry *__lookup_cache_entry(const char *path, unsigned int h
- 			return ce;
- 		}
- 	}
--	return ERR_PTR(-EEXIST);
-+	return ERR_PTR(-ENOENT);
- }
- 
- /*
-@@ -662,7 +662,7 @@ static struct cache_entry *__lookup_cache_entry(const char *path, unsigned int h
-  *
-  * Use whole path components in the match.  Must be called with htable_rw_lock held.
-  *
-- * Return ERR_PTR(-EEXIST) if the entry is not found.
-+ * Return ERR_PTR(-ENOENT) if the entry is not found.
-  */
- static struct cache_entry *lookup_cache_entry(const char *path)
- {
-@@ -710,7 +710,7 @@ static struct cache_entry *lookup_cache_entry(const char *path)
- 		while (e > s && *e != sep)
- 			e--;
- 	}
--	return ERR_PTR(-EEXIST);
-+	return ERR_PTR(-ENOENT);
- }
- 
- /**
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
-index 114810e563a9..5a803d686146 100644
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -1308,7 +1308,7 @@ int cifs_update_super_prepath(struct cifs_sb_info *cifs_sb, char *prefix)
-  * for "\<server>\<dfsname>\<linkpath>" DFS reference,
-  * where <dfsname> contains non-ASCII unicode symbols.
-  *
-- * Check such DFS reference and emulate -ENOENT if it is actual.
-+ * Check such DFS reference.
-  */
- int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
- 				       struct cifs_tcon *tcon,
-@@ -1340,10 +1340,6 @@ int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
- 		cifs_dbg(FYI, "DFS ref '%s' is found, emulate -EREMOTE\n",
- 			 dfspath);
- 		rc = -EREMOTE;
--	} else if (rc == -EEXIST) {
--		cifs_dbg(FYI, "DFS ref '%s' is not found, emulate -ENOENT\n",
--			 dfspath);
--		rc = -ENOENT;
- 	} else {
- 		cifs_dbg(FYI, "%s: dfs_cache_find returned %d\n", __func__, rc);
- 	}
+-struct mcp251xfd_hw_tx_obj_raw {
++struct __packed mcp251xfd_hw_tx_obj_raw {
+ 	__le32 id;
+ 	__le32 flags;
+ 	u8 data[sizeof_field(struct canfd_frame, data)];
 -- 
 2.35.1
 
