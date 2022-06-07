@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A28F4541DF6
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 692EE5416DB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380728AbiFGWXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45026 "EHLO
+        id S1377722AbiFGUyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385335AbiFGWVc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9674319948A;
-        Tue,  7 Jun 2022 12:21:21 -0700 (PDT)
+        with ESMTP id S1378543AbiFGUwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6091021CB;
+        Tue,  7 Jun 2022 11:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF25D60A21;
-        Tue,  7 Jun 2022 19:21:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02756C385A2;
-        Tue,  7 Jun 2022 19:21:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBFD0B8220B;
+        Tue,  7 Jun 2022 18:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26CE6C385A2;
+        Tue,  7 Jun 2022 18:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629680;
-        bh=sFYoKH3ur13xudM/5aKhDJvPwSJ1dZo6go0R0tMxJR0=;
+        s=korg; t=1654627342;
+        bh=bEMjmt/fs8kRVG7tWEi/Vb+6ioSU5XDC+V8l26sZGkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0n1rA8QAs0gSntiWvi7IcXcN2OgsUqmEU3Q6D0vMM/q7zqCH8UP7YTPif0l1mufZG
-         ElGE2HPU2M0vwh7xe7SH5w2W0nPkNKtx4H9QfPUeKoiHXAey0QQmAjvix8nBGNbIDm
-         k/9RufZDiwDMwA0rWryuWucUbN0lxZkHMDcA5BmM=
+        b=knVTFDoOUFdizxltrdlrVZ6x/pIAFEjKA5QZIdVa4p5R1vd0sQIk/Kidupq9if3g3
+         /wCNdrkuTRMQGNF29+3jb+ogIEOEi89/hMBwbF3Vom0WtnGrAkl9eH2reBOliSXiXA
+         6ZLsPCzpKx2/EnLrEiZb7Q4fOosFyf3hEKrje0uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.18 779/879] selftests/landlock: Extend tests for minimal valid attribute size
-Date:   Tue,  7 Jun 2022 19:04:57 +0200
-Message-Id: <20220607165025.482010559@linuxfoundation.org>
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.17 706/772] mmc: core: Allows to override the timeout value for ioctl() path
+Date:   Tue,  7 Jun 2022 19:04:58 +0200
+Message-Id: <20220607165009.851901533@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Bean Huo <beanhuo@micron.com>
 
-commit 291865bd7e8bb4b4033d341fa02dafa728e6378c upstream.
+commit 23e09be254f95a5b75cd87f91a4014f3b46dda3f upstream.
 
-This might be useful when the struct landlock_ruleset_attr will get more
-fields.
+Occasionally, user-land applications initiate longer timeout values for certain commands
+through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
+in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
+userspace application. This patch allows custom timeout values to override this default
+timeout values on the ioctl path.
 
-Cc: Shuah Khan <shuah@kernel.org>
-Link: https://lore.kernel.org/r/20220506160820.524344-4-mic@digikod.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Acked-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220423221623.1074556-3-huobean@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/base_test.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mmc/core/block.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/landlock/base_test.c
-+++ b/tools/testing/selftests/landlock/base_test.c
-@@ -35,6 +35,8 @@ TEST(inconsistent_attr)
- 	ASSERT_EQ(EINVAL, errno);
- 	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 1, 0));
- 	ASSERT_EQ(EINVAL, errno);
-+	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 7, 0));
-+	ASSERT_EQ(EINVAL, errno);
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mm
  
- 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 1, 0));
- 	/* The size if less than sizeof(struct landlock_attr_enforce). */
-@@ -47,6 +49,9 @@ TEST(inconsistent_attr)
- 	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, page_size + 1, 0));
- 	ASSERT_EQ(E2BIG, errno);
+ 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+-		 * Ensure RPMB/R1B command has completed by polling CMD13
+-		 * "Send Status".
++		 * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
++		 * allow to override the default timeout value if a custom timeout is specified.
+ 		 */
+-		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
+-					MMC_BUSY_IO);
++		err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
++					false, MMC_BUSY_IO);
+ 	}
  
-+	/* Checks minimal valid attribute size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 8, 0));
-+	ASSERT_EQ(ENOMSG, errno);
- 	ASSERT_EQ(-1, landlock_create_ruleset(
- 			      ruleset_attr,
- 			      sizeof(struct landlock_ruleset_attr), 0));
+ 	return err;
 
 
