@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DD75411C0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E9854087D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354421AbiFGTms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:42:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55168 "EHLO
+        id S1348802AbiFGR6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:58:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357465AbiFGTmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:01 -0400
+        with ESMTP id S1349116AbiFGR6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5145915A742;
-        Tue,  7 Jun 2022 11:15:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AD75DE68;
+        Tue,  7 Jun 2022 10:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2ED6CB82368;
-        Tue,  7 Jun 2022 18:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96083C385A2;
-        Tue,  7 Jun 2022 18:15:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71D40B80B66;
+        Tue,  7 Jun 2022 17:41:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA73C385A5;
+        Tue,  7 Jun 2022 17:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625709;
-        bh=6Hz5HqIYdJLRIZwRktEAYB4iRCBgmhBAZDeEbAndy0g=;
+        s=korg; t=1654623668;
+        bh=YICky5YUFFXyV/gVsB5bsIEIJgQB8zFuaF0KlA+NgKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+Wxb30UdF8Aqdim/kivVOabdNIA+Yoj3W4khvmHEAL+gPC/ZALbqPqEj9GMH3OD6
-         0OGtbWudQiGzNSzPUL4Y5PizqdQTHmt2/60oKhNsSfELuffS0WHoVvz7HjSsD/icVT
-         rdrXBi0UYJQOrpm4YWH57YQO1vCDFxCSL3PM8jM0=
+        b=hjZdt0CzLFSie/UxWhrIpxgJz17qVS3OxSoSSyX1EbsY0u2Yx9nJImy2EhKFAH0hl
+         LfupRVZQ8H2qMfh/eRh+IWrP/mwX10MJRlWYL+gB0ztwMG5WoD07xFjDvLPEKB0SGv
+         lgJ5IJ6N2qajUzS1Age4h/mNAbAOxaYVFfRxpTX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 114/772] mlxsw: Treat LLDP packets as control
+        stable@vger.kernel.org,
+        =?UTF-8?q?Luca=20B=C3=A9la=20Palkovics?= 
+        <luca.bela.palkovics@gmail.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 041/667] btrfs: repair super block num_devices automatically
 Date:   Tue,  7 Jun 2022 18:55:06 +0200
-Message-Id: <20220607164952.408419962@linuxfoundation.org>
+Message-Id: <20220607164936.033396823@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 0106668cd2f91bf913fb78972840dedfba80a3c3 ]
+commit d201238ccd2f30b9bfcfadaeae0972e3a486a176 upstream.
 
-When trapping packets for on-CPU processing, Spectrum machines
-differentiate between control and non-control traps. Traffic trapped
-through non-control traps is treated as data and kept in shared buffer in
-pools 0-4. Traffic trapped through control traps is kept in the dedicated
-control buffer 9. The advantage of marking traps as control is that
-pressure in the data plane does not prevent the control traffic to be
-processed.
+[BUG]
+There is a report that a btrfs has a bad super block num devices.
 
-When the LLDP trap was introduced, it was marked as a control trap. But
-then in commit aed4b5721143 ("mlxsw: spectrum: PTP: Hook into packet
-receive path"), PTP traps were introduced. Because Ethernet-encapsulated
-PTP packets look to the Spectrum-1 ASIC as LLDP traffic and are trapped
-under the LLDP trap, this trap was reconfigured as non-control, in sync
-with the PTP traps.
+This makes btrfs to reject the fs completely.
 
-There is however no requirement that PTP traffic be handled as data.
-Besides, the usual encapsulation for PTP traffic is UDP, not bare Ethernet,
-and that is in deployments that even need PTP, which is far less common
-than LLDP. This is reflected by the default policer, which was not bumped
-up to the 19Kpps / 24Kpps that is the expected load of a PTP-enabled
-Spectrum-1 switch.
+  BTRFS error (device sdd3): super_num_devices 3 mismatch with num_devices 2 found here
+  BTRFS error (device sdd3): failed to read chunk tree: -22
+  BTRFS error (device sdd3): open_ctree failed
 
-Marking of LLDP trap as non-control was therefore probably misguided. In
-this patch, change it back to control.
+[CAUSE]
+During btrfs device removal, chunk tree and super block num devs are
+updated in two different transactions:
 
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  btrfs_rm_device()
+  |- btrfs_rm_dev_item(device)
+  |  |- trans = btrfs_start_transaction()
+  |  |  Now we got transaction X
+  |  |
+  |  |- btrfs_del_item()
+  |  |  Now device item is removed from chunk tree
+  |  |
+  |  |- btrfs_commit_transaction()
+  |     Transaction X got committed, super num devs untouched,
+  |     but device item removed from chunk tree.
+  |     (AKA, super num devs is already incorrect)
+  |
+  |- cur_devices->num_devices--;
+  |- cur_devices->total_devices--;
+  |- btrfs_set_super_num_devices()
+     All those operations are not in transaction X, thus it will
+     only be written back to disk in next transaction.
+
+So after the transaction X in btrfs_rm_dev_item() committed, but before
+transaction X+1 (which can be minutes away), a power loss happen, then
+we got the super num mismatch.
+
+This has been fixed by commit bbac58698a55 ("btrfs: remove device item
+and update super block in the same transaction").
+
+[FIX]
+Make the super_num_devices check less strict, converting it from a hard
+error to a warning, and reset the value to a correct one for the current
+or next transaction commit.
+
+As the number of device items is the critical information where the
+super block num_devices is only a cached value (and also useful for
+cross checking), it's safe to automatically update it. Other device
+related problems like missing device are handled after that and may
+require other means to resolve, like degraded mount. With this fix,
+potentially affected filesystems won't fail mount and require the manual
+repair by btrfs check.
+
+Reported-by: Luca Béla Palkovics <luca.bela.palkovics@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CA+8xDSpvdm_U0QLBAnrH=zqDq_cWCOH5TiV46CKmp3igr44okQ@mail.gmail.com/
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/volumes.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-index 47b061b99160..ed4d0d3448f3 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-@@ -864,7 +864,7 @@ static const struct mlxsw_sp_trap_item mlxsw_sp_trap_items_arr[] = {
- 		.trap = MLXSW_SP_TRAP_CONTROL(LLDP, LLDP, TRAP),
- 		.listeners_arr = {
- 			MLXSW_RXL(mlxsw_sp_rx_ptp_listener, LLDP, TRAP_TO_CPU,
--				  false, SP_LLDP, DISCARD),
-+				  true, SP_LLDP, DISCARD),
- 		},
- 	},
- 	{
--- 
-2.35.1
-
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7596,12 +7596,12 @@ int btrfs_read_chunk_tree(struct btrfs_f
+ 	 * do another round of validation checks.
+ 	 */
+ 	if (total_dev != fs_info->fs_devices->total_devices) {
+-		btrfs_err(fs_info,
+-	   "super_num_devices %llu mismatch with num_devices %llu found here",
++		btrfs_warn(fs_info,
++"super block num_devices %llu mismatch with DEV_ITEM count %llu, will be repaired on next transaction commit",
+ 			  btrfs_super_num_devices(fs_info->super_copy),
+ 			  total_dev);
+-		ret = -EINVAL;
+-		goto error;
++		fs_info->fs_devices->total_devices = total_dev;
++		btrfs_set_super_num_devices(fs_info->super_copy, total_dev);
+ 	}
+ 	if (btrfs_super_total_bytes(fs_info->super_copy) <
+ 	    fs_info->fs_devices->total_rw_bytes) {
 
 
