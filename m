@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB189540CF4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 273CE541559
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239637AbiFGSoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:44:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37566 "EHLO
+        id S1356420AbiFGUfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353442AbiFGSmU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:42:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2BE187040;
-        Tue,  7 Jun 2022 10:58:59 -0700 (PDT)
+        with ESMTP id S1376822AbiFGU2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBAD1D92E7;
+        Tue,  7 Jun 2022 11:33:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BADCBB82239;
-        Tue,  7 Jun 2022 17:58:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0907C341C7;
-        Tue,  7 Jun 2022 17:58:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4188E612F2;
+        Tue,  7 Jun 2022 18:33:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20D63C385A2;
+        Tue,  7 Jun 2022 18:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624736;
-        bh=sWn2KXKLVPyfsa6n0Io+GouTN/mpcv2HYJkzwIRKHSY=;
+        s=korg; t=1654626796;
+        bh=qV2DruYLPwyZRDN9vck8Ib0tA9uqVGuc67Tk42gUhNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6TFFM41Vc5olMda2zkOD9lKC6oFG0sBbvtU+ZdG+bLiCl8o+wWFFd2IDCRxHZfBK
-         WuJ7vticG4FdxWXhcEXMwbrTJy8xZnsMbTQjjiVmA4FB2iPWRbwBRFNnQpI6gp89Zj
-         EBzcmx3pIQ1AVYh5r35OhHwqzuB4ykj55RlhjK9g=
+        b=fl8g7sEGGtOG/u/ftXW9ipOoqA8vTi5cHfxxEXLQfWP3kKbxUhDEZNxi5NUlzXj1G
+         M/k9fbGe+PmfrxSnfVJGD2divbTJ6nzp4TMU7K2rE5dCdrR7OSYwhA0o5OqdC8WBZY
+         yucfGVnPEn0BUvhwvXTyz+DMfzJ0l2Db6jJp4a/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -46,19 +46,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yang Shi <shy828301@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 433/667] dax: fix cache flush on PMD-mapped pages
+Subject: [PATCH 5.17 506/772] dax: fix cache flush on PMD-mapped pages
 Date:   Tue,  7 Jun 2022 19:01:38 +0200
-Message-Id: <20220607164947.712787509@linuxfoundation.org>
+Message-Id: <20220607165003.889379506@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -103,7 +103,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/fs/dax.c b/fs/dax.c
-index 4e3e5a283a91..1d0658cf9dcf 100644
+index cd03485867a7..411ea6a0fe57 100644
 --- a/fs/dax.c
 +++ b/fs/dax.c
 @@ -846,7 +846,8 @@ static void dax_entry_mkclean(struct address_space *mapping, pgoff_t index,
