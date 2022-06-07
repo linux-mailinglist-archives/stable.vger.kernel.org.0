@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85512541C09
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8213540C56
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382755AbiFGV4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45980 "EHLO
+        id S1352366AbiFGSdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382815AbiFGVwD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CD323F7D5;
-        Tue,  7 Jun 2022 12:09:59 -0700 (PDT)
+        with ESMTP id S1352975AbiFGSbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C8317CCB0;
+        Tue,  7 Jun 2022 10:56:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB094618E1;
-        Tue,  7 Jun 2022 19:09:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3A0BC385A5;
-        Tue,  7 Jun 2022 19:09:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB478617A6;
+        Tue,  7 Jun 2022 17:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9DF0C341C0;
+        Tue,  7 Jun 2022 17:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628998;
-        bh=rnrAVh8TFZm3cAqfuvMQc8xzmqqS6HwYs40C1rok/OA=;
+        s=korg; t=1654624599;
+        bh=DHhMOTAVSHSY0j7O0/1UO25k14ku7/TFOBskDOIVeLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHOV8K8xQrG5dAbghtvyny4arDW18cL8Xwd1Gg4JQQkFDtTXjzR9RwIsErpW5tTvc
-         I0hl4kErFPTCtOd64OMLAc3IkzNiVDnNBlLEnWH0x5/IRIrjCIQFI2ZhK6wF3RIYVg
-         hzsQobnWTJxno4/Usri7w1wUEAp7OaJ5YgCAYe5s=
+        b=wSK+gGBdlDpYaw6sO0qxWJTCdw3RCOg0XqZhZmlunycuh3vgDUPstNbB1mnXXUmv4
+         ZKbiLwbtmTWWv7QF0+5SKr6WvgaNdtJhCrX4gZ/yo/vcscheX1kyoZquGycF5m9qtw
+         AO9rpqTpU2VPugMztp87kqIomfXhC9yLpiaYd4e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 531/879] Revert "net/smc: fix listen processing for SMC-Rv2"
+Subject: [PATCH 5.15 384/667] memory: samsung: exynos5422-dmc: Avoid some over memory allocation
 Date:   Tue,  7 Jun 2022 19:00:49 +0200
-Message-Id: <20220607165018.286602041@linuxfoundation.org>
+Message-Id: <20220607164946.265426046@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: liuyacan <liuyacan@corp.netease.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9029ac03f20a5999bc5627277c6cf008ab8e23ed ]
+[ Upstream commit 56653827f0d7bc7c2d8bac0e119fd1521fa9990a ]
 
-This reverts commit 8c3b8dc5cc9bf6d273ebe18b16e2d6882bcfb36d.
+'dmc->counter' is a 'struct devfreq_event_dev **', so there is some
+over memory allocation. 'counters_size' should be computed with
+'sizeof(struct devfreq_event_dev *)'.
 
-Some rollback issue will be fixed in other patches in the future.
+Use 'sizeof(*dmc->counter)' instead to fix it.
 
-Link: https://lore.kernel.org/all/20220523055056.2078994-1-liuyacan@corp.netease.com/
+While at it, use devm_kcalloc() instead of devm_kzalloc()+open coded
+multiplication.
 
-Fixes: 8c3b8dc5cc9b ("net/smc: fix listen processing for SMC-Rv2")
-Signed-off-by: liuyacan <liuyacan@corp.netease.com>
-Link: https://lore.kernel.org/r/20220524090230.2140302-1-liuyacan@corp.netease.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 6e7674c3c6df ("memory: Add DMC driver for Exynos5422")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/69d7e69346986e2fdb994d4382954c932f9f0993.1647760213.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 44 +++++++++++++++++---------------------------
- 1 file changed, 17 insertions(+), 27 deletions(-)
+ drivers/memory/samsung/exynos5422-dmc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index d3de54b70c05..45a24d24210f 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2093,13 +2093,13 @@ static int smc_listen_rdma_reg(struct smc_sock *new_smc, bool local_first)
- 	return 0;
- }
- 
--static int smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
--					struct smc_clc_msg_proposal *pclc,
--					struct smc_init_info *ini)
-+static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
-+					 struct smc_clc_msg_proposal *pclc,
-+					 struct smc_init_info *ini)
+diff --git a/drivers/memory/samsung/exynos5422-dmc.c b/drivers/memory/samsung/exynos5422-dmc.c
+index 9c8318923ed0..4733e7898ffe 100644
+--- a/drivers/memory/samsung/exynos5422-dmc.c
++++ b/drivers/memory/samsung/exynos5422-dmc.c
+@@ -1322,7 +1322,6 @@ static int exynos5_dmc_init_clks(struct exynos5_dmc *dmc)
+  */
+ static int exynos5_performance_counters_init(struct exynos5_dmc *dmc)
  {
- 	struct smc_clc_v2_extension *smc_v2_ext;
- 	u8 smcr_version;
--	int rc = 0;
-+	int rc;
+-	int counters_size;
+ 	int ret, i;
  
- 	if (!(ini->smcr_version & SMC_V2) || !smcr_indicated(ini->smc_type_v2))
- 		goto not_found;
-@@ -2117,31 +2117,26 @@ static int smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
- 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
- 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
- 	rc = smc_find_rdma_device(new_smc, ini);
--	if (rc)
-+	if (rc) {
-+		smc_find_ism_store_rc(rc, ini);
- 		goto not_found;
--
-+	}
- 	if (!ini->smcrv2.uses_gateway)
- 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
+ 	dmc->num_counters = devfreq_event_get_edev_count(dmc->dev,
+@@ -1332,8 +1331,8 @@ static int exynos5_performance_counters_init(struct exynos5_dmc *dmc)
+ 		return dmc->num_counters;
+ 	}
  
- 	smcr_version = ini->smcr_version;
- 	ini->smcr_version = SMC_V2;
- 	rc = smc_listen_rdma_init(new_smc, ini);
--	if (rc) {
--		ini->smcr_version = smcr_version;
--		goto not_found;
--	}
--	rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
--	if (rc) {
--		ini->smcr_version = smcr_version;
--		goto not_found;
--	}
--	return 0;
-+	if (!rc)
-+		rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
-+	if (!rc)
-+		return;
-+	ini->smcr_version = smcr_version;
-+	smc_find_ism_store_rc(rc, ini);
+-	counters_size = sizeof(struct devfreq_event_dev) * dmc->num_counters;
+-	dmc->counter = devm_kzalloc(dmc->dev, counters_size, GFP_KERNEL);
++	dmc->counter = devm_kcalloc(dmc->dev, dmc->num_counters,
++				    sizeof(*dmc->counter), GFP_KERNEL);
+ 	if (!dmc->counter)
+ 		return -ENOMEM;
  
- not_found:
--	rc = rc ?: SMC_CLC_DECL_NOSMCDEV;
- 	ini->smcr_version &= ~SMC_V2;
- 	ini->check_smcrv2 = false;
--	return rc;
- }
- 
- static int smc_find_rdma_v1_device_serv(struct smc_sock *new_smc,
-@@ -2174,7 +2169,6 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 				  struct smc_init_info *ini)
- {
- 	int prfx_rc;
--	int rc;
- 
- 	/* check for ISM device matching V2 proposed device */
- 	smc_find_ism_v2_device_serv(new_smc, pclc, ini);
-@@ -2202,18 +2196,14 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 		return ini->rc ?: SMC_CLC_DECL_NOSMCDDEV;
- 
- 	/* check if RDMA V2 is available */
--	rc = smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
--	if (!rc)
-+	smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
-+	if (ini->smcrv2.ib_dev_v2)
- 		return 0;
- 
--	/* skip V1 check if V2 is unavailable for non-Device reason */
--	if (rc != SMC_CLC_DECL_NOSMCDEV &&
--	    rc != SMC_CLC_DECL_NOSMCRDEV &&
--	    rc != SMC_CLC_DECL_NOSMCDDEV)
--		return rc;
--
- 	/* check if RDMA V1 is available */
- 	if (!prfx_rc) {
-+		int rc;
-+
- 		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
- 		smc_find_ism_store_rc(rc, ini);
- 		return (!rc) ? 0 : ini->rc;
 -- 
 2.35.1
 
