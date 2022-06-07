@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC8A540573
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC092540A60
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346392AbiFGR0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
+        id S1351666AbiFGSUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346400AbiFGRY4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D14F552D;
-        Tue,  7 Jun 2022 10:22:41 -0700 (PDT)
+        with ESMTP id S1352637AbiFGSRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA19313AF29;
+        Tue,  7 Jun 2022 10:52:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09C82B8220B;
-        Tue,  7 Jun 2022 17:22:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 752E6C385A5;
-        Tue,  7 Jun 2022 17:22:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF4F8617B0;
+        Tue,  7 Jun 2022 17:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07B14C341C0;
+        Tue,  7 Jun 2022 17:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622558;
-        bh=44ZWiDvlPgZ1Yt5EeM+G9h8AfY/E6ylERU6ciFVGlDE=;
+        s=korg; t=1654624346;
+        bh=4H4oN8fH8p6YIDyBEXKrqXAKUzL3RkDVgD9iSW9nmdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFwBSJDtmLmdPWym0J9dde+6uaCTanLgZ1TjvC9r95gJgVgqcR1FIfHzOZJVkvruq
-         QAZxjVWgCFWdfpzzDvhhVxvC2hb9a2ln22uCUS+wtwG71DNaZ4+qkN+Jkm7Jqe8Gra
-         kGwDWrn+ALCqoAOdSe9yY8vW/8zVENzd3WqqesRk=
+        b=zgqsrpj2dJ286WtgwdWMySLF/AzduLYGKMbCnBozrF8boNXc5zA/2pjp+8+Pkhwht
+         VXValUbEHlzQysgTR3rYB91rpbEuNgQ6tJ4yh7WO5VMw4/m2UldlAdFtYnqXOxr/tC
+         /WlYptBNPiKcptWKa4ztv5DIXbLceoCNjRdsHR7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 101/452] PM / devfreq: rk3399_dmc: Disable edev on remove()
+Subject: [PATCH 5.15 293/667] media: uvcvideo: Fix missing check to determine if element is found in list
 Date:   Tue,  7 Jun 2022 18:59:18 +0200
-Message-Id: <20220607164911.565973906@linuxfoundation.org>
+Message-Id: <20220607164943.565396245@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 2fccf9e6050e0e3b8b4cd275d41daf7f7fa22804 ]
+[ Upstream commit 261f33388c29f6f3c12a724e6d89172b7f6d5996 ]
 
-Otherwise we hit an unablanced enable-count when unbinding the DFI
-device:
+The list iterator will point to a bogus position containing HEAD if
+the list is empty or the element is not found in list. This case
+should be checked before any use of the iterator, otherwise it will
+lead to a invalid memory access. The missing check here is before
+"pin = iterm->id;", just add check here to fix the security bug.
 
-[ 1279.659119] ------------[ cut here ]------------
-[ 1279.659179] WARNING: CPU: 2 PID: 5638 at drivers/devfreq/devfreq-event.c:360 devfreq_event_remove_edev+0x84/0x8c
-...
-[ 1279.659352] Hardware name: Google Kevin (DT)
-[ 1279.659363] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
-[ 1279.659371] pc : devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659380] lr : devm_devfreq_event_release+0x1c/0x28
-...
-[ 1279.659571] Call trace:
-[ 1279.659582]  devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659590]  devm_devfreq_event_release+0x1c/0x28
-[ 1279.659602]  release_nodes+0x1cc/0x244
-[ 1279.659611]  devres_release_all+0x44/0x60
-[ 1279.659621]  device_release_driver_internal+0x11c/0x1ac
-[ 1279.659629]  device_driver_detach+0x20/0x2c
-[ 1279.659641]  unbind_store+0x7c/0xb0
-[ 1279.659650]  drv_attr_store+0x2c/0x40
-[ 1279.659663]  sysfs_kf_write+0x44/0x58
-[ 1279.659672]  kernfs_fop_write_iter+0xf4/0x190
-[ 1279.659684]  vfs_write+0x2b0/0x2e4
-[ 1279.659693]  ksys_write+0x80/0xec
-[ 1279.659701]  __arm64_sys_write+0x24/0x30
-[ 1279.659714]  el0_svc_common+0xf0/0x1d8
-[ 1279.659724]  do_el0_svc_compat+0x28/0x3c
-[ 1279.659738]  el0_svc_compat+0x10/0x1c
-[ 1279.659746]  el0_sync_compat_handler+0xa8/0xcc
-[ 1279.659758]  el0_sync_compat+0x188/0x1c0
-[ 1279.659768] ---[ end trace cec200e5094155b4 ]---
+In addition, the list iterator value will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the element is not found in list, considering
+the (mis)use here: "if (iterm == NULL".
 
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Use a new value 'it' as the list iterator, while use the old value
+'iterm' as a dedicated pointer to point to the found element, which
+1. can fix this bug, due to 'iterm' is NULL only if it's not found.
+2. do not need to change all the uses of 'iterm' after the loop.
+3. can also limit the scope of the list iterator 'it' *only inside*
+   the traversal loop by simply declaring 'it' inside the loop in the
+   future, as usage of the iterator outside of the list_for_each_entry
+   is considered harmful. https://lkml.org/lkml/2022/2/17/1032
+
+Fixes: d5e90b7a6cd1c ("[media] uvcvideo: Move to video_ioctl2")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/rk3399_dmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/uvc/uvc_v4l2.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
-index 2e912166a993..7e52375d9818 100644
---- a/drivers/devfreq/rk3399_dmc.c
-+++ b/drivers/devfreq/rk3399_dmc.c
-@@ -485,6 +485,8 @@ static int rk3399_dmcfreq_remove(struct platform_device *pdev)
- {
- 	struct rk3399_dmcfreq *dmcfreq = dev_get_drvdata(&pdev->dev);
+diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
+index c9d208677bcd..63842eb223a1 100644
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -864,29 +864,31 @@ static int uvc_ioctl_enum_input(struct file *file, void *fh,
+ 	struct uvc_video_chain *chain = handle->chain;
+ 	const struct uvc_entity *selector = chain->selector;
+ 	struct uvc_entity *iterm = NULL;
++	struct uvc_entity *it;
+ 	u32 index = input->index;
+-	int pin = 0;
  
-+	devfreq_event_disable_edev(dmcfreq->edev);
-+
- 	/*
- 	 * Before remove the opp table we need to unregister the opp notifier.
- 	 */
+ 	if (selector == NULL ||
+ 	    (chain->dev->quirks & UVC_QUIRK_IGNORE_SELECTOR_UNIT)) {
+ 		if (index != 0)
+ 			return -EINVAL;
+-		list_for_each_entry(iterm, &chain->entities, chain) {
+-			if (UVC_ENTITY_IS_ITERM(iterm))
++		list_for_each_entry(it, &chain->entities, chain) {
++			if (UVC_ENTITY_IS_ITERM(it)) {
++				iterm = it;
+ 				break;
++			}
+ 		}
+-		pin = iterm->id;
+ 	} else if (index < selector->bNrInPins) {
+-		pin = selector->baSourceID[index];
+-		list_for_each_entry(iterm, &chain->entities, chain) {
+-			if (!UVC_ENTITY_IS_ITERM(iterm))
++		list_for_each_entry(it, &chain->entities, chain) {
++			if (!UVC_ENTITY_IS_ITERM(it))
+ 				continue;
+-			if (iterm->id == pin)
++			if (it->id == selector->baSourceID[index]) {
++				iterm = it;
+ 				break;
++			}
+ 		}
+ 	}
+ 
+-	if (iterm == NULL || iterm->id != pin)
++	if (iterm == NULL)
+ 		return -EINVAL;
+ 
+ 	memset(input, 0, sizeof(*input));
 -- 
 2.35.1
 
