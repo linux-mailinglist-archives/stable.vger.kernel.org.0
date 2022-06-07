@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E632541898
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39AFC540851
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378741AbiFGVMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44712 "EHLO
+        id S1348823AbiFGR5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380243AbiFGVLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA0B14AA51;
-        Tue,  7 Jun 2022 11:53:38 -0700 (PDT)
+        with ESMTP id S1348804AbiFGR43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:56:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3BC147835;
+        Tue,  7 Jun 2022 10:40:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A23BF616A9;
-        Tue,  7 Jun 2022 18:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED3CC385A2;
-        Tue,  7 Jun 2022 18:53:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2637861529;
+        Tue,  7 Jun 2022 17:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35556C385A5;
+        Tue,  7 Jun 2022 17:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628017;
-        bh=exPGkkNvsUk+zn+DuPTfeI/LZZeoAt13rijdsRPZbco=;
+        s=korg; t=1654623615;
+        bh=tnAe93SYP99oq9aPLJXM6HiLXx1WHUx4j4CKjrXLn2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8V9OfzYCwrCiosZQNm9HlsPLIy1MF8FVa5vFZ/FXLe0yrF+PaKyUmhqUHjCWNaEo
-         gA5hxENCvihs2nal5KYdguEsQoNTbEroHKQM8LivflPnJQIcuZiNnBqcQMDBH1G/wS
-         2CAFvsLI7K9JhuqIiuH6lUoKiu1D6vJ9khKeCBB0=
+        b=DhPhb4WHet+1d179j/QkctuqRC/nVC5BbAFmm4jMg/ZfnUszdInmFfGSbkjXhKXmL
+         AE2YZZHDSZ1lvAlCFDOnZ8Tc2E3mlVUBC6OFUK6IdIHUd4HTWZk3HEG1ow0Okol+Hz
+         W1DErL2jge5S74QJ4hUGosXbn5Elg3fvMHXIB1PI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 176/879] ASoC: rt5645: Fix errorenous cleanup order
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 029/667] cifs: when extending a file with falloc we should make files not-sparse
 Date:   Tue,  7 Jun 2022 18:54:54 +0200
-Message-Id: <20220607165007.950520523@linuxfoundation.org>
+Message-Id: <20220607164935.669191862@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 2def44d3aec59e38d2701c568d65540783f90f2f ]
+commit f66f8b94e7f2f4ac9fffe710be231ca8f25c5057 upstream.
 
-There is a logic error when removing rt5645 device as the function
-rt5645_i2c_remove() first cancel the &rt5645->jack_detect_work and
-delete the &rt5645->btn_check_timer latter. However, since the timer
-handler rt5645_btn_check_callback() will re-queue the jack_detect_work,
-this cleanup order is buggy.
+as this is the only way to make sure the region is allocated.
+Fix the conditional that was wrong and only tried to make already
+non-sparse files non-sparse.
 
-That is, once the del_timer_sync in rt5645_i2c_remove is concurrently
-run with the rt5645_btn_check_callback, the canceled jack_detect_work
-will be rescheduled again, leading to possible use-after-free.
-
-This patch fix the issue by placing the del_timer_sync function before
-the cancel_delayed_work_sync.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220516092035.28283-1-linma@zju.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5645.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
-index 197c56047947..4b2e027c1033 100644
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -4154,9 +4154,14 @@ static int rt5645_i2c_remove(struct i2c_client *i2c)
- 	if (i2c->irq)
- 		free_irq(i2c->irq, rt5645);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3791,7 +3791,7 @@ static long smb3_simple_falloc(struct fi
+ 		if (rc)
+ 			goto out;
  
-+	/*
-+	 * Since the rt5645_btn_check_callback() can queue jack_detect_work,
-+	 * the timer need to be delted first
-+	 */
-+	del_timer_sync(&rt5645->btn_check_timer);
-+
- 	cancel_delayed_work_sync(&rt5645->jack_detect_work);
- 	cancel_delayed_work_sync(&rt5645->rcclock_work);
--	del_timer_sync(&rt5645->btn_check_timer);
+-		if ((cifsi->cifsAttrs & FILE_ATTRIBUTE_SPARSE_FILE) == 0)
++		if (cifsi->cifsAttrs & FILE_ATTRIBUTE_SPARSE_FILE)
+ 			smb2_set_sparse(xid, tcon, cfile, inode, false);
  
- 	regulator_bulk_disable(ARRAY_SIZE(rt5645->supplies), rt5645->supplies);
- 
--- 
-2.35.1
-
+ 		eof = cpu_to_le64(off + len);
 
 
