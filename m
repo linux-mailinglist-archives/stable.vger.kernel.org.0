@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1655541A80
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E8054136E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377498AbiFGVdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:33:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51084 "EHLO
+        id S1354679AbiFGUCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:02:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381236AbiFGVbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:31:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6556B1790AD;
-        Tue,  7 Jun 2022 12:04:11 -0700 (PDT)
+        with ESMTP id S1358515AbiFGUBa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:01:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312EE1BFEE5;
+        Tue,  7 Jun 2022 11:25:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49F85B822C0;
-        Tue,  7 Jun 2022 19:04:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A19C385A2;
-        Tue,  7 Jun 2022 19:04:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 324B46127C;
+        Tue,  7 Jun 2022 18:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4C1C385A2;
+        Tue,  7 Jun 2022 18:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628648;
-        bh=r3icwYRqpz0dj79jo25jtxszgMSr1JFy/3yvGTETjr0=;
+        s=korg; t=1654626306;
+        bh=E5gEfAVwafdnSrkfLZUGm24EulVo8k7DNIIOMIY8yuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ZmsVHeMY5KWjs6FU7RD9x9tzOvhW2bDCLvFZUUqbWezgxEqfQ6AZMScTd4vGjNpH
-         T486Sc9zHBv7bPIH0tDL6qjOFyRUcurnkubbdf4FYVW1q4ulM9XfzM9x+mgSjrbibX
-         Ke6JduKAYWNq1rh/ZlTYnDRj9RvcyxHNqeAAKALE=
+        b=L2R3L1l+xOUIDKiFdiu+jzlNg29dnlF8KOuZ+TLH6uUVAZPmU18bEDrbbaDNerC9s
+         e0SDIllL1c+RvzGlZKWyXhaFam881uE4zneK+fFbcMMiGR2TCYG6DrBwMMWGbTnnWp
+         YCV7mzywvAs25S/skx9lZS/Lr0xlOqJAUJ9GWtvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 404/879] iomap: iomap_write_failed fix
+        stable@vger.kernel.org, Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 330/772] x86: Fix return value of __setup handlers
 Date:   Tue,  7 Jun 2022 18:58:42 +0200
-Message-Id: <20220607165014.588980201@linuxfoundation.org>
+Message-Id: <20220607164958.746823361@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit b71450e2cc4b3c79f33c5bd276d152af9bd54f79 ]
+[ Upstream commit 12441ccdf5e2f5a01a46e344976cbbd3d46845c9 ]
 
-The @lend parameter of truncate_pagecache_range() should be the offset
-of the last byte of the hole, not the first byte beyond it.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled. A return
+of 0 causes the boot option/value to be listed as an Unknown kernel
+parameter and added to init's (limited) argument (no '=') or environment
+(with '=') strings. So return 1 from these x86 __setup handlers.
 
-Fixes: ae259a9c8593 ("fs: introduce iomap infrastructure")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Examples:
+
+  Unknown kernel command line parameters "apicpmtimer
+    BOOT_IMAGE=/boot/bzImage-517rc8 vdso=1 ring3mwait=disable", will be
+    passed to user space.
+
+  Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+     apicpmtimer
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc8
+     vdso=1
+     ring3mwait=disable
+
+Fixes: 2aae950b21e4 ("x86_64: Add vDSO for x86-64 with gettimeofday/clock_gettime/getcpu")
+Fixes: 77b52b4c5c66 ("x86: add "debugpat" boot option")
+Fixes: e16fd002afe2 ("x86/cpufeature: Enable RING3MWAIT for Knights Landing")
+Fixes: b8ce33590687 ("x86_64: convert to clock events")
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Link: https://lore.kernel.org/r/20220314012725.26661-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/buffered-io.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/entry/vdso/vma.c   | 2 +-
+ arch/x86/kernel/apic/apic.c | 2 +-
+ arch/x86/kernel/cpu/intel.c | 2 +-
+ arch/x86/mm/pat/memtype.c   | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index 8ce8720093b9..358ee1fb6f0d 100644
---- a/fs/iomap/buffered-io.c
-+++ b/fs/iomap/buffered-io.c
-@@ -531,7 +531,8 @@ iomap_write_failed(struct inode *inode, loff_t pos, unsigned len)
- 	 * write started inside the existing inode size.
- 	 */
- 	if (pos + len > i_size)
--		truncate_pagecache_range(inode, max(pos, i_size), pos + len);
-+		truncate_pagecache_range(inode, max(pos, i_size),
-+					 pos + len - 1);
+diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
+index 235a5794296a..1000d457c332 100644
+--- a/arch/x86/entry/vdso/vma.c
++++ b/arch/x86/entry/vdso/vma.c
+@@ -438,7 +438,7 @@ bool arch_syscall_is_vdso_sigreturn(struct pt_regs *regs)
+ static __init int vdso_setup(char *s)
+ {
+ 	vdso64_enabled = simple_strtoul(s, NULL, 0);
+-	return 0;
++	return 1;
  }
+ __setup("vdso=", vdso_setup);
  
- static int iomap_read_folio_sync(loff_t block_start, struct folio *folio,
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index b70344bf6600..ed7d9cf71f68 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -170,7 +170,7 @@ static __init int setup_apicpmtimer(char *s)
+ {
+ 	apic_calibrate_pmtmr = 1;
+ 	notsc_setup(NULL);
+-	return 0;
++	return 1;
+ }
+ __setup("apicpmtimer", setup_apicpmtimer);
+ #endif
+diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+index f7a5370a9b3b..2c87d62f191e 100644
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -91,7 +91,7 @@ static bool ring3mwait_disabled __read_mostly;
+ static int __init ring3mwait_disable(char *__unused)
+ {
+ 	ring3mwait_disabled = true;
+-	return 0;
++	return 1;
+ }
+ __setup("ring3mwait=disable", ring3mwait_disable);
+ 
+diff --git a/arch/x86/mm/pat/memtype.c b/arch/x86/mm/pat/memtype.c
+index 4ba2a3ee4bce..d5ef64ddd35e 100644
+--- a/arch/x86/mm/pat/memtype.c
++++ b/arch/x86/mm/pat/memtype.c
+@@ -101,7 +101,7 @@ int pat_debug_enable;
+ static int __init pat_debug_setup(char *str)
+ {
+ 	pat_debug_enable = 1;
+-	return 0;
++	return 1;
+ }
+ __setup("debugpat", pat_debug_setup);
+ 
 -- 
 2.35.1
 
