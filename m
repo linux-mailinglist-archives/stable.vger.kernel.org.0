@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6245540800
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B6B541175
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348737AbiFGRxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33358 "EHLO
+        id S1355899AbiFGThn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:37:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350107AbiFGRvx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F29F1406D4;
-        Tue,  7 Jun 2022 10:39:29 -0700 (PDT)
+        with ESMTP id S1356474AbiFGTge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:36:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC271ACE48;
+        Tue,  7 Jun 2022 11:13:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 491DF6165E;
-        Tue,  7 Jun 2022 17:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52301C3411C;
-        Tue,  7 Jun 2022 17:39:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFBBE6062B;
+        Tue,  7 Jun 2022 18:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB476C34115;
+        Tue,  7 Jun 2022 18:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623557;
-        bh=y8J39zvDj6oVtSM9Ow0943daABhJNC5DsWV4hHHQdMw=;
+        s=korg; t=1654625601;
+        bh=I+5VL4h4/uUKIFvLHkwrzyV1ZwSfo2lBjc7LZAxD4nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLF/nIVNRrhTPkyARBR4Fp6Ho7Z8BP/5zfAv0m8KcizrLhwiJ+QQ8+d+FUwSkM8+T
-         K2xqlIzYmXEm3UysZAOyNnnWn0UcVecxvqNysbqv2nXgvP1D/heoK1uGcP2zq3Q9d1
-         xhosdIpWuBAg5V7UDg9sz058XYOYE4AGE5asA9C4=
+        b=t51HGidp5Bf62nwz4UloeQYVrIvjCHlXgBS4gouynuYMlVsPd4yLIyDV1jEqPDS3j
+         vDSImy2yyC8iFTorkAQJoZSPuu9uqxmuS3RW7A/vSlqm0TCXVSXlknAUTQdRksLQx4
+         ITAe1qO3zUgf8kLhu8V0/mplZN/Wvh8u1/M58QOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.15 001/667] arm64: Initialize jump labels before setup_machine_fdt()
+        stable@vger.kernel.org, Po-Hao Huang <phhuang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 074/772] rtw88: fix incorrect frequency reported
 Date:   Tue,  7 Jun 2022 18:54:26 +0200
-Message-Id: <20220607164934.818059668@linuxfoundation.org>
+Message-Id: <20220607164951.221942748@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,89 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Po-Hao Huang <phhuang@realtek.com>
 
-commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
+[ Upstream commit 6723c0cde84fde582a261c186ce84100dcfa0019 ]
 
-A static key warning splat appears during early boot on arm64 systems
-that credit randomness from devicetrees that contain an "rng-seed"
-property. This is because setup_machine_fdt() is called before
-jump_label_init() during setup_arch(). Let's swap the order of these two
-calls so that jump labels are initialized before the devicetree is
-unflattened and the rng seed is credited.
+We should only fill in frequency reported by firmware during scan.
+Add this so frames won't be dropped by mac80211 due to frequency
+mismatch.
 
- static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
- WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
- Modules linked in:
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
- pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
- pc : static_key_enable_cpuslocked+0xb0/0xb8
- lr : static_key_enable_cpuslocked+0xb0/0xb8
- sp : ffffffe51c393cf0
- x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
- x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
- x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
- x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
- x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
- x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
- x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
- x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
- x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
- x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
- Call trace:
-  static_key_enable_cpuslocked+0xb0/0xb8
-  static_key_enable+0x2c/0x40
-  crng_set_ready+0x24/0x30
-  execute_in_process_context+0x80/0x90
-  _credit_init_bits+0x100/0x154
-  add_bootloader_randomness+0x64/0x78
-  early_init_dt_scan_chosen+0x140/0x184
-  early_init_dt_scan_nodes+0x28/0x4c
-  early_init_dt_scan+0x40/0x44
-  setup_machine_fdt+0x7c/0x120
-  setup_arch+0x74/0x1d8
-  start_kernel+0x84/0x44c
-  __primary_switched+0xc0/0xc8
- ---[ end trace 0000000000000000 ]---
- random: crng init done
- Machine model: Google Lazor (rev1 - 2) with LTE
-
-Cc: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220407095858.46807-3-pkshih@realtek.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/setup.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtw88/rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -307,13 +307,14 @@ void __init __no_sanitize_address setup_
- 	early_fixmap_init();
- 	early_ioremap_init();
- 
--	setup_machine_fdt(__fdt_pointer);
--
- 	/*
- 	 * Initialise the static keys early as they may be enabled by the
--	 * cpufeature code and early parameters.
-+	 * cpufeature code, early parameters, and DT setup.
- 	 */
- 	jump_label_init();
-+
-+	setup_machine_fdt(__fdt_pointer);
-+
- 	parse_early_param();
- 
- 	/*
+diff --git a/drivers/net/wireless/realtek/rtw88/rx.c b/drivers/net/wireless/realtek/rtw88/rx.c
+index d2d607e22198..84aedabdf285 100644
+--- a/drivers/net/wireless/realtek/rtw88/rx.c
++++ b/drivers/net/wireless/realtek/rtw88/rx.c
+@@ -158,7 +158,8 @@ void rtw_rx_fill_rx_status(struct rtw_dev *rtwdev,
+ 	memset(rx_status, 0, sizeof(*rx_status));
+ 	rx_status->freq = hw->conf.chandef.chan->center_freq;
+ 	rx_status->band = hw->conf.chandef.chan->band;
+-	if (rtw_fw_feature_check(&rtwdev->fw, FW_FEATURE_SCAN_OFFLOAD))
++	if (rtw_fw_feature_check(&rtwdev->fw, FW_FEATURE_SCAN_OFFLOAD) &&
++	    test_bit(RTW_FLAG_SCANNING, rtwdev->flags))
+ 		rtw_set_rx_freq_by_pktstat(pkt_stat, rx_status);
+ 	if (pkt_stat->crc_err)
+ 		rx_status->flag |= RX_FLAG_FAILED_FCS_CRC;
+-- 
+2.35.1
+
 
 
