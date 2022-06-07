@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DB39540D31
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC34954151A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352181AbiFGSre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38374 "EHLO
+        id S1359483AbiFGU2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346859AbiFGSnh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:43:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A55187C20;
-        Tue,  7 Jun 2022 10:59:08 -0700 (PDT)
+        with ESMTP id S1359664AbiFGUZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:25:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A1F1D6864;
+        Tue,  7 Jun 2022 11:32:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18313616B6;
-        Tue,  7 Jun 2022 17:59:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B05C34119;
-        Tue,  7 Jun 2022 17:59:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F5C3612E9;
+        Tue,  7 Jun 2022 18:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B231C341C4;
+        Tue,  7 Jun 2022 18:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624747;
-        bh=8zuQueNsSr1TyJypSiaofzqDHTFGwa1xbHSs9LGhZiI=;
+        s=korg; t=1654626743;
+        bh=/SXHeppL4FHWK2iK+Q7roRMlKdDXea05upheVTxrlhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyT0SnVmqkJ1EZIgkI2uyadYHUqceF9uD7gC99fC3G3p8VTtNHlGGeszesKQEC8Om
-         epxLIDILbZ8o6b9oKx2KFdwOk9ci7QZExKfy4JI6CIHgK2Mu2wWww7XSb478bP1Rh9
-         Uv5ss4AZuWbajElRLuzuOCj6MzKrIhtj4Orw/a3g=
+        b=mMWlDCd+uQwU5Yk+AvSV+zYDcddeBNR4ZS6Tiww6TwNAk6uljobPGW4Spc2PyCAyR
+         tKAS55XHs2fu+DbgJ5a27rL0PYgvvCwzZNePUxH09wgj53znF/aeNiaFi8m6LwdZzV
+         wi2RcguFpJ38dxQKicCI6THZPx3iyvcKtqrGa8cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Daisuke Nojiri <dnojiri@chromium.org>,
+        Rob Barnes <robbarnes@google.com>,
+        Rajat Jain <rajatja@google.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Parth Malkan <parthmalkan@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 398/667] crypto: qat - set CIPHER capability for QAT GEN2
+Subject: [PATCH 5.17 471/772] platform/chrome: Re-introduce cros_ec_cmd_xfer and use it for ioctls
 Date:   Tue,  7 Jun 2022 19:01:03 +0200
-Message-Id: <20220607164946.681876644@linuxfoundation.org>
+Message-Id: <20220607165002.876040134@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,55 +59,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 547bde7bd4ecd78f36f98744e6c9a0999e52da5a ]
+[ Upstream commit 57b888ca2541785de2fcb90575b378921919b6c0 ]
 
-Set the CIPHER capability for QAT GEN2 devices if the hardware supports
-it. This is done if both the CIPHER and the AUTHENTICATION engines are
-available on the device.
+Commit 413dda8f2c6f ("platform/chrome: cros_ec_chardev: Use
+cros_ec_cmd_xfer_status helper") inadvertendly changed the userspace ABI.
+Previously, cros_ec ioctls would only report errors if the EC communication
+failed, and otherwise return success and the result of the EC
+communication. An EC command execution failure was reported in the EC
+response field. The above mentioned commit changed this behavior, and the
+ioctl itself would fail. This breaks userspace commands trying to analyze
+the EC command execution error since the actual EC command response is no
+longer reported to userspace.
 
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix the problem by re-introducing the cros_ec_cmd_xfer() helper, and use it
+to handle ioctl messages.
+
+Fixes: 413dda8f2c6f ("platform/chrome: cros_ec_chardev: Use cros_ec_cmd_xfer_status helper")
+Cc: Daisuke Nojiri <dnojiri@chromium.org>
+Cc: Rob Barnes <robbarnes@google.com>
+Cc: Rajat Jain <rajatja@google.com>
+Cc: Brian Norris <briannorris@chromium.org>
+Cc: Parth Malkan <parthmalkan@google.com>
+Reviewed-by: Daisuke Nojiri <dnojiri@chromium.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_gen2_hw_data.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/platform/chrome/cros_ec_chardev.c   |  2 +-
+ drivers/platform/chrome/cros_ec_proto.c     | 50 +++++++++++++++++----
+ include/linux/platform_data/cros_ec_proto.h |  3 ++
+ 3 files changed, 45 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_gen2_hw_data.c b/drivers/crypto/qat/qat_common/adf_gen2_hw_data.c
-index 9e560c7d4163..9c5871e1752a 100644
---- a/drivers/crypto/qat/qat_common/adf_gen2_hw_data.c
-+++ b/drivers/crypto/qat/qat_common/adf_gen2_hw_data.c
-@@ -161,17 +161,23 @@ u32 adf_gen2_get_accel_cap(struct adf_accel_dev *accel_dev)
- 	u32 legfuses;
- 	u32 capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
- 			   ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
--			   ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
-+			   ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
-+			   ICP_ACCEL_CAPABILITIES_CIPHER;
+diff --git a/drivers/platform/chrome/cros_ec_chardev.c b/drivers/platform/chrome/cros_ec_chardev.c
+index e0bce869c49a..fd33de546aee 100644
+--- a/drivers/platform/chrome/cros_ec_chardev.c
++++ b/drivers/platform/chrome/cros_ec_chardev.c
+@@ -301,7 +301,7 @@ static long cros_ec_chardev_ioctl_xcmd(struct cros_ec_dev *ec, void __user *arg)
+ 	}
  
- 	/* Read accelerator capabilities mask */
- 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
+ 	s_cmd->command += ec->cmd_offset;
+-	ret = cros_ec_cmd_xfer_status(ec->ec_dev, s_cmd);
++	ret = cros_ec_cmd_xfer(ec->ec_dev, s_cmd);
+ 	/* Only copy data to userland if data was received. */
+ 	if (ret < 0)
+ 		goto exit;
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index c4caf2e2de82..ac1419881ff3 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -560,22 +560,28 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev)
+ EXPORT_SYMBOL(cros_ec_query_all);
  
--	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE)
-+	/* A set bit in legfuses means the feature is OFF in this SKU */
-+	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE) {
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC;
-+		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
-+	}
- 	if (legfuses & ICP_ACCEL_MASK_PKE_SLICE)
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC;
--	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE)
-+	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE) {
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
-+		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
-+	}
+ /**
+- * cros_ec_cmd_xfer_status() - Send a command to the ChromeOS EC.
++ * cros_ec_cmd_xfer() - Send a command to the ChromeOS EC.
+  * @ec_dev: EC device.
+  * @msg: Message to write.
+  *
+- * Call this to send a command to the ChromeOS EC. This should be used instead of calling the EC's
+- * cmd_xfer() callback directly. It returns success status only if both the command was transmitted
+- * successfully and the EC replied with success status.
++ * Call this to send a command to the ChromeOS EC. This should be used instead
++ * of calling the EC's cmd_xfer() callback directly. This function does not
++ * convert EC command execution error codes to Linux error codes. Most
++ * in-kernel users will want to use cros_ec_cmd_xfer_status() instead since
++ * that function implements the conversion.
+  *
+  * Return:
+- * >=0 - The number of bytes transferred
+- * <0 - Linux error code
++ * >0 - EC command was executed successfully. The return value is the number
++ *      of bytes returned by the EC (excluding the header).
++ * =0 - EC communication was successful. EC command execution results are
++ *      reported in msg->result. The result will be EC_RES_SUCCESS if the
++ *      command was executed successfully or report an EC command execution
++ *      error.
++ * <0 - EC communication error. Return value is the Linux error code.
+  */
+-int cros_ec_cmd_xfer_status(struct cros_ec_device *ec_dev,
+-			    struct cros_ec_command *msg)
++int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev, struct cros_ec_command *msg)
+ {
+-	int ret, mapped;
++	int ret;
  
- 	if ((straps | fuses) & ADF_POWERGATE_PKE)
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC;
+ 	mutex_lock(&ec_dev->lock);
+ 	if (ec_dev->proto_version == EC_PROTO_VERSION_UNKNOWN) {
+@@ -616,6 +622,32 @@ int cros_ec_cmd_xfer_status(struct cros_ec_device *ec_dev,
+ 	ret = send_command(ec_dev, msg);
+ 	mutex_unlock(&ec_dev->lock);
+ 
++	return ret;
++}
++EXPORT_SYMBOL(cros_ec_cmd_xfer);
++
++/**
++ * cros_ec_cmd_xfer_status() - Send a command to the ChromeOS EC.
++ * @ec_dev: EC device.
++ * @msg: Message to write.
++ *
++ * Call this to send a command to the ChromeOS EC. This should be used instead of calling the EC's
++ * cmd_xfer() callback directly. It returns success status only if both the command was transmitted
++ * successfully and the EC replied with success status.
++ *
++ * Return:
++ * >=0 - The number of bytes transferred.
++ * <0 - Linux error code
++ */
++int cros_ec_cmd_xfer_status(struct cros_ec_device *ec_dev,
++			    struct cros_ec_command *msg)
++{
++	int ret, mapped;
++
++	ret = cros_ec_cmd_xfer(ec_dev, msg);
++	if (ret < 0)
++		return ret;
++
+ 	mapped = cros_ec_map_error(msg->result);
+ 	if (mapped) {
+ 		dev_dbg(ec_dev->dev, "Command result (err: %d [%d])\n",
+diff --git a/include/linux/platform_data/cros_ec_proto.h b/include/linux/platform_data/cros_ec_proto.h
+index df3c78c92ca2..16931569adce 100644
+--- a/include/linux/platform_data/cros_ec_proto.h
++++ b/include/linux/platform_data/cros_ec_proto.h
+@@ -216,6 +216,9 @@ int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
+ int cros_ec_check_result(struct cros_ec_device *ec_dev,
+ 			 struct cros_ec_command *msg);
+ 
++int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
++		     struct cros_ec_command *msg);
++
+ int cros_ec_cmd_xfer_status(struct cros_ec_device *ec_dev,
+ 			    struct cros_ec_command *msg);
+ 
 -- 
 2.35.1
 
