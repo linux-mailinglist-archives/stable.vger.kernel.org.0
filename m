@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E70F540C80
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809A3541C3F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349263AbiFGShK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:37:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48516 "EHLO
+        id S1382879AbiFGV6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352469AbiFGSeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:34:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A620214782E;
-        Tue,  7 Jun 2022 10:57:41 -0700 (PDT)
+        with ESMTP id S1383274AbiFGVxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF262431AB;
+        Tue,  7 Jun 2022 12:11:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 670BD617A8;
-        Tue,  7 Jun 2022 17:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48425C34115;
-        Tue,  7 Jun 2022 17:57:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9B24B823AF;
+        Tue,  7 Jun 2022 19:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55636C385A2;
+        Tue,  7 Jun 2022 19:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624659;
-        bh=EFmUdl9NrFEx7bbsKO6ZCv5QzcIZLGeHdaaADbLR9TU=;
+        s=korg; t=1654629058;
+        bh=Dj50xF/Cx05yHTw1UmRpKXoSA61hVVmCLVX9Gzhm0fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lu8v19ETJ4jv8oXPfn3jd8YFocX/2NEUdFE6Fm/tNnMinCjsFou0SgZufjjU1zG72
-         n494FB89rLhIk2Y8n+9arwmxYntcCMJ8nY/3KyQ20e8Se53lnx9MEeIYbwUrtJ1UVi
-         swgY3KqHAiCuvt1psqdfrODx53rLKTwA3LmwxUdw=
+        b=lhR0FUnOmPSjIikivBuIWgoUhtO8bsS7w27PfxC7MJSM99GkOqyxFT1kmmkMxbE8g
+         Zgev/R3JeTUr1JT0PRsn/t8TpE6b8mI6ZUVYcNJ/sCN2x7ZNvZ7SM99DdQ52+HiMTK
+         Q1tXZvpmAYEGNHqUfSc6YcmpowaNe1OSVJ+L4uRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 408/667] ARM: dts: bcm2837-rpi-cm3-io3: Fix GPIO line names for SMPS I2C
+Subject: [PATCH 5.18 555/879] crypto: qat - set CIPHER capability for DH895XCC
 Date:   Tue,  7 Jun 2022 19:01:13 +0200
-Message-Id: <20220607164946.978956444@linuxfoundation.org>
+Message-Id: <20220607165018.975643273@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 9fd26fd02749ec964eb0d588a3bab9e09bf77927 ]
+[ Upstream commit 6a23804cb8bcb85c6998bf193d94d4036db26f51 ]
 
-The GPIOs 46 & 47 are already used for a I2C interface to a SMPS.
-So fix the GPIO line names accordingly.
+Set the CIPHER capability for QAT DH895XCC devices if the hardware supports
+it. This is done if both the CIPHER and the AUTHENTICATION engines are
+available on the device.
 
-Fixes: a54fe8a6cf66 ("ARM: dts: add Raspberry Pi Compute Module 3 and IO board")
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: ad1332aa67ec ("crypto: qat - add support for capability detection")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c   | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts b/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
-index 588d9411ceb6..3dfce4312dfc 100644
---- a/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
-+++ b/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
-@@ -63,8 +63,8 @@
- 			  "GPIO43",
- 			  "GPIO44",
- 			  "GPIO45",
--			  "GPIO46",
--			  "GPIO47",
-+			  "SMPS_SCL",
-+			  "SMPS_SDA",
- 			  /* Used by eMMC */
- 			  "SD_CLK_R",
- 			  "SD_CMD_R",
+diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
+index 1e7bed8b011f..8a526badf5bf 100644
+--- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
++++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
+@@ -60,17 +60,23 @@ static u32 get_accel_cap(struct adf_accel_dev *accel_dev)
+ 
+ 	capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
+ 		       ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
+-		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
++		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
++		       ICP_ACCEL_CAPABILITIES_CIPHER;
+ 
+ 	/* Read accelerator capabilities mask */
+ 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
+ 
+-	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE)
++	/* A set bit in legfuses means the feature is OFF in this SKU */
++	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE) {
+ 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC;
++		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
++	}
+ 	if (legfuses & ICP_ACCEL_MASK_PKE_SLICE)
+ 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC;
+-	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE)
++	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE) {
+ 		capabilities &= ~ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
++		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
++	}
+ 	if (legfuses & ICP_ACCEL_MASK_COMPRESS_SLICE)
+ 		capabilities &= ~ICP_ACCEL_CAPABILITIES_COMPRESSION;
+ 
 -- 
 2.35.1
 
