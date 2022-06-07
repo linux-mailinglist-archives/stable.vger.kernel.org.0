@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9E75407E6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D8C540FB5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343933AbiFGRw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59562 "EHLO
+        id S1354757AbiFGTLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348770AbiFGRuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:08 -0400
+        with ESMTP id S1355041AbiFGTKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:10:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D0A135698;
-        Tue,  7 Jun 2022 10:37:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155BF2AC47;
+        Tue,  7 Jun 2022 11:06:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E0B4B822B1;
-        Tue,  7 Jun 2022 17:37:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB01C34115;
-        Tue,  7 Jun 2022 17:37:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3853EB82348;
+        Tue,  7 Jun 2022 18:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B998C36AFE;
+        Tue,  7 Jun 2022 18:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623425;
-        bh=I5nZunaTSI1APA6FR1bB73DzLc+c/CmY6KplBJR3EAE=;
+        s=korg; t=1654625210;
+        bh=bEMjmt/fs8kRVG7tWEi/Vb+6ioSU5XDC+V8l26sZGkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvunafkCoiFXSNy3vd2eM1s3HR5JN0bk1lFUN1uPGnNt64f7ZfWiSSfBhj+FgA3sY
-         HmSecKXW22R+ErvDw3NHA5ItExoahK8r53/z+hJ2X8Di9VPJRz87ayfdEPv0RRSQFk
-         7T0O9xrOvG5Y3p2h6iEPi2G7CG4PhhjMn7WHzUrs=
+        b=LfmDPShatAto70AOAajWCtNr7RjoDvwbZhi5+Xc82tefPtvB6OHb8flYz1IHbJeWq
+         H7SkRgt+JNw/MgMp804ivbppJnxp1VovpTui9RBBtcikd0r7UQmWyMYCJCFVC00IAU
+         79SwX4tFiSgq8YAvvxK3upG96PQT3+cchs2a5oBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 412/452] bcache: remove incremental dirty sector counting for bch_sectors_dirty_init()
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 604/667] mmc: core: Allows to override the timeout value for ioctl() path
 Date:   Tue,  7 Jun 2022 19:04:29 +0200
-Message-Id: <20220607164920.834307822@linuxfoundation.org>
+Message-Id: <20220607164952.792744222@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,138 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Bean Huo <beanhuo@micron.com>
 
-commit 80db4e4707e78cb22287da7d058d7274bd4cb370 upstream.
+commit 23e09be254f95a5b75cd87f91a4014f3b46dda3f upstream.
 
-After making bch_sectors_dirty_init() being multithreaded, the existing
-incremental dirty sector counting in bch_root_node_dirty_init() doesn't
-release btree occupation after iterating 500000 (INIT_KEYS_EACH_TIME)
-bkeys. Because a read lock is added on btree root node to prevent the
-btree to be split during the dirty sectors counting, other I/O requester
-has no chance to gain the write lock even restart bcache_btree().
+Occasionally, user-land applications initiate longer timeout values for certain commands
+through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
+in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
+userspace application. This patch allows custom timeout values to override this default
+timeout values on the ioctl path.
 
-That is to say, the incremental dirty sectors counting is incompatible
-to the multhreaded bch_sectors_dirty_init(). We have to choose one and
-drop another one.
-
-In my testing, with 512 bytes random writes, I generate 1.2T dirty data
-and a btree with 400K nodes. With single thread and incremental dirty
-sectors counting, it takes 30+ minites to register the backing device.
-And with multithreaded dirty sectors counting, the backing device
-registration can be accomplished within 2 minutes.
-
-The 30+ minutes V.S. 2- minutes difference makes me decide to keep
-multithreaded bch_sectors_dirty_init() and drop the incremental dirty
-sectors counting. This is what this patch does.
-
-But INIT_KEYS_EACH_TIME is kept, in sectors_dirty_init_fn() the CPU
-will be released by cond_resched() after every INIT_KEYS_EACH_TIME keys
-iterated. This is to avoid the watchdog reports a bogus soft lockup
-warning.
-
-Fixes: b144e45fc576 ("bcache: make bch_sectors_dirty_init() to be multithreaded")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220524102336.10684-4-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Acked-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220423221623.1074556-3-huobean@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/writeback.c |   39 ++++++++++++---------------------------
- 1 file changed, 12 insertions(+), 27 deletions(-)
+ drivers/mmc/core/block.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -756,13 +756,11 @@ static int bch_writeback_thread(void *ar
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mm
  
- /* Init */
- #define INIT_KEYS_EACH_TIME	500000
--#define INIT_KEYS_SLEEP_MS	100
- 
- struct sectors_dirty_init {
- 	struct btree_op	op;
- 	unsigned int	inode;
- 	size_t		count;
--	struct bkey	start;
- };
- 
- static int sectors_dirty_init_fn(struct btree_op *_op, struct btree *b,
-@@ -778,11 +776,8 @@ static int sectors_dirty_init_fn(struct
- 					     KEY_START(k), KEY_SIZE(k));
- 
- 	op->count++;
--	if (atomic_read(&b->c->search_inflight) &&
--	    !(op->count % INIT_KEYS_EACH_TIME)) {
--		bkey_copy_key(&op->start, k);
--		return -EAGAIN;
--	}
-+	if (!(op->count % INIT_KEYS_EACH_TIME))
-+		cond_resched();
- 
- 	return MAP_CONTINUE;
- }
-@@ -797,24 +792,16 @@ static int bch_root_node_dirty_init(stru
- 	bch_btree_op_init(&op.op, -1);
- 	op.inode = d->id;
- 	op.count = 0;
--	op.start = KEY(op.inode, 0, 0);
- 
--	do {
--		ret = bcache_btree(map_keys_recurse,
--				   k,
--				   c->root,
--				   &op.op,
--				   &op.start,
--				   sectors_dirty_init_fn,
--				   0);
--		if (ret == -EAGAIN)
--			schedule_timeout_interruptible(
--				msecs_to_jiffies(INIT_KEYS_SLEEP_MS));
--		else if (ret < 0) {
--			pr_warn("sectors dirty init failed, ret=%d!\n", ret);
--			break;
--		}
--	} while (ret == -EAGAIN);
-+	ret = bcache_btree(map_keys_recurse,
-+			   k,
-+			   c->root,
-+			   &op.op,
-+			   &KEY(op.inode, 0, 0),
-+			   sectors_dirty_init_fn,
-+			   0);
-+	if (ret < 0)
-+		pr_warn("sectors dirty init failed, ret=%d!\n", ret);
- 
- 	return ret;
- }
-@@ -858,7 +845,6 @@ static int bch_dirty_init_thread(void *a
- 				goto out;
- 			}
- 			skip_nr--;
--			cond_resched();
- 		}
- 
- 		if (p) {
-@@ -868,7 +854,6 @@ static int bch_dirty_init_thread(void *a
- 
- 		p = NULL;
- 		prev_idx = cur_idx;
--		cond_resched();
+ 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+-		 * Ensure RPMB/R1B command has completed by polling CMD13
+-		 * "Send Status".
++		 * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
++		 * allow to override the default timeout value if a custom timeout is specified.
+ 		 */
+-		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
+-					MMC_BUSY_IO);
++		err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
++					false, MMC_BUSY_IO);
  	}
  
- out:
-@@ -907,11 +892,11 @@ void bch_sectors_dirty_init(struct bcach
- 		bch_btree_op_init(&op.op, -1);
- 		op.inode = d->id;
- 		op.count = 0;
--		op.start = KEY(op.inode, 0, 0);
- 
- 		for_each_key_filter(&c->root->keys,
- 				    k, &iter, bch_ptr_invalid)
- 			sectors_dirty_init_fn(&op.op, c->root, k);
-+
- 		rw_unlock(0, c->root);
- 		return;
- 	}
+ 	return err;
 
 
