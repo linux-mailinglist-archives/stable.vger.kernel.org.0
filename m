@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4847E540BD5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 664F0540BDE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245161AbiFGSb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49868 "EHLO
+        id S1351394AbiFGScK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351524AbiFGS3c (ORCPT
+        with ESMTP id S1351519AbiFGS3c (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:32 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1673C179946;
-        Tue,  7 Jun 2022 10:55:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CB2179956;
+        Tue,  7 Jun 2022 10:55:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0F62FCE2426;
+        by sin.source.kernel.org (Postfix) with ESMTPS id B410BCE2428;
         Tue,  7 Jun 2022 17:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7578DC3411C;
-        Tue,  7 Jun 2022 17:55:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5107DC385A5;
+        Tue,  7 Jun 2022 17:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624518;
-        bh=KcOo1oA3ujYCM/X6/pxf5zQ0h3TH3jWllfC3FvL+cl8=;
+        s=k20201202; t=1654624520;
+        bh=j3uNHWslQx2TMq4plPlTP9lh0uFCqJRr0z3ou4Fl1Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJZrLbjIhV57CeYCj3DSD1begJOOKNQ4QCfZOh+FPFjbzb4mnOeNHwJvLYxRdUDaW
-         9BDY6HEHO0JUJ5eNZPjxlLIK/iZOTFXQZP0xfcwTKBCc8Ti+iBFcRMM4e5otXsa1yR
-         /LYZWnlBQoDT1i6+lbqPIFJgbk45AeQHvSzVOzClNo9v1pJzEBvDVi/l8gxytrv2LJ
-         CSjojsSenT3aZE0+1Di8XCOdKzRct71741unX+oDRkQ0/sN3QcZinK5ul1tHWHf9AR
-         VuV/4nWVSUKrxGVbciBP7xxDE19ZwZav7urGN7M9BgH+zs5xR3F+7NEIjuzHnCjQMc
-         /1QFQXf3Xw0BQ==
+        b=el26cOOw3fGyGlTUHplxBoQ5CJdP4VGSmMnY8Q564MyiR28bX+peQjqSUsaOqKcrc
+         hrnDgikzTS70VXmnT1FQ/t6hipz70veTyRMWL8ELKK/Xx2TVdmzflF7AgO6Tl33DK2
+         sgEcSElN1r3PQAwlqQOSxL6UENslWZEm0gMQxFreKLsv7KWOE8Ea9JlnvQhAhUdgNl
+         ce8NHViqYXF1xzz+UmL8q1AOs2D2aacsXUsBwGmxf9HpX/rY4HwHkJIeR3g/0//TMq
+         vt+wwusopvPv/vfVvw6ktpLiDZ1xpvsgU1WA53G8T5aVp5OFOASDqq/EZe1XGEOs5/
+         sYsC3o+od7KXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, jpoimboe@kernel.org,
-        jbaron@akamai.com
-Subject: [PATCH AUTOSEL 5.17 48/60] jump_label,noinstr: Avoid instrumentation for JUMP_LABEL=n builds
-Date:   Tue,  7 Jun 2022 13:52:45 -0400
-Message-Id: <20220607175259.478835-48-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hou Tao <houtao1@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 5.17 49/60] nbd: call genl_unregister_family() first in nbd_cleanup()
+Date:   Tue,  7 Jun 2022 13:52:46 -0400
+Message-Id: <20220607175259.478835-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -57,42 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 656d054e0a15ec327bd82801ccd58201e59f6896 ]
+[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
 
-When building x86_64 with JUMP_LABEL=n it's possible for
-instrumentation to sneak into noinstr:
+Otherwise there may be race between module removal and the handling of
+netlink command, which can lead to the oops as shown below:
 
-vmlinux.o: warning: objtool: exit_to_user_mode+0x14: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: syscall_exit_to_user_mode+0x2d: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: irqentry_exit_to_user_mode+0x1b: call to static_key_count.constprop.0() leaves .noinstr.text section
+  BUG: kernel NULL pointer dereference, address: 0000000000000098
+  Oops: 0002 [#1] SMP PTI
+  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:down_write+0x1a/0x50
+  Call Trace:
+   start_creating+0x89/0x130
+   debugfs_create_dir+0x1b/0x130
+   nbd_start_device+0x13d/0x390 [nbd]
+   nbd_genl_connect+0x42f/0x748 [nbd]
+   genl_family_rcv_msg_doit.isra.0+0xec/0x150
+   genl_rcv_msg+0xe5/0x1e0
+   netlink_rcv_skb+0x55/0x100
+   genl_rcv+0x29/0x40
+   netlink_unicast+0x1a8/0x250
+   netlink_sendmsg+0x21b/0x430
+   ____sys_sendmsg+0x2a4/0x2d0
+   ___sys_sendmsg+0x81/0xc0
+   __sys_sendmsg+0x62/0xb0
+   __x64_sys_sendmsg+0x1f/0x30
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  Modules linked in: nbd(E-)
 
-Switch to arch_ prefixed atomic to avoid the explicit instrumentation.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/jump_label.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/nbd.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
-index 48b9b2a82767..019e55c13248 100644
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -261,9 +261,9 @@ extern void static_key_disable_cpuslocked(struct static_key *key);
- #include <linux/atomic.h>
- #include <linux/bug.h>
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 5a1f98494ddd..9dc27f9e9ddc 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -2529,6 +2529,12 @@ static void __exit nbd_cleanup(void)
+ 	struct nbd_device *nbd;
+ 	LIST_HEAD(del_list);
  
--static inline int static_key_count(struct static_key *key)
-+static __always_inline int static_key_count(struct static_key *key)
- {
--	return atomic_read(&key->enabled);
-+	return arch_atomic_read(&key->enabled);
++	/*
++	 * Unregister netlink interface prior to waiting
++	 * for the completion of netlink commands.
++	 */
++	genl_unregister_family(&nbd_genl_family);
++
+ 	nbd_dbg_close();
+ 
+ 	mutex_lock(&nbd_index_mutex);
+@@ -2547,7 +2553,6 @@ static void __exit nbd_cleanup(void)
+ 	destroy_workqueue(nbd_del_wq);
+ 
+ 	idr_destroy(&nbd_index_idr);
+-	genl_unregister_family(&nbd_genl_family);
+ 	unregister_blkdev(NBD_MAJOR, "nbd");
  }
  
- static __always_inline void jump_label_init(void)
 -- 
 2.35.1
 
