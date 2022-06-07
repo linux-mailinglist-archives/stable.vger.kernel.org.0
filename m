@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBB95417F9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C898F541EA7
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378700AbiFGVHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:07:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
+        id S1380501AbiFGWcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:32:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378750AbiFGVBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D0520E6FC;
-        Tue,  7 Jun 2022 11:45:33 -0700 (PDT)
+        with ESMTP id S1384830AbiFGWbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B766A279341;
+        Tue,  7 Jun 2022 12:24:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B60D6156D;
-        Tue,  7 Jun 2022 18:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BEC6C385A2;
-        Tue,  7 Jun 2022 18:45:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BCA4B823CA;
+        Tue,  7 Jun 2022 19:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 812D7C385A2;
+        Tue,  7 Jun 2022 19:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627532;
-        bh=NrPlRNLy3VPCTlW9T90w4oVHwZBt8gL5yWLzuJeF2n0=;
+        s=korg; t=1654629876;
+        bh=VWcjbaWEKU8jM7eBzPIHpVL4HsBF647GA3mic0FDKcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JyNQXKtjbyxfEOp94jYeKXMZsathdig5iwIOPBgytRmvzFsmBK92et+MqeTMXQW1
-         RMIPY2BNB0vEenYjrauKdj/Bu31Mjn1iR7JneQiaiR8PgjH31h6+NYTl8+WpN2NauR
-         TVKBS9xypp+62GG0QGL/7PcSEJROWbvxAJcVA+V8=
+        b=MihFh0s46Da8XElh+qavHLunReq4LA5/AUsTbNpfPKonEJzoX8Y+Zcd6r3sOskiz1
+         5LUhsqUhMYj29Y4ajurPdKZv+9TzGZh37Y4c539IJlPoZ+SxBO99PMKEvNnTRdEynP
+         i7O9+hha+5jkUvRidiSeCCscOTAlH3Kv0HAKWFGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.17 772/772] tty: n_gsm: Fix packet data hex dump output
-Date:   Tue,  7 Jun 2022 19:06:04 +0200
-Message-Id: <20220607165011.769069408@linuxfoundation.org>
+        stable@vger.kernel.org, Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.18 847/879] arm64: tegra: Add missing DFLL reset on Tegra210
+Date:   Tue,  7 Jun 2022 19:06:05 +0200
+Message-Id: <20220607165027.437715567@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>
 
-commit 925ea0fa5277c1e6bb9e51955ef34eea9736c3d7 upstream.
+commit 0017f2c856e21bb900be88469e15dac4f41f4065 upstream.
 
-The module param debug for n_gsm uses KERN_INFO level, but the hexdump
-now uses KERN_DEBUG level. This started after commit 091cb0994edd
-("lib/hexdump: make print_hex_dump_bytes() a nop on !DEBUG builds").
-We now use dynamic_hex_dump() unless DEBUG is set.
+Commit 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling
+clocks") removed deassertion of reset lines when enabling peripheral
+clocks. This breaks the initialization of the DFLL driver which relied
+on this behaviour.
 
-This causes no packets to be seen with modprobe n_gsm debug=0x1f unlike
-earlier. Let's fix this by adding gsm_hex_dump_bytes() that calls
-print_hex_dump() with KERN_INFO to match what n_gsm is doing with the
-other debug related output.
+In order to be able to fix this, add the corresponding reset to the DT.
+Tested on Google Pixel C.
 
-Fixes: 091cb0994edd ("lib/hexdump: make print_hex_dump_bytes() a nop on !DEBUG builds")
-Cc: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20220512131506.1216-1-tony@atomide.com
+Cc: stable@vger.kernel.org
+Fixes: 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling clocks")
+Signed-off-by: Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra210.dtsi |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -444,6 +444,25 @@ static u8 gsm_encode_modem(const struct
- 	return modembits;
- }
- 
-+static void gsm_hex_dump_bytes(const char *fname, const u8 *data,
-+			       unsigned long len)
-+{
-+	char *prefix;
-+
-+	if (!fname) {
-+		print_hex_dump(KERN_INFO, "", DUMP_PREFIX_NONE, 16, 1, data, len,
-+			       true);
-+		return;
-+	}
-+
-+	prefix = kasprintf(GFP_KERNEL, "%s: ", fname);
-+	if (!prefix)
-+		return;
-+	print_hex_dump(KERN_INFO, prefix, DUMP_PREFIX_OFFSET, 16, 1, data, len,
-+		       true);
-+	kfree(prefix);
-+}
-+
- /**
-  *	gsm_print_packet	-	display a frame for debug
-  *	@hdr: header to print before decode
-@@ -508,7 +527,7 @@ static void gsm_print_packet(const char
- 	else
- 		pr_cont("(F)");
- 
--	print_hex_dump_bytes("", DUMP_PREFIX_NONE, data, dlen);
-+	gsm_hex_dump_bytes(NULL, data, dlen);
- }
- 
- 
-@@ -698,9 +717,7 @@ static void gsm_data_kick(struct gsm_mux
- 		}
- 
- 		if (debug & 4)
--			print_hex_dump_bytes("gsm_data_kick: ",
--					     DUMP_PREFIX_OFFSET,
--					     gsm->txframe, len);
-+			gsm_hex_dump_bytes(__func__, gsm->txframe, len);
- 		if (gsmld_output(gsm, gsm->txframe, len) <= 0)
- 			break;
- 		/* FIXME: Can eliminate one SOF in many more cases */
-@@ -2448,8 +2465,7 @@ static int gsmld_output(struct gsm_mux *
- 		return -ENOSPC;
- 	}
- 	if (debug & 4)
--		print_hex_dump_bytes("gsmld_output: ", DUMP_PREFIX_OFFSET,
--				     data, len);
-+		gsm_hex_dump_bytes(__func__, data, len);
- 	return gsm->tty->ops->write(gsm->tty, data, len);
- }
- 
-@@ -2525,8 +2541,7 @@ static void gsmld_receive_buf(struct tty
- 	char flags = TTY_NORMAL;
- 
- 	if (debug & 4)
--		print_hex_dump_bytes("gsmld_receive: ", DUMP_PREFIX_OFFSET,
--				     cp, count);
-+		gsm_hex_dump_bytes(__func__, cp, count);
- 
- 	for (; count; count--, cp++) {
- 		if (fp)
+--- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+@@ -1366,8 +1366,9 @@
+ 			 <&tegra_car TEGRA210_CLK_DFLL_REF>,
+ 			 <&tegra_car TEGRA210_CLK_I2C5>;
+ 		clock-names = "soc", "ref", "i2c";
+-		resets = <&tegra_car TEGRA210_RST_DFLL_DVCO>;
+-		reset-names = "dvco";
++		resets = <&tegra_car TEGRA210_RST_DFLL_DVCO>,
++			 <&tegra_car 155>;
++		reset-names = "dvco", "dfll";
+ 		#clock-cells = <0>;
+ 		clock-output-names = "dfllCPU_out";
+ 		status = "disabled";
 
 
