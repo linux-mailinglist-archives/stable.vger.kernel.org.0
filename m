@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8280B541873
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A629541137
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379764AbiFGVM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43424 "EHLO
+        id S1355671AbiFGTei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:34:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379678AbiFGVKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E13215655;
-        Tue,  7 Jun 2022 11:51:55 -0700 (PDT)
+        with ESMTP id S1355668AbiFGTdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:33:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718B51AA164;
+        Tue,  7 Jun 2022 11:12:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B381BB8237F;
-        Tue,  7 Jun 2022 18:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07161C385A5;
-        Tue,  7 Jun 2022 18:51:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 148EEB80B66;
+        Tue,  7 Jun 2022 18:12:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B46C385A2;
+        Tue,  7 Jun 2022 18:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627912;
-        bh=2aro4hsaizbmehGAHGgs444aSUzly18lMFz3EQEQqnA=;
+        s=korg; t=1654625568;
+        bh=RsqfcE3Vlaza98kvhQkeITROjqKHS5OvbTROZhct/dA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KmCk9sDDXAyJHJZ+0akEDbqlU392ixJio9H4PKhhRoCWYNp+KUTGw/opS0QQiQ/nw
-         hlap3czSpPWuhN1c9RzFcqqi3IyOCFdAzDHy7im0woAaqwneMVFJO8uo44ufgUIDWf
-         HHEKyfZA2F38Tzf8im0juUkzTreGJgQQ10AvX4hw=
+        b=Usl9rcon5j6AGVerpFbjjXb/17UghqpPaJOJuo+wSsKXlJCfR8zY7oAm1KWiH9hOT
+         TmqAfog2raGzPVEgxf3BLyAR+geRNGWMhI8o4OVz6M0URWtsD6v2V6VxqrmC5AQtb2
+         4c1AUGWfc+DCd+AKK2eJL4/B76BaUW1iZkRRgeno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 137/879] drm/tegra: gem: Do not try to dereference ERR_PTR()
-Date:   Tue,  7 Jun 2022 18:54:15 +0200
-Message-Id: <20220607165006.680667412@linuxfoundation.org>
+Subject: [PATCH 5.17 064/772] ACPICA: Avoid cache flush inside virtual machines
+Date:   Tue,  7 Jun 2022 18:54:16 +0200
+Message-Id: <20220607164950.925917985@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +57,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-[ Upstream commit cb7e1abc2c73633e1eefa168ab2dad6e838899c9 ]
+[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
 
-When mapping the DMA-BUF attachment fails, map->sgt will be an ERR_PTR-
-encoded error code and the cleanup code would try to free that memory,
-which obviously would fail.
+While running inside virtual machine, the kernel can bypass cache
+flushing. Changing sleep state in a virtual machine doesn't affect the
+host system sleep state and cannot lead to data loss.
 
-Zero out that pointer after extracting the error code when this happens
-so that kfree() can do the right thing.
+Before entering sleep states, the ACPI code flushes caches to prevent
+data loss using the WBINVD instruction.  This mechanism is required on
+bare metal.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+But, any use WBINVD inside of a guest is worthless.  Changing sleep
+state in a virtual machine doesn't affect the host system sleep state
+and cannot lead to data loss, so most hypervisors simply ignore it.
+Despite this, the ACPI code calls WBINVD unconditionally anyway.
+It's useless, but also normally harmless.
+
+In TDX guests, though, WBINVD stops being harmless; it triggers a
+virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
+were left in place, TDX guests would need handling to recover from
+the exception.
+
+Avoid using WBINVD whenever running under a hypervisor.  This both
+removes the useless WBINVDs and saves TDX from implementing WBINVD
+handling.
+
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/gem.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/acenv.h | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tegra/gem.c b/drivers/gpu/drm/tegra/gem.c
-index 0063403ab5e1..7c7dd84e6db8 100644
---- a/drivers/gpu/drm/tegra/gem.c
-+++ b/drivers/gpu/drm/tegra/gem.c
-@@ -88,6 +88,7 @@ static struct host1x_bo_mapping *tegra_bo_pin(struct device *dev, struct host1x_
- 		if (IS_ERR(map->sgt)) {
- 			dma_buf_detach(buf, map->attach);
- 			err = PTR_ERR(map->sgt);
-+			map->sgt = NULL;
- 			goto free;
- 		}
+diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
+index 9aff97f0de7f..d937c55e717e 100644
+--- a/arch/x86/include/asm/acenv.h
++++ b/arch/x86/include/asm/acenv.h
+@@ -13,7 +13,19 @@
  
+ /* Asm macros */
+ 
+-#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
++/*
++ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
++ * It is required to prevent data loss.
++ *
++ * While running inside virtual machine, the kernel can bypass cache flushing.
++ * Changing sleep state in a virtual machine doesn't affect the host system
++ * sleep state and cannot lead to data loss.
++ */
++#define ACPI_FLUSH_CPU_CACHE()					\
++do {								\
++	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
++		wbinvd();					\
++} while (0)
+ 
+ int __acpi_acquire_global_lock(unsigned int *lock);
+ int __acpi_release_global_lock(unsigned int *lock);
 -- 
 2.35.1
 
