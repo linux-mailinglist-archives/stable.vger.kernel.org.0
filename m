@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E43541326
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FDDC540958
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354516AbiFGT4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50060 "EHLO
+        id S1345468AbiFGSHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357007AbiFGTx2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D18F58E7A;
-        Tue,  7 Jun 2022 11:23:22 -0700 (PDT)
+        with ESMTP id S1349775AbiFGSEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:04:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 395111AF21;
+        Tue,  7 Jun 2022 10:47:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1B47B82340;
-        Tue,  7 Jun 2022 18:23:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A2CC385A2;
-        Tue,  7 Jun 2022 18:23:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2A7E616B8;
+        Tue,  7 Jun 2022 17:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7439C34115;
+        Tue,  7 Jun 2022 17:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626199;
-        bh=iWa3wnCAgdIoE5l9EY4gZ7A1W1mrzog0zZROmXd4v8s=;
+        s=korg; t=1654624035;
+        bh=4EVzbzWqHyf7kWhin1yXV+6G6KJBC9n2werDa8N1hEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ygSZ9NR1raEgugD/bUHYI0fuXTDkHDGLRk81Pr83I+EJQ8BqseZxogVSSUgSTN6Wo
-         6jiyOIDJEpYClO0FuxexJRkm6khZz/I0iv3giOQFt8wEvJmRsV9ixCvYftjQQ+GSX2
-         yIdDGexMUgh30zEHGxJSpdXJ3NkSvRgLV6jEqok8=
+        b=dPjNcbLHH346JbpcWRhY3w3HZIC9ih2MeUFhFL7oqAttfTv9kqSVBIuIbHEVg8pZ4
+         GTgQw3vYwYAGwDsxz0g3oDVPs39qqeZjKKvWNxqG3F3WNsPHGuvDgRmc08TzohcARb
+         1QlBq2xklYVR7rUaGbMbaQFlEuv7cINTud/MXdh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Davide Caratti <dcaratti@redhat.com>
-Subject: [PATCH 5.17 255/772] mptcp: reset the packet scheduler on PRIO change
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 182/667] drm: fix EDID struct for old ARM OABI format
 Date:   Tue,  7 Jun 2022 18:57:27 +0200
-Message-Id: <20220607164956.538001208@linuxfoundation.org>
+Message-Id: <20220607164940.266717817@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +61,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 0e203c324752e13d22624ab7ffafe934fa06ab50 ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-Similar to the previous patch, for priority changes
-requested by the local PM.
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-Reported-and-suggested-by: Davide Caratti <dcaratti@redhat.com>
-Fixes: 067065422fcd ("mptcp: add the outgoing MP_PRIO support")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
+
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
+
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm_netlink.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index 4b5d795383cd..3bc778c2d0c2 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -745,6 +745,8 @@ static int mptcp_pm_nl_mp_prio_send_ack(struct mptcp_sock *msk,
- 		if (!addresses_equal(&local, addr, addr->port))
- 			continue;
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index deccfd39e6db..c24559f5329d 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -121,7 +121,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
  
-+		if (subflow->backup != bkup)
-+			msk->last_snd = NULL;
- 		subflow->backup = bkup;
- 		subflow->send_mp_prio = 1;
- 		subflow->request_bkup = bkup;
+ struct detailed_data_wpindex {
+@@ -154,7 +154,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -172,7 +172,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
