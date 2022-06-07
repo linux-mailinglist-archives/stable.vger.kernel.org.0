@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEDEF540DFE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BD61541D1E
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348270AbiFGSvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58476 "EHLO
+        id S1355388AbiFGWIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:08:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354628AbiFGSrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:31 -0400
+        with ESMTP id S1379276AbiFGWG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C919C38DBB;
-        Tue,  7 Jun 2022 11:02:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB50252C3E;
+        Tue,  7 Jun 2022 12:16:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10888617A7;
-        Tue,  7 Jun 2022 18:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163CBC34119;
-        Tue,  7 Jun 2022 18:02:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9A4B61846;
+        Tue,  7 Jun 2022 19:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA9EC385A2;
+        Tue,  7 Jun 2022 19:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624958;
-        bh=2iCH7DdNKpEIzEXOe8z7RbDzlvDDGaqLVLQDVjbL1dQ=;
+        s=korg; t=1654629359;
+        bh=yUA+1PtCRM+RBKp1Y/Q9h+SLDKv6zQr75eH5WKIP9g4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=go9tQR5TbW2p2U1Xxp//MCp8titlUQH9D3JOfcj1L/N0gRfdQibBnfhZQSxeJKKYH
-         YmDEaHRSrmx+TDuZoBug39LrtuH6C44c9PSUk1A9hLyUiY661T3pqDmzFZOGetEXyQ
-         lOHLE6sUjE8PqGH0p1awFl4A74nBAACw7Th81XXE=
+        b=zQsVyM6UZF5zOexMPX61cZR1cCa1eU3Ocn91wzS6eNOAcMMT9XGkHHU+sviL6ODGO
+         949vCKN48PDhB4SfX/V5zoZn1bfrCXZMxio+JWYQnDfZo0QfRG1PFUSB/ckSUMlS2g
+         mkU0VCaOg52ESE3SbWtRC26llQE32pkCo78QXBpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>, Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 514/667] NFS: Convert GFP_NOFS to GFP_KERNEL
-Date:   Tue,  7 Jun 2022 19:02:59 +0200
-Message-Id: <20220607164950.119852406@linuxfoundation.org>
+Subject: [PATCH 5.18 662/879] iommu/amd: Enable swiotlb in all cases
+Date:   Tue,  7 Jun 2022 19:03:00 +0200
+Message-Id: <20220607165022.062346337@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,157 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit da48f267f90d9dc9f930fd9a67753643657b404f ]
+[ Upstream commit 121660bba631104154b7c15e88f208c48c8c3297 ]
 
-Assume that sections that should not re-enter the filesystem are already
-protected with memalloc_nofs_save/restore call, so relax those GFP_NOFS
-instances which might be used by other contexts.
+Previously the AMD IOMMU would only enable SWIOTLB in certain
+circumstances:
+ * IOMMU in passthrough mode
+ * SME enabled
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This logic however doesn't work when an untrusted device is plugged in
+that doesn't do page aligned DMA transactions.  The expectation is
+that a bounce buffer is used for those transactions.
+
+This fails like this:
+
+swiotlb buffer is full (sz: 4096 bytes), total 0 (slots), used 0 (slots)
+
+That happens because the bounce buffers have been allocated, followed by
+freed during startup but the bounce buffering code expects that all IOMMUs
+have left it enabled.
+
+Remove the criteria to set up bounce buffers on AMD systems to ensure
+they're always available for supporting untrusted devices.
+
+Fixes: 82612d66d51d ("iommu: Allow the dma-iommu api to use bounce buffers")
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220404204723.9767-2-mario.limonciello@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c     |  6 +++---
- fs/nfs/nfs4proc.c  | 15 +++++++--------
- fs/nfs/nfs4state.c |  2 +-
- fs/nfs/pnfs.c      |  4 ++--
- 4 files changed, 13 insertions(+), 14 deletions(-)
+ drivers/iommu/amd/iommu.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index b60c57f6f723..cb407af9e9e9 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1580,7 +1580,7 @@ struct nfs_fattr *nfs_alloc_fattr(void)
- {
- 	struct nfs_fattr *fattr;
- 
--	fattr = kmalloc(sizeof(*fattr), GFP_NOFS);
-+	fattr = kmalloc(sizeof(*fattr), GFP_KERNEL);
- 	if (fattr != NULL) {
- 		nfs_fattr_init(fattr);
- 		fattr->label = NULL;
-@@ -1596,7 +1596,7 @@ struct nfs_fattr *nfs_alloc_fattr_with_label(struct nfs_server *server)
- 	if (!fattr)
- 		return NULL;
- 
--	fattr->label = nfs4_label_alloc(server, GFP_NOFS);
-+	fattr->label = nfs4_label_alloc(server, GFP_KERNEL);
- 	if (IS_ERR(fattr->label)) {
- 		kfree(fattr);
- 		return NULL;
-@@ -1610,7 +1610,7 @@ struct nfs_fh *nfs_alloc_fhandle(void)
- {
- 	struct nfs_fh *fh;
- 
--	fh = kmalloc(sizeof(struct nfs_fh), GFP_NOFS);
-+	fh = kmalloc(sizeof(struct nfs_fh), GFP_KERNEL);
- 	if (fh != NULL)
- 		fh->size = 0;
- 	return fh;
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index ae6b3600ed11..7ca469833065 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5900,7 +5900,7 @@ static ssize_t __nfs4_get_acl_uncached(struct inode *inode, void *buf, size_t bu
- 		buflen = server->rsize;
- 
- 	npages = DIV_ROUND_UP(buflen, PAGE_SIZE) + 1;
--	pages = kmalloc_array(npages, sizeof(struct page *), GFP_NOFS);
-+	pages = kmalloc_array(npages, sizeof(struct page *), GFP_KERNEL);
- 	if (!pages)
- 		return -ENOMEM;
- 
-@@ -6621,7 +6621,7 @@ static int _nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred,
- 	};
- 	int status = 0;
- 
--	data = kzalloc(sizeof(*data), GFP_NOFS);
-+	data = kzalloc(sizeof(*data), GFP_KERNEL);
- 	if (data == NULL)
- 		return -ENOMEM;
- 
-@@ -6810,7 +6810,7 @@ static struct nfs4_unlockdata *nfs4_alloc_unlockdata(struct file_lock *fl,
- 	struct nfs4_state *state = lsp->ls_state;
- 	struct inode *inode = state->inode;
- 
--	p = kzalloc(sizeof(*p), GFP_NOFS);
-+	p = kzalloc(sizeof(*p), GFP_KERNEL);
- 	if (p == NULL)
- 		return NULL;
- 	p->arg.fh = NFS_FH(inode);
-@@ -7221,8 +7221,7 @@ static int _nfs4_do_setlk(struct nfs4_state *state, int cmd, struct file_lock *f
- 
- 	dprintk("%s: begin!\n", __func__);
- 	data = nfs4_alloc_lockdata(fl, nfs_file_open_context(fl->fl_file),
--			fl->fl_u.nfs4_fl.owner,
--			recovery_type == NFS_LOCK_NEW ? GFP_KERNEL : GFP_NOFS);
-+				   fl->fl_u.nfs4_fl.owner, GFP_KERNEL);
- 	if (data == NULL)
- 		return -ENOMEM;
- 	if (IS_SETLKW(cmd))
-@@ -7645,7 +7644,7 @@ nfs4_release_lockowner(struct nfs_server *server, struct nfs4_lock_state *lsp)
- 	if (server->nfs_client->cl_mvops->minor_version != 0)
- 		return;
- 
--	data = kmalloc(sizeof(*data), GFP_NOFS);
-+	data = kmalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return;
- 	data->lsp = lsp;
-@@ -9322,7 +9321,7 @@ static struct rpc_task *_nfs41_proc_sequence(struct nfs_client *clp,
- 		goto out_err;
- 
- 	ret = ERR_PTR(-ENOMEM);
--	calldata = kzalloc(sizeof(*calldata), GFP_NOFS);
-+	calldata = kzalloc(sizeof(*calldata), GFP_KERNEL);
- 	if (calldata == NULL)
- 		goto out_put_clp;
- 	nfs4_init_sequence(&calldata->args, &calldata->res, 0, is_privileged);
-@@ -10266,7 +10265,7 @@ static int nfs41_free_stateid(struct nfs_server *server,
- 		&task_setup.rpc_client, &msg);
- 
- 	dprintk("NFS call  free_stateid %p\n", stateid);
--	data = kmalloc(sizeof(*data), GFP_NOFS);
-+	data = kmalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
- 	data->server = server;
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 57ea63e2cdb4..83c88b54d712 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -821,7 +821,7 @@ static void __nfs4_close(struct nfs4_state *state,
- 
- void nfs4_close_state(struct nfs4_state *state, fmode_t fmode)
- {
--	__nfs4_close(state, fmode, GFP_NOFS, 0);
-+	__nfs4_close(state, fmode, GFP_KERNEL, 0);
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index a1ada7bff44e..079694f894b8 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -1838,17 +1838,10 @@ void amd_iommu_domain_update(struct protection_domain *domain)
+ 	amd_iommu_domain_flush_complete(domain);
  }
  
- void nfs4_close_sync(struct nfs4_state *state, fmode_t fmode)
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 9203a17b3f09..1b4dd8b828de 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1244,7 +1244,7 @@ pnfs_send_layoutreturn(struct pnfs_layout_hdr *lo,
- 	int status = 0;
- 
- 	*pcred = NULL;
--	lrp = kzalloc(sizeof(*lrp), GFP_NOFS);
-+	lrp = kzalloc(sizeof(*lrp), GFP_KERNEL);
- 	if (unlikely(lrp == NULL)) {
- 		status = -ENOMEM;
- 		spin_lock(&ino->i_lock);
-@@ -3263,7 +3263,7 @@ struct nfs4_threshold *pnfs_mdsthreshold_alloc(void)
+-static void __init amd_iommu_init_dma_ops(void)
+-{
+-	swiotlb = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
+-}
+-
+ int __init amd_iommu_init_api(void)
  {
- 	struct nfs4_threshold *thp;
+ 	int err;
  
--	thp = kzalloc(sizeof(*thp), GFP_NOFS);
-+	thp = kzalloc(sizeof(*thp), GFP_KERNEL);
- 	if (!thp) {
- 		dprintk("%s mdsthreshold allocation failed\n", __func__);
- 		return NULL;
+-	amd_iommu_init_dma_ops();
+-
+ 	err = bus_set_iommu(&pci_bus_type, &amd_iommu_ops);
+ 	if (err)
+ 		return err;
 -- 
 2.35.1
 
