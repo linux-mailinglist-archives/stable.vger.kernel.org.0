@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E8A541BF7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F65540625
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382148AbiFGVzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45814 "EHLO
+        id S237351AbiFGRdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382771AbiFGVvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B0F31512;
-        Tue,  7 Jun 2022 12:09:30 -0700 (PDT)
+        with ESMTP id S1347358AbiFGRal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C36A11098D;
+        Tue,  7 Jun 2022 10:26:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFC3AB823B1;
-        Tue,  7 Jun 2022 19:09:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF0EC36B01;
-        Tue,  7 Jun 2022 19:09:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6CB660C7C;
+        Tue,  7 Jun 2022 17:26:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B99BDC34115;
+        Tue,  7 Jun 2022 17:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628967;
-        bh=B0CsIoEyXEN5LtP7h54vXfFTV7az3pTP+cv1ty9bRNk=;
+        s=korg; t=1654622785;
+        bh=jCaW6LClPnj/5rx9gWl3M6iDgCeuonhtA+fLeVdnJsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqxdGIuhokZ55mnPBeyY3/iL1q/6uhUWOvp66koH52TEA8G8I+j6lQvwfgYFHuoWz
-         Gn+dk3VpHfhlGGAvizqlVb52hgYluIT/eeK87OTgxDhZYpi7jHtS7A1CNuYAfpmOhw
-         Fqt7cHBDiLlKJ13+iEHRlCuh1R0xPXf2yqoVZ1zM=
+        b=LU88kO6GXeWfXgmweZxrQuHTLK5fxcZpMVpcdtmyQJyadDgnVImvOtg1JLrTWNvnA
+         8gSVxaJ8WveNNG+37K3u8nD5pxPynd+va76tA7SH+vuJMsq6xbw4Q037O+7xGtBlpS
+         CRNbUw9TnQC/e0+KCMwezJD/aKVKrQJktEzt5zQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 521/879] rxrpc: Fix decision on when to generate an IDLE ACK
+Subject: [PATCH 5.10 182/452] perf tools: Use Python devtools for version autodetection rather than runtime
 Date:   Tue,  7 Jun 2022 19:00:39 +0200
-Message-Id: <20220607165018.001037642@linuxfoundation.org>
+Message-Id: <20220607164913.984431805@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,168 +58,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 9a3dedcf18096e8f7f22b8777d78c4acfdea1651 ]
+[ Upstream commit 630af16eee495f583db5202c3613d1b191f10694 ]
 
-Fix the decision on when to generate an IDLE ACK by keeping a count of the
-number of packets we've received, but not yet soft-ACK'd, and the number of
-packets we've processed, but not yet hard-ACK'd, rather than trying to keep
-track of which DATA sequence numbers correspond to those points.
+This fixes the issue where the build will fail if only the Python2
+runtime is installed but the Python3 devtools are installed. Currently
+the workaround is 'make PYTHON=python3'.
 
-We then generate an ACK when either counter exceeds 2.  The counters are
-both cleared when we transcribe the information into any sort of ACK packet
-for transmission.  IDLE and DELAY ACKs are skipped if both counters are 0
-(ie. no change).
+Fix it by autodetecting Python based on whether python[x]-config exists
+rather than just python[x] because both are needed for the build. Then
+-config is stripped to find the Python runtime.
 
-Fixes: 805b21b929e2 ("rxrpc: Send an ACK after every few DATA packets we receive")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Testing
+=======
+
+ * Auto detect links with Python3 when the v3 devtools are installed
+   and only Python 2 runtime is installed
+ * Auto detect links with Python2 when both devtools are installed
+ * Sensible warning is printed if no Python devtools are installed
+ * 'make PYTHON=x' still automatically sets PYTHON_CONFIG=x-config
+ * 'make PYTHON=x' fails if x-config doesn't exist
+ * 'make PYTHON=python3' overrides Python2 devtools
+ * 'make PYTHON=python2' overrides Python3 devtools
+ * 'make PYTHON_CONFIG=x-config' works
+ * 'make PYTHON=x PYTHON_CONFIG=x' works
+ * 'make PYTHON=missing' reports an error
+ * 'make PYTHON_CONFIG=missing' reports an error
+
+Fixes: 79373082fa9de8be ("perf python: Autodetect python3 binary")
+Signed-off-by: James Clark <james.clark@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20220309194313.3350126-2-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h |  2 +-
- net/rxrpc/ar-internal.h      |  4 ++--
- net/rxrpc/input.c            | 11 +++++++++--
- net/rxrpc/output.c           | 18 +++++++++++-------
- net/rxrpc/recvmsg.c          |  8 +++-----
- 5 files changed, 26 insertions(+), 17 deletions(-)
+ tools/perf/Makefile.config | 39 ++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index 4a3ab0ed6e06..1c714336b863 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1509,7 +1509,7 @@ TRACE_EVENT(rxrpc_call_reset,
- 		    __entry->call_serial = call->rx_serial;
- 		    __entry->conn_serial = call->conn->hi_serial;
- 		    __entry->tx_seq = call->tx_hard_ack;
--		    __entry->rx_seq = call->ackr_seen;
-+		    __entry->rx_seq = call->rx_hard_ack;
- 			   ),
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 41dff8d38448..5ee3c4d1fbb2 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -222,18 +222,33 @@ ifdef PARSER_DEBUG
+ endif
  
- 	    TP_printk("c=%08x %08x:%08x r=%08x/%08x tx=%08x rx=%08x",
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 4ba51e6d3d85..f2d593e27b64 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -680,8 +680,8 @@ struct rxrpc_call {
- 	u8			ackr_reason;	/* reason to ACK */
- 	rxrpc_serial_t		ackr_serial;	/* serial of packet being ACK'd */
- 	rxrpc_seq_t		ackr_highest_seq; /* Higest sequence number received */
--	rxrpc_seq_t		ackr_consumed;	/* Highest packet shown consumed */
--	rxrpc_seq_t		ackr_seen;	/* Highest packet shown seen */
-+	atomic_t		ackr_nr_unacked; /* Number of unacked packets */
-+	atomic_t		ackr_nr_consumed; /* Number of packets needing hard ACK */
- 
- 	/* RTT management */
- 	rxrpc_serial_t		rtt_serial[4];	/* Serial number of DATA or PING sent */
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index 680b984ef87f..3521ebd0ee41 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -412,8 +412,8 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- {
- 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
- 	enum rxrpc_call_state state;
--	unsigned int j, nr_subpackets;
--	rxrpc_serial_t serial = sp->hdr.serial, ack_serial = 0;
-+	unsigned int j, nr_subpackets, nr_unacked = 0;
-+	rxrpc_serial_t serial = sp->hdr.serial, ack_serial = serial;
- 	rxrpc_seq_t seq0 = sp->hdr.seq, hard_ack;
- 	bool immediate_ack = false, jumbo_bad = false;
- 	u8 ack = 0;
-@@ -569,6 +569,8 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- 			sp = NULL;
- 		}
- 
-+		nr_unacked++;
+ # Try different combinations to accommodate systems that only have
+-# python[2][-config] in weird combinations but always preferring
+-# python2 and python2-config as per pep-0394. If python2 or python
+-# aren't found, then python3 is used.
+-PYTHON_AUTO := python
+-PYTHON_AUTO := $(if $(call get-executable,python3),python3,$(PYTHON_AUTO))
+-PYTHON_AUTO := $(if $(call get-executable,python),python,$(PYTHON_AUTO))
+-PYTHON_AUTO := $(if $(call get-executable,python2),python2,$(PYTHON_AUTO))
+-override PYTHON := $(call get-executable-or-default,PYTHON,$(PYTHON_AUTO))
+-PYTHON_AUTO_CONFIG := \
+-  $(if $(call get-executable,$(PYTHON)-config),$(PYTHON)-config,python-config)
+-override PYTHON_CONFIG := \
+-  $(call get-executable-or-default,PYTHON_CONFIG,$(PYTHON_AUTO_CONFIG))
++# python[2][3]-config in weird combinations in the following order of
++# priority from lowest to highest:
++#   * python3-config
++#   * python-config
++#   * python2-config as per pep-0394.
++#   * $(PYTHON)-config (If PYTHON is user supplied but PYTHON_CONFIG isn't)
++#
++PYTHON_AUTO := python-config
++PYTHON_AUTO := $(if $(call get-executable,python3-config),python3-config,$(PYTHON_AUTO))
++PYTHON_AUTO := $(if $(call get-executable,python-config),python-config,$(PYTHON_AUTO))
++PYTHON_AUTO := $(if $(call get-executable,python2-config),python2-config,$(PYTHON_AUTO))
 +
- 		if (last) {
- 			set_bit(RXRPC_CALL_RX_LAST, &call->flags);
- 			if (!ack) {
-@@ -588,9 +590,14 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- 			}
- 			call->rx_expect_next = seq + 1;
- 		}
-+		if (!ack)
-+			ack_serial = serial;
- 	}
- 
- ack:
-+	if (atomic_add_return(nr_unacked, &call->ackr_nr_unacked) > 2 && !ack)
-+		ack = RXRPC_ACK_IDLE;
++# If PYTHON is defined but PYTHON_CONFIG isn't, then take $(PYTHON)-config as if it was the user
++# supplied value for PYTHON_CONFIG. Because it's "user supplied", error out if it doesn't exist.
++ifdef PYTHON
++  ifndef PYTHON_CONFIG
++    PYTHON_CONFIG_AUTO := $(call get-executable,$(PYTHON)-config)
++    PYTHON_CONFIG := $(if $(PYTHON_CONFIG_AUTO),$(PYTHON_CONFIG_AUTO),\
++                          $(call $(error $(PYTHON)-config not found)))
++  endif
++endif
 +
- 	if (ack)
- 		rxrpc_propose_ACK(call, ack, ack_serial,
- 				  immediate_ack, true,
-diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
-index 46aae9b7006f..9683617db704 100644
---- a/net/rxrpc/output.c
-+++ b/net/rxrpc/output.c
-@@ -74,11 +74,18 @@ static size_t rxrpc_fill_out_ack(struct rxrpc_connection *conn,
- 				 u8 reason)
- {
- 	rxrpc_serial_t serial;
-+	unsigned int tmp;
- 	rxrpc_seq_t hard_ack, top, seq;
- 	int ix;
- 	u32 mtu, jmax;
- 	u8 *ackp = pkt->acks;
++# Select either auto detected python and python-config or use user supplied values if they are
++# defined. get-executable-or-default fails with an error if the first argument is supplied but
++# doesn't exist.
++override PYTHON_CONFIG := $(call get-executable-or-default,PYTHON_CONFIG,$(PYTHON_AUTO))
++override PYTHON := $(call get-executable-or-default,PYTHON,$(subst -config,,$(PYTHON_AUTO)))
  
-+	tmp = atomic_xchg(&call->ackr_nr_unacked, 0);
-+	tmp |= atomic_xchg(&call->ackr_nr_consumed, 0);
-+	if (!tmp && (reason == RXRPC_ACK_DELAY ||
-+		     reason == RXRPC_ACK_IDLE))
-+		return 0;
-+
- 	/* Barrier against rxrpc_input_data(). */
- 	serial = call->ackr_serial;
- 	hard_ack = READ_ONCE(call->rx_hard_ack);
-@@ -223,6 +230,10 @@ int rxrpc_send_ack_packet(struct rxrpc_call *call, bool ping,
- 	n = rxrpc_fill_out_ack(conn, call, pkt, &hard_ack, &top, reason);
- 
- 	spin_unlock_bh(&call->lock);
-+	if (n == 0) {
-+		kfree(pkt);
-+		return 0;
-+	}
- 
- 	iov[0].iov_base	= pkt;
- 	iov[0].iov_len	= sizeof(pkt->whdr) + sizeof(pkt->ack) + n;
-@@ -259,13 +270,6 @@ int rxrpc_send_ack_packet(struct rxrpc_call *call, bool ping,
- 					  ntohl(pkt->ack.serial),
- 					  false, true,
- 					  rxrpc_propose_ack_retry_tx);
--		} else {
--			spin_lock_bh(&call->lock);
--			if (after(hard_ack, call->ackr_consumed))
--				call->ackr_consumed = hard_ack;
--			if (after(top, call->ackr_seen))
--				call->ackr_seen = top;
--			spin_unlock_bh(&call->lock);
- 		}
- 
- 		rxrpc_set_keepalive(call);
-diff --git a/net/rxrpc/recvmsg.c b/net/rxrpc/recvmsg.c
-index eca6dda26c77..250f23bc1c07 100644
---- a/net/rxrpc/recvmsg.c
-+++ b/net/rxrpc/recvmsg.c
-@@ -260,11 +260,9 @@ static void rxrpc_rotate_rx_window(struct rxrpc_call *call)
- 		rxrpc_end_rx_phase(call, serial);
- 	} else {
- 		/* Check to see if there's an ACK that needs sending. */
--		if (after_eq(hard_ack, call->ackr_consumed + 2) ||
--		    after_eq(top, call->ackr_seen + 2) ||
--		    (hard_ack == top && after(hard_ack, call->ackr_consumed)))
--			rxrpc_propose_ACK(call, RXRPC_ACK_DELAY, serial,
--					  true, true,
-+		if (atomic_inc_return(&call->ackr_nr_consumed) > 2)
-+			rxrpc_propose_ACK(call, RXRPC_ACK_IDLE, serial,
-+					  true, false,
- 					  rxrpc_propose_ack_rotate_rx);
- 		if (call->ackr_reason && call->ackr_reason != RXRPC_ACK_DELAY)
- 			rxrpc_send_ack_packet(call, false, NULL);
+ grep-libs  = $(filter -l%,$(1))
+ strip-libs  = $(filter-out -l%,$(1))
 -- 
 2.35.1
 
