@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF27540810
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F29540F16
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348531AbiFGRy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:54:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40414 "EHLO
+        id S1346021AbiFGTBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:01:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348693AbiFGRxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:53:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6091214385B;
-        Tue,  7 Jun 2022 10:39:45 -0700 (PDT)
+        with ESMTP id S1353105AbiFGS7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:59:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A2314E953;
+        Tue,  7 Jun 2022 11:04:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE216CE23EA;
-        Tue,  7 Jun 2022 17:34:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E042AC36AFE;
-        Tue,  7 Jun 2022 17:34:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96FD9617B4;
+        Tue,  7 Jun 2022 18:04:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E15C34119;
+        Tue,  7 Jun 2022 18:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623280;
-        bh=yNGFt9B2lX024OfqieyA1TBvJLt1kPHCpswVW6eiqqY=;
+        s=korg; t=1654625061;
+        bh=OcWhrdsFQIgNPCqf/QrOHTOvPgdXZMIducRNLcG6Qdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9u7MDIzf/IkBUpFSU8s5LTzc1wgZHq40zcm5TOJsxnmYkZ4zxbBbxftLpRI6rEF+
-         DkN2c9NkK5muNyVmSFLycVtD5sYOUowvWqYu3iEi7LA2E+13iKboP9f734DqOb087R
-         YAaSnltEKlYvkSvaor1RAXKh5+6fpuc7ko+z4yOI=
+        b=kXvpvoWU68TCz+XPz30lRXnMkShO+9by5NDxpXVPhYGpsdG85ddkGOSl1S+CfWl2W
+         nyN21HNJRJWleXFn2bSQaNPFcudOGCjDzhWnTNggV3C2ILERQRozMFa0krYQTqpyHk
+         1nAKf91t0Fq5/ke9vaeEJeVCQInICpNamHhqudYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 360/452] ext4: fix warning in ext4_handle_inode_extension
+        stable@vger.kernel.org,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Gautam Menghani <gautammenghani201@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 552/667] tracing: Initialize integer variable to prevent garbage return value
 Date:   Tue,  7 Jun 2022 19:03:37 +0200
-Message-Id: <20220607164919.290774326@linuxfoundation.org>
+Message-Id: <20220607164951.256161571@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Gautam Menghani <gautammenghani201@gmail.com>
 
-commit f4534c9fc94d22383f187b9409abb3f9df2e3db3 upstream.
+commit 154827f8e53d8c492b3fb0cb757fbcadb5d516b5 upstream.
 
-We got issue as follows:
-EXT4-fs error (device loop0) in ext4_reserve_inode_write:5741: Out of memory
-EXT4-fs error (device loop0): ext4_setattr:5462: inode #13: comm syz-executor.0: mark_inode_dirty error
-EXT4-fs error (device loop0) in ext4_setattr:5519: Out of memory
-EXT4-fs error (device loop0): ext4_ind_map_blocks:595: inode #13: comm syz-executor.0: Can't allocate blocks for non-extent mapped inodes with bigalloc
-------------[ cut here ]------------
-WARNING: CPU: 1 PID: 4361 at fs/ext4/file.c:301 ext4_file_write_iter+0x11c9/0x1220
-Modules linked in:
-CPU: 1 PID: 4361 Comm: syz-executor.0 Not tainted 5.10.0+ #1
-RIP: 0010:ext4_file_write_iter+0x11c9/0x1220
-RSP: 0018:ffff924d80b27c00 EFLAGS: 00010282
-RAX: ffffffff815a3379 RBX: 0000000000000000 RCX: 000000003b000000
-RDX: ffff924d81601000 RSI: 00000000000009cc RDI: 00000000000009cd
-RBP: 000000000000000d R08: ffffffffbc5a2c6b R09: 0000902e0e52a96f
-R10: ffff902e2b7c1b40 R11: ffff902e2b7c1b40 R12: 000000000000000a
-R13: 0000000000000001 R14: ffff902e0e52aa10 R15: ffffffffffffff8b
-FS:  00007f81a7f65700(0000) GS:ffff902e3bc80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffff600400 CR3: 000000012db88001 CR4: 00000000003706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- do_iter_readv_writev+0x2e5/0x360
- do_iter_write+0x112/0x4c0
- do_pwritev+0x1e5/0x390
- __x64_sys_pwritev2+0x7e/0xa0
- do_syscall_64+0x37/0x50
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Initialize the integer variable to 0 to fix the clang scan warning:
+Undefined or garbage value returned to caller
+[core.uninitialized.UndefReturn]
+        return ret;
 
-Above issue may happen as follows:
-Assume
-inode.i_size=4096
-EXT4_I(inode)->i_disksize=4096
+Link: https://lkml.kernel.org/r/20220522061826.1751-1-gautammenghani201@gmail.com
 
-step 1: set inode->i_isize = 8192
-ext4_setattr
-  if (attr->ia_size != inode->i_size)
-    EXT4_I(inode)->i_disksize = attr->ia_size;
-    rc = ext4_mark_inode_dirty
-       ext4_reserve_inode_write
-          ext4_get_inode_loc
-            __ext4_get_inode_loc
-              sb_getblk --> return -ENOMEM
-   ...
-   if (!error)  ->will not update i_size
-     i_size_write(inode, attr->ia_size);
-Now:
-inode.i_size=4096
-EXT4_I(inode)->i_disksize=8192
-
-step 2: Direct write 4096 bytes
-ext4_file_write_iter
- ext4_dio_write_iter
-   iomap_dio_rw ->return error
- if (extend)
-   ext4_handle_inode_extension
-     WARN_ON_ONCE(i_size_read(inode) < EXT4_I(inode)->i_disksize);
-->Then trigger warning.
-
-To solve above issue, if mark inode dirty failed in ext4_setattr just
-set 'EXT4_I(inode)->i_disksize' with old value.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20220326065351.761952-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 8993665abcce ("tracing/boot: Support multiple handlers for per-event histogram")
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/trace/trace_boot.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5444,6 +5444,7 @@ int ext4_setattr(struct dentry *dentry,
- 	if (attr->ia_valid & ATTR_SIZE) {
- 		handle_t *handle;
- 		loff_t oldsize = inode->i_size;
-+		loff_t old_disksize;
- 		int shrink = (attr->ia_size < inode->i_size);
+--- a/kernel/trace/trace_boot.c
++++ b/kernel/trace/trace_boot.c
+@@ -300,7 +300,7 @@ trace_boot_hist_add_handlers(struct xbc_
+ {
+ 	struct xbc_node *node;
+ 	const char *p, *handler;
+-	int ret;
++	int ret = 0;
  
- 		if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
-@@ -5517,6 +5518,7 @@ int ext4_setattr(struct dentry *dentry,
- 					inode->i_sb->s_blocksize_bits);
+ 	handler = xbc_node_get_data(hnode);
  
- 			down_write(&EXT4_I(inode)->i_data_sem);
-+			old_disksize = EXT4_I(inode)->i_disksize;
- 			EXT4_I(inode)->i_disksize = attr->ia_size;
- 			rc = ext4_mark_inode_dirty(handle, inode);
- 			if (!error)
-@@ -5528,6 +5530,8 @@ int ext4_setattr(struct dentry *dentry,
- 			 */
- 			if (!error)
- 				i_size_write(inode, attr->ia_size);
-+			else
-+				EXT4_I(inode)->i_disksize = old_disksize;
- 			up_write(&EXT4_I(inode)->i_data_sem);
- 			ext4_journal_stop(handle);
- 			if (error)
 
 
