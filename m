@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D5C541951
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBEE54120E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378881AbiFGVT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
+        id S1356883AbiFGTnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380535AbiFGVQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08BF021DA0D;
-        Tue,  7 Jun 2022 11:55:23 -0700 (PDT)
+        with ESMTP id S1357799AbiFGTmW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24BB159078;
+        Tue,  7 Jun 2022 11:16:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90977612F2;
-        Tue,  7 Jun 2022 18:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B05DC385A2;
-        Tue,  7 Jun 2022 18:55:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FEA6B82349;
+        Tue,  7 Jun 2022 18:16:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC82C385A5;
+        Tue,  7 Jun 2022 18:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628122;
-        bh=ysGPMCEE6zTrrAwWhMonkdrC5EuSx87LJP4/nYS+s1I=;
+        s=korg; t=1654625777;
+        bh=phB7LXbMznbVSVQXBgVCBso+VRteL7PNg//ZRtMP2a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqrUJgvIrMxUKx7I1gwvXkKToyohig6VjTNfj3ARuHLWDBi2rOG2MG/DsKV/A8t3V
-         nv+nPKrKHOATWxgdr6gUpZiIdLAl/doIa1kZ3Zo+x8HxVgji1qwHhTIQEIxu4ITQeK
-         1DnP0JBpK8Zca/yTwakRh06y3WdqUW5vb8bp6J3k=
+        b=1FmBQ3V5XIvv0LBLsQXIcUUFUp685mDJ+zglWOtm9H+1syMLcb2eS7lKhXIbDx4LO
+         huEJpHdW19WGQ1hGRHJk2RuUJMKAC1wuYMFSCEMB0Qy3Z0x9n4ZjLkT7x7r5z0xhED
+         mOKP0Ru5wyTi+h/9T6SkkUay7rxqlpT+2cWyNxE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 214/879] ASoC: amd: Add driver data to acp6x machine driver
+Subject: [PATCH 5.17 140/772] media: rga: fix possible memory leak in rga_probe
 Date:   Tue,  7 Jun 2022 18:55:32 +0200
-Message-Id: <20220607165009.066381782@linuxfoundation.org>
+Message-Id: <20220607164953.169186878@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,182 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit e521f087780d07731e8c950f2f34d08358c86bc9 ]
+[ Upstream commit a71eb6025305192e646040cd76ccacb5bd48a1b5 ]
 
-Currently all of the quirked systems use the same card and so the
-DMI quirk list doesn't contain driver data.
+rga->m2m_dev needs to be freed when rga_probe fails.
 
-Add driver data to these quirks and then check the data was present
-or not.  This will allow potentially setting quirks for systems with
-faulty firmware that claims to have a DMIC but doesn't really.
-
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20220411134532.13538-2-mario.limonciello@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ drivers/media/platform/rockchip/rga/rga.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 9a767f47b89f..959b70e8baf2 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -45,108 +45,126 @@ static struct snd_soc_card acp6x_card = {
+diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
+index 3d3d1062e212..2f8df74ad0fd 100644
+--- a/drivers/media/platform/rockchip/rga/rga.c
++++ b/drivers/media/platform/rockchip/rga/rga.c
+@@ -865,7 +865,7 @@ static int rga_probe(struct platform_device *pdev)
  
- static const struct dmi_system_id yc_acp_quirk_table[] = {
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D2"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D3"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D4"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D5"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CF"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CG"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CQ"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CR"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21AW"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21AX"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21BN"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21BQ"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CH"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CJ"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CK"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21CL"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D8"),
- 		}
- 	},
- 	{
-+		.driver_data = &acp6x_card,
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "21D9"),
-@@ -157,18 +175,21 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 	ret = pm_runtime_resume_and_get(rga->dev);
+ 	if (ret < 0)
+-		goto rel_vdev;
++		goto rel_m2m;
  
- static int acp6x_probe(struct platform_device *pdev)
- {
-+	const struct dmi_system_id *dmi_id;
- 	struct acp6x_pdm *machine = NULL;
- 	struct snd_soc_card *card;
- 	int ret;
--	const struct dmi_system_id *dmi_id;
+ 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
+ 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
+@@ -881,7 +881,7 @@ static int rga_probe(struct platform_device *pdev)
+ 					   DMA_ATTR_WRITE_COMBINE);
+ 	if (!rga->cmdbuf_virt) {
+ 		ret = -ENOMEM;
+-		goto rel_vdev;
++		goto rel_m2m;
+ 	}
  
-+	/* check for any DMI overrides */
- 	dmi_id = dmi_first_match(yc_acp_quirk_table);
--	if (!dmi_id)
-+	if (dmi_id)
-+		platform_set_drvdata(pdev, dmi_id->driver_data);
-+
-+	card = platform_get_drvdata(pdev);
-+	if (!card)
- 		return -ENODEV;
--	card = &acp6x_card;
- 	acp6x_card.dev = &pdev->dev;
- 
--	platform_set_drvdata(pdev, card);
- 	snd_soc_card_set_drvdata(card, machine);
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 	if (ret) {
+ 	rga->src_mmu_pages =
+@@ -918,6 +918,8 @@ static int rga_probe(struct platform_device *pdev)
+ free_dma:
+ 	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
+ 		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
++rel_m2m:
++	v4l2_m2m_release(rga->m2m_dev);
+ rel_vdev:
+ 	video_device_release(vfd);
+ unreg_v4l2_dev:
 -- 
 2.35.1
 
