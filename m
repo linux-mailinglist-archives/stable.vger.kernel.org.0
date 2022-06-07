@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0100540E03
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD1BD541CEB
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353344AbiFGSvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53888 "EHLO
+        id S1376316AbiFGWHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351925AbiFGSrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F095B3669F;
-        Tue,  7 Jun 2022 11:02:46 -0700 (PDT)
+        with ESMTP id S1383005AbiFGWEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE14A28E09;
+        Tue,  7 Jun 2022 12:16:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38473B82349;
-        Tue,  7 Jun 2022 18:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C8EC34115;
-        Tue,  7 Jun 2022 18:02:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E0E461846;
+        Tue,  7 Jun 2022 19:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90C43C385A2;
+        Tue,  7 Jun 2022 19:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624963;
-        bh=tqE7yY871lsCTKWHao9KtQXVZv2IrM5/3qmOphjpyJg=;
+        s=korg; t=1654629361;
+        bh=9sepHHtUi18mB/sNM9vPJeMOF6rk7ZfA+svdQRMycS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aW2I8POemJZY62Zt7gcc6QcWfxlYu1+Tg2S0k/b0D3xzNxZ6BNRkcivrQb3/ZTimz
-         bQPTJmff2NuiPGl3iYVeTJUOLYUeQMFDlKk3SWrH0QF11kIkdmPQEORgPByT55DnGM
-         JsubtmNjIWRmGq821elYfX7uT1kGxLlAhz9nJvUs=
+        b=vTu+0ou5KpNd90Ze451I/ugSwunjoZD78rxH0tS3Ef8hRY8+yCXmQhN7HvWkPUrCi
+         XW1Oa2St+hyPmdJkn/RUZGblyF0XQUnFjG2OrQPE7hLuZtGWmVF6e7Il6AUZXNolzU
+         ZGI05TpwGXGdWcpuHJRqfZ3OQ4kIZkaO7aGgj8zQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 516/667] f2fs: fix to avoid f2fs_bug_on() in dec_valid_node_count()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 663/879] iommu/amd: Do not call sleep while holding spinlock
 Date:   Tue,  7 Jun 2022 19:03:01 +0200
-Message-Id: <20220607164950.180457317@linuxfoundation.org>
+Message-Id: <20220607165022.091002816@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-commit 4d17e6fe9293d57081ffdc11e1cf313e25e8fd9e upstream.
+[ Upstream commit 5edde870d3283edeaa27ab62ac4fac5ee8cae35a ]
 
-As Yanming reported in bugzilla:
+Smatch static checker warns:
+	drivers/iommu/amd/iommu_v2.c:133 free_device_state()
+	warn: sleeping in atomic context
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215897
+Fixes by storing the list of struct device_state in a temporary
+list, and then free the memory after releasing the spinlock.
 
-I have encountered a bug in F2FS file system in kernel v5.17.
-
-The kernel should enable CONFIG_KASAN=y and CONFIG_KASAN_INLINE=y. You can
-reproduce the bug by running the following commands:
-
-The kernel message is shown below:
-
-kernel BUG at fs/f2fs/f2fs.h:2511!
-Call Trace:
- f2fs_remove_inode_page+0x2a2/0x830
- f2fs_evict_inode+0x9b7/0x1510
- evict+0x282/0x4e0
- do_unlinkat+0x33a/0x540
- __x64_sys_unlinkat+0x8e/0xd0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is: .total_valid_block_count or .total_valid_node_count
-could fuzzed to zero, then once dec_valid_node_count() was called, it
-will cause BUG_ON(), this patch fixes to print warning info and set
-SBI_NEED_FSCK into CP instead of panic.
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 9f968fc70d85 ("iommu/amd: Improve amd_iommu_v2_exit()")
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20220314024321.37411-1-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/iommu/amd/iommu_v2.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2487,11 +2487,17 @@ static inline void dec_valid_node_count(
+diff --git a/drivers/iommu/amd/iommu_v2.c b/drivers/iommu/amd/iommu_v2.c
+index e56b137ceabd..afb3efd565b7 100644
+--- a/drivers/iommu/amd/iommu_v2.c
++++ b/drivers/iommu/amd/iommu_v2.c
+@@ -956,6 +956,7 @@ static void __exit amd_iommu_v2_exit(void)
  {
- 	spin_lock(&sbi->stat_lock);
+ 	struct device_state *dev_state, *next;
+ 	unsigned long flags;
++	LIST_HEAD(freelist);
  
--	f2fs_bug_on(sbi, !sbi->total_valid_block_count);
--	f2fs_bug_on(sbi, !sbi->total_valid_node_count);
-+	if (unlikely(!sbi->total_valid_block_count ||
-+			!sbi->total_valid_node_count)) {
-+		f2fs_warn(sbi, "dec_valid_node_count: inconsistent block counts, total_valid_block:%u, total_valid_node:%u",
-+			  sbi->total_valid_block_count,
-+			  sbi->total_valid_node_count);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+	} else {
-+		sbi->total_valid_block_count--;
-+		sbi->total_valid_node_count--;
+ 	if (!amd_iommu_v2_supported())
+ 		return;
+@@ -975,11 +976,20 @@ static void __exit amd_iommu_v2_exit(void)
+ 
+ 		put_device_state(dev_state);
+ 		list_del(&dev_state->list);
+-		free_device_state(dev_state);
++		list_add_tail(&dev_state->list, &freelist);
+ 	}
+ 
+ 	spin_unlock_irqrestore(&state_lock, flags);
+ 
++	/*
++	 * Since free_device_state waits on the count to be zero,
++	 * we need to free dev_state outside the spinlock.
++	 */
++	list_for_each_entry_safe(dev_state, next, &freelist, list) {
++		list_del(&dev_state->list);
++		free_device_state(dev_state);
 +	}
++
+ 	destroy_workqueue(iommu_wq);
+ }
  
--	sbi->total_valid_node_count--;
--	sbi->total_valid_block_count--;
- 	if (sbi->reserved_blocks &&
- 		sbi->current_reserved_blocks < sbi->reserved_blocks)
- 		sbi->current_reserved_blocks++;
+-- 
+2.35.1
+
 
 
