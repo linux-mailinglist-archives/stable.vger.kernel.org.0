@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580795416C9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE60541DB2
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358597AbiFGU4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48902 "EHLO
+        id S1382043AbiFGWTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378002AbiFGUvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6E11FDEA2;
-        Tue,  7 Jun 2022 11:41:14 -0700 (PDT)
+        with ESMTP id S1381764AbiFGWSJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:18:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDBD262AC5;
+        Tue,  7 Jun 2022 12:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 316D061295;
-        Tue,  7 Jun 2022 18:41:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E8DC385A2;
-        Tue,  7 Jun 2022 18:41:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C95CF6192C;
+        Tue,  7 Jun 2022 19:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3871C385A2;
+        Tue,  7 Jun 2022 19:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627273;
-        bh=5or48Sd0+2qQPDKl+woFHQA/id1AA8D8c0YmSyWFprU=;
+        s=korg; t=1654629613;
+        bh=BBg+mwCNWImlh+M2q37i5/XLQ4BevCr4QVoRF5vwmqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zXXxSVLTqOQfNEpAaMgmvJfx+IzRIEtzZHZbihO/2xoA+LB7tJDVT+4H4/kixqkZk
-         OODr5D7U+wEmLA01N4abCbvC2ozKkt7a+HuJ5in56nH8NygYgdv6cOW7HkyCnvyOrw
-         VbNJBkF4cE0qy9H/McbmVMPQ0SlAiEsjZCAVfVvA=
+        b=gGoMej0NE1OFC0jT0d2cIBsb96zV5RxGE7iOA0PX29Cf9C0xS79wj2/0dXBUWznBH
+         yYBdryLna3EfbYsk+Bc4v2jZTP0Nv7Q6HMN9Ppcb/wzF/ArG3sz55pp0d5V6rfwudM
+         mYsKyTCAxrw9Jz+jXJon8W+BRVHj9uuedAVhwOgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.17 679/772] selftests/landlock: Extend access right tests to directories
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.18 753/879] drm/amdgpu: add beige goby PCI ID
 Date:   Tue,  7 Jun 2022 19:04:31 +0200
-Message-Id: <20220607165009.065451258@linuxfoundation.org>
+Message-Id: <20220607165024.717481003@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +53,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit d18955d094d09a220cf8f533f5e896a2fe31575a upstream.
+commit 62e9bd20035b53ff6c679499c08546d96c6c60a7 upstream.
 
-Make sure that all filesystem access rights can be tied to directories.
+Add a beige goby PCI ID.
 
-Rename layout1.file_access_rights to layout1.file_and_dir_access_rights
-to reflect this change.
-
-Cc: Shuah Khan <shuah@kernel.org>
-Link: https://lore.kernel.org/r/20220506160820.524344-6-mic@digikod.net
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/fs_test.c |   30 +++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -418,11 +418,12 @@ TEST_F_FORK(layout1, inval)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1931,6 +1931,7 @@ static const struct pci_device_id pciidl
+ 	{0x1002, 0x7421, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x7422, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x7423, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
++	{0x1002, 0x7424, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x743F, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
  
- /* clang-format on */
- 
--TEST_F_FORK(layout1, file_access_rights)
-+TEST_F_FORK(layout1, file_and_dir_access_rights)
- {
- 	__u64 access;
- 	int err;
--	struct landlock_path_beneath_attr path_beneath = {};
-+	struct landlock_path_beneath_attr path_beneath_file = {},
-+					  path_beneath_dir = {};
- 	struct landlock_ruleset_attr ruleset_attr = {
- 		.handled_access_fs = ACCESS_ALL,
- 	};
-@@ -432,20 +433,33 @@ TEST_F_FORK(layout1, file_access_rights)
- 	ASSERT_LE(0, ruleset_fd);
- 
- 	/* Tests access rights for files. */
--	path_beneath.parent_fd = open(file1_s1d2, O_PATH | O_CLOEXEC);
--	ASSERT_LE(0, path_beneath.parent_fd);
-+	path_beneath_file.parent_fd = open(file1_s1d2, O_PATH | O_CLOEXEC);
-+	ASSERT_LE(0, path_beneath_file.parent_fd);
-+
-+	/* Tests access rights for directories. */
-+	path_beneath_dir.parent_fd =
-+		open(dir_s1d2, O_PATH | O_DIRECTORY | O_CLOEXEC);
-+	ASSERT_LE(0, path_beneath_dir.parent_fd);
-+
- 	for (access = 1; access <= ACCESS_LAST; access <<= 1) {
--		path_beneath.allowed_access = access;
-+		path_beneath_dir.allowed_access = access;
-+		ASSERT_EQ(0, landlock_add_rule(ruleset_fd,
-+					       LANDLOCK_RULE_PATH_BENEATH,
-+					       &path_beneath_dir, 0));
-+
-+		path_beneath_file.allowed_access = access;
- 		err = landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
--					&path_beneath, 0);
--		if ((access | ACCESS_FILE) == ACCESS_FILE) {
-+					&path_beneath_file, 0);
-+		if (access & ACCESS_FILE) {
- 			ASSERT_EQ(0, err);
- 		} else {
- 			ASSERT_EQ(-1, err);
- 			ASSERT_EQ(EINVAL, errno);
- 		}
- 	}
--	ASSERT_EQ(0, close(path_beneath.parent_fd));
-+	ASSERT_EQ(0, close(path_beneath_file.parent_fd));
-+	ASSERT_EQ(0, close(path_beneath_dir.parent_fd));
-+	ASSERT_EQ(0, close(ruleset_fd));
- }
- 
- TEST_F_FORK(layout1, unknown_access_rights)
+ 	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
 
 
