@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB1654167C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F855407F2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358481AbiFGUxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:53:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48508 "EHLO
+        id S1348688AbiFGRxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378620AbiFGUwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FDCE11AFD0;
-        Tue,  7 Jun 2022 11:42:39 -0700 (PDT)
+        with ESMTP id S1349826AbiFGRvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEBAC252A6;
+        Tue,  7 Jun 2022 10:39:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BAA9B82018;
-        Tue,  7 Jun 2022 18:42:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C02C385A2;
-        Tue,  7 Jun 2022 18:42:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BC2A615B1;
+        Tue,  7 Jun 2022 17:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A938AC385A5;
+        Tue,  7 Jun 2022 17:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627356;
-        bh=s88LYf1pFdDDcHZeXM4fiQIU0i0g0org+rLeRSkBlFg=;
+        s=korg; t=1654623514;
+        bh=sgoGiyinGfGFOR0BlmGTWzl4IdhgAVwAoae3GDkUjaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCpHSEjhM1kTbsGLhCb190zxdXYhP7zBk3JMTccZ+sGcwIluFT5csXr3JuA6hBb8P
-         dW5V/f930dgTmeqx9rlfK8PH7WC63ur2bD7uO454pNbcTXi4ero76vPCM1QndHVU2w
-         jyiaslqEKc2d6Xs6OtOOfbWQzkIjsyvqhdXBjPAQ=
+        b=xufLw3XO2GXjwTMwpz8F8b0A0fohZ9pmnLrOhKnPpCYrnB5pj7odbY9mCcZtBdtRa
+         VYs3xnvq2PAZSQdC6w0UZxfzyyU44Z9VJl1HHPIg6YNCLWpaChjQLbSCJA9saR5VZZ
+         g4+EbivJdmXTJNJAtbMy6uNDUnSTGZvpNN8wucKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kant Fan <kant@allwinnertech.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.17 710/772] thermal: devfreq_cooling: use local ops instead of global ops
+        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 445/452] bfq: Make sure bfqg for which we are queueing requests is online
 Date:   Tue,  7 Jun 2022 19:05:02 +0200
-Message-Id: <20220607165009.968371419@linuxfoundation.org>
+Message-Id: <20220607164921.830400796@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kant Fan <kant@allwinnertech.com>
+From: Jan Kara <jack@suse.cz>
 
-commit b947769b8f778db130aad834257fcaca25df2edc upstream.
+commit 075a53b78b815301f8d3dd1ee2cd99554e34f0dd upstream.
 
-Fix access illegal address problem in following condition:
+Bios queued into BFQ IO scheduler can be associated with a cgroup that
+was already offlined. This may then cause insertion of this bfq_group
+into a service tree. But this bfq_group will get freed as soon as last
+bio associated with it is completed leading to use after free issues for
+service tree users. Fix the problem by making sure we always operate on
+online bfq_group. If the bfq_group associated with the bio is not
+online, we pick the first online parent.
 
-There are multiple devfreq cooling devices in system, some of them has
-EM model but others do not. Energy model ops such as state2power will
-append to global devfreq_cooling_ops when the cooling device with
-EM model is registered. It makes the cooling device without EM model
-also use devfreq_cooling_ops after appending when registered later by
-of_devfreq_cooling_register_power() or of_devfreq_cooling_register().
-
-The IPA governor regards the cooling devices without EM model as a power
-actor, because they also have energy model ops, and will access illegal
-address at dfc->em_pd when execute cdev->ops->get_requested_power,
-cdev->ops->state2power or cdev->ops->power2state.
-
-Fixes: 615510fe13bd2 ("thermal: devfreq_cooling: remove old power model and use EM")
-Cc: 5.13+ <stable@vger.kernel.org> # 5.13+
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+CC: stable@vger.kernel.org
+Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-9-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/devfreq_cooling.c |   25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ block/bfq-cgroup.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/thermal/devfreq_cooling.c
-+++ b/drivers/thermal/devfreq_cooling.c
-@@ -358,21 +358,28 @@ of_devfreq_cooling_register_power(struct
- 	struct thermal_cooling_device *cdev;
- 	struct device *dev = df->dev.parent;
- 	struct devfreq_cooling_device *dfc;
-+	struct thermal_cooling_device_ops *ops;
- 	char *name;
- 	int err, num_opps;
- 
--	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
--	if (!dfc)
-+	ops = kmemdup(&devfreq_cooling_ops, sizeof(*ops), GFP_KERNEL);
-+	if (!ops)
- 		return ERR_PTR(-ENOMEM);
- 
-+	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
-+	if (!dfc) {
-+		err = -ENOMEM;
-+		goto free_ops;
-+	}
-+
- 	dfc->devfreq = df;
- 
- 	dfc->em_pd = em_pd_get(dev);
- 	if (dfc->em_pd) {
--		devfreq_cooling_ops.get_requested_power =
-+		ops->get_requested_power =
- 			devfreq_cooling_get_requested_power;
--		devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
--		devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
-+		ops->state2power = devfreq_cooling_state2power;
-+		ops->power2state = devfreq_cooling_power2state;
- 
- 		dfc->power_ops = dfc_power;
- 
-@@ -407,8 +414,7 @@ of_devfreq_cooling_register_power(struct
- 	if (!name)
- 		goto remove_qos_req;
- 
--	cdev = thermal_of_cooling_device_register(np, name, dfc,
--						  &devfreq_cooling_ops);
-+	cdev = thermal_of_cooling_device_register(np, name, dfc, ops);
- 	kfree(name);
- 
- 	if (IS_ERR(cdev)) {
-@@ -429,6 +435,8 @@ free_table:
- 	kfree(dfc->freq_table);
- free_dfc:
- 	kfree(dfc);
-+free_ops:
-+	kfree(ops);
- 
- 	return ERR_PTR(err);
- }
-@@ -510,11 +518,13 @@ EXPORT_SYMBOL_GPL(devfreq_cooling_em_reg
- void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -608,10 +608,19 @@ static void bfq_link_bfqg(struct bfq_dat
+ struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
  {
- 	struct devfreq_cooling_device *dfc;
-+	const struct thermal_cooling_device_ops *ops;
- 	struct device *dev;
+ 	struct blkcg_gq *blkg = bio->bi_blkg;
++	struct bfq_group *bfqg;
  
- 	if (IS_ERR_OR_NULL(cdev))
- 		return;
- 
-+	ops = cdev->ops;
- 	dfc = cdev->devdata;
- 	dev = dfc->devfreq->dev.parent;
- 
-@@ -525,5 +535,6 @@ void devfreq_cooling_unregister(struct t
- 
- 	kfree(dfc->freq_table);
- 	kfree(dfc);
-+	kfree(ops);
+-	if (!blkg)
+-		return bfqd->root_group;
+-	return blkg_to_bfqg(blkg);
++	while (blkg) {
++		bfqg = blkg_to_bfqg(blkg);
++		if (bfqg->online) {
++			bio_associate_blkg_from_css(bio, &blkg->blkcg->css);
++			return bfqg;
++		}
++		blkg = blkg->parent;
++	}
++	bio_associate_blkg_from_css(bio,
++				&bfqg_to_blkg(bfqd->root_group)->blkcg->css);
++	return bfqd->root_group;
  }
- EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);
+ 
+ /**
 
 
