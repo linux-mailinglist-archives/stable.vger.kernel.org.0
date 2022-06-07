@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B54AE540663
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F10541C62
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347325AbiFGRev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42258 "EHLO
+        id S1382530AbiFGV7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347463AbiFGRap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658DC111B89;
-        Tue,  7 Jun 2022 10:26:54 -0700 (PDT)
+        with ESMTP id S1382887AbiFGVwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3B423F7C5;
+        Tue,  7 Jun 2022 12:09:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0A1060DE0;
-        Tue,  7 Jun 2022 17:26:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B855C385A5;
-        Tue,  7 Jun 2022 17:26:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6EC1B823B0;
+        Tue,  7 Jun 2022 19:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19670C385A2;
+        Tue,  7 Jun 2022 19:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622813;
-        bh=jPH97mOQ/vhneuAL1PtOJd++20+ovSawJ5KDI9CKecs=;
+        s=korg; t=1654628995;
+        bh=5mxlH3iRHODs8jmDEHc8PYBWsNJAXK9pYlaZ/gdQ2qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWEla15LuEirsM/oHrQXV5miJE28tYpmvWSg3gNc4Gol14cIh1iW1DM6oiDFBoI0n
-         y3qT1DTiMr6/bkuu71Q2r41EGh2EIZwwvS9SA7i0ak1oXC364V0GnI0KBAp3wWx1Rb
-         6otwn2SEPQCH+NC979q+yZs29rvGv84/bzOeESzI=
+        b=psyuNZBFqgyPKua+oxTIWzGbiMo8Ht+MTjeUWsxfqxz+s46OAd4fs6viZxA640n7d
+         4AxMBHTpre2M9fs4E/r6bRK5ne4rKv/99eDFaTUmulyTInliI1ZwC+uGJKayH0k/Dp
+         jISEjtMuo0anH0NZq/pAo5kVN7PkeF8eMlj0wO1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 191/452] drm/msm/dp: fix event thread stuck in wait_event after kthread_stop()
+Subject: [PATCH 5.18 530/879] Bluetooth: hci_conn: Fix hci_connect_le_sync
 Date:   Tue,  7 Jun 2022 19:00:48 +0200
-Message-Id: <20220607164914.254880956@linuxfoundation.org>
+Message-Id: <20220607165018.258567207@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 2f9b5b3ae2eb625b75a898212a76f3b8c6d0d2b0 ]
+[ Upstream commit c9f73a2178c12fb24d2807634209559d6a836e08 ]
 
-Event thread supposed to exit from its while loop after kthread_stop().
-However there may has possibility that event thread is pending in the
-middle of wait_event due to condition checking never become true.
-To make sure event thread exit its loop after kthread_stop(), this
-patch OR kthread_should_stop() into wait_event's condition checking
-so that event thread will exit its loop after kernal_stop().
+The handling of connection failures shall be handled by the request
+completion callback as already done by hci_cs_le_create_conn, also make
+sure to use hci_conn_failed instead of hci_le_conn_failed as the later
+don't actually call hci_conn_del to cleanup.
 
-Changes in v2:
---  correct spelling error at commit title
-
-Changes in v3:
--- remove unnecessary parenthesis
--- while(1) to replace while (!kthread_should_stop())
-
-Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Fixes: 570d3e5d28db ("drm/msm/dp: stop event kernel thread when DP unbind")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/484576/
-Link: https://lore.kernel.org/r/1651595136-24312-1-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://github.com/bluez/bluez/issues/340
+Fixes: 8e8b92ee60de5 ("Bluetooth: hci_sync: Add hci_le_create_conn_sync")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/bluetooth/hci_conn.c  | 5 +++--
+ net/bluetooth/hci_event.c | 8 +++++---
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 09c8e50da68d..ebd05678a27b 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -998,15 +998,20 @@ static int hpd_event_thread(void *data)
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index 882a7df13005..ac06c9724c7f 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -943,10 +943,11 @@ static void create_le_conn_complete(struct hci_dev *hdev, void *data, int err)
  
- 	dp_priv = (struct dp_display_private *)data;
+ 	bt_dev_err(hdev, "request failed to create LE connection: err %d", err);
  
--	while (!kthread_should_stop()) {
-+	while (1) {
- 		if (timeout_mode) {
- 			wait_event_timeout(dp_priv->event_q,
--				(dp_priv->event_pndx == dp_priv->event_gndx),
--						EVENT_TIMEOUT);
-+				(dp_priv->event_pndx == dp_priv->event_gndx) ||
-+					kthread_should_stop(), EVENT_TIMEOUT);
- 		} else {
- 			wait_event_interruptible(dp_priv->event_q,
--				(dp_priv->event_pndx != dp_priv->event_gndx));
-+				(dp_priv->event_pndx != dp_priv->event_gndx) ||
-+					kthread_should_stop());
- 		}
-+
-+		if (kthread_should_stop())
-+			break;
-+
- 		spin_lock_irqsave(&dp_priv->event_lock, flag);
- 		todo = &dp_priv->event_list[dp_priv->event_gndx];
- 		if (todo->delay) {
+-	if (!conn)
++	/* Check if connection is still pending */
++	if (conn != hci_lookup_le_connect(hdev))
+ 		goto done;
+ 
+-	hci_le_conn_failed(conn, err);
++	hci_conn_failed(conn, err);
+ 
+ done:
+ 	hci_dev_unlock(hdev);
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 0270e597c285..af17dfb20e01 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5632,10 +5632,12 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+ 		status = HCI_ERROR_INVALID_PARAMETERS;
+ 	}
+ 
+-	if (status) {
+-		hci_conn_failed(conn, status);
++	/* All connection failure handling is taken care of by the
++	 * hci_conn_failed function which is triggered by the HCI
++	 * request completion callbacks used for connecting.
++	 */
++	if (status)
+ 		goto unlock;
+-	}
+ 
+ 	if (conn->dst_type == ADDR_LE_DEV_PUBLIC)
+ 		addr_type = BDADDR_LE_PUBLIC;
 -- 
 2.35.1
 
