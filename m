@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9175A54191E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D16E45408DB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359256AbiFGVS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52394 "EHLO
+        id S1345325AbiFGSDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380530AbiFGVQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDAA21D49E;
-        Tue,  7 Jun 2022 11:55:20 -0700 (PDT)
+        with ESMTP id S1350381AbiFGSAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFFF12DBDB;
+        Tue,  7 Jun 2022 10:43:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7DDA61311;
-        Tue,  7 Jun 2022 18:55:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EAF1C385A2;
-        Tue,  7 Jun 2022 18:55:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9CAC6159B;
+        Tue,  7 Jun 2022 17:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0600FC385A5;
+        Tue,  7 Jun 2022 17:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628119;
-        bh=ogyjMyihZQAL3OGvTEq7dTUDoOlDFa9mgae1624z+fw=;
+        s=korg; t=1654623783;
+        bh=nQbb+Dvg94Bd3lpBOt9d1emxz4LV6Rz434ipGpczzEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGN1FEcH9s+pyjYoRp58H6naqi8zXxKFI25bXILOqlEH80xr9osq8fgPXxstToQwF
-         vK6wNJFgYlmZwzvKAdM7FNln7E8Lgb9qh+kjTe8L9SWenjvb0Oy4DO24mFeqBWQKML
-         +1kecucVVyUGfcEllOiSAm8tFUJ8kcz7BSiF6gVk=
+        b=uwWCmtMOGrOfcueOjV06m639w3Gt6k6Fqr3jqhuAhInRLYi81QPZ4sjWdr21+cSnH
+         kxeiJaMhFuBA0GdwfKMRR8BpXmOVH5C90ej8/HHknIp/N8XBKBvCRAtvrCJcup54ht
+         dmh/2O7w3L5ryp8255u7htI+ATU9TU71Vi+XguV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 196/879] selftests/bpf: Add missing trampoline program type to trampoline_count test
+        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 049/667] b43legacy: Fix assigning negative value to unsigned variable
 Date:   Tue,  7 Jun 2022 18:55:14 +0200
-Message-Id: <20220607165008.534939978@linuxfoundation.org>
+Message-Id: <20220607164936.277151591@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,261 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuntao Wang <ytcoode@gmail.com>
+From: Haowen Bai <baihaowen@meizu.com>
 
-[ Upstream commit b23316aabffa835ecc516cb81daeef5b9155e8a5 ]
+[ Upstream commit 3f6b867559b3d43a7ce1b4799b755e812fc0d503 ]
 
-Currently the trampoline_count test doesn't include any fmod_ret bpf
-programs, fix it to make the test cover all possible trampoline program
-types.
+fix warning reported by smatch:
+drivers/net/wireless/broadcom/b43legacy/phy.c:1181 b43legacy_phy_lo_b_measure()
+warn: assigning (-772) to unsigned variable 'fval'
 
-Since fmod_ret bpf programs can't be attached to __set_task_comm function,
-as it's neither whitelisted for error injection nor a security hook, change
-it to bpf_modify_return_test.
-
-This patch also does some other cleanups such as removing duplicate code,
-dropping inconsistent comments, etc.
-
-Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220519150610.601313-1-ytcoode@gmail.com
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1648203433-8736-1-git-send-email-baihaowen@meizu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h                           |   2 +-
- .../bpf/prog_tests/trampoline_count.c         | 134 +++++++-----------
- .../bpf/progs/test_trampoline_count.c         |  16 ++-
- 3 files changed, 61 insertions(+), 91 deletions(-)
+ drivers/net/wireless/broadcom/b43legacy/phy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index bdb5298735ce..f084b251fce7 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -672,7 +672,7 @@ struct btf_func_model {
- #define BPF_TRAMP_F_RET_FENTRY_RET	BIT(4)
+diff --git a/drivers/net/wireless/broadcom/b43legacy/phy.c b/drivers/net/wireless/broadcom/b43legacy/phy.c
+index 05404fbd1e70..c1395e622759 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/phy.c
++++ b/drivers/net/wireless/broadcom/b43legacy/phy.c
+@@ -1123,7 +1123,7 @@ void b43legacy_phy_lo_b_measure(struct b43legacy_wldev *dev)
+ 	struct b43legacy_phy *phy = &dev->phy;
+ 	u16 regstack[12] = { 0 };
+ 	u16 mls;
+-	u16 fval;
++	s16 fval;
+ 	int i;
+ 	int j;
  
- /* Each call __bpf_prog_enter + call bpf_func + call __bpf_prog_exit is ~50
-- * bytes on x86.  Pick a number to fit into BPF_IMAGE_SIZE / 2
-+ * bytes on x86.
-  */
- #define BPF_MAX_TRAMP_PROGS 38
- 
-diff --git a/tools/testing/selftests/bpf/prog_tests/trampoline_count.c b/tools/testing/selftests/bpf/prog_tests/trampoline_count.c
-index 9c795ee52b7b..b0acbda6dbf5 100644
---- a/tools/testing/selftests/bpf/prog_tests/trampoline_count.c
-+++ b/tools/testing/selftests/bpf/prog_tests/trampoline_count.c
-@@ -1,126 +1,94 @@
- // SPDX-License-Identifier: GPL-2.0-only
- #define _GNU_SOURCE
--#include <sched.h>
--#include <sys/prctl.h>
- #include <test_progs.h>
- 
- #define MAX_TRAMP_PROGS 38
- 
- struct inst {
- 	struct bpf_object *obj;
--	struct bpf_link   *link_fentry;
--	struct bpf_link   *link_fexit;
-+	struct bpf_link   *link;
- };
- 
--static int test_task_rename(void)
--{
--	int fd, duration = 0, err;
--	char buf[] = "test_overhead";
--
--	fd = open("/proc/self/comm", O_WRONLY|O_TRUNC);
--	if (CHECK(fd < 0, "open /proc", "err %d", errno))
--		return -1;
--	err = write(fd, buf, sizeof(buf));
--	if (err < 0) {
--		CHECK(err < 0, "task rename", "err %d", errno);
--		close(fd);
--		return -1;
--	}
--	close(fd);
--	return 0;
--}
--
--static struct bpf_link *load(struct bpf_object *obj, const char *name)
-+static struct bpf_program *load_prog(char *file, char *name, struct inst *inst)
- {
-+	struct bpf_object *obj;
- 	struct bpf_program *prog;
--	int duration = 0;
-+	int err;
-+
-+	obj = bpf_object__open_file(file, NULL);
-+	if (!ASSERT_OK_PTR(obj, "obj_open_file"))
-+		return NULL;
-+
-+	inst->obj = obj;
-+
-+	err = bpf_object__load(obj);
-+	if (!ASSERT_OK(err, "obj_load"))
-+		return NULL;
- 
- 	prog = bpf_object__find_program_by_name(obj, name);
--	if (CHECK(!prog, "find_probe", "prog '%s' not found\n", name))
--		return ERR_PTR(-EINVAL);
--	return bpf_program__attach_trace(prog);
-+	if (!ASSERT_OK_PTR(prog, "obj_find_prog"))
-+		return NULL;
-+
-+	return prog;
- }
- 
- /* TODO: use different target function to run in concurrent mode */
- void serial_test_trampoline_count(void)
- {
--	const char *fentry_name = "prog1";
--	const char *fexit_name = "prog2";
--	const char *object = "test_trampoline_count.o";
--	struct inst inst[MAX_TRAMP_PROGS] = {};
--	int err, i = 0, duration = 0;
--	struct bpf_object *obj;
-+	char *file = "test_trampoline_count.o";
-+	char *const progs[] = { "fentry_test", "fmod_ret_test", "fexit_test" };
-+	struct inst inst[MAX_TRAMP_PROGS + 1] = {};
-+	struct bpf_program *prog;
- 	struct bpf_link *link;
--	char comm[16] = {};
-+	int prog_fd, err, i;
-+	LIBBPF_OPTS(bpf_test_run_opts, opts);
- 
- 	/* attach 'allowed' trampoline programs */
- 	for (i = 0; i < MAX_TRAMP_PROGS; i++) {
--		obj = bpf_object__open_file(object, NULL);
--		if (!ASSERT_OK_PTR(obj, "obj_open_file")) {
--			obj = NULL;
-+		prog = load_prog(file, progs[i % ARRAY_SIZE(progs)], &inst[i]);
-+		if (!prog)
- 			goto cleanup;
--		}
- 
--		err = bpf_object__load(obj);
--		if (CHECK(err, "obj_load", "err %d\n", err))
-+		link = bpf_program__attach(prog);
-+		if (!ASSERT_OK_PTR(link, "attach_prog"))
- 			goto cleanup;
--		inst[i].obj = obj;
--		obj = NULL;
--
--		if (rand() % 2) {
--			link = load(inst[i].obj, fentry_name);
--			if (!ASSERT_OK_PTR(link, "attach_prog")) {
--				link = NULL;
--				goto cleanup;
--			}
--			inst[i].link_fentry = link;
--		} else {
--			link = load(inst[i].obj, fexit_name);
--			if (!ASSERT_OK_PTR(link, "attach_prog")) {
--				link = NULL;
--				goto cleanup;
--			}
--			inst[i].link_fexit = link;
--		}
-+
-+		inst[i].link = link;
- 	}
- 
- 	/* and try 1 extra.. */
--	obj = bpf_object__open_file(object, NULL);
--	if (!ASSERT_OK_PTR(obj, "obj_open_file")) {
--		obj = NULL;
-+	prog = load_prog(file, "fmod_ret_test", &inst[i]);
-+	if (!prog)
- 		goto cleanup;
--	}
--
--	err = bpf_object__load(obj);
--	if (CHECK(err, "obj_load", "err %d\n", err))
--		goto cleanup_extra;
- 
- 	/* ..that needs to fail */
--	link = load(obj, fentry_name);
--	err = libbpf_get_error(link);
--	if (!ASSERT_ERR_PTR(link, "cannot attach over the limit")) {
--		bpf_link__destroy(link);
--		goto cleanup_extra;
-+	link = bpf_program__attach(prog);
-+	if (!ASSERT_ERR_PTR(link, "attach_prog")) {
-+		inst[i].link = link;
-+		goto cleanup;
- 	}
- 
- 	/* with E2BIG error */
--	ASSERT_EQ(err, -E2BIG, "proper error check");
--	ASSERT_EQ(link, NULL, "ptr_is_null");
-+	if (!ASSERT_EQ(libbpf_get_error(link), -E2BIG, "E2BIG"))
-+		goto cleanup;
-+	if (!ASSERT_EQ(link, NULL, "ptr_is_null"))
-+		goto cleanup;
- 
- 	/* and finaly execute the probe */
--	if (CHECK_FAIL(prctl(PR_GET_NAME, comm, 0L, 0L, 0L)))
--		goto cleanup_extra;
--	CHECK_FAIL(test_task_rename());
--	CHECK_FAIL(prctl(PR_SET_NAME, comm, 0L, 0L, 0L));
-+	prog_fd = bpf_program__fd(prog);
-+	if (!ASSERT_GE(prog_fd, 0, "bpf_program__fd"))
-+		goto cleanup;
-+
-+	err = bpf_prog_test_run_opts(prog_fd, &opts);
-+	if (!ASSERT_OK(err, "bpf_prog_test_run_opts"))
-+		goto cleanup;
-+
-+	ASSERT_EQ(opts.retval & 0xffff, 4, "bpf_modify_return_test.result");
-+	ASSERT_EQ(opts.retval >> 16, 1, "bpf_modify_return_test.side_effect");
- 
--cleanup_extra:
--	bpf_object__close(obj);
- cleanup:
--	if (i >= MAX_TRAMP_PROGS)
--		i = MAX_TRAMP_PROGS - 1;
- 	for (; i >= 0; i--) {
--		bpf_link__destroy(inst[i].link_fentry);
--		bpf_link__destroy(inst[i].link_fexit);
-+		bpf_link__destroy(inst[i].link);
- 		bpf_object__close(inst[i].obj);
- 	}
- }
-diff --git a/tools/testing/selftests/bpf/progs/test_trampoline_count.c b/tools/testing/selftests/bpf/progs/test_trampoline_count.c
-index f030e469d05b..7765720da7d5 100644
---- a/tools/testing/selftests/bpf/progs/test_trampoline_count.c
-+++ b/tools/testing/selftests/bpf/progs/test_trampoline_count.c
-@@ -1,20 +1,22 @@
- // SPDX-License-Identifier: GPL-2.0
--#include <stdbool.h>
--#include <stddef.h>
- #include <linux/bpf.h>
- #include <bpf/bpf_helpers.h>
- #include <bpf/bpf_tracing.h>
- 
--struct task_struct;
-+SEC("fentry/bpf_modify_return_test")
-+int BPF_PROG(fentry_test, int a, int *b)
-+{
-+	return 0;
-+}
- 
--SEC("fentry/__set_task_comm")
--int BPF_PROG(prog1, struct task_struct *tsk, const char *buf, bool exec)
-+SEC("fmod_ret/bpf_modify_return_test")
-+int BPF_PROG(fmod_ret_test, int a, int *b, int ret)
- {
- 	return 0;
- }
- 
--SEC("fexit/__set_task_comm")
--int BPF_PROG(prog2, struct task_struct *tsk, const char *buf, bool exec)
-+SEC("fexit/bpf_modify_return_test")
-+int BPF_PROG(fexit_test, int a, int *b, int ret)
- {
- 	return 0;
- }
 -- 
 2.35.1
 
