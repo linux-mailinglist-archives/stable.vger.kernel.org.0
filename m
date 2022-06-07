@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0BE54227A
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DFC95426C2
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:58:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238732AbiFHC1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 22:27:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60022 "EHLO
+        id S235323AbiFHBNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:13:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446938AbiFHC1A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:27:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72DB262ADB;
-        Tue,  7 Jun 2022 12:20:33 -0700 (PDT)
+        with ESMTP id S1442480AbiFHAye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 20:54:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99A6F19BC01;
+        Tue,  7 Jun 2022 12:21:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24221B823CA;
-        Tue,  7 Jun 2022 19:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B394C385A2;
-        Tue,  7 Jun 2022 19:20:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC25FB82182;
+        Tue,  7 Jun 2022 19:21:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3174BC385A2;
+        Tue,  7 Jun 2022 19:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629629;
-        bh=ZDnKYPmPQjxcm4FY6FcGynN3YmPDyHlU/dvI+MVgxa8=;
+        s=korg; t=1654629691;
+        bh=YdTQ0DxyDqXgO4kk5oAbF39iZyrEOqj+FEmQCwUfOSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znMTv+aEldDwRuBF8lEna0JBeuWnt0vJ5MSKDD60ZEUtPspqnv26ub13jooCCSd/g
-         wfgQmYbFt+Mof7Q3tLUMDVrcgI7ZY2UZfmQI6RSlNQP+5MIG8EpnMjvKSl3FD4YbDq
-         v7G/DNjz1z7EBM5iLocs4XUKFHOpuO4n5E6hUi1Q=
+        b=YQwtSsgtPmjoJ50GsG/GGudQ4su4vijfUrwkpHmPf58EtaFc57YQNVsApviaAsiz7
+         NlxoJsUfajSluxU+GWBpjxc2PNgWz4Grn3InrrIvP8FEH8lvwfxeWHjjVNuqt4oePb
+         ymJ161Jf/4t70/keo+Jcm6CoE1M0EZqfZFiBHsck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <denis.e.efremov@oracle.com>
-Subject: [PATCH 5.18 758/879] staging: r8188eu: prevent ->Ssid overflow in rtw_wx_set_scan()
-Date:   Tue,  7 Jun 2022 19:04:36 +0200
-Message-Id: <20220607165024.865883010@linuxfoundation.org>
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.18 782/879] selftests/landlock: Fully test file rename with "remove" access
+Date:   Tue,  7 Jun 2022 19:05:00 +0200
+Message-Id: <20220607165025.569347256@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -52,37 +53,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <denis.e.efremov@oracle.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit bc10916e890948d8927a5c8c40fb5dc44be5e1b8 upstream.
+commit 6a1bdd4a0bfc30fa4fa2b3a979e6525f28996db9 upstream.
 
-This code has a check to prevent read overflow but it needs another
-check to prevent writing beyond the end of the ->Ssid[] array.
+These tests were missing to check the check_access_path() call with all
+combinations of maybe_remove(old_dentry) and maybe_remove(new_dentry).
 
-Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Denis Efremov <denis.e.efremov@oracle.com>
-Link: https://lore.kernel.org/r/20220518070052.108287-1-denis.e.efremov@oracle.com
+Extend layout1.link with a new complementary test and check that
+REMOVE_FILE is not required to link a file.
+
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-7-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/r8188eu/os_dep/ioctl_linux.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/testing/selftests/landlock/fs_test.c |   41 ++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-@@ -1131,9 +1131,11 @@ static int rtw_wx_set_scan(struct net_de
- 						break;
- 					}
- 					sec_len = *(pos++); len -= 1;
--					if (sec_len > 0 && sec_len <= len) {
-+					if (sec_len > 0 &&
-+					    sec_len <= len &&
-+					    sec_len <= 32) {
- 						ssid[ssid_index].SsidLength = sec_len;
--						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-+						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
- 						ssid_index++;
- 					}
- 					pos += sec_len;
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -1659,15 +1659,21 @@ TEST_F_FORK(layout1, execute)
+ 
+ TEST_F_FORK(layout1, link)
+ {
+-	const struct rule rules[] = {
++	const struct rule layer1[] = {
+ 		{
+ 			.path = dir_s1d2,
+ 			.access = LANDLOCK_ACCESS_FS_MAKE_REG,
+ 		},
+ 		{},
+ 	};
+-	const int ruleset_fd =
+-		create_ruleset(_metadata, rules[0].access, rules);
++	const struct rule layer2[] = {
++		{
++			.path = dir_s1d3,
++			.access = LANDLOCK_ACCESS_FS_REMOVE_FILE,
++		},
++		{},
++	};
++	int ruleset_fd = create_ruleset(_metadata, layer1[0].access, layer1);
+ 
+ 	ASSERT_LE(0, ruleset_fd);
+ 
+@@ -1680,14 +1686,30 @@ TEST_F_FORK(layout1, link)
+ 
+ 	ASSERT_EQ(-1, link(file2_s1d1, file1_s1d1));
+ 	ASSERT_EQ(EACCES, errno);
++
+ 	/* Denies linking because of reparenting. */
+ 	ASSERT_EQ(-1, link(file1_s2d1, file1_s1d2));
+ 	ASSERT_EQ(EXDEV, errno);
+ 	ASSERT_EQ(-1, link(file2_s1d2, file1_s1d3));
+ 	ASSERT_EQ(EXDEV, errno);
++	ASSERT_EQ(-1, link(file2_s1d3, file1_s1d2));
++	ASSERT_EQ(EXDEV, errno);
+ 
+ 	ASSERT_EQ(0, link(file2_s1d2, file1_s1d2));
+ 	ASSERT_EQ(0, link(file2_s1d3, file1_s1d3));
++
++	/* Prepares for next unlinks. */
++	ASSERT_EQ(0, unlink(file2_s1d2));
++	ASSERT_EQ(0, unlink(file2_s1d3));
++
++	ruleset_fd = create_ruleset(_metadata, layer2[0].access, layer2);
++	ASSERT_LE(0, ruleset_fd);
++	enforce_ruleset(_metadata, ruleset_fd);
++	ASSERT_EQ(0, close(ruleset_fd));
++
++	/* Checks that linkind doesn't require the ability to delete a file. */
++	ASSERT_EQ(0, link(file1_s1d2, file2_s1d2));
++	ASSERT_EQ(0, link(file1_s1d3, file2_s1d3));
+ }
+ 
+ TEST_F_FORK(layout1, rename_file)
+@@ -1708,7 +1730,6 @@ TEST_F_FORK(layout1, rename_file)
+ 
+ 	ASSERT_LE(0, ruleset_fd);
+ 
+-	ASSERT_EQ(0, unlink(file1_s1d1));
+ 	ASSERT_EQ(0, unlink(file1_s1d2));
+ 
+ 	enforce_ruleset(_metadata, ruleset_fd);
+@@ -1744,9 +1765,15 @@ TEST_F_FORK(layout1, rename_file)
+ 	ASSERT_EQ(-1, renameat2(AT_FDCWD, dir_s2d2, AT_FDCWD, file1_s2d1,
+ 				RENAME_EXCHANGE));
+ 	ASSERT_EQ(EACCES, errno);
++	/* Checks that file1_s2d1 cannot be removed (instead of ENOTDIR). */
++	ASSERT_EQ(-1, rename(dir_s2d2, file1_s2d1));
++	ASSERT_EQ(EACCES, errno);
+ 	ASSERT_EQ(-1, renameat2(AT_FDCWD, file1_s2d1, AT_FDCWD, dir_s2d2,
+ 				RENAME_EXCHANGE));
+ 	ASSERT_EQ(EACCES, errno);
++	/* Checks that file1_s1d1 cannot be removed (instead of EISDIR). */
++	ASSERT_EQ(-1, rename(file1_s1d1, dir_s1d2));
++	ASSERT_EQ(EACCES, errno);
+ 
+ 	/* Renames files with different parents. */
+ 	ASSERT_EQ(-1, rename(file1_s2d2, file1_s1d2));
+@@ -1809,9 +1836,15 @@ TEST_F_FORK(layout1, rename_dir)
+ 	ASSERT_EQ(-1, renameat2(AT_FDCWD, dir_s1d1, AT_FDCWD, dir_s2d1,
+ 				RENAME_EXCHANGE));
+ 	ASSERT_EQ(EACCES, errno);
++	/* Checks that dir_s1d2 cannot be removed (instead of ENOTDIR). */
++	ASSERT_EQ(-1, rename(dir_s1d2, file1_s1d1));
++	ASSERT_EQ(EACCES, errno);
+ 	ASSERT_EQ(-1, renameat2(AT_FDCWD, file1_s1d1, AT_FDCWD, dir_s1d2,
+ 				RENAME_EXCHANGE));
+ 	ASSERT_EQ(EACCES, errno);
++	/* Checks that dir_s1d2 cannot be removed (instead of EISDIR). */
++	ASSERT_EQ(-1, rename(file1_s1d1, dir_s1d2));
++	ASSERT_EQ(EACCES, errno);
+ 
+ 	/*
+ 	 * Exchanges and renames directory to the same parent, which allows
 
 
