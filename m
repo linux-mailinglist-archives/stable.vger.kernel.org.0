@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE7454196C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DBE15412D2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377756AbiFGVWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54946 "EHLO
+        id S1356875AbiFGTy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378548AbiFGVTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:19:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B1122445F;
-        Tue,  7 Jun 2022 11:59:32 -0700 (PDT)
+        with ESMTP id S1358435AbiFGTw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BC3134E13;
+        Tue,  7 Jun 2022 11:20:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 454D0B82391;
-        Tue,  7 Jun 2022 18:59:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ECD2C385A2;
-        Tue,  7 Jun 2022 18:59:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1589460DB7;
+        Tue,  7 Jun 2022 18:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2562AC385A2;
+        Tue,  7 Jun 2022 18:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628368;
-        bh=1vuZle/aJdf8IXFfMGotKYrT8HQrM8syeDFZeWAjPJM=;
+        s=korg; t=1654626027;
+        bh=+8F/Tet6mZM8QNlTLNyZ2Z7lnuWP8SnBe/1jqtVQNrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGjXHm6nnejWqetoI2wOM8iylv596oGQCU7tJnaMh/IzIEzfypoE2YjiA3lkj2rMq
-         BcKDqe/cgsWtQpylbfnXTI9Rff3YvNAbspvF1vtr9pMGcUmMC/fadJR75QTJ7YfFbj
-         i3hCxIBitbSC9N9s0bp6mp0oweRySMND9522kP2M=
+        b=yYWHu+bjwns2fhsilxal2je4gHh/HWaxyj4xmPSuIGk+Hz9a/2o5XlRFUrPHSbZLd
+         yvymbNckAQenS0upy/ufe+/15J2gWYZYJjugEMCYXPqRXl50/kvs8Rdf2J4XvdlnhU
+         1H4vA8W5EFAGcTJ93gKN2tnS9QTTyOuk/lov19ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Nicolas Belin <nbelin@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 304/879] spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
-Date:   Tue,  7 Jun 2022 18:57:02 +0200
-Message-Id: <20220607165011.673443006@linuxfoundation.org>
+Subject: [PATCH 5.17 231/772] drm: bridge: it66121: Fix the register page length
+Date:   Tue,  7 Jun 2022 18:57:03 +0200
+Message-Id: <20220607164955.839858002@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Nicolas Belin <nbelin@baylibre.com>
 
-[ Upstream commit 8b1ea69a63eb62f97cef63e6d816b64ed84e8760 ]
+[ Upstream commit 003a1bd6a2a55c16cb2451153533dbedb12bebec ]
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+Set the register page length or window length to
+0x100 according to the documentation.
 
-Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220411111034.24447-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
+Signed-off-by: Nicolas Belin <nbelin@baylibre.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220316135733.173950-3-nbelin@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-ti-qspi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/ite-it66121.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
-index e06aafe169e0..081da1fd3fd7 100644
---- a/drivers/spi/spi-ti-qspi.c
-+++ b/drivers/spi/spi-ti-qspi.c
-@@ -448,6 +448,7 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
- 	enum dma_ctrl_flags flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
- 	struct dma_async_tx_descriptor *tx;
- 	int ret;
-+	unsigned long time_left;
+diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
+index 06b59b422c69..64912b770086 100644
+--- a/drivers/gpu/drm/bridge/ite-it66121.c
++++ b/drivers/gpu/drm/bridge/ite-it66121.c
+@@ -227,7 +227,7 @@ static const struct regmap_range_cfg it66121_regmap_banks[] = {
+ 		.selector_mask = 0x1,
+ 		.selector_shift = 0,
+ 		.window_start = 0x00,
+-		.window_len = 0x130,
++		.window_len = 0x100,
+ 	},
+ };
  
- 	tx = dmaengine_prep_dma_memcpy(chan, dma_dst, dma_src, len, flags);
- 	if (!tx) {
-@@ -467,9 +468,9 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
- 	}
- 
- 	dma_async_issue_pending(chan);
--	ret = wait_for_completion_timeout(&qspi->transfer_complete,
-+	time_left = wait_for_completion_timeout(&qspi->transfer_complete,
- 					  msecs_to_jiffies(len));
--	if (ret <= 0) {
-+	if (time_left == 0) {
- 		dmaengine_terminate_sync(chan);
- 		dev_err(qspi->dev, "DMA wait_for_completion_timeout\n");
- 		return -ETIMEDOUT;
 -- 
 2.35.1
 
