@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3749C540C01
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE11354147C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244706AbiFGSct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:32:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
+        id S1358767AbiFGUSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:18:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351420AbiFGSaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:06 -0400
+        with ESMTP id S1376794AbiFGURP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:17:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A651717A8BE;
-        Tue,  7 Jun 2022 10:55:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E894C1D01F2;
+        Tue,  7 Jun 2022 11:29:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6820B8236A;
-        Tue,  7 Jun 2022 17:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48611C385A5;
-        Tue,  7 Jun 2022 17:55:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FFA7B82340;
+        Tue,  7 Jun 2022 18:29:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B086FC34115;
+        Tue,  7 Jun 2022 18:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624534;
-        bh=dJUCVa4nIa8YINdSoor1J/gc2l6XzUX9TFZT4NQvPgc=;
+        s=korg; t=1654626596;
+        bh=d6PRW2L/i7S3njKFXoCdPxI1YSkETLyxZT/LUdwxwUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DF16HMw4/sQqsOjm8lZa0yc6/MZ4mvUMuAuhETTcB7AHl1uo0tnv8UThq2jSsHwFA
-         bDoQos6FuNQs1NmRpdqAQzRcjyWmGUAtTI6Pfbgg9AIEmnXOUVd60P4QzTLvaqGTLn
-         tM+5mhkcdyi8FA3M1D43OQiw6N2MO73FC13Y99jk=
+        b=bSBfn5hRg1gNMGGaHncUFQJxsZS6bqJbhSLGEnCIxnpuayHk8Hg4wuUDkJ/uDzNoB
+         c+3d8b9Fo1mby44+zCF+BbcXohpW/mT6Xw61KMhUKe3xJKyrQU7ysjDz521j5jh+vO
+         zlDlJRsCldCu0H53zIFaKxAWKKAchfRkOlqIOT3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 363/667] ASoC: max98090: Move check for invalid values before casting in max98090_put_enab_tlv()
+Subject: [PATCH 5.17 436/772] hwmon: (pmbus) Check PEC support before reading other registers
 Date:   Tue,  7 Jun 2022 19:00:28 +0200
-Message-Id: <20220607164945.640723993@linuxfoundation.org>
+Message-Id: <20220607165001.849617281@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+From: Adam Wujek <dev_public@wujek.eu>
 
-[ Upstream commit f7a344468105ef8c54086dfdc800e6f5a8417d3e ]
+[ Upstream commit d1baf7a3a3177d46a7149858beddb88a9eca7a54 ]
 
-Validation of signed input should be done before casting to unsigned int.
+Make sure that the support of PEC is determined before the read of other
+registers. Otherwise the validation of PEC can trigger an error on the read
+of STATUS_BYTE or STATUS_WORD registers.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+The problematic scenario is the following. A device with enabled PEC
+support is up and running and a kernel driver is loaded.
+Then the driver is unloaded (or device unbound), the HW device
+is reconfigured externally (e.g. by i2cset) to advertise itself as not
+supporting PEC. Without the move of the code, at the second load of
+the driver (or bind) the STATUS_BYTE or STATUS_WORD register is always
+read with PEC enabled, which is likely to cause a read error resulting
+with fail of a driver load (or bind).
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Suggested-by: Mark Brown <broonie@kernel.org>
-Fixes: 2fbe467bcbfc ("ASoC: max98090: Reject invalid values in custom control put()")
-Link: https://lore.kernel.org/r/1652999486-29653-1-git-send-email-khoroshilov@ispras.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Adam Wujek <dev_public@wujek.eu>
+Link: https://lore.kernel.org/r/20220519233334.438621-1-dev_public@wujek.eu
+Fixes: 75d2b2b06bd84 ("hwmon: (pmbus) disable PEC if not enabled")
+Fixes: 4e5418f787ec5 ("hwmon: (pmbus_core) Check adapter PEC support")
+[groeck: Added Fixes: tags, dropped continuation line]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hwmon/pmbus/pmbus_core.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 62b41ca050a2..5513acd360b8 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -393,7 +393,8 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
- 	struct soc_mixer_control *mc =
- 		(struct soc_mixer_control *)kcontrol->private_value;
- 	unsigned int mask = (1 << fls(mc->max)) - 1;
--	unsigned int sel = ucontrol->value.integer.value[0];
-+	int sel_unchecked = ucontrol->value.integer.value[0];
-+	unsigned int sel;
- 	unsigned int val = snd_soc_component_read(component, mc->reg);
- 	unsigned int *select;
+diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
+index 5f8f824d997f..63b616ce3a6e 100644
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -2308,6 +2308,21 @@ static int pmbus_init_common(struct i2c_client *client, struct pmbus_data *data,
+ 	struct device *dev = &client->dev;
+ 	int page, ret;
  
-@@ -413,8 +414,9 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
++	/*
++	 * Figure out if PEC is enabled before accessing any other register.
++	 * Make sure PEC is disabled, will be enabled later if needed.
++	 */
++	client->flags &= ~I2C_CLIENT_PEC;
++
++	/* Enable PEC if the controller and bus supports it */
++	if (!(data->flags & PMBUS_NO_CAPABILITY)) {
++		ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
++		if (ret >= 0 && (ret & PB_CAPABILITY_ERROR_CHECK)) {
++			if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_PEC))
++				client->flags |= I2C_CLIENT_PEC;
++		}
++	}
++
+ 	/*
+ 	 * Some PMBus chips don't support PMBUS_STATUS_WORD, so try
+ 	 * to use PMBUS_STATUS_BYTE instead if that is the case.
+@@ -2326,19 +2341,6 @@ static int pmbus_init_common(struct i2c_client *client, struct pmbus_data *data,
+ 		data->has_status_word = true;
+ 	}
  
- 	val = (val >> mc->shift) & mask;
- 
--	if (sel < 0 || sel > mc->max)
-+	if (sel_unchecked < 0 || sel_unchecked > mc->max)
- 		return -EINVAL;
-+	sel = sel_unchecked;
- 
- 	*select = sel;
- 
+-	/* Make sure PEC is disabled, will be enabled later if needed */
+-	client->flags &= ~I2C_CLIENT_PEC;
+-
+-	/* Enable PEC if the controller and bus supports it */
+-	if (!(data->flags & PMBUS_NO_CAPABILITY)) {
+-		ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
+-		if (ret >= 0 && (ret & PB_CAPABILITY_ERROR_CHECK)) {
+-			if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_PEC)) {
+-				client->flags |= I2C_CLIENT_PEC;
+-			}
+-		}
+-	}
+-
+ 	/*
+ 	 * Check if the chip is write protected. If it is, we can not clear
+ 	 * faults, and we should not try it. Also, in that case, writes into
 -- 
 2.35.1
 
