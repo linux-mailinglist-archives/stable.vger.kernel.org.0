@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 781705405E0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B080541BD5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346634AbiFGRcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
+        id S1377364AbiFGVyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347166AbiFGRaH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:07 -0400
+        with ESMTP id S1382552AbiFGVve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A57D5108A80;
-        Tue,  7 Jun 2022 10:25:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C400623CF69;
+        Tue,  7 Jun 2022 12:09:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B9766141D;
-        Tue,  7 Jun 2022 17:25:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38603C36AFF;
-        Tue,  7 Jun 2022 17:25:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F477618D3;
+        Tue,  7 Jun 2022 19:09:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE517C34115;
+        Tue,  7 Jun 2022 19:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622757;
-        bh=DrIiPpMyur8d0DVsLb71NwvOM01mDrmNo4xX57fS2nI=;
+        s=korg; t=1654628940;
+        bh=tJbaS2XiW41GrXthoYwhtBy7BU2P4TIZhpW73nfPXUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rf0yH6ZrvxHLmQVVFEW7P4Pzjnpd27WZS2+FLFulGU0nGF5vt0CLk/IqB16MGO0K8
-         TwW93nekjBcebvh1mZa8bkoo8iTFoJ+xrOOG4eWfi5ZxF+lmu0Zh/XRIZ6qnnykyRM
-         ELBAuJOrkcKeyxA++OcCpN4KDvdnjfXVbfLkuIyw=
+        b=LnMq1UdGyb8xxML1oTzinz3fXZ3XbQVxcn2insHCATp4iPJnXVXPQOIoFPbVNxf9k
+         q9sRl8ZXo/fbTz+aoVATUD9nv5sVa+ForTQjpQ0FvC/aZ7XmuMF3WaCEop7cBtXyVJ
+         viBGxMdtC6lebqsIkmnf02qjkXlFBEBddpbE0f8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Polimera <quic_vpolimer@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 173/452] drm/msm/disp/dpu1: set vbif hw config to NULL to avoid use after memory free during pm runtime resume
+Subject: [PATCH 5.18 512/879] amt: fix memory leak for advertisement message
 Date:   Tue,  7 Jun 2022 19:00:30 +0200
-Message-Id: <20220607164913.717262423@linuxfoundation.org>
+Message-Id: <20220607165017.737618336@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Polimera <quic_vpolimer@quicinc.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit fa5186b279ecf44b14fb435540d2065be91cb1ed ]
+[ Upstream commit fe29794c3585d039fefebaa2b5a4932a627ad4fd ]
 
-BUG: Unable to handle kernel paging request at virtual address 006b6b6b6b6b6be3
+When a gateway receives an advertisement message, it extracts relay
+information and then it should be freed.
+But the advertisement handler doesn't free it.
+So, memory leak would occur.
 
-Call trace:
-  dpu_vbif_init_memtypes+0x40/0xb8
-  dpu_runtime_resume+0xcc/0x1c0
-  pm_generic_runtime_resume+0x30/0x44
-  __genpd_runtime_resume+0x68/0x7c
-  genpd_runtime_resume+0x134/0x258
-  __rpm_callback+0x98/0x138
-  rpm_callback+0x30/0x88
-  rpm_resume+0x36c/0x49c
-  __pm_runtime_resume+0x80/0xb0
-  dpu_core_irq_uninstall+0x30/0xb0
-  dpu_irq_uninstall+0x18/0x24
-  msm_drm_uninit+0xd8/0x16c
-
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Vinod Polimera <quic_vpolimer@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483255/
-Link: https://lore.kernel.org/r/1650857213-30075-1-git-send-email-quic_vpolimer@quicinc.com
-[DB: fixed Fixes tag]
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: cbc21dc1cfe9 ("amt: add data plane of amt interface")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/amt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-index 08e082d0443a..b05ff46d773d 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-@@ -678,8 +678,10 @@ static void _dpu_kms_hw_destroy(struct dpu_kms *dpu_kms)
- 		for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
- 			u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
- 
--			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx])
-+			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx]) {
- 				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[vbif_idx]);
-+				dpu_kms->hw_vbif[vbif_idx] = NULL;
-+			}
- 		}
- 	}
- 
+diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+index 2b4ce3869f08..de4ea518c793 100644
+--- a/drivers/net/amt.c
++++ b/drivers/net/amt.c
+@@ -2698,9 +2698,8 @@ static int amt_rcv(struct sock *sk, struct sk_buff *skb)
+ 				err = true;
+ 				goto drop;
+ 			}
+-			if (amt_advertisement_handler(amt, skb))
+-				amt->dev->stats.rx_dropped++;
+-			goto out;
++			err = amt_advertisement_handler(amt, skb);
++			break;
+ 		case AMT_MSG_MULTICAST_DATA:
+ 			if (iph->saddr != amt->remote_ip) {
+ 				netdev_dbg(amt->dev, "Invalid Relay IP\n");
 -- 
 2.35.1
 
