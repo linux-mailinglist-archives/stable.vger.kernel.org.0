@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF71540601
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D720541516
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346470AbiFGRcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40764 "EHLO
+        id S1355672AbiFGU2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:28:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347716AbiFGRa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543B511AFDC;
-        Tue,  7 Jun 2022 10:28:04 -0700 (PDT)
+        with ESMTP id S1359567AbiFGUXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:23:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F076965D3;
+        Tue,  7 Jun 2022 11:32:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DC3F6141D;
-        Tue,  7 Jun 2022 17:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DC9EC34115;
-        Tue,  7 Jun 2022 17:28:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6DE81CE242B;
+        Tue,  7 Jun 2022 18:32:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A22C385A2;
+        Tue,  7 Jun 2022 18:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622882;
-        bh=rV5ATrQzgw5+uUp6EFkXrz+X1dUuzqSLwh7plizy/QE=;
+        s=korg; t=1654626726;
+        bh=yCzJMVCUlRwnYxLiqzwsBgrMgG0o7TJdZI532aPA9YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnHENhbC43+mtaZ72JtOnD90KJvvB6jjDvgshI9STmD2V2VNiYd1me87Tehzrt7yx
-         /6mUAs8CmO/+V0fkPfnXnDjMjIQ49KlS1AS8Mqf5bRo5SwuAoT9gakcQI39r5423q/
-         aD0wf0DDZSIC+BiERSMtDA6Ulqkz596B+CCxxuwM=
+        b=TQI6XFaizjnzW3tcuuS+9Sl45/Sv6pGVEUWvLrsReXUkm7G8FFQ3wXBhU6bxl+dBE
+         5vdXTjBiDnk001CVMrtEi/aZH6fKqK/1wYnVZddUgIB7e7STCPj/Q99ZbQfEchDTFZ
+         LcTMFK7AmZeidO4brppMCoZcgnavfFBNlprjnlH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sathish Narasimman <sathish.narasimman@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 218/452] Bluetooth: LL privacy allow RPA
+Subject: [PATCH 5.17 483/772] crypto: marvell/cesa - ECB does not IV
 Date:   Tue,  7 Jun 2022 19:01:15 +0200
-Message-Id: <20220607164915.057399563@linuxfoundation.org>
+Message-Id: <20220607165003.220838347@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathish Narasimman <sathish.narasimman@intel.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 8ce85ada0a05e21a5386ba5c417c52ab00fcd0d1 ]
+[ Upstream commit 4ffa1763622ae5752961499588f3f8874315f974 ]
 
-allow RPA to add bd address to whitelist
+The DES3 ECB has an IV size set but ECB does not need one.
 
-Signed-off-by: Sathish Narasimman <sathish.narasimman@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 4ada483978237 ("crypto: marvell/cesa - add Triple-DES support")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_request.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/crypto/marvell/cesa/cipher.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
-index 2405e1ffebbd..eb4c1c18eb01 100644
---- a/net/bluetooth/hci_request.c
-+++ b/net/bluetooth/hci_request.c
-@@ -842,6 +842,10 @@ static u8 update_white_list(struct hci_request *req)
- 	 */
- 	bool allow_rpa = hdev->suspended;
- 
-+	if (use_ll_privacy(hdev) &&
-+	    hci_dev_test_flag(hdev, HCI_ENABLE_LL_PRIVACY))
-+		allow_rpa = true;
-+
- 	/* Go through the current white list programmed into the
- 	 * controller one by one and check if that address is still
- 	 * in the list of pending connections or list of devices to
+diff --git a/drivers/crypto/marvell/cesa/cipher.c b/drivers/crypto/marvell/cesa/cipher.c
+index b739d3b873dc..c6f2fa753b7c 100644
+--- a/drivers/crypto/marvell/cesa/cipher.c
++++ b/drivers/crypto/marvell/cesa/cipher.c
+@@ -624,7 +624,6 @@ struct skcipher_alg mv_cesa_ecb_des3_ede_alg = {
+ 	.decrypt = mv_cesa_ecb_des3_ede_decrypt,
+ 	.min_keysize = DES3_EDE_KEY_SIZE,
+ 	.max_keysize = DES3_EDE_KEY_SIZE,
+-	.ivsize = DES3_EDE_BLOCK_SIZE,
+ 	.base = {
+ 		.cra_name = "ecb(des3_ede)",
+ 		.cra_driver_name = "mv-ecb-des3-ede",
 -- 
 2.35.1
 
