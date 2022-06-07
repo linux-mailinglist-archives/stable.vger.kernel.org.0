@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33C5F540A3C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEE95404F3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350941AbiFGSSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
+        id S235273AbiFGRUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:20:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351557AbiFGSQ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D491660A8;
-        Tue,  7 Jun 2022 10:49:42 -0700 (PDT)
+        with ESMTP id S1345938AbiFGRUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE11510657F;
+        Tue,  7 Jun 2022 10:19:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2020061732;
-        Tue,  7 Jun 2022 17:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED78C385A5;
-        Tue,  7 Jun 2022 17:49:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F06FDB822B1;
+        Tue,  7 Jun 2022 17:19:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6567DC34119;
+        Tue,  7 Jun 2022 17:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624181;
-        bh=6dAOYreJ7WHqoN0E30JPou5RoconiYs6xnWg+lEaCmE=;
+        s=korg; t=1654622391;
+        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEk1g0akvPPGO858kRsEHBMfxjKfxa1bNUJmAqDlBfjWKlnNfI4u5n3RTPgr1xwCZ
-         T/c9bLxg+05/o6vDa6mPqyc6G725jB7+lq3MstNoNA46AGGU7pI5cKTWR79eBYtlg2
-         NlmARSU0oJLzWCPzUuK/bTN0SGCYETaZ5NbyuWqI=
+        b=VmQ6XtZTrM6G4EKhawzUi3tZP02t4oOYAvyw1Hmtn5dReoLdjXiGigEWY+MwT9an7
+         r8JRi/YHFXcZ+4l/fQ48fS3xdrWiWxBufCo7x5yzPd1lOq6EKIQc573NTTmL6fnkl3
+         mNq2bg8SO8lfOGDcrjH9cw78wzYaaVwjADPrNAYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "Niklas S \ xF6derlund" <niklas.soderlund+renesas@ragnatech.se>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
+        Felix Fietkau <nbd@nbd.name>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 235/667] media: i2c: max9286: Use dev_err_probe() helper
+Subject: [PATCH 5.10 043/452] ath9k: fix QCA9561 PA bias level
 Date:   Tue,  7 Jun 2022 18:58:20 +0200
-Message-Id: <20220607164941.833728558@linuxfoundation.org>
+Message-Id: <20220607164909.831571207@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,44 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
 
-[ Upstream commit df78b858e773967112b4444400fb7bb5bd7a9d8a ]
+[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
 
-Use the dev_err_probe() helper, instead of open-coding the same
-operation. While at it retrieve the error once and use it from
-'ret' instead of retrieving it twice.
+This patch fixes an invalid TX PA DC bias level on QCA9561, which
+results in a very low output power and very low throughput as devices
+are further away from the AP (compared to other 2.4GHz APs).
 
-Link: https://lore.kernel.org/linux-media/20211208121756.3051565-1-niklas.soderlund+renesas@ragnatech.se
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Niklas S\xF6derlund <niklas.soderlund+renesas@ragnatech.se>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This patch was suggested by Felix Fietkau, who noted[1]:
+"The value written to that register is wrong, because while the mask
+definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
+shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
+wrong for 9561."
+
+In real life testing, without this patch the 2.4GHz throughput on
+Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
+practical maximum with the patch applied.
+
+[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
+
+Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+Acked-by: Felix Fietkau <nbd@nbd.name>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/max9286.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/max9286.c b/drivers/media/i2c/max9286.c
-index 1aa2c58fd38c..1bbcc46fffd5 100644
---- a/drivers/media/i2c/max9286.c
-+++ b/drivers/media/i2c/max9286.c
-@@ -1296,11 +1296,9 @@ static int max9286_probe(struct i2c_client *client)
+diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+index a171dbb29fbb..ad949eb02f3d 100644
+--- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+@@ -720,7 +720,7 @@
+ #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
+ 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
+ #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
+-#define AR_CH0_TOP2_XPABIASLVL_S	12
++#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
  
- 	priv->regulator = devm_regulator_get(&client->dev, "poc");
- 	if (IS_ERR(priv->regulator)) {
--		if (PTR_ERR(priv->regulator) != -EPROBE_DEFER)
--			dev_err(&client->dev,
--				"Unable to get PoC regulator (%ld)\n",
--				PTR_ERR(priv->regulator));
- 		ret = PTR_ERR(priv->regulator);
-+		dev_err_probe(&client->dev, ret,
-+			      "Unable to get PoC regulator\n");
- 		goto err_powerdown;
- 	}
- 
+ #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
+ 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
 -- 
 2.35.1
 
