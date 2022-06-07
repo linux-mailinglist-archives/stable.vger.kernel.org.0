@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80ACF540CDD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F13554063A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352640AbiFGSlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:41:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34752 "EHLO
+        id S1347136AbiFGRdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353450AbiFGSlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:41:23 -0400
+        with ESMTP id S1347928AbiFGRbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E1818629C;
-        Tue,  7 Jun 2022 10:58:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F403711CA31;
+        Tue,  7 Jun 2022 10:28:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AF69B8236C;
-        Tue,  7 Jun 2022 17:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEC5C34115;
-        Tue,  7 Jun 2022 17:58:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FE81B822B5;
+        Tue,  7 Jun 2022 17:28:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6599C341C0;
+        Tue,  7 Jun 2022 17:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624706;
-        bh=zH/pSgAZjZwfNYbHLmOYRBuLfI0NNzWZ3BELSFKBlck=;
+        s=korg; t=1654622925;
+        bh=13Eu431l9iilTFsPUwwJvwGwe/IdXWSmLYLgBekdCn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YO2e98vTN2LKZTeTxMqnm/9PdtUbZMVWjNKZ2PIsCSvt137RJ0TzbuIBL26d2Vf/R
-         wSwWjqIFqhNDzb2e2Lq53Yw9git8pUKtpgmVbPv4oDkizEqXmX9RiXUseLR8kXmwC5
-         D5CIi1Oe4g2XRNAfTezp5jT6A6Dowpg1rsFcGdrU=
+        b=rQjYmHutdx5p/Ztahnstu0pi4bED1T4iAdP6g15d+vBxt4i1OvwjlpARKAB6HcCFC
+         EbWtZbj/Iv1wcBfflLVEB3Z2ueui2db5ZSiitEKWnZjTMH6s7YRvPZBh+EqsCk4Dj+
+         rOjP/u7zF4Zfy/7Oh9s6W0FYng87EQJbOKTG4DZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Sebastian Fricke <sebastian.fricke@collabora.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 423/667] soc: bcm: Check for NULL return of devm_kzalloc()
+Subject: [PATCH 5.10 231/452] media: rkvdec: h264: Fix dpb_valid implementation
 Date:   Tue,  7 Jun 2022 19:01:28 +0200
-Message-Id: <20220607164947.418341271@linuxfoundation.org>
+Message-Id: <20220607164915.446001757@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +58,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: QintaoShen <unSimple1993@163.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit b4bd2aafacce48db26b0a213d849818d940556dd ]
+[ Upstream commit 7ab889f09dfa70e8097ec1b9186fd228124112cb ]
 
-As the potential failure of allocation, devm_kzalloc() may return NULL.  Then
-the 'pd->pmb' and the follow lines of code may bring null pointer dereference.
+The ref builder only provided references that are marked as valid in the
+dpb. Thus the current implementation of dpb_valid would always set the
+flag to 1. This is not representing missing frames (this is called
+'non-existing' pictures in the spec). In some context, these non-existing
+pictures still need to occupy a slot in the reference list according to
+the spec.
 
-Therefore, it is better to check the return value of devm_kzalloc() to avoid
-this confusion.
-
-Fixes: 8bcac4011ebe ("soc: bcm: add PM driver for Broadcom's PMB")
-Signed-off-by: QintaoShen <unSimple1993@163.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/bcm63xx/bcm-pmb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/media/rkvdec/rkvdec-h264.c | 33 ++++++++++++++++------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/soc/bcm/bcm63xx/bcm-pmb.c b/drivers/soc/bcm/bcm63xx/bcm-pmb.c
-index 774465c119be..2ac20084e5a5 100644
---- a/drivers/soc/bcm/bcm63xx/bcm-pmb.c
-+++ b/drivers/soc/bcm/bcm63xx/bcm-pmb.c
-@@ -314,6 +314,9 @@ static int bcm_pmb_probe(struct platform_device *pdev)
- 	for (e = table; e->name; e++) {
- 		struct bcm_pmb_pm_domain *pd = devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
+diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
+index 5487f6d0bcb6..52ffa31f08ac 100644
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -112,6 +112,7 @@ struct rkvdec_h264_run {
+ 	const struct v4l2_ctrl_h264_sps *sps;
+ 	const struct v4l2_ctrl_h264_pps *pps;
+ 	const struct v4l2_ctrl_h264_scaling_matrix *scaling_matrix;
++	int ref_buf_idx[V4L2_H264_NUM_DPB_ENTRIES];
+ };
  
-+		if (!pd)
-+			return -ENOMEM;
+ struct rkvdec_h264_ctx {
+@@ -725,6 +726,26 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
+ 	}
+ }
+ 
++static void lookup_ref_buf_idx(struct rkvdec_ctx *ctx,
++			       struct rkvdec_h264_run *run)
++{
++	const struct v4l2_ctrl_h264_decode_params *dec_params = run->decode_params;
++	u32 i;
 +
- 		pd->pmb = pmb;
- 		pd->data = e;
- 		pd->genpd.name = e->name;
++	for (i = 0; i < ARRAY_SIZE(dec_params->dpb); i++) {
++		struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
++		const struct v4l2_h264_dpb_entry *dpb = run->decode_params->dpb;
++		struct vb2_queue *cap_q = &m2m_ctx->cap_q_ctx.q;
++		int buf_idx = -1;
++
++		if (dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE)
++			buf_idx = vb2_find_timestamp(cap_q,
++						     dpb[i].reference_ts, 0);
++
++		run->ref_buf_idx[i] = buf_idx;
++	}
++}
++
+ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
+ 			    struct rkvdec_h264_run *run)
+ {
+@@ -762,7 +783,7 @@ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
+ 
+ 	for (j = 0; j < RKVDEC_NUM_REFLIST; j++) {
+ 		for (i = 0; i < h264_ctx->reflists.num_valid; i++) {
+-			u8 dpb_valid = 0;
++			bool dpb_valid = run->ref_buf_idx[i] >= 0;
+ 			u8 idx = 0;
+ 
+ 			switch (j) {
+@@ -779,8 +800,6 @@ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
+ 
+ 			if (idx >= ARRAY_SIZE(dec_params->dpb))
+ 				continue;
+-			dpb_valid = !!(dpb[idx].flags &
+-				       V4L2_H264_DPB_ENTRY_FLAG_ACTIVE);
+ 
+ 			set_ps_field(hw_rps, DPB_INFO(i, j),
+ 				     idx | dpb_valid << 4);
+@@ -859,13 +878,8 @@ get_ref_buf(struct rkvdec_ctx *ctx, struct rkvdec_h264_run *run,
+ 	    unsigned int dpb_idx)
+ {
+ 	struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
+-	const struct v4l2_h264_dpb_entry *dpb = run->decode_params->dpb;
+ 	struct vb2_queue *cap_q = &m2m_ctx->cap_q_ctx.q;
+-	int buf_idx = -1;
+-
+-	if (dpb[dpb_idx].flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE)
+-		buf_idx = vb2_find_timestamp(cap_q,
+-					     dpb[dpb_idx].reference_ts, 0);
++	int buf_idx = run->ref_buf_idx[dpb_idx];
+ 
+ 	/*
+ 	 * If a DPB entry is unused or invalid, address of current destination
+@@ -1102,6 +1116,7 @@ static int rkvdec_h264_run(struct rkvdec_ctx *ctx)
+ 
+ 	assemble_hw_scaling_list(ctx, &run);
+ 	assemble_hw_pps(ctx, &run);
++	lookup_ref_buf_idx(ctx, &run);
+ 	assemble_hw_rps(ctx, &run);
+ 	config_registers(ctx, &run);
+ 
 -- 
 2.35.1
 
