@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4655409F2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 943FA5419D5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350761AbiFGSS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48322 "EHLO
+        id S1378222AbiFGVYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:24:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350811AbiFGSOc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:14:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7AEC15AB06;
-        Tue,  7 Jun 2022 10:49:12 -0700 (PDT)
+        with ESMTP id S1378277AbiFGVX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7052A2258A2;
+        Tue,  7 Jun 2022 12:00:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B84E61744;
-        Tue,  7 Jun 2022 17:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BEC3C385A5;
-        Tue,  7 Jun 2022 17:49:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E9526159D;
+        Tue,  7 Jun 2022 19:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4A7C385A2;
+        Tue,  7 Jun 2022 19:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624150;
-        bh=4VbD8WfJB44zlOa5xh/C+Vp346v74EgwC6bktjAuxDc=;
+        s=korg; t=1654628412;
+        bh=uG365FWOJXLP9dZ6rGocKIu+oCmCh1t20MUDojwND2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nbEkDuMoklZKZEjmaUPZrzj4KytaCz1Zl+uP9ePPWO8MBxxS9xtzc/dqliEqgYby6
-         qBh42m9L3zElNBPZ34jRbYJpxta9MaKX7NsYorTdcouN8aZK0mpnrOj0Wzm6PCgNuZ
-         2WNT49xAwLO6qSe4HppkNXFtBOJJcISeUcSQ+CSw=
+        b=EYcN53MhpXDti5ebZxza9tZ2G+dfUZaFRQXcpKaE/VoQMe6B3FLg7oaMGa//qaHmj
+         CWh9NyFQsyORs+lcvYgRwUNooj7uZ6eXHRVAga+rA1J4Xv97J4kUuko6GXj4cN7Ur4
+         jlQPm/1Wol/9kp9O1gwAvbRGFAVZALjLeIBgHgtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 172/667] alpha: fix alloc_zeroed_user_highpage_movable()
+Subject: [PATCH 5.18 319/879] drbd: use bdev_alignment_offset instead of queue_alignment_offset
 Date:   Tue,  7 Jun 2022 18:57:17 +0200
-Message-Id: <20220607164939.970555353@linuxfoundation.org>
+Message-Id: <20220607165012.111296099@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,37 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit f9c668d281aa20e38c9bda3b7b0adeb8891aa15e ]
+[ Upstream commit c6f23b1a05441a26f765e59dd95e8ba7354f9388 ]
 
-Due to a typo, the final argument to alloc_page_vma() didn't refer to a
-real variable.  This only affected CONFIG_NUMA, which was marked BROKEN in
-2006 and removed from alpha in 2021.  Found due to a refactoring patch.
+The bdev version does the right thing for partitions, so use that.
 
-Link: https://lkml.kernel.org/r/20220504182857.4013401-4-willy@infradead.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 9104d31a759f ("drbd: introduce WRITE_SAME support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Link: https://lore.kernel.org/r/20220415045258.199825-7-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/page.h | 2 +-
+ drivers/block/drbd/drbd_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 18f48a6f2ff6..8f3f5eecba28 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -18,7 +18,7 @@ extern void clear_page(void *page);
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
- 
- #define alloc_zeroed_user_highpage_movable(vma, vaddr) \
--	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vmaddr)
-+	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vaddr)
- #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE_MOVABLE
- 
- extern void copy_page(void * _to, void * _from);
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index c39b04bda261..7b501c8d5992 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -939,7 +939,7 @@ int drbd_send_sizes(struct drbd_peer_device *peer_device, int trigger_reply, enu
+ 		p->qlim->logical_block_size =
+ 			cpu_to_be32(bdev_logical_block_size(bdev));
+ 		p->qlim->alignment_offset =
+-			cpu_to_be32(queue_alignment_offset(q));
++			cpu_to_be32(bdev_alignment_offset(bdev));
+ 		p->qlim->io_min = cpu_to_be32(bdev_io_min(bdev));
+ 		p->qlim->io_opt = cpu_to_be32(bdev_io_opt(bdev));
+ 		p->qlim->discard_enabled = blk_queue_discard(q);
 -- 
 2.35.1
 
