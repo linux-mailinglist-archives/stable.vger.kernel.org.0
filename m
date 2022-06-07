@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A1A541964
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C477540901
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349170AbiFGVVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56244 "EHLO
+        id S1349296AbiFGSEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353837AbiFGVRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCA8224109;
-        Tue,  7 Jun 2022 11:59:21 -0700 (PDT)
+        with ESMTP id S1351877AbiFGSCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42EAD120882;
+        Tue,  7 Jun 2022 10:46:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84422612F2;
-        Tue,  7 Jun 2022 18:59:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94C7FC385A2;
-        Tue,  7 Jun 2022 18:59:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C18A46146F;
+        Tue,  7 Jun 2022 17:46:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6590C385A5;
+        Tue,  7 Jun 2022 17:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628357;
-        bh=zsjmbv4CwpLwHPpbcPnSVnTmO+KVbwQy7o0E/Pbn7LU=;
+        s=korg; t=1654623960;
+        bh=3a8gxMHCDSeL/R2EhuktrXzbJmCqXw0BGoZqVqZ6DYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NXJK58JaLGjfLnaWnxw9qLAeVrxEUgnCU1PYaq2epQcvIRu7HNdXEIhwW32ze0bD7
-         T6Bo1Z8EFT2tsjMcm+vHYBFp1hE2dHOxxOmoDeINR9SbdBr2DkIKvoaqL8Cqyp6rff
-         LC6urym+3RjuUMA/JPMZSIeAfEAjCtCxQh8b8PmY=
+        b=vA94riozqmX/zFbxrjmLy4L/efmRVs8WrNbpxwtoi6lD+KLxTs2bHj7ECtNqPs4IT
+         h04B9hI2v0+I8idw4BgrxrxVcSzkEfz0zAEdMeiA9B5r48KCdJZ/KYkG2knTRsTmlJ
+         jo/7cS380rW04LriGS+Byw0B8KXst6UHR5/KQLkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 301/879] drm/komeda: Fix an undefined behavior bug in komeda_plane_add()
+Subject: [PATCH 5.15 154/667] PM / devfreq: rk3399_dmc: Disable edev on remove()
 Date:   Tue,  7 Jun 2022 18:56:59 +0200
-Message-Id: <20220607165011.584918835@linuxfoundation.org>
+Message-Id: <20220607164939.434342098@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit f5e284bb74ab296f98122673c7ecd22028b2c200 ]
+[ Upstream commit 2fccf9e6050e0e3b8b4cd275d41daf7f7fa22804 ]
 
-In komeda_plane_add(), komeda_get_layer_fourcc_list() is assigned to
-formats and used in drm_universal_plane_init().
-drm_universal_plane_init() passes formats to
-__drm_universal_plane_init(). __drm_universal_plane_init() further
-passes formats to memcpy() as src parameter, which could lead to an
-undefined behavior bug on failure of komeda_get_layer_fourcc_list().
+Otherwise we hit an unablanced enable-count when unbinding the DFI
+device:
 
-Fix this bug by adding a check of formats.
+[ 1279.659119] ------------[ cut here ]------------
+[ 1279.659179] WARNING: CPU: 2 PID: 5638 at drivers/devfreq/devfreq-event.c:360 devfreq_event_remove_edev+0x84/0x8c
+...
+[ 1279.659352] Hardware name: Google Kevin (DT)
+[ 1279.659363] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
+[ 1279.659371] pc : devfreq_event_remove_edev+0x84/0x8c
+[ 1279.659380] lr : devm_devfreq_event_release+0x1c/0x28
+...
+[ 1279.659571] Call trace:
+[ 1279.659582]  devfreq_event_remove_edev+0x84/0x8c
+[ 1279.659590]  devm_devfreq_event_release+0x1c/0x28
+[ 1279.659602]  release_nodes+0x1cc/0x244
+[ 1279.659611]  devres_release_all+0x44/0x60
+[ 1279.659621]  device_release_driver_internal+0x11c/0x1ac
+[ 1279.659629]  device_driver_detach+0x20/0x2c
+[ 1279.659641]  unbind_store+0x7c/0xb0
+[ 1279.659650]  drv_attr_store+0x2c/0x40
+[ 1279.659663]  sysfs_kf_write+0x44/0x58
+[ 1279.659672]  kernfs_fop_write_iter+0xf4/0x190
+[ 1279.659684]  vfs_write+0x2b0/0x2e4
+[ 1279.659693]  ksys_write+0x80/0xec
+[ 1279.659701]  __arm64_sys_write+0x24/0x30
+[ 1279.659714]  el0_svc_common+0xf0/0x1d8
+[ 1279.659724]  do_el0_svc_compat+0x28/0x3c
+[ 1279.659738]  el0_svc_compat+0x10/0x1c
+[ 1279.659746]  el0_sync_compat_handler+0xa8/0xcc
+[ 1279.659758]  el0_sync_compat+0x188/0x1c0
+[ 1279.659768] ---[ end trace cec200e5094155b4 ]---
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_DRM_KOMEDA=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: 61f1c4a8ab75 ("drm/komeda: Attach komeda_dev to DRM-KMS")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://lore.kernel.org/dri-devel/20211201033704.32054-1-zhou1615@umn.edu
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/arm/display/komeda/komeda_plane.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/devfreq/rk3399_dmc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-index d646e3ae1a23..517b94c3bcaf 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-@@ -265,6 +265,10 @@ static int komeda_plane_add(struct komeda_kms_dev *kms,
+diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
+index 293857ebfd75..538e8dc74f40 100644
+--- a/drivers/devfreq/rk3399_dmc.c
++++ b/drivers/devfreq/rk3399_dmc.c
+@@ -477,6 +477,8 @@ static int rk3399_dmcfreq_remove(struct platform_device *pdev)
+ {
+ 	struct rk3399_dmcfreq *dmcfreq = dev_get_drvdata(&pdev->dev);
  
- 	formats = komeda_get_layer_fourcc_list(&mdev->fmt_tbl,
- 					       layer->layer_type, &n_formats);
-+	if (!formats) {
-+		kfree(kplane);
-+		return -ENOMEM;
-+	}
- 
- 	err = drm_universal_plane_init(&kms->base, plane,
- 			get_possible_crtcs(kms, c->pipeline),
++	devfreq_event_disable_edev(dmcfreq->edev);
++
+ 	/*
+ 	 * Before remove the opp table we need to unregister the opp notifier.
+ 	 */
 -- 
 2.35.1
 
