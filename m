@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C088540EAC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41EAB541CA1
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354205AbiFGSzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37168 "EHLO
+        id S1382498AbiFGWCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354674AbiFGSvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:51:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76414131F27;
-        Tue,  7 Jun 2022 11:03:25 -0700 (PDT)
+        with ESMTP id S1383064AbiFGWAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:00:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04EA24E1D0;
+        Tue,  7 Jun 2022 12:14:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C85D0618DF;
-        Tue,  7 Jun 2022 18:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE815C34119;
-        Tue,  7 Jun 2022 18:03:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22160B81F6D;
+        Tue,  7 Jun 2022 19:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73996C385A2;
+        Tue,  7 Jun 2022 19:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625000;
-        bh=NHy+/XP++RdtIbgYs+G1uHXuHfuMlEz0C85FJRuWTQ0=;
+        s=korg; t=1654629263;
+        bh=WGrOh8oTneCh4yZsr/62ESP2wLPNAlO/thr+y7vDFk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dm0E22r8w0ayOEtzwH8XNW2x9L29IwwqYr5gz60E09qfxm43PlMahhmqUn5dm7PbS
-         TpHQBTM/hpRfWPzzKgeLSgVCts3Wvj5oRQ7vzIAoXQ8fSqlB1/+cZNIEKI3IMXqhZ5
-         JF+DVIosser91bX4U5FRc3m5OHV7CmHqWmfSyNAk=
+        b=s8C/adt6ly/ntqq4ab73acaNDJbKPLR52DUJjLmEjjkcrtAg2Opae1qOoHp0PLrPP
+         Rzy++JvrpbZ/ArjznCyYAD4uh8c8C/DdY84ZwoICSw+n3p4nCHggih9DtXSkeX0KqL
+         hLRir4jiSMYj8NTj8qUPmv05N+oXXFI6W9n7eJaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 479/667] f2fs: fix dereference of stale list iterator after loop body
+Subject: [PATCH 5.18 626/879] hugetlbfs: fix hugetlbfs_statfs() locking
 Date:   Tue,  7 Jun 2022 19:02:24 +0200
-Message-Id: <20220607164949.066965400@linuxfoundation.org>
+Message-Id: <20220607165021.019494554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Mina Almasry <almasrymina@google.com>
 
-[ Upstream commit 2aaf51dd39afb6d01d13f1e6fe20b684733b37d5 ]
+[ Upstream commit 4b25f030ae69ba710eff587cabb4c57cb7e7a8a1 ]
 
-The list iterator variable will be a bogus pointer if no break was hit.
-Dereferencing it (cur->page in this case) could load an out-of-bounds/undefined
-value making it unsafe to use that in the comparision to determine if the
-specific element was found.
+After commit db71ef79b59b ("hugetlb: make free_huge_page irq safe"), the
+subpool lock should be locked with spin_lock_irq() and all call sites was
+modified as such, except for the ones in hugetlbfs_statfs().
 
-Since 'cur->page' *can* be out-ouf-bounds it cannot be guaranteed that
-by chance (or intention of an attacker) it matches the value of 'page'
-even though the correct element was not found.
-
-This is fixed by using a separate list iterator variable for the loop
-and only setting the original variable if a suitable element was found.
-Then determing if the element was found is simply checking if the
-variable is set.
-
-Fixes: 8c242db9b8c0 ("f2fs: fix stale ATOMIC_WRITTEN_PAGE private pointer")
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lkml.kernel.org/r/20220429202207.3045-1-almasrymina@google.com
+Fixes: db71ef79b59b ("hugetlb: make free_huge_page irq safe")
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/hugetlbfs/inode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 338a57360bb8..61ef640ee256 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -356,16 +356,19 @@ void f2fs_drop_inmem_page(struct inode *inode, struct page *page)
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	struct list_head *head = &fi->inmem_pages;
- 	struct inmem_pages *cur = NULL;
-+	struct inmem_pages *tmp;
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index dd3a088db11d..591599829e2a 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -1048,12 +1048,12 @@ static int hugetlbfs_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 		if (sbinfo->spool) {
+ 			long free_pages;
  
- 	f2fs_bug_on(sbi, !page_private_atomic(page));
- 
- 	mutex_lock(&fi->inmem_lock);
--	list_for_each_entry(cur, head, list) {
--		if (cur->page == page)
-+	list_for_each_entry(tmp, head, list) {
-+		if (tmp->page == page) {
-+			cur = tmp;
- 			break;
-+		}
- 	}
- 
--	f2fs_bug_on(sbi, list_empty(head) || cur->page != page);
-+	f2fs_bug_on(sbi, !cur);
- 	list_del(&cur->list);
- 	mutex_unlock(&fi->inmem_lock);
- 
+-			spin_lock(&sbinfo->spool->lock);
++			spin_lock_irq(&sbinfo->spool->lock);
+ 			buf->f_blocks = sbinfo->spool->max_hpages;
+ 			free_pages = sbinfo->spool->max_hpages
+ 				- sbinfo->spool->used_hpages;
+ 			buf->f_bavail = buf->f_bfree = free_pages;
+-			spin_unlock(&sbinfo->spool->lock);
++			spin_unlock_irq(&sbinfo->spool->lock);
+ 			buf->f_files = sbinfo->max_inodes;
+ 			buf->f_ffree = sbinfo->free_inodes;
+ 		}
 -- 
 2.35.1
 
