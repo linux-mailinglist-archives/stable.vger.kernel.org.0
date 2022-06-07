@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA8154130F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C3A854091E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357752AbiFGTzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49962 "EHLO
+        id S1349969AbiFGSFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:05:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358614AbiFGTwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133BF313BC;
-        Tue,  7 Jun 2022 11:21:29 -0700 (PDT)
+        with ESMTP id S1351773AbiFGSCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF72D1207EC;
+        Tue,  7 Jun 2022 10:45:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A211160DB7;
-        Tue,  7 Jun 2022 18:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8763C385A2;
-        Tue,  7 Jun 2022 18:21:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76489B80B66;
+        Tue,  7 Jun 2022 17:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB735C34115;
+        Tue,  7 Jun 2022 17:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626088;
-        bh=4VbD8WfJB44zlOa5xh/C+Vp346v74EgwC6bktjAuxDc=;
+        s=korg; t=1654623918;
+        bh=s4KO1UgUY/B996K+l2DBDtuWNiu3YWMyS23OqCyZMqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHfJ2e9Aohp0HMGRPbQjloVSVRpAqaW1X5+LA76NsEEUeQyzl8HUDUFeOGyVW4sT/
-         msvmnnOtsuBsCpXDGUmvtmqIKfFu6XmP40dDEYHtDVIRiFIR81R5ueIIBgyQKWOMSo
-         OTjPpxFWbIb6OQm18TUn8cMyORWOAXburevONC1E=
+        b=bM7gfi19ntwdvAcvMD3cqfPEYWmtiXK3uAmO4CCx64DQtp6IrCRlFz5J24fAaA/Eq
+         kuqBmW/iMorRVD4fvMrz9eb0HTopIOmMr7eSRbYCeYp1azsazsR2T7hEQ2VcXt2y1g
+         bMsgUfWDV3BCA8MwRn82kbnMe2V9BumvM71LuBNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 212/772] alpha: fix alloc_zeroed_user_highpage_movable()
-Date:   Tue,  7 Jun 2022 18:56:44 +0200
-Message-Id: <20220607164955.281747968@linuxfoundation.org>
+Subject: [PATCH 5.15 140/667] rxrpc: Return an error to sendmsg if call failed
+Date:   Tue,  7 Jun 2022 18:56:45 +0200
+Message-Id: <20220607164939.018689266@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,37 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit f9c668d281aa20e38c9bda3b7b0adeb8891aa15e ]
+[ Upstream commit 4ba68c5192554876bd8c3afd904e3064d2915341 ]
 
-Due to a typo, the final argument to alloc_page_vma() didn't refer to a
-real variable.  This only affected CONFIG_NUMA, which was marked BROKEN in
-2006 and removed from alpha in 2021.  Found due to a refactoring patch.
+If at the end of rxrpc sendmsg() or rxrpc_kernel_send_data() the call that
+was being given data was aborted remotely or otherwise failed, return an
+error rather than returning the amount of data buffered for transmission.
 
-Link: https://lkml.kernel.org/r/20220504182857.4013401-4-willy@infradead.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+The call (presumably) did not complete, so there's not much point
+continuing with it.  AF_RXRPC considers it "complete" and so will be
+unwilling to do anything else with it - and won't send a notification for
+it, deeming the return from sendmsg sufficient.
+
+Not returning an error causes afs to incorrectly handle a StoreData
+operation that gets interrupted by a change of address due to NAT
+reconfiguration.
+
+This doesn't normally affect most operations since their request parameters
+tend to fit into a single UDP packet and afs_make_call() returns before the
+server responds; StoreData is different as it involves transmission of a
+lot of data.
+
+This can be triggered on a client by doing something like:
+
+	dd if=/dev/zero of=/afs/example.com/foo bs=1M count=512
+
+at one prompt, and then changing the network address at another prompt,
+e.g.:
+
+	ifconfig enp6s0 inet 192.168.6.2 && route add 192.168.6.1 dev enp6s0
+
+Tracing packets on an Auristor fileserver looks something like:
+
+192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
+192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
+192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+<ARP exchange for 192.168.6.2>
+192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
+192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
+192.168.6.1 -> 192.168.6.2  RX 107 ACK Exceeds Window  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
+192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 29321  Call: 4  Source Port: 7000  Destination Port: 7001
+
+The Auristor fileserver logs code -453 (RXGEN_SS_UNMARSHAL), but the abort
+code received by kafs is -5 (RX_PROTOCOL_ERROR) as the rx layer sees the
+condition and generates an abort first and the unmarshal error is a
+consequence of that at the application layer.
+
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+Link: http://lists.infradead.org/pipermail/linux-afs/2021-December/004810.html # v1
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/include/asm/page.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/sendmsg.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 18f48a6f2ff6..8f3f5eecba28 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -18,7 +18,7 @@ extern void clear_page(void *page);
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index af8ad6c30b9f..1d38e279e2ef 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -444,6 +444,12 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
  
- #define alloc_zeroed_user_highpage_movable(vma, vaddr) \
--	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vmaddr)
-+	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vaddr)
- #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE_MOVABLE
- 
- extern void copy_page(void * _to, void * _from);
+ success:
+ 	ret = copied;
++	if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE) {
++		read_lock_bh(&call->state_lock);
++		if (call->error < 0)
++			ret = call->error;
++		read_unlock_bh(&call->state_lock);
++	}
+ out:
+ 	call->tx_pending = skb;
+ 	_leave(" = %d", ret);
 -- 
 2.35.1
 
