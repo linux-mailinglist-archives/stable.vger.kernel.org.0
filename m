@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0BEB541ACB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B893D541AC9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380863AbiFGViQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:38:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37002 "EHLO
+        id S1380880AbiFGVif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380686AbiFGVhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:37:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C54EAD2F;
-        Tue,  7 Jun 2022 12:05:07 -0700 (PDT)
+        with ESMTP id S1380786AbiFGViC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:38:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16B3EF04D;
+        Tue,  7 Jun 2022 12:05:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9F2761853;
-        Tue,  7 Jun 2022 19:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65DDC385A2;
-        Tue,  7 Jun 2022 19:05:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DC64B82182;
+        Tue,  7 Jun 2022 19:05:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA569C385A2;
+        Tue,  7 Jun 2022 19:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628706;
-        bh=B3rO21cPkyhp2+ZYKxUS2eTgGKkaeRxJgR4ZPsVHMak=;
+        s=korg; t=1654628709;
+        bh=TQMibTrv0Kxl2GjkbcYfGHrz/WdFVFcZsNJSNBNs5vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ng4uUBx3gKatXSMYmdIebkOIM5BC4ovl+/MnVO61PeYlnQLaAiNhPRSlkbXJL+9aU
-         wuM8IZRr+j1KiFZEZzzfXT1ht7e58SpXNz/yah2TwyC7oc8ELtvyiZ0Ve4g8S4OsRt
-         ISYzv31lHlUBKuWBzDnYLvU3EDf6+nbFn+lmKYBA=
+        b=YiV+ReCHgye+dmCV7wVT3kVgCny5+ALkRpbcMh/Ujreoh/u49jFI3c/VQ1M9OsgdN
+         YVH8bsqYwLwttxr8ah/Ft+kUGaqqvtxCIS9x3WmFqScN8xI1arRjGWsueeQqwIMViE
+         M7i1D7BxLRH52+Ij259C8H3F+HP3fjVq+62gpSqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 427/879] media: aspeed: Fix an error handling path in aspeed_video_probe()
-Date:   Tue,  7 Jun 2022 18:59:05 +0200
-Message-Id: <20220607165015.260594975@linuxfoundation.org>
+Subject: [PATCH 5.18 428/879] media: exynos4-is: Fix PM disable depth imbalance in fimc_is_probe
+Date:   Tue,  7 Jun 2022 18:59:06 +0200
+Message-Id: <20220607165015.289392513@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -56,49 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 310fda622bbd38be17fb444f7f049b137af3bc0d ]
+[ Upstream commit 5c0db68ce0faeb000c3540d095eb272d671a6e03 ]
 
-A dma_free_coherent() call is missing in the error handling path of the
-probe, as already done in the remove function.
+If probe fails then we need to call pm_runtime_disable() to balance
+out the previous pm_runtime_enable() call.
 
-In fact, this call is included in aspeed_video_free_buf(). So use the
-latter both in the error handling path of the probe and in the remove
-function.
-It is easier to see the relation with aspeed_video_alloc_buf() this way.
-
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed/aspeed-video.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/samsung/exynos4-is/fimc-is.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/aspeed/aspeed-video.c b/drivers/media/platform/aspeed/aspeed-video.c
-index b937dbcbe9e0..20f795ccc11b 100644
---- a/drivers/media/platform/aspeed/aspeed-video.c
-+++ b/drivers/media/platform/aspeed/aspeed-video.c
-@@ -1993,6 +1993,7 @@ static int aspeed_video_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/samsung/exynos4-is/fimc-is.c b/drivers/media/platform/samsung/exynos4-is/fimc-is.c
+index e55e411038f4..81b290dace3a 100644
+--- a/drivers/media/platform/samsung/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/samsung/exynos4-is/fimc-is.c
+@@ -830,7 +830,7 @@ static int fimc_is_probe(struct platform_device *pdev)
  
- 	rc = aspeed_video_setup_video(video);
- 	if (rc) {
-+		aspeed_video_free_buf(video, &video->jpeg);
- 		clk_unprepare(video->vclk);
- 		clk_unprepare(video->eclk);
- 		return rc;
-@@ -2024,8 +2025,7 @@ static int aspeed_video_remove(struct platform_device *pdev)
+ 	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+-		goto err_irq;
++		goto err_pm_disable;
  
- 	v4l2_device_unregister(v4l2_dev);
+ 	vb2_dma_contig_set_max_seg_size(dev, DMA_BIT_MASK(32));
  
--	dma_free_coherent(video->dev, VE_JPEG_HEADER_SIZE, video->jpeg.virt,
--			  video->jpeg.dma);
-+	aspeed_video_free_buf(video, &video->jpeg);
- 
- 	of_reserved_mem_device_release(dev);
- 
+@@ -864,6 +864,8 @@ static int fimc_is_probe(struct platform_device *pdev)
+ 	pm_runtime_put_noidle(dev);
+ 	if (!pm_runtime_enabled(dev))
+ 		fimc_is_runtime_suspend(dev);
++err_pm_disable:
++	pm_runtime_disable(dev);
+ err_irq:
+ 	free_irq(is->irq, is);
+ err_clk:
 -- 
 2.35.1
 
