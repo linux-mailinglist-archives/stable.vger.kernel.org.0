@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70CA3540F7E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FFE15416B8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbiFGTJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:09:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58452 "EHLO
+        id S1377558AbiFGUyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354819AbiFGTJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:09:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2E4192261;
-        Tue,  7 Jun 2022 11:06:10 -0700 (PDT)
+        with ESMTP id S1377690AbiFGUux (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05BBC1FBF70;
+        Tue,  7 Jun 2022 11:40:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BD94616B6;
-        Tue,  7 Jun 2022 18:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 382EEC385A5;
-        Tue,  7 Jun 2022 18:06:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93737B82349;
+        Tue,  7 Jun 2022 18:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0358C385A2;
+        Tue,  7 Jun 2022 18:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625169;
-        bh=wROjKPocEJBbittAMQhxhJUUWC4+PmUgeUKiA0tkmOE=;
+        s=korg; t=1654627229;
+        bh=+DFhx/+zMYy9AJgFEs5i0jMWEHc2bLU2fzKwpiStgNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXE5RBPsDTZTItc+Dd5f5YvpyTRkcR1zCaYIQuBWoJb8HEiAdfRWMu3a/+4rFMBvy
-         pN0Qg6LmXBjZBs1O8MqTEOyPUPOORu9Sg+6exk1aVmNtcy9ZvgM2YqRv4cy7LioEpf
-         FZgJ+2WNH2h1fEVKisLhaPBUWUnsx7rvUO07HV84=
+        b=qbITrclOPFxkG6GpRrdjCWEKM5SzvzTVYSlwhh1O9mXBexLuYdCHqEhD0auAdyJhA
+         SjWrgwIKjuYCSUo2UrggX4LXc9891xIA9WfuNqAp4dahmZxsuKBhj3HskEItnNxWut
+         uUQ0D4RFqATFtvG+o/zt7mHTQaXOCHIX74BjaeBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Subject: [PATCH 5.15 590/667] drm/etnaviv: check for reaped mapping in etnaviv_iommu_unmap_gem
-Date:   Tue,  7 Jun 2022 19:04:15 +0200
-Message-Id: <20220607164952.379802310@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 5.17 664/772] dlm: fix missing lkb refcount handling
+Date:   Tue,  7 Jun 2022 19:04:16 +0200
+Message-Id: <20220607165008.626192922@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit e168c25526cd0368af098095c2ded4a008007e1b upstream.
+commit 1689c169134f4b5a39156122d799b7dca76d8ddb upstream.
 
-When the mapping is already reaped the unmap must be a no-op, as we
-would otherwise try to remove the mapping twice, corrupting the involved
-data structures.
+We always call hold_lkb(lkb) if we increment lkb->lkb_wait_count.
+So, we always need to call unhold_lkb(lkb) if we decrement
+lkb->lkb_wait_count. This patch will add missing unhold_lkb(lkb) if we
+decrement lkb->lkb_wait_count. In case of setting lkb->lkb_wait_count to
+zero we need to countdown until reaching zero and call unhold_lkb(lkb).
+The waiters list unhold_lkb(lkb) can be removed because it's done for
+the last lkb_wait_count decrement iteration as it's done in
+_remove_from_waiters().
 
-Cc: stable@vger.kernel.org # 5.4
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Guido Günther <agx@sigxcpu.org>
-Acked-by: Guido Günther <agx@sigxcpu.org>
+This issue was discovered by a dlm gfs2 test case which use excessively
+dlm_unlock(LKF_CANCEL) feature. Probably the lkb->lkb_wait_count value
+never reached above 1 if this feature isn't used and so it was not
+discovered before.
+
+The testcase ended in a rsb on the rsb keep data structure with a
+refcount of 1 but no lkb was associated with it, which is itself
+an invalid behaviour. A side effect of that was a condition in which
+the dlm was sending remove messages in a looping behaviour. With this
+patch that has not been reproduced.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_mmu.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/dlm/lock.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-@@ -286,6 +286,12 @@ void etnaviv_iommu_unmap_gem(struct etna
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -1559,6 +1559,7 @@ static int _remove_from_waiters(struct d
+ 		lkb->lkb_wait_type = 0;
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
+ 		lkb->lkb_wait_count--;
++		unhold_lkb(lkb);
+ 		goto out_del;
+ 	}
  
- 	mutex_lock(&context->lock);
+@@ -1585,6 +1586,7 @@ static int _remove_from_waiters(struct d
+ 		log_error(ls, "remwait error %x reply %d wait_type %d overlap",
+ 			  lkb->lkb_id, mstype, lkb->lkb_wait_type);
+ 		lkb->lkb_wait_count--;
++		unhold_lkb(lkb);
+ 		lkb->lkb_wait_type = 0;
+ 	}
  
-+	/* Bail if the mapping has been reaped by another thread */
-+	if (!mapping->context) {
-+		mutex_unlock(&context->lock);
-+		return;
-+	}
-+
- 	/* If the vram node is on the mm, unmap and remove the node */
- 	if (mapping->vram_node.mm == &context->mm)
- 		etnaviv_iommu_remove_mapping(context, mapping);
+@@ -5331,11 +5333,16 @@ int dlm_recover_waiters_post(struct dlm_
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_UNLOCK;
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
+ 		lkb->lkb_wait_type = 0;
+-		lkb->lkb_wait_count = 0;
++		/* drop all wait_count references we still
++		 * hold a reference for this iteration.
++		 */
++		while (lkb->lkb_wait_count) {
++			lkb->lkb_wait_count--;
++			unhold_lkb(lkb);
++		}
+ 		mutex_lock(&ls->ls_waiters_mutex);
+ 		list_del_init(&lkb->lkb_wait_reply);
+ 		mutex_unlock(&ls->ls_waiters_mutex);
+-		unhold_lkb(lkb); /* for waiters list */
+ 
+ 		if (oc || ou) {
+ 			/* do an unlock or cancel instead of resending */
 
 
