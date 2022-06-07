@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15DC540758
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D2E540FE7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347930AbiFGRrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:47:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40874 "EHLO
+        id S1355157AbiFGTOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:14:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348759AbiFGRqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294DD110455;
-        Tue,  7 Jun 2022 10:35:44 -0700 (PDT)
+        with ESMTP id S1355243AbiFGTOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:14:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89BEC194BF4;
+        Tue,  7 Jun 2022 11:07:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ED6160DB5;
-        Tue,  7 Jun 2022 17:35:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D63C385A5;
-        Tue,  7 Jun 2022 17:35:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40CF1B82340;
+        Tue,  7 Jun 2022 18:07:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 910ADC34115;
+        Tue,  7 Jun 2022 18:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623343;
-        bh=wXeySeeKfAlcFWkrlfM429Aal77jT3BoMCeXYZdnIg0=;
+        s=korg; t=1654625242;
+        bh=sFYoKH3ur13xudM/5aKhDJvPwSJ1dZo6go0R0tMxJR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQhQ1wqsoMTcmbZ5gkZA/GQLiDjJdWS1HxQpdwVMFdm0n3jhc+ctNpZYlLlHa4NIl
-         oJLKuNxAOOzp5mnKZpjbfXzE1nZ5Y2KrwvfMdXk7gna8W65Uc1LN6fUKshVj7nNr41
-         /CN9KmslyzbvLxyFQ3CBxr+brCISDCxNXjAVYEVo=
+        b=vI0S+SVxvQakomW5GOiiwhah2OrWE26BJg1pZAdmyDYN7MIb8hhdmWIwY4FaJgwh0
+         r5XF1CEU7RUtjgPiH8w0vOQnrixdPafk+BoSfJo7nl6QU1XB4K51taXgrasb/uDFm3
+         xNZlULTY0Aw+CvqfFQg4PTJNEOatOkGWSRm8Bi/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.10 384/452] md: fix an incorrect NULL check in does_sb_need_changing
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 576/667] selftests/landlock: Extend tests for minimal valid attribute size
 Date:   Tue,  7 Jun 2022 19:04:01 +0200
-Message-Id: <20220607164920.008915593@linuxfoundation.org>
+Message-Id: <20220607164951.967253484@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit fc8738343eefc4ea8afb6122826dea48eacde514 upstream.
+commit 291865bd7e8bb4b4033d341fa02dafa728e6378c upstream.
 
-The bug is here:
-	if (!rdev)
+This might be useful when the struct landlock_ruleset_attr will get more
+fields.
 
-The list iterator value 'rdev' will *always* be set and non-NULL
-by rdev_for_each(), so it is incorrect to assume that the iterator
-value will be NULL if the list is empty or no element found.
-Otherwise it will bypass the NULL check and lead to invalid memory
-access passing the check.
-
-To fix the bug, use a new variable 'iter' as the list iterator,
-while using the original variable 'rdev' as a dedicated pointer to
-point to the found element.
-
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-4-mic@digikod.net
 Cc: stable@vger.kernel.org
-Fixes: 2aa82191ac36 ("md-cluster: Perform a lazy update")
-Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Acked-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ tools/testing/selftests/landlock/base_test.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -2648,14 +2648,16 @@ static void sync_sbs(struct mddev *mddev
+--- a/tools/testing/selftests/landlock/base_test.c
++++ b/tools/testing/selftests/landlock/base_test.c
+@@ -35,6 +35,8 @@ TEST(inconsistent_attr)
+ 	ASSERT_EQ(EINVAL, errno);
+ 	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 1, 0));
+ 	ASSERT_EQ(EINVAL, errno);
++	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 7, 0));
++	ASSERT_EQ(EINVAL, errno);
  
- static bool does_sb_need_changing(struct mddev *mddev)
- {
--	struct md_rdev *rdev;
-+	struct md_rdev *rdev = NULL, *iter;
- 	struct mdp_superblock_1 *sb;
- 	int role;
+ 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 1, 0));
+ 	/* The size if less than sizeof(struct landlock_attr_enforce). */
+@@ -47,6 +49,9 @@ TEST(inconsistent_attr)
+ 	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, page_size + 1, 0));
+ 	ASSERT_EQ(E2BIG, errno);
  
- 	/* Find a good rdev */
--	rdev_for_each(rdev, mddev)
--		if ((rdev->raid_disk >= 0) && !test_bit(Faulty, &rdev->flags))
-+	rdev_for_each(iter, mddev)
-+		if ((iter->raid_disk >= 0) && !test_bit(Faulty, &iter->flags)) {
-+			rdev = iter;
- 			break;
-+		}
- 
- 	/* No good device found. */
- 	if (!rdev)
++	/* Checks minimal valid attribute size. */
++	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 8, 0));
++	ASSERT_EQ(ENOMSG, errno);
+ 	ASSERT_EQ(-1, landlock_create_ruleset(
+ 			      ruleset_attr,
+ 			      sizeof(struct landlock_ruleset_attr), 0));
 
 
