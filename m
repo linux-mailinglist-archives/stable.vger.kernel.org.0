@@ -2,133 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 125945415E6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6850A541771
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359779AbiFGUnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:43:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
+        id S1378631AbiFGVDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376494AbiFGUiq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:38:46 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1BD1EDD3B
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 11:38:17 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id l7-20020a17090aaa8700b001dd1a5b9965so16177226pjq.2
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 11:38:17 -0700 (PDT)
+        with ESMTP id S1379230AbiFGVCN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:13 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E64813DC3
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 11:47:02 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id gc3-20020a17090b310300b001e33092c737so16190050pjb.3
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 11:47:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+OhesSH293MOiPbahhalj3sYsDcqFhy6fC6cIx4dXpo=;
-        b=FktEEpoDekn0DwT7eNpWuqIriPjeWOf0h5XLw0WQ/TPCds9vCYIH7cD52EqcK5/4YT
-         FcvgQUamKmYiInSgTiARvRexuCKXc/PX4qEWuNfjlhmSpSbbJsZpT6G0Vrev0bNSYqYY
-         FytsbJ9KxpePFjtNpszwGasXjOscNmUpESMVcR2UPbG6eRvjbN9vCo4waTjkUh3twQz7
-         KfCtKR67SKUCyX3GumAxHgRjke9a+MQeHQsUHHJ0VG2ugQ30H54WxUsfguZNSu37jThE
-         M7F2T885beoKaLhDvgaY6DuMb7n7s0Ahnu/boR1MjZfTbHlYFH45/UX5BdsCHKH5Lmhx
-         BsGg==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc
+         :references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=ClvLn1v0KW5jcy2W1CElCvPJ8/3zjMIv2rSPG5d3wcg=;
+        b=tc1I+sdA0FwDJ/gsRcalhTdWIHb3oeBmUEKkK8g4OZEMjXtAlRTZvaNhHDSk/3+9Zf
+         ZCnTm71Ikwc9fj78Z6tJ+r+s3NKyZPGXQUM5GKc63uB2wcSoTM+yHLH1Ir/Fm51e9ot0
+         iPOjiMnofGcQT1I4z3zOljtH0zbFxSybwkGC8Uh8OTfQAgLL0VB/fu8yQm7VfTWTj1iK
+         ViabI4/ZPV3krTjB9RtlTrwxbRjkqxfKSGqc7GY05gqlqamDH4sYLLUCxRq+Tg2RE6e2
+         AQwMtPhyN/4yV7ZESuVPupvYQ3xLbWu98R4sqW9Vc3joiZka92axUvzIDfM/7JpyJlSZ
+         AErQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+OhesSH293MOiPbahhalj3sYsDcqFhy6fC6cIx4dXpo=;
-        b=OmfYZhurHOYn1Yw0AeMMS+Y/lLsjTKnl/9q6ONM/MWkn4DqKHSSItt6jgK9MwA1mTY
-         DQVT232bVe2pwwozb16FZKmb0RjzycBrzril+nMw35uTKPPiyfvSEPIkehyt4Sht0lbX
-         Hj0mqTTYZfBsiS13XD3y22dE6Heb0uM0sjLZH0bH8pAyC2vxnn7T38QSv/4lUWPH+M+u
-         NicIrePgL/H3z1nJSdVXSxJNbjsgi8l8QpYWSru3lctYhUMgQNHWGhrpp/F2FtoKrsTC
-         sgC5MsOxvE6IgHG3MTe8dAPWvhwvs9sDbOdu6ejgqE8LwGzEoLOmrQXTs/ZRZyTEXGK7
-         +2Sg==
-X-Gm-Message-State: AOAM530UYHIDCcW6jUnk6hunjvLGYTn83SgdVlZCVWbWugj09d9ZmhLY
-        1TxHwGZVXnk5WktbNort/Tb3PZ+NxLn1oF7SGRY=
-X-Google-Smtp-Source: ABdhPJz6237ukXOrDyHfBBwRFVFJzcHU0JYwAhvQXqN/HAvR/nRzJZcC+oupli/8ZQQYmTdihXfJZA==
-X-Received: by 2002:a17:90a:780d:b0:1df:959:235a with SMTP id w13-20020a17090a780d00b001df0959235amr33582188pjk.92.1654627088395;
-        Tue, 07 Jun 2022 11:38:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e63-20020a621e42000000b0051bbb661782sm12465546pfe.192.2022.06.07.11.38.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 11:38:07 -0700 (PDT)
-Message-ID: <629f9b0f.1c69fb81.53f61.b305@mx.google.com>
-Date:   Tue, 07 Jun 2022 11:38:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=ClvLn1v0KW5jcy2W1CElCvPJ8/3zjMIv2rSPG5d3wcg=;
+        b=6JDpFQzwvYnYcEX1gJ4r/UORdtYhvEjQ0ohkgJ/iV3EhbXs+5JKkvo1RTMfrJkiW4d
+         /VS+Q7Z9h4gR5lPItV7BbtgDE7ggzou4K9ifgff9LIOXrAl2iOu7QvzUNrsgvrx4YlVg
+         uiVb5RomePtCh9wHLXYuVd0m3o7qqNKtFaAl20zPuHuLswWHR3sDgwc5JbHuRmO7kt4U
+         Z3FOHjl1R9KrWVmsxf1kbplH9ZGpU1ypEren1XtEMQvDYBzlvHR9Q0cZHifBDj/nAGaG
+         c9J49RZbiQVgT/SryKzI/pPADAKoub4U7T/icqahLQDyQd69Iv3KFcN3+IgxjsNqkWOw
+         5RYw==
+X-Gm-Message-State: AOAM5302wiWMHcOZWQpsJUeQ+p50xLBKBFL7Q6ZFFBPupVXS5TWWNGB6
+        D/8DP5ssfbvcamsjU81O4jJlFB1pU8wqvg==
+X-Google-Smtp-Source: ABdhPJzC+jPXqON9HpNHUt08r2bqtxWHt/ITCvwKc/1nQ9S2LBfu4fKx7HHimoSJfCLrrW0kyL4vcg==
+X-Received: by 2002:a17:902:ec92:b0:166:3502:ecb1 with SMTP id x18-20020a170902ec9200b001663502ecb1mr30357875plg.62.1654627621789;
+        Tue, 07 Jun 2022 11:47:01 -0700 (PDT)
+Received: from [192.168.254.36] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id a2-20020a170902710200b0016141e6c5acsm13036791pll.296.2022.06.07.11.47.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jun 2022 11:47:01 -0700 (PDT)
+Message-ID: <d079b7d4-c538-8a50-3375-fab0d3a0f0e6@linaro.org>
+Date:   Tue, 7 Jun 2022 11:47:00 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.17.13-771-g1bf589e90ab9c
-X-Kernelci-Branch: queue/5.17
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.17 baseline: 157 runs,
- 1 regressions (v5.17.13-771-g1bf589e90ab9c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Content-Language: en-US
+To:     =?UTF-8?Q?Michal_Koutn=c3=bd?= <mkoutny@suse.com>
+Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, cgroups@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+References: <20220603173455.441537-1-tadeusz.struk@linaro.org>
+ <20220603181321.443716-1-tadeusz.struk@linaro.org>
+ <20220606123910.GF6928@blackbody.suse.cz>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: Re: [PATCH v2] cgroup: serialize css kill and release paths
+In-Reply-To: <20220606123910.GF6928@blackbody.suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.17 baseline: 157 runs, 1 regressions (v5.17.13-771-g1bf58=
-9e90ab9c)
+On 6/6/22 05:39, Michal Koutný wrote:
+> On Fri, Jun 03, 2022 at 11:13:21AM -0700, Tadeusz Struk<tadeusz.struk@linaro.org>  wrote:
+>> In such scenario the css_killed_work_fn will be en-queued via
+>> cgroup_apply_control_disable(cgrp)->kill_css(css), and bail out to
+>> cgroup_kn_unlock(). Then cgroup_kn_unlock() will call:
+>> cgroup_put(cgrp)->css_put(&cgrp->self), which will try to enqueue
+>> css_release_work_fn for the same css instance, causing a list_add
+>> corruption bug, as can be seen in the syzkaller report [1].
+> This hypothesis doesn't add up to me (I am sorry).
+> 
+> The kill_css(css) would be a css associated with a subsys (css.ss !=
+> NULL) whereas css_put(&cgrp->self) is a different css just for the
+> cgroup (css.ss == NULL).
 
-Regressions Summary
--------------------
+Yes, you are right. I couldn't figure it out where the extra css_put()
+is called from, and the only place that fitted into my theory was from
+the cgroup_kn_unlock() in cgroup_apply_control_disable().
+After some more debugging I can see that, as you said, the cgrp->self
+is a different css. The offending _put() is actually called by the
+percpu_ref_kill_and_confirm(), as it not only calls the passed confirm_kill
+percpu_ref_func_t, but also it puts the refcnt iself.
+Because the cgroup_apply_control_disable() will loop for_each_live_descendant,
+and call css_kill() on all css'es, and css_killed_work_fn() will also loop
+and call css_put() on all parents, the css_release() will be called on the
+first parent prematurely, causing the BUG(). What I think should be done
+to balance put/get is to call css_get() for all the parents in kill_css():
 
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index c1e1a5c34e77..3ca61325bc4e 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5527,6 +5527,8 @@ static void css_killed_ref_fn(struct percpu_ref *ref)
+   */
+  static void kill_css(struct cgroup_subsys_state *css)
+  {
++       struct cgroup_subsys_state *_css = css;
++
+         lockdep_assert_held(&cgroup_mutex);
+  
+         if (css->flags & CSS_DYING)
+@@ -5541,10 +5543,13 @@ static void kill_css(struct cgroup_subsys_state *css)
+         css_clear_dir(css);
+  
+         /*
+-        * Killing would put the base ref, but we need to keep it alive
+-        * until after ->css_offline().
++        * Killing would put the base ref, but we need to keep it alive,
++        * and all its parents, until after ->css_offline().
+          */
+-       css_get(css);
++       do {
++               css_get(_css);
++               _css = _css->parent;
++       } while (_css && atomic_read(&_css->online_cnt));
+  
+         /*
+          * cgroup core guarantees that, by the time ->css_offline() is
 
+This will be then "reverted" in css_killed_work_fn()
+Please let me know if it makes sense to you.
+I'm still testing it, but syzbot is very slow today.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
-nel/v5.17.13-771-g1bf589e90ab9c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.17
-  Describe: v5.17.13-771-g1bf589e90ab9c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1bf589e90ab9c862905b73505fa7926dde93f7a6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/629f68f1b6c118e3f4a39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
-771-g1bf589e90ab9c/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
-771-g1bf589e90ab9c/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629f68f1b6c118e3f4a39=
-bce
-        new failure (last pass: v5.17.13-759-gf64e250b75652) =
-
- =20
+-- 
+Thanks,
+Tadeusz
