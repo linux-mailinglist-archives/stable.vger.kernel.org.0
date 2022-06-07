@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F6E541512
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5559C541BDA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377178AbiFGU2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:28:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53020 "EHLO
+        id S1377605AbiFGVy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359578AbiFGUXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:23:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4928113D0F;
-        Tue,  7 Jun 2022 11:32:12 -0700 (PDT)
+        with ESMTP id S1383296AbiFGVxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C022432CC;
+        Tue,  7 Jun 2022 12:11:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2EDBB82239;
-        Tue,  7 Jun 2022 18:32:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30A78C385A2;
-        Tue,  7 Jun 2022 18:32:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5743D612EC;
+        Tue,  7 Jun 2022 19:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A0BDC385A2;
+        Tue,  7 Jun 2022 19:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626729;
-        bh=X2ui7TYzHuY8jWMYRvjVJF4NqQtBD9L+/RpYLL9Y9cg=;
+        s=korg; t=1654629066;
+        bh=THnhl6EqQFhS3geuRLyG54hpkwuwb34QL3RX6SGZLlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEpzDDMbRB0pXOCQdH90vazhwLLHL9tJx+SlRRzqk9wgkHHxMksIs/kJ7LaZQa//l
-         phZjrKUGoHzZviEr24NnJ9qn4iWYOVmUA+63P07Z+KufTxRggnJKDRYRJzI4Xzyul1
-         +zS5nmKgtng3H0V8F9xgmlE149j46QPo5AGw9uQ8=
+        b=B0K632xHXkEqqZuFuvJq6dD/BEBphIc4i+7Th2OsCBQCUz/uIbw9vAX7d8rBT7MUH
+         j7eLbousgbcopVW5RfJvolQQatX79wVIoshPloW5DAoJeE5lHW5nI1/gBM8J//syJM
+         pCXRoojG3rPLXPXSmMA3XLlWYcJJ0YixeJ5lj5SM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 484/772] gpiolib: of: Introduce hook for missing gpio-ranges
+Subject: [PATCH 5.18 558/879] ARM: dts: imx6dl-colibri: Fix I2C pinmuxing
 Date:   Tue,  7 Jun 2022 19:01:16 +0200
-Message-Id: <20220607165003.249211689@linuxfoundation.org>
+Message-Id: <20220607165019.060174621@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Max Krummenacher <max.krummenacher@toradex.com>
 
-[ Upstream commit 3550bba25d5587a701e6edf20e20984d2ee72c78 ]
+[ Upstream commit 5f5c579a34a87117c20b411df583ae816c1ec84f ]
 
-Since commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-the device tree nodes of GPIO controller need the gpio-ranges property to
-handle gpio-hogs. Unfortunately it's impossible to guarantee that every new
-kernel is shipped with an updated device tree binary.
+Fix names of extra pingroup node and property for gpio bus recovery.
+Without the change i2c2 is not functional.
 
-In order to provide backward compatibility with those older DTB, we need a
-callback within of_gpiochip_add_pin_range() so the relevant platform driver
-can handle this case.
-
-Fixes: 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Link: https://lore.kernel.org/r/20220409095129.45786-2-stefan.wahren@i2se.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 56f0df6b6b58 ("ARM: dts: imx*(colibri|apalis): add missing recovery modes to i2c")
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c   |  5 +++++
- include/linux/gpio/driver.h | 12 ++++++++++++
- 2 files changed, 17 insertions(+)
+ arch/arm/boot/dts/imx6qdl-colibri.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index 775a7dadf9a3..1fcb759062c4 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -933,6 +933,11 @@ static int of_gpiochip_add_pin_range(struct gpio_chip *chip)
- 	if (!np)
- 		return 0;
+diff --git a/arch/arm/boot/dts/imx6qdl-colibri.dtsi b/arch/arm/boot/dts/imx6qdl-colibri.dtsi
+index 4e2a309c93fa..1e86b3814708 100644
+--- a/arch/arm/boot/dts/imx6qdl-colibri.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-colibri.dtsi
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+ OR MIT
+ /*
+- * Copyright 2014-2020 Toradex
++ * Copyright 2014-2022 Toradex
+  * Copyright 2012 Freescale Semiconductor, Inc.
+  * Copyright 2011 Linaro Ltd.
+  */
+@@ -132,7 +132,7 @@
+ 	clock-frequency = <100000>;
+ 	pinctrl-names = "default", "gpio";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+-	pinctrl-0 = <&pinctrl_i2c2_gpio>;
++	pinctrl-1 = <&pinctrl_i2c2_gpio>;
+ 	scl-gpios = <&gpio2 30 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	sda-gpios = <&gpio3 16 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	status = "okay";
+@@ -488,7 +488,7 @@
+ 		>;
+ 	};
  
-+	if (!of_property_read_bool(np, "gpio-ranges") &&
-+	    chip->of_gpio_ranges_fallback) {
-+		return chip->of_gpio_ranges_fallback(chip, np);
-+	}
-+
- 	group_names = of_find_property(np, group_names_propname, NULL);
- 
- 	for (;; index++) {
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index f8996b46f430..9f0408222f40 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -498,6 +498,18 @@ struct gpio_chip {
- 	 */
- 	int (*of_xlate)(struct gpio_chip *gc,
- 			const struct of_phandle_args *gpiospec, u32 *flags);
-+
-+	/**
-+	 * @of_gpio_ranges_fallback:
-+	 *
-+	 * Optional hook for the case that no gpio-ranges property is defined
-+	 * within the device tree node "np" (usually DT before introduction
-+	 * of gpio-ranges). So this callback is helpful to provide the
-+	 * necessary backward compatibility for the pin ranges.
-+	 */
-+	int (*of_gpio_ranges_fallback)(struct gpio_chip *gc,
-+				       struct device_node *np);
-+
- #endif /* CONFIG_OF_GPIO */
- };
- 
+-	pinctrl_i2c2_gpio: i2c2grp {
++	pinctrl_i2c2_gpio: i2c2gpiogrp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_EIM_EB2__GPIO2_IO30 0x4001b8b1
+ 			MX6QDL_PAD_EIM_D16__GPIO3_IO16 0x4001b8b1
 -- 
 2.35.1
 
