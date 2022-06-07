@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7339E54063B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C1E0541C56
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346980AbiFGReJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39264 "EHLO
+        id S1382429AbiFGV6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347697AbiFGRa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 919E411AFCB;
-        Tue,  7 Jun 2022 10:28:02 -0700 (PDT)
+        with ESMTP id S1383275AbiFGVxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7676B192C6D;
+        Tue,  7 Jun 2022 12:11:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34B53B8220B;
-        Tue,  7 Jun 2022 17:28:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 988A8C385A5;
-        Tue,  7 Jun 2022 17:27:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02CB6617D0;
+        Tue,  7 Jun 2022 19:11:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 128CEC385A5;
+        Tue,  7 Jun 2022 19:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622880;
-        bh=K0QWiNF3r/Zjfy7ARiaA4el2hHfsXadyhFLa3hz1gMM=;
+        s=korg; t=1654629061;
+        bh=CM5C21dDrdibEW+bcAZI1Uv43lEfqcd0JNHS1Y0rOKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EprLPHjK/DGRp48Yem/6XXKYStpQlQsaAVDyOueRdChj8YcanYtivEd5i7nK5VU5G
-         JBIYmfFaoVGdfZe9iA2B4+AETjQtF35Hf1cJpeO9TaaIgIlMzUg39WSkphVs84AbbW
-         HPXrMGiY8heOmellHngAnGuCnAigSbtdMC+4QAVM=
+        b=mj2d7kKqvumSf6iphU2/tXeXifIXFdw7b45V+6Rvsb54fKRvW5B1BPR7HmcwDhWdS
+         ukwTp/U59fAhQpu1UObnLA/3p1CfSpRDa4dMTlCCNuyut7Zm9vsMuSY6JFJqfzdGQJ
+         FZlKMGy7vlPAJdTa/GTU0WsZDwmZWHTq8+hXkjCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bhaskar Chowdhury <unixbhaskar@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 217/452] Bluetooth: L2CAP: Rudimentary typo fixes
+Subject: [PATCH 5.18 556/879] crypto: qat - set COMPRESSION capability for DH895XCC
 Date:   Tue,  7 Jun 2022 19:01:14 +0200
-Message-Id: <20220607164915.027409327@linuxfoundation.org>
+Message-Id: <20220607165019.003822906@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhaskar Chowdhury <unixbhaskar@gmail.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 5153ceb9e622f4e27de461404edc73324da70f8c ]
+[ Upstream commit 0eaa51543273fd0f4ba9bea83638f7033436e5eb ]
 
-s/minium/minimum/
-s/procdure/procedure/
+The capability detection logic clears bits for the features that are
+disabled in a certain SKU. For example, if the bit associate to
+compression is not present in the LEGFUSE register, the correspondent
+bit is cleared in the capability mask.
+This change adds the compression capability to the mask as this was
+missing in the commit that enhanced the capability detection logic.
 
-Signed-off-by: Bhaskar Chowdhury <unixbhaskar@gmail.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: cfe4894eccdc ("crypto: qat - set COMPRESSION capability for QAT GEN2")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 012c1a0abda8..ad33c592cde4 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1689,7 +1689,7 @@ static void l2cap_le_conn_ready(struct l2cap_conn *conn)
- 		smp_conn_security(hcon, hcon->pending_sec_level);
+diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
+index 8a526badf5bf..91095ad479dc 100644
+--- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
++++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
+@@ -61,7 +61,8 @@ static u32 get_accel_cap(struct adf_accel_dev *accel_dev)
+ 	capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
+ 		       ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
+ 		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
+-		       ICP_ACCEL_CAPABILITIES_CIPHER;
++		       ICP_ACCEL_CAPABILITIES_CIPHER |
++		       ICP_ACCEL_CAPABILITIES_COMPRESSION;
  
- 	/* For LE slave connections, make sure the connection interval
--	 * is in the range of the minium and maximum interval that has
-+	 * is in the range of the minimum and maximum interval that has
- 	 * been configured for this connection. If not, then trigger
- 	 * the connection update procedure.
- 	 */
-@@ -7540,7 +7540,7 @@ static void l2cap_data_channel(struct l2cap_conn *conn, u16 cid,
- 	BT_DBG("chan %p, len %d", chan, skb->len);
- 
- 	/* If we receive data on a fixed channel before the info req/rsp
--	 * procdure is done simply assume that the channel is supported
-+	 * procedure is done simply assume that the channel is supported
- 	 * and mark it as ready.
- 	 */
- 	if (chan->chan_type == L2CAP_CHAN_FIXED)
+ 	/* Read accelerator capabilities mask */
+ 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
 -- 
 2.35.1
 
