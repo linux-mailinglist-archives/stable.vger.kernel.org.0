@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9365E5414C1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FDE95405F3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355381AbiFGUVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47344 "EHLO
+        id S1346989AbiFGRca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359850AbiFGUVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E61178553;
-        Tue,  7 Jun 2022 11:30:50 -0700 (PDT)
+        with ESMTP id S1347438AbiFGRao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A66110AFD;
+        Tue,  7 Jun 2022 10:26:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AB29611B9;
-        Tue,  7 Jun 2022 18:30:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 325D0C385A2;
-        Tue,  7 Jun 2022 18:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 527676127C;
+        Tue,  7 Jun 2022 17:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 617D8C385A5;
+        Tue,  7 Jun 2022 17:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626649;
-        bh=DHhMOTAVSHSY0j7O0/1UO25k14ku7/TFOBskDOIVeLg=;
+        s=korg; t=1654622807;
+        bh=EYs9ncx94BaVVOEcgi9lPfmZq5mNYDCe5PE0656+Wsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMbe5ukG6dDxT82kP09/tH5clSh6TrkNfdU9c9ZUcsSMqgv42gbxmsYJZNU5S88IY
-         rLbPUUJ+s4MgISLsk482uOIKdpPI3HZ0QIooBbKUsPqsV7bfx9qrkzLRQB1EpyDVNm
-         4n5ohoaXVTDGBrDSBiiqeE91NgRceXuvEh9w5ImA=
+        b=itx+gUYbQhEnQ4JOmyoqimqcEVjaGBuRx2sIp3JI8rrYaeO2qrJIThaaolsikl+td
+         kCaAuyu00rbcMKCuVUqwORCu5sSvYgLWdwMxjsTqsLQ1GtTw65v2KnxLtPPq3vO5dY
+         HMnvsz/71gVeCQCJgRvO6jX7OjFgfP1rUqGCTmvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 454/772] memory: samsung: exynos5422-dmc: Avoid some over memory allocation
+Subject: [PATCH 5.10 189/452] arm64: fix types in copy_highpage()
 Date:   Tue,  7 Jun 2022 19:00:46 +0200
-Message-Id: <20220607165002.381237755@linuxfoundation.org>
+Message-Id: <20220607164914.193828624@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit 56653827f0d7bc7c2d8bac0e119fd1521fa9990a ]
+[ Upstream commit 921d161f15d6b090599f6a8c23f131969edbd1fa ]
 
-'dmc->counter' is a 'struct devfreq_event_dev **', so there is some
-over memory allocation. 'counters_size' should be computed with
-'sizeof(struct devfreq_event_dev *)'.
+In copy_highpage() the `kto` and `kfrom` local variables are pointers to
+struct page, but these are used to hold arbitrary pointers to kernel memory
+. Each call to page_address() returns a void pointer to memory associated
+with the relevant page, and copy_page() expects void pointers to this
+memory.
 
-Use 'sizeof(*dmc->counter)' instead to fix it.
+This inconsistency was introduced in commit 2563776b41c3 ("arm64: mte:
+Tags-aware copy_{user_,}highpage() implementations") and while this
+doesn't appear to be harmful in practice it is clearly wrong.
 
-While at it, use devm_kcalloc() instead of devm_kzalloc()+open coded
-multiplication.
+Correct this by making `kto` and `kfrom` void pointers.
 
-Fixes: 6e7674c3c6df ("memory: Add DMC driver for Exynos5422")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/69d7e69346986e2fdb994d4382954c932f9f0993.1647760213.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fixes: 2563776b41c3 ("arm64: mte: Tags-aware copy_{user_,}highpage() implementations")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Link: https://lore.kernel.org/r/20220420030418.3189040-3-tongtiangen@huawei.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/samsung/exynos5422-dmc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm64/mm/copypage.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memory/samsung/exynos5422-dmc.c b/drivers/memory/samsung/exynos5422-dmc.c
-index 9c8318923ed0..4733e7898ffe 100644
---- a/drivers/memory/samsung/exynos5422-dmc.c
-+++ b/drivers/memory/samsung/exynos5422-dmc.c
-@@ -1322,7 +1322,6 @@ static int exynos5_dmc_init_clks(struct exynos5_dmc *dmc)
-  */
- static int exynos5_performance_counters_init(struct exynos5_dmc *dmc)
+diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
+index 70a71f38b6a9..24913271e898 100644
+--- a/arch/arm64/mm/copypage.c
++++ b/arch/arm64/mm/copypage.c
+@@ -16,8 +16,8 @@
+ 
+ void copy_highpage(struct page *to, struct page *from)
  {
--	int counters_size;
- 	int ret, i;
+-	struct page *kto = page_address(to);
+-	struct page *kfrom = page_address(from);
++	void *kto = page_address(to);
++	void *kfrom = page_address(from);
  
- 	dmc->num_counters = devfreq_event_get_edev_count(dmc->dev,
-@@ -1332,8 +1331,8 @@ static int exynos5_performance_counters_init(struct exynos5_dmc *dmc)
- 		return dmc->num_counters;
- 	}
- 
--	counters_size = sizeof(struct devfreq_event_dev) * dmc->num_counters;
--	dmc->counter = devm_kzalloc(dmc->dev, counters_size, GFP_KERNEL);
-+	dmc->counter = devm_kcalloc(dmc->dev, dmc->num_counters,
-+				    sizeof(*dmc->counter), GFP_KERNEL);
- 	if (!dmc->counter)
- 		return -ENOMEM;
+ 	copy_page(kto, kfrom);
  
 -- 
 2.35.1
