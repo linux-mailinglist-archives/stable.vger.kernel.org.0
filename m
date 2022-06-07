@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E63540B7F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C40EC541B6A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350541AbiFGS3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36892 "EHLO
+        id S1378733AbiFGVrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350271AbiFGSYR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:24:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37C4D4A36;
-        Tue,  7 Jun 2022 10:54:26 -0700 (PDT)
+        with ESMTP id S1381972AbiFGVpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:45:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AEB235252;
+        Tue,  7 Jun 2022 12:07:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4229617A6;
-        Tue,  7 Jun 2022 17:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF27C34115;
-        Tue,  7 Jun 2022 17:54:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6241EB823B2;
+        Tue,  7 Jun 2022 19:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3764C385A2;
+        Tue,  7 Jun 2022 19:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624454;
-        bh=90Pwb1gFolXdYAzqnbg5nWM90mOc6mUXMhJrZxKLkLA=;
+        s=korg; t=1654628855;
+        bh=p/vWRLsXaxn69jFFiFCh3tIbEqu+F8JroeQeTdsr9i0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hU/NKmCpVzup5ITJtopT84WqbP9S/bD8qckb43aysUj6m/ImcEQKDxzJ9n5+JI1Pw
-         rbFblLHY+mCWv7cwQyMXhCb9no1iLRCAT2p3UEBUUbcuqL9TSPvQA1PVjavs+aLjlQ
-         Euorh+uploTu8eoJ2sn1v0nMXwOunJ/9/CfwoAdc=
+        b=NttA6XJRqA7iWrcCM2eTtwyNY6NZSa9N0C/Hf7FMf+4rux+7c4nfohjkMrNGlSUyP
+         mXeQH+avgnW0cp1pbhGuj2QYBTGhh5cHOwmTxwabSeRQkfmZwoXExRj4vUiq/fZjBw
+         HvbhszrCDrFo7LTao4mCz0uJA98LMJ/CUFNFZqnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Yue Hu <huyue2@coolpad.com>,
+        Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 333/667] m68k: math-emu: Fix dependencies of math emulation support
+Subject: [PATCH 5.18 480/879] erofs: fix buffer copy overflow of ztailpacking feature
 Date:   Tue,  7 Jun 2022 18:59:58 +0200
-Message-Id: <20220607164944.755056159@linuxfoundation.org>
+Message-Id: <20220607165016.809309386@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit ed6bc6bf0a7d75e80eb1df883c09975ebb74e590 ]
+[ Upstream commit dcbe6803fffd387f72b48c2373b5f5ed12a5804b ]
 
-If CONFIG_M54xx=y, CONFIG_MMU=y, and CONFIG_M68KFPU_EMU=y:
+I got some KASAN report as below:
 
-    {standard input}:272: Error: invalid instruction for this architecture; needs 68000 or higher (68000 [68ec000, 68hc000, 68hc001, 68008, 68302, 68306, 68307, 68322, 68356], 68010, 68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060], cpu32 [68330, 68331, 68332, 68333, 68334, 68336, 68340, 68341, 68349, 68360], fidoa [fido]) -- statement `sub.b %d1,%d3' ignored
-    {standard input}:609: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `bfextu 4(%a1){%d0,#8},%d0' ignored
-    {standard input}:752: Error: operands mismatch -- statement `mulu.l 4(%a0),%d3:%d0' ignored
-    {standard input}:1155: Error: operands mismatch -- statement `divu.l %d0,%d3:%d7' ignored
+[   46.959738] ==================================================================
+[   46.960430] BUG: KASAN: use-after-free in z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430] Read of size 4074 at addr ffff8880300c2f8e by task fssum/188
+...
+[   46.960430] Call Trace:
+[   46.960430]  <TASK>
+[   46.960430]  dump_stack_lvl+0x41/0x5e
+[   46.960430]  print_report.cold+0xb2/0x6b7
+[   46.960430]  ? z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430]  kasan_report+0x8a/0x140
+[   46.960430]  ? z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430]  kasan_check_range+0x14d/0x1d0
+[   46.960430]  memcpy+0x20/0x60
+[   46.960430]  z_erofs_shifted_transform+0x2bd/0x370
+[   46.960430]  z_erofs_decompress_pcluster+0xaae/0x1080
 
-The math emulation support code is intended for 68020 and higher, and
-uses several instructions or instruction modes not available on coldfire
-or 68000.
+The root cause is that the tail pcluster won't be a complete filesystem
+block anymore. So if ztailpacking is used, the second part of an
+uncompressed tail pcluster may not be ``rq->pageofs_out``.
 
-Originally, the dependency of M68KFPU_EMU on MMU was fine, as MMU
-support was only available on 68020 or higher.  But this assumption
-was broken by the introduction of MMU support for M547x and M548x.
-
-Drop the dependency on MMU, as the code should work fine on 68020 and up
-without MMU (which are not yet supported by Linux, though).
-Add dependencies on M68KCLASSIC (to rule out Coldfire) and FPU (kernel
-has some type of floating-point support --- be it hardware or software
-emulated, to rule out anything below 68020).
-
-Fixes: 1f7034b9616e6f14 ("m68k: allow ColdFire 547x and 548x CPUs to be built with MMU enabled")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Greg Ungerer <gerg@linux-m68k.org>
-Link: https://lore.kernel.org/r/18c34695b7c95107f60ccca82a4ff252f3edf477.1652446117.git.geert@linux-m68k.org
+Fixes: ab749badf9f4 ("erofs: support unaligned data decompression")
+Fixes: cecf864d3d76 ("erofs: support inline data decompression")
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Link: https://lore.kernel.org/r/20220512115833.24175-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.cpu | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/erofs/decompressor.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
-index 277d61a09463..29558055c71b 100644
---- a/arch/m68k/Kconfig.cpu
-+++ b/arch/m68k/Kconfig.cpu
-@@ -338,7 +338,7 @@ comment "Processor Specific Options"
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 3efa686c7644..0e0d1fc0f130 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -322,6 +322,7 @@ static int z_erofs_shifted_transform(struct z_erofs_decompress_req *rq,
+ 		PAGE_ALIGN(rq->pageofs_out + rq->outputsize) >> PAGE_SHIFT;
+ 	const unsigned int righthalf = min_t(unsigned int, rq->outputsize,
+ 					     PAGE_SIZE - rq->pageofs_out);
++	const unsigned int lefthalf = rq->outputsize - righthalf;
+ 	unsigned char *src, *dst;
  
- config M68KFPU_EMU
- 	bool "Math emulation support"
--	depends on MMU
-+	depends on M68KCLASSIC && FPU
- 	help
- 	  At some point in the future, this will cause floating-point math
- 	  instructions to be emulated by the kernel on machines that lack a
+ 	if (nrpages_out > 2) {
+@@ -344,10 +345,10 @@ static int z_erofs_shifted_transform(struct z_erofs_decompress_req *rq,
+ 	if (nrpages_out == 2) {
+ 		DBG_BUGON(!rq->out[1]);
+ 		if (rq->out[1] == *rq->in) {
+-			memmove(src, src + righthalf, rq->pageofs_out);
++			memmove(src, src + righthalf, lefthalf);
+ 		} else {
+ 			dst = kmap_atomic(rq->out[1]);
+-			memcpy(dst, src + righthalf, rq->pageofs_out);
++			memcpy(dst, src + righthalf, lefthalf);
+ 			kunmap_atomic(dst);
+ 		}
+ 	}
 -- 
 2.35.1
 
