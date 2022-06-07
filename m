@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 138D85406D2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA6B540717
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347217AbiFGRiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60338 "EHLO
+        id S1347955AbiFGRmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:42:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347231AbiFGRhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:37:38 -0400
+        with ESMTP id S1347924AbiFGRk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33671929F;
-        Tue,  7 Jun 2022 10:33:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7964251E4E;
+        Tue,  7 Jun 2022 10:33:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B868A6146F;
-        Tue,  7 Jun 2022 17:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA505C385A5;
-        Tue,  7 Jun 2022 17:33:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 631A96157E;
+        Tue,  7 Jun 2022 17:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65E68C385A5;
+        Tue,  7 Jun 2022 17:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623189;
-        bh=lvjgWwCWMMG4oPUt5XqFiKHL2VFjfq8Xa8zNktZpPmc=;
+        s=korg; t=1654623194;
+        bh=KavjZZV0bIj4DVUZb0ZsmOdEv1CW+hkrMyeN9GTAGUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSHoxsOwvD5kDiLv/cTblZnngxsW/IVrXK5GHgpkbMX5C0Uj/Oak5Zsv770LrKCGa
-         a5QrAFik7Wl42J29nnZNa0HQb84tfuC0ytpZxq/1IAa8sGxMpR67VtCYmiKMCUjZXg
-         kO4CSMRo4F+EHJEyUuYXH+RcVfQ6z10Uy8RDspYk=
+        b=tiEiW3IdCCH+YFNu0RInEQxeXnzXJdYix9PnZreUoGroCuh2Mr9yDniJty5th9S4I
+         lXDTwZPRwqm3c7tXMkoB1t5P70hfDvGztSrOBowz6gLTXqq5H2xcUlIvThf1p0/7Tx
+         COLtA1sanVw+hbXCFwnU4Co9pKGd0j49N1YhHFkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Michael Walle <michael@walle.cc>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 326/452] i2c: at91: Initialize dma_buf in at91_twi_xfer()
-Date:   Tue,  7 Jun 2022 19:03:03 +0200
-Message-Id: <20220607164918.275566049@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 327/452] dmaengine: idxd: Fix the error handling path in idxd_cdev_register()
+Date:   Tue,  7 Jun 2022 19:03:04 +0200
+Message-Id: <20220607164918.305423046@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
 References: <20220607164908.521895282@linuxfoundation.org>
@@ -54,46 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6977262c2eee111645668fe9e235ef2f5694abf7 ]
+[ Upstream commit aab08c1aac01097815fbcf10fce7021d2396a31f ]
 
-Clang warns:
+If a call to alloc_chrdev_region() fails, the already allocated resources
+are leaking.
 
-  drivers/i2c/busses/i2c-at91-master.c:707:6: warning: variable 'dma_buf' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-          if (dev->use_dma) {
-              ^~~~~~~~~~~~
-  drivers/i2c/busses/i2c-at91-master.c:717:27: note: uninitialized use occurs here
-          i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
-                                   ^~~~~~~
+Add the needed error handling path to fix the leak.
 
-Initialize dma_buf to NULL, as i2c_put_dma_safe_msg_buf() is a no-op
-when the first argument is NULL, which will work for the !dev->use_dma
-case.
-
-Fixes: 03fbb903c8bf ("i2c: at91: use dma safe buffers")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1629
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 42d279f9137a ("dmaengine: idxd: add char driver to expose submission portal to userland")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/1b5033dcc87b5f2a953c413f0306e883e6114542.1650521591.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-at91-master.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/idxd/cdev.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index 974225faaf96..7960fa4b8c5b 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -657,7 +657,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	unsigned int_addr_flag = 0;
- 	struct i2c_msg *m_start = msg;
- 	bool is_read;
--	u8 *dma_buf;
-+	u8 *dma_buf = NULL;
+diff --git a/drivers/dma/idxd/cdev.c b/drivers/dma/idxd/cdev.c
+index 4da88578ed64..ae65eb90afab 100644
+--- a/drivers/dma/idxd/cdev.c
++++ b/drivers/dma/idxd/cdev.c
+@@ -266,10 +266,16 @@ int idxd_cdev_register(void)
+ 		rc = alloc_chrdev_region(&ictx[i].devt, 0, MINORMASK,
+ 					 ictx[i].name);
+ 		if (rc)
+-			return rc;
++			goto err_free_chrdev_region;
+ 	}
  
- 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+ 	return 0;
++
++err_free_chrdev_region:
++	for (i--; i >= 0; i--)
++		unregister_chrdev_region(ictx[i].devt, MINORMASK);
++
++	return rc;
+ }
  
+ void idxd_cdev_remove(void)
 -- 
 2.35.1
 
