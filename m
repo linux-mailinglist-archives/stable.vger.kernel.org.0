@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C1354131C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC7C5404E6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357996AbiFGT4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50062 "EHLO
+        id S1345714AbiFGRTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358751AbiFGTxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60640AF1D3;
-        Tue,  7 Jun 2022 11:22:21 -0700 (PDT)
+        with ESMTP id S1345767AbiFGRTQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7153A1053E6;
+        Tue,  7 Jun 2022 10:19:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4967BCE244E;
-        Tue,  7 Jun 2022 18:22:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43967C385A2;
-        Tue,  7 Jun 2022 18:22:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF6F1617C0;
+        Tue,  7 Jun 2022 17:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC2CC34115;
+        Tue,  7 Jun 2022 17:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626137;
-        bh=seCFZk7YL+TVjD/DOD0zsxuIbf6/QXBn7zKIHdKSTeo=;
+        s=korg; t=1654622352;
+        bh=LBiJ3+FZSoVrfzq6JdYxgX57MW0j1x0ukRRc5zVpJG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbc+7LbVTmh2DvBoVKj9FBnFe0lrLH0YfLBSK+UXH2hB/YxLVBtsbKTIOmLZO3xBg
-         ClyeE/lblN6dN2sPbjxk8Ea6axratLC3eq6tQJ3i91mj7fNDafoF/dFXWOlsrJqttS
-         JD6zUdqRoDM4md8oC/W8/dyKLtSPJ/0w8yiT3YTY=
+        b=nLokItaS5cTgXvPWvJqOtoyoD6nYxodt8N3OTYxRvh6AApR9G8vjEOOWe2P22sBxG
+         RS9sr1HwWbELs4yjCdZBW/FYRScx3dHEY+WwXiHllXnrXM8oD+OEcne1rJ6G2NJNn8
+         ODkAECRneYanMNDaNrEsLDbUM321rm+8xkB5EViY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 271/772] mtd: rawnand: denali: Use managed device resources
-Date:   Tue,  7 Jun 2022 18:57:43 +0200
-Message-Id: <20220607164957.011556358@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marios Levogiannis <marios.levogiannis@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 007/452] ALSA: hda/realtek - Fix microphone noise on ASUS TUF B550M-PLUS
+Date:   Tue,  7 Jun 2022 18:57:44 +0200
+Message-Id: <20220607164908.751258638@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Marios Levogiannis <marios.levogiannis@gmail.com>
 
-[ Upstream commit 3a745b51cddafade99aaea1b93aad31e9614e230 ]
+commit 9bfa7b36343c7d84370bc61c9ed774635b05e4eb upstream.
 
-All of the resources used by this driver has managed interfaces, so use
-them. Otherwise we will get the following splat:
+Set microphone pins 0x18 (rear) and 0x19 (front) to VREF_50 to fix the
+microphone noise on ASUS TUF B550M-PLUS which uses the ALCS1200A codec.
+The initial value was VREF_80.
 
-[    4.472703] denali-nand-pci 0000:00:05.0: timeout while waiting for irq 0x1000
-[    4.474071] denali-nand-pci: probe of 0000:00:05.0 failed with error -5
-[    4.473538] nand: No NAND device found
-[    4.474068] BUG: unable to handle page fault for address: ffffc90005000410
-[    4.475169] #PF: supervisor write access in kernel mode
-[    4.475579] #PF: error_code(0x0002) - not-present page
-[    4.478362] RIP: 0010:iowrite32+0x9/0x50
-[    4.486068] Call Trace:
-[    4.486269]  <IRQ>
-[    4.486443]  denali_isr+0x15b/0x300 [denali]
-[    4.486788]  ? denali_direct_write+0x50/0x50 [denali]
-[    4.487189]  __handle_irq_event_percpu+0x161/0x3b0
-[    4.487571]  handle_irq_event+0x7d/0x1b0
-[    4.487884]  handle_fasteoi_irq+0x2b0/0x770
-[    4.488219]  __common_interrupt+0xc8/0x1b0
-[    4.488549]  common_interrupt+0x9a/0xc0
+The same issue is also present on Windows using both the default Windows
+driver and all tested Realtek drivers before version 6.0.9049.1. Comparing
+Realtek driver 6.0.9049.1 (the first one without the microphone noise) to
+Realtek driver 6.0.9047.1 (the last one with the microphone noise)
+revealed that the fix is the result of setting pins 0x18 and 0x19 to
+VREF_50.
 
-Fixes: 93db446a424c ("mtd: nand: move raw NAND related code to the raw/ subdir")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220411125808.958276-1-zheyuma97@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix may also work for other boards that have been reported to have
+the same microphone issue and use the ALC1150 and ALCS1200A codecs, since
+these codecs are similar and the fix in the Realtek driver on Windows is
+common for both. However, it is currently enabled only for ASUS TUF
+B550M-PLUS as this is the only board that could be tested.
+
+Signed-off-by: Marios Levogiannis <marios.levogiannis@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220530074131.12258-1-marios.levogiannis@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/denali_pci.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ sound/pci/hda/patch_realtek.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/denali_pci.c b/drivers/mtd/nand/raw/denali_pci.c
-index 20c085a30adc..de7e722d3826 100644
---- a/drivers/mtd/nand/raw/denali_pci.c
-+++ b/drivers/mtd/nand/raw/denali_pci.c
-@@ -74,22 +74,21 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 		return ret;
- 	}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -1990,6 +1990,7 @@ enum {
+ 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
+ 	ALC887_FIXUP_ASUS_AUDIO,
+ 	ALC887_FIXUP_ASUS_HMIC,
++	ALCS1200A_FIXUP_MIC_VREF,
+ };
  
--	denali->reg = ioremap(csr_base, csr_len);
-+	denali->reg = devm_ioremap(denali->dev, csr_base, csr_len);
- 	if (!denali->reg) {
- 		dev_err(&dev->dev, "Spectra: Unable to remap memory region\n");
- 		return -ENOMEM;
- 	}
+ static void alc889_fixup_coef(struct hda_codec *codec,
+@@ -2535,6 +2536,14 @@ static const struct hda_fixup alc882_fix
+ 		.chained = true,
+ 		.chain_id = ALC887_FIXUP_ASUS_AUDIO,
+ 	},
++	[ALCS1200A_FIXUP_MIC_VREF] = {
++		.type = HDA_FIXUP_PINCTLS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x18, PIN_VREF50 }, /* rear mic */
++			{ 0x19, PIN_VREF50 }, /* front mic */
++			{}
++		}
++	},
+ };
  
--	denali->host = ioremap(mem_base, mem_len);
-+	denali->host = devm_ioremap(denali->dev, mem_base, mem_len);
- 	if (!denali->host) {
- 		dev_err(&dev->dev, "Spectra: ioremap failed!");
--		ret = -ENOMEM;
--		goto out_unmap_reg;
-+		return -ENOMEM;
- 	}
- 
- 	ret = denali_init(denali);
- 	if (ret)
--		goto out_unmap_host;
-+		return ret;
- 
- 	nsels = denali->nbanks;
- 
-@@ -117,10 +116,6 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- out_remove_denali:
- 	denali_remove(denali);
--out_unmap_host:
--	iounmap(denali->host);
--out_unmap_reg:
--	iounmap(denali->reg);
- 	return ret;
- }
- 
-@@ -129,8 +124,6 @@ static void denali_pci_remove(struct pci_dev *dev)
- 	struct denali_controller *denali = pci_get_drvdata(dev);
- 
- 	denali_remove(denali);
--	iounmap(denali->reg);
--	iounmap(denali->host);
- }
- 
- static struct pci_driver denali_pci_driver = {
--- 
-2.35.1
-
+ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
+@@ -2572,6 +2581,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
+ 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
+ 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
++	SND_PCI_QUIRK(0x1043, 0x8797, "ASUS TUF B550M-PLUS", ALCS1200A_FIXUP_MIC_VREF),
+ 	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
 
 
