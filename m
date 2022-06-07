@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F86F5407D4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C241541021
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:18:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347648AbiFGRwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34110 "EHLO
+        id S1351519AbiFGTSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349702AbiFGRv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DE713C35C;
-        Tue,  7 Jun 2022 10:38:45 -0700 (PDT)
+        with ESMTP id S1355934AbiFGTRr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:17:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DFB3B293;
+        Tue,  7 Jun 2022 11:08:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 203266155F;
-        Tue,  7 Jun 2022 17:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2787DC34115;
-        Tue,  7 Jun 2022 17:37:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55AACB81F38;
+        Tue,  7 Jun 2022 18:07:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FA2C385A5;
+        Tue,  7 Jun 2022 18:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623480;
-        bh=84J9qXdJDC7rUknfVU8U8l21hj/ztR4jR9pW95tvWUU=;
+        s=korg; t=1654625267;
+        bh=NSpYyGGJXBbVhvCEmdzTJ3lzz03ll/lczQXkZqe5C3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKGdnCOBQSao/yFvmwvlUv1Lv7iIhMEoq6llXorvvO6lfD4dCwSZ2rXPTmmiWXtnm
-         KAxsGEmTtuEmwoKk+zTFnH/DaqJN7agipRw/zyTcgSwQcNN+jLV+VLLmnc86ebAa/P
-         Qo43rpfgewEUZv0oX5Qtchq12C+CWbeKNnoci2hY=
+        b=nVV7GVqgiEyQZ+4YNeY7H//RRa8Nc/CKmsgeT6i0QL7di9gIEaGL9S96K+8ASdxXO
+         lsIdvLvhruoSM0S2fvTzDlWiR2Gs8WJ3YNu7YyOVnZHl6SB2sWvBXml/CU+DwiU853
+         BeQ9+UzEeZlqCH5bIzce/xslCLtFSEXeYUm29gc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 434/452] xfs: restore shutdown check in mapped write fault path
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 626/667] ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
 Date:   Tue,  7 Jun 2022 19:04:51 +0200
-Message-Id: <20220607164921.491238199@linuxfoundation.org>
+Message-Id: <20220607164953.442990402@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit e4826691cc7e5458bcb659935d0092bcf3f08c20 upstream.
+commit 4213ff556740bb45e2d9ff0f50d056c4e7dd0921 upstream.
 
-XFS triggers an iomap warning in the write fault path due to a
-!PageUptodate() page if a write fault happens to occur on a page
-that recently failed writeback. The iomap writeback error handling
-code can clear the Uptodate flag if no portion of the page is
-submitted for I/O. This is reproduced by fstest generic/019, which
-combines various forms of I/O with simulated disk failures that
-inevitably lead to filesystem shutdown (which then unconditionally
-fails page writeback).
+The driver has a custom put function for "DSP Voice Wake Up" which does
+not generate event notifications on change, instead returning 0. Since we
+already exit early in the case that there is no change this can be fixed
+by unconditionally returning 1 at the end of the function.
 
-This is a regression introduced by commit f150b4234397 ("xfs: split
-the iomap ops for buffered vs direct writes") due to the removal of
-a shutdown check and explicit error return in the ->iomap_begin()
-path used by the write fault path. The explicit error return
-historically translated to a SIGBUS, but now carries on with iomap
-processing where it complains about the unexpected state. Restore
-the shutdown check to xfs_buffered_write_iomap_begin() to restore
-historical behavior.
-
-Fixes: f150b4234397 ("xfs: split the iomap ops for buffered vs direct writes")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220428162444.3883147-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_iomap.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/rt5514.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_iomap.c
-+++ b/fs/xfs/xfs_iomap.c
-@@ -870,6 +870,9 @@ xfs_buffered_write_iomap_begin(
- 	int			allocfork = XFS_DATA_FORK;
- 	int			error = 0;
+--- a/sound/soc/codecs/rt5514.c
++++ b/sound/soc/codecs/rt5514.c
+@@ -419,7 +419,7 @@ static int rt5514_dsp_voice_wake_up_put(
+ 		}
+ 	}
  
-+	if (XFS_FORCED_SHUTDOWN(mp))
-+		return -EIO;
-+
- 	/* we can't use delayed allocations when using extent size hints */
- 	if (xfs_get_extsz_hint(ip))
- 		return xfs_direct_write_iomap_begin(inode, offset, count,
+-	return 0;
++	return 1;
+ }
+ 
+ static const struct snd_kcontrol_new rt5514_snd_controls[] = {
 
 
