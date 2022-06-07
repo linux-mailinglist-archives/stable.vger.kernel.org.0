@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7855754075D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0033B541E08
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348047AbiFGRrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:47:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
+        id S1354564AbiFGWXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348976AbiFGRqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9EC1105F0;
-        Tue,  7 Jun 2022 10:35:57 -0700 (PDT)
+        with ESMTP id S1385115AbiFGWVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563C7265607;
+        Tue,  7 Jun 2022 12:21:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69A24B820C3;
-        Tue,  7 Jun 2022 17:35:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB8F0C385A5;
-        Tue,  7 Jun 2022 17:35:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 219C8CE24B5;
+        Tue,  7 Jun 2022 19:20:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17184C385A2;
+        Tue,  7 Jun 2022 19:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623349;
-        bh=/0iaO7c50snvllBjjmOJynOcCLHy99B60n+Y28Wt2BI=;
+        s=korg; t=1654629649;
+        bh=o6j1igLMNLxBnF8TPbs7l3iBQRwCDPWNKbDNPRs6GJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Na5Cv1XSnoJX2NLU2IJF1uxJsIJMhYbL1cdbiP2ogiPuzHK5HTZ6WtYQJ5ivAY6p0
-         +uFlEb/CNZp4EKaQzXl1jQqVdthRnvTc9fnDWvtYp/rniPTbrayyAyYM/72XiTiCtl
-         OwywyhfDQVJdofctZh7sdsya6sYP3b9bwD0cyN/c=
+        b=vYv1BLU7WWAt1a4ypWuSxtfi3gCwKHcJmSTIsXxmcB4ttPB6POlYVMaYBPe2cNiCP
+         8ShpVGWm/1XmLA4xDQlsID2CnayYbzdtKsgj+nM1u5/QsMiy4bZ7KG4oOl2/ZZqI7F
+         QddNur6H4Iia7LMC2IZeyNEO++L0SPc/Ny2RU/w8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 386/452] mtd: cfi_cmdset_0002: Move and rename chip_check/chip_ready/chip_good_for_write
-Date:   Tue,  7 Jun 2022 19:04:03 +0200
-Message-Id: <20220607164920.067597268@linuxfoundation.org>
+        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.18 726/879] efi: Do not import certificates from UEFI Secure Boot for T2 Macs
+Date:   Tue,  7 Jun 2022 19:04:04 +0200
+Message-Id: <20220607165023.928954292@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,269 +53,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tokunori Ikegami <ikegami.t@gmail.com>
+From: Aditya Garg <gargaditya08@live.com>
 
-commit 083084df578a8bdb18334f69e7b32d690aaa3247 upstream.
+commit 155ca952c7ca19aa32ecfb7373a32bbc2e1ec6eb upstream.
 
-This is a preparation patch for the S29GL064N buffer writes fix. There
-is no functional change.
+On Apple T2 Macs, when Linux attempts to read the db and dbx efi variables
+at early boot to load UEFI Secure Boot certificates, a page fault occurs
+in Apple firmware code and EFI runtime services are disabled with the
+following logs:
 
-Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
-Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+[Firmware Bug]: Page fault caused by firmware at PA: 0xffffb1edc0068000
+WARNING: CPU: 3 PID: 104 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x50/0xf0
+(Removed some logs from here)
+Call Trace:
+ <TASK>
+ page_fault_oops+0x4f/0x2c0
+ ? search_bpf_extables+0x6b/0x80
+ ? search_module_extables+0x50/0x80
+ ? search_exception_tables+0x5b/0x60
+ kernelmode_fixup_or_oops+0x9e/0x110
+ __bad_area_nosemaphore+0x155/0x190
+ bad_area_nosemaphore+0x16/0x20
+ do_kern_addr_fault+0x8c/0xa0
+ exc_page_fault+0xd8/0x180
+ asm_exc_page_fault+0x1e/0x30
+(Removed some logs from here)
+ ? __efi_call+0x28/0x30
+ ? switch_mm+0x20/0x30
+ ? efi_call_rts+0x19a/0x8e0
+ ? process_one_work+0x222/0x3f0
+ ? worker_thread+0x4a/0x3d0
+ ? kthread+0x17a/0x1a0
+ ? process_one_work+0x3f0/0x3f0
+ ? set_kthread_struct+0x40/0x40
+ ? ret_from_fork+0x22/0x30
+ </TASK>
+---[ end trace 1f82023595a5927f ]---
+efi: Froze efi_rts_wq and disabled EFI Runtime Services
+integrity: Couldn't get size: 0x8000000000000015
+integrity: MODSIGN: Couldn't get UEFI db list
+efi: EFI Runtime Services are disabled!
+integrity: Couldn't get size: 0x8000000000000015
+integrity: Couldn't get UEFI dbx list
+integrity: Couldn't get size: 0x8000000000000015
+integrity: Couldn't get mokx list
+integrity: Couldn't get size: 0x80000000
+
+So we avoid reading these UEFI variables and thus prevent the crash.
+
 Cc: stable@vger.kernel.org
-Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-2-ikegami.t@gmail.com
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c |   95 ++++++++++++------------------------
- 1 file changed, 32 insertions(+), 63 deletions(-)
+ security/integrity/platform_certs/keyring_handler.h |    8 ++++
+ security/integrity/platform_certs/load_uefi.c       |   33 ++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
 
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -798,21 +798,25 @@ static struct mtd_info *cfi_amdstd_setup
- }
+--- a/security/integrity/platform_certs/keyring_handler.h
++++ b/security/integrity/platform_certs/keyring_handler.h
+@@ -35,3 +35,11 @@ efi_element_handler_t get_handler_for_mo
+ efi_element_handler_t get_handler_for_dbx(const efi_guid_t *sig_type);
+ 
+ #endif
++
++#ifndef UEFI_QUIRK_SKIP_CERT
++#define UEFI_QUIRK_SKIP_CERT(vendor, product) \
++		 .matches = { \
++			DMI_MATCH(DMI_BOARD_VENDOR, vendor), \
++			DMI_MATCH(DMI_PRODUCT_NAME, product), \
++		},
++#endif
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -3,6 +3,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/cred.h>
++#include <linux/dmi.h>
+ #include <linux/err.h>
+ #include <linux/efi.h>
+ #include <linux/slab.h>
+@@ -13,6 +14,31 @@
+ #include "keyring_handler.h"
  
  /*
-- * Return true if the chip is ready.
-+ * Return true if the chip is ready and has the correct value.
++ * On T2 Macs reading the db and dbx efi variables to load UEFI Secure Boot
++ * certificates causes occurrence of a page fault in Apple's firmware and
++ * a crash disabling EFI runtime services. The following quirk skips reading
++ * these variables.
++ */
++static const struct dmi_system_id uefi_skip_cert[] = {
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,2") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,3") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,4") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,2") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,3") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,4") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
++	{ }
++};
++
++/*
+  * Look to see if a UEFI variable called MokIgnoreDB exists and return true if
+  * it does.
   *
-  * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
-  * non-suspended sector) and is indicated by no toggle bits toggling.
-  *
-+ * Error are indicated by toggling bits or bits held with the wrong value,
-+ * or with bits toggling.
-+ *
-  * Note that anything more complicated than checking if no bits are toggling
-  * (including checking DQ5 for an error status) is tricky to get working
-  * correctly and is therefore not done	(particularly with interleaved chips
-  * as each chip must be checked independently of the others).
-  */
- static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
--			       unsigned long addr)
-+			       unsigned long addr, map_word *expected)
- {
- 	struct cfi_private *cfi = map->fldrv_priv;
- 	map_word d, t;
-+	int ret;
+@@ -138,6 +164,13 @@ static int __init load_uefi_certs(void)
+ 	unsigned long dbsize = 0, dbxsize = 0, mokxsize = 0;
+ 	efi_status_t status;
+ 	int rc = 0;
++	const struct dmi_system_id *dmi_id;
++
++	dmi_id = dmi_first_match(uefi_skip_cert);
++	if (dmi_id) {
++		pr_err("Reading UEFI Secure Boot Certs is not supported on T2 Macs.\n");
++		return false;
++	}
  
- 	if (cfi_use_status_reg(cfi)) {
- 		map_word ready = CMD(CFI_SR_DRB);
-@@ -822,57 +826,20 @@ static int __xipram chip_ready(struct ma
- 		 */
- 		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
- 				 cfi->device_type, NULL);
--		d = map_read(map, addr);
-+		t = map_read(map, addr);
- 
--		return map_word_andequal(map, d, ready, ready);
-+		return map_word_andequal(map, t, ready, ready);
- 	}
- 
- 	d = map_read(map, addr);
- 	t = map_read(map, addr);
- 
--	return map_word_equal(map, d, t);
--}
--
--/*
-- * Return true if the chip is ready and has the correct value.
-- *
-- * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
-- * non-suspended sector) and it is indicated by no bits toggling.
-- *
-- * Error are indicated by toggling bits or bits held with the wrong value,
-- * or with bits toggling.
-- *
-- * Note that anything more complicated than checking if no bits are toggling
-- * (including checking DQ5 for an error status) is tricky to get working
-- * correctly and is therefore not done	(particularly with interleaved chips
-- * as each chip must be checked independently of the others).
-- *
-- */
--static int __xipram chip_good(struct map_info *map, struct flchip *chip,
--			      unsigned long addr, map_word expected)
--{
--	struct cfi_private *cfi = map->fldrv_priv;
--	map_word oldd, curd;
--
--	if (cfi_use_status_reg(cfi)) {
--		map_word ready = CMD(CFI_SR_DRB);
--
--		/*
--		 * For chips that support status register, check device
--		 * ready bit
--		 */
--		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
--				 cfi->device_type, NULL);
--		curd = map_read(map, addr);
--
--		return map_word_andequal(map, curd, ready, ready);
--	}
-+	ret = map_word_equal(map, d, t);
- 
--	oldd = map_read(map, addr);
--	curd = map_read(map, addr);
-+	if (!ret || !expected)
-+		return ret;
- 
--	return	map_word_equal(map, oldd, curd) &&
--		map_word_equal(map, curd, expected);
-+	return map_word_equal(map, t, *expected);
- }
- 
- static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
-@@ -889,7 +856,7 @@ static int get_chip(struct map_info *map
- 
- 	case FL_STATUS:
- 		for (;;) {
--			if (chip_ready(map, chip, adr))
-+			if (chip_ready(map, chip, adr, NULL))
- 				break;
- 
- 			if (time_after(jiffies, timeo)) {
-@@ -927,7 +894,7 @@ static int get_chip(struct map_info *map
- 		chip->state = FL_ERASE_SUSPENDING;
- 		chip->erase_suspended = 1;
- 		for (;;) {
--			if (chip_ready(map, chip, adr))
-+			if (chip_ready(map, chip, adr, NULL))
- 				break;
- 
- 			if (time_after(jiffies, timeo)) {
-@@ -1458,7 +1425,7 @@ static int do_otp_lock(struct map_info *
- 	/* wait for chip to become ready */
- 	timeo = jiffies + msecs_to_jiffies(2);
- 	for (;;) {
--		if (chip_ready(map, chip, adr))
-+		if (chip_ready(map, chip, adr, NULL))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
-@@ -1690,11 +1657,11 @@ static int __xipram do_write_oneword_onc
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_good" before checking
--		 * "chip_good" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_ready" before checking
-+		 * "chip_ready" to avoid the failure due to scheduling.
- 		 */
- 		if (time_after(jiffies, timeo) &&
--		    !chip_good(map, chip, adr, datum)) {
-+		    !chip_ready(map, chip, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-@@ -1702,7 +1669,7 @@ static int __xipram do_write_oneword_onc
- 			break;
- 		}
- 
--		if (chip_good(map, chip, adr, datum)) {
-+		if (chip_ready(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -1970,18 +1937,18 @@ static int __xipram do_write_buffer_wait
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_good" before checking
--		 * "chip_good" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_ready" before checking
-+		 * "chip_ready" to avoid the failure due to scheduling.
- 		 */
- 		if (time_after(jiffies, timeo) &&
--		    !chip_good(map, chip, adr, datum)) {
-+		    !chip_ready(map, chip, adr, &datum)) {
- 			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
- 			       __func__, adr);
- 			ret = -EIO;
- 			break;
- 		}
- 
--		if (chip_good(map, chip, adr, datum)) {
-+		if (chip_ready(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -2190,7 +2157,7 @@ static int cfi_amdstd_panic_wait(struct
- 	 * If the driver thinks the chip is idle, and no toggle bits
- 	 * are changing, then the chip is actually idle for sure.
- 	 */
--	if (chip->state == FL_READY && chip_ready(map, chip, adr))
-+	if (chip->state == FL_READY && chip_ready(map, chip, adr, NULL))
- 		return 0;
- 
- 	/*
-@@ -2207,7 +2174,7 @@ static int cfi_amdstd_panic_wait(struct
- 
- 		/* wait for the chip to become ready */
- 		for (i = 0; i < jiffies_to_usecs(timeo); i++) {
--			if (chip_ready(map, chip, adr))
-+			if (chip_ready(map, chip, adr, NULL))
- 				return 0;
- 
- 			udelay(1);
-@@ -2271,13 +2238,13 @@ retry:
- 	map_write(map, datum, adr);
- 
- 	for (i = 0; i < jiffies_to_usecs(uWriteTimeout); i++) {
--		if (chip_ready(map, chip, adr))
-+		if (chip_ready(map, chip, adr, NULL))
- 			break;
- 
- 		udelay(1);
- 	}
- 
--	if (!chip_good(map, chip, adr, datum) ||
-+	if (!chip_ready(map, chip, adr, &datum) ||
- 	    cfi_check_err_status(map, chip, adr)) {
- 		/* reset on all failures. */
- 		map_write(map, CMD(0xF0), chip->start);
-@@ -2419,6 +2386,7 @@ static int __xipram do_erase_chip(struct
- 	DECLARE_WAITQUEUE(wait, current);
- 	int ret;
- 	int retry_cnt = 0;
-+	map_word datum = map_word_ff(map);
- 
- 	adr = cfi->addr_unlock1;
- 
-@@ -2473,7 +2441,7 @@ static int __xipram do_erase_chip(struct
- 			chip->erase_suspended = 0;
- 		}
- 
--		if (chip_good(map, chip, adr, map_word_ff(map))) {
-+		if (chip_ready(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -2518,6 +2486,7 @@ static int __xipram do_erase_oneblock(st
- 	DECLARE_WAITQUEUE(wait, current);
- 	int ret;
- 	int retry_cnt = 0;
-+	map_word datum = map_word_ff(map);
- 
- 	adr += chip->start;
- 
-@@ -2572,7 +2541,7 @@ static int __xipram do_erase_oneblock(st
- 			chip->erase_suspended = 0;
- 		}
- 
--		if (chip_good(map, chip, adr, map_word_ff(map))) {
-+		if (chip_ready(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -2766,7 +2735,7 @@ static int __maybe_unused do_ppb_xxlock(
- 	 */
- 	timeo = jiffies + msecs_to_jiffies(2000);	/* 2s max (un)locking */
- 	for (;;) {
--		if (chip_ready(map, chip, adr))
-+		if (chip_ready(map, chip, adr, NULL))
- 			break;
- 
- 		if (time_after(jiffies, timeo)) {
+ 	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE))
+ 		return false;
 
 
