@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4B65407FE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D1B540EF2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348764AbiFGRxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40396 "EHLO
+        id S1352707AbiFGS6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:58:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350140AbiFGRvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E63C81406F0;
-        Tue,  7 Jun 2022 10:39:32 -0700 (PDT)
+        with ESMTP id S1353972AbiFGSzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:55:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF38314B2C5;
+        Tue,  7 Jun 2022 11:03:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B6667CE23E4;
-        Tue,  7 Jun 2022 17:34:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB3BC385A5;
-        Tue,  7 Jun 2022 17:34:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1F966171C;
+        Tue,  7 Jun 2022 18:03:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7F94C3411F;
+        Tue,  7 Jun 2022 18:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623255;
-        bh=ns7xU3HfLmu11T2sJmzkMrgebZERH/zDN8Ir0EoctOo=;
+        s=korg; t=1654625036;
+        bh=sfIrPoe/Tw/3gsCBONHPPZdTzRMV+EyfeA3glh9/G5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGaRrNsaQFX6iH8kgzqNzqCctidqFqNoCD/dAtEk55xtPxlXQSMQrh+X3kghg+j9o
-         Dyve/ThGEN5+Qdrx0/IrgHRUcg0ZzB2fgD0P5ZNwgEV4bTY+7ThPXaUs/kxa2gg0JL
-         4dD8aACAgPmP5N1jefSscbhav39TsIEFqpLirUwI=
+        b=mVmN7p6FgjHw6gyHKX+RTx7/vmQIDkiMGPirOMmeex1ffrutq7jtLzRjCHW5eci4b
+         HlTI7fSXeTuPAP/lbMZ5UndDdenBDk50gCIruy4//QKuUBm905ZtdRJZkIpTMGUc4C
+         2QvvQY1a/SVyHGA+k8k1IktCoblhvD4Z+6NX7ukA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 351/452] f2fs: fix to do sanity check for inline inode
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.15 543/667] ext4: fix warning in ext4_handle_inode_extension
 Date:   Tue,  7 Jun 2022 19:03:28 +0200
-Message-Id: <20220607164919.017006983@linuxfoundation.org>
+Message-Id: <20220607164950.982259385@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,114 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 677a82b44ebf263d4f9a0cfbd576a6ade797a07b upstream.
+commit f4534c9fc94d22383f187b9409abb3f9df2e3db3 upstream.
 
-Yanming reported a kernel bug in Bugzilla kernel [1], which can be
-reproduced. The bug message is:
-
-The kernel message is shown below:
-
-kernel BUG at fs/inode.c:611!
+We got issue as follows:
+EXT4-fs error (device loop0) in ext4_reserve_inode_write:5741: Out of memory
+EXT4-fs error (device loop0): ext4_setattr:5462: inode #13: comm syz-executor.0: mark_inode_dirty error
+EXT4-fs error (device loop0) in ext4_setattr:5519: Out of memory
+EXT4-fs error (device loop0): ext4_ind_map_blocks:595: inode #13: comm syz-executor.0: Can't allocate blocks for non-extent mapped inodes with bigalloc
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 4361 at fs/ext4/file.c:301 ext4_file_write_iter+0x11c9/0x1220
+Modules linked in:
+CPU: 1 PID: 4361 Comm: syz-executor.0 Not tainted 5.10.0+ #1
+RIP: 0010:ext4_file_write_iter+0x11c9/0x1220
+RSP: 0018:ffff924d80b27c00 EFLAGS: 00010282
+RAX: ffffffff815a3379 RBX: 0000000000000000 RCX: 000000003b000000
+RDX: ffff924d81601000 RSI: 00000000000009cc RDI: 00000000000009cd
+RBP: 000000000000000d R08: ffffffffbc5a2c6b R09: 0000902e0e52a96f
+R10: ffff902e2b7c1b40 R11: ffff902e2b7c1b40 R12: 000000000000000a
+R13: 0000000000000001 R14: ffff902e0e52aa10 R15: ffffffffffffff8b
+FS:  00007f81a7f65700(0000) GS:ffff902e3bc80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffff600400 CR3: 000000012db88001 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
- evict+0x282/0x4e0
- __dentry_kill+0x2b2/0x4d0
- dput+0x2dd/0x720
- do_renameat2+0x596/0x970
- __x64_sys_rename+0x78/0x90
- do_syscall_64+0x3b/0x90
+ do_iter_readv_writev+0x2e5/0x360
+ do_iter_write+0x112/0x4c0
+ do_pwritev+0x1e5/0x390
+ __x64_sys_pwritev2+0x7e/0xa0
+ do_syscall_64+0x37/0x50
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=215895
+Above issue may happen as follows:
+Assume
+inode.i_size=4096
+EXT4_I(inode)->i_disksize=4096
 
-The bug is due to fuzzed inode has both inline_data and encrypted flags.
-During f2fs_evict_inode(), as the inode was deleted by rename(), it
-will cause inline data conversion due to conflicting flags. The page
-cache will be polluted and the panic will be triggered in clear_inode().
+step 1: set inode->i_isize = 8192
+ext4_setattr
+  if (attr->ia_size != inode->i_size)
+    EXT4_I(inode)->i_disksize = attr->ia_size;
+    rc = ext4_mark_inode_dirty
+       ext4_reserve_inode_write
+          ext4_get_inode_loc
+            __ext4_get_inode_loc
+              sb_getblk --> return -ENOMEM
+   ...
+   if (!error)  ->will not update i_size
+     i_size_write(inode, attr->ia_size);
+Now:
+inode.i_size=4096
+EXT4_I(inode)->i_disksize=8192
 
-Try fixing the bug by doing more sanity checks for inline data inode in
-sanity_check_inode().
+step 2: Direct write 4096 bytes
+ext4_file_write_iter
+ ext4_dio_write_iter
+   iomap_dio_rw ->return error
+ if (extend)
+   ext4_handle_inode_extension
+     WARN_ON_ONCE(i_size_read(inode) < EXT4_I(inode)->i_disksize);
+->Then trigger warning.
 
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+To solve above issue, if mark inode dirty failed in ext4_setattr just
+set 'EXT4_I(inode)->i_disksize' with old value.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220326065351.761952-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/f2fs.h   |    1 +
- fs/f2fs/inline.c |   29 ++++++++++++++++++++++++-----
- fs/f2fs/inode.c  |    3 +--
- 3 files changed, 26 insertions(+), 7 deletions(-)
+ fs/ext4/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3735,6 +3735,7 @@ extern struct kmem_cache *f2fs_inode_ent
-  * inline.c
-  */
- bool f2fs_may_inline_data(struct inode *inode);
-+bool f2fs_sanity_check_inline_data(struct inode *inode);
- bool f2fs_may_inline_dentry(struct inode *inode);
- void f2fs_do_read_inline_data(struct page *page, struct page *ipage);
- void f2fs_truncate_inline_inode(struct inode *inode,
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -14,21 +14,40 @@
- #include "node.h"
- #include <trace/events/f2fs.h>
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5364,6 +5364,7 @@ int ext4_setattr(struct user_namespace *
+ 	if (attr->ia_valid & ATTR_SIZE) {
+ 		handle_t *handle;
+ 		loff_t oldsize = inode->i_size;
++		loff_t old_disksize;
+ 		int shrink = (attr->ia_size < inode->i_size);
  
--bool f2fs_may_inline_data(struct inode *inode)
-+static bool support_inline_data(struct inode *inode)
- {
- 	if (f2fs_is_atomic_file(inode))
- 		return false;
--
- 	if (!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))
- 		return false;
--
- 	if (i_size_read(inode) > MAX_INLINE_DATA(inode))
- 		return false;
-+	return true;
-+}
-+
-+bool f2fs_may_inline_data(struct inode *inode)
-+{
-+	if (!support_inline_data(inode))
-+		return false;
-+
-+	return !f2fs_post_read_required(inode);
-+}
+ 		if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
+@@ -5437,6 +5438,7 @@ int ext4_setattr(struct user_namespace *
+ 					inode->i_sb->s_blocksize_bits);
  
--	if (f2fs_post_read_required(inode))
-+bool f2fs_sanity_check_inline_data(struct inode *inode)
-+{
-+	if (!f2fs_has_inline_data(inode))
- 		return false;
- 
--	return true;
-+	if (!support_inline_data(inode))
-+		return true;
-+
-+	/*
-+	 * used by sanity_check_inode(), when disk layout fields has not
-+	 * been synchronized to inmem fields.
-+	 */
-+	return (S_ISREG(inode->i_mode) &&
-+		(file_is_encrypt(inode) || file_is_verity(inode) ||
-+		(F2FS_I(inode)->i_flags & F2FS_COMPR_FL)));
- }
- 
- bool f2fs_may_inline_dentry(struct inode *inode)
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -272,8 +272,7 @@ static bool sanity_check_inode(struct in
- 		}
- 	}
- 
--	if (f2fs_has_inline_data(inode) &&
--			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
-+	if (f2fs_sanity_check_inline_data(inode)) {
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
- 			  __func__, inode->i_ino, inode->i_mode);
+ 			down_write(&EXT4_I(inode)->i_data_sem);
++			old_disksize = EXT4_I(inode)->i_disksize;
+ 			EXT4_I(inode)->i_disksize = attr->ia_size;
+ 			rc = ext4_mark_inode_dirty(handle, inode);
+ 			if (!error)
+@@ -5448,6 +5450,8 @@ int ext4_setattr(struct user_namespace *
+ 			 */
+ 			if (!error)
+ 				i_size_write(inode, attr->ia_size);
++			else
++				EXT4_I(inode)->i_disksize = old_disksize;
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error)
 
 
