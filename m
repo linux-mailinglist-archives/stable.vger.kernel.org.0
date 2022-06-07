@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6688B54159D
+	by mail.lfdr.de (Postfix) with ESMTP id B515954159E
 	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359447AbiFGUhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:37:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
+        id S1376801AbiFGUhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377981AbiFGUem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:42 -0400
+        with ESMTP id S1377990AbiFGUen (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F791E7BEF;
-        Tue,  7 Jun 2022 11:37:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3919E1E82B9;
+        Tue,  7 Jun 2022 11:37:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 895216156D;
-        Tue,  7 Jun 2022 18:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95098C385A2;
-        Tue,  7 Jun 2022 18:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AA7661579;
+        Tue,  7 Jun 2022 18:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F22C36B0E;
+        Tue,  7 Jun 2022 18:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627022;
-        bh=7KN8uRaeQcpVN+0rNVaoPmKdTmXoHugOhRncylZCzQw=;
+        s=korg; t=1654627024;
+        bh=ohP/jfSBL/ExsqgGs2Zkp69wvFadcqfktgMHUYKIiCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glzkLcWNFwh53IDjmXFtNdhtftzZK96mDJoR14b3P1MwQt6MO3sfH/jC9mpVMWZEA
-         Wyqc5GVGICH9sfjQrFFoA+UNcXKX+eJcUWFDxwFTjmKGuUZOjjL4jyf3DZqAFLpjSr
-         1RD0TWssqrHdCVqACfa9IGGreGF4SnfcfHY7aoTM=
+        b=M3VEBQMGu0QqlghWXc8tTwzIy6iNYaNNFN6s12iD5vMlLyMjH/h40GERe3pvhHa94
+         UmBx+4XtPV+kXyoAFyprUyoMZayWPHFqukKcTGCqtVhRMRNj2Ebd5PSnmbSFLBrea6
+         gNaOBG7c7ZqN/G9MJ6BQJWp3yVjB1e00IJYw8SYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Amelie Delaunay <amelie.delaunay@foss.st.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 588/772] dmaengine: stm32-mdma: remove GISR1 register
-Date:   Tue,  7 Jun 2022 19:03:00 +0200
-Message-Id: <20220607165006.273298620@linuxfoundation.org>
+Subject: [PATCH 5.17 589/772] dmaengine: stm32-mdma: fix chan initialization in stm32_mdma_irq_handler()
+Date:   Tue,  7 Jun 2022 19:03:01 +0200
+Message-Id: <20220607165006.301999510@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -56,69 +56,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit 9d6a2d92e450926c483e45eaf426080a19219f4e ]
+[ Upstream commit da3b8ddb464bd49b6248d00ca888ad751c9e44fd ]
 
-GISR1 was described in a not up-to-date documentation when the stm32-mdma
-driver has been developed. This register has not been added in reference
-manual of STM32 SoC with MDMA, which have only 32 MDMA channels.
-So remove it from stm32-mdma driver.
+The parameter to pass back to the handler function when irq has been
+requested is a struct stm32_mdma_device pointer, not a struct
+stm32_mdma_chan pointer.
+Even if chan is reinit later in the function, remove this wrong
+initialization.
 
 Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
 Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20220504155322.121431-2-amelie.delaunay@foss.st.com
+Link: https://lore.kernel.org/r/20220504155322.121431-3-amelie.delaunay@foss.st.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/stm32-mdma.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ drivers/dma/stm32-mdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
-index 6f57ff0e7b37..1e6bc22ddae9 100644
+index 1e6bc22ddae9..f8c8b9d76aad 100644
 --- a/drivers/dma/stm32-mdma.c
 +++ b/drivers/dma/stm32-mdma.c
-@@ -34,7 +34,6 @@
- #include "virt-dma.h"
- 
- #define STM32_MDMA_GISR0		0x0000 /* MDMA Int Status Reg 1 */
--#define STM32_MDMA_GISR1		0x0004 /* MDMA Int Status Reg 2 */
- 
- /* MDMA Channel x interrupt/status register */
- #define STM32_MDMA_CISR(x)		(0x40 + 0x40 * (x)) /* x = 0..62 */
-@@ -168,7 +167,7 @@
- 
- #define STM32_MDMA_MAX_BUF_LEN		128
- #define STM32_MDMA_MAX_BLOCK_LEN	65536
--#define STM32_MDMA_MAX_CHANNELS		63
-+#define STM32_MDMA_MAX_CHANNELS		32
- #define STM32_MDMA_MAX_REQUESTS		256
- #define STM32_MDMA_MAX_BURST		128
- #define STM32_MDMA_VERY_HIGH_PRIORITY	0x3
-@@ -1322,21 +1321,11 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
+@@ -1316,7 +1316,7 @@ static void stm32_mdma_xfer_end(struct stm32_mdma_chan *chan)
+ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
+ {
+ 	struct stm32_mdma_device *dmadev = devid;
+-	struct stm32_mdma_chan *chan = devid;
++	struct stm32_mdma_chan *chan;
+ 	u32 reg, id, ccr, ien, status;
  
  	/* Find out which channel generates the interrupt */
- 	status = readl_relaxed(dmadev->base + STM32_MDMA_GISR0);
--	if (status) {
--		id = __ffs(status);
--	} else {
--		status = readl_relaxed(dmadev->base + STM32_MDMA_GISR1);
--		if (!status) {
--			dev_dbg(mdma2dev(dmadev), "spurious it\n");
--			return IRQ_NONE;
--		}
--		id = __ffs(status);
--		/*
--		 * As GISR0 provides status for channel id from 0 to 31,
--		 * so GISR1 provides status for channel id from 32 to 62
--		 */
--		id += 32;
-+	if (!status) {
-+		dev_dbg(mdma2dev(dmadev), "spurious it\n");
-+		return IRQ_NONE;
- 	}
-+	id = __ffs(status);
- 
- 	chan = &dmadev->chan[id];
- 	if (!chan) {
 -- 
 2.35.1
 
