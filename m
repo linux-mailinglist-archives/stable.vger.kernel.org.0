@@ -2,123 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA0CF53F442
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 05:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C048F53F461
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 05:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236174AbiFGDB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jun 2022 23:01:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39754 "EHLO
+        id S234524AbiFGDOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jun 2022 23:14:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236141AbiFGDBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 23:01:55 -0400
-Received: from mail104.syd.optusnet.com.au (mail104.syd.optusnet.com.au [211.29.132.246])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 02BBCCC148;
-        Mon,  6 Jun 2022 20:01:53 -0700 (PDT)
-Received: from dread.disaster.area (pa49-181-2-147.pa.nsw.optusnet.com.au [49.181.2.147])
-        by mail104.syd.optusnet.com.au (Postfix) with ESMTPS id 467115EC54D;
-        Tue,  7 Jun 2022 13:01:50 +1000 (AEST)
-Received: from dave by dread.disaster.area with local (Exim 4.92.3)
-        (envelope-from <david@fromorbit.com>)
-        id 1nyPTX-003bu1-IB; Tue, 07 Jun 2022 13:01:47 +1000
-Date:   Tue, 7 Jun 2022 13:01:47 +1000
-From:   Dave Chinner <david@fromorbit.com>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        Adam Manzanares <a.manzanares@samsung.com>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Dave Chinner <dchinner@redhat.com>
-Subject: Re: [PATCH 5.10 v2 8/8] xfs: assert in xfs_btree_del_cursor should
- take into account error
-Message-ID: <20220607030147.GU227878@dread.disaster.area>
-References: <20220606143255.685988-1-amir73il@gmail.com>
- <20220606143255.685988-9-amir73il@gmail.com>
- <20220606213042.GS227878@dread.disaster.area>
- <CAOQ4uxhCjLoYOd7X-yFQOA24YtychwKz3wUfX79zUwFs2o3ziw@mail.gmail.com>
+        with ESMTP id S229862AbiFGDOT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jun 2022 23:14:19 -0400
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B90A19C2A
+        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 20:14:18 -0700 (PDT)
+Received: by mail-pf1-x434.google.com with SMTP id w21so14369514pfc.0
+        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 20:14:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hCr0kryMvo+JodBVAE8GslFi9G1zTIIt9PkZUOFWNRQ=;
+        b=DaQJl/V8eY5qD/OA6Lk0KaEa1W743xdkHOeGa7NlVjG++8encqO+f9H9qXqWw0n2o4
+         Ny/zEUKDWt+K8k8LInt35+uqc6Am5DTT+5EGV3lLyeHv/w4kD+wfIF9Gp58hAZUlaE9M
+         L3FHismfdnhdB/WxPRpDgaxca3ChQ+hgZVDImLD8LWYNlboXei8XFYilLKfzVOFN9uTm
+         x0ZBr/2QL7D8A8hZtk4+FYdGUOrwMaHZe9VetfDMTVSzI8U88lqHuBWStbbXv8BsmND4
+         BbeuSc6FC0Eap/vD9Nib/+gYamPz3LNU9Q6yoXW0b0XHk/3/gfsyDodKPFpOLjJVw7KO
+         hP4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hCr0kryMvo+JodBVAE8GslFi9G1zTIIt9PkZUOFWNRQ=;
+        b=m1v6uzbrdQgUKsF90fPSGvDD+Cau70jAZmsthCZXG7wxcIHVj0iVhjKLcVgXLE5zMm
+         FYvqEsJ+bCInjEarWGP2kWXO8sT7OXk7b9NwWETLSaYbTwOWxksxIsnWMjVA/ApLBlNA
+         CAGFB1ep2FkokYp7QXNfbxRKqD3rQSieQlERFTojKVnUjXyEYXV8W34Nqu65duQ7a+af
+         lnJa4Kb8KJ/GUd9TFCCOxrbalA2PqqqaGzvpBgH8gQK57tKuK5954IZxjEB0mER1HcDy
+         KNYRwKkh4zgJMUYlsUOHPdf98PZvPNrwbhwVbMP/5fnmcMPK/uIxAptbt2XbhDPHIabr
+         qSYA==
+X-Gm-Message-State: AOAM533mKnSk+gbAXlwxKXjvo22qAXcdOu0UQG23RtcLOeHhDdDhLrJJ
+        gu+zDygO2QzR+W1tYUkkIGdTQNU5kVeVztjg
+X-Google-Smtp-Source: ABdhPJwgJRNLusqdktHCyYSKf4h0MZKM4LabFsUwogvpI+H4stMSH9IJdYSEuHijDholGoHtx2wjvw==
+X-Received: by 2002:aa7:814c:0:b0:51b:b3ee:6be2 with SMTP id d12-20020aa7814c000000b0051bb3ee6be2mr27548607pfn.3.1654571657744;
+        Mon, 06 Jun 2022 20:14:17 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h7-20020a170902680700b001651562eb16sm11156843plk.124.2022.06.06.20.14.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jun 2022 20:14:17 -0700 (PDT)
+Message-ID: <629ec289.1c69fb81.3ef1c.960f@mx.google.com>
+Date:   Mon, 06 Jun 2022 20:14:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxhCjLoYOd7X-yFQOA24YtychwKz3wUfX79zUwFs2o3ziw@mail.gmail.com>
-X-Optus-CM-Score: 0
-X-Optus-CM-Analysis: v=2.4 cv=VuxAv86n c=1 sm=1 tr=0 ts=629ebfa0
-        a=ivVLWpVy4j68lT4lJFbQgw==:117 a=ivVLWpVy4j68lT4lJFbQgw==:17
-        a=kj9zAlcOel0A:10 a=JPEYwPQDsx4A:10 a=7-415B0cAAAA:8 a=20KFwNOVAAAA:8
-        a=m8TDx-50O8R2JX1nkC4A:9 a=CjuIK1q_8ugA:10 a=biEYGPWJfzWAr4FL6Ov7:22
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.17.13-759-gf64e250b75652
+X-Kernelci-Branch: queue/5.17
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.17 baseline: 147 runs,
+ 3 regressions (v5.17.13-759-gf64e250b75652)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 07, 2022 at 01:33:06AM +0300, Amir Goldstein wrote:
-> On Tue, Jun 7, 2022 at 12:30 AM Dave Chinner <david@fromorbit.com> wrote:
-> >
-> > On Mon, Jun 06, 2022 at 05:32:55PM +0300, Amir Goldstein wrote:
-> > > From: Dave Chinner <dchinner@redhat.com>
-> > >
-> > > commit 56486f307100e8fc66efa2ebd8a71941fa10bf6f upstream.
-> > >
-> > > xfs/538 on a 1kB block filesystem failed with this assert:
-> > >
-> > > XFS: Assertion failed: cur->bc_btnum != XFS_BTNUM_BMAP || cur->bc_ino.allocated == 0 || xfs_is_shutdown(cur->bc_mp), file: fs/xfs/libxfs/xfs_btree.c, line: 448
-> >
-> > You haven't mentioned that you combined a second upstream
-> > commit into this patch to fix the bug in this commit.....
-> >
-> 
-> I am confused.
-> 
-> patch [5.10 7/8] xfs: consider shutdown in bmapbt cursor delete assert
-> is the patch that I backported from 5.12 and posted for review.
-> This patch [5.10 8/8] is the patch from 5.19-rc1 that you pointed out
-> that I should take to fix the bug in patch [5.10 7/8].
+stable-rc/queue/5.17 baseline: 147 runs, 3 regressions (v5.17.13-759-gf64e2=
+50b75652)
 
-Sorry, I missed that this was a new patch because the set looked
-the same as the last posting and you said in the summary letter:
+Regressions Summary
+-------------------
 
-"These fixes have been posted to review on xfs list [1]."
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+rk3288-veyron-jaq       | arm   | lab-collabora | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-Except this patch *wasn't part of that set*. I mistook it for the
-patch that introduced the assert because I assumed from the above
-statement, the absence of a changelog in cover letter and that you'd
-sent it to Greg meant for inclusion meant *no new patches had been
-added*.
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
+     | 1          =
 
-Add to that the fact I rushed through them because I saw that Greg
-has already queued these before anyone had any time to actually
-review the posting. Hence the timing of the release of unreviewed
-patches has been taken completely out of our control, and so I
-rushed through them and misinterpreted what I was seeing.
+tegra124-nyan-big       | arm   | lab-collabora | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-That's not how the review process is supposed to work. You need to
-wait for people to review the changes and ACK them before then
-asking for them to be merged into the stable trees. You need to have
-changelogs in your summary letters. You need to do all the things
-that you've been complaining bitterly about over the past month that
-upstream developers weren't doing 18 months ago.
 
-And I notice that you've already sent out yet another set of stable
-patches for review despite the paint not even being dry on these
-ones. Not to mention that there's a another set of different 5.15
-stable patches out for review as well.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.13-759-gf64e250b75652/plan/baseline/
 
-This is not a sustainable process.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.17
+  Describe: v5.17.13-759-gf64e250b75652
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f64e250b75652194c860a44bc5e162abd151ab24 =
 
-Seriously: slow down and stop being so damn aggressive. Let everyone
-catch up and build sustainable processes and timetables. If you keep
-going like this, you are going break people.
 
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+rk3288-veyron-jaq       | arm   | lab-collabora | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629eb4ad08143f2e56a39be1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+759-gf64e250b75652/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
+288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+759-gf64e250b75652/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
+288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629eb4ad08143f2e56a39=
+be2
+        new failure (last pass: v5.17.11-186-g31ab69ffae8a1) =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e88d9d76639ad09a39bd4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+759-gf64e250b75652/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
+nanapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+759-gf64e250b75652/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
+nanapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e88d9d76639ad09a39=
+bd5
+        new failure (last pass: v5.17.11-11-g79941e95964af) =
+
+ =
+
+
+
+platform                | arch  | lab           | compiler | defconfig     =
+     | regressions
+------------------------+-------+---------------+----------+---------------=
+-----+------------
+tegra124-nyan-big       | arm   | lab-collabora | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629e9f7627fba1276fa39bd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+759-gf64e250b75652/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-teg=
+ra124-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.13-=
+759-gf64e250b75652/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-teg=
+ra124-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220603.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629e9f7627fba1276fa39=
+bd2
+        failing since 10 days (last pass: v5.17.11, first fail: v5.17.11-2-=
+ge8ea2b4363353) =
+
+ =20
