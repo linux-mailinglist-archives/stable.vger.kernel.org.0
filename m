@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D8154151E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4612540CE0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359510AbiFGU2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:28:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
+        id S1352674AbiFGSlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376517AbiFGU06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:26:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42ECA1D8096;
-        Tue,  7 Jun 2022 11:32:50 -0700 (PDT)
+        with ESMTP id S1353346AbiFGSkp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:40:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B107C1862A3;
+        Tue,  7 Jun 2022 10:58:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30A2B60DDA;
-        Tue,  7 Jun 2022 18:32:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4224BC385A2;
-        Tue,  7 Jun 2022 18:32:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CDD9CE2428;
+        Tue,  7 Jun 2022 17:58:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967C4C34115;
+        Tue,  7 Jun 2022 17:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626768;
-        bh=/atc0+gFpH0rsZcqQNrfsag5GHjaKYkPOJ5HwXSCjX8=;
+        s=korg; t=1654624709;
+        bh=3KKKZtJ4sFeXRC/0k5HsH1u7OtlOH5IUU4Szu7BmfA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjL2taf5a+RW+omI4lGDNHMAbN3TQz0BagtOUB9q6mrVPyIc5xLl6NW9+PaYKF4XK
-         eC2K7Ac0fmq0i9ire3SAg+uIASM3BUXatd5BLE44x8XfJPDP3MY3NJWlN395Hixtml
-         CB7GG61C5YchGnS1gYZO4gEQpZ2v/1Gt3cVoHPOA=
+        b=uX5Vd64bnezOWYYRdpPDsv1l+aYxXuh2ivkdcWOauO7dWyFDvFuv5WczFfkOyCyA5
+         DOV9DxLhzvGJuI/MtuyQoKzzPsj+ApshhTO57A+jZAZu/wQU8tlB4qvtAYlQ14ge8d
+         uf7ZA/6i2q5eVjFHm8YcnNekPe+ys094BHw3bpmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 497/772] arm64: dts: ti: k3-am64-mcu: remove incorrect UART base clock rates
+Subject: [PATCH 5.15 424/667] arm64: dts: ti: k3-am64-mcu: remove incorrect UART base clock rates
 Date:   Tue,  7 Jun 2022 19:01:29 +0200
-Message-Id: <20220607165003.628821759@linuxfoundation.org>
+Message-Id: <20220607164947.447335342@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,7 +78,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi b/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi
-index 2bb5c9ff172c..02d4285acbb8 100644
+index 59cc58f7d0c8..93e684bbd66c 100644
 --- a/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi
 @@ -10,7 +10,6 @@
