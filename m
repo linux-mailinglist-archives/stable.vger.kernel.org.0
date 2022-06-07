@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EEE6541CE7
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CDE541585
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382480AbiFGWG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:06:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40130 "EHLO
+        id S1376509AbiFGUg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383461AbiFGWF0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:05:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA180195927;
-        Tue,  7 Jun 2022 12:16:08 -0700 (PDT)
+        with ESMTP id S1378012AbiFGUep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584951E8E99;
+        Tue,  7 Jun 2022 11:37:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47DC661922;
-        Tue,  7 Jun 2022 19:16:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7023C385A2;
-        Tue,  7 Jun 2022 19:16:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89416B82182;
+        Tue,  7 Jun 2022 18:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC68DC341CC;
+        Tue,  7 Jun 2022 18:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629367;
-        bh=mphYbO6srjaRUuII25UtY+REzhdTdTHmRYtjyLnsmX8=;
+        s=korg; t=1654627030;
+        bh=4JI497rn1w5jLXa3fsVUm1N8VcEniotvqADpCf5bPZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqZsAR3/wcVBKNjbqtkU4tGRoHg3P2EY1ZUWUm/aHh67UXD5NOSaGYD4xYA5rCueu
-         MO+KzQiA0PATRXAw2eMacDzdfJn5vxtmLQ+raPKOQeoOGPBMV7u9dBEnvfpqcaG1Dh
-         zgzQvZ28ZmtEYbQ9CwwC2HUtUACu8JK3cYECq1qU=
+        b=ja4WJ22YzyOvma5gJiv8teeHYwN4j6oZRtiNdtXLH/Jk5CK0Otoc5/Dr8TuyxJCuk
+         cg5EkIbhHD2IrDW4jxy5HY70WoGvh0kvG4IsEogeVDRwrXsmvoz01SKLjVG9kOSHOB
+         k/VDAs7UWB6Cpe3g9T7J2eQ7NvkhkGtNtAOndC/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 665/879] iommu/mediatek: Add list_del in mtk_iommu_remove
+        stable@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 591/772] i2c: npcm: Fix timeout calculation
 Date:   Tue,  7 Jun 2022 19:03:03 +0200
-Message-Id: <20220607165022.148272854@linuxfoundation.org>
+Message-Id: <20220607165006.361041110@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Tali Perry <tali.perry1@gmail.com>
 
-[ Upstream commit ee55f75e4bcade81d253163641b63bef3e76cac4 ]
+[ Upstream commit 288b204492fddf28889cea6dc95a23976632c7a0 ]
 
-Lack the list_del in the mtk_iommu_remove, and remove
-bus_set_iommu(*, NULL) since there may be several iommu HWs.
-we can not bus_set_iommu null when one iommu driver unbind.
+Use adap.timeout for timeout calculation instead of hard-coded
+value of 35ms.
 
-This could be a fix for mt2712 which support 2 M4U HW and list them.
-
-Fixes: 7c3a2ec02806 ("iommu/mediatek: Merge 2 M4U HWs into one iommu domain")
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20220503071427.2285-6-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 95c82b8bcc35..e4b4ebbcb73f 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -955,8 +955,7 @@ static int mtk_iommu_remove(struct platform_device *pdev)
- 	iommu_device_sysfs_remove(&data->iommu);
- 	iommu_device_unregister(&data->iommu);
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 2ad166355ec9..92fd88a3f415 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2047,7 +2047,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	u16 nwrite, nread;
+ 	u8 *write_data, *read_data;
+ 	u8 slave_addr;
+-	int timeout;
++	unsigned long timeout;
+ 	int ret = 0;
+ 	bool read_block = false;
+ 	bool read_PEC = false;
+@@ -2099,13 +2099,13 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 * 9: bits per transaction (including the ack/nack)
+ 	 */
+ 	timeout_usec = (2 * 9 * USEC_PER_SEC / bus->bus_freq) * (2 + nread + nwrite);
+-	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
++	timeout = max_t(unsigned long, bus->adap.timeout, usecs_to_jiffies(timeout_usec));
+ 	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
+ 		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
+ 		return -EINVAL;
+ 	}
  
--	if (iommu_present(&platform_bus_type))
--		bus_set_iommu(&platform_bus_type, NULL);
-+	list_del(&data->list);
- 
- 	clk_disable_unprepare(data->bclk);
- 	device_link_remove(data->smicomm_dev, &pdev->dev);
+-	time_left = jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
++	time_left = jiffies + timeout + 1;
+ 	do {
+ 		/*
+ 		 * we must clear slave address immediately when the bus is not
+@@ -2269,7 +2269,7 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+ 	adap = &bus->adap;
+ 	adap->owner = THIS_MODULE;
+ 	adap->retries = 3;
+-	adap->timeout = HZ;
++	adap->timeout = msecs_to_jiffies(35);
+ 	adap->algo = &npcm_i2c_algo;
+ 	adap->quirks = &npcm_i2c_quirks;
+ 	adap->algo_data = bus;
 -- 
 2.35.1
 
