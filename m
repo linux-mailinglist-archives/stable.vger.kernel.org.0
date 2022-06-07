@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7785406A7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26463541572
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242746AbiFGRhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53296 "EHLO
+        id S239125AbiFGUgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347842AbiFGRfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:50 -0400
+        with ESMTP id S1377770AbiFGUeE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB301109AB;
-        Tue,  7 Jun 2022 10:31:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A26F1E73D5;
+        Tue,  7 Jun 2022 11:35:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EAE8614AE;
-        Tue,  7 Jun 2022 17:31:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649B5C385A5;
-        Tue,  7 Jun 2022 17:31:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70A78612F2;
+        Tue,  7 Jun 2022 18:35:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FFFAC385A2;
+        Tue,  7 Jun 2022 18:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623116;
-        bh=lnVIzLS/8oXyQGTC7yZ6FB72o8AH3PFI3K2kcM4Kszk=;
+        s=korg; t=1654626958;
+        bh=+K1lCRNxqNUDo7RhKYAXGxU/yjFx0irCjRgVthz9R/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vn8kahqCLkbPgRmgbmJq8yT4iAznZxksNVfsE135P/ugovFw6F+7iPXs/8SSwokZ2
-         yiXzyVyXObNGRwxFt4rM7CNWkK7bKHGouswN01VgLhS/CoQAdYikqPhXyBNr3VsxT2
-         diDkeiuvTGF0V5Z80YKndcNu3R6A3GY2h8e6Iz+s=
+        b=mCLK0uZWMYpUpg5H1uQUKsKu072676cw3Vd7WdkubzyP7uDpZt/NU46qLVYkr2pHU
+         ++RMdd8SCQjpFW0VFTICRp25FY5TR6Vv3YFUSqd6m6VLARFZ0dxzGyZ0+nHcAPvirP
+         k5IJ68wBMQMTH7dNA6akH5q5THUprGQF+qx8fB5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>, Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 302/452] PCI: imx6: Fix PERST# start-up sequence
+Subject: [PATCH 5.17 567/772] iommu/amd: Enable swiotlb in all cases
 Date:   Tue,  7 Jun 2022 19:02:39 +0200
-Message-Id: <20220607164917.558475881@linuxfoundation.org>
+Message-Id: <20220607165005.662800332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,96 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit a6809941c1f17f455db2cf4ca19c6d8c8746ec25 ]
+[ Upstream commit 121660bba631104154b7c15e88f208c48c8c3297 ]
 
-According to the PCIe standard the PERST# signal (reset-gpio in
-fsl,imx* compatible dts) should be kept asserted for at least 100 usec
-before the PCIe refclock is stable, should be kept asserted for at
-least 100 msec after the power rails are stable and the host should wait
-at least 100 msec after it is de-asserted before accessing the
-configuration space of any attached device.
+Previously the AMD IOMMU would only enable SWIOTLB in certain
+circumstances:
+ * IOMMU in passthrough mode
+ * SME enabled
 
->From PCIe CEM r2.0, sec 2.6.2
+This logic however doesn't work when an untrusted device is plugged in
+that doesn't do page aligned DMA transactions.  The expectation is
+that a bounce buffer is used for those transactions.
 
-  T-PVPERL: Power stable to PERST# inactive - 100 msec
-  T-PERST-CLK: REFCLK stable before PERST# inactive - 100 usec.
+This fails like this:
 
->From PCIe r5.0, sec 6.6.1
+swiotlb buffer is full (sz: 4096 bytes), total 0 (slots), used 0 (slots)
 
-  With a Downstream Port that does not support Link speeds greater than
-  5.0 GT/s, software must wait a minimum of 100 ms before sending a
-  Configuration Request to the device immediately below that Port.
+That happens because the bounce buffers have been allocated, followed by
+freed during startup but the bounce buffering code expects that all IOMMUs
+have left it enabled.
 
-Failure to do so could prevent PCIe devices to be working correctly,
-and this was experienced with real devices.
+Remove the criteria to set up bounce buffers on AMD systems to ensure
+they're always available for supporting untrusted devices.
 
-Move reset assert to imx6_pcie_assert_core_reset(), this way we ensure
-that PERST# is asserted before enabling any clock, move de-assert to the
-end of imx6_pcie_deassert_core_reset() after the clock is enabled and
-deemed stable and add a new delay of 100 msec just afterward.
-
-Link: https://lore.kernel.org/all/20220211152550.286821-1-francesco.dolcini@toradex.com
-Link: https://lore.kernel.org/r/20220404081509.94356-1-francesco.dolcini@toradex.com
-Fixes: bb38919ec56e ("PCI: imx6: Add support for i.MX6 PCIe controller")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Richard Zhu <hongxing.zhu@nxp.com>
+Fixes: 82612d66d51d ("iommu: Allow the dma-iommu api to use bounce buffers")
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220404204723.9767-2-mario.limonciello@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-imx6.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/iommu/amd/iommu.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
-index 5cf1ef12fb9b..ceb4815379cd 100644
---- a/drivers/pci/controller/dwc/pci-imx6.c
-+++ b/drivers/pci/controller/dwc/pci-imx6.c
-@@ -401,6 +401,11 @@ static void imx6_pcie_assert_core_reset(struct imx6_pcie *imx6_pcie)
- 			dev_err(dev, "failed to disable vpcie regulator: %d\n",
- 				ret);
- 	}
-+
-+	/* Some boards don't have PCIe reset GPIO. */
-+	if (gpio_is_valid(imx6_pcie->reset_gpio))
-+		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
-+					imx6_pcie->gpio_active_high);
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index a18b549951bb..74c4ae85e41e 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -1838,17 +1838,10 @@ void amd_iommu_domain_update(struct protection_domain *domain)
+ 	amd_iommu_domain_flush_complete(domain);
  }
  
- static unsigned int imx6_pcie_grp_offset(const struct imx6_pcie *imx6_pcie)
-@@ -523,15 +528,6 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
- 	/* allow the clocks to stabilize */
- 	usleep_range(200, 500);
- 
--	/* Some boards don't have PCIe reset GPIO. */
--	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
--		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
--					imx6_pcie->gpio_active_high);
--		msleep(100);
--		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
--					!imx6_pcie->gpio_active_high);
--	}
+-static void __init amd_iommu_init_dma_ops(void)
+-{
+-	swiotlb = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
+-}
 -
- 	switch (imx6_pcie->drvdata->variant) {
- 	case IMX8MQ:
- 		reset_control_deassert(imx6_pcie->pciephy_reset);
-@@ -574,6 +570,15 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
- 		break;
- 	}
+ int __init amd_iommu_init_api(void)
+ {
+ 	int err;
  
-+	/* Some boards don't have PCIe reset GPIO. */
-+	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
-+		msleep(100);
-+		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
-+					!imx6_pcie->gpio_active_high);
-+		/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
-+		msleep(100);
-+	}
-+
- 	return;
- 
- err_ref_clk:
+-	amd_iommu_init_dma_ops();
+-
+ 	err = bus_set_iommu(&pci_bus_type, &amd_iommu_ops);
+ 	if (err)
+ 		return err;
 -- 
 2.35.1
 
