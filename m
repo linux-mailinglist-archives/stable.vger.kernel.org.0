@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B501540A8E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20581541B31
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343865AbiFGSXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42274 "EHLO
+        id S1381282AbiFGVmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352635AbiFGSRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:24 -0400
+        with ESMTP id S1381210AbiFGVkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A13BF13B8C9;
-        Tue,  7 Jun 2022 10:52:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E0B17CC82;
+        Tue,  7 Jun 2022 12:05:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EF2CB82376;
-        Tue,  7 Jun 2022 17:52:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA44C341C4;
-        Tue,  7 Jun 2022 17:52:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A941B823AF;
+        Tue,  7 Jun 2022 19:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADF3EC385A2;
+        Tue,  7 Jun 2022 19:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624349;
-        bh=8Y/51mrXNmV49ZMynNUCASj5slODYsCjvZeCMz1zKvk=;
+        s=korg; t=1654628753;
+        bh=cHRlMGUzCXKk8F2ryIz/RpSKKPb+sErUHOmEBspnArs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePSWDhF8YNe6iA7vbyRbzVZoI0CegENGK7njmQK/KYO7xIeFtwj0khZ+ARVAHuYzI
-         NSpH7c6XrLjWevq2flXt27ueqgN72bmp7rtZSfOgry1KTUO0nZ8FDNZTdMPUW7cem6
-         6LZHzwb5pn8EHdddRYj8VOMUNd8M2za5+Ng5vm3g=
+        b=lyNz+bNxQRkI5SxwczIPzBW8zkZvn9vqnungUvX1yKJ7Kd6D0Hi86gPtopeyIl7gM
+         vR4u2nBkKBZ35QD/DA7LQsQvytZEfPpsccuAw2tUfgkhxbXzvCDXTsv6G35WNJLFIs
+         bBM+NRf+wmSHYke0+vqjjOZoynCKLxah0cq/RfBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Alexander Popov <alex.popov@linux.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 294/667] arm64: stackleak: fix current_top_of_stack()
-Date:   Tue,  7 Jun 2022 18:59:19 +0200
-Message-Id: <20220607164943.596456571@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hugues Fruchet <hugues.fruchet@foss.st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 442/879] media: st-delta: Fix PM disable depth imbalance in delta_probe
+Date:   Tue,  7 Jun 2022 18:59:20 +0200
+Message-Id: <20220607165015.701562010@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,104 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit e85094c31ddb794ac41c299a5a7a68243148f829 ]
+[ Upstream commit 94e3dba710fe0afc772172305444250023fc2d30 ]
 
-Due to some historical confusion, arm64's current_top_of_stack() isn't
-what the stackleak code expects. This could in theory result in a number
-of problems, and practically results in an unnecessary performance hit.
-We can avoid this by aligning the arm64 implementation with the x86
-implementation.
+The pm_runtime_enable will decrease power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
 
-The arm64 implementation of current_top_of_stack() was added
-specifically for stackleak in commit:
-
-  0b3e336601b82c6a ("arm64: Add support for STACKLEAK gcc plugin")
-
-This was intended to be equivalent to the x86 implementation, but the
-implementation, semantics, and performance characteristics differ
-wildly:
-
-* On x86, current_top_of_stack() returns the top of the current task's
-  task stack, regardless of which stack is in active use.
-
-  The implementation accesses a percpu variable which the x86 entry code
-  maintains, and returns the location immediately above the pt_regs on
-  the task stack (above which x86 has some padding).
-
-* On arm64 current_top_of_stack() returns the top of the stack in active
-  use (i.e. the one which is currently being used).
-
-  The implementation checks the SP against a number of
-  potentially-accessible stacks, and will BUG() if no stack is found.
-
-The core stackleak_erase() code determines the upper bound of stack to
-erase with:
-
-| if (on_thread_stack())
-|         boundary = current_stack_pointer;
-| else
-|         boundary = current_top_of_stack();
-
-On arm64 stackleak_erase() is always called on a task stack, and
-on_thread_stack() should always be true. On x86, stackleak_erase() is
-mostly called on a trampoline stack, and is sometimes called on a task
-stack.
-
-Currently, this results in a lot of unnecessary code being generated for
-arm64 for the impossible !on_thread_stack() case. Some of this is
-inlined, bloating stackleak_erase(), while portions of this are left
-out-of-line and permitted to be instrumented (which would be a
-functional problem if that code were reachable).
-
-As a first step towards improving this, this patch aligns arm64's
-implementation of current_top_of_stack() with x86's, always returning
-the top of the current task's stack. With GCC 11.1.0 this results in the
-bulk of the unnecessary code being removed, including all of the
-out-of-line instrumentable code.
-
-While I don't believe there's a functional problem in practice I've
-marked this as a fix since the semantic was clearly wrong, the fix
-itself is simple, and other code might rely upon this in future.
-
-Fixes: 0b3e336601b82c6a ("arm64: Add support for STACKLEAK gcc plugin")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexander Popov <alex.popov@linux.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220427173128.2603085-2-mark.rutland@arm.com
+Fixes: f386509e4959 ("[media] st-delta: STiH4xx multi-format video decoder v4l2 driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Hugues Fruchet <hugues.fruchet@foss.st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/media/platform/st/sti/delta/delta-v4l2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index ee2bdc1b9f5b..5e73d7f7d1e7 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -335,12 +335,10 @@ long get_tagged_addr_ctrl(struct task_struct *task);
-  * of header definitions for the use of task_stack_page.
-  */
+diff --git a/drivers/media/platform/st/sti/delta/delta-v4l2.c b/drivers/media/platform/st/sti/delta/delta-v4l2.c
+index c887a31ebb54..420ad4d8df5d 100644
+--- a/drivers/media/platform/st/sti/delta/delta-v4l2.c
++++ b/drivers/media/platform/st/sti/delta/delta-v4l2.c
+@@ -1859,7 +1859,7 @@ static int delta_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(delta->dev, "%s failed to initialize firmware ipc channel\n",
+ 			DELTA_PREFIX);
+-		goto err;
++		goto err_pm_disable;
+ 	}
  
--#define current_top_of_stack()								\
--({											\
--	struct stack_info _info;							\
--	BUG_ON(!on_accessible_stack(current, current_stack_pointer, 1, &_info));	\
--	_info.high;									\
--})
-+/*
-+ * The top of the current task's task stack
-+ */
-+#define current_top_of_stack()	((unsigned long)current->stack + THREAD_SIZE)
- #define on_thread_stack()	(on_task_stack(current, current_stack_pointer, 1, NULL))
+ 	/* register all available decoders */
+@@ -1873,7 +1873,7 @@ static int delta_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(delta->dev, "%s failed to register V4L2 device\n",
+ 			DELTA_PREFIX);
+-		goto err;
++		goto err_pm_disable;
+ 	}
  
- #endif /* __ASSEMBLY__ */
+ 	delta->work_queue = create_workqueue(DELTA_NAME);
+@@ -1898,6 +1898,8 @@ static int delta_probe(struct platform_device *pdev)
+ 	destroy_workqueue(delta->work_queue);
+ err_v4l2:
+ 	v4l2_device_unregister(&delta->v4l2_dev);
++err_pm_disable:
++	pm_runtime_disable(dev);
+ err:
+ 	return ret;
+ }
 -- 
 2.35.1
 
