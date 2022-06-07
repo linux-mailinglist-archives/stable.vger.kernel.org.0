@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D30A541EB4
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2776F541EB1
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380424AbiFGWdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
+        id S1381468AbiFGWdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381525AbiFGWb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42BDD27C24B;
-        Tue,  7 Jun 2022 12:25:32 -0700 (PDT)
+        with ESMTP id S1380886AbiFGWcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:32:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17E027C255;
+        Tue,  7 Jun 2022 12:25:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDF63B823CA;
-        Tue,  7 Jun 2022 19:25:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B49C385A5;
-        Tue,  7 Jun 2022 19:25:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A765608CD;
+        Tue,  7 Jun 2022 19:25:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36075C385A2;
+        Tue,  7 Jun 2022 19:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629929;
-        bh=4pNNSTUd2ZJDIkV5UTFgoNifM2igfy8EKigtrAPUaF0=;
+        s=korg; t=1654629932;
+        bh=1ZsatgNjEVp8upoppveFDyy7kk+zXJJA7FqcCTOQW7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ovCPK5cGXPj8fXzDf4KWE40Swg46F35CA+8A3FYp9JiXD3B66pgV1fTNcuNuxO69
-         p1Xrerk5Afmn18jodO8jn14wU+9LaJWVEE4RyNFGvs/LDao+Fc1n8CEmCBOfPPMggH
-         bcFQ+IwkTA4YiPEi7y5TYVZDAj488ttLK+kWmNPk=
+        b=rb8GIgED2YmryeMvBquPlutVwj3M3JzcJwd3rz5ht7pLO83ZCbNiXoqzGISjbHqE+
+         FaoqIRmm+IMt3wiNEHOxNL7TtKmzasOJd9K5nLdZFWWVPdXaYAl/x37H0HeY5Nurw1
+         YpRxhlKFxeGnm8fnIOhqyWVNsN1xlkRFVZpiXdhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christopher Ferris <cferris@google.com>,
-        Carlos Llamas <cmllamas@google.com>,
-        Todd Kjos <tkjos@google.com>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.18 868/879] binder: fix sender_euid type in uapi header
-Date:   Tue,  7 Jun 2022 19:06:26 +0200
-Message-Id: <20220607165028.048490141@linuxfoundation.org>
+        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.18 869/879] RDMA/hns: Remove the num_cqc_timer variable
+Date:   Tue,  7 Jun 2022 19:06:27 +0200
+Message-Id: <20220607165028.077895193@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,39 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Yixing Liu <liuyixing1@huawei.com>
 
-commit 8cc5b032240ae5220b62c689c20459d3e1825b2d upstream.
+commit db5dfbf5b201df65c1f5332c4d9d5e7c2f42396b upstream.
 
-The {pid,uid}_t fields of struct binder_transaction were recently
-replaced to use kernel types in commit 169adc2b6b3c ("android/binder.h:
-add linux/android/binder(fs).h to UAPI compile-test coverage").
+The bt number of cqc_timer of HIP09 increases compared with that of HIP08.
+Therefore, cqc_timer_bt_num and num_cqc_timer do not match. As a result,
+the driver may fail to allocate cqc_timer. So the driver needs to uniquely
+uses cqc_timer_bt_num to represent the bt number of cqc_timer.
 
-However, using __kernel_uid_t here breaks backwards compatibility in
-architectures using 16-bits for this type, since glibc and some others
-still expect a 32-bit uid_t. Instead, let's use __kernel_uid32_t which
-avoids this compatibility problem.
-
-Fixes: 169adc2b6b3c ("android/binder.h: add linux/android/binder(fs).h to UAPI compile-test coverage")
-Reported-by: Christopher Ferris <cferris@google.com>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Acked-by: Todd Kjos <tkjos@google.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 0e40dc2f70cd ("RDMA/hns: Add timer allocation support for hip08")
+Link: https://lore.kernel.org/r/20220429093545.58070-1-liangwenpeng@huawei.com
+Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/android/binder.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_device.h |    1 -
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |    3 +--
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.h  |    2 +-
+ drivers/infiniband/hw/hns/hns_roce_main.c   |    2 +-
+ 4 files changed, 3 insertions(+), 5 deletions(-)
 
---- a/include/uapi/linux/android/binder.h
-+++ b/include/uapi/linux/android/binder.h
-@@ -289,7 +289,7 @@ struct binder_transaction_data {
- 	/* General information about the transaction. */
- 	__u32	        flags;
- 	__kernel_pid_t	sender_pid;
--	__kernel_uid_t	sender_euid;
-+	__kernel_uid32_t	sender_euid;
- 	binder_size_t	data_size;	/* number of bytes of data */
- 	binder_size_t	offsets_size;	/* number of bytes of offsets */
+--- a/drivers/infiniband/hw/hns/hns_roce_device.h
++++ b/drivers/infiniband/hw/hns/hns_roce_device.h
+@@ -731,7 +731,6 @@ struct hns_roce_caps {
+ 	u32		num_pi_qps;
+ 	u32		reserved_qps;
+ 	int		num_qpc_timer;
+-	int		num_cqc_timer;
+ 	u32		num_srqs;
+ 	u32		max_wqes;
+ 	u32		max_srq_wrs;
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -1965,7 +1965,7 @@ static void set_default_caps(struct hns_
+ 	caps->num_mtpts		= HNS_ROCE_V2_MAX_MTPT_NUM;
+ 	caps->num_pds		= HNS_ROCE_V2_MAX_PD_NUM;
+ 	caps->num_qpc_timer	= HNS_ROCE_V2_MAX_QPC_TIMER_NUM;
+-	caps->num_cqc_timer	= HNS_ROCE_V2_MAX_CQC_TIMER_NUM;
++	caps->cqc_timer_bt_num	= HNS_ROCE_V2_MAX_CQC_TIMER_BT_NUM;
  
+ 	caps->max_qp_init_rdma	= HNS_ROCE_V2_MAX_QP_INIT_RDMA;
+ 	caps->max_qp_dest_rdma	= HNS_ROCE_V2_MAX_QP_DEST_RDMA;
+@@ -2261,7 +2261,6 @@ static int hns_roce_query_pf_caps(struct
+ 	caps->max_rq_sg = roundup_pow_of_two(caps->max_rq_sg);
+ 	caps->max_extend_sg	     = le32_to_cpu(resp_a->max_extend_sg);
+ 	caps->num_qpc_timer	     = le16_to_cpu(resp_a->num_qpc_timer);
+-	caps->num_cqc_timer	     = le16_to_cpu(resp_a->num_cqc_timer);
+ 	caps->max_srq_sges	     = le16_to_cpu(resp_a->max_srq_sges);
+ 	caps->max_srq_sges = roundup_pow_of_two(caps->max_srq_sges);
+ 	caps->num_aeq_vectors	     = resp_a->num_aeq_vectors;
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+@@ -41,7 +41,7 @@
+ #define HNS_ROCE_V2_MAX_SRQ_WR			0x8000
+ #define HNS_ROCE_V2_MAX_SRQ_SGE			64
+ #define HNS_ROCE_V2_MAX_CQ_NUM			0x100000
+-#define HNS_ROCE_V2_MAX_CQC_TIMER_NUM		0x100
++#define HNS_ROCE_V2_MAX_CQC_TIMER_BT_NUM	0x100
+ #define HNS_ROCE_V2_MAX_SRQ_NUM			0x100000
+ #define HNS_ROCE_V2_MAX_CQE_NUM			0x400000
+ #define HNS_ROCE_V2_MAX_RQ_SGE_NUM		64
+--- a/drivers/infiniband/hw/hns/hns_roce_main.c
++++ b/drivers/infiniband/hw/hns/hns_roce_main.c
+@@ -737,7 +737,7 @@ static int hns_roce_init_hem(struct hns_
+ 		ret = hns_roce_init_hem_table(hr_dev, &hr_dev->cqc_timer_table,
+ 					      HEM_TYPE_CQC_TIMER,
+ 					      hr_dev->caps.cqc_timer_entry_sz,
+-					      hr_dev->caps.num_cqc_timer, 1);
++					      hr_dev->caps.cqc_timer_bt_num, 1);
+ 		if (ret) {
+ 			dev_err(dev,
+ 				"Failed to init CQC timer memory, aborting.\n");
 
 
