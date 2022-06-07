@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC115424ED
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA265423A4
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236143AbiFHBzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 21:55:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49306 "EHLO
+        id S1380572AbiFHBOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358720AbiFHBtT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 21:49:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E8339B8D;
-        Tue,  7 Jun 2022 12:18:05 -0700 (PDT)
+        with ESMTP id S1587899AbiFGXxt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 19:53:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E57C47ACD;
+        Tue,  7 Jun 2022 12:18:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41594B8237B;
-        Tue,  7 Jun 2022 19:18:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC4F4C385A2;
-        Tue,  7 Jun 2022 19:18:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A8606192F;
+        Tue,  7 Jun 2022 19:18:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65238C385A2;
+        Tue,  7 Jun 2022 19:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629483;
-        bh=Csp2I1zQnXxibFFydZTSP8SxG7Y68Iy4CSd19K5lV9E=;
+        s=korg; t=1654629485;
+        bh=g10tgBCU4nK06ieljtTtonaZNc/pXE05inLmApIGgfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoK69xUfE4IYIBhrRu7k1eyUPgj1bsduezHEqG02qAHue1QoyZ/c5Fid0DtOxF7QN
-         5bw4LdVserZb7KmlneRo1iyaxNTOBl4rgFa47j2/sWAaJDfkVh++ePiJwc43iF2jZH
-         S1AnoSvdWxX1XlgYrKYog8u+nuD7uMdwNjl7jwjg=
+        b=a719OzZiVmwiy4FG7Q87KHlX5cmcfQRPSHzJT7HwitScRkm5AspD/mE51DCpDUfl/
+         kFe1eF5y4tDybtWni0lUUxPDxHR5hvjBMlEEzGucIanP8zzsP6CZnFDT5OkA1XPghz
+         5fhLN4ue0QcO5+uMD+A5XzRyjT3afBWewNFFbEsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Trond Myklebust <trondmy@hammerspace.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 706/879] NFSv4: Fix free of uninitialized nfs4_label on referral lookup.
-Date:   Tue,  7 Jun 2022 19:03:44 +0200
-Message-Id: <20220607165023.339266243@linuxfoundation.org>
+Subject: [PATCH 5.18 707/879] NFSv4.1 mark qualified async operations as MOVEABLE tasks
+Date:   Tue,  7 Jun 2022 19:03:45 +0200
+Message-Id: <20220607165023.377418735@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,201 +54,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit c3ed222745d9ad7b69299b349a64ba533c64a34f ]
+[ Upstream commit 118f09eda21d392e1eeb9f8a4bee044958cccf20 ]
 
-Send along the already-allocated fattr along with nfs4_fs_locations, and
-drop the memcpy of fattr.  We end up growing two more allocations, but this
-fixes up a crash as:
+Mark async operations such as RENAME, REMOVE, COMMIT MOVEABLE
+for the nfsv4.1+ sessions.
 
-PID: 790    TASK: ffff88811b43c000  CPU: 0   COMMAND: "ls"
- #0 [ffffc90000857920] panic at ffffffff81b9bfde
- #1 [ffffc900008579c0] do_trap at ffffffff81023a9b
- #2 [ffffc90000857a10] do_error_trap at ffffffff81023b78
- #3 [ffffc90000857a58] exc_stack_segment at ffffffff81be1f45
- #4 [ffffc90000857a80] asm_exc_stack_segment at ffffffff81c009de
- #5 [ffffc90000857b08] nfs_lookup at ffffffffa0302322 [nfs]
- #6 [ffffc90000857b70] __lookup_slow at ffffffff813a4a5f
- #7 [ffffc90000857c60] walk_component at ffffffff813a86c4
- #8 [ffffc90000857cb8] path_lookupat at ffffffff813a9553
- #9 [ffffc90000857cf0] filename_lookup at ffffffff813ab86b
-
-Suggested-by: Trond Myklebust <trondmy@hammerspace.com>
-Fixes: 9558a007dbc3 ("NFS: Remove the label from the nfs4_lookup_res struct")
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Fixes: 85e39feead948 ("NFSv4.1 identify and mark RPC tasks that can move between transports")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4namespace.c  |  9 +++++++--
- fs/nfs/nfs4proc.c       | 15 +++++++--------
- fs/nfs/nfs4state.c      |  9 ++++++++-
- fs/nfs/nfs4xdr.c        |  4 ++--
- include/linux/nfs_xdr.h |  2 +-
- 5 files changed, 25 insertions(+), 14 deletions(-)
+ fs/nfs/nfs4proc.c         | 26 ++++++++++++++------------
+ fs/nfs/pagelist.c         |  3 +++
+ fs/nfs/unlink.c           |  8 ++++++++
+ fs/nfs/write.c            |  4 ++++
+ include/linux/nfs_fs_sb.h |  1 +
+ 5 files changed, 30 insertions(+), 12 deletions(-)
 
-diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
-index 3680c8da510c..f2dbf904c598 100644
---- a/fs/nfs/nfs4namespace.c
-+++ b/fs/nfs/nfs4namespace.c
-@@ -417,6 +417,9 @@ static int nfs_do_refmount(struct fs_context *fc, struct rpc_clnt *client)
- 	fs_locations = kmalloc(sizeof(struct nfs4_fs_locations), GFP_KERNEL);
- 	if (!fs_locations)
- 		goto out_free;
-+	fs_locations->fattr = nfs_alloc_fattr();
-+	if (!fs_locations->fattr)
-+		goto out_free_2;
- 
- 	/* Get locations */
- 	dentry = ctx->clone_data.dentry;
-@@ -427,14 +430,16 @@ static int nfs_do_refmount(struct fs_context *fc, struct rpc_clnt *client)
- 	err = nfs4_proc_fs_locations(client, d_inode(parent), &dentry->d_name, fs_locations, page);
- 	dput(parent);
- 	if (err != 0)
--		goto out_free_2;
-+		goto out_free_3;
- 
- 	err = -ENOENT;
- 	if (fs_locations->nlocations <= 0 ||
- 	    fs_locations->fs_path.ncomponents <= 0)
--		goto out_free_2;
-+		goto out_free_3;
- 
- 	err = nfs_follow_referral(fc, fs_locations);
-+out_free_3:
-+	kfree(fs_locations->fattr);
- out_free_2:
- 	kfree(fs_locations);
- out_free:
 diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index a79f66432bd3..0600f85b6016 100644
+index 0600f85b6016..8c5907287c16 100644
 --- a/fs/nfs/nfs4proc.c
 +++ b/fs/nfs/nfs4proc.c
-@@ -4243,6 +4243,8 @@ static int nfs4_get_referral(struct rpc_clnt *client, struct inode *dir,
- 	if (locations == NULL)
- 		goto out;
+@@ -1162,7 +1162,7 @@ static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
+ {
+ 	unsigned short task_flags = 0;
  
-+	locations->fattr = fattr;
-+
- 	status = nfs4_proc_fs_locations(client, dir, name, locations, page);
- 	if (status != 0)
- 		goto out;
-@@ -4252,17 +4254,14 @@ static int nfs4_get_referral(struct rpc_clnt *client, struct inode *dir,
- 	 * referral.  Cause us to drop into the exception handler, which
- 	 * will kick off migration recovery.
- 	 */
--	if (nfs_fsid_equal(&NFS_SERVER(dir)->fsid, &locations->fattr.fsid)) {
-+	if (nfs_fsid_equal(&NFS_SERVER(dir)->fsid, &fattr->fsid)) {
- 		dprintk("%s: server did not return a different fsid for"
- 			" a referral at %s\n", __func__, name->name);
- 		status = -NFS4ERR_MOVED;
- 		goto out;
- 	}
- 	/* Fixup attributes for the nfs_lookup() call to nfs_fhget() */
--	nfs_fixup_referral_attributes(&locations->fattr);
--
--	/* replace the lookup nfs_fattr with the locations nfs_fattr */
--	memcpy(fattr, &locations->fattr, sizeof(struct nfs_fattr));
-+	nfs_fixup_referral_attributes(fattr);
- 	memset(fhandle, 0, sizeof(struct nfs_fh));
- out:
- 	if (page)
-@@ -7902,7 +7901,7 @@ static int _nfs4_proc_fs_locations(struct rpc_clnt *client, struct inode *dir,
- 	else
- 		bitmask[1] &= ~FATTR4_WORD1_MOUNTED_ON_FILEID;
- 
--	nfs_fattr_init(&fs_locations->fattr);
-+	nfs_fattr_init(fs_locations->fattr);
- 	fs_locations->server = server;
- 	fs_locations->nlocations = 0;
- 	status = nfs4_call_sync(client, server, &msg, &args.seq_args, &res.seq_res, 0);
-@@ -7967,7 +7966,7 @@ static int _nfs40_proc_get_locations(struct nfs_server *server,
- 	unsigned long now = jiffies;
- 	int status;
- 
--	nfs_fattr_init(&locations->fattr);
-+	nfs_fattr_init(locations->fattr);
- 	locations->server = server;
- 	locations->nlocations = 0;
- 
-@@ -8032,7 +8031,7 @@ static int _nfs41_proc_get_locations(struct nfs_server *server,
+-	if (server->nfs_client->cl_minorversion)
++	if (server->caps & NFS_CAP_MOVEABLE)
+ 		task_flags = RPC_TASK_MOVEABLE;
+ 	return nfs4_do_call_sync(clnt, server, msg, args, res, task_flags);
+ }
+@@ -2568,7 +2568,7 @@ static int nfs4_run_open_task(struct nfs4_opendata *data,
  	};
  	int status;
  
--	nfs_fattr_init(&locations->fattr);
-+	nfs_fattr_init(locations->fattr);
- 	locations->server = server;
- 	locations->nlocations = 0;
+-	if (server->nfs_client->cl_minorversion)
++	if (nfs_server_capable(dir, NFS_CAP_MOVEABLE))
+ 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
  
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 9e1c987c81e7..9656d40bb488 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -2106,6 +2106,11 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
- 		dprintk("<-- %s: no memory\n", __func__);
- 		goto out;
- 	}
-+	locations->fattr = nfs_alloc_fattr();
-+	if (locations->fattr == NULL) {
-+		dprintk("<-- %s: no memory\n", __func__);
-+		goto out;
-+	}
+ 	kref_get(&data->kref);
+@@ -3733,7 +3733,7 @@ int nfs4_do_close(struct nfs4_state *state, gfp_t gfp_mask, int wait)
+ 	};
+ 	int status = -ENOMEM;
  
- 	inode = d_inode(server->super->s_root);
- 	result = nfs4_proc_get_locations(server, NFS_FH(inode), locations,
-@@ -2120,7 +2125,7 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
- 	if (!locations->nlocations)
- 		goto out;
+-	if (server->nfs_client->cl_minorversion)
++	if (nfs_server_capable(state->inode, NFS_CAP_MOVEABLE))
+ 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
  
--	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
-+	if (!(locations->fattr->valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
- 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
- 			__func__);
- 		goto out;
-@@ -2145,6 +2150,8 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
- out:
- 	if (page != NULL)
- 		__free_page(page);
-+	if (locations != NULL)
-+		kfree(locations->fattr);
- 	kfree(locations);
- 	if (result) {
- 		pr_err("NFS: migration recovery failed (server %s)\n",
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 86a5f6516928..5d822594336d 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -7051,7 +7051,7 @@ static int nfs4_xdr_dec_fs_locations(struct rpc_rqst *req,
- 	if (res->migration) {
- 		xdr_enter_page(xdr, PAGE_SIZE);
- 		status = decode_getfattr_generic(xdr,
--					&res->fs_locations->fattr,
-+					res->fs_locations->fattr,
- 					 NULL, res->fs_locations,
- 					 res->fs_locations->server);
- 		if (status)
-@@ -7064,7 +7064,7 @@ static int nfs4_xdr_dec_fs_locations(struct rpc_rqst *req,
- 			goto out;
- 		xdr_enter_page(xdr, PAGE_SIZE);
- 		status = decode_getfattr_generic(xdr,
--					&res->fs_locations->fattr,
-+					res->fs_locations->fattr,
- 					 NULL, res->fs_locations,
- 					 res->fs_locations->server);
- 	}
-diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
-index 2863e5a69c6a..20e97329fe46 100644
---- a/include/linux/nfs_xdr.h
-+++ b/include/linux/nfs_xdr.h
-@@ -1212,7 +1212,7 @@ struct nfs4_fs_location {
+ 	nfs4_state_protect(server->nfs_client, NFS_SP4_MACH_CRED_CLEANUP,
+@@ -4403,7 +4403,7 @@ static int _nfs4_proc_lookup(struct rpc_clnt *clnt, struct inode *dir,
+ 	};
+ 	unsigned short task_flags = 0;
  
- #define NFS4_FS_LOCATIONS_MAXENTRIES 10
- struct nfs4_fs_locations {
--	struct nfs_fattr fattr;
-+	struct nfs_fattr *fattr;
- 	const struct nfs_server *server;
- 	struct nfs4_pathname fs_path;
- 	int nlocations;
+-	if (server->nfs_client->cl_minorversion)
++	if (nfs_server_capable(dir, NFS_CAP_MOVEABLE))
+ 		task_flags = RPC_TASK_MOVEABLE;
+ 
+ 	/* Is this is an attribute revalidation, subject to softreval? */
+@@ -6611,10 +6611,13 @@ static int _nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred,
+ 		.rpc_client = server->client,
+ 		.rpc_message = &msg,
+ 		.callback_ops = &nfs4_delegreturn_ops,
+-		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT | RPC_TASK_MOVEABLE,
++		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT,
+ 	};
+ 	int status = 0;
+ 
++	if (nfs_server_capable(inode, NFS_CAP_MOVEABLE))
++		task_setup_data.flags |= RPC_TASK_MOVEABLE;
++
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (data == NULL)
+ 		return -ENOMEM;
+@@ -6928,10 +6931,8 @@ static struct rpc_task *nfs4_do_unlck(struct file_lock *fl,
+ 		.workqueue = nfsiod_workqueue,
+ 		.flags = RPC_TASK_ASYNC,
+ 	};
+-	struct nfs_client *client =
+-		NFS_SERVER(lsp->ls_state->inode)->nfs_client;
+ 
+-	if (client->cl_minorversion)
++	if (nfs_server_capable(lsp->ls_state->inode, NFS_CAP_MOVEABLE))
+ 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
+ 
+ 	nfs4_state_protect(NFS_SERVER(lsp->ls_state->inode)->nfs_client,
+@@ -7202,9 +7203,8 @@ static int _nfs4_do_setlk(struct nfs4_state *state, int cmd, struct file_lock *f
+ 		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+ 	};
+ 	int ret;
+-	struct nfs_client *client = NFS_SERVER(state->inode)->nfs_client;
+ 
+-	if (client->cl_minorversion)
++	if (nfs_server_capable(state->inode, NFS_CAP_MOVEABLE))
+ 		task_setup_data.flags |= RPC_TASK_MOVEABLE;
+ 
+ 	data = nfs4_alloc_lockdata(fl, nfs_file_open_context(fl->fl_file),
+@@ -10390,7 +10390,8 @@ static const struct nfs4_minor_version_ops nfs_v4_1_minor_ops = {
+ 		| NFS_CAP_POSIX_LOCK
+ 		| NFS_CAP_STATEID_NFSV41
+ 		| NFS_CAP_ATOMIC_OPEN_V1
+-		| NFS_CAP_LGOPEN,
++		| NFS_CAP_LGOPEN
++		| NFS_CAP_MOVEABLE,
+ 	.init_client = nfs41_init_client,
+ 	.shutdown_client = nfs41_shutdown_client,
+ 	.match_stateid = nfs41_match_stateid,
+@@ -10425,7 +10426,8 @@ static const struct nfs4_minor_version_ops nfs_v4_2_minor_ops = {
+ 		| NFS_CAP_LAYOUTSTATS
+ 		| NFS_CAP_CLONE
+ 		| NFS_CAP_LAYOUTERROR
+-		| NFS_CAP_READ_PLUS,
++		| NFS_CAP_READ_PLUS
++		| NFS_CAP_MOVEABLE,
+ 	.init_client = nfs41_init_client,
+ 	.shutdown_client = nfs41_shutdown_client,
+ 	.match_stateid = nfs41_match_stateid,
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index 9157dd19b8b4..317cedfa52bf 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -767,6 +767,9 @@ int nfs_initiate_pgio(struct rpc_clnt *clnt, struct nfs_pgio_header *hdr,
+ 		.flags = RPC_TASK_ASYNC | flags,
+ 	};
+ 
++	if (nfs_server_capable(hdr->inode, NFS_CAP_MOVEABLE))
++		task_setup_data.flags |= RPC_TASK_MOVEABLE;
++
+ 	hdr->rw_ops->rw_initiate(hdr, &msg, rpc_ops, &task_setup_data, how);
+ 
+ 	dprintk("NFS: initiated pgio call "
+diff --git a/fs/nfs/unlink.c b/fs/nfs/unlink.c
+index 6f325e10056c..9697cd5d2561 100644
+--- a/fs/nfs/unlink.c
++++ b/fs/nfs/unlink.c
+@@ -102,6 +102,10 @@ static void nfs_do_call_unlink(struct inode *inode, struct nfs_unlinkdata *data)
+ 	};
+ 	struct rpc_task *task;
+ 	struct inode *dir = d_inode(data->dentry->d_parent);
++
++	if (nfs_server_capable(inode, NFS_CAP_MOVEABLE))
++		task_setup_data.flags |= RPC_TASK_MOVEABLE;
++
+ 	nfs_sb_active(dir->i_sb);
+ 	data->args.fh = NFS_FH(dir);
+ 	nfs_fattr_init(data->res.dir_attr);
+@@ -344,6 +348,10 @@ nfs_async_rename(struct inode *old_dir, struct inode *new_dir,
+ 		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+ 	};
+ 
++	if (nfs_server_capable(old_dir, NFS_CAP_MOVEABLE) &&
++	    nfs_server_capable(new_dir, NFS_CAP_MOVEABLE))
++		task_setup_data.flags |= RPC_TASK_MOVEABLE;
++
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (data == NULL)
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 2f41659e232e..1c706465d090 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1709,6 +1709,10 @@ int nfs_initiate_commit(struct rpc_clnt *clnt, struct nfs_commit_data *data,
+ 		.flags = RPC_TASK_ASYNC | flags,
+ 		.priority = priority,
+ 	};
++
++	if (nfs_server_capable(data->inode, NFS_CAP_MOVEABLE))
++		task_setup_data.flags |= RPC_TASK_MOVEABLE;
++
+ 	/* Set up the initial task struct.  */
+ 	nfs_ops->commit_setup(data, &msg, &task_setup_data.rpc_client);
+ 	trace_nfs_initiate_commit(data);
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index 157d2bd6b241..ea2f7e6b1b0b 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -287,4 +287,5 @@ struct nfs_server {
+ #define NFS_CAP_XATTR		(1U << 28)
+ #define NFS_CAP_READ_PLUS	(1U << 29)
+ #define NFS_CAP_FS_LOCATIONS	(1U << 30)
++#define NFS_CAP_MOVEABLE	(1U << 31)
+ #endif
 -- 
 2.35.1
 
