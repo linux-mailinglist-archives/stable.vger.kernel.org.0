@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8B9541DFE
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9A07540807
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380300AbiFGWXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49784 "EHLO
+        id S1348574AbiFGRxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385453AbiFGWVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665B426A092;
-        Tue,  7 Jun 2022 12:21:49 -0700 (PDT)
+        with ESMTP id S1350180AbiFGRv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F42143840;
+        Tue,  7 Jun 2022 10:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 982EBB82182;
-        Tue,  7 Jun 2022 19:21:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05FF2C385A2;
-        Tue,  7 Jun 2022 19:21:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29A8861499;
+        Tue,  7 Jun 2022 17:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34416C385A5;
+        Tue,  7 Jun 2022 17:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629705;
-        bh=XP3Mb+1/rM2xKkSYEbOakwN+wCNqt6xuKKFApfb3IVc=;
+        s=korg; t=1654623524;
+        bh=fzyvPfZ+ti4QPxz21VI+b5/oRwIhz37nEWqk4JcZc8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkSBYn1ItcbpKpiMwRRwA0jyeA7PQTWl1PShCK5dRR4yrEvt3sXl3HsZ5WDmNlzss
-         S5akdo8LxpJgWf14onJ5uEPPaU9yC5+Cn7XssjwTT5CkyCruXzg/2QESIu87pUGMEr
-         TMvdyo7eaSskKE77L0U+cpWGzEf84UBcnrAQSToA=
+        b=L4SdBqqkmMiT2rPsi7wdrFdD0quPxl7ZPwNZRJxkSR7jeJKZ0z4oQM5TNUu2y7OGX
+         n1oP/BbiSGSJKj+z6RkdxZ3iGuhvdUVm2Z+CtEdHJGNYMOIiM9kyCmuUpCi9k5QDfW
+         Kq92/TRMOAs2c/z7sEVkBTsC1+EOd3wEzChxAH4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.18 787/879] landlock: Define access_mask_t to enforce a consistent access mask size
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 448/452] RDMA/rxe: Generate a completion for unsupported/invalid opcode
 Date:   Tue,  7 Jun 2022 19:05:05 +0200
-Message-Id: <20220607165025.710938021@linuxfoundation.org>
+Message-Id: <20220607164921.920610632@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,206 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Xiao Yang <yangx.jy@fujitsu.com>
 
-commit 5f2ff33e10843ef51275c8611bdb7b49537aba5d upstream.
+commit 2f917af777011c88e977b9b9a5d00b280d3a59ce upstream.
 
-Create and use the access_mask_t typedef to enforce a consistent access
-mask size and uniformly use a 16-bits type.  This will helps transition
-to a 32-bits value one day.
+Current rxe_requester() doesn't generate a completion when processing an
+unsupported/invalid opcode. If rxe driver doesn't support a new opcode
+(e.g. RDMA Atomic Write) and RDMA library supports it, an application
+using the new opcode can reproduce this issue. Fix the issue by calling
+"goto err;".
 
-Add a build check to make sure all (filesystem) access rights fit in.
-This will be extended with a following commit.
-
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Link: https://lore.kernel.org/r/20220506161102.525323-2-mic@digikod.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220410113513.27537-1-yangx.jy@fujitsu.com
+Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/landlock/fs.c      |   19 +++++++++++--------
- security/landlock/fs.h      |    2 +-
- security/landlock/limits.h  |    2 ++
- security/landlock/ruleset.c |    6 ++++--
- security/landlock/ruleset.h |   16 ++++++++++++----
- 5 files changed, 30 insertions(+), 15 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_req.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -152,7 +152,8 @@ retry:
-  * @path: Should have been checked by get_path_from_fd().
-  */
- int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
--			    const struct path *const path, u32 access_rights)
-+			    const struct path *const path,
-+			    access_mask_t access_rights)
- {
- 	int err;
- 	struct landlock_object *object;
-@@ -184,7 +185,8 @@ int landlock_append_fs_rule(struct landl
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -650,7 +650,7 @@ next_wqe:
+ 	opcode = next_opcode(qp, wqe, wqe->wr.opcode);
+ 	if (unlikely(opcode < 0)) {
+ 		wqe->status = IB_WC_LOC_QP_OP_ERR;
+-		goto exit;
++		goto err;
+ 	}
  
- static inline u64 unmask_layers(const struct landlock_ruleset *const domain,
- 				const struct path *const path,
--				const u32 access_request, u64 layer_mask)
-+				const access_mask_t access_request,
-+				u64 layer_mask)
- {
- 	const struct landlock_rule *rule;
- 	const struct inode *inode;
-@@ -224,7 +226,8 @@ static inline u64 unmask_layers(const st
- }
- 
- static int check_access_path(const struct landlock_ruleset *const domain,
--			     const struct path *const path, u32 access_request)
-+			     const struct path *const path,
-+			     const access_mask_t access_request)
- {
- 	bool allowed = false;
- 	struct path walker_path;
-@@ -309,7 +312,7 @@ jump_up:
- }
- 
- static inline int current_check_access_path(const struct path *const path,
--					    const u32 access_request)
-+					    const access_mask_t access_request)
- {
- 	const struct landlock_ruleset *const dom =
- 		landlock_get_current_domain();
-@@ -512,7 +515,7 @@ static int hook_sb_pivotroot(const struc
- 
- /* Path hooks */
- 
--static inline u32 get_mode_access(const umode_t mode)
-+static inline access_mask_t get_mode_access(const umode_t mode)
- {
- 	switch (mode & S_IFMT) {
- 	case S_IFLNK:
-@@ -565,7 +568,7 @@ static int hook_path_link(struct dentry
- 		get_mode_access(d_backing_inode(old_dentry)->i_mode));
- }
- 
--static inline u32 maybe_remove(const struct dentry *const dentry)
-+static inline access_mask_t maybe_remove(const struct dentry *const dentry)
- {
- 	if (d_is_negative(dentry))
- 		return 0;
-@@ -635,9 +638,9 @@ static int hook_path_rmdir(const struct
- 
- /* File hooks */
- 
--static inline u32 get_file_access(const struct file *const file)
-+static inline access_mask_t get_file_access(const struct file *const file)
- {
--	u32 access = 0;
-+	access_mask_t access = 0;
- 
- 	if (file->f_mode & FMODE_READ) {
- 		/* A directory can only be opened in read mode. */
---- a/security/landlock/fs.h
-+++ b/security/landlock/fs.h
-@@ -66,6 +66,6 @@ __init void landlock_add_fs_hooks(void);
- 
- int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
- 			    const struct path *const path,
--			    u32 access_hierarchy);
-+			    access_mask_t access_hierarchy);
- 
- #endif /* _SECURITY_LANDLOCK_FS_H */
---- a/security/landlock/limits.h
-+++ b/security/landlock/limits.h
-@@ -9,6 +9,7 @@
- #ifndef _SECURITY_LANDLOCK_LIMITS_H
- #define _SECURITY_LANDLOCK_LIMITS_H
- 
-+#include <linux/bitops.h>
- #include <linux/limits.h>
- #include <uapi/linux/landlock.h>
- 
-@@ -19,6 +20,7 @@
- 
- #define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_MAKE_SYM
- #define LANDLOCK_MASK_ACCESS_FS		((LANDLOCK_LAST_ACCESS_FS << 1) - 1)
-+#define LANDLOCK_NUM_ACCESS_FS		__const_hweight64(LANDLOCK_MASK_ACCESS_FS)
- 
- /* clang-format on */
- 
---- a/security/landlock/ruleset.c
-+++ b/security/landlock/ruleset.c
-@@ -45,7 +45,8 @@ static struct landlock_ruleset *create_r
- 	return new_ruleset;
- }
- 
--struct landlock_ruleset *landlock_create_ruleset(const u32 fs_access_mask)
-+struct landlock_ruleset *
-+landlock_create_ruleset(const access_mask_t fs_access_mask)
- {
- 	struct landlock_ruleset *new_ruleset;
- 
-@@ -228,7 +229,8 @@ static void build_check_layer(void)
- 
- /* @ruleset must be locked by the caller. */
- int landlock_insert_rule(struct landlock_ruleset *const ruleset,
--			 struct landlock_object *const object, const u32 access)
-+			 struct landlock_object *const object,
-+			 const access_mask_t access)
- {
- 	struct landlock_layer layers[] = { {
- 		.access = access,
---- a/security/landlock/ruleset.h
-+++ b/security/landlock/ruleset.h
-@@ -9,13 +9,20 @@
- #ifndef _SECURITY_LANDLOCK_RULESET_H
- #define _SECURITY_LANDLOCK_RULESET_H
- 
-+#include <linux/bitops.h>
-+#include <linux/build_bug.h>
- #include <linux/mutex.h>
- #include <linux/rbtree.h>
- #include <linux/refcount.h>
- #include <linux/workqueue.h>
- 
-+#include "limits.h"
- #include "object.h"
- 
-+typedef u16 access_mask_t;
-+/* Makes sure all filesystem access rights can be stored. */
-+static_assert(BITS_PER_TYPE(access_mask_t) >= LANDLOCK_NUM_ACCESS_FS);
-+
- /**
-  * struct landlock_layer - Access rights for a given layer
-  */
-@@ -28,7 +35,7 @@ struct landlock_layer {
- 	 * @access: Bitfield of allowed actions on the kernel object.  They are
- 	 * relative to the object type (e.g. %LANDLOCK_ACTION_FS_READ).
- 	 */
--	u16 access;
-+	access_mask_t access;
- };
- 
- /**
-@@ -135,19 +142,20 @@ struct landlock_ruleset {
- 			 * layers are set once and never changed for the
- 			 * lifetime of the ruleset.
- 			 */
--			u16 fs_access_masks[];
-+			access_mask_t fs_access_masks[];
- 		};
- 	};
- };
- 
--struct landlock_ruleset *landlock_create_ruleset(const u32 fs_access_mask);
-+struct landlock_ruleset *
-+landlock_create_ruleset(const access_mask_t fs_access_mask);
- 
- void landlock_put_ruleset(struct landlock_ruleset *const ruleset);
- void landlock_put_ruleset_deferred(struct landlock_ruleset *const ruleset);
- 
- int landlock_insert_rule(struct landlock_ruleset *const ruleset,
- 			 struct landlock_object *const object,
--			 const u32 access);
-+			 const access_mask_t access);
- 
- struct landlock_ruleset *
- landlock_merge_ruleset(struct landlock_ruleset *const parent,
+ 	mask = rxe_opcode[opcode].mask;
 
 
