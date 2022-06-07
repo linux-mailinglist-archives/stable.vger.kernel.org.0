@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE78A541A54
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D345B540B5E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379250AbiFGVcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
+        id S1350563AbiFGS2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380503AbiFGVaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2306922A461;
-        Tue,  7 Jun 2022 12:02:58 -0700 (PDT)
+        with ESMTP id S1351520AbiFGSQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5710E163F44;
+        Tue,  7 Jun 2022 10:49:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B77EB822C0;
-        Tue,  7 Jun 2022 19:02:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E00C385A2;
-        Tue,  7 Jun 2022 19:02:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 754016170B;
+        Tue,  7 Jun 2022 17:49:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809C4C385A5;
+        Tue,  7 Jun 2022 17:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628575;
-        bh=4crKvbaRKfRDh58CHafqCLlcae/1alFJ2GNdRhB1c08=;
+        s=korg; t=1654624175;
+        bh=5wfV9NTlAN2nhMo3NqmmNKpLOZXnqeEAylmjM8/Tlug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9i+hifyZtqav6ixGuvbAkFXToSY8ox2el4cASvBg6jR8F5A+U2p1ND/RackOhGSk
-         SKZ0veo6jsYQn63YYDbQbNx/U9FyV4gFZhtsBfE6PYRoPXuyEYsR/SPWP6u1YRNSgu
-         XzuVctP+681GPuDREZwEecEaP3HpGXQnVd5TGXgg=
+        b=kRy92gO5AraHYwRUEpE/yRydGHwmBIb5UV2/hhyABhVjCwxs4hE4H+kiARaRJjGbN
+         T8UJr8h80v/N6ycd2kUC8FY2tbKrBNffKDcfhZOMIZtS5qojvTGzTnjpwMpf4t97I2
+         Ki4+iwRNZaBk2F2bJ5ULrCfsN2BGNcwcYPHIw5o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 380/879] kunit: fix debugfs code to use enum kunit_status, not bool
+        stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 233/667] printk: wake waiters for safe and NMI contexts
 Date:   Tue,  7 Jun 2022 18:58:18 +0200
-Message-Id: <20220607165013.899263914@linuxfoundation.org>
+Message-Id: <20220607164941.774730803@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Latypov <dlatypov@google.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit 38289a26e1b8a37755f3e07056ca416c1ee2a2e8 ]
+[ Upstream commit 5341b93dea8c39d7612f7a227015d4b1d5cf30db ]
 
-Commit 6d2426b2f258 ("kunit: Support skipped tests") switched to using
-`enum kunit_status` to track the result of running a test/suite since we
-now have more than just pass/fail.
+When printk() is called from safe or NMI contexts, it will directly
+store the record (vprintk_store()) and then defer the console output.
+However, defer_console_output() only causes console printing and does
+not wake any waiters of new records.
 
-This callsite wasn't updated, silently converting to enum to a bool and
-then back.
+Wake waiters from defer_console_output() so that they also are aware
+of the new records from safe and NMI contexts.
 
-Fixes: 6d2426b2f258 ("kunit: Support skipped tests")
-Signed-off-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 03fc7f9c99c1 ("printk/nmi: Prevent deadlock when accessing the main log buffer in NMI")
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220421212250.565456-6-john.ogness@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kunit/debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/printk/printk.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/lib/kunit/debugfs.c b/lib/kunit/debugfs.c
-index b71db0abc12b..1048ef1b8d6e 100644
---- a/lib/kunit/debugfs.c
-+++ b/lib/kunit/debugfs.c
-@@ -52,7 +52,7 @@ static void debugfs_print_result(struct seq_file *seq,
- static int debugfs_print_results(struct seq_file *seq, void *v)
- {
- 	struct kunit_suite *suite = (struct kunit_suite *)seq->private;
--	bool success = kunit_suite_has_succeeded(suite);
-+	enum kunit_status success = kunit_suite_has_succeeded(suite);
- 	struct kunit_case *test_case;
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index dc074fb12b05..8d856b7c2e5a 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -743,7 +743,7 @@ static ssize_t devkmsg_read(struct file *file, char __user *buf,
+ 		 * prepare_to_wait_event() pairs with the full memory barrier
+ 		 * within wq_has_sleeper().
+ 		 *
+-		 * This pairs with wake_up_klogd:A.
++		 * This pairs with __wake_up_klogd:A.
+ 		 */
+ 		ret = wait_event_interruptible(log_wait,
+ 				prb_read_valid(prb,
+@@ -1521,7 +1521,7 @@ static int syslog_print(char __user *buf, int size)
+ 		 * prepare_to_wait_event() pairs with the full memory barrier
+ 		 * within wq_has_sleeper().
+ 		 *
+-		 * This pairs with wake_up_klogd:A.
++		 * This pairs with __wake_up_klogd:A.
+ 		 */
+ 		len = wait_event_interruptible(log_wait,
+ 				prb_read_valid(prb, seq, NULL)); /* LMM(syslog_print:A) */
+@@ -3252,7 +3252,7 @@ static void wake_up_klogd_work_func(struct irq_work *irq_work)
+ static DEFINE_PER_CPU(struct irq_work, wake_up_klogd_work) =
+ 	IRQ_WORK_INIT_LAZY(wake_up_klogd_work_func);
  
- 	if (!suite || !suite->log)
+-void wake_up_klogd(void)
++static void __wake_up_klogd(int val)
+ {
+ 	if (!printk_percpu_data_ready())
+ 		return;
+@@ -3269,22 +3269,26 @@ void wake_up_klogd(void)
+ 	 *
+ 	 * This pairs with devkmsg_read:A and syslog_print:A.
+ 	 */
+-	if (wq_has_sleeper(&log_wait)) { /* LMM(wake_up_klogd:A) */
+-		this_cpu_or(printk_pending, PRINTK_PENDING_WAKEUP);
++	if (wq_has_sleeper(&log_wait) || /* LMM(__wake_up_klogd:A) */
++	    (val & PRINTK_PENDING_OUTPUT)) {
++		this_cpu_or(printk_pending, val);
+ 		irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
+ 	}
+ 	preempt_enable();
+ }
+ 
+-void defer_console_output(void)
++void wake_up_klogd(void)
+ {
+-	if (!printk_percpu_data_ready())
+-		return;
++	__wake_up_klogd(PRINTK_PENDING_WAKEUP);
++}
+ 
+-	preempt_disable();
+-	this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
+-	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
+-	preempt_enable();
++void defer_console_output(void)
++{
++	/*
++	 * New messages may have been added directly to the ringbuffer
++	 * using vprintk_store(), so wake any waiters as well.
++	 */
++	__wake_up_klogd(PRINTK_PENDING_WAKEUP | PRINTK_PENDING_OUTPUT);
+ }
+ 
+ void printk_trigger_flush(void)
 -- 
 2.35.1
 
