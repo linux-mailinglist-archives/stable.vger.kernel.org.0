@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6808D540A82
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE4B541B32
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350977AbiFGSWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60734 "EHLO
+        id S1381288AbiFGVmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352998AbiFGSRv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CBC13FD7F;
-        Tue,  7 Jun 2022 10:52:55 -0700 (PDT)
+        with ESMTP id S1381293AbiFGVk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D0DB16FEF1;
+        Tue,  7 Jun 2022 12:06:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CECC617A7;
-        Tue,  7 Jun 2022 17:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DBB9C3411F;
-        Tue,  7 Jun 2022 17:52:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40657B82182;
+        Tue,  7 Jun 2022 19:06:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD19DC385A2;
+        Tue,  7 Jun 2022 19:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624374;
-        bh=LbqyjluyiwqorG7sAuTBbY2h6uEWrKDh7XnSBWLGDfw=;
+        s=korg; t=1654628772;
+        bh=2AEIenh73aLoWh9XjJ4hnoXRqQVSDuUQ2rYXV4WjRI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpcRilogoW97qf+eKamCpf7fpwzCI0SI0BLBFkiM9/gbhykNy28bh1K9BYoApu2ag
-         AbJ2Wzmt2l1mNup6G0eSxJRgXjhqRsGTOmIjYqLFfcKaSekmre9m/k35Q0wE7zOWUv
-         P2RXd8HxNM9Jajq85WzJ3Ofsw2daL6HPYlFLyxTw=
+        b=D985yuVaKE8Okks1lRB7XVMb9Omt/ZM9biuLc1VDAzjOzso0nFfX7icbITcDgcOuw
+         ueEiFEK5w1BN6o1zCKdrFqwmezG6ULbsCnXHM26tATi+glvk1vt8dQlV/M5awF6drv
+         A/gwJNjh00Qngw8FwGiEZRqMC1+kz7ywkXkkdJ08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ajay Singh <ajay.kathat@microchip.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 302/667] wilc1000: fix crash observed in AP mode with cfg80211_register_netdevice()
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 449/879] media: atmel: atmel-sama5d2-isc: fix wrong mask in YUYV format check
 Date:   Tue,  7 Jun 2022 18:59:27 +0200
-Message-Id: <20220607164943.834817510@linuxfoundation.org>
+Message-Id: <20220607165015.902057776@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Singh <ajay.kathat@microchip.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 868f0e28290c7a33e8cb79bfe97ebdcbb756e048 ]
+[ Upstream commit 91f49b80983f7bffdea9498209b2b896231ac776 ]
 
-Monitor(mon.) interface is used for handling the AP mode and 'ieee80211_ptr'
-reference is not getting set for it. Like earlier implementation,
-use register_netdevice() instead of cfg80211_register_netdevice() which
-expects valid 'ieee80211_ptr' reference to avoid the possible crash.
+While this does not happen in production, this check should be done
+versus the mask, as checking with the YCYC value may not include
+some bits that may be set.
+It is correct and safe to check the whole mask.
 
-Fixes: 2fe8ef106238 ("cfg80211: change netdev registration/unregistration semantics")
-Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220504161924.2146601-3-ajay.kathat@microchip.com
+Fixes: 123aaf816b95 ("media: atmel: atmel-sama5d2-isc: fix YUYV format")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/mon.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/atmel/atmel-sama5d2-isc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/microchip/wilc1000/mon.c b/drivers/net/wireless/microchip/wilc1000/mon.c
-index 6bd63934c2d8..b5a1b65c087c 100644
---- a/drivers/net/wireless/microchip/wilc1000/mon.c
-+++ b/drivers/net/wireless/microchip/wilc1000/mon.c
-@@ -233,7 +233,7 @@ struct net_device *wilc_wfi_init_mon_interface(struct wilc *wl,
- 	wl->monitor_dev->netdev_ops = &wilc_wfi_netdev_ops;
- 	wl->monitor_dev->needs_free_netdev = true;
- 
--	if (cfg80211_register_netdevice(wl->monitor_dev)) {
-+	if (register_netdevice(wl->monitor_dev)) {
- 		netdev_err(real_dev, "register_netdevice failed\n");
- 		free_netdev(wl->monitor_dev);
- 		return NULL;
-@@ -251,7 +251,7 @@ void wilc_wfi_deinit_mon_interface(struct wilc *wl, bool rtnl_locked)
- 		return;
- 
- 	if (rtnl_locked)
--		cfg80211_unregister_netdevice(wl->monitor_dev);
-+		unregister_netdevice(wl->monitor_dev);
- 	else
- 		unregister_netdev(wl->monitor_dev);
- 	wl->monitor_dev = NULL;
+diff --git a/drivers/media/platform/atmel/atmel-sama5d2-isc.c b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+index e9415495e738..c2d50b0c0e3d 100644
+--- a/drivers/media/platform/atmel/atmel-sama5d2-isc.c
++++ b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+@@ -291,7 +291,7 @@ static void isc_sama5d2_config_rlp(struct isc_device *isc)
+ 	 * Thus, if the YCYC mode is selected, replace it with the
+ 	 * sama5d2-compliant mode which is YYCC .
+ 	 */
+-	if ((rlp_mode & ISC_RLP_CFG_MODE_YCYC) == ISC_RLP_CFG_MODE_YCYC) {
++	if ((rlp_mode & ISC_RLP_CFG_MODE_MASK) == ISC_RLP_CFG_MODE_YCYC) {
+ 		rlp_mode &= ~ISC_RLP_CFG_MODE_MASK;
+ 		rlp_mode |= ISC_RLP_CFG_MODE_YYCC;
+ 	}
 -- 
 2.35.1
 
