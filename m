@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF4B541E55
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:29:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D175416FD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356142AbiFGW3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:29:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
+        id S1377151AbiFGU5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358975AbiFGW1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:27:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEC72722B8;
-        Tue,  7 Jun 2022 12:23:28 -0700 (PDT)
+        with ESMTP id S1378123AbiFGUz3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122BB62107;
+        Tue,  7 Jun 2022 11:44:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A873DB823CC;
-        Tue,  7 Jun 2022 19:23:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F8BC385A5;
-        Tue,  7 Jun 2022 19:23:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F43EB8239A;
+        Tue,  7 Jun 2022 18:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99203C385A5;
+        Tue,  7 Jun 2022 18:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629805;
-        bh=/dvj1yLBraTRfb7jibzxDZgOea9b9knsNdoqbo1WkrI=;
+        s=korg; t=1654627439;
+        bh=MNGbb0y6lx7BzfYUSDabvaF+OEPYHabK0nbEfAzr7mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfQdgLrfyeBrs/hHPpT8K5SYuApW5xjR/zgzbnl+3cpxRcDotUGgrQaVXEGRnarlg
-         addFCpK7cr9wZd+dMIV8YnKUiCmLUdctYStaY7THD2OV+6PhFbbuzeW8Tbtb6ZRxIi
-         0vqHAl8ZCtPwQCEDWJ/lqt5DIOHI3gYCxQl3c/YY=
+        b=xdoP1MQAywQCl6CuCoWh6dIVvhPb8iwhbFuFImAziQHrxuD5ovuTpHbg6oTi3LGWZ
+         f9YytWI611MDziQ7ARdrp9eHzXl859tgVBPcVuQLNGMS5VEfbJdt7S8X3AgZISFjBF
+         Xz/j+6BHY7IqgoHREj2JXMYg6qP4Kk9KQtqDIZrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Puyou Lu <puyou.lu@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 806/879] lib/string_helpers: fix not adding strarray to devices resource list
-Date:   Tue,  7 Jun 2022 19:05:24 +0200
-Message-Id: <20220607165026.253151949@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 733/772] bcache: improve multithreaded bch_btree_check()
+Date:   Tue,  7 Jun 2022 19:05:25 +0200
+Message-Id: <20220607165010.638879659@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +53,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Puyou Lu <puyou.lu@gmail.com>
+From: Coly Li <colyli@suse.de>
 
-commit cd290a9839cee2f6641558877e707bd373c8f6f1 upstream.
+commit 622536443b6731ec82c563aae7807165adbe9178 upstream.
 
-Add allocated strarray to device's resource list. This is a must to
-automatically release strarray when the device disappears.
+Commit 8e7102273f59 ("bcache: make bch_btree_check() to be
+multithreaded") makes bch_btree_check() to be much faster when checking
+all btree nodes during cache device registration. But it isn't in ideal
+shap yet, still can be improved.
 
-Without this fix we have a memory leak in the few drivers which use
-devm_kasprintf_strarray().
+This patch does the following thing to improve current parallel btree
+nodes check by multiple threads in bch_btree_check(),
+- Add read lock to root node while checking all the btree nodes with
+  multiple threads. Although currently it is not mandatory but it is
+  good to have a read lock in code logic.
+- Remove local variable 'char name[32]', and generate kernel thread name
+  string directly when calling kthread_run().
+- Allocate local variable "struct btree_check_state check_state" on the
+  stack and avoid unnecessary dynamic memory allocation for it.
+- Reduce BCH_BTR_CHKTHREAD_MAX from 64 to 12 which is enough indeed.
+- Increase check_state->started to count created kernel thread after it
+  succeeds to create.
+- When wait for all checking kernel threads to finish, use wait_event()
+  to replace wait_event_interruptible().
 
-Link: https://lkml.kernel.org/r/20220506044409.30066-1-puyou.lu@gmail.com
-Link: https://lkml.kernel.org/r/20220506073623.2679-1-puyou.lu@gmail.com
-Fixes: acdb89b6c87a ("lib/string_helpers: Introduce managed variant of kasprintf_strarray()")
-Signed-off-by: Puyou Lu <puyou.lu@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+With this change, the code is more clear, and some potential error
+conditions are avoided.
+
+Fixes: 8e7102273f59 ("bcache: make bch_btree_check() to be multithreaded")
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220524102336.10684-2-colyli@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/string_helpers.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/bcache/btree.c |   58 ++++++++++++++++++++--------------------------
+ drivers/md/bcache/btree.h |    2 -
+ 2 files changed, 27 insertions(+), 33 deletions(-)
 
---- a/lib/string_helpers.c
-+++ b/lib/string_helpers.c
-@@ -757,6 +757,9 @@ char **devm_kasprintf_strarray(struct de
- 		return ERR_PTR(-ENOMEM);
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -2006,8 +2006,7 @@ int bch_btree_check(struct cache_set *c)
+ 	int i;
+ 	struct bkey *k = NULL;
+ 	struct btree_iter iter;
+-	struct btree_check_state *check_state;
+-	char name[32];
++	struct btree_check_state check_state;
+ 
+ 	/* check and mark root node keys */
+ 	for_each_key_filter(&c->root->keys, k, &iter, bch_ptr_invalid)
+@@ -2018,63 +2017,58 @@ int bch_btree_check(struct cache_set *c)
+ 	if (c->root->level == 0)
+ 		return 0;
+ 
+-	check_state = kzalloc(sizeof(struct btree_check_state), GFP_KERNEL);
+-	if (!check_state)
+-		return -ENOMEM;
+-
+-	check_state->c = c;
+-	check_state->total_threads = bch_btree_chkthread_nr();
+-	check_state->key_idx = 0;
+-	spin_lock_init(&check_state->idx_lock);
+-	atomic_set(&check_state->started, 0);
+-	atomic_set(&check_state->enough, 0);
+-	init_waitqueue_head(&check_state->wait);
++	check_state.c = c;
++	check_state.total_threads = bch_btree_chkthread_nr();
++	check_state.key_idx = 0;
++	spin_lock_init(&check_state.idx_lock);
++	atomic_set(&check_state.started, 0);
++	atomic_set(&check_state.enough, 0);
++	init_waitqueue_head(&check_state.wait);
+ 
++	rw_lock(0, c->root, c->root->level);
+ 	/*
+ 	 * Run multiple threads to check btree nodes in parallel,
+-	 * if check_state->enough is non-zero, it means current
++	 * if check_state.enough is non-zero, it means current
+ 	 * running check threads are enough, unncessary to create
+ 	 * more.
+ 	 */
+-	for (i = 0; i < check_state->total_threads; i++) {
+-		/* fetch latest check_state->enough earlier */
++	for (i = 0; i < check_state.total_threads; i++) {
++		/* fetch latest check_state.enough earlier */
+ 		smp_mb__before_atomic();
+-		if (atomic_read(&check_state->enough))
++		if (atomic_read(&check_state.enough))
+ 			break;
+ 
+-		check_state->infos[i].result = 0;
+-		check_state->infos[i].state = check_state;
+-		snprintf(name, sizeof(name), "bch_btrchk[%u]", i);
+-		atomic_inc(&check_state->started);
++		check_state.infos[i].result = 0;
++		check_state.infos[i].state = &check_state;
+ 
+-		check_state->infos[i].thread =
++		check_state.infos[i].thread =
+ 			kthread_run(bch_btree_check_thread,
+-				    &check_state->infos[i],
+-				    name);
+-		if (IS_ERR(check_state->infos[i].thread)) {
++				    &check_state.infos[i],
++				    "bch_btrchk[%d]", i);
++		if (IS_ERR(check_state.infos[i].thread)) {
+ 			pr_err("fails to run thread bch_btrchk[%d]\n", i);
+ 			for (--i; i >= 0; i--)
+-				kthread_stop(check_state->infos[i].thread);
++				kthread_stop(check_state.infos[i].thread);
+ 			ret = -ENOMEM;
+ 			goto out;
+ 		}
++		atomic_inc(&check_state.started);
  	}
  
-+	ptr->n = n;
-+	devres_add(dev, ptr);
-+
- 	return ptr->array;
+ 	/*
+ 	 * Must wait for all threads to stop.
+ 	 */
+-	wait_event_interruptible(check_state->wait,
+-				 atomic_read(&check_state->started) == 0);
++	wait_event(check_state.wait, atomic_read(&check_state.started) == 0);
+ 
+-	for (i = 0; i < check_state->total_threads; i++) {
+-		if (check_state->infos[i].result) {
+-			ret = check_state->infos[i].result;
++	for (i = 0; i < check_state.total_threads; i++) {
++		if (check_state.infos[i].result) {
++			ret = check_state.infos[i].result;
+ 			goto out;
+ 		}
+ 	}
+ 
+ out:
+-	kfree(check_state);
++	rw_unlock(0, c->root);
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(devm_kasprintf_strarray);
+ 
+--- a/drivers/md/bcache/btree.h
++++ b/drivers/md/bcache/btree.h
+@@ -226,7 +226,7 @@ struct btree_check_info {
+ 	int				result;
+ };
+ 
+-#define BCH_BTR_CHKTHREAD_MAX	64
++#define BCH_BTR_CHKTHREAD_MAX	12
+ struct btree_check_state {
+ 	struct cache_set		*c;
+ 	int				total_threads;
 
 
