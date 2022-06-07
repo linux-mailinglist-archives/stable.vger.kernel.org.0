@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4CD541958
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0D6540925
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349950AbiFGVVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:21:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
+        id S1350170AbiFGSF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:05:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381382AbiFGVRl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8C014CDF5;
-        Tue,  7 Jun 2022 11:58:48 -0700 (PDT)
+        with ESMTP id S1351618AbiFGSCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F316B156474;
+        Tue,  7 Jun 2022 10:44:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A4666179F;
-        Tue,  7 Jun 2022 18:58:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D500C385A2;
-        Tue,  7 Jun 2022 18:58:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8876A6159C;
+        Tue,  7 Jun 2022 17:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9776BC385A5;
+        Tue,  7 Jun 2022 17:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628327;
-        bh=84IfR7RwwFTk8qrcm0SBcSTrKK/dW3sr/Vog+1TxXdk=;
+        s=korg; t=1654623899;
+        bh=DtOx1O0XiaLlxSWEw4zXLFc27dFqLNs2qRbn4pPwBT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyqfN13hz1LGMegCoapNUT7QYcUNnqTpw5W+WxwFY81dU8tKwWp0niCUpRrHwnoU1
-         9Mn1ReRZoHbhkb2Ee5qv5TAK6VBNe3Z53jsLRlUYIGIQU1QlOsvvcNDVwCxoivpYrt
-         Dd7aZmQ7xbxAdDWc+GAErCDYSvRXWv6npMxAGE7I=
+        b=GD5PhAMqH3Mx/ZDKYoTB5WBjqTFsbd/JRu/V3+NBSZOwF+xKfIoNHh07jKeQKi5OE
+         OOrZqcpjdNyIntgdTiZpwGbTKgncXeMXl7LBP9CbQ7PWpQtj6h/sdQsZKr5A36yVX8
+         zRXLudzm66wP/SA0pIt8UPk/eUBOvo6PrI3PbnfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parshuram Thombare <pthombar@cadence.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Bodo Stroesser <bostroesser@gmail.com>,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 238/879] PCI: cadence: Clear FLR in device capabilities register
+Subject: [PATCH 5.15 091/667] scsi: target: tcmu: Fix possible data corruption
 Date:   Tue,  7 Jun 2022 18:55:56 +0200
-Message-Id: <20220607165009.761206695@linuxfoundation.org>
+Message-Id: <20220607164937.550033493@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,122 +55,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parshuram Thombare <pthombar@cadence.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-[ Upstream commit 95b00f68209e2bc9f2ee9126afcebab451e0e9d8 ]
+[ Upstream commit bb9b9eb0ae2e9d3f6036f0ad907c3a83dcd43485 ]
 
-Clear FLR (Function Level Reset) from device capabilities
-registers for all physical functions.
+When tcmu_vma_fault() gets a page successfully, before the current context
+completes page fault procedure, find_free_blocks() may run and call
+unmap_mapping_range() to unmap the page. Assume that when
+find_free_blocks() initially completes and the previous page fault
+procedure starts to run again and completes, then one truncated page has
+been mapped to userspace. But note that tcmu_vma_fault() has gotten a
+refcount for the page so any other subsystem won't be able to use the page
+unless the userspace address is unmapped later.
 
-During FLR, the Margining Lane Status and Margining Lane Control
-registers should not be reset, as per PCIe specification.
-However, the controller incorrectly resets these registers upon FLR.
-This causes PCISIG compliance FLR test to fail. Hence preventing
-all functions from advertising FLR support if flag quirk_disable_flr
-is set.
+If another command subsequently runs and needs to extend dbi_thresh it may
+reuse the corresponding slot for the previous page in data_bitmap. Then
+though we'll allocate new page for this slot in data_area, no page fault
+will happen because we have a valid map and the real request's data will be
+lost.
 
-Link: https://lore.kernel.org/r/1635165075-89864-1-git-send-email-pthombar@cadence.com
-Signed-off-by: Parshuram Thombare <pthombar@cadence.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Filesystem implementations will also run into this issue but they usually
+lock the page when vm_operations_struct->fault gets a page and unlock the
+page after finish_fault() completes. For truncate filesystems lock pages in
+truncate_inode_pages() to protect against racing wrt. page faults.
+
+To fix this possible data corruption scenario we can apply a method similar
+to the filesystems.  For pages that are to be freed, tcmu_blocks_release()
+locks and unlocks. Make tcmu_vma_fault() also lock found page under
+cmdr_lock. At the same time, since tcmu_vma_fault() gets an extra page
+refcount, tcmu_blocks_release() won't free pages if pages are in page fault
+procedure, which means it is safe to call tcmu_blocks_release() before
+unmap_mapping_range().
+
+With these changes tcmu_blocks_release() will wait for all page faults to
+be completed before calling unmap_mapping_range(). And later, if
+unmap_mapping_range() is called, it will ensure stale mappings are removed.
+
+Link: https://lore.kernel.org/r/20220421023735.9018-1-xiaoguang.wang@linux.alibaba.com
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pci-j721e.c     |  3 +++
- .../pci/controller/cadence/pcie-cadence-ep.c   | 18 +++++++++++++++++-
- drivers/pci/controller/cadence/pcie-cadence.h  |  3 +++
- 3 files changed, 23 insertions(+), 1 deletion(-)
+ drivers/target/target_core_user.c | 40 ++++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
-index 768d33f9ebc8..a82f845cc4b5 100644
---- a/drivers/pci/controller/cadence/pci-j721e.c
-+++ b/drivers/pci/controller/cadence/pci-j721e.c
-@@ -69,6 +69,7 @@ struct j721e_pcie_data {
- 	enum j721e_pcie_mode	mode;
- 	unsigned int		quirk_retrain_flag:1;
- 	unsigned int		quirk_detect_quiet_flag:1;
-+	unsigned int		quirk_disable_flr:1;
- 	u32			linkdown_irq_regfield;
- 	unsigned int		byte_access_allowed:1;
- };
-@@ -307,6 +308,7 @@ static const struct j721e_pcie_data j7200_pcie_rc_data = {
- static const struct j721e_pcie_data j7200_pcie_ep_data = {
- 	.mode = PCI_MODE_EP,
- 	.quirk_detect_quiet_flag = true,
-+	.quirk_disable_flr = true,
- };
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index 0ca5ec14d3db..0173f44b015a 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -20,6 +20,7 @@
+ #include <linux/configfs.h>
+ #include <linux/mutex.h>
+ #include <linux/workqueue.h>
++#include <linux/pagemap.h>
+ #include <net/genetlink.h>
+ #include <scsi/scsi_common.h>
+ #include <scsi/scsi_proto.h>
+@@ -1667,6 +1668,26 @@ static u32 tcmu_blocks_release(struct tcmu_dev *udev, unsigned long first,
+ 	xas_lock(&xas);
+ 	xas_for_each(&xas, page, (last + 1) * udev->data_pages_per_blk - 1) {
+ 		xas_store(&xas, NULL);
++		/*
++		 * While reaching here there may be page faults occurring on
++		 * the to-be-released pages. A race condition may occur if
++		 * unmap_mapping_range() is called before page faults on these
++		 * pages have completed; a valid but stale map is created.
++		 *
++		 * If another command subsequently runs and needs to extend
++		 * dbi_thresh, it may reuse the slot corresponding to the
++		 * previous page in data_bitmap. Though we will allocate a new
++		 * page for the slot in data_area, no page fault will happen
++		 * because we have a valid map. Therefore the command's data
++		 * will be lost.
++		 *
++		 * We lock and unlock pages that are to be released to ensure
++		 * all page faults have completed. This way
++		 * unmap_mapping_range() can ensure stale maps are cleanly
++		 * removed.
++		 */
++		lock_page(page);
++		unlock_page(page);
+ 		__free_page(page);
+ 		pages_freed++;
+ 	}
+@@ -1822,6 +1843,7 @@ static struct page *tcmu_try_get_data_page(struct tcmu_dev *udev, uint32_t dpi)
+ 	page = xa_load(&udev->data_pages, dpi);
+ 	if (likely(page)) {
+ 		get_page(page);
++		lock_page(page);
+ 		mutex_unlock(&udev->cmdr_lock);
+ 		return page;
+ 	}
+@@ -1863,6 +1885,7 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
+ 	struct page *page;
+ 	unsigned long offset;
+ 	void *addr;
++	vm_fault_t ret = 0;
  
- static const struct j721e_pcie_data am64_pcie_rc_data = {
-@@ -405,6 +407,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 			return -ENOMEM;
+ 	int mi = tcmu_find_mem_index(vmf->vma);
+ 	if (mi < 0)
+@@ -1887,10 +1910,11 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
+ 		page = tcmu_try_get_data_page(udev, dpi);
+ 		if (!page)
+ 			return VM_FAULT_SIGBUS;
++		ret = VM_FAULT_LOCKED;
+ 	}
  
- 		ep->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
-+		ep->quirk_disable_flr = data->quirk_disable_flr;
+ 	vmf->page = page;
+-	return 0;
++	return ret;
+ }
  
- 		cdns_pcie = &ep->pcie;
- 		cdns_pcie->dev = dev;
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-index 88e05b9c2e5b..4b1c4bc4e003 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-@@ -565,7 +565,8 @@ static int cdns_pcie_ep_start(struct pci_epc *epc)
- 	struct cdns_pcie_ep *ep = epc_get_drvdata(epc);
- 	struct cdns_pcie *pcie = &ep->pcie;
- 	struct device *dev = pcie->dev;
--	int ret;
-+	int max_epfs = sizeof(epc->function_num_map) * 8;
-+	int ret, value, epf;
+ static const struct vm_operations_struct tcmu_vm_ops = {
+@@ -3153,12 +3177,22 @@ static void find_free_blocks(void)
+ 			udev->dbi_max = block;
+ 		}
  
- 	/*
- 	 * BIT(0) is hardwired to 1, hence function 0 is always enabled
-@@ -573,6 +574,21 @@ static int cdns_pcie_ep_start(struct pci_epc *epc)
- 	 */
- 	cdns_pcie_writel(pcie, CDNS_PCIE_LM_EP_FUNC_CFG, epc->function_num_map);
- 
-+	if (ep->quirk_disable_flr) {
-+		for (epf = 0; epf < max_epfs; epf++) {
-+			if (!(epc->function_num_map & BIT(epf)))
-+				continue;
++		/*
++		 * Release the block pages.
++		 *
++		 * Also note that since tcmu_vma_fault() gets an extra page
++		 * refcount, tcmu_blocks_release() won't free pages if pages
++		 * are mapped. This means it is safe to call
++		 * tcmu_blocks_release() before unmap_mapping_range() which
++		 * drops the refcount of any pages it unmaps and thus releases
++		 * them.
++		 */
++		pages_freed = tcmu_blocks_release(udev, start, end - 1);
 +
-+			value = cdns_pcie_ep_fn_readl(pcie, epf,
-+					CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET +
-+					PCI_EXP_DEVCAP);
-+			value &= ~PCI_EXP_DEVCAP_FLR;
-+			cdns_pcie_ep_fn_writel(pcie, epf,
-+					CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET +
-+					PCI_EXP_DEVCAP, value);
-+		}
-+	}
-+
- 	ret = cdns_pcie_start_link(pcie);
- 	if (ret) {
- 		dev_err(dev, "Failed to start link\n");
-diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
-index c8a27b6290ce..d9c785365da3 100644
---- a/drivers/pci/controller/cadence/pcie-cadence.h
-+++ b/drivers/pci/controller/cadence/pcie-cadence.h
-@@ -123,6 +123,7 @@
+ 		/* Here will truncate the data area from off */
+ 		off = udev->data_off + (loff_t)start * udev->data_blk_size;
+ 		unmap_mapping_range(udev->inode->i_mapping, off, 0, 1);
  
- #define CDNS_PCIE_EP_FUNC_MSI_CAP_OFFSET	0x90
- #define CDNS_PCIE_EP_FUNC_MSIX_CAP_OFFSET	0xb0
-+#define CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET	0xc0
- #define CDNS_PCIE_EP_FUNC_SRIOV_CAP_OFFSET	0x200
+-		/* Release the block pages */
+-		pages_freed = tcmu_blocks_release(udev, start, end - 1);
+ 		mutex_unlock(&udev->cmdr_lock);
  
- /*
-@@ -357,6 +358,7 @@ struct cdns_pcie_epf {
-  *        minimize time between read and write
-  * @epf: Structure to hold info about endpoint function
-  * @quirk_detect_quiet_flag: LTSSM Detect Quiet min delay set as quirk
-+ * @quirk_disable_flr: Disable FLR (Function Level Reset) quirk flag
-  */
- struct cdns_pcie_ep {
- 	struct cdns_pcie	pcie;
-@@ -372,6 +374,7 @@ struct cdns_pcie_ep {
- 	spinlock_t		lock;
- 	struct cdns_pcie_epf	*epf;
- 	unsigned int		quirk_detect_quiet_flag:1;
-+	unsigned int		quirk_disable_flr:1;
- };
- 
- 
+ 		total_pages_freed += pages_freed;
 -- 
 2.35.1
 
