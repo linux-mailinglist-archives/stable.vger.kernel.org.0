@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B42540F45
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB869540753
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353364AbiFGTGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44716 "EHLO
+        id S1347887AbiFGRq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:46:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353901AbiFGTFH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:05:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E015318F2FC;
-        Tue,  7 Jun 2022 11:05:22 -0700 (PDT)
+        with ESMTP id S1348244AbiFGRpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:45:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA32D120885;
+        Tue,  7 Jun 2022 10:35:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09283B82182;
-        Tue,  7 Jun 2022 18:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F5FC385A5;
-        Tue,  7 Jun 2022 18:05:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0339961553;
+        Tue,  7 Jun 2022 17:35:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CACC385A5;
+        Tue,  7 Jun 2022 17:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625111;
-        bh=0fgwY7A2jzCW5cIl5/v6shFYlSHrPQ631Nbl+kQl+PA=;
+        s=korg; t=1654623327;
+        bh=OWGpgpDpAMD1bKvWKudSWJ9D2kLBavreRhK6baY8F6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vtXgUykzF/4FJt8vLWnkgiYOtX4ViXE8ohvIjavCKrVITpa5g2T/zCOhFhy5o7a84
-         fr17AZ3lVVNm7JmxumfgO7L6aTlVSOnIUN0GXRi3vnG6sHml9kr03lUCx/Bg3viCPW
-         HxLMjGkJ1/ONr2lZrdEEwn0eokPloRItNRIMQGUA=
+        b=k3CrSLSwhxQWSINEkQeqBaaGXoXHolRD2+3QKZsWdXnyBujsXzRbtdYRkSC4RBqtp
+         6VUCPUhPKqZO9AmBWZNFa/3JEGuTxmiowJd+4p+EqnEbM+INP8nih0kJW6oTY/cl+o
+         kBUK5uECxayry78SgPgEGjEPZuOjTARiteq/PqjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: =?UTF-8?q?=5BPATCH=205=2E15=20529/667=5D=20fs-writeback=3A=20writeback=5Fsb=5Finodes=EF=BC=9ARecalculate=20wrote=20according=20skipped=20pages?=
+        stable@vger.kernel.org, "D. Ziegfeld" <dzigg@posteo.de>,
+        =?UTF-8?q?J=C3=B6rg-Volker=20Peetz?= <jvpeetz@web.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 337/452] iommu/amd: Increase timeout waiting for GA log enablement
 Date:   Tue,  7 Jun 2022 19:03:14 +0200
-Message-Id: <20220607164950.568896602@linuxfoundation.org>
+Message-Id: <20220607164918.599915119@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,151 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 68f4c6eba70df70a720188bce95c85570ddfcc87 upstream.
+[ Upstream commit 42bb5aa043382f09bef2cc33b8431be867c70f8e ]
 
-Commit 505a666ee3fc ("writeback: plug writeback in wb_writeback() and
-writeback_inodes_wb()") has us holding a plug during wb_writeback, which
-may cause a potential ABBA dead lock:
+On some systems it can take a long time for the hardware to enable the
+GA log of the AMD IOMMU. The current wait time is only 0.1ms, but
+testing showed that it can take up to 14ms for the GA log to enter
+running state after it has been enabled.
 
-    wb_writeback		fat_file_fsync
-blk_start_plug(&plug)
-for (;;) {
-  iter i-1: some reqs have been added into plug->mq_list  // LOCK A
-  iter i:
-    progress = __writeback_inodes_wb(wb, work)
-    . writeback_sb_inodes // fat's bdev
-    .   __writeback_single_inode
-    .   . generic_writepages
-    .   .   __block_write_full_page
-    .   .   . . 	    __generic_file_fsync
-    .   .   . . 	      sync_inode_metadata
-    .   .   . . 	        writeback_single_inode
-    .   .   . . 		  __writeback_single_inode
-    .   .   . . 		    fat_write_inode
-    .   .   . . 		      __fat_write_inode
-    .   .   . . 		        sync_dirty_buffer	// fat's bdev
-    .   .   . . 			  lock_buffer(bh)	// LOCK B
-    .   .   . . 			    submit_bh
-    .   .   . . 			      blk_mq_get_tag	// LOCK A
-    .   .   . trylock_buffer(bh)  // LOCK B
-    .   .   .   redirty_page_for_writepage
-    .   .   .     wbc->pages_skipped++
-    .   .   --wbc->nr_to_write
-    .   wrote += write_chunk - wbc.nr_to_write  // wrote > 0
-    .   requeue_inode
-    .     redirty_tail_locked
-    if (progress)    // progress > 0
-      continue;
-  iter i+1:
-      queue_io
-      // similar process with iter i, infinite for-loop !
-}
-blk_finish_plug(&plug)   // flush plug won't be called
+Sometimes the long delay happens when booting the system, sometimes
+only on resume. Adjust the timeout accordingly to not print a warning
+when hardware takes a longer than usual.
 
-Above process triggers a hungtask like:
-[  399.044861] INFO: task bb:2607 blocked for more than 30 seconds.
-[  399.046824]       Not tainted 5.18.0-rc1-00005-gefae4d9eb6a2-dirty
-[  399.051539] task:bb              state:D stack:    0 pid: 2607 ppid:
-2426 flags:0x00004000
-[  399.051556] Call Trace:
-[  399.051570]  __schedule+0x480/0x1050
-[  399.051592]  schedule+0x92/0x1a0
-[  399.051602]  io_schedule+0x22/0x50
-[  399.051613]  blk_mq_get_tag+0x1d3/0x3c0
-[  399.051640]  __blk_mq_alloc_requests+0x21d/0x3f0
-[  399.051657]  blk_mq_submit_bio+0x68d/0xca0
-[  399.051674]  __submit_bio+0x1b5/0x2d0
-[  399.051708]  submit_bio_noacct+0x34e/0x720
-[  399.051718]  submit_bio+0x3b/0x150
-[  399.051725]  submit_bh_wbc+0x161/0x230
-[  399.051734]  __sync_dirty_buffer+0xd1/0x420
-[  399.051744]  sync_dirty_buffer+0x17/0x20
-[  399.051750]  __fat_write_inode+0x289/0x310
-[  399.051766]  fat_write_inode+0x2a/0xa0
-[  399.051783]  __writeback_single_inode+0x53c/0x6f0
-[  399.051795]  writeback_single_inode+0x145/0x200
-[  399.051803]  sync_inode_metadata+0x45/0x70
-[  399.051856]  __generic_file_fsync+0xa3/0x150
-[  399.051880]  fat_file_fsync+0x1d/0x80
-[  399.051895]  vfs_fsync_range+0x40/0xb0
-[  399.051929]  __x64_sys_fsync+0x18/0x30
+There has already been an attempt to fix this with commit
 
-In my test, 'need_resched()' (which is imported by 590dca3a71 "fs-writeback:
-unplug before cond_resched in writeback_sb_inodes") in function
-'writeback_sb_inodes()' seldom comes true, unless cond_resched() is deleted
-from write_cache_pages().
+	9b45a7738eec ("iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()")
 
-Fix it by correcting wrote number according number of skipped pages
-in writeback_sb_inodes().
+But that commit was based on some wrong math and did not fix the issue
+in all cases.
 
-Goto Link to find a reproducer.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215837
-Cc: stable@vger.kernel.org # v4.3
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220510133805.1988292-1-chengzhihao1@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "D. Ziegfeld" <dzigg@posteo.de>
+Cc: Jörg-Volker Peetz <jvpeetz@web.de>
+Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20220520102214.12563-1-joro@8bytes.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fs-writeback.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/iommu/amd/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1806,11 +1806,12 @@ static long writeback_sb_inodes(struct s
- 	};
- 	unsigned long start_time = jiffies;
- 	long write_chunk;
--	long wrote = 0;  /* count both pages and inodes */
-+	long total_wrote = 0;  /* count both pages and inodes */
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 6eaefc9e7b3d..e988f6f198c5 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -84,7 +84,7 @@
+ #define ACPI_DEVFLAG_LINT1              0x80
+ #define ACPI_DEVFLAG_ATSDIS             0x10000000
  
- 	while (!list_empty(&wb->b_io)) {
- 		struct inode *inode = wb_inode(wb->b_io.prev);
- 		struct bdi_writeback *tmp_wb;
-+		long wrote;
- 
- 		if (inode->i_sb != sb) {
- 			if (work->sb) {
-@@ -1886,7 +1887,9 @@ static long writeback_sb_inodes(struct s
- 
- 		wbc_detach_inode(&wbc);
- 		work->nr_pages -= write_chunk - wbc.nr_to_write;
--		wrote += write_chunk - wbc.nr_to_write;
-+		wrote = write_chunk - wbc.nr_to_write - wbc.pages_skipped;
-+		wrote = wrote < 0 ? 0 : wrote;
-+		total_wrote += wrote;
- 
- 		if (need_resched()) {
- 			/*
-@@ -1908,7 +1911,7 @@ static long writeback_sb_inodes(struct s
- 		tmp_wb = inode_to_wb_and_lock_list(inode);
- 		spin_lock(&inode->i_lock);
- 		if (!(inode->i_state & I_DIRTY_ALL))
--			wrote++;
-+			total_wrote++;
- 		requeue_inode(inode, tmp_wb, &wbc);
- 		inode_sync_complete(inode);
- 		spin_unlock(&inode->i_lock);
-@@ -1922,14 +1925,14 @@ static long writeback_sb_inodes(struct s
- 		 * bail out to wb_writeback() often enough to check
- 		 * background threshold and other termination conditions.
- 		 */
--		if (wrote) {
-+		if (total_wrote) {
- 			if (time_is_before_jiffies(start_time + HZ / 10UL))
- 				break;
- 			if (work->nr_pages <= 0)
- 				break;
- 		}
- 	}
--	return wrote;
-+	return total_wrote;
- }
- 
- static long __writeback_inodes_wb(struct bdi_writeback *wb,
+-#define LOOP_TIMEOUT	100000
++#define LOOP_TIMEOUT	2000000
+ /*
+  * ACPI table definitions
+  *
+-- 
+2.35.1
+
 
 
