@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15FB354061B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 571A7541BEA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346903AbiFGReG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39606 "EHLO
+        id S1381717AbiFGVzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347478AbiFGRas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1247B111B94;
-        Tue,  7 Jun 2022 10:27:03 -0700 (PDT)
+        with ESMTP id S1382935AbiFGVwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2437823F88D;
+        Tue,  7 Jun 2022 12:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9939B6127C;
-        Tue,  7 Jun 2022 17:27:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0988C385A5;
-        Tue,  7 Jun 2022 17:27:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9DF4B8220B;
+        Tue,  7 Jun 2022 19:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD0DC385A2;
+        Tue,  7 Jun 2022 19:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622822;
-        bh=M25JXcvDykKqIPIZeQD3S3WaYhxCDWlKyqcnmgUM6WE=;
+        s=korg; t=1654629003;
+        bh=Vbdwe/T0f5JOUSiNqbAGHbB+2pd0/m5eObuptyLOk7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGNS18jwW1+h43HNTQjwicbqHMzm+uMrgNVNa9HSewJslCIPHfxri2Nby0fxYtEjD
-         hwbCEQARs7WPCj+GfW0ZqLcIS66mkHf6qcf/rLM4XxF71nmI3hBwdpTyQe4y6yQOa8
-         Av0d3qO015wSEo0KKIeWQ91GITq/FovNPWAob3eQ=
+        b=eqd7VOF89q1/UW/D0rOg3eV35CqrRuByf9vd5Pwl7R89Us+eiX9k7bCw0Nyufcc8z
+         BQtX71DGJQHRAYgqiLxZmpL7QYGJSridxSyHAZgf3D56E5+nZ1yQ3vp+dJ77QmkK21
+         5lnb4CwOeEvLDjDe7rLPND5+dhePq8ZP3GlGuXeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 194/452] drm/msm: return an error pointer in msm_gem_prime_get_sg_table()
+Subject: [PATCH 5.18 533/879] arm64: dts: rockchip: Move drive-impedance-ohm to emmc phy on rk3399
 Date:   Tue,  7 Jun 2022 19:00:51 +0200
-Message-Id: <20220607164914.345654338@linuxfoundation.org>
+Message-Id: <20220607165018.344448695@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Shawn Lin <shawn.lin@rock-chips.com>
 
-[ Upstream commit cf575e31611eb6dccf08fad02e57e35b2187704d ]
+[ Upstream commit 4246d0bab2a8685e3d4aec2cb0ef8c526689ce96 ]
 
-The msm_gem_prime_get_sg_table() needs to return error pointers on
-error.  This is called from drm_gem_map_dma_buf() and returning a
-NULL will lead to a crash in that function.
+drive-impedance-ohm is introduced for emmc phy instead of pcie phy.
 
-Fixes: ac45146733b0 ("drm/msm: fix msm_gem_prime_get_sg_table()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/485023/
-Link: https://lore.kernel.org/r/YnOmtS5tfENywR9m@kili
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: fb8b7460c995 ("arm64: dts: rockchip: Define drive-impedance-ohm for RK3399's emmc-phy.")
+Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+Link: https://lore.kernel.org/r/1647336426-154797-1-git-send-email-shawn.lin@rock-chips.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem_prime.c | 2 +-
+ arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
-index 515ef80816a0..8c64ce7288f1 100644
---- a/drivers/gpu/drm/msm/msm_gem_prime.c
-+++ b/drivers/gpu/drm/msm/msm_gem_prime.c
-@@ -17,7 +17,7 @@ struct sg_table *msm_gem_prime_get_sg_table(struct drm_gem_object *obj)
- 	int npages = obj->size >> PAGE_SHIFT;
- 
- 	if (WARN_ON(!msm_obj->pages))  /* should have already pinned! */
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 
- 	return drm_prime_pages_to_sg(obj->dev, msm_obj->pages, npages);
- }
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index 080457a68e3c..88f26d89eea1 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -1534,6 +1534,7 @@
+ 			reg = <0xf780 0x24>;
+ 			clocks = <&sdhci>;
+ 			clock-names = "emmcclk";
++			drive-impedance-ohm = <50>;
+ 			#phy-cells = <0>;
+ 			status = "disabled";
+ 		};
+@@ -1544,7 +1545,6 @@
+ 			clock-names = "refclk";
+ 			#phy-cells = <1>;
+ 			resets = <&cru SRST_PCIEPHY>;
+-			drive-impedance-ohm = <50>;
+ 			reset-names = "phy";
+ 			status = "disabled";
+ 		};
 -- 
 2.35.1
 
