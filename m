@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38780540665
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C36541C03
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237421AbiFGRdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40766 "EHLO
+        id S1382654AbiFGVz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348163AbiFGRbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0583510D915;
-        Tue,  7 Jun 2022 10:29:41 -0700 (PDT)
+        with ESMTP id S1384099AbiFGVyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76BCFBC6D7;
+        Tue,  7 Jun 2022 12:13:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A6F40CE23D1;
-        Tue,  7 Jun 2022 17:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F67C385A5;
-        Tue,  7 Jun 2022 17:29:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9F9CB823AE;
+        Tue,  7 Jun 2022 19:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29FB1C385A2;
+        Tue,  7 Jun 2022 19:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622978;
-        bh=CzrLO3e2CgEOzWZRssCzwztDRtE5eWvfjtuaGMykLwI=;
+        s=korg; t=1654629144;
+        bh=ChG5KglVMpbMmET+uPYKCKvlwS3FJg7jw68kdmf/5z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEeYxrdITAZ4E0feXxnVRAsQ40LCr5PysKutKTCvfR3SbfcsjLHcbk9woh7jytu0a
-         vkE+LeXaTguxrfoPDQhu9ComUp52FQeiDdH7HMaDMSGkGr6rBdaXhE8/4dIpHZaxlH
-         HA+VCAeaKpqcANd9xLDnbRS55f6greuZ0wcppGPs=
+        b=oUQwiIvf+QJGgoFGdF79fhWnDqUBAwJawB3SQBidzo/r+wPjgl0tKm0V90l9CMtCw
+         NJVOZfvMjucUUG7vcMLvH8DekGn0ek5ZBnymVs3uFk5CvVqqXmbaAxtugJ0cUSGZqs
+         vpa5ebmTypXJdEbfdU1ov5Y4EuQw44WQA/nQ/Dk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 244/452] ASoC: wm2000: fix missing clk_disable_unprepare() on error in wm2000_anc_transition()
+Subject: [PATCH 5.18 583/879] powerpc/fadump: fix PT_LOAD segment for boot memory area
 Date:   Tue,  7 Jun 2022 19:01:41 +0200
-Message-Id: <20220607164915.830592378@linuxfoundation.org>
+Message-Id: <20220607165019.775638526@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-[ Upstream commit be2af740e2a9c7134f2d8ab4f104006e110b13de ]
+[ Upstream commit 15eb77f873255cf9f4d703b63cfbd23c46579654 ]
 
-Fix the missing clk_disable_unprepare() before return
-from wm2000_anc_transition() in the error handling case.
+Boot memory area is setup as separate PT_LOAD segment in the vmcore
+as it is moved by f/w, on crash, to a destination address provided by
+the kernel. Having separate PT_LOAD segment helps in handling the
+different physical address and offset for boot memory area in the
+vmcore.
 
-Fixes: 514cfd6dd725 ("ASoC: wm2000: Integrate with clock API")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220514091053.686416-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Commit ced1bf52f477 ("powerpc/fadump: merge adjacent memory ranges to
+reduce PT_LOAD segements") inadvertly broke this pre-condition for
+cases where some of the first kernel memory is available adjacent to
+boot memory area. This scenario is rare but possible when memory for
+fadump could not be reserved adjacent to boot memory area owing to
+memory hole or such. Reading memory from a vmcore exported in such
+scenario provides incorrect data.  Fix it by ensuring no other region
+is folded into boot memory area.
+
+Fixes: ced1bf52f477 ("powerpc/fadump: merge adjacent memory ranges to reduce PT_LOAD segements")
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220406093839.206608-2-hbathini@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm2000.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/fadump.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wm2000.c b/sound/soc/codecs/wm2000.c
-index 72e165cc6443..97ece3114b3d 100644
---- a/sound/soc/codecs/wm2000.c
-+++ b/sound/soc/codecs/wm2000.c
-@@ -536,7 +536,7 @@ static int wm2000_anc_transition(struct wm2000_priv *wm2000,
- {
- 	struct i2c_client *i2c = wm2000->i2c;
- 	int i, j;
--	int ret;
-+	int ret = 0;
- 
- 	if (wm2000->anc_mode == mode)
- 		return 0;
-@@ -566,13 +566,13 @@ static int wm2000_anc_transition(struct wm2000_priv *wm2000,
- 		ret = anc_transitions[i].step[j](i2c,
- 						 anc_transitions[i].analogue);
- 		if (ret != 0)
--			return ret;
-+			break;
- 	}
- 
- 	if (anc_transitions[i].dest == ANC_OFF)
- 		clk_disable_unprepare(wm2000->mclk);
- 
--	return 0;
-+	return ret;
+diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+index 65562c4a0a69..dc2350b288cf 100644
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -867,7 +867,6 @@ static int fadump_alloc_mem_ranges(struct fadump_mrange_info *mrange_info)
+ 				       sizeof(struct fadump_memory_range));
+ 	return 0;
  }
+-
+ static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
+ 				       u64 base, u64 end)
+ {
+@@ -886,7 +885,12 @@ static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
+ 		start = mem_ranges[mrange_info->mem_range_cnt - 1].base;
+ 		size  = mem_ranges[mrange_info->mem_range_cnt - 1].size;
  
- static int wm2000_anc_set_mode(struct wm2000_priv *wm2000)
+-		if ((start + size) == base)
++		/*
++		 * Boot memory area needs separate PT_LOAD segment(s) as it
++		 * is moved to a different location at the time of crash.
++		 * So, fold only if the region is not boot memory area.
++		 */
++		if ((start + size) == base && start >= fw_dump.boot_mem_top)
+ 			is_adjacent = true;
+ 	}
+ 	if (!is_adjacent) {
 -- 
 2.35.1
 
