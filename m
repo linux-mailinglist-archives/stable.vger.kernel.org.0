@@ -2,68 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9404B540468
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4F9540478
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345574AbiFGRKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:10:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41278 "EHLO
+        id S1345365AbiFGRNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:13:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345540AbiFGRKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:10:12 -0400
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26D09270B
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 10:10:10 -0700 (PDT)
-Received: by mail-yb1-xb33.google.com with SMTP id r1so3602561ybd.4
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 10:10:10 -0700 (PDT)
+        with ESMTP id S1344614AbiFGRNm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:13:42 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE0CA500B
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 10:13:41 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id v1so25848973ejg.13
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 10:13:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=P/gAWYTYcE9jrOxJP6iVGHeZQzn3G/Awl1C3CYU0ggw=;
-        b=VXII/SB83wb/H7vaEllfp+qolXwA53Jspz/m3zQC+mAcIKQGnMclloaomhvdrQ8owB
-         vHO+Uly527y09F5DuLehOkJ0mwZ30gZgyk4g+U2wxwHl0Y4mgV7S9RqtLgSETdNyx6OK
-         8wsp+Y0MkbwvJsfsXmdr6DrYRUD/m0pnxwbu4ivj1VDOAf7zsCj+Ktal0VQ7rxQPrYRu
-         evoywSOsVTSGWCD45fXiF7PxxA2UqM85zCTd9mNp4mxBdN1I/K+pmrs8z9//RXW9UQ6Z
-         9+tq5ACnviSi88l2ctFEs/bsJAV9hXkEtq0QnXCfz7aME/5cbdjMuehnAIQURMtCzTDA
-         gtAg==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=l5jecJ7m6j6+wfJuaqL9TGi12DzOxHHnCuf6mP4CPsk=;
+        b=w7M+C0ahijC0B5bCeZUW56ccB+U14/4XaFNlbPajEWNY4D3QmZd+Z/NAU9yzJyYr4U
+         R7Jx/ojQ8aPKjojbyH/h1fab4Md0weTfxuTxVCpLeZVanf2ezcYP0pfFLiNtfQjfXuQ4
+         jLSq1U4egGPuSPIiN4zbA8XSua49XD0PMrAsJ0eapthyJQSSuHJWohuQBjrJSDZxaojC
+         V6U+tchZeJ+U9/fISn3ka080i+l4dupD0mPfUZ8+fjI1mXJ2bWHreq9cESDHxTSuz2uT
+         1fBFpmEaljN9m2CUBO8zQ5kHPGdGaeZ39kt+ioHEXadSFWbhxev4cYsEbLoCZZCMRUg5
+         hkkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=P/gAWYTYcE9jrOxJP6iVGHeZQzn3G/Awl1C3CYU0ggw=;
-        b=0gHcW7OyNwwydV73o815g/S+rr/J9VRNCL41c0zJ6v5FgYo1pVedEMmTYX7MD+lwBi
-         4x8TWqjye266XKGQfLglxWBFvZaIeVF24cFdw+xs9vDbUER1ey3VPzSeWKCX9ZLMYW19
-         iR816Oggh2SGIhvP4hLhlIjdXDfcwhBKUk1hz1Ci1FijnUMhSMxcBliKOzklbvHlm9Ov
-         9//kl8Bj8DPOo1/3SQoNLK+ESTLEd/nSUe/Zn97SUaTbobL0lNA520n+tDw73lYBtTKa
-         Q7MRfiripfaZezYaO7qwzcOaIxJ49roHOAbeOSSTEFtxbjPbXOgqHZI82laliHkdP7eI
-         5O/A==
-X-Gm-Message-State: AOAM530+LXzx38pPRNh1kFs1sKB2/Y2s3gEPqiQTEFEakljBH5fIAmIs
-        sDHaG79kMVaIqpKCqIEt4Vzu66qYJOqbS/USs6cXEhUNdgAVCA==
-X-Google-Smtp-Source: ABdhPJxpq/x/7JkNme4htfnqYHKUS7ec2XhW2i49YnLrj8HJECrnh2rhb90mOqlSloG8c/1l1755jAZFUZHfIMAjA2o=
-X-Received: by 2002:a25:22d7:0:b0:663:c13a:893a with SMTP id
- i206-20020a2522d7000000b00663c13a893amr7638158ybi.98.1654621809618; Tue, 07
- Jun 2022 10:10:09 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=l5jecJ7m6j6+wfJuaqL9TGi12DzOxHHnCuf6mP4CPsk=;
+        b=Xfh0sjeGLmKfUTL0IzIIT+26V63xiCTjY5qkMuWy8P5amfwvNwSWO+BCE84Z70okVj
+         WDJVux9RNTThp8WI7T+9oe1GgqilT0d+xL15+i7cXxSybbV404hvmjSwGmBcH2qqc03t
+         baleJTm+4qvpk17SSMgJAUAH1MRI9/Xc2lDPTiXHLzkbnK7CeMlCNwAQgYVSAgLmaUb5
+         rNCt8CoOvUtaT9qlnofkOmaKyzDnrIIptv8bE4mcaAXBRuCkXev7VsJq3DpU+z60JSZ4
+         Hu4WRC+MFjWh6ewGiDPQMJr3mQZ+D5xTc/rax7zJb5mhem0xGALyvoWhv7VOy+t6HdKm
+         ylQA==
+X-Gm-Message-State: AOAM533eQKMPUnFwCkJpND3p2vlv358GTMKcZjIQ7v3pXnV30qoJ6bzi
+        otvRQX78PaTHZMLukbfbu7wHwA==
+X-Google-Smtp-Source: ABdhPJyW10sSpBHf1hhEgmGHXRYXoBPu1ntTLE8Y/VNzIW34xyZ5qg5+Mno2iViaMjRzgjN9HrJCdQ==
+X-Received: by 2002:a17:906:7944:b0:6da:b834:2f3e with SMTP id l4-20020a170906794400b006dab8342f3emr28510928ejo.353.1654622019855;
+        Tue, 07 Jun 2022 10:13:39 -0700 (PDT)
+Received: from [192.168.0.186] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
+        by smtp.gmail.com with ESMTPSA id a23-20020aa7cf17000000b0042dc882c823sm10738047edy.70.2022.06.07.10.13.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jun 2022 10:13:39 -0700 (PDT)
+Message-ID: <e24f904b-0eaa-dd48-2647-8aaee510beca@linaro.org>
+Date:   Tue, 7 Jun 2022 19:13:37 +0200
 MIME-Version: 1.0
-From:   Yongqin Liu <yongqin.liu@linaro.org>
-Date:   Wed, 8 Jun 2022 01:09:54 +0800
-Message-ID: <CAMSo37WW9veYH6=tHqUR2pa_7YX1UuzHqLBHit60P2QyzQmCEw@mail.gmail.com>
-Subject: Please help cherry pick four mmc related changes into the 4.14 stable kernel
-To:     stable@vger.kernel.org
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Benjamin Copeland <benjamin.copeland@linaro.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>,
-        Alistair Delva <adelva@google.com>,
-        Steve Muckle <smuckle@google.com>,
-        Todd Kjos <tkjos@google.com>,
-        "Bajjuri, Praneeth" <praneeth@ti.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH net v3 1/3] nfc: st21nfca: fix incorrect validating logic
+ in EVT_TRANSACTION
+Content-Language: en-US
+To:     Martin Faltesek <mfaltesek@google.com>, kuba@kernel.org
+Cc:     christophe.ricard@gmail.com, gregkh@linuxfoundation.org,
+        groeck@google.com, jordy@pwning.systems, krzk@kernel.org,
+        martin.faltesek@gmail.com, netdev@vger.kernel.org,
+        linux-nfc@lists.01.org, sameo@linux.intel.com, wklin@google.com,
+        theflamefire89@gmail.com, stable@vger.kernel.org
+References: <20220607025729.1673212-1-mfaltesek@google.com>
+ <20220607025729.1673212-2-mfaltesek@google.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20220607025729.1673212-2-mfaltesek@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,59 +78,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, All
+On 07/06/2022 04:57, Martin Faltesek wrote:
+> The first validation check for EVT_TRANSACTION has two different checks
+> tied together with logical AND. One is a check for minimum packet length,
+> and the other is for a valid aid_tag. If either condition is true (fails),
+> then an error should be triggered.  The fix is to change && to ||.
+> 
+> Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+> ---
+>  drivers/nfc/st21nfca/se.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-With the 4.14.281 version[1], there were three mmc related changes merged,
-but that causes one boot failure with the X15 Android builds, a problem
-similar to one reported before here[2].
-After being confirmed with Ulf Hansson, and verified with the X15 Android build,
-it needs to have the following four commits cherry-picked to the 4.14
-branch as well.
+Please add Acked-by/Reviewed-by tags when posting new versions. However,
+there's no need to repost patches *only* to add the tags. The upstream
+maintainer will do that for acks received on the version they apply.
 
-    4f32b45c9a2c mmc: core: Allow host controllers to require R1B for CMD6
-    5fc615c1e3eb mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
-    d091259b8d7a mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
-    23161bed631a mmc: sdhci-omap: Fix busy detection by enabling
-MMC_CAP_NEED_RSP_BUSY
+https://elixir.bootlin.com/linux/v5.17/source/Documentation/process/submitting-patches.rst#L540
 
-The above four commits are from the 4.19 branch, as they are a little
-easier to be cherry-picked
-into the 4.14 branch, compared to the commits from the mainline branch.
-(I have confirmed that the four commits are all in 4.19, 5.4, 5.10 and
-mainline branches already).
+If a tag was not added on purpose, please state why and what changed.
 
-Saying that, there will be still one merge conflict reported when
-cherry picking the commit of
-4f32b45c9a2c, it's easy to resolve though.
-To avoid the merge conflict, it could be done like this as well:
-1. revert the 327b6689898b commit from 4.14 first, so that the commits in step#2
-    could be cherry-picked without any problem
-        327b6689898b mmc: core: Default to generic_cmd6_time as
-timeout in __mmc_switch()
-2. git cherry-pick the following commits from 4.19 into the 4.14 branch
-        4f32b45c9a2c mmc: core: Allow host controllers to require R1B for CMD6
-        5fc615c1e3eb mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for
-erase/trim/discard
-        d091259b8d7a mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC
-sleep command
-        23161bed631a mmc: sdhci-omap: Fix busy detection by enabling
-MMC_CAP_NEED_RSP_BUSY
-        26c6f614cf02 mmc: mmc: core: Default to generic_cmd6_time as
-timeout in __mmc_switch()
-    The last commit of 26c6f614cf02 is for the revert in step#1.
 
-I am not sure which way is more convenient for the maintenance work
-here, so just list both of them here
-for your information.
-And please let me know if there is anything else I could help on this
-cherry pick work here.
 
-[1]: https://lore.kernel.org/lkml/16534624745741@kroah.com/T/
-[2]: https://lore.kernel.org/lkml/CA+G9fYuqAQfhzF2BzHr7vMHx68bo8-jT+ob_F3eHQ3=oFjgYdg@mail.gmail.com/
--- 
-Best Regards,
-Yongqin Liu
----------------------------------------------------------------
-#mailing list
-linaro-android@lists.linaro.org
-http://lists.linaro.org/mailman/listinfo/linaro-android
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+
+
+Best regards,
+Krzysztof
