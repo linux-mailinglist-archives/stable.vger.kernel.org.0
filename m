@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90541540602
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C85ED5414A4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346909AbiFGRcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
+        id S1347608AbiFGUVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:21:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347349AbiFGRak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:40 -0400
+        with ESMTP id S1359653AbiFGUU4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:20:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AEB110984;
-        Tue,  7 Jun 2022 10:26:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A34A1D2ACC;
+        Tue,  7 Jun 2022 11:30:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96495B8220C;
-        Tue,  7 Jun 2022 17:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07694C385A5;
-        Tue,  7 Jun 2022 17:26:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 770B5B8237C;
+        Tue,  7 Jun 2022 18:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC144C385A2;
+        Tue,  7 Jun 2022 18:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622782;
-        bh=/PJHXJD5l+6VAC4skzJzuffQbUWHX6LhgWNRyk0rliw=;
+        s=korg; t=1654626627;
+        bh=ANzoiVHiz1mg0UvW8TF8kLoCpbg7+wK2bKa61PuaCYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+2sAHJT6z83xExN8GUUd0nYc1Y3tRkEDCvvctRl05DrsAN1MQEPcVevcvY6DFlDG
-         TIVZP52T3vJjiw3V3T5AmTuJZQJMNJkrnVJ9HiLXa0O98zznMxIaPZJdrHhlVP774v
-         /sMCjqi34q827pTGP4tzXB4holwYcu0i+0k+IImI=
+        b=NSqRW/y/LL5xvlKVfRTQCp6DB5C67A+Xe8ynTGcBZT2+95CYSkNiqRT2cWvs1paAS
+         RWgUTIGSAMP+wYll5rKrvJCmAsAZCPdgQObEv25giXC0yfT14hbCB3fykCtf8gOshb
+         QvhIFQrMu0DEHy5h0+YhnOJ1OSKSn08E195Xq85Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 181/452] drm/rockchip: vop: fix possible null-ptr-deref in vop_bind()
+Subject: [PATCH 5.17 446/772] net/smc: fix listen processing for SMC-Rv2
 Date:   Tue,  7 Jun 2022 19:00:38 +0200
-Message-Id: <20220607164913.956128333@linuxfoundation.org>
+Message-Id: <20220607165002.144634330@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: liuyacan <liuyacan@corp.netease.com>
 
-[ Upstream commit f8c242908ad15bbd604d3bcb54961b7d454c43f8 ]
+[ Upstream commit 8c3b8dc5cc9bf6d273ebe18b16e2d6882bcfb36d ]
 
-It will cause null-ptr-deref in resource_size(), if platform_get_resource()
-returns NULL, move calling resource_size() after devm_ioremap_resource() that
-will check 'res' to avoid null-ptr-deref.
+In the process of checking whether RDMAv2 is available, the current
+implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
+smc buf desc, but the latter may fail. Unfortunately, the caller
+will only check the former. In this case, a NULL pointer reference
+will occur in smc_clc_send_confirm_accept() when accessing
+conn->rmb_desc.
 
-Fixes: 2048e3286f34 ("drm: rockchip: Add basic drm driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220422032854.2995175-1-yangyingliang@huawei.com
+This patch does two things:
+1. Use the return code to determine whether V2 is available.
+2. If the return code is NODEV, continue to check whether V1 is
+available.
+
+Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/af_smc.c | 44 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 0f23144491e4..91568f166a8a 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -2097,10 +2097,10 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
- 	vop_win_init(vop);
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index b9fe31834354..dafb2bc0b6b6 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1930,13 +1930,13 @@ static int smc_listen_rdma_reg(struct smc_sock *new_smc, bool local_first)
+ 	return 0;
+ }
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	vop->len = resource_size(res);
- 	vop->regs = devm_ioremap_resource(dev, res);
- 	if (IS_ERR(vop->regs))
- 		return PTR_ERR(vop->regs);
-+	vop->len = resource_size(res);
+-static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+-					 struct smc_clc_msg_proposal *pclc,
+-					 struct smc_init_info *ini)
++static int smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
++					struct smc_clc_msg_proposal *pclc,
++					struct smc_init_info *ini)
+ {
+ 	struct smc_clc_v2_extension *smc_v2_ext;
+ 	u8 smcr_version;
+-	int rc;
++	int rc = 0;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
- 	if (res) {
+ 	if (!(ini->smcr_version & SMC_V2) || !smcr_indicated(ini->smc_type_v2))
+ 		goto not_found;
+@@ -1954,26 +1954,31 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+ 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
+ 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
+ 	rc = smc_find_rdma_device(new_smc, ini);
+-	if (rc) {
+-		smc_find_ism_store_rc(rc, ini);
++	if (rc)
+ 		goto not_found;
+-	}
++
+ 	if (!ini->smcrv2.uses_gateway)
+ 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
+ 
+ 	smcr_version = ini->smcr_version;
+ 	ini->smcr_version = SMC_V2;
+ 	rc = smc_listen_rdma_init(new_smc, ini);
+-	if (!rc)
+-		rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
+-	if (!rc)
+-		return;
+-	ini->smcr_version = smcr_version;
+-	smc_find_ism_store_rc(rc, ini);
++	if (rc) {
++		ini->smcr_version = smcr_version;
++		goto not_found;
++	}
++	rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
++	if (rc) {
++		ini->smcr_version = smcr_version;
++		goto not_found;
++	}
++	return 0;
+ 
+ not_found:
++	rc = rc ?: SMC_CLC_DECL_NOSMCDEV;
+ 	ini->smcr_version &= ~SMC_V2;
+ 	ini->check_smcrv2 = false;
++	return rc;
+ }
+ 
+ static int smc_find_rdma_v1_device_serv(struct smc_sock *new_smc,
+@@ -2006,6 +2011,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+ 				  struct smc_init_info *ini)
+ {
+ 	int prfx_rc;
++	int rc;
+ 
+ 	/* check for ISM device matching V2 proposed device */
+ 	smc_find_ism_v2_device_serv(new_smc, pclc, ini);
+@@ -2033,14 +2039,18 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+ 		return ini->rc ?: SMC_CLC_DECL_NOSMCDDEV;
+ 
+ 	/* check if RDMA V2 is available */
+-	smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
+-	if (ini->smcrv2.ib_dev_v2)
++	rc = smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
++	if (!rc)
+ 		return 0;
+ 
++	/* skip V1 check if V2 is unavailable for non-Device reason */
++	if (rc != SMC_CLC_DECL_NOSMCDEV &&
++	    rc != SMC_CLC_DECL_NOSMCRDEV &&
++	    rc != SMC_CLC_DECL_NOSMCDDEV)
++		return rc;
++
+ 	/* check if RDMA V1 is available */
+ 	if (!prfx_rc) {
+-		int rc;
+-
+ 		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
+ 		smc_find_ism_store_rc(rc, ini);
+ 		return (!rc) ? 0 : ini->rc;
 -- 
 2.35.1
 
