@@ -2,125 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C318D53FB1E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EC9F53FB27
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240957AbiFGKZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 06:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44134 "EHLO
+        id S233279AbiFGK1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 06:27:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240974AbiFGKZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:25:05 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E335DA5A
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 03:25:02 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id r123-20020a1c2b81000000b0039c1439c33cso9272273wmr.5
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 03:25:02 -0700 (PDT)
+        with ESMTP id S240978AbiFGK07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:26:59 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C8BEBEAA
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 03:26:57 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id me5so33713387ejb.2
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 03:26:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=malat-biz.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Jn0EHNfnW+j1MiRaoiifQn0/z4QTwceqDn9P9T64iwQ=;
-        b=uqhMyEocxEWlapBw4E6UOxzNuzO983FvPAcwdxo1nGvTqJkD5JmLMyUVNmMKQkDC7U
-         +Lwa5lFsgL9NZDhjc7QixV0Ok5G6Fwx9zVO2PmKv3gPhQKaxVZXwmczZSFw3AwqN1SG7
-         jDXB8YLO6BaBVtziqpI+foGNSL8u9mhaH7eYYrFMMlpmMC/gClvZ5FFBlr1xW4tfwPms
-         ryENPneNB3lXSlVXMxE4fHvOvlr9Y9tJ2dfitj/A40Lr4KuXvJT3xiXi8crog6Mn1cPj
-         O4Ebs2XO44VxnDzwAhBR3DJO6Gp5KknkFHPeqvTozFDwzwZTRyZBzGxs9u4dJc5rgfts
-         JAuQ==
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=DsUpTMVy3AnG06ab2HPPYE6VPm25Tedt2mleq6KKBcw=;
+        b=d5eYz5T/R0HONhjF3Y84KTg5dFj79tvswAfqg2cbWnkVA6zR7TGEYqMkZKHL1HZACt
+         855oU9tUYYFN8c8iV2/iknbMYrm7PjMEDd7wefljn1I7ZaEjS1ZFYLccEqzZff/uaDxJ
+         luVN+ZmqZTmOmiiKxV+142H4BzCh/LKMYNA0vroRnb42o0F1w2+yWuYKsaJ40RmO9P6/
+         elRRF0ORsGtHDYF5qBIhzjFyuLIriJXBLcYRqvwJKKyVaeCy3hH8zLvmtaCFFgS6HPqG
+         WDIWHHBMbOZ+Jn2lbj92qhXkHd+ungeGUxl3RZ+Y6mCqNNox34mdIqmvMjx3cPF/PGsV
+         xNJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Jn0EHNfnW+j1MiRaoiifQn0/z4QTwceqDn9P9T64iwQ=;
-        b=s/GCdauUpHgdk41BfbaGbeHdt7BR6LRzcB3oMjEAmwy8SnFefZq60XhaCbtm3iI+hC
-         HNQjJZZcDGfKmOk6Z6YJmmGYQE4rzwa6EjgRPuFqGmP2Lg9jLw/a8uySnhP6JsDRpPXO
-         rO1Fp81KeWJIa8e4YyV88i8RO1O0NAT7STLOlMHWPqPNRJuUf4NpXj2ruq/sU1xhzmrG
-         m2A2op315yAdc+0YHvWcXNEH8WUy8m4sOyZ8rWO29eA3LRSUr8Xg/DQutPsuZwA3eE0o
-         HBTB7qkirvt+KfC4RygBHoPovwTgPu2mZaLhjPDkoBGBQTD/yYXsbVr3U9yIoLXsVOza
-         YK6w==
-X-Gm-Message-State: AOAM533mITsNgkL6WF6V+7a/EusDMd420i64dR0q+dQho+BDZg9OZNYp
-        yfHT1t2Hafu6jxWpl0yXBgA5/Q==
-X-Google-Smtp-Source: ABdhPJyzgrVt1X0JsGbdSXIMkWI5Sw9Ff7ZZTKZe7Vp3ZgnjCyAt/AGRVS3Ld09OKm/TFFd5hJ4Ieg==
-X-Received: by 2002:a1c:5444:0:b0:39c:3761:ac37 with SMTP id p4-20020a1c5444000000b0039c3761ac37mr24918987wmi.144.1654597501012;
-        Tue, 07 Jun 2022 03:25:01 -0700 (PDT)
-Received: from ntb.petris.klfree.czf ([193.86.118.65])
-        by smtp.gmail.com with ESMTPSA id n20-20020a7bc5d4000000b0039aef592ca0sm19759738wmk.35.2022.06.07.03.25.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 03:25:00 -0700 (PDT)
-Date:   Tue, 7 Jun 2022 12:24:52 +0200
-From:   Petr Malat <oss@malat.biz>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
-        Joern Engel <joern@lazybastard.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] mtd: phram: Map RAM using memremap instead of ioremap
-Message-ID: <Yp8ndNcYbkIKjZmI@ntb.petris.klfree.czf>
-References: <20220523142825.3144904-1-oss@malat.biz>
- <3cab9a7f4ed34ca0b742a62c2bdc3bce@AcuMS.aculab.com>
- <Youn9AmqY6/EExDw@ntb.petris.klfree.czf>
- <e33f91a3eacc4aa3a08e6465fef9265c@AcuMS.aculab.com>
- <YoyFpbhLB1E+8ilr@ntb.petris.klfree.czf>
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=DsUpTMVy3AnG06ab2HPPYE6VPm25Tedt2mleq6KKBcw=;
+        b=1+lRIagUbgvCczeBJ2ovZfYaXCmA6Lr0vmc5pU7dNRxNjcnlgih+cRNktIgbUOrQR7
+         FIc9KajZvDpIPPfwZyeqUfKcPXOXPqDxwAJj587EsAeW8z/kTU+5NSc32WZtglURN8/e
+         tpxdOzV5+IGSQJa8nPQsJx0Ue4hCX21G35luz+JzmTQq+V0Qw54uZDSENGweZ3roOyIN
+         X9vdpQKhAdBlluBLy/pE+1vk6HTJyWPZjAtkxxg5czLE7ubblMjsgsnvpcVGdjHfVrlq
+         2xOgdowMn7nAPLqnoFHral/lGtbNo2BXOjsTGI+olPk+xPt1U0X9Ma0gZmrnA5OhEIyV
+         VrgQ==
+X-Gm-Message-State: AOAM53252iBmmXqRBIDfW2cLndVdnkWDCSeI9qFSjsvuHVBZtNa9socx
+        7M/Lh8sC7mm1BzoEzcGmxaAaNC//xVPAKHbc+n0=
+X-Google-Smtp-Source: ABdhPJx0yCrYl5TA/rqnmHLbqNwH8nhyHpeKygTwgqkaS8UijcZx/bckmp6/4zEaABYwpYRQfPJ/1o+quFh/VG31J64=
+X-Received: by 2002:a17:906:22c6:b0:711:cf82:cbdb with SMTP id
+ q6-20020a17090622c600b00711cf82cbdbmr9324536eja.461.1654597615670; Tue, 07
+ Jun 2022 03:26:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YoyFpbhLB1E+8ilr@ntb.petris.klfree.czf>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Sender: mrsaijheidi7@gmail.com
+Received: by 2002:a50:2490:0:0:0:0:0 with HTTP; Tue, 7 Jun 2022 03:26:55 -0700 (PDT)
+From:   Mrs Lila Haber <mrslilahabe2016@gmail.com>
+Date:   Tue, 7 Jun 2022 10:26:55 +0000
+X-Google-Sender-Auth: JO_FeJYyGg30pe7MsbIJ7Xq5uh8
+Message-ID: <CADXrVCp8e84EFy+6xNjH12mO5Qz-bY1jSfc1XEyYB4EC24Jbkw@mail.gmail.com>
+Subject: Dear Child of God
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.3 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
+        BAYES_60,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,HK_SCAM,LOTS_OF_MONEY,
+        MONEY_FRAUD_8,RCVD_IN_DNSWL_NONE,RISK_FREE,SPF_HELO_NONE,SPF_PASS,
+        T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY,URG_BIZ
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:642 listed in]
+        [list.dnswl.org]
+        *  1.5 BAYES_60 BODY: Bayes spam probability is 60 to 80%
+        *      [score: 0.6495]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [mrsaijheidi7[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [mrsaijheidi7[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.0 HK_SCAM No description available.
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.6 URG_BIZ Contains urgent matter
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        *  1.6 RISK_FREE No risk!
+        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
+        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
+        *  0.6 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi!
+Dear Child of God,
 
-On Mon, May 23, 2022 at 04:09:20PM +0000, David Laight wrote:
-> On x86 (which I know a lot more about) memcpy() has a nasty
-> habit of getting implemented as 'rep movsb' relying on the
-> cpu to speed it up.
-> But that doesn't happen for uncached addresses - so you get
-> very slow byte copies.
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS
+CHRIST the giver of every good thing. Good day and compliments of the
+seasons, i know this letter will definitely come to you as a huge
+surprise, but I implore you to take the time to go through it
+carefully as the decision you make will go off a long way to determine
+my future and continued existence. I am Mrs Lila Haber aging widow of
+57 years old suffering from long time illness.I have some funds I
+inherited from my late husband, the sum of (7.2Million Dollars) and I
+needed a very honest and God fearing who can withdraw this money then
+use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR
+CHARITY WORKS. I found your email address from the internet after
+honest prayers to the LORD to bring me a helper and i decided to
+contact you if you may be willing and interested to handle these trust
+funds in good faith before anything happens to me.
 
-I have measured the performance with (patched) and without my
-change (orig). My change improves the performance on X8664 and
-arm. On Mips64 it stays the same:
+I accept this decision because I do not have any child who will
+inherit this money after I die. I want your urgent reply to me so that
+I will give you the deposit receipt which the SECURITY COMPANY issued
+to me as next of kin for immediate transfer of the money to your
+account in your country, to start the good work of God, I want you to
+use the 25/percent of the total amount to help yourself in doing the
+project. I am desperately in keen need of assistance and I have
+summoned up courage to contact you for this task, you must not fail me
+and the millions of the poor people in our todays WORLD. This is no
+stolen money and there are no dangers involved,100% RISK FREE with
+full legal proof. Please if you would be able to use the funds for the
+Charity works kindly let me know immediately.I will appreciate your
+utmost confidentiality and trust in this matter to accomplish my heart
+desire, as I don't want anything that will jeopardize my last wish.
 
-Tests
-=====
-All runtimes are in milliseconds, average real-time of 3 runs, time
-measured with bash time built-in. Measured process run in SCHED_FIFO
-with priority 99. Page cache was flushed before every run, but all
-involved program images were in tmpfs (no swap).
- - dd r512
-   dd if=/dev/TESTDEV of=/dev/null  bs=512
- - dd r1MB
-   dd if=/dev/TESTDEV of=/dev/null  bs=1M
- - dd r512
-   dd of=/dev/TESTDEV if=/tmpfs/img bs=512
- - dd r1MB
-   dd of=/dev/TESTDEV if=/tmpfs/img bs=1M
- - flashcp
-   flashcp /tmpfs/img /dev/TESTDEV
- - flasherase
-   flash_eraseall -q /dev/TESTDEV
+Please kindly respond quickly for further details.
 
-Results
-=======
-All times are in ms
-
-ARCH       |     MIPS64      |       ARM       |     X8664
-CPU        |   CN6335p2.2    |    v7 TI K2     |  Xeon D-1548
-Dev. size  |      32MB       |      128MB      |     256MB
------------+-------+---------+-------+---------+-------+---------
-     in ms |  Orig | Patched |  Orig | Patched |  Orig | Patched
-dd r512    |   131 |     130 |  1101 |     543 | 22906 |     281
-dd r1MB    |    65 |      65 |   655 |     122 | 22715 |      70
-dd w512    |  1150 |    1150 |  1136 |    1042 | 28067 |     412
-dd w1MB    |   104 |     104 |   396 |     244 | 27761 |     122
-flashcp    |   100 |      99 |  1438 |     568 | 78455 |     270
-flasherase |    21 |      21 |   208 |      77 | 27707 |      57
-
-BR,
-  Petr
+Warmest Regards,
+Mrs Lila Haber
