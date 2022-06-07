@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79BA35416DD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACB595407F7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358365AbiFGUy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:54:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51962 "EHLO
+        id S1348762AbiFGRxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378356AbiFGUvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:40 -0400
+        with ESMTP id S1349448AbiFGRus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7461FE8F9;
-        Tue,  7 Jun 2022 11:42:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC08513AF3B;
+        Tue,  7 Jun 2022 10:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 348836168A;
-        Tue,  7 Jun 2022 18:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425FEC385A2;
-        Tue,  7 Jun 2022 18:42:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D07E8615B9;
+        Tue,  7 Jun 2022 17:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE3F2C385A5;
+        Tue,  7 Jun 2022 17:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627325;
-        bh=TTRLeWP585qaTBuHxBSbgoJsnhHfO1Vaib0ioqTE8Y0=;
+        s=korg; t=1654623483;
+        bh=NqwxbRucv15MoniNBWErDnERTvfSH/0JOqpfOH3JhyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tXhMA1AgnhzLYGlGrq2b/CBWLSTaL7m5fBA/Nf0kepV/DtBpFgQo9AKtv2z5JbxxC
-         1qOHAL5Q3eLLLNJCa8qe1yRMRGt0Jilq14dRGAVpE/w8kJ9bCZwgM3ywbv+dKwSKam
-         cfj7uLp4ortn2p0xNa2HAZlbuQDvdZQPGYK+wqro=
+        b=wgHxjZh56sgxFL4D7ZOKW5J8c34HJJeY33UhniaVv+sdntQgg6ei5qIwdGT6Vo5S1
+         b/3BQxqOTleiiPZcv3cu+CNRPwEQ5fYI6Dz5lxZUVTbhWK0y+pX47sMsWhxpZr3wHh
+         2kYla7OuCEp6Op1Agb2JrhSL4ONkVcmVgMOBDHIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Pascal Speck <kernel@iktek.de>,
-        Fabio Estevam <festevam@denx.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.17 700/772] media: coda: Fix reported H264 profile
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 435/452] xfs: force log and push AIL to clear pinned inodes when aborting mount
 Date:   Tue,  7 Jun 2022 19:04:52 +0200
-Message-Id: <20220607165009.677034602@linuxfoundation.org>
+Message-Id: <20220607164921.521531633@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,56 +55,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 7110c08ea71953a7fc342f0b76046f72442cf26c upstream.
+commit d336f7ebc65007f5831e2297e6f3383ae8dbf8ed upstream.
 
-The CODA960 manual states that ASO/FMO features of baseline are not
-supported, so for this reason this driver should only report
-constrained baseline support.
+If we allocate quota inodes in the process of mounting a filesystem but
+then decide to abort the mount, it's possible that the quota inodes are
+sitting around pinned by the log.  Now that inode reclaim relies on the
+AIL to flush inodes, we have to force the log and push the AIL in
+between releasing the quota inodes and kicking off reclaim to tear down
+all the incore inodes.  Do this by extracting the bits we need from the
+unmount path and reusing them.  As an added bonus, failed writes during
+a failed mount will not retry forever now.
 
-This fixes negotiation issue with constrained baseline content
-on GStreamer 1.17.1.
+This was originally found during a fuzz test of metadata directories
+(xfs/1546), but the actual symptom was that reclaim hung up on the quota
+inodes.
 
-ASO/FMO features are unsupported for the encoder and untested for the
-decoder because there is currently no userspace support. Neither GStreamer
-parsers nor FFMPEG parsers support ASO/FMO.
-
-Cc: stable@vger.kernel.org
-Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Tested-by: Pascal Speck <kernel@iktek.de>
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/coda/coda-common.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_mount.c |   90 +++++++++++++++++++++++++----------------------------
+ 1 file changed, 44 insertions(+), 46 deletions(-)
 
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -2352,8 +2352,8 @@ static void coda_encode_ctrls(struct cod
- 		V4L2_CID_MPEG_VIDEO_H264_CHROMA_QP_INDEX_OFFSET, -12, 12, 1, 0);
- 	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
- 		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
--		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
--		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
-+		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
-+		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
- 	if (ctx->dev->devtype->product == CODA_HX4 ||
- 	    ctx->dev->devtype->product == CODA_7541) {
- 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
-@@ -2434,7 +2434,7 @@ static void coda_decode_ctrls(struct cod
- 	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
- 		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
- 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
--		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
-+		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
- 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
- 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
- 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
+--- a/fs/xfs/xfs_mount.c
++++ b/fs/xfs/xfs_mount.c
+@@ -632,6 +632,47 @@ xfs_check_summary_counts(
+ }
+ 
+ /*
++ * Flush and reclaim dirty inodes in preparation for unmount. Inodes and
++ * internal inode structures can be sitting in the CIL and AIL at this point,
++ * so we need to unpin them, write them back and/or reclaim them before unmount
++ * can proceed.
++ *
++ * An inode cluster that has been freed can have its buffer still pinned in
++ * memory because the transaction is still sitting in a iclog. The stale inodes
++ * on that buffer will be pinned to the buffer until the transaction hits the
++ * disk and the callbacks run. Pushing the AIL will skip the stale inodes and
++ * may never see the pinned buffer, so nothing will push out the iclog and
++ * unpin the buffer.
++ *
++ * Hence we need to force the log to unpin everything first. However, log
++ * forces don't wait for the discards they issue to complete, so we have to
++ * explicitly wait for them to complete here as well.
++ *
++ * Then we can tell the world we are unmounting so that error handling knows
++ * that the filesystem is going away and we should error out anything that we
++ * have been retrying in the background.  This will prevent never-ending
++ * retries in AIL pushing from hanging the unmount.
++ *
++ * Finally, we can push the AIL to clean all the remaining dirty objects, then
++ * reclaim the remaining inodes that are still in memory at this point in time.
++ */
++static void
++xfs_unmount_flush_inodes(
++	struct xfs_mount	*mp)
++{
++	xfs_log_force(mp, XFS_LOG_SYNC);
++	xfs_extent_busy_wait_all(mp);
++	flush_workqueue(xfs_discard_wq);
++
++	mp->m_flags |= XFS_MOUNT_UNMOUNTING;
++
++	xfs_ail_push_all_sync(mp->m_ail);
++	cancel_delayed_work_sync(&mp->m_reclaim_work);
++	xfs_reclaim_inodes(mp);
++	xfs_health_unmount(mp);
++}
++
++/*
+  * This function does the following on an initial mount of a file system:
+  *	- reads the superblock from disk and init the mount struct
+  *	- if we're a 32-bit kernel, do a size check on the superblock
+@@ -1005,7 +1046,7 @@ xfs_mountfs(
+ 	/* Clean out dquots that might be in memory after quotacheck. */
+ 	xfs_qm_unmount(mp);
+ 	/*
+-	 * Cancel all delayed reclaim work and reclaim the inodes directly.
++	 * Flush all inode reclamation work and flush the log.
+ 	 * We have to do this /after/ rtunmount and qm_unmount because those
+ 	 * two will have scheduled delayed reclaim for the rt/quota inodes.
+ 	 *
+@@ -1015,11 +1056,8 @@ xfs_mountfs(
+ 	 * qm_unmount_quotas and therefore rely on qm_unmount to release the
+ 	 * quota inodes.
+ 	 */
+-	cancel_delayed_work_sync(&mp->m_reclaim_work);
+-	xfs_reclaim_inodes(mp);
+-	xfs_health_unmount(mp);
++	xfs_unmount_flush_inodes(mp);
+  out_log_dealloc:
+-	mp->m_flags |= XFS_MOUNT_UNMOUNTING;
+ 	xfs_log_mount_cancel(mp);
+  out_fail_wait:
+ 	if (mp->m_logdev_targp && mp->m_logdev_targp != mp->m_ddev_targp)
+@@ -1060,47 +1098,7 @@ xfs_unmountfs(
+ 	xfs_rtunmount_inodes(mp);
+ 	xfs_irele(mp->m_rootip);
+ 
+-	/*
+-	 * We can potentially deadlock here if we have an inode cluster
+-	 * that has been freed has its buffer still pinned in memory because
+-	 * the transaction is still sitting in a iclog. The stale inodes
+-	 * on that buffer will be pinned to the buffer until the
+-	 * transaction hits the disk and the callbacks run. Pushing the AIL will
+-	 * skip the stale inodes and may never see the pinned buffer, so
+-	 * nothing will push out the iclog and unpin the buffer. Hence we
+-	 * need to force the log here to ensure all items are flushed into the
+-	 * AIL before we go any further.
+-	 */
+-	xfs_log_force(mp, XFS_LOG_SYNC);
+-
+-	/*
+-	 * Wait for all busy extents to be freed, including completion of
+-	 * any discard operation.
+-	 */
+-	xfs_extent_busy_wait_all(mp);
+-	flush_workqueue(xfs_discard_wq);
+-
+-	/*
+-	 * We now need to tell the world we are unmounting. This will allow
+-	 * us to detect that the filesystem is going away and we should error
+-	 * out anything that we have been retrying in the background. This will
+-	 * prevent neverending retries in AIL pushing from hanging the unmount.
+-	 */
+-	mp->m_flags |= XFS_MOUNT_UNMOUNTING;
+-
+-	/*
+-	 * Flush all pending changes from the AIL.
+-	 */
+-	xfs_ail_push_all_sync(mp->m_ail);
+-
+-	/*
+-	 * Reclaim all inodes. At this point there should be no dirty inodes and
+-	 * none should be pinned or locked. Stop background inode reclaim here
+-	 * if it is still running.
+-	 */
+-	cancel_delayed_work_sync(&mp->m_reclaim_work);
+-	xfs_reclaim_inodes(mp);
+-	xfs_health_unmount(mp);
++	xfs_unmount_flush_inodes(mp);
+ 
+ 	xfs_qm_unmount(mp);
+ 
 
 
