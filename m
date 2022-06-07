@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C16540EA0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C08B540DE7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353983AbiFGSzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
+        id S1351941AbiFGSvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:51:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354564AbiFGSrJ (ORCPT
+        with ESMTP id S1354567AbiFGSrJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A09B76972E;
-        Tue,  7 Jun 2022 11:02:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E61106357;
+        Tue,  7 Jun 2022 11:02:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BB0B617B4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D342A61883;
+        Tue,  7 Jun 2022 18:02:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F01C34119;
         Tue,  7 Jun 2022 18:02:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFAEEC341C4;
-        Tue,  7 Jun 2022 18:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624931;
-        bh=gclfMne1sjmP5P4K7nWFoebt4i5ALuGgPZs+IH+vnZk=;
+        s=k20201202; t=1654624933;
+        bh=SoOs0xFu8dYzYt4VC6dwXPDq9LiTWWp69Fkb5wXgRAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sib+GcUuOZ1ox3i1xAIGli/wD06H8OtbKTVRbIQ27DQaSRLfEoimjzFV8NkIDcRZO
-         aqTna2l2L7NKdbp8ik3aSt/m8aaZgOkpQt/6P7ugP+NCCcNJk61mA0+O1d7qwJNptI
-         4ZaDZ2VrTFHu/yB0zK+bZYiB6jsjRlPtdEaKMf4pfLWihMixj5TUIXvAYibcBwqm+9
-         23TlQTw62a1fJv71AG9i5yo4LDQ2SA1YJeGarcAkZTBiKS8bRR5fqRoWiwoRtfbZ+w
-         stXLDpk4m70uGWI9fICKlx2IBk9VL2oN4pBGn4UCF6KkqM+XCdNELInWGeG+jAtPjg
-         jeqv/5iD2KL+w==
+        b=SKIFFiBBy14IoQCwqGppsZGsgtQf7hEm5cuAKHM8luvHCPtj3q2/yQeyD+u1qUQia
+         G3JVgriy8ES4viiEJmYAdpQSsgWexxc8nvxPn/pg1Ep36K443n4CD/6SBAyG2thzUV
+         hmdPO8OiWsljZp0mndZa8QAZ4Y5Qxx83NbwNHxzMTfVwHBe3M3NXYQ7syWC83nUul/
+         T41iFWbr7Bi8HcgJVj2uQrBVR4TdcFh4Sh/6Kb3PR+GvHfNDjpmUo1ZFtYCEcvSsdH
+         jjCQVI1d4ynF9fG0dnQt92XvTK6cnKkkvKlB6YYWl95zDD8grmAYpV1PdU5LKXL2fT
+         o1glbtOFYQATQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hao Luo <haoluo@google.com>, Tejun Heo <tj@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 17/27] kernfs: Separate kernfs_pr_cont_buf and rename_lock.
-Date:   Tue,  7 Jun 2022 14:01:21 -0400
-Message-Id: <20220607180133.481701-17-sashal@kernel.org>
+Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Donald Buczek <buczek@molgen.mpg.de>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        agk@redhat.com, snitzer@kernel.org, dm-devel@redhat.com,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 18/27] md: don't unregister sync_thread with reconfig_mutex held
+Date:   Tue,  7 Jun 2022 14:01:22 -0400
+Message-Id: <20220607180133.481701-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607180133.481701-1-sashal@kernel.org>
 References: <20220607180133.481701-1-sashal@kernel.org>
@@ -56,140 +58,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Luo <haoluo@google.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 1a702dc88e150487c9c173a249b3d236498b9183 ]
+[ Upstream commit 8b48ec23cc51a4e7c8dbaef5f34ebe67e1a80934 ]
 
-Previously the protection of kernfs_pr_cont_buf was piggy backed by
-rename_lock, which means that pr_cont() needs to be protected under
-rename_lock. This can cause potential circular lock dependencies.
+Unregister sync_thread doesn't need to hold reconfig_mutex since it
+doesn't reconfigure array.
 
-If there is an OOM, we have the following call hierarchy:
+And it could cause deadlock problem for raid5 as follows:
 
- -> cpuset_print_current_mems_allowed()
-   -> pr_cont_cgroup_name()
-     -> pr_cont_kernfs_name()
+1. process A tried to reap sync thread with reconfig_mutex held after echo
+   idle to sync_action.
+2. raid5 sync thread was blocked if there were too many active stripes.
+3. SB_CHANGE_PENDING was set (because of write IO comes from upper layer)
+   which causes the number of active stripes can't be decreased.
+4. SB_CHANGE_PENDING can't be cleared since md_check_recovery was not able
+   to hold reconfig_mutex.
 
-pr_cont_kernfs_name() will grab rename_lock and call printk. So we have
-the following lock dependencies:
+More details in the link:
+https://lore.kernel.org/linux-raid/5ed54ffc-ce82-bf66-4eff-390cb23bc1ac@molgen.mpg.de/T/#t
 
- kernfs_rename_lock -> console_sem
+And add one parameter to md_reap_sync_thread since it could be called by
+dm-raid which doesn't hold reconfig_mutex.
 
-Sometimes, printk does a wakeup before releasing console_sem, which has
-the dependence chain:
-
- console_sem -> p->pi_lock -> rq->lock
-
-Now, imagine one wants to read cgroup_name under rq->lock, for example,
-printing cgroup_name in a tracepoint in the scheduler code. They will
-be holding rq->lock and take rename_lock:
-
- rq->lock -> kernfs_rename_lock
-
-Now they will deadlock.
-
-A prevention to this circular lock dependency is to separate the
-protection of pr_cont_buf from rename_lock. In principle, rename_lock
-is to protect the integrity of cgroup name when copying to buf. Once
-pr_cont_buf has got its content, rename_lock can be dropped. So it's
-safe to drop rename_lock after kernfs_name_locked (and
-kernfs_path_from_node_locked) and rely on a dedicated pr_cont_lock
-to protect pr_cont_buf.
-
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Hao Luo <haoluo@google.com>
-Link: https://lore.kernel.org/r/20220516190951.3144144-1-haoluo@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: Donald Buczek <buczek@molgen.mpg.de>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/kernfs/dir.c | 31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ drivers/md/dm-raid.c |  2 +-
+ drivers/md/md.c      | 14 +++++++++-----
+ drivers/md/md.h      |  2 +-
+ 3 files changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
-index a4a538abcaf9..99627d3438e5 100644
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -20,7 +20,15 @@
+diff --git a/drivers/md/dm-raid.c b/drivers/md/dm-raid.c
+index b16332917220..0be03123d6a2 100644
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -3710,7 +3710,7 @@ static int raid_message(struct dm_target *ti, unsigned int argc, char **argv,
+ 	if (!strcasecmp(argv[0], "idle") || !strcasecmp(argv[0], "frozen")) {
+ 		if (mddev->sync_thread) {
+ 			set_bit(MD_RECOVERY_INTR, &mddev->recovery);
+-			md_reap_sync_thread(mddev);
++			md_reap_sync_thread(mddev, false);
+ 		}
+ 	} else if (decipher_sync_action(mddev, mddev->recovery) != st_idle)
+ 		return -EBUSY;
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 7e0477e883c7..da7954eff4d7 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -4611,7 +4611,7 @@ action_store(struct mddev *mddev, const char *page, size_t len)
+ 			flush_workqueue(md_misc_wq);
+ 			if (mddev->sync_thread) {
+ 				set_bit(MD_RECOVERY_INTR, &mddev->recovery);
+-				md_reap_sync_thread(mddev);
++				md_reap_sync_thread(mddev, true);
+ 			}
+ 			mddev_unlock(mddev);
+ 		}
+@@ -5871,7 +5871,7 @@ static void __md_stop_writes(struct mddev *mddev)
+ 	flush_workqueue(md_misc_wq);
+ 	if (mddev->sync_thread) {
+ 		set_bit(MD_RECOVERY_INTR, &mddev->recovery);
+-		md_reap_sync_thread(mddev);
++		md_reap_sync_thread(mddev, true);
+ 	}
  
- DEFINE_MUTEX(kernfs_mutex);
- static DEFINE_SPINLOCK(kernfs_rename_lock);	/* kn->parent and ->name */
--static char kernfs_pr_cont_buf[PATH_MAX];	/* protected by rename_lock */
-+/*
-+ * Don't use rename_lock to piggy back on pr_cont_buf. We don't want to
-+ * call pr_cont() while holding rename_lock. Because sometimes pr_cont()
-+ * will perform wakeups when releasing console_sem. Holding rename_lock
-+ * will introduce deadlock if the scheduler reads the kernfs_name in the
-+ * wakeup path.
-+ */
-+static DEFINE_SPINLOCK(kernfs_pr_cont_lock);
-+static char kernfs_pr_cont_buf[PATH_MAX];	/* protected by pr_cont_lock */
- static DEFINE_SPINLOCK(kernfs_idr_lock);	/* root->ino_idr */
+ 	del_timer_sync(&mddev->safemode_timer);
+@@ -8893,7 +8893,7 @@ void md_check_recovery(struct mddev *mddev)
+ 			 * ->spare_active and clear saved_raid_disk
+ 			 */
+ 			set_bit(MD_RECOVERY_INTR, &mddev->recovery);
+-			md_reap_sync_thread(mddev);
++			md_reap_sync_thread(mddev, true);
+ 			clear_bit(MD_RECOVERY_RECOVER, &mddev->recovery);
+ 			clear_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
+ 			clear_bit(MD_SB_CHANGE_PENDING, &mddev->sb_flags);
+@@ -8928,7 +8928,7 @@ void md_check_recovery(struct mddev *mddev)
+ 			goto unlock;
+ 		}
+ 		if (mddev->sync_thread) {
+-			md_reap_sync_thread(mddev);
++			md_reap_sync_thread(mddev, true);
+ 			goto unlock;
+ 		}
+ 		/* Set RUNNING before clearing NEEDED to avoid
+@@ -9001,12 +9001,16 @@ void md_check_recovery(struct mddev *mddev)
+ }
+ EXPORT_SYMBOL(md_check_recovery);
  
- #define rb_to_kn(X) rb_entry((X), struct kernfs_node, rb)
-@@ -229,12 +237,12 @@ void pr_cont_kernfs_name(struct kernfs_node *kn)
+-void md_reap_sync_thread(struct mddev *mddev)
++void md_reap_sync_thread(struct mddev *mddev, bool reconfig_mutex_held)
  {
- 	unsigned long flags;
+ 	struct md_rdev *rdev;
  
--	spin_lock_irqsave(&kernfs_rename_lock, flags);
-+	spin_lock_irqsave(&kernfs_pr_cont_lock, flags);
- 
--	kernfs_name_locked(kn, kernfs_pr_cont_buf, sizeof(kernfs_pr_cont_buf));
-+	kernfs_name(kn, kernfs_pr_cont_buf, sizeof(kernfs_pr_cont_buf));
- 	pr_cont("%s", kernfs_pr_cont_buf);
- 
--	spin_unlock_irqrestore(&kernfs_rename_lock, flags);
-+	spin_unlock_irqrestore(&kernfs_pr_cont_lock, flags);
- }
- 
- /**
-@@ -248,10 +256,10 @@ void pr_cont_kernfs_path(struct kernfs_node *kn)
- 	unsigned long flags;
- 	int sz;
- 
--	spin_lock_irqsave(&kernfs_rename_lock, flags);
-+	spin_lock_irqsave(&kernfs_pr_cont_lock, flags);
- 
--	sz = kernfs_path_from_node_locked(kn, NULL, kernfs_pr_cont_buf,
--					  sizeof(kernfs_pr_cont_buf));
-+	sz = kernfs_path_from_node(kn, NULL, kernfs_pr_cont_buf,
-+				   sizeof(kernfs_pr_cont_buf));
- 	if (sz < 0) {
- 		pr_cont("(error)");
- 		goto out;
-@@ -265,7 +273,7 @@ void pr_cont_kernfs_path(struct kernfs_node *kn)
- 	pr_cont("%s", kernfs_pr_cont_buf);
- 
- out:
--	spin_unlock_irqrestore(&kernfs_rename_lock, flags);
-+	spin_unlock_irqrestore(&kernfs_pr_cont_lock, flags);
- }
- 
- /**
-@@ -867,13 +875,12 @@ static struct kernfs_node *kernfs_walk_ns(struct kernfs_node *parent,
- 
- 	lockdep_assert_held(&kernfs_mutex);
- 
--	/* grab kernfs_rename_lock to piggy back on kernfs_pr_cont_buf */
--	spin_lock_irq(&kernfs_rename_lock);
-+	spin_lock_irq(&kernfs_pr_cont_lock);
- 
- 	len = strlcpy(kernfs_pr_cont_buf, path, sizeof(kernfs_pr_cont_buf));
- 
- 	if (len >= sizeof(kernfs_pr_cont_buf)) {
--		spin_unlock_irq(&kernfs_rename_lock);
-+		spin_unlock_irq(&kernfs_pr_cont_lock);
- 		return NULL;
- 	}
- 
-@@ -885,7 +892,7 @@ static struct kernfs_node *kernfs_walk_ns(struct kernfs_node *parent,
- 		parent = kernfs_find_ns(parent, name, ns);
- 	}
- 
--	spin_unlock_irq(&kernfs_rename_lock);
-+	spin_unlock_irq(&kernfs_pr_cont_lock);
- 
- 	return parent;
- }
++	if (reconfig_mutex_held)
++		mddev_unlock(mddev);
+ 	/* resync has finished, collect result */
+ 	md_unregister_thread(&mddev->sync_thread);
++	if (reconfig_mutex_held)
++		mddev_lock_nointr(mddev);
+ 	if (!test_bit(MD_RECOVERY_INTR, &mddev->recovery) &&
+ 	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
+ 	    mddev->degraded != mddev->raid_disks) {
+diff --git a/drivers/md/md.h b/drivers/md/md.h
+index cce62bbc2bcb..027b220dec14 100644
+--- a/drivers/md/md.h
++++ b/drivers/md/md.h
+@@ -674,7 +674,7 @@ extern struct md_thread *md_register_thread(
+ extern void md_unregister_thread(struct md_thread **threadp);
+ extern void md_wakeup_thread(struct md_thread *thread);
+ extern void md_check_recovery(struct mddev *mddev);
+-extern void md_reap_sync_thread(struct mddev *mddev);
++extern void md_reap_sync_thread(struct mddev *mddev, bool reconfig_mutex_held);
+ extern int mddev_init_writes_pending(struct mddev *mddev);
+ extern bool md_write_start(struct mddev *mddev, struct bio *bi);
+ extern void md_write_inc(struct mddev *mddev, struct bio *bi);
 -- 
 2.35.1
 
