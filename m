@@ -2,74 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DDCA540210
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 17:04:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB7E54021A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 17:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343835AbiFGPEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 11:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46512 "EHLO
+        id S240705AbiFGPHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 11:07:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343839AbiFGPEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 11:04:34 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FEC863BD1
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 08:04:32 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id w3so15011909plp.13
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 08:04:32 -0700 (PDT)
+        with ESMTP id S1343850AbiFGPHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 11:07:02 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7DC4F688D
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 08:07:00 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id o10so23391588edi.1
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 08:07:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=N/YUmVnmYsthzzaFQZZ4Bst/fMXvdLUPht7fpreWouI=;
-        b=ZWsnbDvjYqPuMsq3/+SzQYIG6tiYq/zVkPHdiuBZZxSJwNB6JoW+oQCkbqtOWfN/c/
-         2Qt1mQyJcugaeBuOnRYyZA5bWpw/0SrLKVwae6rOgTUQlrPmL05EESL+V/KdULhrdIhF
-         0SnFsteseOP5yUfCP0gLNmvt1zj0cOaegcpNkGQ1L12PsATkjYKLkXJ/5gLf9R+zGnEg
-         mvMLP8+fe1uip/BqwdoDBDHeXxhsu5gNSqW725GWVO4DbKrLz+BwuBBLvdJOJbMNv6cA
-         iTwvAPI1GbU4ShwcLpoIMd4LwnmWAN+g0eCJb14FIr1Hv0G0yPAZ+xF4gWX7wBm7raOL
-         3KmA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0BaNCtbUy4qoGqaDj8cYNuEZlzINYHGxowSAoBkW/n4=;
+        b=DMEwSRpb8kC8xuRVVV7/kHRA/G87E32QbqXN5WzgEfmN3wN+2t7FxY9gibvt2Q3K2n
+         e7oiV7BuSHU1ztk6uRd/3ioUYsdni6X4OAT+zCk8pSDcBT+vdGC3sEEJuKREW4/4+37h
+         0PzY1LACKakPrZvxSoob9NhmBsTTpIMV093Q0cmbnATQvRd6P2qRDw/jgxX48RUyPnW2
+         Z6BLX8I1qh57Fw8kO+l+ZVFBkEax0gi1bbIbXgdFhx4Ve3DKXn5OLv4Q+BpGzQTW4EOX
+         jXflMjQnf2JXo9OtPzh7WZbf5Kko0qpRnXFXzmFnpdJ9CUesCblDWfyRiTcPlGa4QXse
+         nv1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=N/YUmVnmYsthzzaFQZZ4Bst/fMXvdLUPht7fpreWouI=;
-        b=XCW7E6HPjt6KuLDBJ3ytfRFVmj3t5pI9VIuMeUCzrwNZ8wQbuuZ5Vf8ruG/QhbcdDH
-         RIBa08sxtgD2ye5mQYSzY3B2p3exusWiYtQ5/PMW2MyrQGkfFLlEgm+fNtpMY/ZF6zLT
-         wc0Mo8IkPSUxY1hAdbba1Fq+vYUiFJNGnJzKciq0bdCddzuwCbFeshMiL9DNtOOSaiSp
-         cDvcKIyxt2AMTsYt6EnTcyGhcF8Q8wkaGQ0P+NqpdD5IrypkU7gqkeoE6KjvvvOd2d2A
-         YrT0rSx7e/K2jkqQWtZd7Dwfi2SfCjHiMWRLleZbNZuDBjWKJrKh+Z8K0nQNMTkOP8ik
-         513A==
-X-Gm-Message-State: AOAM531uT0wUB2A6ecmb01mjhJQ42X1Mdqexl/f9kqiiv+L8/3CcKdeg
-        SK8akziubeLfNI9UZsU1fuuVxQ==
-X-Google-Smtp-Source: ABdhPJxg54fVmTgrN+w4bEorvIgskZph27oXJaV0Nn517UuJgkzofnAIF8b11bN77fiEAvhWptpJfQ==
-X-Received: by 2002:a17:903:25c1:b0:167:93c0:ce04 with SMTP id jc1-20020a17090325c100b0016793c0ce04mr3884430plb.171.1654614271610;
-        Tue, 07 Jun 2022 08:04:31 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id k17-20020a170902d59100b0016242b71e9fsm12577479plh.158.2022.06.07.08.04.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 08:04:30 -0700 (PDT)
-Date:   Tue, 7 Jun 2022 15:04:27 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Peter Xu <peterx@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Leonardo Bras <leobras@redhat.com>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, chang.seok.bae@intel.com, luto@kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.16 07/28] x86/kvm/fpu: Limit guest
- user_xfeatures to supported bits of XCR0
-Message-ID: <Yp9o+y0NcRW/0puA@google.com>
-References: <20220301201344.18191-1-sashal@kernel.org>
- <20220301201344.18191-7-sashal@kernel.org>
- <5f2b7b93-d4c9-1d59-14df-6e8b2366ca8a@redhat.com>
- <YppVupW+IWsm7Osr@xz-m1.local>
- <2d9ba70b-ac18-a461-7a57-22df2c0165c6@redhat.com>
- <Yp5xSi6P3q187+A+@xz-m1.local>
- <9d336622-6964-454a-605f-1ca90b902836@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0BaNCtbUy4qoGqaDj8cYNuEZlzINYHGxowSAoBkW/n4=;
+        b=RmIudergvHn9hn0P8C1/r14rpQltmKy1LGoTrjW/Y+JBm1etiv3/SI84rjfTtjCBwR
+         J0Zy2KQTkmJFFybYfDkjPeB/KMn6v/HDaDwoi5o+uOlCbAEqwEi6IzKjz+ynGsPT2izm
+         uIT+OBI9zNE3Z3vSkiGptJGN29BHDCpCQQjsarnPyLfrxKitDs1U7YgvQadw8U6uO+XH
+         F6v5jX8a5yJWC5T8XDEin9pjB51MHdkvpfOn1ecD3N+nF7m6+Fesq6UyjFt0zaiKV28g
+         fwQtcR8ekMqkUcy9dAjfzsFObZQywiYCmUcDtJJ1PYKNz334I/snJUyj4K9stDGOQzLO
+         JRWQ==
+X-Gm-Message-State: AOAM533y5YPoQ4OVhz1fFfv6oUivp1aXD3qMED5KfEn4j17oMxSt8e6T
+        KKE6yeyabTQOT/vES21+2CyXa7g1X3YvlACB/qQanA==
+X-Google-Smtp-Source: ABdhPJylsWC5i4PgBn7ERQ2wQMm5YBzFNyAS+31DkGotw3HxNaQ5WeBcN28rPFZfemsY/5Yie8NGJLBRPR3TU0T/KXE=
+X-Received: by 2002:aa7:c84d:0:b0:431:4226:70c9 with SMTP id
+ g13-20020aa7c84d000000b00431422670c9mr17193548edt.51.1654614412623; Tue, 07
+ Jun 2022 08:06:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9d336622-6964-454a-605f-1ca90b902836@redhat.com>
+References: <20220607025729.1673212-1-mfaltesek@google.com> <20220607025729.1673212-2-mfaltesek@google.com>
+In-Reply-To: <20220607025729.1673212-2-mfaltesek@google.com>
+From:   Guenter Roeck <groeck@google.com>
+Date:   Tue, 7 Jun 2022 08:06:41 -0700
+Message-ID: <CABXOdTdeyykMamUoXR+XPCc6jds1419z1Qdu0zw8mcuU0H0Siw@mail.gmail.com>
+Subject: Re: [PATCH net v3 1/3] nfc: st21nfca: fix incorrect validating logic
+ in EVT_TRANSACTION
+To:     Martin Faltesek <mfaltesek@google.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>, krzysztof.kozlowski@linaro.org,
+        christophe.ricard@gmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        jordy@pwning.systems, Krzysztof Kozlowski <krzk@kernel.org>,
+        martin.faltesek@gmail.com, netdev <netdev@vger.kernel.org>,
+        linux-nfc@lists.01.org, sameo@linux.intel.com,
+        William K Lin <wklin@google.com>, theflamefire89@gmail.com,
+        "# v4 . 10+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
         ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
@@ -81,43 +73,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 07, 2022, Paolo Bonzini wrote:
-> On 6/6/22 23:27, Peter Xu wrote:
-> > On Mon, Jun 06, 2022 at 06:18:12PM +0200, Paolo Bonzini wrote:
-> > > > However there seems to be something missing at least to me, on why it'll
-> > > > fail a migration from 5.15 (without this patch) to 5.18 (with this patch).
-> > > > In my test case, user_xfeatures will be 0x7 (FP|SSE|YMM) if without this
-> > > > patch, but 0x0 if with it.
-> > > 
-> > > What CPU model are you using for the VM?
-> > 
-> > I didn't specify it, assuming it's qemu64 with no extra parameters.
-> 
-> Ok, so indeed it lacks AVX and this patch can have an effect.
-> 
-> > > For example, if the source lacks this patch but the destination has it,
-> > > the source will transmit YMM registers, but the destination will fail to
-> > > set them if they are not available for the selected CPU model.
-> > > 
-> > > See the commit message: "As a bonus, it will also fail if userspace tries to
-> > > set fpu features (with the KVM_SET_XSAVE ioctl) that are not compatible to
-> > > the guest configuration.  Such features will never be returned by
-> > > KVM_GET_XSAVE or KVM_GET_XSAVE2."
-> > 
-> > IIUC you meant we should have failed KVM_SET_XSAVE when they're not aligned
-> > (probably by failing validate_user_xstate_header when checking against the
-> > user_xfeatures on dest host). But that's probably not my case, because here
-> > KVM_SET_XSAVE succeeded, it's just that the guest gets a double fault after
-> > the precopy migration completes (or for postcopy when the switchover is
-> > done).
-> 
-> Difficult to say what's happening without seeing at least the guest code
-> around the double fault (above you said "fail a migration" and I thought
-> that was a different scenario than the double fault), and possibly which was
-> the first exception that contributed to the double fault.
+On Mon, Jun 6, 2022 at 7:57 PM Martin Faltesek <mfaltesek@google.com> wrote:
+>
+> The first validation check for EVT_TRANSACTION has two different checks
+> tied together with logical AND. One is a check for minimum packet length,
+> and the other is for a valid aid_tag. If either condition is true (fails),
+> then an error should be triggered.  The fix is to change && to ||.
+>
+> Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Martin Faltesek <mfaltesek@google.com>
 
-Regardless of why the guest explodes in the way it does, is someone planning on
-bisecting this (if necessary?) and sending a backport to v5.15?  There's another
-bug report that is more than likely hitting the same bug.
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 
-https://lore.kernel.org/all/48353e0d-e771-8a97-21d4-c65ff3bc4192@sentex.net
+> ---
+>  drivers/nfc/st21nfca/se.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
+> index 7e213f8ddc98..9645777f2544 100644
+> --- a/drivers/nfc/st21nfca/se.c
+> +++ b/drivers/nfc/st21nfca/se.c
+> @@ -315,7 +315,7 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
+>                  * AID          81      5 to 16
+>                  * PARAMETERS   82      0 to 255
+>                  */
+> -               if (skb->len < NFC_MIN_AID_LENGTH + 2 &&
+> +               if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+>                     skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
+>                         return -EPROTO;
+>
+> --
+> 2.36.1.255.ge46751e96f-goog
+>
