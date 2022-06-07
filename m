@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C625541BDC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA076541517
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378028AbiFGVzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
+        id S1359407AbiFGU2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:28:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383300AbiFGVxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2905FE7;
-        Tue,  7 Jun 2022 12:11:15 -0700 (PDT)
+        with ESMTP id S1359553AbiFGUZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:25:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12551D5AA1;
+        Tue,  7 Jun 2022 11:32:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8B43B82182;
-        Tue,  7 Jun 2022 19:11:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08A3EC385A2;
-        Tue,  7 Jun 2022 19:11:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1ED561501;
+        Tue,  7 Jun 2022 18:32:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02974C385A5;
+        Tue,  7 Jun 2022 18:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629072;
-        bh=tDwZ+cRCl8rKQM727vQUjg2KyaP+QSUoDKb2AhzgPkM=;
+        s=korg; t=1654626735;
+        bh=GMXBlVwOGVOOay5UPM87/qJvud8BFxVOjea5/lZDl7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LfhsM0NZmIBX3LN2kmi/MDdkK2zSyYTq/ZHHSd1YZdPOtKG8dOTxZtUQkyJae6khM
-         j+D2fWBpeGyDEVmd7dt+QjF7tq3+YJRFtA5iyQPsWaPA6BVYIxDNo9D2KESfwzT7TO
-         oA67VvMlmLk8fOaY3YzoZnM91NkVlKhlmZcsPRbY=
+        b=zJ+yIif3hSq3QP8E6aBIXkWTeSoAkJZVZZbfUC80/VSkxgBcIirDaG6wo8GKQE/oy
+         2LqzVz4JS5lzyeR6g/Bv8NftArhMugv+ECu31Sq22JVJlTTfa7QS1jEdBiletUHZei
+         FqDdWSqEm/0+kp0pmacv4CZiF9gSKEf76BtXrVI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Chia-I Wu <olvaffe@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 560/879] can: xilinx_can: mark bit timing constants as const
+Subject: [PATCH 5.17 486/772] drm/msm: simplify gpu_busy callback
 Date:   Tue,  7 Jun 2022 19:01:18 +0200
-Message-Id: <20220607165019.118305403@linuxfoundation.org>
+Message-Id: <20220607165003.308406947@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +54,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Chia-I Wu <olvaffe@gmail.com>
 
-[ Upstream commit ae38fda02996d43d9fb09f16e81e0008704dd524 ]
+[ Upstream commit 15c411980bacddf294452fd1cf7308b14f3f8c63 ]
 
-This patch marks the bit timing constants as const.
+Move tracking and busy time calculation to msm_devfreq_get_dev_status.
 
-Fixes: c223da689324 ("can: xilinx_can: Add support for CANFD FD frames")
-Link: https://lore.kernel.org/all/20220317203119.792552-1-mkl@pengutronix.de
-Cc: Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>
-Cc: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
+Cc: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20220416003314.59211-2-olvaffe@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 19 ++++++----------
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 15 +++++--------
+ drivers/gpu/drm/msm/msm_gpu.h         |  9 +++-----
+ drivers/gpu/drm/msm/msm_gpu_devfreq.c | 32 ++++++++++++++++++++++-----
+ 4 files changed, 41 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index e562c5ab1149..43f0c6a064ba 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -239,7 +239,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd = {
- };
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index 3d28fcf841a6..1e5de1477968 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -1662,28 +1662,23 @@ static struct msm_ringbuffer *a5xx_active_ring(struct msm_gpu *gpu)
+ 	return a5xx_gpu->cur_ring;
+ }
  
- /* AXI CANFD Data Bittiming constants as per AXI CANFD 1.0 specs */
--static struct can_bittiming_const xcan_data_bittiming_const_canfd = {
-+static const struct can_bittiming_const xcan_data_bittiming_const_canfd = {
- 	.name = DRIVER_NAME,
- 	.tseg1_min = 1,
- 	.tseg1_max = 16,
-@@ -265,7 +265,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd2 = {
- };
+-static unsigned long a5xx_gpu_busy(struct msm_gpu *gpu)
++static u64 a5xx_gpu_busy(struct msm_gpu *gpu, unsigned long *out_sample_rate)
+ {
+-	u64 busy_cycles, busy_time;
++	u64 busy_cycles;
  
- /* AXI CANFD 2.0 Data Bittiming constants as per AXI CANFD 2.0 spec */
--static struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
-+static const struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
- 	.name = DRIVER_NAME,
- 	.tseg1_min = 1,
- 	.tseg1_max = 32,
+ 	/* Only read the gpu busy if the hardware is already active */
+-	if (pm_runtime_get_if_in_use(&gpu->pdev->dev) == 0)
++	if (pm_runtime_get_if_in_use(&gpu->pdev->dev) == 0) {
++		*out_sample_rate = 1;
+ 		return 0;
++	}
+ 
+ 	busy_cycles = gpu_read64(gpu, REG_A5XX_RBBM_PERFCTR_RBBM_0_LO,
+ 			REG_A5XX_RBBM_PERFCTR_RBBM_0_HI);
+-
+-	busy_time = busy_cycles - gpu->devfreq.busy_cycles;
+-	do_div(busy_time, clk_get_rate(gpu->core_clk) / 1000000);
+-
+-	gpu->devfreq.busy_cycles = busy_cycles;
++	*out_sample_rate = clk_get_rate(gpu->core_clk);
+ 
+ 	pm_runtime_put(&gpu->pdev->dev);
+ 
+-	if (WARN_ON(busy_time > ~0LU))
+-		return ~0LU;
+-
+-	return (unsigned long)busy_time;
++	return busy_cycles;
+ }
+ 
+ static uint32_t a5xx_get_rptr(struct msm_gpu *gpu, struct msm_ringbuffer *ring)
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 147e716108ba..55eb0054cd3a 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1621,12 +1621,14 @@ static void a6xx_destroy(struct msm_gpu *gpu)
+ 	kfree(a6xx_gpu);
+ }
+ 
+-static unsigned long a6xx_gpu_busy(struct msm_gpu *gpu)
++static u64 a6xx_gpu_busy(struct msm_gpu *gpu, unsigned long *out_sample_rate)
+ {
+ 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
+ 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
+-	u64 busy_cycles, busy_time;
++	u64 busy_cycles;
+ 
++	/* 19.2MHz */
++	*out_sample_rate = 19200000;
+ 
+ 	/* Only read the gpu busy if the hardware is already active */
+ 	if (pm_runtime_get_if_in_use(a6xx_gpu->gmu.dev) == 0)
+@@ -1636,17 +1638,10 @@ static unsigned long a6xx_gpu_busy(struct msm_gpu *gpu)
+ 			REG_A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_L,
+ 			REG_A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_H);
+ 
+-	busy_time = (busy_cycles - gpu->devfreq.busy_cycles) * 10;
+-	do_div(busy_time, 192);
+-
+-	gpu->devfreq.busy_cycles = busy_cycles;
+ 
+ 	pm_runtime_put(a6xx_gpu->gmu.dev);
+ 
+-	if (WARN_ON(busy_time > ~0LU))
+-		return ~0LU;
+-
+-	return (unsigned long)busy_time;
++	return busy_cycles;
+ }
+ 
+ static void a6xx_gpu_set_freq(struct msm_gpu *gpu, struct dev_pm_opp *opp)
+diff --git a/drivers/gpu/drm/msm/msm_gpu.h b/drivers/gpu/drm/msm/msm_gpu.h
+index 92aa1e9196c6..a88ec0fc6d87 100644
+--- a/drivers/gpu/drm/msm/msm_gpu.h
++++ b/drivers/gpu/drm/msm/msm_gpu.h
+@@ -59,7 +59,7 @@ struct msm_gpu_funcs {
+ 	/* for generation specific debugfs: */
+ 	void (*debugfs_init)(struct msm_gpu *gpu, struct drm_minor *minor);
+ #endif
+-	unsigned long (*gpu_busy)(struct msm_gpu *gpu);
++	u64 (*gpu_busy)(struct msm_gpu *gpu, unsigned long *out_sample_rate);
+ 	struct msm_gpu_state *(*gpu_state_get)(struct msm_gpu *gpu);
+ 	int (*gpu_state_put)(struct msm_gpu_state *state);
+ 	unsigned long (*gpu_get_freq)(struct msm_gpu *gpu);
+@@ -103,11 +103,8 @@ struct msm_gpu_devfreq {
+ 	struct dev_pm_qos_request boost_freq;
+ 
+ 	/**
+-	 * busy_cycles:
+-	 *
+-	 * Used by implementation of gpu->gpu_busy() to track the last
+-	 * busy counter value, for calculating elapsed busy cycles since
+-	 * last sampling period.
++	 * busy_cycles: Last busy counter value, for calculating elapsed busy
++	 * cycles since last sampling period.
+ 	 */
+ 	u64 busy_cycles;
+ 
+diff --git a/drivers/gpu/drm/msm/msm_gpu_devfreq.c b/drivers/gpu/drm/msm/msm_gpu_devfreq.c
+index 12641616acd3..d2b4c646a0ae 100644
+--- a/drivers/gpu/drm/msm/msm_gpu_devfreq.c
++++ b/drivers/gpu/drm/msm/msm_gpu_devfreq.c
+@@ -49,18 +49,38 @@ static unsigned long get_freq(struct msm_gpu *gpu)
+ 	return clk_get_rate(gpu->core_clk);
+ }
+ 
+-static int msm_devfreq_get_dev_status(struct device *dev,
++static void get_raw_dev_status(struct msm_gpu *gpu,
+ 		struct devfreq_dev_status *status)
+ {
+-	struct msm_gpu *gpu = dev_to_gpu(dev);
++	struct msm_gpu_devfreq *df = &gpu->devfreq;
++	u64 busy_cycles, busy_time;
++	unsigned long sample_rate;
+ 	ktime_t time;
+ 
+ 	status->current_frequency = get_freq(gpu);
+-	status->busy_time = gpu->funcs->gpu_busy(gpu);
+-
++	busy_cycles = gpu->funcs->gpu_busy(gpu, &sample_rate);
+ 	time = ktime_get();
+-	status->total_time = ktime_us_delta(time, gpu->devfreq.time);
+-	gpu->devfreq.time = time;
++
++	busy_time = busy_cycles - df->busy_cycles;
++	status->total_time = ktime_us_delta(time, df->time);
++
++	df->busy_cycles = busy_cycles;
++	df->time = time;
++
++	busy_time *= USEC_PER_SEC;
++	do_div(busy_time, sample_rate);
++	if (WARN_ON(busy_time > ~0LU))
++		busy_time = ~0LU;
++
++	status->busy_time = busy_time;
++}
++
++static int msm_devfreq_get_dev_status(struct device *dev,
++		struct devfreq_dev_status *status)
++{
++	struct msm_gpu *gpu = dev_to_gpu(dev);
++
++	get_raw_dev_status(gpu, status);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
