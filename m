@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3445404E3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07729540982
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239466AbiFGRTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:19:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40180 "EHLO
+        id S238359AbiFGSJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:09:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345748AbiFGRTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DD11059D8;
-        Tue,  7 Jun 2022 10:19:09 -0700 (PDT)
+        with ESMTP id S1349651AbiFGSHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:07:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E2B2CDE2;
+        Tue,  7 Jun 2022 10:47:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD9A8B82239;
-        Tue,  7 Jun 2022 17:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 201B5C34115;
-        Tue,  7 Jun 2022 17:19:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D13586172E;
+        Tue,  7 Jun 2022 17:47:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFBBC385A5;
+        Tue,  7 Jun 2022 17:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622346;
-        bh=sN1Kk7yA6tgJ56jtZ7RfRBdgp59iuwFaAZOanZaTchg=;
+        s=korg; t=1654624079;
+        bh=mPjFnB12v9QIjvkloTIVfkJB+ZjteATQWCqedBdGsPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsTKQAD4ph0U5mGKx7//4MpuDy2zISm/xcYVt+YdlkBRNYpvIUUjR5VkwMTvt3QBG
-         hr224BwMKaomasD4slaSIs07lWQDqWhLkV1XI0SWUz1SXA9AOJ2Lhrfm8bArXqdY61
-         CtuNrGpVhtfrCWiYC6TwPftJRms5YApJlPRAbtxI=
+        b=pewzsDOwtQYapleWnSRV3wG6nyVoJuX7uNw+mIsXufn/VvgYNcO4F92gFA6VzXFwt
+         eOhUpeRgsCEnQtLmxjSeMTCe6W9cAK/t6KbwM2kgtnaA3tLSMelO4zx3Zw8S+IAE0r
+         PklAtVwvV3xkY6oi0JFEiZyl/eSVsDe58EY1TNHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 005/452] riscv: Fix irq_work when SMP is disabled
+        stable@vger.kernel.org, Ammar Faizi <ammarfaizi2@gnuweeb.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 197/667] x86/delay: Fix the wrong asm constraint in delay_loop()
 Date:   Tue,  7 Jun 2022 18:57:42 +0200
-Message-Id: <20220607164908.693223778@linuxfoundation.org>
+Message-Id: <20220607164940.709379593@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-commit 2273272823db6f67d57761df8116ae32e7f05bed upstream.
+[ Upstream commit b86eb74098a92afd789da02699b4b0dd3f73b889 ]
 
-irq_work is triggered via an IPI, but the IPI infrastructure is not
-included in uniprocessor kernels. As a result, irq_work never runs.
-Fall back to the tick-based irq_work implementation on uniprocessor
-configurations.
+The asm constraint does not reflect the fact that the asm statement can
+modify the value of the local variable loops. Which it does.
 
-Fixes: 298447928bb1 ("riscv: Support irq_work via self IPIs")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20220430030025.58405-1-samuel@sholland.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Specifying the wrong constraint may lead to undefined behavior, it may
+clobber random stuff (e.g. local variable, important temporary value in
+regs, etc.). This is especially dangerous when the compiler decides to
+inline the function and since it doesn't know that the value gets
+modified, it might decide to use it from a register directly without
+reloading it.
+
+Change the constraint to "+a" to denote that the first argument is an
+input and an output argument.
+
+  [ bp: Fix typo, massage commit message. ]
+
+Fixes: e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220329104705.65256-2-ammarfaizi2@gnuweeb.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/irq_work.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/lib/delay.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/include/asm/irq_work.h
-+++ b/arch/riscv/include/asm/irq_work.h
-@@ -4,7 +4,7 @@
+diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
+index 65d15df6212d..0e65d00e2339 100644
+--- a/arch/x86/lib/delay.c
++++ b/arch/x86/lib/delay.c
+@@ -54,8 +54,8 @@ static void delay_loop(u64 __loops)
+ 		"	jnz 2b		\n"
+ 		"3:	dec %0		\n"
  
- static inline bool arch_irq_work_has_interrupt(void)
- {
--	return true;
-+	return IS_ENABLED(CONFIG_SMP);
+-		: /* we don't need output */
+-		:"a" (loops)
++		: "+a" (loops)
++		:
+ 	);
  }
- extern void arch_irq_work_raise(void);
- #endif /* _ASM_RISCV_IRQ_WORK_H */
+ 
+-- 
+2.35.1
+
 
 
