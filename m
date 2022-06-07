@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F82541829
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:09:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D371A541100
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379330AbiFGVJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:09:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34216 "EHLO
+        id S1346770AbiFGTcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:32:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379044AbiFGVIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:08:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C80213295;
-        Tue,  7 Jun 2022 11:50:58 -0700 (PDT)
+        with ESMTP id S1355438AbiFGT3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:29:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9E41A43E8;
+        Tue,  7 Jun 2022 11:11:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B85616AF;
-        Tue,  7 Jun 2022 18:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D90C385A2;
-        Tue,  7 Jun 2022 18:50:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 23266CE2443;
+        Tue,  7 Jun 2022 18:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38B50C34115;
+        Tue,  7 Jun 2022 18:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627857;
-        bh=vCRnmPPAkAz3/aZj4ABaUxpyCMnNCPoQsR3C6GEciKE=;
+        s=korg; t=1654625510;
+        bh=5/0HLBIHwIsm8UNga4LbUSZ3eBdbnNrZstFRE28f+uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1oGaZmh5+HOZP+0AOFO2VQ7RRCvPRQ7xn+uQCslgFJ+XLKEpcIH0WjqQz0e7WBFzj
-         xMi50PxMsHng/5XnlXtO51Lw7lmP5D0NPlYKdKERC/+z9DhaoA57yOIbbbHX7MWdUn
-         56ZAnxVsxT094PPEcqqidZ+QnJ1ebPjP9NP6FVUo=
+        b=awFM3ti9V0d0MsJn1aMpbb7bRD7pcOuKz47SH+bHU1fZRBriZiuxhKGrqYCtNiI8C
+         7QC5xm3XUNct0EPiJQeicc5+PxQiob39kG5uFjWIM3PRxdtK/4ICrCp8paBW+6Hhlc
+         EE9DrQagLAYt4DC0LZmSVcYTMZageR6wZnHln4Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 119/879] arm64: compat: Do not treat syscall number as ESR_ELx for a bad syscall
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 045/772] btrfs: fix the error handling for submit_extent_page() for btrfs_do_readpage()
 Date:   Tue,  7 Jun 2022 18:53:57 +0200
-Message-Id: <20220607165006.156133667@linuxfoundation.org>
+Message-Id: <20220607164950.360048766@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,76 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Elisei <alexandru.elisei@arm.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 3fed9e551417b84038b15117732ea4505eee386b ]
+commit 10f7f6f879c28f8368d6516ab1ccf3517a1f5d3d upstream.
 
-If a compat process tries to execute an unknown system call above the
-__ARM_NR_COMPAT_END number, the kernel sends a SIGILL signal to the
-offending process. Information about the error is printed to dmesg in
-compat_arm_syscall() -> arm64_notify_die() -> arm64_force_sig_fault() ->
-arm64_show_signal().
+[BUG]
+Test case generic/475 have a very high chance (almost 100%) to hit a fs
+hang, where a data page will never be unlocked and hang all later
+operations.
 
-arm64_show_signal() interprets a non-zero value for
-current->thread.fault_code as an exception syndrome and displays the
-message associated with the ESR_ELx.EC field (bits 31:26).
-current->thread.fault_code is set in compat_arm_syscall() ->
-arm64_notify_die() with the bad syscall number instead of a valid ESR_ELx
-value. This means that the ESR_ELx.EC field has the value that the user set
-for the syscall number and the kernel can end up printing bogus exception
-messages*. For example, for the syscall number 0x68000000, which evaluates
-to ESR_ELx.EC value of 0x1A (ESR_ELx_EC_FPAC) the kernel prints this error:
+[CAUSE]
+In btrfs_do_readpage(), if we hit an error from submit_extent_page() we
+will try to do the cleanup for our current io range, and exit.
 
-[   18.349161] syscall[300]: unhandled exception: ERET/ERETAA/ERETAB, ESR 0x68000000, Oops - bad compat syscall(2) in syscall[10000+50000]
-[   18.350639] CPU: 2 PID: 300 Comm: syscall Not tainted 5.18.0-rc1 #79
-[   18.351249] Hardware name: Pine64 RockPro64 v2.0 (DT)
-[..]
+This works fine for PAGE_SIZE == sectorsize cases, but not for subpage.
 
-which is misleading, as the bad compat syscall has nothing to do with
-pointer authentication.
+For subpage btrfs_do_readpage() will lock the full page first, which can
+contain several different sectors and extents:
 
-Stop arm64_show_signal() from printing exception syndrome information by
-having compat_arm_syscall() set the ESR_ELx value to 0, as it has no
-meaning for an invalid system call number. The example above now becomes:
+ btrfs_do_readpage()
+ |- begin_page_read()
+ |  |- btrfs_subpage_start_reader();
+ |     Now the page will have PAGE_SIZE / sectorsize reader pending,
+ |     and the page is locked.
+ |
+ |- end_page_read() for different branches
+ |  This function will reduce subpage readers, and when readers
+ |  reach 0, it will unlock the page.
 
-[   19.935275] syscall[301]: unhandled exception: Oops - bad compat syscall(2) in syscall[10000+50000]
-[   19.936124] CPU: 1 PID: 301 Comm: syscall Not tainted 5.18.0-rc1-00005-g7e08006d4102 #80
-[   19.936894] Hardware name: Pine64 RockPro64 v2.0 (DT)
-[..]
+But when submit_extent_page() failed, we only cleanup the current
+io range, while the remaining io range will never be cleaned up, and the
+page remains locked forever.
 
-which although shows less information because the syscall number,
-wrongfully advertised as the ESR value, is missing, it is better than
-showing plainly wrong information. The syscall number can be easily
-obtained with strace.
+[FIX]
+Update the error handling of submit_extent_page() to cleanup all the
+remaining subpage range before exiting the loop.
 
-*A 32-bit value above or equal to 0x8000_0000 is interpreted as a negative
-integer in compat_arm_syscal() and the condition scno < __ARM_NR_COMPAT_END
-evaluates to true; the syscall will exit to userspace in this case with the
-ENOSYS error code instead of arm64_notify_die() being called.
+Please note that, now submit_extent_page() can only fail due to
+sanity check in alloc_new_bio().
 
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220425114444.368693-3-alexandru.elisei@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thus regular IO errors are impossible to trigger the error path.
+
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/sys_compat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/extent_io.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/sys_compat.c b/arch/arm64/kernel/sys_compat.c
-index 12c6864e51e1..df14336c3a29 100644
---- a/arch/arm64/kernel/sys_compat.c
-+++ b/arch/arm64/kernel/sys_compat.c
-@@ -113,6 +113,6 @@ long compat_arm_syscall(struct pt_regs *regs, int scno)
- 	addr = instruction_pointer(regs) - (compat_thumb_mode(regs) ? 2 : 4);
- 
- 	arm64_notify_die("Oops - bad compat syscall(2)", regs,
--			 SIGILL, ILL_ILLTRP, addr, scno);
-+			 SIGILL, ILL_ILLTRP, addr, 0);
- 	return 0;
- }
--- 
-2.35.1
-
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -3721,8 +3721,12 @@ int btrfs_do_readpage(struct page *page,
+ 					 this_bio_flag,
+ 					 force_bio_submit);
+ 		if (ret) {
+-			unlock_extent(tree, cur, cur + iosize - 1);
+-			end_page_read(page, false, cur, iosize);
++			/*
++			 * We have to unlock the remaining range, or the page
++			 * will never be unlocked.
++			 */
++			unlock_extent(tree, cur, end);
++			end_page_read(page, false, cur, end + 1 - cur);
+ 			goto out;
+ 		}
+ 		cur = cur + iosize;
 
 
