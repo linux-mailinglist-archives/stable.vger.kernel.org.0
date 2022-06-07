@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B5C8541C26
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B298541530
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353875AbiFGV4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
+        id S1356311AbiFGU3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:29:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384249AbiFGVyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9D6AE66;
-        Tue,  7 Jun 2022 12:13:15 -0700 (PDT)
+        with ESMTP id S1377082AbiFGU2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 410E21DAF06;
+        Tue,  7 Jun 2022 11:33:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 547CA618DF;
-        Tue,  7 Jun 2022 19:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CD4C385A5;
-        Tue,  7 Jun 2022 19:12:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A72C60906;
+        Tue,  7 Jun 2022 18:33:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36960C34115;
+        Tue,  7 Jun 2022 18:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629163;
-        bh=jVvs9w7K39JhmF1xVqZrSta5rt7NcM8+MKaMntkkGo8=;
+        s=korg; t=1654626829;
+        bh=ubdgmShlCAdXqWClDZ6Hb0uAyoLVgtwPZpi13NuRjMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCT2uiL4J5DcJ9MQUPceiyB8/7UvyNvN4BrwBW3b1QZZJr9PR+JfR0kFNLGVra3Rb
-         HVSmmxmfln9waBHsbVKJ7FE4yfTsQI8sPYnFVcNj9akUxLWRR3PXdymK40fx/hIDIB
-         EbkoVDXC0eD0uUFzKSK1eXIm2dNPZf7sya0JItFE=
+        b=Indo3Cj0CAV2qREJJTBqxPx1ecgzsLaMq8u1F7Nrn7xqSbi2u8CHTI3SxrpKYXQni
+         LKnswFesSV0iiVtbXRHimQa74zirq346ZWlYUILqV+HoNNe90lzmcP8Xaw7uIh1RWw
+         m85bd5oh37jOvAmpNA7qfw3JOlIzea49TlFVXdQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 552/879] KVM: nVMX: Leave most VM-Exit info fields unmodified on failed VM-Entry
+Subject: [PATCH 5.17 478/772] ARM: dts: bcm2837-rpi-3-b-plus: Fix GPIO line name of power LED
 Date:   Tue,  7 Jun 2022 19:01:10 +0200
-Message-Id: <20220607165018.888621803@linuxfoundation.org>
+Message-Id: <20220607165003.077953790@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit c3634d25fbee88e2368a8e0903ae0d0670eb9e71 ]
+[ Upstream commit 57f718aa4b93392fb1a8c0a874ab882b9e18136a ]
 
-Don't modify vmcs12 exit fields except EXIT_REASON and EXIT_QUALIFICATION
-when performing a nested VM-Exit due to failed VM-Entry.  Per the SDM,
-only the two aformentioned fields are filled and "All other VM-exit
-information fields are unmodified".
+The red LED on the Raspberry Pi 3 B Plus is the power LED.
+So fix the GPIO line name accordingly.
 
-Fixes: 4704d0befb07 ("KVM: nVMX: Exiting from L2 to L1")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220407002315.78092-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 71c0cd2283f2 ("ARM: dts: bcm2837: Add Raspberry Pi 3 B+")
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 880d0b0c9315..afaddd43a6c0 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4202,12 +4202,12 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	if (to_vmx(vcpu)->exit_reason.enclave_mode)
- 		vmcs12->vm_exit_reason |= VMX_EXIT_REASONS_SGX_ENCLAVE_MODE;
- 	vmcs12->exit_qualification = exit_qualification;
--	vmcs12->vm_exit_intr_info = exit_intr_info;
--
--	vmcs12->idt_vectoring_info_field = 0;
--	vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
--	vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
- 
-+	/*
-+	 * On VM-Exit due to a failed VM-Entry, the VMCS isn't marked launched
-+	 * and only EXIT_REASON and EXIT_QUALIFICATION are updated, all other
-+	 * exit info fields are unmodified.
-+	 */
- 	if (!(vmcs12->vm_exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY)) {
- 		vmcs12->launch_state = 1;
- 
-@@ -4219,8 +4219,13 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 		 * Transfer the event that L0 or L1 may wanted to inject into
- 		 * L2 to IDT_VECTORING_INFO_FIELD.
- 		 */
-+		vmcs12->idt_vectoring_info_field = 0;
- 		vmcs12_save_pending_event(vcpu, vmcs12);
- 
-+		vmcs12->vm_exit_intr_info = exit_intr_info;
-+		vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
-+		vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
-+
- 		/*
- 		 * According to spec, there's no need to store the guest's
- 		 * MSRs if the exit is due to a VM-entry failure that occurs
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+index e12938baaf12..c263f5b48b96 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+@@ -45,7 +45,7 @@
+ 		#gpio-cells = <2>;
+ 		gpio-line-names = "BT_ON",
+ 				  "WL_ON",
+-				  "STATUS_LED_R",
++				  "PWR_LED_R",
+ 				  "LAN_RUN",
+ 				  "",
+ 				  "CAM_GPIO0",
 -- 
 2.35.1
 
