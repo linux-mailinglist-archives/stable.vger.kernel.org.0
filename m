@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99D55408F4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C22705412C1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347957AbiFGSEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
+        id S1356258AbiFGTyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351806AbiFGSCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:21 -0400
+        with ESMTP id S1358011AbiFGTv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:51:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799C81207FB;
-        Tue,  7 Jun 2022 10:45:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53938AE72;
+        Tue,  7 Jun 2022 11:19:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14DE3615B8;
-        Tue,  7 Jun 2022 17:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F15C385A5;
-        Tue,  7 Jun 2022 17:45:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9396E60920;
+        Tue,  7 Jun 2022 18:19:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A182EC385A2;
+        Tue,  7 Jun 2022 18:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623929;
-        bh=rYEu55Ty2B3c2tcs9cM3GQF/Ak5ZmrxzY55Tk02GvNk=;
+        s=korg; t=1654625986;
+        bh=y5FpsC0QGeen2RQowSl2Y0D8H3xk4G0Akqg3acr5AMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HRPRyXTpW/8qK6sxOrRUofhZ2S7aGHGXpHPt5kvtlnnuyKayNklmxJcS/cB7jMS+7
-         s0uRL5ugAxVHIsqi9ZkZmPUmhFcRL10sY7N9777vir8twJQNv8XoU4jFgFN/NgrLXS
-         cHXADQlddZTQE6T79E+aLAoXYx7DbMNFoof6ugLo=
+        b=qkG8LivUtwv6PsCp0tave26p+hj1CqK4vrPeK3KMcHKq2xJCkM7bWzLAG4ltAzCps
+         phfkP8PkTLLALDoS5QuhFGRbOR5gQSLg5LsTdP2y2/6KUebJwPsgF5yM/pcydUlqY8
+         YTV6x2rIvClPxqDGMnffmg5vERJEN52JFuZib7ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 144/667] char: tpm: cr50_i2c: Suppress duplicated error message in .remove()
+Subject: [PATCH 5.17 217/772] powerpc/powernv: fix missing of_node_put in uv_init()
 Date:   Tue,  7 Jun 2022 18:56:49 +0200
-Message-Id: <20220607164939.139661764@linuxfoundation.org>
+Message-Id: <20220607164955.428436033@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit e0687fe958f763f1790f22ed5483025b7624e744 ]
+[ Upstream commit 3ffa9fd471f57f365bc54fc87824c530422f64a5 ]
 
-Returning an error value in an i2c remove callback results in an error
-message being emitted by the i2c core, but otherwise it doesn't make a
-difference. The device goes away anyhow and the devm cleanups are
-called.
+of_find_compatible_node() returns node pointer with refcount incremented,
+use of_node_put() on it when done.
 
-As tpm_cr50_i2c_remove() emits an error message already and the
-additional error message by the i2c core doesn't add any useful
-information, change the return value to zero to suppress this error
-message.
-
-Note that if i2c_clientdata is NULL, there is something really fishy.
-Assuming no memory corruption happened (then all bets are lost anyhow),
-tpm_cr50_i2c_remove() is only called after tpm_cr50_i2c_probe() returned
-successfully. So there was a tpm chip registered before and after
-tpm_cr50_i2c_remove() its privdata is freed but the associated character
-device isn't removed. If after that happened userspace accesses the
-character device it's likely that the freed memory is accessed. For that
-reason the warning message is made a bit more frightening.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220407090043.2491854-1-lv.ruyi@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_i2c_cr50.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/powernv/ultravisor.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/tpm/tpm_tis_i2c_cr50.c b/drivers/char/tpm/tpm_tis_i2c_cr50.c
-index c89278103703..e2ab6a329732 100644
---- a/drivers/char/tpm/tpm_tis_i2c_cr50.c
-+++ b/drivers/char/tpm/tpm_tis_i2c_cr50.c
-@@ -754,8 +754,8 @@ static int tpm_cr50_i2c_remove(struct i2c_client *client)
- 	struct device *dev = &client->dev;
+diff --git a/arch/powerpc/platforms/powernv/ultravisor.c b/arch/powerpc/platforms/powernv/ultravisor.c
+index e4a00ad06f9d..67c8c4b2d8b1 100644
+--- a/arch/powerpc/platforms/powernv/ultravisor.c
++++ b/arch/powerpc/platforms/powernv/ultravisor.c
+@@ -55,6 +55,7 @@ static int __init uv_init(void)
+ 		return -ENODEV;
  
- 	if (!chip) {
--		dev_err(dev, "Could not get client data at remove\n");
--		return -ENODEV;
-+		dev_crit(dev, "Could not get client data at remove, memory corruption ahead\n");
-+		return 0;
- 	}
+ 	uv_memcons = memcons_init(node, "memcons");
++	of_node_put(node);
+ 	if (!uv_memcons)
+ 		return -ENOENT;
  
- 	tpm_chip_unregister(chip);
 -- 
 2.35.1
 
