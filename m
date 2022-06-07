@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C3B54055E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:25:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568BA5413F3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346252AbiFGRY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46076 "EHLO
+        id S1359106AbiFGUJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346250AbiFGRYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3424610D93E;
-        Tue,  7 Jun 2022 10:22:08 -0700 (PDT)
+        with ESMTP id S1359111AbiFGUIY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:08:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C369EAB88;
+        Tue,  7 Jun 2022 11:26:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A24C3B8220C;
-        Tue,  7 Jun 2022 17:22:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FDD9C385A5;
-        Tue,  7 Jun 2022 17:22:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2DDA8CE2425;
+        Tue,  7 Jun 2022 18:26:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25BC2C385A2;
+        Tue,  7 Jun 2022 18:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622525;
-        bh=C0kxJt/ZStRMOdCA/r6r6TzCrcndSVTKFCqLNI3DauA=;
+        s=korg; t=1654626370;
+        bh=zQFcd0tZBj3/kM6RE7wQSDtna4ihg2M5PCf88aQNVFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyONZYHJ1c0WTp3S1DVZY+sUMvBU3h/6VD2ZzpxhutmS2G8u0E/O6vvpNK/f8SBAm
-         8cInZ7IX5IMdopPEyEIuPiFSpULFlX8xLt5ahv5DYYCOyIt3M8AzOsn5dXE9wDSiFj
-         gFQU79PuPhM6n9WVhrkipdMz2epoZBWDzDSkq9Ug=
+        b=lGv5G0nzvV89odSm6K0mKGOBL+jQJPRIn6CbE/SERwZ8t48sFZ9hp/bdyqONPZ+6K
+         rBNuFUsdSTtLbm+YVGbjwa0cWTajNHdVc1sqRZFcPByRHQKxyCWfbPsqu+IptHsUQ9
+         6Ue6Jjeo9HxaUBSmTAhUjgIEkcG03tf+GmnOxo2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/452] x86/microcode: Add explicit CPU vendor dependency
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 355/772] HID: amd_sfh: Modify the hid name
 Date:   Tue,  7 Jun 2022 18:59:07 +0200
-Message-Id: <20220607164911.240275140@linuxfoundation.org>
+Message-Id: <20220607164959.479642614@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit 9c55d99e099bd7aa6b91fce8718505c35d5dfc65 ]
+[ Upstream commit 10f865cdcf37d26ae5e9595a7b4f9e06538e84e5 ]
 
-Add an explicit dependency to the respective CPU vendor so that the
-respective microcode support for it gets built only when that support is
-enabled.
+Modifying the amd-sfh hid name to meaningful name.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/8ead0da9-9545-b10d-e3db-7df1a1f219e4@infradead.org
+Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index db95ac482e0e..ed713840d469 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1321,7 +1321,7 @@ config MICROCODE
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+index 6e487e41f4dd..e2a9679e32be 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+@@ -144,7 +144,7 @@ int amdtp_hid_probe(u32 cur_hid_dev, struct amdtp_cl_data *cli_data)
+ 	hid->bus = BUS_AMD_SFH;
+ 	hid->vendor = AMD_SFH_HID_VENDOR;
+ 	hid->product = AMD_SFH_HID_PRODUCT;
+-	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-amdtp",
++	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-amdsfh",
+ 		 hid->vendor, hid->product);
  
- config MICROCODE_INTEL
- 	bool "Intel microcode loading support"
--	depends on MICROCODE
-+	depends on CPU_SUP_INTEL && MICROCODE
- 	default MICROCODE
- 	help
- 	  This options enables microcode patch loading support for Intel
-@@ -1333,7 +1333,7 @@ config MICROCODE_INTEL
- 
- config MICROCODE_AMD
- 	bool "AMD microcode loading support"
--	depends on MICROCODE
-+	depends on CPU_SUP_AMD && MICROCODE
- 	help
- 	  If you select this option, microcode patch loading support for AMD
- 	  processors will be enabled.
+ 	rc = hid_add_device(hid);
 -- 
 2.35.1
 
