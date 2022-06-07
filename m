@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D0E540AC3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4825413D8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345860AbiFGSXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58058 "EHLO
+        id S1358825AbiFGUHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:07:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352389AbiFGSRE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEB9DF59C;
-        Tue,  7 Jun 2022 10:51:33 -0700 (PDT)
+        with ESMTP id S1359008AbiFGUGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:06:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530131C4248;
+        Tue,  7 Jun 2022 11:25:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F3FCB8233E;
-        Tue,  7 Jun 2022 17:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 057FDC385A5;
-        Tue,  7 Jun 2022 17:51:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86C65B822C0;
+        Tue,  7 Jun 2022 18:25:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3024C385A2;
+        Tue,  7 Jun 2022 18:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624291;
-        bh=4crKvbaRKfRDh58CHafqCLlcae/1alFJ2GNdRhB1c08=;
+        s=korg; t=1654626351;
+        bh=QJPm2YlDollzSuo4wj5sT5ts8zA9rU3NK1m5esGJIOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnaitzvPB3EMxYq/hfkLU10T9JDT/StjLYkksdYox4UZbPmiLU2vHRHolMmY+f3rs
-         zOrWRGtTqjRkQimwu22x5mNoDQtfjI5XGygxU4ENaYMSotFwhNKAFso4SKC9BTduri
-         ki5eGajXxOv7LzjGMC0xi4vdRk8fLh6YaOf5YHi4=
+        b=MM2YMJalKp4jicijNS9uGnOXsC8dble4U8y1AhJsEzVNLLcnGqz+pObxUPKdY+L3U
+         1i/N6X6DaQ6lnndY/ImqrgKULW/CK8WYlSRorpsY2x9TQ+p7Or/uxOdfjKBgomjePH
+         ZDlfliQAnDCF/ebbAM835q4tkVlMYPeOdNBkNtkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 275/667] kunit: fix debugfs code to use enum kunit_status, not bool
+Subject: [PATCH 5.17 348/772] Revert "cpufreq: Fix possible race in cpufreq online error path"
 Date:   Tue,  7 Jun 2022 18:59:00 +0200
-Message-Id: <20220607164943.034042715@linuxfoundation.org>
+Message-Id: <20220607164959.276114706@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Latypov <dlatypov@google.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 38289a26e1b8a37755f3e07056ca416c1ee2a2e8 ]
+[ Upstream commit 85f0e42bd65d01b351d561efb38e584d4c596553 ]
 
-Commit 6d2426b2f258 ("kunit: Support skipped tests") switched to using
-`enum kunit_status` to track the result of running a test/suite since we
-now have more than just pass/fail.
+This reverts commit f346e96267cd76175d6c201b40f770c0116a8a04.
 
-This callsite wasn't updated, silently converting to enum to a bool and
-then back.
+The commit tried to fix a possible real bug but it made it even worse.
+The fix was simply buggy as now an error out to out_offline_policy or
+out_exit_policy will try to release a semaphore which was never taken in
+the first place. This works fine only if we failed late, i.e. via
+out_destroy_policy.
 
-Fixes: 6d2426b2f258 ("kunit: Support skipped tests")
-Signed-off-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: f346e96267cd ("cpufreq: Fix possible race in cpufreq online error path")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kunit/debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/lib/kunit/debugfs.c b/lib/kunit/debugfs.c
-index b71db0abc12b..1048ef1b8d6e 100644
---- a/lib/kunit/debugfs.c
-+++ b/lib/kunit/debugfs.c
-@@ -52,7 +52,7 @@ static void debugfs_print_result(struct seq_file *seq,
- static int debugfs_print_results(struct seq_file *seq, void *v)
- {
- 	struct kunit_suite *suite = (struct kunit_suite *)seq->private;
--	bool success = kunit_suite_has_succeeded(suite);
-+	enum kunit_status success = kunit_suite_has_succeeded(suite);
- 	struct kunit_case *test_case;
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 233e8af48848..fbaa8e6c7d23 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1534,6 +1534,8 @@ static int cpufreq_online(unsigned int cpu)
+ 	for_each_cpu(j, policy->real_cpus)
+ 		remove_cpu_dev_symlink(policy, get_cpu_device(j));
  
- 	if (!suite || !suite->log)
++	up_write(&policy->rwsem);
++
+ out_offline_policy:
+ 	if (cpufreq_driver->offline)
+ 		cpufreq_driver->offline(policy);
+@@ -1542,9 +1544,6 @@ static int cpufreq_online(unsigned int cpu)
+ 	if (cpufreq_driver->exit)
+ 		cpufreq_driver->exit(policy);
+ 
+-	cpumask_clear(policy->cpus);
+-	up_write(&policy->rwsem);
+-
+ out_free_policy:
+ 	cpufreq_policy_free(policy);
+ 	return ret;
 -- 
 2.35.1
 
