@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2C6540E62
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01988540D9C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353699AbiFGSyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:54:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58474 "EHLO
+        id S1353467AbiFGStL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:49:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354292AbiFGSqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A274562CD4;
-        Tue,  7 Jun 2022 11:00:37 -0700 (PDT)
+        with ESMTP id S1354314AbiFGSqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706DF1269A3;
+        Tue,  7 Jun 2022 11:00:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E992617B4;
-        Tue,  7 Jun 2022 18:00:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48676C341C0;
-        Tue,  7 Jun 2022 18:00:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EAF2B82239;
+        Tue,  7 Jun 2022 18:00:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D261C385A5;
+        Tue,  7 Jun 2022 18:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624836;
-        bh=7C4cWSV1faZyhZGcY7GBV07+JeoEX0fJB6r7GfbLyME=;
+        s=korg; t=1654624839;
+        bh=T/8dKxgO1bV24yxbT1u1jIbcPlEOMWi68k46axBHxpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHCqnsgoEP9QCUGivisE3C95wDcQGCyUGi1TfgUQXSley1PArQSIw2U7TJpEL6xaF
-         l8i9LFdgVHOqeqUHtsgpzeXMJtxZlAWQyQL8WFEdyqYd/TO5LUpXtGaOaTOO+4ayD6
-         J+Y5O9mhoHdQT/l3Ly9nPQM167G0937VTJRXUWFU=
+        b=Sd5EhpKssMQvFyG2w6s5bGgOsheczlFIXOjvNix71o/AXqgCBx+gVkUWhiruvaGVY
+         +98SDLx1CHDhxPTqt4zXLl/A3LEZdkFuvBGwLD15HE32jaFmS/x9nbC6UKEKFB3cP/
+         nYUNe0IaXa7tUd5vwk10uwRp4xUUZZpHk5cXEH3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Julian Schroeder <jumaco@amazon.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 470/667] mfd: davinci_voicecodec: Fix possible null-ptr-deref davinci_vc_probe()
-Date:   Tue,  7 Jun 2022 19:02:15 +0200
-Message-Id: <20220607164948.801670142@linuxfoundation.org>
+Subject: [PATCH 5.15 471/667] nfsd: destroy percpu stats counters after reply cache shutdown
+Date:   Tue,  7 Jun 2022 19:02:16 +0200
+Message-Id: <20220607164948.832223601@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -54,45 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Julian Schroeder <jumaco@amazon.com>
 
-[ Upstream commit 311242c7703df0da14c206260b7e855f69cb0264 ]
+[ Upstream commit fd5e363eac77ef81542db77ddad0559fa0f9204e ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+Upon nfsd shutdown any pending DRC cache is freed. DRC cache use is
+tracked via a percpu counter. In the current code the percpu counter
+is destroyed before. If any pending cache is still present,
+percpu_counter_add is called with a percpu counter==NULL. This causes
+a kernel crash.
+The solution is to destroy the percpu counter after the cache is freed.
 
-Fixes: b5e29aa880be ("mfd: davinci_voicecodec: Remove pointless #include")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220426030857.3539336-1-yangyingliang@huawei.com
+Fixes: e567b98ce9a4b (“nfsd: protect concurrent access to nfsd stats counters”)
+Signed-off-by: Julian Schroeder <jumaco@amazon.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/davinci_voicecodec.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nfsd/nfscache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/davinci_voicecodec.c b/drivers/mfd/davinci_voicecodec.c
-index e5c8bc998eb4..965820481f1e 100644
---- a/drivers/mfd/davinci_voicecodec.c
-+++ b/drivers/mfd/davinci_voicecodec.c
-@@ -46,14 +46,12 @@ static int __init davinci_vc_probe(struct platform_device *pdev)
- 	}
- 	clk_enable(davinci_vc->clk);
+diff --git a/fs/nfsd/nfscache.c b/fs/nfsd/nfscache.c
+index 96cdf77925f3..830bb8493c7f 100644
+--- a/fs/nfsd/nfscache.c
++++ b/fs/nfsd/nfscache.c
+@@ -212,7 +212,6 @@ void nfsd_reply_cache_shutdown(struct nfsd_net *nn)
+ 	struct svc_cacherep	*rp;
+ 	unsigned int i;
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--
--	fifo_base = (dma_addr_t)res->start;
--	davinci_vc->base = devm_ioremap_resource(&pdev->dev, res);
-+	davinci_vc->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(davinci_vc->base)) {
- 		ret = PTR_ERR(davinci_vc->base);
- 		goto fail;
- 	}
-+	fifo_base = (dma_addr_t)res->start;
+-	nfsd_reply_cache_stats_destroy(nn);
+ 	unregister_shrinker(&nn->nfsd_reply_cache_shrinker);
  
- 	davinci_vc->regmap = devm_regmap_init_mmio(&pdev->dev,
- 						   davinci_vc->base,
+ 	for (i = 0; i < nn->drc_hashsize; i++) {
+@@ -223,6 +222,7 @@ void nfsd_reply_cache_shutdown(struct nfsd_net *nn)
+ 									rp, nn);
+ 		}
+ 	}
++	nfsd_reply_cache_stats_destroy(nn);
+ 
+ 	kvfree(nn->drc_hashtbl);
+ 	nn->drc_hashtbl = NULL;
 -- 
 2.35.1
 
