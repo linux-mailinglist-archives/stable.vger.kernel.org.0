@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A21BD541760
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05062541E9B
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377790AbiFGVCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50314 "EHLO
+        id S1381662AbiFGWc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:32:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378791AbiFGVBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E725D20ED51;
-        Tue,  7 Jun 2022 11:45:38 -0700 (PDT)
+        with ESMTP id S1385577AbiFGWbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBE4279E58;
+        Tue,  7 Jun 2022 12:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 850666156D;
-        Tue,  7 Jun 2022 18:45:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91D39C385A2;
-        Tue,  7 Jun 2022 18:45:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37EBAB8220B;
+        Tue,  7 Jun 2022 19:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F499C385A2;
+        Tue,  7 Jun 2022 19:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627537;
-        bh=u3BGt4PKsLXxAzxsq/aZZArjOH52aSbr80e3Qobz3pY=;
+        s=korg; t=1654629887;
+        bh=s88LYf1pFdDDcHZeXM4fiQIU0i0g0org+rLeRSkBlFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJncDHI+K2/qi/x2VCTbhK2e17siPUwwOTJP/kmxzxNN7wTbVigjYALaARLCVNZYh
-         sauF7+uYvZ9+V1oCBcWfQoOs/HU79aIu/J71ss5edt2pMQ13/xn3yTEMWiF4gJzAOH
-         QsBuuithAekQKCSCS1B8ZqUlIhKvQtSCg6qdDKGs=
+        b=zt74k6AboFeAMpOpEROpUZzoKPdiIzeI8ll2Wizf/BSw1WUDN/Rqx8L7qP5EbFhTn
+         DGy58JiXa/bw91Tlw0zwLWJipoV/jaHYxnLZOUz1QZ5XcgwgcsBm2cJeok7gWiK0cH
+         T3HsNi1bTDiLllhGMNjw7u2HoyHU+hCD8sa1Cu4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Jyri Sarha <jyri.sarha@iki.fi>
-Subject: [PATCH 5.17 738/772] tilcdc: tilcdc_external: fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org, Kant Fan <kant@allwinnertech.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.18 812/879] thermal: devfreq_cooling: use local ops instead of global ops
 Date:   Tue,  7 Jun 2022 19:05:30 +0200
-Message-Id: <20220607165010.783351592@linuxfoundation.org>
+Message-Id: <20220607165026.426095182@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Kant Fan <kant@allwinnertech.com>
 
-commit 8b917cbe38e9b0d002492477a9fc2bfee2412ce4 upstream.
+commit b947769b8f778db130aad834257fcaca25df2edc upstream.
 
-The bug is here:
-	if (!encoder) {
+Fix access illegal address problem in following condition:
 
-The list iterator value 'encoder' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-is found.
+There are multiple devfreq cooling devices in system, some of them has
+EM model but others do not. Energy model ops such as state2power will
+append to global devfreq_cooling_ops when the cooling device with
+EM model is registered. It makes the cooling device without EM model
+also use devfreq_cooling_ops after appending when registered later by
+of_devfreq_cooling_register_power() or of_devfreq_cooling_register().
 
-To fix the bug, use a new variable 'iter' as the list iterator,
-while use the original variable 'encoder' as a dedicated pointer
-to point to the found element.
+The IPA governor regards the cooling devices without EM model as a power
+actor, because they also have energy model ops, and will access illegal
+address at dfc->em_pd when execute cdev->ops->get_requested_power,
+cdev->ops->state2power or cdev->ops->power2state.
 
-Cc: stable@vger.kernel.org
-Fixes: ec9eab097a500 ("drm/tilcdc: Add drm bridge support for attaching drm bridge drivers")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Jyri Sarha <jyri.sarha@iki.fi>
-Tested-by: Jyri Sarha <jyri.sarha@iki.fi>
-Signed-off-by: Jyri Sarha <jyri.sarha@iki.fi>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327061516.5076-1-xiam0nd.tong@gmail.com
+Fixes: 615510fe13bd2 ("thermal: devfreq_cooling: remove old power model and use EM")
+Cc: 5.13+ <stable@vger.kernel.org> # 5.13+
+Signed-off-by: Kant Fan <kant@allwinnertech.com>
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_external.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/thermal/devfreq_cooling.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-@@ -60,11 +60,13 @@ struct drm_connector *tilcdc_encoder_fin
- int tilcdc_add_component_encoder(struct drm_device *ddev)
+--- a/drivers/thermal/devfreq_cooling.c
++++ b/drivers/thermal/devfreq_cooling.c
+@@ -358,21 +358,28 @@ of_devfreq_cooling_register_power(struct
+ 	struct thermal_cooling_device *cdev;
+ 	struct device *dev = df->dev.parent;
+ 	struct devfreq_cooling_device *dfc;
++	struct thermal_cooling_device_ops *ops;
+ 	char *name;
+ 	int err, num_opps;
+ 
+-	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
+-	if (!dfc)
++	ops = kmemdup(&devfreq_cooling_ops, sizeof(*ops), GFP_KERNEL);
++	if (!ops)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
++	if (!dfc) {
++		err = -ENOMEM;
++		goto free_ops;
++	}
++
+ 	dfc->devfreq = df;
+ 
+ 	dfc->em_pd = em_pd_get(dev);
+ 	if (dfc->em_pd) {
+-		devfreq_cooling_ops.get_requested_power =
++		ops->get_requested_power =
+ 			devfreq_cooling_get_requested_power;
+-		devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
+-		devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
++		ops->state2power = devfreq_cooling_state2power;
++		ops->power2state = devfreq_cooling_power2state;
+ 
+ 		dfc->power_ops = dfc_power;
+ 
+@@ -407,8 +414,7 @@ of_devfreq_cooling_register_power(struct
+ 	if (!name)
+ 		goto remove_qos_req;
+ 
+-	cdev = thermal_of_cooling_device_register(np, name, dfc,
+-						  &devfreq_cooling_ops);
++	cdev = thermal_of_cooling_device_register(np, name, dfc, ops);
+ 	kfree(name);
+ 
+ 	if (IS_ERR(cdev)) {
+@@ -429,6 +435,8 @@ free_table:
+ 	kfree(dfc->freq_table);
+ free_dfc:
+ 	kfree(dfc);
++free_ops:
++	kfree(ops);
+ 
+ 	return ERR_PTR(err);
+ }
+@@ -510,11 +518,13 @@ EXPORT_SYMBOL_GPL(devfreq_cooling_em_reg
+ void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
  {
- 	struct tilcdc_drm_private *priv = ddev->dev_private;
--	struct drm_encoder *encoder;
-+	struct drm_encoder *encoder = NULL, *iter;
+ 	struct devfreq_cooling_device *dfc;
++	const struct thermal_cooling_device_ops *ops;
+ 	struct device *dev;
  
--	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
--		if (encoder->possible_crtcs & (1 << priv->crtc->index))
-+	list_for_each_entry(iter, &ddev->mode_config.encoder_list, head)
-+		if (iter->possible_crtcs & (1 << priv->crtc->index)) {
-+			encoder = iter;
- 			break;
-+		}
+ 	if (IS_ERR_OR_NULL(cdev))
+ 		return;
  
- 	if (!encoder) {
- 		dev_err(ddev->dev, "%s: No suitable encoder found\n", __func__);
++	ops = cdev->ops;
+ 	dfc = cdev->devdata;
+ 	dev = dfc->devfreq->dev.parent;
+ 
+@@ -525,5 +535,6 @@ void devfreq_cooling_unregister(struct t
+ 
+ 	kfree(dfc->freq_table);
+ 	kfree(dfc);
++	kfree(ops);
+ }
+ EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);
 
 
