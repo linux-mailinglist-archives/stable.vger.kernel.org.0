@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B93A254154A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D102541C31
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378215AbiFGUe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34106 "EHLO
+        id S1379233AbiFGV5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377018AbiFGU2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6861D9EDA;
-        Tue,  7 Jun 2022 11:33:43 -0700 (PDT)
+        with ESMTP id S1384023AbiFGVyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F639248519;
+        Tue,  7 Jun 2022 12:12:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C44F61507;
-        Tue,  7 Jun 2022 18:33:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0B1C385A2;
-        Tue,  7 Jun 2022 18:33:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8850B8233E;
+        Tue,  7 Jun 2022 19:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24437C385A2;
+        Tue,  7 Jun 2022 19:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626821;
-        bh=z6gv72hpwSptSCQ7xX3FHP+uyddk98Y6OKh8o9Pf8MY=;
+        s=korg; t=1654629155;
+        bh=TZ3jw2i/lBbJ6ycdnyiMSxxAXqvD9R7FYIEzatyBwoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUCiYC+1oGJFuGjJwqWQZlR+Y1Wry1zA1FoaRCMrEeCxdmc+fWDKwfz64eUA6XBLr
-         htfZQPngGF/Pb5+WzGKBGVjwA9trV/WPIJOdlpJq38KIpwpg7VK5XVXBjysYWZ7O+8
-         HbSWHVWXUrMqvyIYeJaRkCRow87Cr4TJlkxPFGG0=
+        b=CQn+Kl13rbEo+AfSKT5rHAoC9qADlXbzNhwwzsMVUR9eiuL8Do7TM5D+VxV34VObt
+         sVPoDXrjHMU1+/VjWgL0a3JbEyOBqA3VMPewtFSDupFGslYq/9Ot0r8WD1XAmynT2+
+         JyiKluVqBEZq0JGcCjE3OtwkDPfc+33AWPt/Pk7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 475/772] ARM: dts: qcom: sdx55: remove wrong unit address from RPMH RSC clocks
+Subject: [PATCH 5.18 549/879] soc: qcom: llcc: Add MODULE_DEVICE_TABLE()
 Date:   Tue,  7 Jun 2022 19:01:07 +0200
-Message-Id: <20220607165002.991491332@linuxfoundation.org>
+Message-Id: <20220607165018.803159822@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 97c246c825f73a018169834e56ffa9a89dea37a9 ]
+[ Upstream commit 5334a3b12a7233b31788de60d61bfd890059d783 ]
 
-The clock controller of RPMH RSC does not have 'reg' property, so should
-not have unit address.
+The llcc-qcom driver can be compiled as a module, but lacks
+MODULE_DEVICE_TABLE() and will therefore not be loaded automatically.
+Fix this.
 
-Fixes: bae2f5979c6e ("ARM: dts: qcom: Add SDX65 platform and MTP board support")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220411085935.130072-2-krzysztof.kozlowski@linaro.org
+Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220408213336.581661-3-bjorn.andersson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-sdx65.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/qcom/llcc-qcom.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/qcom-sdx65.dtsi b/arch/arm/boot/dts/qcom-sdx65.dtsi
-index 796641d30e06..0c3f93603adc 100644
---- a/arch/arm/boot/dts/qcom-sdx65.dtsi
-+++ b/arch/arm/boot/dts/qcom-sdx65.dtsi
-@@ -202,7 +202,7 @@
- 				<WAKE_TCS    2>,
- 				<CONTROL_TCS 1>;
+diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
+index eecafeded56f..85ba8209b182 100644
+--- a/drivers/soc/qcom/llcc-qcom.c
++++ b/drivers/soc/qcom/llcc-qcom.c
+@@ -749,6 +749,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
+ 	{ .compatible = "qcom,sm8450-llcc", .data = &sm8450_cfg },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, qcom_llcc_of_match);
  
--			rpmhcc: clock-controller@1 {
-+			rpmhcc: clock-controller {
- 				compatible = "qcom,sdx65-rpmh-clk";
- 				#clock-cells = <1>;
- 				clock-names = "xo";
+ static struct platform_driver qcom_llcc_driver = {
+ 	.driver = {
 -- 
 2.35.1
 
