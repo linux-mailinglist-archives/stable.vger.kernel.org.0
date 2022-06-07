@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 637BB5406D6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58001541D14
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245204AbiFGRjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:39:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36156 "EHLO
+        id S1383700AbiFGWHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347470AbiFGRhx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:37:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37AE29813;
-        Tue,  7 Jun 2022 10:33:15 -0700 (PDT)
+        with ESMTP id S1352519AbiFGWGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17F2252C19;
+        Tue,  7 Jun 2022 12:15:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F131960BC6;
-        Tue,  7 Jun 2022 17:32:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E2B6C385A5;
-        Tue,  7 Jun 2022 17:32:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DD2BB82368;
+        Tue,  7 Jun 2022 19:15:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D74C4C385A2;
+        Tue,  7 Jun 2022 19:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623158;
-        bh=/kXF5EwV/X6EjUXiAUV7ID0fOWl4eERfxctu+CQl7TY=;
+        s=korg; t=1654629337;
+        bh=9gkjTA76dgs24GcEIjC4D42xCNupGf2beWLw9aticJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4auHl+SQ98r/yRbzRnSJsdchyDNfFBel/jitQi5hjSwvGm3Gry4HvTnO+7S+g40X
-         /PyGmBpcYQmDL9799h6I0GoL2GuViTHTmxhx1Da/gfuvR97I+FY1kaXUMe7uMEqV1U
-         5HHYbYbTZYGTzSEG6rep8tg+DOojI7pfmeR9fQxU=
+        b=Fl0B1ZjVAjnQPhFgd6fB7hkrsTaqHgF+GmB9HGfhHVVlYTNaym+EalvlwZcaRpoEy
+         aePNK6/SSlNWokLHep9J2mx4kDjoWEODvUHQ3isEzCXv2ipXMpaFf2W6G7W5P+O4TO
+         mcMkNQeQJEOJyLUIMOTG4vq2SOsVOJa095VqNik8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Douglas Miller <doug.miller@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 316/452] RDMA/hfi1: Prevent use of lock before it is initialized
+Subject: [PATCH 5.18 655/879] KVM: LAPIC: Drop pending LAPIC timer injection when canceling the timer
 Date:   Tue,  7 Jun 2022 19:02:53 +0200
-Message-Id: <20220607164917.974785343@linuxfoundation.org>
+Message-Id: <20220607165021.857886722@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <doug.miller@cornelisnetworks.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 05c03dfd09c069c4ffd783b47b2da5dcc9421f2c ]
+[ Upstream commit 619f51da097952194a5d4d6a6c5f9ef3b9d1b25a ]
 
-If there is a failure during probe of hfi1 before the sdma_map_lock is
-initialized, the call to hfi1_free_devdata() will attempt to use a lock
-that has not been initialized. If the locking correctness validator is on
-then an INFO message and stack trace resembling the following may be seen:
+The timer is disarmed when switching between TSC deadline and other modes;
+however, the pending timer is still in-flight, so let's accurately remove
+any traces of the previous mode.
 
-  INFO: trying to register non-static key.
-  The code is fine but needs lockdep annotation, or maybe
-  you didn't initialize this object before use?
-  turning off the locking correctness validator.
-  Call Trace:
-  register_lock_class+0x11b/0x880
-  __lock_acquire+0xf3/0x7930
-  lock_acquire+0xff/0x2d0
-  _raw_spin_lock_irq+0x46/0x60
-  sdma_clean+0x42a/0x660 [hfi1]
-  hfi1_free_devdata+0x3a7/0x420 [hfi1]
-  init_one+0x867/0x11a0 [hfi1]
-  pci_device_probe+0x40e/0x8d0
-
-The use of sdma_map_lock in sdma_clean() is for freeing the sdma_map
-memory, and sdma_map is not allocated/initialized until after
-sdma_map_lock has been initialized. This code only needs to be run if
-sdma_map is not NULL, and so checking for that condition will avoid trying
-to use the lock before it is initialized.
-
-Fixes: 473291b3ea0e ("IB/hfi1: Fix for early release of sdma context")
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20220520183701.48973.72434.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 4427593258 ("KVM: x86: thoroughly disarm LAPIC timer around TSC deadline switch")
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/x86/kvm/lapic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index 0b73dc7847aa..a044bee257f9 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -1330,11 +1330,13 @@ void sdma_clean(struct hfi1_devdata *dd, size_t num_engines)
- 		kvfree(sde->tx_ring);
- 		sde->tx_ring = NULL;
- 	}
--	spin_lock_irq(&dd->sde_map_lock);
--	sdma_map_free(rcu_access_pointer(dd->sdma_map));
--	RCU_INIT_POINTER(dd->sdma_map, NULL);
--	spin_unlock_irq(&dd->sde_map_lock);
--	synchronize_rcu();
-+	if (rcu_access_pointer(dd->sdma_map)) {
-+		spin_lock_irq(&dd->sde_map_lock);
-+		sdma_map_free(rcu_access_pointer(dd->sdma_map));
-+		RCU_INIT_POINTER(dd->sdma_map, NULL);
-+		spin_unlock_irq(&dd->sde_map_lock);
-+		synchronize_rcu();
-+	}
- 	kfree(dd->per_sdma);
- 	dd->per_sdma = NULL;
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 66b0eb0bda94..6268880c8eed 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1548,6 +1548,7 @@ static void cancel_apic_timer(struct kvm_lapic *apic)
+ 	if (apic->lapic_timer.hv_timer_in_use)
+ 		cancel_hv_timer(apic);
+ 	preempt_enable();
++	atomic_set(&apic->lapic_timer.pending, 0);
+ }
  
+ static void apic_update_lvtt(struct kvm_lapic *apic)
 -- 
 2.35.1
 
