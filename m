@@ -2,108 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37BF05409D6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF2D5412FB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350819AbiFGSOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:14:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51474 "EHLO
+        id S1357522AbiFGTzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350410AbiFGSNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:13:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F728158976;
-        Tue,  7 Jun 2022 10:48:58 -0700 (PDT)
+        with ESMTP id S1358812AbiFGTxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B101AA172;
+        Tue,  7 Jun 2022 11:22:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3BB8B82343;
-        Tue,  7 Jun 2022 17:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FB4C385A5;
-        Tue,  7 Jun 2022 17:48:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DD15B822C0;
+        Tue,  7 Jun 2022 18:22:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84FC4C385A2;
+        Tue,  7 Jun 2022 18:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624098;
-        bh=SfL4ZS5ZSKLeYfug2c1BNi01hwrXoCpz82t+YI/bsI8=;
+        s=korg; t=1654626151;
+        bh=KMr9qbwkA8fYAqb2hOPdq0teI7fY3uvBUGHNV7CPuCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=isW8myvP8ve5X8f9/5ftgGYS/W//EjMEVn5JaA0BkgmoEV4KF7bWRFweydYR5fleC
-         pxwSuXZmoWA1BWk0eogsCq4uLNqssQiINiAvykiK4P20o81NzX95jOJ6fBT3anxXIw
-         OFgk24UcPkLa2JnEPa7BSY1xFwNC6394froqgizw=
+        b=BTPELWyynKON57+EhUnmjZHv1nvJH9mBQswj31+MEp/ZYeyRx+f3RHW4hyA8Ls4JH
+         hpLcmANHUKPRouqRNgNxaa3WgV0hFm+AnTUrrcUVtAeJ78nifU3VjAXtWsj2nvCmx0
+         unnFOkGu1JM8pM1a+msYg79hYx/Pbs1UeZBIhFdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Rex-BC Chen <rex-bc.chen@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 203/667] libbpf: Dont error out on CO-RE relos for overriden weak subprogs
+Subject: [PATCH 5.17 276/772] drm/mediatek: dpi: Use mt8183 output formats for mt8192
 Date:   Tue,  7 Jun 2022 18:57:48 +0200
-Message-Id: <20220607164940.888535931@linuxfoundation.org>
+Message-Id: <20220607164957.159088456@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit e89d57d938c8fa80c457982154ed6110804814fe ]
+[ Upstream commit 7112e0b0a58be8575547eba6596c42710922674f ]
 
-During BPF static linking, all the ELF relocations and .BTF.ext
-information (including CO-RE relocations) are preserved for __weak
-subprograms that were logically overriden by either previous weak
-subprogram instance or by corresponding "strong" (non-weak) subprogram.
-This is just how native user-space linkers work, nothing new.
+The configuration for mt8192 was incorrectly using the output formats
+from mt8173. Since the output formats for mt8192 are instead the same
+ones as for mt8183, which require two bus samples per pixel, the
+pixelclock and DDR edge setting were misconfigured. This made external
+displays unable to show the image.
 
-But libbpf is over-zealous when processing CO-RE relocation to error out
-when CO-RE relocation belonging to such eliminated weak subprogram is
-encountered. Instead of erroring out on this expected situation, log
-debug-level message and skip the relocation.
+Fix the issue by correcting the output format for mt8192 to be the same
+as for mt8183, fixing the usage of external displays for mt8192.
 
-Fixes: db2b8b06423c ("libbpf: Support CO-RE relocations for multi-prog sections")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220408181425.2287230-2-andrii@kernel.org
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220408013950.674477-1-nfraprado@collabora.com/
+Fixes: be63f6e8601f ("drm/mediatek: dpi: Add output bus formats to driver data")
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_dpi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 693e14799fb9..5612d0938fc9 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -5238,10 +5238,17 @@ bpf_object__relocate_core(struct bpf_object *obj, const char *targ_btf_path)
- 			insn_idx = rec->insn_off / BPF_INSN_SZ;
- 			prog = find_prog_by_sec_insn(obj, sec_idx, insn_idx);
- 			if (!prog) {
--				pr_warn("sec '%s': failed to find program at insn #%d for CO-RE offset relocation #%d\n",
--					sec_name, insn_idx, i);
--				err = -EINVAL;
--				goto out;
-+				/* When __weak subprog is "overridden" by another instance
-+				 * of the subprog from a different object file, linker still
-+				 * appends all the .BTF.ext info that used to belong to that
-+				 * eliminated subprogram.
-+				 * This is similar to what x86-64 linker does for relocations.
-+				 * So just ignore such relocations just like we ignore
-+				 * subprog instructions when discovering subprograms.
-+				 */
-+				pr_debug("sec '%s': skipping CO-RE relocation #%d for insn #%d belonging to eliminated weak subprogram\n",
-+					 sec_name, i, insn_idx);
-+				continue;
- 			}
- 			/* no need to apply CO-RE relocation if the program is
- 			 * not going to be loaded
+diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
+index 4554e2de1430..e61cd67b978f 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dpi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
+@@ -819,8 +819,8 @@ static const struct mtk_dpi_conf mt8192_conf = {
+ 	.cal_factor = mt8183_calculate_factor,
+ 	.reg_h_fre_con = 0xe0,
+ 	.max_clock_khz = 150000,
+-	.output_fmts = mt8173_output_fmts,
+-	.num_output_fmts = ARRAY_SIZE(mt8173_output_fmts),
++	.output_fmts = mt8183_output_fmts,
++	.num_output_fmts = ARRAY_SIZE(mt8183_output_fmts),
+ };
+ 
+ static int mtk_dpi_probe(struct platform_device *pdev)
 -- 
 2.35.1
 
