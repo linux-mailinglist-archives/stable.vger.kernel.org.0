@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB405411E8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39077540840
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356764AbiFGTjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:39:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44600 "EHLO
+        id S1348859AbiFGR4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:56:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356698AbiFGTiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:38:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E271FF8E45;
-        Tue,  7 Jun 2022 11:14:08 -0700 (PDT)
+        with ESMTP id S1349374AbiFGR4N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:56:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905C93614C;
+        Tue,  7 Jun 2022 10:40:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1FACB82377;
-        Tue,  7 Jun 2022 18:14:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23B88C385A2;
-        Tue,  7 Jun 2022 18:14:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11029B820C3;
+        Tue,  7 Jun 2022 17:39:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C8BC385A5;
+        Tue,  7 Jun 2022 17:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625645;
-        bh=Dz8ai7iKPglweNQzZKbSzXedFDeTrb0db8t40QK1R4o=;
+        s=korg; t=1654623590;
+        bh=uYiciictdrSEQB12gEqhK2G+ukdTSz3fit8pE6wltZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6DcftBis1FgryIkCaU8JxwyKjBCknEgDtZSbgwYKmsREQsJbdIcm7G+VKkQOogo4
-         mAlxNSJZ/JVRSlFr9HjhEY+G0Bkb6TMkzKl/knUMqtoml2PjnxTFM0Se2LIdIkMTGO
-         /o/2PMoimpgo81kNlaZfntys1srZweVC7LF+LRp0=
+        b=I5l4xstNpuhNUVk7H9qZZrqU0Jn8doux1oCHqaruQIAsfgeJ6C/fSStTv+Vvzs5M6
+         wVvdYIUajqEcIBjuTQbHgPFcUXfYhLkmUnNxf3PhvS3KvxG1rv0Gcz9MkTMA5HQ9qI
+         rcmwb8njTFrTlWQRk3gezrxn8k1JB/IX1xMvdFNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 093/772] mmc: jz4740: Apply DMA engine limits to maximum segment size
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Subject: [PATCH 5.15 020/667] fs/ntfs3: Update valid size if -EIOCBQUEUED
 Date:   Tue,  7 Jun 2022 18:54:45 +0200
-Message-Id: <20220607164951.787696755@linuxfoundation.org>
+Message-Id: <20220607164935.401052201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 
-[ Upstream commit afadb04f1d6e74b18a253403f5274cde5e3fd7bd ]
+commit 52e00ea6b26e45fb8159e3b57cdde8d3f9bdd8e9 upstream.
 
-Do what is done in other DMA-enabled MMC host drivers (cf. host/mmci.c) and
-limit the maximum segment size based on the DMA engine's capabilities. This
-is needed to avoid warnings like the following with CONFIG_DMA_API_DEBUG=y.
+Update valid size if write is still in I/O queue.
+Fixes xfstest generic/240
+Fixes: 82cae269cfa9 ("fs/ntfs3: Add initialization of super block")
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 21 at kernel/dma/debug.c:1162 debug_dma_map_sg+0x2f4/0x39c
-DMA-API: jz4780-dma 13420000.dma-controller: mapping sg segment longer than device claims to support [len=98304] [max=65536]
-CPU: 0 PID: 21 Comm: kworker/0:1H Not tainted 5.18.0-rc1 #19
-Workqueue: kblockd blk_mq_run_work_fn
-Stack : 81575aec 00000004 80620000 80620000 80620000 805e7358 00000009 801537ac
-        814c832c 806276e3 806e34b4 80620000 81575aec 00000001 81575ab8 09291444
-        00000000 00000000 805e7358 81575958 ffffffea 8157596c 00000000 636f6c62
-        6220646b 80387a70 0000000f 6d5f6b6c 80620000 00000000 81575ba4 00000009
-        805e170c 80896640 00000001 00010000 00000000 00000000 00006098 806e0000
-        ...
-Call Trace:
-[<80107670>] show_stack+0x84/0x120
-[<80528cd8>] __warn+0xb8/0xec
-[<80528d78>] warn_slowpath_fmt+0x6c/0xb8
-[<8016f1d4>] debug_dma_map_sg+0x2f4/0x39c
-[<80169d4c>] __dma_map_sg_attrs+0xf0/0x118
-[<8016a27c>] dma_map_sg_attrs+0x14/0x28
-[<804f66b4>] jz4740_mmc_prepare_dma_data+0x74/0xa4
-[<804f6714>] jz4740_mmc_pre_request+0x30/0x54
-[<804f4ff4>] mmc_blk_mq_issue_rq+0x6e0/0x7bc
-[<804f5590>] mmc_mq_queue_rq+0x220/0x2d4
-[<8038b2c0>] blk_mq_dispatch_rq_list+0x480/0x664
-[<80391040>] blk_mq_do_dispatch_sched+0x2dc/0x370
-[<80391468>] __blk_mq_sched_dispatch_requests+0xec/0x164
-[<80391540>] blk_mq_sched_dispatch_requests+0x44/0x94
-[<80387900>] __blk_mq_run_hw_queue+0xb0/0xcc
-[<80134c14>] process_one_work+0x1b8/0x264
-[<80134ff8>] worker_thread+0x2ec/0x3b8
-[<8013b13c>] kthread+0x104/0x10c
-[<80101dcc>] ret_from_kernel_thread+0x14/0x1c
-
----[ end trace 0000000000000000 ]---
-
-Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
-Link: https://lore.kernel.org/r/20220411153753.50443-1-aidanmacdonald.0x0@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/jz4740_mmc.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ fs/ntfs3/inode.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/jz4740_mmc.c b/drivers/mmc/host/jz4740_mmc.c
-index 7ab1b38a7be5..b1d563b2ed1b 100644
---- a/drivers/mmc/host/jz4740_mmc.c
-+++ b/drivers/mmc/host/jz4740_mmc.c
-@@ -247,6 +247,26 @@ static int jz4740_mmc_acquire_dma_channels(struct jz4740_mmc_host *host)
- 		return PTR_ERR(host->dma_rx);
- 	}
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -757,6 +757,7 @@ static ssize_t ntfs_direct_IO(struct kio
+ 	loff_t vbo = iocb->ki_pos;
+ 	loff_t end;
+ 	int wr = iov_iter_rw(iter) & WRITE;
++	size_t iter_count = iov_iter_count(iter);
+ 	loff_t valid;
+ 	ssize_t ret;
  
-+	/*
-+	 * Limit the maximum segment size in any SG entry according to
-+	 * the parameters of the DMA engine device.
-+	 */
-+	if (host->dma_tx) {
-+		struct device *dev = host->dma_tx->device->dev;
-+		unsigned int max_seg_size = dma_get_max_seg_size(dev);
-+
-+		if (max_seg_size < host->mmc->max_seg_size)
-+			host->mmc->max_seg_size = max_seg_size;
-+	}
-+
-+	if (host->dma_rx) {
-+		struct device *dev = host->dma_rx->device->dev;
-+		unsigned int max_seg_size = dma_get_max_seg_size(dev);
-+
-+		if (max_seg_size < host->mmc->max_seg_size)
-+			host->mmc->max_seg_size = max_seg_size;
-+	}
-+
- 	return 0;
- }
+@@ -770,10 +771,13 @@ static ssize_t ntfs_direct_IO(struct kio
+ 				 wr ? ntfs_get_block_direct_IO_W
+ 				    : ntfs_get_block_direct_IO_R);
  
--- 
-2.35.1
-
+-	if (ret <= 0)
++	if (ret > 0)
++		end = vbo + ret;
++	else if (wr && ret == -EIOCBQUEUED)
++		end = vbo + iter_count;
++	else
+ 		goto out;
+ 
+-	end = vbo + ret;
+ 	valid = ni->i_valid;
+ 	if (wr) {
+ 		if (end > valid && !S_ISBLK(inode->i_mode)) {
 
 
