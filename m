@@ -2,155 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 700175411F9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C654E54186A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356730AbiFGTnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:43:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48156 "EHLO
+        id S1379746AbiFGVMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356749AbiFGTji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:39:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 353DBFD360;
-        Tue,  7 Jun 2022 11:14:26 -0700 (PDT)
+        with ESMTP id S1380193AbiFGVLk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0AC8218A89;
+        Tue,  7 Jun 2022 11:53:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72412608CD;
-        Tue,  7 Jun 2022 18:14:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EEEBC385A2;
-        Tue,  7 Jun 2022 18:14:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E762612F2;
+        Tue,  7 Jun 2022 18:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162D4C3411C;
+        Tue,  7 Jun 2022 18:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625664;
-        bh=j8Yt/rvyij5nfucFmUgDa7YJAs2n/VmhyAQLsHtBdKM=;
+        s=korg; t=1654628008;
+        bh=gxsFb/v4AB0XAGjYM+rRf9p/fUvFDHFjqtE2n2EA7VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zqae/b+WaSWApkKx1aRU9l1c7dkZI1jz8Lb/ZyRFGedI1MDaDHh+tExU9fZrOYFq+
-         2rfEoRHLf0Sx6Xc4qxe+nfUH95bQaOafXij4SjFIKkUIMPr1ztlJsHLDKzXi+H2K2J
-         hHkf37mrvr7+wtHZ1A1rgc1kKjDUtYfjWdLf7A8s=
+        b=JwEmA+gVAT75aFumcK5mpIS/emo2qNv6a7VjSI45Ln2QSre+BBhXci662v9sSDvDE
+         /OQEN/AQNXGSOTX9actkI7KqeyJf6zcd7jHUY+FQfZoKIC4KDOGvFwlhrH9VuvTdB9
+         dCVCUS9NSE9kNLER2aQ3ArvGqwgHsyiIVEW+rl30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hari Chandrakanthan <quic_haric@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Yunfei Dong <yunfei.dong@mediatek.com>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 099/772] ath11k: disable spectral scan during spectral deinit
+Subject: [PATCH 5.18 173/879] media: mediatek: vcodec: prevent kernel crash when rmmod mtk-vcodec-dec.ko
 Date:   Tue,  7 Jun 2022 18:54:51 +0200
-Message-Id: <20220607164951.966138341@linuxfoundation.org>
+Message-Id: <20220607165007.735114915@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Chandrakanthan <quic_haric@quicinc.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit 161c64de239c7018e0295e7e0520a19f00aa32dc ]
+[ Upstream commit c10c0086db688c95bb4e0e378e523818dff1551d ]
 
-When ath11k modules are removed using rmmod with spectral scan enabled,
-crash is observed. Different crash trace is observed for each crash.
+If the driver support subdev mode, the parameter "dev->pm.dev" will be
+NULL in mtk_vcodec_dec_remove. Kernel will crash when try to rmmod
+mtk-vcodec-dec.ko.
 
-Send spectral scan disable WMI command to firmware before cleaning
-the spectral dbring in the spectral_deinit API to avoid this crash.
+[ 4380.702726] pc : do_raw_spin_trylock+0x4/0x80
+[ 4380.707075] lr : _raw_spin_lock_irq+0x90/0x14c
+[ 4380.711509] sp : ffff80000819bc10
+[ 4380.714811] x29: ffff80000819bc10 x28: ffff3600c03e4000 x27: 0000000000000000
+[ 4380.721934] x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
+[ 4380.729057] x23: ffff3600c0f34930 x22: ffffd5e923549000 x21: 0000000000000220
+[ 4380.736179] x20: 0000000000000208 x19: ffffd5e9213e8ebc x18: 0000000000000020
+[ 4380.743298] x17: 0000002000000000 x16: ffffd5e9213e8e90 x15: 696c346f65646976
+[ 4380.750420] x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000040
+[ 4380.757542] x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
+[ 4380.764664] x8 : 0000000000000000 x7 : ffff3600c7273ae8 x6 : ffffd5e9213e8ebc
+[ 4380.771786] x5 : 0000000000000000 x4 : 0000000000000001 x3 : 0000000000000000
+[ 4380.778908] x2 : 0000000000000000 x1 : ffff3600c03e4000 x0 : 0000000000000208
+[ 4380.786031] Call trace:
+[ 4380.788465]  do_raw_spin_trylock+0x4/0x80
+[ 4380.792462]  __pm_runtime_disable+0x2c/0x1b0
+[ 4380.796723]  mtk_vcodec_dec_remove+0x5c/0xa0 [mtk_vcodec_dec]
+[ 4380.802466]  platform_remove+0x2c/0x60
+[ 4380.806204]  __device_release_driver+0x194/0x250
+[ 4380.810810]  driver_detach+0xc8/0x15c
+[ 4380.814462]  bus_remove_driver+0x5c/0xb0
+[ 4380.818375]  driver_unregister+0x34/0x64
+[ 4380.822288]  platform_driver_unregister+0x18/0x24
+[ 4380.826979]  mtk_vcodec_dec_driver_exit+0x1c/0x888 [mtk_vcodec_dec]
+[ 4380.833240]  __arm64_sys_delete_module+0x190/0x224
+[ 4380.838020]  invoke_syscall+0x48/0x114
+[ 4380.841760]  el0_svc_common.constprop.0+0x60/0x11c
+[ 4380.846540]  do_el0_svc+0x28/0x90
+[ 4380.849844]  el0_svc+0x4c/0x100
+[ 4380.852975]  el0t_64_sync_handler+0xec/0xf0
+[ 4380.857148]  el0t_64_sync+0x190/0x194
+[ 4380.860801] Code: 94431515 17ffffca d503201f d503245f (b9400004)
 
-call trace from one of the crash observed:
-[ 1252.880802] Unable to handle kernel NULL pointer dereference at virtual address 00000008
-[ 1252.882722] pgd = 0f42e886
-[ 1252.890955] [00000008] *pgd=00000000
-[ 1252.893478] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-[ 1253.093035] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.89 #0
-[ 1253.115261] Hardware name: Generic DT based system
-[ 1253.121149] PC is at ath11k_spectral_process_data+0x434/0x574 [ath11k]
-[ 1253.125940] LR is at 0x88e31017
-[ 1253.132448] pc : [<7f9387b8>]    lr : [<88e31017>]    psr: a0000193
-[ 1253.135488] sp : 80d01bc8  ip : 00000001  fp : 970e0000
-[ 1253.141737] r10: 88e31000  r9 : 970ec000  r8 : 00000080
-[ 1253.146946] r7 : 94734040  r6 : a0000113  r5 : 00000057  r4 : 00000000
-[ 1253.152159] r3 : e18cb694  r2 : 00000217  r1 : 1df1f000  r0 : 00000001
-[ 1253.158755] Flags: NzCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
-[ 1253.165266] Control: 10c0383d  Table: 5e71006a  DAC: 00000055
-[ 1253.172472] Process swapper/0 (pid: 0, stack limit = 0x60870141)
-[ 1253.458055] [<7f9387b8>] (ath11k_spectral_process_data [ath11k]) from [<7f917fdc>] (ath11k_dbring_buffer_release_event+0x214/0x2e4 [ath11k])
-[ 1253.466139] [<7f917fdc>] (ath11k_dbring_buffer_release_event [ath11k]) from [<7f8ea3c4>] (ath11k_wmi_tlv_op_rx+0x1840/0x29cc [ath11k])
-[ 1253.478807] [<7f8ea3c4>] (ath11k_wmi_tlv_op_rx [ath11k]) from [<7f8fe868>] (ath11k_htc_rx_completion_handler+0x180/0x4e0 [ath11k])
-[ 1253.490699] [<7f8fe868>] (ath11k_htc_rx_completion_handler [ath11k]) from [<7f91308c>] (ath11k_ce_per_engine_service+0x2c4/0x3b4 [ath11k])
-[ 1253.502386] [<7f91308c>] (ath11k_ce_per_engine_service [ath11k]) from [<7f9a4198>] (ath11k_pci_ce_tasklet+0x28/0x80 [ath11k_pci])
-[ 1253.514811] [<7f9a4198>] (ath11k_pci_ce_tasklet [ath11k_pci]) from [<8032227c>] (tasklet_action_common.constprop.2+0x64/0xe8)
-[ 1253.526476] [<8032227c>] (tasklet_action_common.constprop.2) from [<803021e8>] (__do_softirq+0x130/0x2d0)
-[ 1253.537756] [<803021e8>] (__do_softirq) from [<80322610>] (irq_exit+0xcc/0xe8)
-[ 1253.547304] [<80322610>] (irq_exit) from [<8036a4a4>] (__handle_domain_irq+0x60/0xb4)
-[ 1253.554428] [<8036a4a4>] (__handle_domain_irq) from [<805eb348>] (gic_handle_irq+0x4c/0x90)
-[ 1253.562321] [<805eb348>] (gic_handle_irq) from [<80301a78>] (__irq_svc+0x58/0x8c)
-
-Tested-on: QCN6122 hw1.0 AHB WLAN.HK.2.6.0.1-00851-QCAHKSWPL_SILICONZ-1
-
-Signed-off-by: Hari Chandrakanthan <quic_haric@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/1649396345-349-1-git-send-email-quic_haric@quicinc.com
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/spectral.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/spectral.c b/drivers/net/wireless/ath/ath11k/spectral.c
-index 4100cc1449a2..e997426a1b4b 100644
---- a/drivers/net/wireless/ath/ath11k/spectral.c
-+++ b/drivers/net/wireless/ath/ath11k/spectral.c
-@@ -212,7 +212,10 @@ static int ath11k_spectral_scan_config(struct ath11k *ar,
- 		return -ENODEV;
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c
+index df7b25e9cbc8..128edcf541e1 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c
+@@ -487,7 +487,8 @@ static int mtk_vcodec_dec_remove(struct platform_device *pdev)
+ 		video_unregister_device(dev->vfd_dec);
  
- 	arvif->spectral_enabled = (mode != ATH11K_SPECTRAL_DISABLED);
-+
-+	spin_lock_bh(&ar->spectral.lock);
- 	ar->spectral.mode = mode;
-+	spin_unlock_bh(&ar->spectral.lock);
- 
- 	ret = ath11k_wmi_vdev_spectral_enable(ar, arvif->vdev_id,
- 					      ATH11K_WMI_SPECTRAL_TRIGGER_CMD_CLEAR,
-@@ -843,9 +846,6 @@ static inline void ath11k_spectral_ring_free(struct ath11k *ar)
- {
- 	struct ath11k_spectral *sp = &ar->spectral;
- 
--	if (!sp->enabled)
--		return;
--
- 	ath11k_dbring_srng_cleanup(ar, &sp->rx_ring);
- 	ath11k_dbring_buf_cleanup(ar, &sp->rx_ring);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+-	pm_runtime_disable(dev->pm.dev);
++	if (!dev->vdec_pdata->is_subdev_supported)
++		pm_runtime_disable(dev->pm.dev);
+ 	mtk_vcodec_fw_release(dev->fw_handler);
+ 	return 0;
  }
-@@ -897,15 +897,16 @@ void ath11k_spectral_deinit(struct ath11k_base *ab)
- 		if (!sp->enabled)
- 			continue;
- 
--		ath11k_spectral_debug_unregister(ar);
--		ath11k_spectral_ring_free(ar);
-+		mutex_lock(&ar->conf_mutex);
-+		ath11k_spectral_scan_config(ar, ATH11K_SPECTRAL_DISABLED);
-+		mutex_unlock(&ar->conf_mutex);
- 
- 		spin_lock_bh(&sp->lock);
--
--		sp->mode = ATH11K_SPECTRAL_DISABLED;
- 		sp->enabled = false;
--
- 		spin_unlock_bh(&sp->lock);
-+
-+		ath11k_spectral_debug_unregister(ar);
-+		ath11k_spectral_ring_free(ar);
- 	}
- }
- 
 -- 
 2.35.1
 
