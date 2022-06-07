@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F2C54131B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4C65419FB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358032AbiFGT4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
+        id S1378617AbiFGV13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358759AbiFGTxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C895F1B700F;
-        Tue,  7 Jun 2022 11:22:23 -0700 (PDT)
+        with ESMTP id S1378941AbiFGVZK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59DF0227CEE;
+        Tue,  7 Jun 2022 12:01:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0654FCE2450;
-        Tue,  7 Jun 2022 18:22:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 024B2C385A2;
-        Tue,  7 Jun 2022 18:22:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E978E61787;
+        Tue,  7 Jun 2022 19:01:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4091C385A2;
+        Tue,  7 Jun 2022 19:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626140;
-        bh=JsZE5AxHTbW00VZnJgu/U+JfgGO6KlUPjLQsTZoemWU=;
+        s=korg; t=1654628484;
+        bh=+hczqrVV9QRUroM1CK7I7IRBPGHFmeEUds3FThURv7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWx70DGL4HE3nGhvGM2n4hCPEwnBLlOfyHCK8qSem9+raIV6yCB2PlyOnEQ4JeIFm
-         hU78s4WsevuflCUkH+g0j0yV6GDId3PCgAJ1Y7fl19JPbPjB1j5OGfkBgfyjfhfXWA
-         OH+hNnPN90y/J1cXzdZ/uNSQdpKDVEy3REARBtMc=
+        b=FBT/phw+i57k7PnKxod6J7JDPPHmpM2LkhZ0hGwt3sV7snAfWuNrEFmOQKjqdkCAV
+         d35Qc4X5LawFk4ALHnvVqMz17FkT3h54th7FuW6ovSYJx4BJYd2wnBG8ciDq+AAqD3
+         lN2ofmbQAI3iwJfVXTy7qC2QJoazLlUMfP1ihdoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 272/772] HID: hid-led: fix maximum brightness for Dream Cheeky
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 346/879] ALSA: pcm: Check for null pointer of pointer substream before dereferencing it
 Date:   Tue,  7 Jun 2022 18:57:44 +0200
-Message-Id: <20220607164957.041295632@linuxfoundation.org>
+Message-Id: <20220607165012.904143979@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
+[ Upstream commit 011b559be832194f992f73d6c0d5485f5925a10b ]
 
-Increase maximum brightness for Dream Cheeky to 63. Emperically
-determined based on testing in kernel 4.4 on this device:
+Pointer substream is being dereferenced on the assignment of pointer card
+before substream is being null checked with the macro PCM_RUNTIME_CHECK.
+Although PCM_RUNTIME_CHECK calls BUG_ON, it still is useful to perform the
+the pointer check before card is assigned.
 
-Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
-
-Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: d4cfb30fce03 ("ALSA: pcm: Set per-card upper limit of PCM buffer allocations")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Link: https://lore.kernel.org/r/20220424205945.1372247-1-colin.i.king@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-led.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/pcm_memory.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index c2c66ceca132..7d82f8d426bb 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -366,7 +366,7 @@ static const struct hidled_config hidled_configs[] = {
- 		.type = DREAM_CHEEKY,
- 		.name = "Dream Cheeky Webmail Notifier",
- 		.short_name = "dream_cheeky",
--		.max_brightness = 31,
-+		.max_brightness = 63,
- 		.num_leds = 1,
- 		.report_size = 9,
- 		.report_type = RAW_REQUEST,
+diff --git a/sound/core/pcm_memory.c b/sound/core/pcm_memory.c
+index 8848d2f3160d..b8296b6eb2c1 100644
+--- a/sound/core/pcm_memory.c
++++ b/sound/core/pcm_memory.c
+@@ -453,7 +453,6 @@ EXPORT_SYMBOL(snd_pcm_lib_malloc_pages);
+  */
+ int snd_pcm_lib_free_pages(struct snd_pcm_substream *substream)
+ {
+-	struct snd_card *card = substream->pcm->card;
+ 	struct snd_pcm_runtime *runtime;
+ 
+ 	if (PCM_RUNTIME_CHECK(substream))
+@@ -462,6 +461,8 @@ int snd_pcm_lib_free_pages(struct snd_pcm_substream *substream)
+ 	if (runtime->dma_area == NULL)
+ 		return 0;
+ 	if (runtime->dma_buffer_p != &substream->dma_buffer) {
++		struct snd_card *card = substream->pcm->card;
++
+ 		/* it's a newly allocated buffer.  release it now. */
+ 		do_free_pages(card, runtime->dma_buffer_p);
+ 		kfree(runtime->dma_buffer_p);
 -- 
 2.35.1
 
