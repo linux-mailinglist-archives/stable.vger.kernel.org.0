@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F677540801
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D375416C1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348756AbiFGRxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:53:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
+        id S1377671AbiFGUyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350108AbiFGRvx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92FC1406C2;
-        Tue,  7 Jun 2022 10:39:27 -0700 (PDT)
+        with ESMTP id S1378691AbiFGUwX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F79E2B6;
+        Tue,  7 Jun 2022 11:42:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80440614BC;
-        Tue,  7 Jun 2022 17:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EDACC385A5;
-        Tue,  7 Jun 2022 17:38:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A395061295;
+        Tue,  7 Jun 2022 18:42:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4219C385A2;
+        Tue,  7 Jun 2022 18:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623529;
-        bh=P93cyAbJAwdWUFf2HFYq9K7w37mCzMvtd/q/MFN3/kw=;
+        s=korg; t=1654627370;
+        bh=WXRcVCPP2UKRCYY2jK+D9kxdNOkgPnIo2N2sDgEC/Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9eCgzDKslaA2qQyeO1rEgGl/K/yI3SlIKqvWwbXGHWygeyN2IFlZrmUUreOAou+i
-         ye4pYLHi6b3ckZfPvbimDm5d/hoS8MwN5uWHJ0sPqyzlreUAkYOF8gP4wWllEdKF/X
-         jtjbQaGRYzaVcVBwyy411G3gNBNYFu26Ncv59OKk=
+        b=KEjAZvOHa+snbgeFB7EqtWmXOnNeZGqQyTl/Up6A4MTjHaaPutG+XMTXPJuuRDZ6d
+         gNULFcyBaZFL1KqcQTHbgdC265NIhn0ERl4qH6fA5jC/qphrLe005NLhpxCqgcSfyX
+         S3VGKnhE3/rjsEAnA69JrqyZmF4pZKOL8lfYxtwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Stephen Zhang <starzhangzsd@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 450/452] MIPS: IP30: Remove incorrect `cpu_has_fpu override
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.17 715/772] um: Use asm-generic/dma-mapping.h
 Date:   Tue,  7 Jun 2022 19:05:07 +0200
-Message-Id: <20220607164921.979767863@linuxfoundation.org>
+Message-Id: <20220607165010.113455787@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit f44b3e74c33fe04defeff24ebcae98c3bcc5b285 upstream.
+commit 365719035526e8eda214a1cedb2e1c96e969a0d7 upstream.
 
-Remove unsupported forcing of `cpu_has_fpu' to 1, which makes the `nofpu'
-kernel parameter non-functional, and also causes a link error:
+If DMA (PCI over virtio) is enabled, then some drivers may
+enable CONFIG_DMA_OPS as well, and then we pull in the x86
+definition of get_arch_dma_ops(), which uses the dma_ops
+symbol, which isn't defined.
 
-ld: arch/mips/kernel/traps.o: in function `trap_init':
-./arch/mips/include/asm/msa.h:(.init.text+0x348): undefined reference to `handle_fpe'
-ld: ./arch/mips/include/asm/msa.h:(.init.text+0x354): undefined reference to `handle_fpe'
-ld: ./arch/mips/include/asm/msa.h:(.init.text+0x360): undefined reference to `handle_fpe'
+Since we don't have real DMA ops nor any kind of IOMMU fix
+this in the simplest possible way: pull in the asm-generic
+file instead of inheriting the x86 one. It's not clear why
+those drivers that do (e.g. VDPA) "select DMA_OPS", and if
+they'd even work with this, but chances are nobody will be
+wanting to do that anyway, so fixing the build failure is
+good enough.
 
-where the CONFIG_MIPS_FP_SUPPORT configuration option has been disabled.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Reported-by: Stephen Zhang <starzhangzsd@gmail.com>
-Fixes: 7505576d1c1a ("MIPS: add support for SGI Octane (IP30)")
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h |    1 -
- 1 file changed, 1 deletion(-)
+ arch/um/include/asm/Kbuild |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
-+++ b/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
-@@ -29,7 +29,6 @@
- #define cpu_has_3k_cache		0
- #define cpu_has_4k_cache		1
- #define cpu_has_tx39_cache		0
--#define cpu_has_fpu			1
- #define cpu_has_nofpuex			0
- #define cpu_has_32fpr			1
- #define cpu_has_counter			1
+--- a/arch/um/include/asm/Kbuild
++++ b/arch/um/include/asm/Kbuild
+@@ -4,6 +4,7 @@ generic-y += bug.h
+ generic-y += compat.h
+ generic-y += current.h
+ generic-y += device.h
++generic-y += dma-mapping.h
+ generic-y += emergency-restart.h
+ generic-y += exec.h
+ generic-y += extable.h
 
 
