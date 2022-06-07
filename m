@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB17E540A66
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE280541AB3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351740AbiFGSUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:20:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51586 "EHLO
+        id S1356644AbiFGVgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:36:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352847AbiFGSRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 475A911C2C;
-        Tue,  7 Jun 2022 10:52:47 -0700 (PDT)
+        with ESMTP id S1380214AbiFGVet (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:34:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1690176D55;
+        Tue,  7 Jun 2022 12:04:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DFE6B8234A;
-        Tue,  7 Jun 2022 17:52:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E10C34115;
-        Tue,  7 Jun 2022 17:52:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EAACB822C0;
+        Tue,  7 Jun 2022 19:04:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2DB8C385A5;
+        Tue,  7 Jun 2022 19:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624366;
-        bh=AJpDc4CRCDEYezNwJ7xnI6htH0qAKgCFMdxiiCckPkE=;
+        s=korg; t=1654628670;
+        bh=wEKKenlvPb1mVxBs0kYMNPZMdqG1HK4ATWQH0fnv72Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wDTEmoP1NgkujGmccxEB6fblh/wQyMRYJAlICdgkfKZGCYVE9mvQSrjd5u0gKV3ic
-         Dyn3BPRle46hvCsgJfiBTUAZ1Cmz+FDXmvHVJ1eF/U4LpXS9MEGZHs3tS/8JFguYvm
-         bUVSRh8Z8tkXsUB/Bukopu6C1ITW/okQg4TrotzU=
+        b=DfQ84Bg0EVX0xxJak6MMQXbJ+X0k5rZqckIhnQ2QVTrCkFvjhSCcZdcc/xnqBscWB
+         VjgwW5TSDvA/DZT8N2rgHdaIgtslrNdgXqR/hqoRC2o5bylxgSxIB9NrjmEDAwXD+D
+         6P5VqBd1/uQc8l3wJuSBX/p4ka+J3BaBZZpcYWLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 264/667] perf tools: Add missing headers needed by util/data.h
+Subject: [PATCH 5.18 411/879] ath11k: Dont check arvif->is_started before sending management frames
 Date:   Tue,  7 Jun 2022 18:58:49 +0200
-Message-Id: <20220607164942.700523751@linuxfoundation.org>
+Message-Id: <20220607165014.793023265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,50 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Baochen Qiang <quic_bqiang@quicinc.com>
 
-[ Upstream commit 4d27cf1d9de5becfa4d1efb2ea54dba1b9fc962a ]
+[ Upstream commit 355333a217541916576351446b5832fec7930566 ]
 
-'struct perf_data' in util/data.h uses the "u64" data type, which is
-defined in "linux/types.h".
+Commit 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for
+deleted vdev") wants both of below two conditions are true before
+sending management frames:
 
-If we only include util/data.h, the following compilation error occurs:
+1: ar->allocated_vdev_map & (1LL << arvif->vdev_id)
+2: arvif->is_started
 
-  util/data.h:38:3: error: unknown type name ‘u64’
-     u64    version;
-     ^~~
+Actually the second one is not necessary because with the first one
+we can make sure the vdev is present.
 
-Solution: include "linux/types.h." to add the needed type definitions.
+Also use ar->conf_mutex to synchronize vdev delete and mgmt. TX.
 
-Fixes: 258031c017c353e8 ("perf header: Add DIR_FORMAT feature to describe directory data")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220429090539.212448-1-yangjihong1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This issue is found in case of Passpoint scenario where ath11k
+needs to send action frames before vdev is started.
+
+Fix it by removing the second condition.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Fixes: 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for deleted vdev")
+Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220506013614.1580274-3-quic_bqiang@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/data.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath11k/mac.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/data.h b/tools/perf/util/data.h
-index c9de82af5584..1402d9657ef2 100644
---- a/tools/perf/util/data.h
-+++ b/tools/perf/util/data.h
-@@ -4,6 +4,7 @@
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 2c8d5f2a0517..54d738bdee0e 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -5520,8 +5520,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 		}
  
- #include <stdio.h>
- #include <stdbool.h>
-+#include <linux/types.h>
+ 		arvif = ath11k_vif_to_arvif(skb_cb->vif);
+-		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
+-		    arvif->is_started) {
++		mutex_lock(&ar->conf_mutex);
++		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id)) {
+ 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
+ 			if (ret) {
+ 				ath11k_warn(ar->ab, "failed to tx mgmt frame, vdev_id %d :%d\n",
+@@ -5539,6 +5539,7 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 				    arvif->is_started);
+ 			ath11k_mgmt_over_wmi_tx_drop(ar, skb);
+ 		}
++		mutex_unlock(&ar->conf_mutex);
+ 	}
+ }
  
- enum perf_data_mode {
- 	PERF_DATA_MODE_WRITE,
 -- 
 2.35.1
 
