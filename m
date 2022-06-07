@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F7B5408F2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E58541262
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349628AbiFGSED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55936 "EHLO
+        id S1356426AbiFGTrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:47:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351668AbiFGSCM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:12 -0400
+        with ESMTP id S1356971AbiFGTq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:46:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8623315876C;
-        Tue,  7 Jun 2022 10:45:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946355EDCD;
+        Tue,  7 Jun 2022 11:18:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 028686159C;
-        Tue,  7 Jun 2022 17:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7B5C385A5;
-        Tue,  7 Jun 2022 17:45:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC8A160DDE;
+        Tue,  7 Jun 2022 18:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C351AC385A5;
+        Tue,  7 Jun 2022 18:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623904;
-        bh=zqKkk3ngvML06SimDRXhnKVNzO0XNOGW/eElEV6oaXU=;
+        s=korg; t=1654625923;
+        bh=dLL/mOAB4T3gsc0LMPrI/8vzxFAxEm2zNTvqPqGxrqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdjDnHE/ZM7SPCCo+ivDxr1txx2nlS5q6QQs+n4w3v33L08Mulym3f76QDSk0qlgB
-         pT9E7E2mJnAMNtZafV9/qrpENJpUareV0gjrGiiNqUbuDuc2eflIH06xwDfpEtYMm8
-         gXnrYSWvzEsKOD0MWpaGmyxDgDzY7nZ5rDWg2nyM=
+        b=GO8VY6AZS921R1cA7EvIllibSHZz6me/wxUbDwNKpXAjTD4qpsKR9rA8G7wuDmU8+
+         kHkC2XgWdU8hZjojTk+1L3+KC4H82jd1Mjq89ccZg6RU4ghZAxw/RVCBAwmidqcvwW
+         dRlyI8OJpjtg8pjZ3KUDofsvOfx/TvHIKik+3xmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Pierre Gondois <pierre.gondois@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 093/667] net/mlx5: fs, delete the FTE when there are no rules attached to it
+Subject: [PATCH 5.17 166/772] ACPI: CPPC: Assume no transition latency if no PCCT
 Date:   Tue,  7 Jun 2022 18:55:58 +0200
-Message-Id: <20220607164937.610217630@linuxfoundation.org>
+Message-Id: <20220607164953.932028578@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <mbloch@nvidia.com>
+From: Pierre Gondois <Pierre.Gondois@arm.com>
 
-[ Upstream commit 7b0c6338597613f465d131bd939a51844a00455a ]
+[ Upstream commit 6380b7b2b29da9d9c5ab2d4a265901cd93ba3696 ]
 
-When an FTE has no children is means all the rules where removed
-and the FTE can be deleted regardless of the dests_size value.
-While dests_size should be 0 when there are no children
-be extra careful not to leak memory or get firmware syndrome
-if the proper bookkeeping of dests_size wasn't done.
+The transition_delay_us (struct cpufreq_policy) is currently defined
+as:
+  Preferred average time interval between consecutive invocations of
+  the driver to set the frequency for this policy.  To be set by the
+  scaling driver (0, which is the default, means no preference).
+The transition_latency represents the amount of time necessary for a
+CPU to change its frequency.
 
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+A PCCT table advertises mutliple values:
+- pcc_nominal: Expected latency to process a command, in microseconds
+- pcc_mpar: The maximum number of periodic requests that the subspace
+  channel can support, reported in commands per minute. 0 indicates no
+  limitation.
+- pcc_mrtt: The minimum amount of time that OSPM must wait after the
+  completion of a command before issuing the next command,
+  in microseconds.
+cppc_get_transition_latency() allows to get the max of them.
+
+commit d4f3388afd48 ("cpufreq / CPPC: Set platform specific
+transition_delay_us") allows to select transition_delay_us based on
+the platform, and fallbacks to cppc_get_transition_latency()
+otherwise.
+
+If _CPC objects are not using PCC channels (no PPCT table), the
+transition_delay_us is set to CPUFREQ_ETERNAL, leading to really long
+periods between frequency updates (~4s).
+
+If the desired_reg, where performance requests are written, is in
+SystemMemory or SystemIo ACPI address space, there is no delay
+in requests. So return 0 instead of CPUFREQ_ETERNAL, leading to
+transition_delay_us being set to LATENCY_MULTIPLIER us (1000 us).
+
+This patch also adds two macros to check the address spaces.
+
+Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/acpi/cppc_acpi.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-index 00834c914dc6..a197dd7ca73b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -2031,16 +2031,16 @@ void mlx5_del_flow_rules(struct mlx5_flow_handle *handle)
- 	down_write_ref_node(&fte->node, false);
- 	for (i = handle->num_rules - 1; i >= 0; i--)
- 		tree_remove_node(&handle->rule[i]->node, true);
--	if (fte->dests_size) {
--		if (fte->modify_mask)
--			modify_fte(fte);
--		up_write_ref_node(&fte->node, false);
--	} else if (list_empty(&fte->node.children)) {
-+	if (list_empty(&fte->node.children)) {
- 		del_hw_fte(&fte->node);
- 		/* Avoid double call to del_hw_fte */
- 		fte->node.del_hw_func = NULL;
- 		up_write_ref_node(&fte->node, false);
- 		tree_put_node(&fte->node, false);
-+	} else if (fte->dests_size) {
-+		if (fte->modify_mask)
-+			modify_fte(fte);
-+		up_write_ref_node(&fte->node, false);
- 	} else {
- 		up_write_ref_node(&fte->node, false);
- 	}
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index 123e98a765de..a7facd4b4ca8 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -100,6 +100,16 @@ static DEFINE_PER_CPU(struct cpc_desc *, cpc_desc_ptr);
+ 				(cpc)->cpc_entry.reg.space_id ==	\
+ 				ACPI_ADR_SPACE_PLATFORM_COMM)
+ 
++/* Check if a CPC register is in SystemMemory */
++#define CPC_IN_SYSTEM_MEMORY(cpc) ((cpc)->type == ACPI_TYPE_BUFFER &&	\
++				(cpc)->cpc_entry.reg.space_id ==	\
++				ACPI_ADR_SPACE_SYSTEM_MEMORY)
++
++/* Check if a CPC register is in SystemIo */
++#define CPC_IN_SYSTEM_IO(cpc) ((cpc)->type == ACPI_TYPE_BUFFER &&	\
++				(cpc)->cpc_entry.reg.space_id ==	\
++				ACPI_ADR_SPACE_SYSTEM_IO)
++
+ /* Evaluates to True if reg is a NULL register descriptor */
+ #define IS_NULL_REG(reg) ((reg)->space_id ==  ACPI_ADR_SPACE_SYSTEM_MEMORY && \
+ 				(reg)->address == 0 &&			\
+@@ -1441,6 +1451,9 @@ EXPORT_SYMBOL_GPL(cppc_set_perf);
+  * transition latency for performance change requests. The closest we have
+  * is the timing information from the PCCT tables which provides the info
+  * on the number and frequency of PCC commands the platform can handle.
++ *
++ * If desired_reg is in the SystemMemory or SystemIo ACPI address space,
++ * then assume there is no latency.
+  */
+ unsigned int cppc_get_transition_latency(int cpu_num)
+ {
+@@ -1466,7 +1479,9 @@ unsigned int cppc_get_transition_latency(int cpu_num)
+ 		return CPUFREQ_ETERNAL;
+ 
+ 	desired_reg = &cpc_desc->cpc_regs[DESIRED_PERF];
+-	if (!CPC_IN_PCC(desired_reg))
++	if (CPC_IN_SYSTEM_MEMORY(desired_reg) || CPC_IN_SYSTEM_IO(desired_reg))
++		return 0;
++	else if (!CPC_IN_PCC(desired_reg))
+ 		return CPUFREQ_ETERNAL;
+ 
+ 	if (pcc_ss_id < 0)
 -- 
 2.35.1
 
