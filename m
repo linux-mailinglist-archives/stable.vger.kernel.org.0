@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19338541E36
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 393D2541703
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350860AbiFGW1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:27:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50582 "EHLO
+        id S1377120AbiFGU5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:57:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384234AbiFGWZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:25:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98242270F0E;
-        Tue,  7 Jun 2022 12:23:12 -0700 (PDT)
+        with ESMTP id S1378186AbiFGUzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B55E12D157;
+        Tue,  7 Jun 2022 11:44:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D7B360BA3;
-        Tue,  7 Jun 2022 19:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28369C385A2;
-        Tue,  7 Jun 2022 19:23:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E29661695;
+        Tue,  7 Jun 2022 18:44:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D334C385A2;
+        Tue,  7 Jun 2022 18:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629791;
-        bh=bNxTvQwfvlCQhLBV5XP5eB24HHOeNW7RiIDKe2u+9rk=;
+        s=korg; t=1654627449;
+        bh=mPewBoiGdgt0ZMOFYhhXllvEH0qMUNb+JQwB77vrY7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koisK5YpfCZ+3r1SpMzmuJQltY9DE+gIk8rHBWkOlPojeKrMJG5NXQsNqlwqk0qhG
-         PSNdPg04qWLT1H+tQRH/O6jdvovGurjtL320CztkU6XBdyMF8LYLH6dw2DaOHPcp25
-         tJuEbkTFhFHpV/zE9umjoEbFLn3NR1WTJDtXd5Oo=
+        b=V1Y8hWuA7hYORXMVftMribHgGV4WYV1ZfRGZnE7Z9DN5KeBhPaYFbNkTNDsoOEFeo
+         daMtBNCymzcB7a+b9Zw5aECi1dJJzQwMaJ1XGHi5bqSIgSz9GVHfLJb2FGNzVDZYnW
+         cIyO0r7z/r+JmfEwMIZkg9NH9Ozb4pgs6O1gslJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.18 819/879] um: Fix out-of-bounds read in LDT setup
+        stable@vger.kernel.org, Robert Jarzmik <robert.jarzmik@free.fr>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.17 745/772] ARM: pxa: maybe fix gpio lookup tables
 Date:   Tue,  7 Jun 2022 19:05:37 +0200
-Message-Id: <20220607165026.625812779@linuxfoundation.org>
+Message-Id: <20220607165010.983453535@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 2a4a62a14be1947fa945c5c11ebf67326381a568 upstream.
+commit 2672a4bff6c03a20d5ae460a091f67ee782c3eff upstream.
 
-syscall_stub_data() expects the data_count parameter to be the number of
-longs, not bytes.
+>From inspection I found a couple of GPIO lookups that are
+listed with device "gpio-pxa", but actually have a number
+from a different gpio controller.
 
- ==================================================================
- BUG: KASAN: stack-out-of-bounds in syscall_stub_data+0x70/0xe0
- Read of size 128 at addr 000000006411f6f0 by task swapper/1
+Try to rectify that here, with a guess of what the actual
+device name is.
 
- CPU: 0 PID: 1 Comm: swapper Not tainted 5.18.0+ #18
- Call Trace:
-  show_stack.cold+0x166/0x2a7
-  __dump_stack+0x3a/0x43
-  dump_stack_lvl+0x1f/0x27
-  print_report.cold+0xdb/0xf81
-  kasan_report+0x119/0x1f0
-  kasan_check_range+0x3a3/0x440
-  memcpy+0x52/0x140
-  syscall_stub_data+0x70/0xe0
-  write_ldt_entry+0xac/0x190
-  init_new_ldt+0x515/0x960
-  init_new_context+0x2c4/0x4d0
-  mm_init.constprop.0+0x5ed/0x760
-  mm_alloc+0x118/0x170
-  0x60033f48
-  do_one_initcall+0x1d7/0x860
-  0x60003e7b
-  kernel_init+0x6e/0x3d4
-  new_thread_handler+0x1e7/0x2c0
-
- The buggy address belongs to stack of task swapper/1
-  and is located at offset 64 in frame:
-  init_new_ldt+0x0/0x960
-
- This frame has 2 objects:
-  [32, 40) 'addr'
-  [64, 80) 'desc'
- ==================================================================
-
-Fixes: 858259cf7d1c443c83 ("uml: maintain own LDT entries")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/um/ldt.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/mach-pxa/cm-x300.c  |    8 ++++----
+ arch/arm/mach-pxa/magician.c |    2 +-
+ arch/arm/mach-pxa/tosa.c     |    4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/x86/um/ldt.c
-+++ b/arch/x86/um/ldt.c
-@@ -23,9 +23,11 @@ static long write_ldt_entry(struct mm_id
- {
- 	long res;
- 	void *stub_addr;
-+
-+	BUILD_BUG_ON(sizeof(*desc) % sizeof(long));
-+
- 	res = syscall_stub_data(mm_idp, (unsigned long *)desc,
--				(sizeof(*desc) + sizeof(long) - 1) &
--				    ~(sizeof(long) - 1),
-+				sizeof(*desc) / sizeof(long),
- 				addr, &stub_addr);
- 	if (!res) {
- 		unsigned long args[] = { func,
+--- a/arch/arm/mach-pxa/cm-x300.c
++++ b/arch/arm/mach-pxa/cm-x300.c
+@@ -354,13 +354,13 @@ static struct platform_device cm_x300_sp
+ static struct gpiod_lookup_table cm_x300_spi_gpiod_table = {
+ 	.dev_id         = "spi_gpio",
+ 	.table          = {
+-		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_SCL,
++		GPIO_LOOKUP("pca9555.1", GPIO_LCD_SCL - GPIO_LCD_BASE,
+ 			    "sck", GPIO_ACTIVE_HIGH),
+-		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_DIN,
++		GPIO_LOOKUP("pca9555.1", GPIO_LCD_DIN - GPIO_LCD_BASE,
+ 			    "mosi", GPIO_ACTIVE_HIGH),
+-		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_DOUT,
++		GPIO_LOOKUP("pca9555.1", GPIO_LCD_DOUT - GPIO_LCD_BASE,
+ 			    "miso", GPIO_ACTIVE_HIGH),
+-		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_CS,
++		GPIO_LOOKUP("pca9555.1", GPIO_LCD_CS - GPIO_LCD_BASE,
+ 			    "cs", GPIO_ACTIVE_HIGH),
+ 		{ },
+ 	},
+--- a/arch/arm/mach-pxa/magician.c
++++ b/arch/arm/mach-pxa/magician.c
+@@ -681,7 +681,7 @@ static struct platform_device bq24022 =
+ static struct gpiod_lookup_table bq24022_gpiod_table = {
+ 	.dev_id = "gpio-regulator",
+ 	.table = {
+-		GPIO_LOOKUP("gpio-pxa", EGPIO_MAGICIAN_BQ24022_ISET2,
++		GPIO_LOOKUP("htc-egpio-0", EGPIO_MAGICIAN_BQ24022_ISET2 - MAGICIAN_EGPIO_BASE,
+ 			    NULL, GPIO_ACTIVE_HIGH),
+ 		GPIO_LOOKUP("gpio-pxa", GPIO30_MAGICIAN_BQ24022_nCHARGE_EN,
+ 			    "enable", GPIO_ACTIVE_LOW),
+--- a/arch/arm/mach-pxa/tosa.c
++++ b/arch/arm/mach-pxa/tosa.c
+@@ -296,9 +296,9 @@ static struct gpiod_lookup_table tosa_mc
+ 	.table = {
+ 		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_nSD_DETECT,
+ 			    "cd", GPIO_ACTIVE_LOW),
+-		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_SD_WP,
++		GPIO_LOOKUP("sharp-scoop.0", TOSA_GPIO_SD_WP - TOSA_SCOOP_GPIO_BASE,
+ 			    "wp", GPIO_ACTIVE_LOW),
+-		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_PWR_ON,
++		GPIO_LOOKUP("sharp-scoop.0", TOSA_GPIO_PWR_ON - TOSA_SCOOP_GPIO_BASE,
+ 			    "power", GPIO_ACTIVE_HIGH),
+ 		{ },
+ 	},
 
 
