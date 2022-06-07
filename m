@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16AB3541A4E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5199854132E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378901AbiFGVch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49044 "EHLO
+        id S1357319AbiFGT4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380153AbiFGVaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:17 -0400
+        with ESMTP id S1357740AbiFGTzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:55:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D16152D8A;
-        Tue,  7 Jun 2022 12:02:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B575A980B5;
+        Tue,  7 Jun 2022 11:23:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFD46B822C0;
-        Tue,  7 Jun 2022 19:02:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D29C385A2;
-        Tue,  7 Jun 2022 19:02:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94C3FB82383;
+        Tue,  7 Jun 2022 18:23:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED17CC36B02;
+        Tue,  7 Jun 2022 18:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628561;
-        bh=x7PO9lUovco5p9SZ7ZNCeyJS7CjTegdASYQEK9GNgtA=;
+        s=korg; t=1654626221;
+        bh=3LvubQ/oMd98qexprLQfHhASSsUZesS2fEQgpHx095c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2TGc3/7imuNAC6VCXXIZ9VhnTbIxmz/j4KzouXm+Jps4WZvriWdTOcjz65ts3cEiY
-         7kEAvotLEXmt4G7rb0GcpQZckZNQp5EKvSUtYsHV0oVpPFPEVcv35kQqEz+bctt/OX
-         ahWTOgXOw6eSpZOVRqTtmnkRIEcwkQ7r7AVopWyk=
+        b=hW1KW84Ha9ORsKCz9P/zSgF9wM3/q0VqYFzUr49NeJQUWRbWGncAgXLuZKfLd6iXH
+         +baIKLdoLT/BV+lqdGgT1xdoxExGb/1HIQEEgT6R0Ysm8C2IiW4aVF5QIxx44L0tBL
+         wAd6j2GSEjG6QFYbwwXSDx5NnrHF1YbzFIEKjSAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 334/879] drm/bridge: Fix it6505 Kconfig DRM_DP_AUX_BUS dependency
+Subject: [PATCH 5.17 260/772] scftorture: Fix distribution of short handler delays
 Date:   Tue,  7 Jun 2022 18:57:32 +0200
-Message-Id: <20220607165012.552236678@linuxfoundation.org>
+Message-Id: <20220607164956.683962777@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Foss <robert.foss@linaro.org>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit c5060b09f460fc83846d361018a124fcade1b9e9 ]
+[ Upstream commit 8106bddbab5f0ba180e6d693c7c1fc6926d57caa ]
 
-it6505 depends on DRM_DP_AUX_BUS, the kconfig for it6505 should
-reflect this dependency using 'select'.
+The scftorture test module's scf_handler() function is supposed to provide
+three different distributions of short delays (including "no delay") and
+one distribution of long delays, if specified by the scftorture.longwait
+module parameter.  However, the second of the two non-zero-wait short delays
+is disabled due to the first such delay's "goto out" not being enclosed in
+the "then" clause with the "udelay()".
 
-Fixes: b5c84a9edcd4 ("drm/bridge: add it6505 driver")
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220421131415.1289469-1-robert.foss@linaro.org
+This commit therefore adjusts the code to provide the intended set of
+delays.
+
+Fixes: e9d338a0b179 ("scftorture: Add smp_call_function() torture test")
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/scftorture.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index becd9867f3a0..be2fc4791c1d 100644
---- a/drivers/gpu/drm/bridge/Kconfig
-+++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -77,6 +77,7 @@ config DRM_DISPLAY_CONNECTOR
- config DRM_ITE_IT6505
-         tristate "ITE IT6505 DisplayPort bridge"
-         depends on OF
-+        select DRM_DP_AUX_BUS
- 	select DRM_DP_HELPER
-         select DRM_KMS_HELPER
-         select DRM_DP_HELPER
+diff --git a/kernel/scftorture.c b/kernel/scftorture.c
+index dcb0410950e4..5d113aa59e77 100644
+--- a/kernel/scftorture.c
++++ b/kernel/scftorture.c
+@@ -267,9 +267,10 @@ static void scf_handler(void *scfc_in)
+ 	}
+ 	this_cpu_inc(scf_invoked_count);
+ 	if (longwait <= 0) {
+-		if (!(r & 0xffc0))
++		if (!(r & 0xffc0)) {
+ 			udelay(r & 0x3f);
+-		goto out;
++			goto out;
++		}
+ 	}
+ 	if (r & 0xfff)
+ 		goto out;
 -- 
 2.35.1
 
