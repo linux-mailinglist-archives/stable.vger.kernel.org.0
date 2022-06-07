@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8058E5412DA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3CB3540913
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357039AbiFGTyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
+        id S1349486AbiFGSEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358516AbiFGTwg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC7DBDA24;
-        Tue,  7 Jun 2022 11:20:54 -0700 (PDT)
+        with ESMTP id S1351985AbiFGSCd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D165DDED4;
+        Tue,  7 Jun 2022 10:46:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D02AB8237B;
-        Tue,  7 Jun 2022 18:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DCD8C385A2;
-        Tue,  7 Jun 2022 18:20:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A9DB616B1;
+        Tue,  7 Jun 2022 17:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741E1C385A5;
+        Tue,  7 Jun 2022 17:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626052;
-        bh=y0JC6v+FcEvZLcllLY+AqmUU60NKF5q7zJLtbIBvJ8s=;
+        s=korg; t=1654623995;
+        bh=WJzjYaTIQ7PBQPp8PTnU5CBeVSbsOqp7md+v/tz9HXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiJlesYufh/toHeGfGXgbLU7M5JWPhAyyz0ZHzvJO9jHimHk5ACXIhNkS2qxepC7C
-         lsxaodL762DpOHKtMFSHzYhRrlOZL9UCvOvjHgf7EH8IYq0+X6GAKvgEwn+37iwWC6
-         aJzG1639izV+qjOdnpW1lsHZHlUSYqWUpbGUHh0I=
+        b=RrJdl2K6kztDhozBTSjXi89gETNZLcUdzLPnlduLzTq+zcUAOlxpEtYYRAl25TFie
+         9RVOf3OzwLltBBMbAyANh1MMxpjFRLxlCWm25Xx3AooIcn4GW1pJs0JXnbBKh7YDiZ
+         R4Z90qyd3gTbB14ojt8OALnVTzAlUMHkQKgu9tPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Hui Wang <hui.wang@canonical.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 239/772] ASoC: cs35l41: Fix an out-of-bounds access in otp_packed_element_t
+Subject: [PATCH 5.15 166/667] ARM: dts: exynos: add atmel,24c128 fallback to Samsung EEPROM
 Date:   Tue,  7 Jun 2022 18:57:11 +0200
-Message-Id: <20220607164956.073616721@linuxfoundation.org>
+Message-Id: <20220607164939.793711538@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,121 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 9f342904216f378e88008bb0ce1ae200a4b99fe8 ]
+[ Upstream commit f038e8186fbc5723d7d38c6fa1d342945107347e ]
 
-The CS35L41_NUM_OTP_ELEM is 100, but only 99 entries are defined in
-the array otp_map_1/2[CS35L41_NUM_OTP_ELEM], this will trigger UBSAN
-to report a shift-out-of-bounds warning in the cs35l41_otp_unpack()
-since the last entry in the array will result in GENMASK(-1, 0).
+The Samsung s524ad0xd1 EEPROM should use atmel,24c128 fallback,
+according to the AT24 EEPROM bindings.
 
-UBSAN reports this problem:
- UBSAN: shift-out-of-bounds in /home/hwang4/build/jammy/jammy/sound/soc/codecs/cs35l41-lib.c:836:8
- shift exponent 64 is too large for 64-bit type 'long unsigned int'
- CPU: 10 PID: 595 Comm: systemd-udevd Not tainted 5.15.0-23-generic #23
- Hardware name: LENOVO \x02MFG_IN_GO/\x02MFG_IN_GO, BIOS N3GET19W (1.00 ) 03/11/2022
- Call Trace:
-  <TASK>
-  show_stack+0x52/0x58
-  dump_stack_lvl+0x4a/0x5f
-  dump_stack+0x10/0x12
-  ubsan_epilogue+0x9/0x45
-  __ubsan_handle_shift_out_of_bounds.cold+0x61/0xef
-  ? regmap_unlock_mutex+0xe/0x10
-  cs35l41_otp_unpack.cold+0x1c6/0x2b2 [snd_soc_cs35l41_lib]
-  cs35l41_hda_probe+0x24f/0x33a [snd_hda_scodec_cs35l41]
-  cs35l41_hda_i2c_probe+0x65/0x90 [snd_hda_scodec_cs35l41_i2c]
-  ? cs35l41_hda_i2c_remove+0x20/0x20 [snd_hda_scodec_cs35l41_i2c]
-  i2c_device_probe+0x252/0x2b0
-
-Fixes: 6450ef559056 ("ASoC: cs35l41: CS35L41 Boosted Smart Amplifier")
-Reviewed-by: Lucas Tanure <tanureal@opensource.cirrus.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20220328123535.50000-2-hui.wang@canonical.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220426183443.243113-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/cs35l41.h        |  1 -
- sound/soc/codecs/cs35l41-lib.c | 14 +++++++-------
- 2 files changed, 7 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/sound/cs35l41.h b/include/sound/cs35l41.h
-index bf7f9a9aeba0..9341130257ea 100644
---- a/include/sound/cs35l41.h
-+++ b/include/sound/cs35l41.h
-@@ -536,7 +536,6 @@
+diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+index f042954bdfa5..e4861415a0fe 100644
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -129,7 +129,7 @@
+ 	samsung,i2c-max-bus-freq = <20000>;
  
- #define CS35L41_MAX_CACHE_REG		36
- #define CS35L41_OTP_SIZE_WORDS		32
--#define CS35L41_NUM_OTP_ELEM		100
+ 	eeprom@50 {
+-		compatible = "samsung,s524ad0xd1";
++		compatible = "samsung,s524ad0xd1", "atmel,24c128";
+ 		reg = <0x50>;
+ 	};
  
- #define CS35L41_VALID_PDATA		0x80000000
- #define CS35L41_NUM_SUPPLIES            2
-diff --git a/sound/soc/codecs/cs35l41-lib.c b/sound/soc/codecs/cs35l41-lib.c
-index 281a710a4123..8de5038ee9b3 100644
---- a/sound/soc/codecs/cs35l41-lib.c
-+++ b/sound/soc/codecs/cs35l41-lib.c
-@@ -422,7 +422,7 @@ static bool cs35l41_volatile_reg(struct device *dev, unsigned int reg)
- 	}
- }
+@@ -289,7 +289,7 @@
+ 	samsung,i2c-max-bus-freq = <20000>;
  
--static const struct cs35l41_otp_packed_element_t otp_map_1[CS35L41_NUM_OTP_ELEM] = {
-+static const struct cs35l41_otp_packed_element_t otp_map_1[] = {
- 	/* addr         shift   size */
- 	{ 0x00002030,	0,	4 }, /*TRIM_OSC_FREQ_TRIM*/
- 	{ 0x00002030,	7,	1 }, /*TRIM_OSC_TRIM_DONE*/
-@@ -525,7 +525,7 @@ static const struct cs35l41_otp_packed_element_t otp_map_1[CS35L41_NUM_OTP_ELEM]
- 	{ 0x00017044,	0,	24 }, /*LOT_NUMBER*/
- };
+ 	eeprom@51 {
+-		compatible = "samsung,s524ad0xd1";
++		compatible = "samsung,s524ad0xd1", "atmel,24c128";
+ 		reg = <0x51>;
+ 	};
  
--static const struct cs35l41_otp_packed_element_t otp_map_2[CS35L41_NUM_OTP_ELEM] = {
-+static const struct cs35l41_otp_packed_element_t otp_map_2[] = {
- 	/* addr         shift   size */
- 	{ 0x00002030,	0,	4 }, /*TRIM_OSC_FREQ_TRIM*/
- 	{ 0x00002030,	7,	1 }, /*TRIM_OSC_TRIM_DONE*/
-@@ -671,35 +671,35 @@ static const struct cs35l41_otp_map_element_t cs35l41_otp_map_map[] = {
- 	{
- 		.id = 0x01,
- 		.map = otp_map_1,
--		.num_elements = CS35L41_NUM_OTP_ELEM,
-+		.num_elements = ARRAY_SIZE(otp_map_1),
- 		.bit_offset = 16,
- 		.word_offset = 2,
- 	},
- 	{
- 		.id = 0x02,
- 		.map = otp_map_2,
--		.num_elements = CS35L41_NUM_OTP_ELEM,
-+		.num_elements = ARRAY_SIZE(otp_map_2),
- 		.bit_offset = 16,
- 		.word_offset = 2,
- 	},
- 	{
- 		.id = 0x03,
- 		.map = otp_map_2,
--		.num_elements = CS35L41_NUM_OTP_ELEM,
-+		.num_elements = ARRAY_SIZE(otp_map_2),
- 		.bit_offset = 16,
- 		.word_offset = 2,
- 	},
- 	{
- 		.id = 0x06,
- 		.map = otp_map_2,
--		.num_elements = CS35L41_NUM_OTP_ELEM,
-+		.num_elements = ARRAY_SIZE(otp_map_2),
- 		.bit_offset = 16,
- 		.word_offset = 2,
- 	},
- 	{
- 		.id = 0x08,
- 		.map = otp_map_1,
--		.num_elements = CS35L41_NUM_OTP_ELEM,
-+		.num_elements = ARRAY_SIZE(otp_map_1),
- 		.bit_offset = 16,
- 		.word_offset = 2,
- 	},
 -- 
 2.35.1
 
