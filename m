@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D427454140A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6A6541B35
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359175AbiFGUMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58140 "EHLO
+        id S1378786AbiFGVm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359194AbiFGUJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB081C4F11;
-        Tue,  7 Jun 2022 11:26:53 -0700 (PDT)
+        with ESMTP id S1381112AbiFGVjp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:39:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50AB5230990;
+        Tue,  7 Jun 2022 12:05:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 84469CE2439;
-        Tue,  7 Jun 2022 18:26:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C846C385A2;
-        Tue,  7 Jun 2022 18:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E08EA617DA;
+        Tue,  7 Jun 2022 19:05:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0522C385A2;
+        Tue,  7 Jun 2022 19:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626409;
-        bh=rIWEQtuxPfuKBsbbuJZf9HyCJZEe/1UXdJJHnQuAxVI=;
+        s=korg; t=1654628750;
+        bh=voKeWoxAo4WPTzbvPo2ODXGQq48NrtB6KBr1akkVLNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrb5WDxZwYuvodAG+hgrCHNeqnZ93/i0kGzVdjV+0yFJoDs3AKwlvuHv18PT0UgLy
-         pLsSutrENY/A/nf/kyRWVdicfp2/NdmF3i2+9fvoz4S4BIGk1C0wC//Wt93ie+L34/
-         KshZXhZN3kCOByZm+jv38ECrBTsGNNUXlbUsN2To=
+        b=hQBUrfvjSbm1ogJ5GZTMmoQZ287wwTdAp3y6BfJpDPAEj+FLkGc1pNM0ufmFfQQDL
+         WTCCH6EXlzBSGDxpxnxOZJntwnZYbOAqYOO8NtzSC0Y9BftXyXI5f9ps8JdekmCapn
+         aprlp954OK7HPGw7f1LlZhByIlgZv8mUXiUW2Gyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Jessica Zhang <quic_jesszhan@quicinc.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 341/772] drm/msm/mdp5: Return error code in mdp5_mixer_release when deadlock is detected
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 415/879] HID: amd_sfh: Modify the bus name
 Date:   Tue,  7 Jun 2022 18:58:53 +0200
-Message-Id: <20220607164959.071961204@linuxfoundation.org>
+Message-Id: <20220607165014.906926018@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,105 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Zhang <quic_jesszhan@quicinc.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit ca75f6f7c6f89365e40f10f641b15981b1f07c31 ]
+[ Upstream commit 206c3c2d85de8847fb732a5fb71443bacd287216 ]
 
-There is a possibility for mdp5_get_global_state to return
--EDEADLK when acquiring the modeset lock, but currently global_state in
-mdp5_mixer_release doesn't check for if an error is returned.
+Modifying the amd-sfh bus name to meaningful name.
 
-To avoid a NULL dereference error, let's have mdp5_mixer_release
-check if an error is returned and propagate that error.
-
-Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Fixes: 7907a0d77cb4 ("drm/msm/mdp5: Use the new private_obj state")
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/485181/
-Link: https://lore.kernel.org/r/20220505214051.155-2-quic_jesszhan@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c  | 10 ++++++++--
- drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c | 15 +++++++++++----
- drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h |  4 ++--
- 3 files changed, 21 insertions(+), 8 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.c | 2 +-
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-index bb7d066618e6..477cda4ec23b 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-@@ -612,9 +612,15 @@ static int mdp5_crtc_setup_pipeline(struct drm_crtc *crtc,
- 		if (ret)
- 			return ret;
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+index 2bf97b6ac973..6e487e41f4dd 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+@@ -141,7 +141,7 @@ int amdtp_hid_probe(u32 cur_hid_dev, struct amdtp_cl_data *cli_data)
  
--		mdp5_mixer_release(new_crtc_state->state, old_mixer);
-+		ret = mdp5_mixer_release(new_crtc_state->state, old_mixer);
-+		if (ret)
-+			return ret;
-+
- 		if (old_r_mixer) {
--			mdp5_mixer_release(new_crtc_state->state, old_r_mixer);
-+			ret = mdp5_mixer_release(new_crtc_state->state, old_r_mixer);
-+			if (ret)
-+				return ret;
-+
- 			if (!need_right_mixer)
- 				pipeline->r_mixer = NULL;
- 		}
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c
-index 954db683ae44..2536def2a000 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.c
-@@ -116,21 +116,28 @@ int mdp5_mixer_assign(struct drm_atomic_state *s, struct drm_crtc *crtc,
- 	return 0;
- }
+ 	hid->driver_data = hid_data;
+ 	cli_data->hid_sensor_hubs[cur_hid_dev] = hid;
+-	hid->bus = BUS_AMD_AMDTP;
++	hid->bus = BUS_AMD_SFH;
+ 	hid->vendor = AMD_SFH_HID_VENDOR;
+ 	hid->product = AMD_SFH_HID_PRODUCT;
+ 	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-amdtp",
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+index c60abd38054c..cb04f47c8648 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+@@ -12,7 +12,7 @@
+ #define AMDSFH_HID_H
  
--void mdp5_mixer_release(struct drm_atomic_state *s, struct mdp5_hw_mixer *mixer)
-+int mdp5_mixer_release(struct drm_atomic_state *s, struct mdp5_hw_mixer *mixer)
- {
- 	struct mdp5_global_state *global_state = mdp5_get_global_state(s);
--	struct mdp5_hw_mixer_state *new_state = &global_state->hwmixer;
-+	struct mdp5_hw_mixer_state *new_state;
+ #define MAX_HID_DEVICES		5
+-#define BUS_AMD_AMDTP		0x20
++#define BUS_AMD_SFH		0x20
+ #define AMD_SFH_HID_VENDOR	0x1022
+ #define AMD_SFH_HID_PRODUCT	0x0001
  
- 	if (!mixer)
--		return;
-+		return 0;
-+
-+	if (IS_ERR(global_state))
-+		return PTR_ERR(global_state);
-+
-+	new_state = &global_state->hwmixer;
- 
- 	if (WARN_ON(!new_state->hwmixer_to_crtc[mixer->idx]))
--		return;
-+		return -EINVAL;
- 
- 	DBG("%s: release from crtc %s", mixer->name,
- 	    new_state->hwmixer_to_crtc[mixer->idx]->name);
- 
- 	new_state->hwmixer_to_crtc[mixer->idx] = NULL;
-+
-+	return 0;
- }
- 
- void mdp5_mixer_destroy(struct mdp5_hw_mixer *mixer)
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h
-index 43c9ba43ce18..545ee223b9d7 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_mixer.h
-@@ -30,7 +30,7 @@ void mdp5_mixer_destroy(struct mdp5_hw_mixer *lm);
- int mdp5_mixer_assign(struct drm_atomic_state *s, struct drm_crtc *crtc,
- 		      uint32_t caps, struct mdp5_hw_mixer **mixer,
- 		      struct mdp5_hw_mixer **r_mixer);
--void mdp5_mixer_release(struct drm_atomic_state *s,
--			struct mdp5_hw_mixer *mixer);
-+int mdp5_mixer_release(struct drm_atomic_state *s,
-+		       struct mdp5_hw_mixer *mixer);
- 
- #endif /* __MDP5_LM_H__ */
 -- 
 2.35.1
 
