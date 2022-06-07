@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AE4540C2A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6058D540C2B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351954AbiFGSeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1351984AbiFGSeM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Jun 2022 14:34:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35210 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353139AbiFGSbp (ORCPT
+        with ESMTP id S1349153AbiFGSbp (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 528C417DDCF;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FE017DDD1;
         Tue,  7 Jun 2022 10:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15C48B81F38;
-        Tue,  7 Jun 2022 17:56:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E710CC3411C;
-        Tue,  7 Jun 2022 17:56:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 397B2617E1;
+        Tue,  7 Jun 2022 17:56:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F49DC34119;
+        Tue,  7 Jun 2022 17:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624613;
-        bh=TW6ueQdlseHtdLD5C1uaBQUf40aJAFp61iSeYSspmMg=;
+        s=k20201202; t=1654624615;
+        bh=fXydfbGPjscZ2gziUBtB4tTAPY3+/VZjcJkVsS08xN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BkGRzD8lG9TPRKQ+5DFEv9PIVEzHEQ4QHYMDH8IpedTSgA0kimovHCZUrA8D6bnIW
-         cDtJxVaMGca+Sgl7AOTF9fGrdZ+bYM7y/Egkw59A/KAjrQP1k5oIcdcTliNgAxTTrz
-         6MHmCAWsCTXXsrVXRIx6JeMTqsh9s8betanXOjqy4QSwyAHw2oOxWvXN4W06IX8EwB
-         ecYgGagcP/vxCzDFHdmSHFt2lQNOn8R9GZk6S3O+zuhlzu4rjFBqQCul8opzIRoL6n
-         osk089d6EpvhWL6g3MYzKhxCOubf1ZfDu4kl/jEH2WZ8Tdhm43HbJlnJ7YlsMH7LQo
-         dpvWGKcHtGKqQ==
+        b=vKCciScZUHtjZxtSfsyLAtU5bWepZTIP3Mzo/q7w+9+pE1iOK/xhFM1oLFEYGhJ10
+         yLJOdSYkmlWNtY7xIiSoAU4hlODrLXkSV5uaaM17tHqbu0TyX26sF2A6jrfyAVLTlm
+         ZHdx188FnxaVbO4grtc+twuaAQj5Q8cLegwuoC4JEp0NfhfofN38VbL+5a5rFd8bdB
+         9OVVZCzyMh4oV7JjBx2t/pVIwt38eGTSUxG5OWw0lZQXm7Ze03V2v479raTHMsaynT
+         Kq9nf/IPbnOkJP2Lm3VGl0ltz0RCngCr9HJJHdEjCjaMoLkfoe1jxUwvvhetw2EkvN
+         qafGz/U2KFFsA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, hminas@synopsys.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 18/51] usb: dwc2: gadget: don't reset gadget's driver->bus
-Date:   Tue,  7 Jun 2022 13:55:17 -0400
-Message-Id: <20220607175552.479948-18-sashal@kernel.org>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        agross@kernel.org, bjorn.andersson@linaro.org,
+        yung-chuan.liao@linux.intel.com, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 19/51] soundwire: qcom: adjust autoenumeration timeout
+Date:   Tue,  7 Jun 2022 13:55:18 -0400
+Message-Id: <20220607175552.479948-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175552.479948-1-sashal@kernel.org>
 References: <20220607175552.479948-1-sashal@kernel.org>
@@ -57,64 +59,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
+[ Upstream commit 74da272400b46f2e898f115d1b1cd60828766919 ]
 
-UDC driver should not touch gadget's driver internals, especially it
-should not reset driver->bus. This wasn't harmful so far, but since
-commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
-subsystem got it's own bus and messing with ->bus triggers the
-following NULL pointer dereference:
+Currently timeout for autoenumeration during probe and bus reset is set to
+2 secs which is really a big value. This can have an adverse effect on
+boot time if the slave device is not ready/reset.
+This was the case with wcd938x which was not reset yet but we spent 2
+secs waiting in the soundwire controller probe. Reduce this time to
+1/10 of Hz which should be good enough time to finish autoenumeration
+if any slaves are available on the bus.
 
-dwc2 12480000.hsotg: bound driver g_ether
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-[00000000] *pgd=00000000
-Internal error: Oops: 5 [#1] SMP ARM
-Modules linked in: ...
-CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
-Hardware name: Samsung Exynos (Flattened Device Tree)
-PC is at module_add_driver+0x44/0xe8
-LR is at sysfs_do_create_link_sd+0x84/0xe0
-...
-Process modprobe (pid: 620, stack limit = 0x(ptrval))
-...
- module_add_driver from bus_add_driver+0xf4/0x1e4
- bus_add_driver from driver_register+0x78/0x10c
- driver_register from usb_gadget_register_driver_owner+0x40/0xb4
- usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
- do_one_initcall from do_init_module+0x44/0x1c8
- do_init_module from load_module+0x19b8/0x1b9c
- load_module from sys_finit_module+0xdc/0xfc
- sys_finit_module from ret_fast_syscall+0x0/0x54
-Exception stack(0xf1771fa8 to 0xf1771ff0)
-...
-dwc2 12480000.hsotg: new device is high-speed
----[ end trace 0000000000000000 ]---
-
-Fix this by removing driver->bus entry reset.
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220506084705.18525-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/soundwire/qcom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 0909b088a284..e1cebf581a4a 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4544,7 +4544,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
+diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
+index 0ef79d60e88e..f5955826b152 100644
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -97,7 +97,7 @@
  
- 	WARN_ON(hsotg->driver);
- 
--	driver->driver.bus = NULL;
- 	hsotg->driver = driver;
- 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
- 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
+ #define SWRM_SPECIAL_CMD_ID	0xF
+ #define MAX_FREQ_NUM		1
+-#define TIMEOUT_MS		(2 * HZ)
++#define TIMEOUT_MS		100
+ #define QCOM_SWRM_MAX_RD_LEN	0x1
+ #define QCOM_SDW_MAX_PORTS	14
+ #define DEFAULT_CLK_FREQ	9600000
 -- 
 2.35.1
 
