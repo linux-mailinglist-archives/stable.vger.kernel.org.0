@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76C8B5422B0
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0ADF5426CB
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385284AbiFHBPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 21:15:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48694 "EHLO
+        id S1382989AbiFHBPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1836575AbiFGX61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 19:58:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2268519DE58;
-        Tue,  7 Jun 2022 12:26:19 -0700 (PDT)
+        with ESMTP id S1843649AbiFHALR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 20:11:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B4C19EC08;
+        Tue,  7 Jun 2022 12:26:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5E87B8220B;
-        Tue,  7 Jun 2022 19:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B786C385A2;
-        Tue,  7 Jun 2022 19:26:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D38660C7F;
+        Tue,  7 Jun 2022 19:26:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13CCDC385A5;
+        Tue,  7 Jun 2022 19:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629976;
-        bh=dCeVzC/jF/iTDOn+inmUhCo29O8Nt84UucMF/ifylBA=;
+        s=korg; t=1654629979;
+        bh=WQOEOZu+GFtit9nfZ0CRil1D8zDpzePz2KgoVdWnlhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLge8xIU3ooZkVZeDb1wuBp252Au881H6zhvFdMkddZnUXSI4ZVzghIuwlbZN2ey2
-         zSjtLxAEWP0cafyohdcnbYnIPYn39g76ALzMBU0GycKGQYmo9Tvmh1ut3glEkR1AJZ
-         WltDg+RvZfQk68gYEWdq/u6IWafSySQCfu+6J7TI=
+        b=k4FjkMYB7yPyJ1sdJXVrqtfU5QdNJHklbClfeA8xi6bsZBM4r7re/BX35HrrkECM6
+         PA6aHoCLVfeSsFWBH2jmED4R/rkuIfo37kJKAJ4+0c1yIVOVy9dbELhFFbyko4o533
+         TdBhKxQm5/LxOBKMKaHookKsHowQZbFcqCmYiKsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.18 856/879] dt-bindings: gpio: altera: correct interrupt-cells
-Date:   Tue,  7 Jun 2022 19:06:14 +0200
-Message-Id: <20220607165027.701355783@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH 5.18 857/879] vdpasim: allow to enable a vq repeatedly
+Date:   Tue,  7 Jun 2022 19:06:15 +0200
+Message-Id: <20220607165027.730597397@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -52,40 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Eugenio Pérez <eperezma@redhat.com>
 
-commit 3a21c3ac93aff7b4522b152399df8f6a041df56d upstream.
+commit 242436973831aa97e8ce19533c6c912ea8def31b upstream.
 
-update documentation to correctly state the interrupt-cells to be 2.
+Code must be resilient to enable a queue many times.
 
+At the moment the queue is resetting so it's definitely not the expected
+behavior.
+
+v2: set vq->ready = 0 at disable.
+
+Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
 Cc: stable@vger.kernel.org
-Fixes: 4fd9bbc6e071 ("drivers/gpio: Altera soft IP GPIO driver devicetree binding")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+Message-Id: <20220519145919.772896-1-eperezma@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/gpio/gpio-altera.txt |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/gpio/gpio-altera.txt
-+++ b/Documentation/devicetree/bindings/gpio/gpio-altera.txt
-@@ -9,8 +9,9 @@ Required properties:
-   - The second cell is reserved and is currently unused.
- - gpio-controller : Marks the device node as a GPIO controller.
- - interrupt-controller: Mark the device node as an interrupt controller
--- #interrupt-cells : Should be 1. The interrupt type is fixed in the hardware.
-+- #interrupt-cells : Should be 2. The interrupt type is fixed in the hardware.
-   - The first cell is the GPIO offset number within the GPIO controller.
-+  - The second cell is the interrupt trigger type and level flags.
- - interrupts: Specify the interrupt.
- - altr,interrupt-type: Specifies the interrupt trigger type the GPIO
-   hardware is synthesized. This field is required if the Altera GPIO controller
-@@ -38,6 +39,6 @@ gpio_altr: gpio@ff200000 {
- 	altr,interrupt-type = <IRQ_TYPE_EDGE_RISING>;
- 	#gpio-cells = <2>;
- 	gpio-controller;
--	#interrupt-cells = <1>;
-+	#interrupt-cells = <2>;
- 	interrupt-controller;
- };
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -353,11 +353,14 @@ static void vdpasim_set_vq_ready(struct
+ {
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+ 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
++	bool old_ready;
+ 
+ 	spin_lock(&vdpasim->lock);
++	old_ready = vq->ready;
+ 	vq->ready = ready;
+-	if (vq->ready)
++	if (vq->ready && !old_ready) {
+ 		vdpasim_queue_ready(vdpasim, idx);
++	}
+ 	spin_unlock(&vdpasim->lock);
+ }
+ 
 
 
