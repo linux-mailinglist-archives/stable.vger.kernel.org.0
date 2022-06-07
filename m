@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60AD45404C3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E32A541305
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345599AbiFGRS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39284 "EHLO
+        id S1357602AbiFGTzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:55:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345653AbiFGRS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:56 -0400
+        with ESMTP id S1358947AbiFGTxY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E99F1053D6;
-        Tue,  7 Jun 2022 10:18:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C5F32EDC;
+        Tue,  7 Jun 2022 11:23:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0A3B822AF;
-        Tue,  7 Jun 2022 17:18:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A794AC385A5;
-        Tue,  7 Jun 2022 17:18:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 328A9B8237D;
+        Tue,  7 Jun 2022 18:23:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE4CC385A2;
+        Tue,  7 Jun 2022 18:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622329;
-        bh=ur/6LP5MdmxKuqnuTWkZfJmKUn3UuwJwFhQ5S813QyM=;
+        s=korg; t=1654626186;
+        bh=zmVLlQpTiH15ShWxpAuNa8u5VbIpjW9gJqgWwSjyFMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHNi/jxlpg2cXpf2ng6/sFbVS/oYLiB2rwGnJlHpi0pzC34MbBJJlyBBk8orz0JZ3
-         HhdajKNZpGVcMLn1YIuajCXMhY7dkxVlJCwKcVZWE5AFkxljWiWdNHhxDFK+qEZYDY
-         fSVgfTFtvXghVhwCdpimz0csQHzG9qlFHj0awtRE=
+        b=q4epXaNUwnj9ees8I6JLNrZ3Q4fp87rtMwkDYlmQAzsWIFbDso21G3Tvh6tyrHUs6
+         buojrHAnuUo3jeKoZ5fzZ01v9nEdULaDt2DMDJlBmLBs476XJbdWr0qckqMRmGwn7Z
+         1fxZHxH3vbAXJA5J3kzU63/GgGLFwqjvgiQFbReM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.10 020/452] ptrace/xtensa: Replace PT_SINGLESTEP with TIF_SINGLESTEP
-Date:   Tue,  7 Jun 2022 18:57:57 +0200
-Message-Id: <20220607164909.144022713@linuxfoundation.org>
+        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 286/772] media: i2c: max9286: Use "maxim,gpio-poc" property
+Date:   Tue,  7 Jun 2022 18:57:58 +0200
+Message-Id: <20220607164957.453846572@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +56,254 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-commit 4a3d2717d140401df7501a95e454180831a0c5af upstream.
+[ Upstream commit c9352df7139bc5be6642ebc8a78b40477ab32acd ]
 
-xtensa is the last user of the PT_SINGLESTEP flag.  Changing tsk->ptrace in
-user_enable_single_step and user_disable_single_step without locking could
-potentiallly cause problems.
+The 'maxim,gpio-poc' property is used when the remote camera
+power-over-coax is controlled by one of the MAX9286 gpio lines,
+to instruct the driver about which line to use and what the line
+polarity is.
 
-So use a thread info flag instead of a flag in tsk->ptrace.  Use TIF_SINGLESTEP
-that xtensa already had defined but unused.
+Add to the max9286 driver support for parsing the newly introduced
+property and use it if available in place of the usual supply, as it is
+not possible to establish one as consumer of the max9286 gpio
+controller.
 
-Remove the definitions of PT_SINGLESTEP and PT_BLOCKSTEP as they have no more users.
+If the new property is present, no gpio controller is registered and
+'poc-supply' is ignored.
 
-Cc: stable@vger.kernel.org
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
-Tested-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Link: https://lkml.kernel.org/r/20220505182645.497868-4-ebiederm@xmission.com
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In order to maximize code re-use, break out the max9286 gpio handling
+function so that they can be used by the gpio controller through the
+gpio-consumer API, or directly by the driver code.
+
+Wrap the power up and power down routines to their own function to
+be able to use either the gpio line directly or the supply. This will
+make it easier to control the remote camera power at run time.
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/ptrace.c |    4 ++--
- arch/xtensa/kernel/signal.c |    4 ++--
- include/linux/ptrace.h      |    6 ------
- 3 files changed, 4 insertions(+), 10 deletions(-)
+ drivers/media/i2c/max9286.c | 120 +++++++++++++++++++++++++++---------
+ 1 file changed, 90 insertions(+), 30 deletions(-)
 
---- a/arch/xtensa/kernel/ptrace.c
-+++ b/arch/xtensa/kernel/ptrace.c
-@@ -226,12 +226,12 @@ const struct user_regset_view *task_user
+diff --git a/drivers/media/i2c/max9286.c b/drivers/media/i2c/max9286.c
+index eb2b8e42335b..c572eec54044 100644
+--- a/drivers/media/i2c/max9286.c
++++ b/drivers/media/i2c/max9286.c
+@@ -15,6 +15,7 @@
+ #include <linux/fwnode.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/gpio/driver.h>
++#include <linux/gpio/machine.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+ #include <linux/module.h>
+@@ -168,6 +169,8 @@ struct max9286_priv {
+ 	u32 init_rev_chan_mv;
+ 	u32 rev_chan_mv;
  
- void user_enable_single_step(struct task_struct *child)
++	u32 gpio_poc[2];
++
+ 	struct v4l2_ctrl_handler ctrls;
+ 	struct v4l2_ctrl *pixelrate;
+ 
+@@ -1025,20 +1028,27 @@ static int max9286_setup(struct max9286_priv *priv)
+ 	return 0;
+ }
+ 
+-static void max9286_gpio_set(struct gpio_chip *chip,
+-			     unsigned int offset, int value)
++static int max9286_gpio_set(struct max9286_priv *priv, unsigned int offset,
++			    int value)
  {
--	child->ptrace |= PT_SINGLESTEP;
-+	set_tsk_thread_flag(child, TIF_SINGLESTEP);
- }
- 
- void user_disable_single_step(struct task_struct *child)
- {
--	child->ptrace &= ~PT_SINGLESTEP;
-+	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
- }
- 
- /*
---- a/arch/xtensa/kernel/signal.c
-+++ b/arch/xtensa/kernel/signal.c
-@@ -465,7 +465,7 @@ static void do_signal(struct pt_regs *re
- 		/* Set up the stack frame */
- 		ret = setup_frame(&ksig, sigmask_to_save(), regs);
- 		signal_setup_done(ret, &ksig, 0);
--		if (current->ptrace & PT_SINGLESTEP)
-+		if (test_thread_flag(TIF_SINGLESTEP))
- 			task_pt_regs(current)->icountlevel = 1;
- 
- 		return;
-@@ -491,7 +491,7 @@ static void do_signal(struct pt_regs *re
- 	/* If there's no signal to deliver, we just restore the saved mask.  */
- 	restore_saved_sigmask();
- 
--	if (current->ptrace & PT_SINGLESTEP)
-+	if (test_thread_flag(TIF_SINGLESTEP))
- 		task_pt_regs(current)->icountlevel = 1;
- 	return;
- }
---- a/include/linux/ptrace.h
-+++ b/include/linux/ptrace.h
-@@ -46,12 +46,6 @@ extern int ptrace_access_vm(struct task_
- #define PT_EXITKILL		(PTRACE_O_EXITKILL << PT_OPT_FLAG_SHIFT)
- #define PT_SUSPEND_SECCOMP	(PTRACE_O_SUSPEND_SECCOMP << PT_OPT_FLAG_SHIFT)
- 
--/* single stepping state bits (used on ARM and PA-RISC) */
--#define PT_SINGLESTEP_BIT	31
--#define PT_SINGLESTEP		(1<<PT_SINGLESTEP_BIT)
--#define PT_BLOCKSTEP_BIT	30
--#define PT_BLOCKSTEP		(1<<PT_BLOCKSTEP_BIT)
+-	struct max9286_priv *priv = gpiochip_get_data(chip);
 -
- extern long arch_ptrace(struct task_struct *child, long request,
- 			unsigned long addr, unsigned long data);
- extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char __user *dst, int len);
+ 	if (value)
+ 		priv->gpio_state |= BIT(offset);
+ 	else
+ 		priv->gpio_state &= ~BIT(offset);
+ 
+-	max9286_write(priv, 0x0f, MAX9286_0X0F_RESERVED | priv->gpio_state);
++	return max9286_write(priv, 0x0f,
++			     MAX9286_0X0F_RESERVED | priv->gpio_state);
+ }
+ 
+-static int max9286_gpio_get(struct gpio_chip *chip, unsigned int offset)
++static void max9286_gpiochip_set(struct gpio_chip *chip,
++				 unsigned int offset, int value)
++{
++	struct max9286_priv *priv = gpiochip_get_data(chip);
++
++	max9286_gpio_set(priv, offset, value);
++}
++
++static int max9286_gpiochip_get(struct gpio_chip *chip, unsigned int offset)
+ {
+ 	struct max9286_priv *priv = gpiochip_get_data(chip);
+ 
+@@ -1057,13 +1067,10 @@ static int max9286_register_gpio(struct max9286_priv *priv)
+ 	gpio->owner = THIS_MODULE;
+ 	gpio->ngpio = 2;
+ 	gpio->base = -1;
+-	gpio->set = max9286_gpio_set;
+-	gpio->get = max9286_gpio_get;
++	gpio->set = max9286_gpiochip_set;
++	gpio->get = max9286_gpiochip_get;
+ 	gpio->can_sleep = true;
+ 
+-	/* GPIO values default to high */
+-	priv->gpio_state = BIT(0) | BIT(1);
+-
+ 	ret = devm_gpiochip_add_data(dev, gpio, priv);
+ 	if (ret)
+ 		dev_err(dev, "Unable to create gpio_chip\n");
+@@ -1071,6 +1078,70 @@ static int max9286_register_gpio(struct max9286_priv *priv)
+ 	return ret;
+ }
+ 
++static int max9286_parse_gpios(struct max9286_priv *priv)
++{
++	struct device *dev = &priv->client->dev;
++	int ret;
++
++	/* GPIO values default to high */
++	priv->gpio_state = BIT(0) | BIT(1);
++
++	/*
++	 * Parse the "gpio-poc" vendor property. If the property is not
++	 * specified the camera power is controlled by a regulator.
++	 */
++	ret = of_property_read_u32_array(dev->of_node, "maxim,gpio-poc",
++					 priv->gpio_poc, 2);
++	if (ret == -EINVAL) {
++		/*
++		 * If gpio lines are not used for the camera power, register
++		 * a gpio controller for consumers.
++		 */
++		ret = max9286_register_gpio(priv);
++		if (ret)
++			return ret;
++
++		priv->regulator = devm_regulator_get(dev, "poc");
++		if (IS_ERR(priv->regulator)) {
++			return dev_err_probe(dev, PTR_ERR(priv->regulator),
++					     "Unable to get PoC regulator (%ld)\n",
++					     PTR_ERR(priv->regulator));
++		}
++
++		return 0;
++	}
++
++	/* If the property is specified make sure it is well formed. */
++	if (ret || priv->gpio_poc[0] > 1 ||
++	    (priv->gpio_poc[1] != GPIO_ACTIVE_HIGH &&
++	     priv->gpio_poc[1] != GPIO_ACTIVE_LOW)) {
++		dev_err(dev, "Invalid 'gpio-poc' property\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int max9286_poc_enable(struct max9286_priv *priv, bool enable)
++{
++	int ret;
++
++	/* If the regulator is not available, use gpio to control power. */
++	if (!priv->regulator)
++		ret = max9286_gpio_set(priv, priv->gpio_poc[0],
++				       enable ^ priv->gpio_poc[1]);
++	else if (enable)
++		ret = regulator_enable(priv->regulator);
++	else
++		ret = regulator_disable(priv->regulator);
++
++	if (ret < 0)
++		dev_err(&priv->client->dev, "Unable to turn power %s\n",
++			enable ? "on" : "off");
++
++	return ret;
++}
++
+ static int max9286_init(struct device *dev)
+ {
+ 	struct max9286_priv *priv;
+@@ -1080,17 +1151,14 @@ static int max9286_init(struct device *dev)
+ 	client = to_i2c_client(dev);
+ 	priv = i2c_get_clientdata(client);
+ 
+-	/* Enable the bus power. */
+-	ret = regulator_enable(priv->regulator);
+-	if (ret < 0) {
+-		dev_err(&client->dev, "Unable to turn PoC on\n");
++	ret = max9286_poc_enable(priv, true);
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	ret = max9286_setup(priv);
+ 	if (ret) {
+ 		dev_err(dev, "Unable to setup max9286\n");
+-		goto err_regulator;
++		goto err_poc_disable;
+ 	}
+ 
+ 	/*
+@@ -1100,7 +1168,7 @@ static int max9286_init(struct device *dev)
+ 	ret = max9286_v4l2_register(priv);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to register with V4L2\n");
+-		goto err_regulator;
++		goto err_poc_disable;
+ 	}
+ 
+ 	ret = max9286_i2c_mux_init(priv);
+@@ -1116,8 +1184,8 @@ static int max9286_init(struct device *dev)
+ 
+ err_v4l2_register:
+ 	max9286_v4l2_unregister(priv);
+-err_regulator:
+-	regulator_disable(priv->regulator);
++err_poc_disable:
++	max9286_poc_enable(priv, false);
+ 
+ 	return ret;
+ }
+@@ -1288,18 +1356,10 @@ static int max9286_probe(struct i2c_client *client)
+ 	 */
+ 	max9286_configure_i2c(priv, false);
+ 
+-	ret = max9286_register_gpio(priv);
++	ret = max9286_parse_gpios(priv);
+ 	if (ret)
+ 		goto err_powerdown;
+ 
+-	priv->regulator = devm_regulator_get(&client->dev, "poc");
+-	if (IS_ERR(priv->regulator)) {
+-		ret = PTR_ERR(priv->regulator);
+-		dev_err_probe(&client->dev, ret,
+-			      "Unable to get PoC regulator\n");
+-		goto err_powerdown;
+-	}
+-
+ 	ret = max9286_parse_dt(priv);
+ 	if (ret)
+ 		goto err_powerdown;
+@@ -1326,7 +1386,7 @@ static int max9286_remove(struct i2c_client *client)
+ 
+ 	max9286_v4l2_unregister(priv);
+ 
+-	regulator_disable(priv->regulator);
++	max9286_poc_enable(priv, false);
+ 
+ 	gpiod_set_value_cansleep(priv->gpiod_pwdn, 0);
+ 
+-- 
+2.35.1
+
 
 
