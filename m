@@ -2,86 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD5B54110D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F040541887
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355369AbiFGTcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58978 "EHLO
+        id S1379823AbiFGVMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356579AbiFGTbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:31:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631171A65CA;
-        Tue,  7 Jun 2022 11:12:35 -0700 (PDT)
+        with ESMTP id S1379032AbiFGVJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:09:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7081A214888;
+        Tue,  7 Jun 2022 11:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44D9DB82374;
-        Tue,  7 Jun 2022 18:12:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FF3DC385A5;
-        Tue,  7 Jun 2022 18:12:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A370AB81FE1;
+        Tue,  7 Jun 2022 18:51:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FF97C385A5;
+        Tue,  7 Jun 2022 18:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625552;
-        bh=NCZ8ENLCATeP2GIJLaAP/xz+MzB5wHdRUTpcdOOL+I4=;
+        s=korg; t=1654627901;
+        bh=cB/zmou4JNBatz0EsRvy0e6Im6lxkG/oKJCnqFwoMfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjdlYL3+lA+OCIn4ix3y4GU7fYYJmSbiQVvYkzmAEW1Bko97+CFpBIs9PH5v42Cxi
-         c6I3ZEB11Gt6JxHP05xXbInF49ptriUgqVn9zS37nkfAl46adHK62YrLq7p1jjZC7l
-         ya2OrKQY25b+W/6H/Rh5Ir+b1VA3GtATGRIzOgxE=
+        b=e+GkkndBp7GHWpnnptze6274rPwbaNnCBy76XXOPni1AFY194my/MZqPNpIVKxB3a
+         iYrRo5E39nQ+IzK3BPRBT0M83pHjVclol3QLGWexIERbnak9QLMBgntT45N1jcYuMh
+         NmJBfhT67L8s29ZjAlb39XFAmiRRX+FBF73Ofzgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 059/772] b43: Fix assigning negative value to unsigned variable
-Date:   Tue,  7 Jun 2022 18:54:11 +0200
-Message-Id: <20220607164950.779259958@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 134/879] regulator: mt6315: Enforce regulator-compatible, not name
+Date:   Tue,  7 Jun 2022 18:54:12 +0200
+Message-Id: <20220607165006.592659436@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit 11800d893b38e0e12d636c170c1abc19c43c730c ]
+[ Upstream commit 6d435a94ba5bb4f2ad381c0828fbae89c66b50fe ]
 
-fix warning reported by smatch:
-drivers/net/wireless/broadcom/b43/phy_n.c:585 b43_nphy_adjust_lna_gain_table()
-warn: assigning (-2) to unsigned variable '*(lna_gain[0])'
+The MT6315 PMIC dt-binding should enforce that one of the valid
+regulator-compatible is set in each regulator node. However it was
+mistakenly matching against regulator-name instead.
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648203315-28093-1-git-send-email-baihaowen@meizu.com
+Fix the typo. This not only fixes the compatible verification, but also
+lifts the regulator-name restriction, so that more meaningful names can
+be set for each platform.
+
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Link: https://lore.kernel.org/r/20220429201325.2205799-1-nfraprado@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
+ .../devicetree/bindings/regulator/mt6315-regulator.yaml         | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
-index cf3ccf4ddfe7..aa5c99465674 100644
---- a/drivers/net/wireless/broadcom/b43/phy_n.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_n.c
-@@ -582,7 +582,7 @@ static void b43_nphy_adjust_lna_gain_table(struct b43_wldev *dev)
- 	u16 data[4];
- 	s16 gain[2];
- 	u16 minmax[2];
--	static const u16 lna_gain[4] = { -2, 10, 19, 25 };
-+	static const s16 lna_gain[4] = { -2, 10, 19, 25 };
+diff --git a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+index 61dd5af80db6..5d2d989de893 100644
+--- a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
++++ b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+@@ -31,7 +31,7 @@ properties:
+         $ref: "regulator.yaml#"
  
- 	if (nphy->hang_avoid)
- 		b43_nphy_stay_in_carrier_search(dev, 1);
+         properties:
+-          regulator-name:
++          regulator-compatible:
+             pattern: "^vbuck[1-4]$"
+ 
+     additionalProperties: false
 -- 
 2.35.1
 
