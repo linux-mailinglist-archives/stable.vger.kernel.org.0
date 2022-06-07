@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1CD541B04
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55DE6541423
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380976AbiFGVmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52088 "EHLO
+        id S1359214AbiFGUNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:13:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381308AbiFGVk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9368F232802;
-        Tue,  7 Jun 2022 12:06:40 -0700 (PDT)
+        with ESMTP id S1359576AbiFGUMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:12:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD2B3A700;
+        Tue,  7 Jun 2022 11:27:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E3CC617DA;
-        Tue,  7 Jun 2022 19:06:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E98CC34115;
-        Tue,  7 Jun 2022 19:06:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACDF0B82340;
+        Tue,  7 Jun 2022 18:27:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1491FC34115;
+        Tue,  7 Jun 2022 18:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628799;
-        bh=ocfS7A3RXskJpAaCX74xsV9vLCUzdp7U0CdD+K9j1Jc=;
+        s=korg; t=1654626459;
+        bh=IQgoP+SKQQPeJdNHSyiKmSELpkmNwWnPaW27gZSqHSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fNMeuffSebsR52mtJuvluRM/FCvWKJASlhg1ht0QeV7hCyIfplOR4lNPvFivvQRIb
-         l8ghZIFz+hIELSitS43jG58OY3XnjXHjdwNTIW9TcF71RKNZmQPk/ok3qfu7gBDxIi
-         0n/NY7Sso1huODWezuDxjFQMwIfqWVPpFeSIqUhc=
+        b=L7SF2P+AQLJ7CAR+VQe6zYGeVKOEKci/78h/WL1mvMBs40rpCQGcvyTHhw/KeFh+O
+         GDRwi9LCSveP3EQZHXPBRWRUrl5ZmJC6ZTyRyEhk30TOAq20oDpoas6rqCe5qQ7eyE
+         UlySSAyg9cUQYgfrLrFrNc7BQZV04JuXIvgqOVh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 419/879] ASoC: mxs-saif: Fix refcount leak in mxs_saif_probe
+Subject: [PATCH 5.17 345/772] iomap: iomap_write_failed fix
 Date:   Tue,  7 Jun 2022 18:58:57 +0200
-Message-Id: <20220607165015.024921083@linuxfoundation.org>
+Message-Id: <20220607164959.189381549@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 2be84f73785fa9ed6443e3c5b158730266f1c2ee ]
+[ Upstream commit b71450e2cc4b3c79f33c5bd276d152af9bd54f79 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
+The @lend parameter of truncate_pagecache_range() should be the offset
+of the last byte of the hole, not the first byte beyond it.
 
-Fixes: 08641c7c74dd ("ASoC: mxs: add device tree support for mxs-saif")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220511133725.39039-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ae259a9c8593 ("fs: introduce iomap infrastructure")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mxs/mxs-saif.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/iomap/buffered-io.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/mxs/mxs-saif.c b/sound/soc/mxs/mxs-saif.c
-index 879c1221a809..7afe1a1acc56 100644
---- a/sound/soc/mxs/mxs-saif.c
-+++ b/sound/soc/mxs/mxs-saif.c
-@@ -754,6 +754,7 @@ static int mxs_saif_probe(struct platform_device *pdev)
- 		saif->master_id = saif->id;
- 	} else {
- 		ret = of_alias_get_id(master, "saif");
-+		of_node_put(master);
- 		if (ret < 0)
- 			return ret;
- 		else
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index d020a2e81a24..7e4ba8b2b25e 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -542,7 +542,8 @@ iomap_write_failed(struct inode *inode, loff_t pos, unsigned len)
+ 	 * write started inside the existing inode size.
+ 	 */
+ 	if (pos + len > i_size)
+-		truncate_pagecache_range(inode, max(pos, i_size), pos + len);
++		truncate_pagecache_range(inode, max(pos, i_size),
++					 pos + len - 1);
+ }
+ 
+ static int iomap_read_folio_sync(loff_t block_start, struct folio *folio,
 -- 
 2.35.1
 
