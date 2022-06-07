@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF2E541297
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 866DD5419EA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356236AbiFGTyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47334 "EHLO
+        id S1378281AbiFGV1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358020AbiFGTv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:51:28 -0400
+        with ESMTP id S1378606AbiFGVXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F758CCE7;
-        Tue,  7 Jun 2022 11:19:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE3B227372;
+        Tue,  7 Jun 2022 12:00:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C32CB8237D;
-        Tue,  7 Jun 2022 18:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A67C385A5;
-        Tue,  7 Jun 2022 18:19:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3B84B8239B;
+        Tue,  7 Jun 2022 19:00:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30017C385A2;
+        Tue,  7 Jun 2022 19:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625983;
-        bh=rZ2OXPCITf7LRFHCb0HH1soMLzMUo8JEpL8zp4zSYqI=;
+        s=korg; t=1654628445;
+        bh=2ftzByvT7ollHRgAimUJKlQkYDooesMzSmrN5hTXnXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USlYvuf9x/KvX+i/Vs8kAYBe9Y78GKIxwg76e2J+f73fcdsMjxwriYkqR+XLoIva6
-         s5VAy4oHHA1+39RWsgHijsZH6QY6Z/lMFfZ8YNjMtmZ0Nr6TCGi7za9CBqOrodxE92
-         o5KOsEqbivkCRCy4ahOS35eqe41RkbWwcLo/XyI8=
+        b=hSRgaJTVZiY/xxNtSnwyGYGQD6FYchnDE1jvsWfsYrtA+hQKHJa6Qyy57L6VKZwuV
+         W9VvnejOUGL84l67qYGar/3QInxBQVB43YK5fTNRTRZkn+5Q5L6K+lm+q56BtSp2q/
+         1Nq/LcRrPs6FrDxkSeNiSzR81v7h7QNy2sfioXHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 208/772] powerpc/rtas: Keep MSR[RI] set when calling RTAS
+Subject: [PATCH 5.18 282/879] ASoC: mediatek: Fix error handling in mt8173_max98090_dev_probe
 Date:   Tue,  7 Jun 2022 18:56:40 +0200
-Message-Id: <20220607164955.162505805@linuxfoundation.org>
+Message-Id: <20220607165011.033619974@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,162 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Dufour <ldufour@linux.ibm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b6b1c3ce06ca438eb24e0f45bf0e63ecad0369f5 ]
+[ Upstream commit 4f4e0454e226de3bf4efd7e7924d1edc571c52d5 ]
 
-RTAS runs in real mode (MSR[DR] and MSR[IR] unset) and in 32-bit big
-endian mode (MSR[SF,LE] unset).
+Call of_node_put(platform_node) to avoid refcount leak in
+the error path.
 
-The change in MSR is done in enter_rtas() in a relatively complex way,
-since the MSR value could be hardcoded.
-
-Furthermore, a panic has been reported when hitting the watchdog interrupt
-while running in RTAS, this leads to the following stack trace:
-
-  watchdog: CPU 24 Hard LOCKUP
-  watchdog: CPU 24 TB:997512652051031, last heartbeat TB:997504470175378 (15980ms ago)
-  ...
-  Supported: No, Unreleased kernel
-  CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Tainted: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
-  NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0000000000000000
-  REGS: c00000000fc33d60 TRAP: 0100   Tainted: G            E  X     (5.14.21-150400.71.1.bz196362_2-default)
-  MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 48800002  XER: 20040020
-  CFAR: 000000000000011c IRQMASK: 1
-  GPR00: 0000000000000003 ffffffffffffffff 0000000000000001 00000000000050dc
-  GPR04: 000000001ffb6100 0000000000000020 0000000000000001 000000001fb09010
-  GPR08: 0000000020000000 0000000000000000 0000000000000000 0000000000000000
-  GPR12: 80040000072a40a8 c00000000ff8b680 0000000000000007 0000000000000034
-  GPR16: 000000001fbf6e94 000000001fbf6d84 000000001fbd1db0 000000001fb3f008
-  GPR20: 000000001fb41018 ffffffffffffffff 000000000000017f fffffffffffff68f
-  GPR24: 000000001fb18fe8 000000001fb3e000 000000001fb1adc0 000000001fb1cf40
-  GPR28: 000000001fb26000 000000001fb460f0 000000001fb17f18 000000001fb17000
-  NIP [000000001fb41050] 0x1fb41050
-  LR [000000001fb4104c] 0x1fb4104c
-  Call Trace:
-  Instruction dump:
-  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-  Oops: Unrecoverable System Reset, sig: 6 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  ...
-  Supported: No, Unreleased kernel
-  CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Tainted: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
-  NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0000000000000000
-  REGS: c00000000fc33d60 TRAP: 0100   Tainted: G            E  X     (5.14.21-150400.71.1.bz196362_2-default)
-  MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 48800002  XER: 20040020
-  CFAR: 000000000000011c IRQMASK: 1
-  GPR00: 0000000000000003 ffffffffffffffff 0000000000000001 00000000000050dc
-  GPR04: 000000001ffb6100 0000000000000020 0000000000000001 000000001fb09010
-  GPR08: 0000000020000000 0000000000000000 0000000000000000 0000000000000000
-  GPR12: 80040000072a40a8 c00000000ff8b680 0000000000000007 0000000000000034
-  GPR16: 000000001fbf6e94 000000001fbf6d84 000000001fbd1db0 000000001fb3f008
-  GPR20: 000000001fb41018 ffffffffffffffff 000000000000017f fffffffffffff68f
-  GPR24: 000000001fb18fe8 000000001fb3e000 000000001fb1adc0 000000001fb1cf40
-  GPR28: 000000001fb26000 000000001fb460f0 000000001fb17f18 000000001fb17000
-  NIP [000000001fb41050] 0x1fb41050
-  LR [000000001fb4104c] 0x1fb4104c
-  Call Trace:
-  Instruction dump:
-  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-  ---[ end trace 3ddec07f638c34a2 ]---
-
-This happens because MSR[RI] is unset when entering RTAS but there is no
-valid reason to not set it here.
-
-RTAS is expected to be called with MSR[RI] as specified in PAPR+ section
-"7.2.1 Machine State":
-
-  R1–7.2.1–9. If called with MSR[RI] equal to 1, then RTAS must protect
-  its own critical regions from recursion by setting the MSR[RI] bit to
-  0 when in the critical regions.
-
-Fixing this by reviewing the way MSR is compute before calling RTAS. Now a
-hardcoded value meaning real mode, 32 bits big endian mode and Recoverable
-Interrupt is loaded. In the case MSR[S] is set, it will remain set while
-entering RTAS as only urfid can unset it (thanks Fabiano).
-
-In addition a check is added in do_enter_rtas() to detect calls made with
-MSR[RI] unset, as we are forcing it on later.
-
-This patch has been tested on the following machines:
-Power KVM Guest
-  P8 S822L (host Ubuntu kernel 5.11.0-49-generic)
-PowerVM LPAR
-  P8 9119-MME (FW860.A1)
-  p9 9008-22L (FW950.00)
-  P10 9080-HEX (FW1010.00)
-
-Suggested-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220504101244.12107-1-ldufour@linux.ibm.com
+Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
+Fixes: 493433785df0 ("ASoC: mediatek: mt8173: fix device_node leak")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220404092903.26725-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/entry_64.S | 24 ++++++++++++------------
- arch/powerpc/kernel/rtas.c     |  9 +++++++++
- 2 files changed, 21 insertions(+), 12 deletions(-)
+ sound/soc/mediatek/mt8173/mt8173-max98090.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
-index 9581906b5ee9..da18f83ef883 100644
---- a/arch/powerpc/kernel/entry_64.S
-+++ b/arch/powerpc/kernel/entry_64.S
-@@ -330,22 +330,22 @@ _GLOBAL(enter_rtas)
- 	clrldi	r4,r4,2			/* convert to realmode address */
-        	mtlr	r4
+diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+index 4cb90da89262..58778cd2e61b 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
++++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+@@ -167,7 +167,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 	if (!codec_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_platform_node;
+ 	}
+ 	for_each_card_prelinks(card, i, dai_link) {
+ 		if (dai_link->codecs->name)
+@@ -179,6 +180,8 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
  
--	li	r0,0
--	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
--	andc	r0,r6,r0
--	
--        li      r9,1
--        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
--	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
--	andc	r6,r0,r9
--
- __enter_rtas:
--	sync				/* disable interrupts so SRR0/1 */
--	mtmsrd	r0			/* don't get trashed */
--
- 	LOAD_REG_ADDR(r4, rtas)
- 	ld	r5,RTASENTRY(r4)	/* get the rtas->entry value */
- 	ld	r4,RTASBASE(r4)		/* get the rtas->base value */
+ 	of_node_put(codec_node);
 +
-+	/*
-+	 * RTAS runs in 32-bit big endian real mode, but leave MSR[RI] on as we
-+	 * may hit NMI (SRESET or MCE) while in RTAS. RTAS should disable RI in
-+	 * its critical regions (as specified in PAPR+ section 7.2.1). MSR[S]
-+	 * is not impacted by RFI_TO_KERNEL (only urfid can unset it). So if
-+	 * MSR[S] is set, it will remain when entering RTAS.
-+	 */
-+	LOAD_REG_IMMEDIATE(r6, MSR_ME | MSR_RI)
-+
-+	li      r0,0
-+	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
- 	
- 	mtspr	SPRN_SRR0,r5
- 	mtspr	SPRN_SRR1,r6
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 1f42aabbbab3..6bc89d9ccf63 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -49,6 +49,15 @@ void enter_rtas(unsigned long);
- 
- static inline void do_enter_rtas(unsigned long args)
- {
-+	unsigned long msr;
-+
-+	/*
-+	 * Make sure MSR[RI] is currently enabled as it will be forced later
-+	 * in enter_rtas.
-+	 */
-+	msr = mfmsr();
-+	BUG_ON(!(msr & MSR_RI));
-+
- 	enter_rtas(args);
- 
- 	srr_regs_clobbered(); /* rtas uses SRRs, invalidate */
++put_platform_node:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
