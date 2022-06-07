@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C555405F4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 522FE540CD5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346992AbiFGRcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42956 "EHLO
+        id S1352471AbiFGSlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:41:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347825AbiFGRbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C2B10A630;
-        Tue,  7 Jun 2022 10:28:32 -0700 (PDT)
+        with ESMTP id S1352558AbiFGSiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:38:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E34E1842F4;
+        Tue,  7 Jun 2022 10:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E89456145D;
-        Tue,  7 Jun 2022 17:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2635C34115;
-        Tue,  7 Jun 2022 17:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1F6E618DB;
+        Tue,  7 Jun 2022 17:58:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E40FEC36B03;
+        Tue,  7 Jun 2022 17:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622911;
-        bh=wgil/TspLU/IoPr0ptWLutstO43Ee6qM15+0zCrW37E=;
+        s=korg; t=1654624695;
+        bh=p0aLmWRISE6ht0b6iIng3ogD2g7pyk9Y428MhTNJoag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0hgBuPRFTDXAoyLtL8N1PrFWbba80mn7boFEFChYZvMxjuhMk5+Co27wGkbTIou5
-         kjOiHjuxDk2pRn9we8V0ueOOh5nn5rmXln1ucZlU2OWYc2m3AErzmDcNYP8ODwTm8N
-         KbGC01H6wRky3vp2/QpbdRRwJEu5eu743O+ufQJI=
+        b=kFew4n6nBdhRO2qYHWzrvIYafDqdEOqRMb5apNrQSa2iTzzu6M8dCyVxzGPAfD5PD
+         X7f0sEbEs3yimXrRx3x3lKQx151MgLjjFUB4S3flOMSrPFm8s66DiN0U0ugoUkxmky
+         VPM+P/U9iRIth4hup8GE2MD0SUnJzO7FCp0Pwokg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 227/452] ASoC: ti: j721e-evm: Fix refcount leak in j721e_soc_probe_*
-Date:   Tue,  7 Jun 2022 19:01:24 +0200
-Message-Id: <20220607164915.327688477@linuxfoundation.org>
+Subject: [PATCH 5.15 420/667] powerpc/fadump: fix PT_LOAD segment for boot memory area
+Date:   Tue,  7 Jun 2022 19:01:25 +0200
+Message-Id: <20220607164947.332423795@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-[ Upstream commit a34840c4eb3278a7c29c9c57a65ce7541c66f9f2 ]
+[ Upstream commit 15eb77f873255cf9f4d703b63cfbd23c46579654 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+Boot memory area is setup as separate PT_LOAD segment in the vmcore
+as it is moved by f/w, on crash, to a destination address provided by
+the kernel. Having separate PT_LOAD segment helps in handling the
+different physical address and offset for boot memory area in the
+vmcore.
 
-Fixes: 6748d0559059 ("ASoC: ti: Add custom machine driver for j721e EVM (CPB and IVI)")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220512111331.44774-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Commit ced1bf52f477 ("powerpc/fadump: merge adjacent memory ranges to
+reduce PT_LOAD segements") inadvertly broke this pre-condition for
+cases where some of the first kernel memory is available adjacent to
+boot memory area. This scenario is rare but possible when memory for
+fadump could not be reserved adjacent to boot memory area owing to
+memory hole or such. Reading memory from a vmcore exported in such
+scenario provides incorrect data.  Fix it by ensuring no other region
+is folded into boot memory area.
+
+Fixes: ced1bf52f477 ("powerpc/fadump: merge adjacent memory ranges to reduce PT_LOAD segements")
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220406093839.206608-2-hbathini@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/j721e-evm.c | 44 ++++++++++++++++++++++++++++++----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ arch/powerpc/kernel/fadump.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/ti/j721e-evm.c b/sound/soc/ti/j721e-evm.c
-index 265bbc5a2f96..756cd9694cbe 100644
---- a/sound/soc/ti/j721e-evm.c
-+++ b/sound/soc/ti/j721e-evm.c
-@@ -631,17 +631,18 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
- 	codec_node = of_parse_phandle(node, "ti,cpb-codec", 0);
- 	if (!codec_node) {
- 		dev_err(priv->dev, "CPB codec node is not provided\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_dai_node;
- 	}
- 
- 	domain = &priv->audio_domains[J721E_AUDIO_DOMAIN_CPB];
- 	ret = j721e_get_clocks(priv->dev, &domain->codec, "cpb-codec-scki");
- 	if (ret)
--		return ret;
-+		goto put_codec_node;
- 
- 	ret = j721e_get_clocks(priv->dev, &domain->mcasp, "cpb-mcasp-auxclk");
- 	if (ret)
--		return ret;
-+		goto put_codec_node;
- 
- 	/*
- 	 * Common Processor Board, two links
-@@ -651,8 +652,10 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
- 	comp_count = 6;
- 	compnent = devm_kzalloc(priv->dev, comp_count * sizeof(*compnent),
- 				GFP_KERNEL);
--	if (!compnent)
--		return -ENOMEM;
-+	if (!compnent) {
-+		ret = -ENOMEM;
-+		goto put_codec_node;
-+	}
- 
- 	comp_idx = 0;
- 	priv->dai_links[*link_idx].cpus = &compnent[comp_idx++];
-@@ -703,6 +706,12 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
- 	(*conf_idx)++;
- 
+diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+index 60f5fc14aa23..ad1c4575c61c 100644
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -861,7 +861,6 @@ static int fadump_alloc_mem_ranges(struct fadump_mrange_info *mrange_info)
+ 				       sizeof(struct fadump_memory_range));
  	return 0;
-+
-+put_codec_node:
-+	of_node_put(codec_node);
-+put_dai_node:
-+	of_node_put(dai_node);
-+	return ret;
  }
+-
+ static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
+ 				       u64 base, u64 end)
+ {
+@@ -880,7 +879,12 @@ static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
+ 		start = mem_ranges[mrange_info->mem_range_cnt - 1].base;
+ 		size  = mem_ranges[mrange_info->mem_range_cnt - 1].size;
  
- static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
-@@ -727,23 +736,25 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
- 	codeca_node = of_parse_phandle(node, "ti,ivi-codec-a", 0);
- 	if (!codeca_node) {
- 		dev_err(priv->dev, "IVI codec-a node is not provided\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_dai_node;
+-		if ((start + size) == base)
++		/*
++		 * Boot memory area needs separate PT_LOAD segment(s) as it
++		 * is moved to a different location at the time of crash.
++		 * So, fold only if the region is not boot memory area.
++		 */
++		if ((start + size) == base && start >= fw_dump.boot_mem_top)
+ 			is_adjacent = true;
  	}
- 
- 	codecb_node = of_parse_phandle(node, "ti,ivi-codec-b", 0);
- 	if (!codecb_node) {
- 		dev_warn(priv->dev, "IVI codec-b node is not provided\n");
--		return 0;
-+		ret = 0;
-+		goto put_codeca_node;
- 	}
- 
- 	domain = &priv->audio_domains[J721E_AUDIO_DOMAIN_IVI];
- 	ret = j721e_get_clocks(priv->dev, &domain->codec, "ivi-codec-scki");
- 	if (ret)
--		return ret;
-+		goto put_codecb_node;
- 
- 	ret = j721e_get_clocks(priv->dev, &domain->mcasp, "ivi-mcasp-auxclk");
- 	if (ret)
--		return ret;
-+		goto put_codecb_node;
- 
- 	/*
- 	 * IVI extension, two links
-@@ -755,8 +766,10 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
- 	comp_count = 8;
- 	compnent = devm_kzalloc(priv->dev, comp_count * sizeof(*compnent),
- 				GFP_KERNEL);
--	if (!compnent)
--		return -ENOMEM;
-+	if (!compnent) {
-+		ret = -ENOMEM;
-+		goto put_codecb_node;
-+	}
- 
- 	comp_idx = 0;
- 	priv->dai_links[*link_idx].cpus = &compnent[comp_idx++];
-@@ -817,6 +830,15 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
- 	(*conf_idx)++;
- 
- 	return 0;
-+
-+
-+put_codecb_node:
-+	of_node_put(codecb_node);
-+put_codeca_node:
-+	of_node_put(codeca_node);
-+put_dai_node:
-+	of_node_put(dai_node);
-+	return ret;
- }
- 
- static int j721e_soc_probe(struct platform_device *pdev)
+ 	if (!is_adjacent) {
 -- 
 2.35.1
 
