@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B3854057E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 712FC541B5A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346174AbiFGR0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
+        id S1380666AbiFGVob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346974AbiFGRZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC19111B80;
-        Tue,  7 Jun 2022 10:23:54 -0700 (PDT)
+        with ESMTP id S1380876AbiFGVma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:42:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D62233E8E;
+        Tue,  7 Jun 2022 12:07:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15DE560BC6;
-        Tue,  7 Jun 2022 17:23:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F98C385A5;
-        Tue,  7 Jun 2022 17:23:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7C2A4CE249A;
+        Tue,  7 Jun 2022 19:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 740A6C385A2;
+        Tue,  7 Jun 2022 19:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622633;
-        bh=vfebubb+COFyqqRnxderfn9E5M8pqbYMbPh9j7G7l1Y=;
+        s=korg; t=1654628824;
+        bh=LjG7GLH5U5DTD6yJQ2XCBG03jPKBoVWPy+6OfYakH0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBO2cKZGiD/9IV+6nzBf5AWPq3hLR43jH2RcSxPI52tJtgkm2FX6+5kKz7sqlAdf3
-         rh2+AxXm8vDnXi83wAfmV83WOMJ5l61AoZ6YhhGEPZtVKJ4WQARbTBbthHNZTtw89K
-         dBYq5elSrcTFUTBs18eKJ3XmTYVQKrVChD/GfXA8=
+        b=GL4NuVFtsm0jHOPvAJJQ8gCrqwyEOQicA9M9S6F8s444Jcqj7t4ZlbS5uRoklYyBy
+         8PEKlFL4KoG4yQ+3GAQC1pCKgMB8ZtQzfHkyicIQlsYsRe2BljGr807TT70OkKNgHH
+         ELBvpUt7jqijY9BlNLPyZt6CgNSUfsgEnla8Q83U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/452] drm/ingenic: Reset pixclock rate when parent clock rate changes
-Date:   Tue,  7 Jun 2022 18:59:47 +0200
-Message-Id: <20220607164912.433484819@linuxfoundation.org>
+Subject: [PATCH 5.18 470/879] ASoC: ti: j721e-evm: Fix refcount leak in j721e_soc_probe_*
+Date:   Tue,  7 Jun 2022 18:59:48 +0200
+Message-Id: <20220607165016.521185173@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,150 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 33700f6f7d9f6b4e1e6df933ef7fd388889c662c ]
+[ Upstream commit a34840c4eb3278a7c29c9c57a65ce7541c66f9f2 ]
 
-Old Ingenic SoCs can overclock very well, up to +50% of their nominal
-clock rate, whithout requiring overvolting or anything like that, just
-by changing the rate of the main PLL. Unfortunately, all clocks on the
-system are derived from that PLL, and when the PLL rate is updated, so
-is our pixel clock.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not needed anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-To counter that issue, we make sure that the panel is in VBLANK before
-the rate change happens, and we will then re-set the pixel clock rate
-afterwards, once the PLL has been changed, to be as close as possible to
-the pixel rate requested by the encoder.
-
-v2: Add comment about mutex usage
-
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200926170501.1109197-2-paul@crapouillou.net
+Fixes: 6748d0559059 ("ASoC: ti: Add custom machine driver for j721e EVM (CPB and IVI)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220512111331.44774-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 61 ++++++++++++++++++++++-
- 1 file changed, 60 insertions(+), 1 deletion(-)
+ sound/soc/ti/j721e-evm.c | 44 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-index b6bb5fc7d183..e34718cf5c2e 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -10,6 +10,7 @@
- #include <linux/clk.h>
- #include <linux/dma-mapping.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
-@@ -68,6 +69,21 @@ struct ingenic_drm {
- 
- 	bool panel_is_sharp;
- 	bool no_vblank;
-+
-+	/*
-+	 * clk_mutex is used to synchronize the pixel clock rate update with
-+	 * the VBLANK. When the pixel clock's parent clock needs to be updated,
-+	 * clock_nb's notifier function will lock the mutex, then wait until the
-+	 * next VBLANK. At that point, the parent clock's rate can be updated,
-+	 * and the mutex is then unlocked. If an atomic commit happens in the
-+	 * meantime, it will lock on the mutex, effectively waiting until the
-+	 * clock update process finishes. Finally, the pixel clock's rate will
-+	 * be recomputed when the mutex has been released, in the pending atomic
-+	 * commit, or a future one.
-+	 */
-+	struct mutex clk_mutex;
-+	bool update_clk_rate;
-+	struct notifier_block clock_nb;
- };
- 
- static const u32 ingenic_drm_primary_formats[] = {
-@@ -111,6 +127,29 @@ static inline struct ingenic_drm *drm_crtc_get_priv(struct drm_crtc *crtc)
- 	return container_of(crtc, struct ingenic_drm, crtc);
- }
- 
-+static inline struct ingenic_drm *drm_nb_get_priv(struct notifier_block *nb)
-+{
-+	return container_of(nb, struct ingenic_drm, clock_nb);
-+}
-+
-+static int ingenic_drm_update_pixclk(struct notifier_block *nb,
-+				     unsigned long action,
-+				     void *data)
-+{
-+	struct ingenic_drm *priv = drm_nb_get_priv(nb);
-+
-+	switch (action) {
-+	case PRE_RATE_CHANGE:
-+		mutex_lock(&priv->clk_mutex);
-+		priv->update_clk_rate = true;
-+		drm_crtc_wait_one_vblank(&priv->crtc);
-+		return NOTIFY_OK;
-+	default:
-+		mutex_unlock(&priv->clk_mutex);
-+		return NOTIFY_OK;
-+	}
-+}
-+
- static void ingenic_drm_crtc_atomic_enable(struct drm_crtc *crtc,
- 					   struct drm_crtc_state *state)
- {
-@@ -276,8 +315,14 @@ static void ingenic_drm_crtc_atomic_flush(struct drm_crtc *crtc,
- 
- 	if (drm_atomic_crtc_needs_modeset(state)) {
- 		ingenic_drm_crtc_update_timings(priv, &state->mode);
-+		priv->update_clk_rate = true;
-+	}
- 
-+	if (priv->update_clk_rate) {
-+		mutex_lock(&priv->clk_mutex);
- 		clk_set_rate(priv->pix_clk, state->adjusted_mode.clock * 1000);
-+		priv->update_clk_rate = false;
-+		mutex_unlock(&priv->clk_mutex);
+diff --git a/sound/soc/ti/j721e-evm.c b/sound/soc/ti/j721e-evm.c
+index 4077e15ec48b..6a969874c927 100644
+--- a/sound/soc/ti/j721e-evm.c
++++ b/sound/soc/ti/j721e-evm.c
+@@ -630,17 +630,18 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
+ 	codec_node = of_parse_phandle(node, "ti,cpb-codec", 0);
+ 	if (!codec_node) {
+ 		dev_err(priv->dev, "CPB codec node is not provided\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_dai_node;
  	}
  
- 	if (event) {
-@@ -936,16 +981,28 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
- 	if (soc_info->has_osd)
- 		regmap_write(priv->map, JZ_REG_LCD_OSDC, JZ_LCD_OSDC_OSDEN);
+ 	domain = &priv->audio_domains[J721E_AUDIO_DOMAIN_CPB];
+ 	ret = j721e_get_clocks(priv->dev, &domain->codec, "cpb-codec-scki");
+ 	if (ret)
+-		return ret;
++		goto put_codec_node;
  
-+	mutex_init(&priv->clk_mutex);
-+	priv->clock_nb.notifier_call = ingenic_drm_update_pixclk;
-+
-+	parent_clk = clk_get_parent(priv->pix_clk);
-+	ret = clk_notifier_register(parent_clk, &priv->clock_nb);
-+	if (ret) {
-+		dev_err(dev, "Unable to register clock notifier\n");
-+		goto err_devclk_disable;
+ 	ret = j721e_get_clocks(priv->dev, &domain->mcasp, "cpb-mcasp-auxclk");
+ 	if (ret)
+-		return ret;
++		goto put_codec_node;
+ 
+ 	/*
+ 	 * Common Processor Board, two links
+@@ -650,8 +651,10 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
+ 	comp_count = 6;
+ 	compnent = devm_kzalloc(priv->dev, comp_count * sizeof(*compnent),
+ 				GFP_KERNEL);
+-	if (!compnent)
+-		return -ENOMEM;
++	if (!compnent) {
++		ret = -ENOMEM;
++		goto put_codec_node;
 +	}
-+
- 	ret = drm_dev_register(drm, 0);
- 	if (ret) {
- 		dev_err(dev, "Failed to register DRM driver\n");
--		goto err_devclk_disable;
-+		goto err_clk_notifier_unregister;
- 	}
  
- 	drm_fbdev_generic_setup(drm, 32);
+ 	comp_idx = 0;
+ 	priv->dai_links[*link_idx].cpus = &compnent[comp_idx++];
+@@ -702,6 +705,12 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
+ 	(*conf_idx)++;
  
  	return 0;
++
++put_codec_node:
++	of_node_put(codec_node);
++put_dai_node:
++	of_node_put(dai_node);
++	return ret;
+ }
  
-+err_clk_notifier_unregister:
-+	clk_notifier_unregister(parent_clk, &priv->clock_nb);
- err_devclk_disable:
- 	if (priv->lcd_clk)
- 		clk_disable_unprepare(priv->lcd_clk);
-@@ -967,7 +1024,9 @@ static int compare_of(struct device *dev, void *data)
- static void ingenic_drm_unbind(struct device *dev)
- {
- 	struct ingenic_drm *priv = dev_get_drvdata(dev);
-+	struct clk *parent_clk = clk_get_parent(priv->pix_clk);
+ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
+@@ -726,23 +735,25 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
+ 	codeca_node = of_parse_phandle(node, "ti,ivi-codec-a", 0);
+ 	if (!codeca_node) {
+ 		dev_err(priv->dev, "IVI codec-a node is not provided\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_dai_node;
+ 	}
  
-+	clk_notifier_unregister(parent_clk, &priv->clock_nb);
- 	if (priv->lcd_clk)
- 		clk_disable_unprepare(priv->lcd_clk);
- 	clk_disable_unprepare(priv->pix_clk);
+ 	codecb_node = of_parse_phandle(node, "ti,ivi-codec-b", 0);
+ 	if (!codecb_node) {
+ 		dev_warn(priv->dev, "IVI codec-b node is not provided\n");
+-		return 0;
++		ret = 0;
++		goto put_codeca_node;
+ 	}
+ 
+ 	domain = &priv->audio_domains[J721E_AUDIO_DOMAIN_IVI];
+ 	ret = j721e_get_clocks(priv->dev, &domain->codec, "ivi-codec-scki");
+ 	if (ret)
+-		return ret;
++		goto put_codecb_node;
+ 
+ 	ret = j721e_get_clocks(priv->dev, &domain->mcasp, "ivi-mcasp-auxclk");
+ 	if (ret)
+-		return ret;
++		goto put_codecb_node;
+ 
+ 	/*
+ 	 * IVI extension, two links
+@@ -754,8 +765,10 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
+ 	comp_count = 8;
+ 	compnent = devm_kzalloc(priv->dev, comp_count * sizeof(*compnent),
+ 				GFP_KERNEL);
+-	if (!compnent)
+-		return -ENOMEM;
++	if (!compnent) {
++		ret = -ENOMEM;
++		goto put_codecb_node;
++	}
+ 
+ 	comp_idx = 0;
+ 	priv->dai_links[*link_idx].cpus = &compnent[comp_idx++];
+@@ -816,6 +829,15 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
+ 	(*conf_idx)++;
+ 
+ 	return 0;
++
++
++put_codecb_node:
++	of_node_put(codecb_node);
++put_codeca_node:
++	of_node_put(codeca_node);
++put_dai_node:
++	of_node_put(dai_node);
++	return ret;
+ }
+ 
+ static int j721e_soc_probe(struct platform_device *pdev)
 -- 
 2.35.1
 
