@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 655F954145B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF8FD540B6B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351539AbiFGURX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:17:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
+        id S242955AbiFGS2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358546AbiFGUOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:14:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7D216BE11;
-        Tue,  7 Jun 2022 11:28:18 -0700 (PDT)
+        with ESMTP id S1350204AbiFGSXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2D4C5E5D;
+        Tue,  7 Jun 2022 10:54:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2E5AB8237F;
-        Tue,  7 Jun 2022 18:28:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61065C385A2;
-        Tue,  7 Jun 2022 18:28:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50697617ED;
+        Tue,  7 Jun 2022 17:53:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2D6C385A5;
+        Tue,  7 Jun 2022 17:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626495;
-        bh=LjG7GLH5U5DTD6yJQ2XCBG03jPKBoVWPy+6OfYakH0U=;
+        s=korg; t=1654624437;
+        bh=Es88hOl7dOsT5p4S16j5QOi4YudCVRc+UBvDlBjPxw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEAZbQ5S7OhItLtzZSz+VTliF3iF7xqIUtGzqnMxn+x98IKzt3wtaRycBY4OO7o7C
-         aHPBPtIZWTyMlnsTe/tGamRrbTmQpjIZ3IZsKFDbCOxmcWOZhzVpllOXpjIW7+PjNF
-         yFYt4hmPWJKIlmIfSVLdaT23cHxKnM1hI6+v4mCI=
+        b=NASDzK+Go+FaPliYVEVwMt2x0uRZ/kZbCG4vM/QkTFlsssnR14s9BnqbZEAScx5xh
+         3nPRkm2B34nZoFHWxma2ETQuqb6MfnoqR8sP03uGTgHWFF/fGX57GK4QSRRQvw7Avp
+         Wf5b353PhEspijPqBOi2eGeyj4io8K/AYvrUPFzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 400/772] ASoC: ti: j721e-evm: Fix refcount leak in j721e_soc_probe_*
+Subject: [PATCH 5.15 327/667] media: atmel: atmel-sama5d2-isc: fix wrong mask in YUYV format check
 Date:   Tue,  7 Jun 2022 18:59:52 +0200
-Message-Id: <20220607165000.798054758@linuxfoundation.org>
+Message-Id: <20220607164944.576619529@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit a34840c4eb3278a7c29c9c57a65ce7541c66f9f2 ]
+[ Upstream commit 91f49b80983f7bffdea9498209b2b896231ac776 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+While this does not happen in production, this check should be done
+versus the mask, as checking with the YCYC value may not include
+some bits that may be set.
+It is correct and safe to check the whole mask.
 
-Fixes: 6748d0559059 ("ASoC: ti: Add custom machine driver for j721e EVM (CPB and IVI)")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220512111331.44774-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 123aaf816b95 ("media: atmel: atmel-sama5d2-isc: fix YUYV format")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/j721e-evm.c | 44 ++++++++++++++++++++++++++++++----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ drivers/media/platform/atmel/atmel-sama5d2-isc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/ti/j721e-evm.c b/sound/soc/ti/j721e-evm.c
-index 4077e15ec48b..6a969874c927 100644
---- a/sound/soc/ti/j721e-evm.c
-+++ b/sound/soc/ti/j721e-evm.c
-@@ -630,17 +630,18 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
- 	codec_node = of_parse_phandle(node, "ti,cpb-codec", 0);
- 	if (!codec_node) {
- 		dev_err(priv->dev, "CPB codec node is not provided\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_dai_node;
+diff --git a/drivers/media/platform/atmel/atmel-sama5d2-isc.c b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+index c8ed9315ef31..7421bc51709c 100644
+--- a/drivers/media/platform/atmel/atmel-sama5d2-isc.c
++++ b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+@@ -267,7 +267,7 @@ static void isc_sama5d2_config_rlp(struct isc_device *isc)
+ 	 * Thus, if the YCYC mode is selected, replace it with the
+ 	 * sama5d2-compliant mode which is YYCC .
+ 	 */
+-	if ((rlp_mode & ISC_RLP_CFG_MODE_YCYC) == ISC_RLP_CFG_MODE_YCYC) {
++	if ((rlp_mode & ISC_RLP_CFG_MODE_MASK) == ISC_RLP_CFG_MODE_YCYC) {
+ 		rlp_mode &= ~ISC_RLP_CFG_MODE_MASK;
+ 		rlp_mode |= ISC_RLP_CFG_MODE_YYCC;
  	}
- 
- 	domain = &priv->audio_domains[J721E_AUDIO_DOMAIN_CPB];
- 	ret = j721e_get_clocks(priv->dev, &domain->codec, "cpb-codec-scki");
- 	if (ret)
--		return ret;
-+		goto put_codec_node;
- 
- 	ret = j721e_get_clocks(priv->dev, &domain->mcasp, "cpb-mcasp-auxclk");
- 	if (ret)
--		return ret;
-+		goto put_codec_node;
- 
- 	/*
- 	 * Common Processor Board, two links
-@@ -650,8 +651,10 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
- 	comp_count = 6;
- 	compnent = devm_kzalloc(priv->dev, comp_count * sizeof(*compnent),
- 				GFP_KERNEL);
--	if (!compnent)
--		return -ENOMEM;
-+	if (!compnent) {
-+		ret = -ENOMEM;
-+		goto put_codec_node;
-+	}
- 
- 	comp_idx = 0;
- 	priv->dai_links[*link_idx].cpus = &compnent[comp_idx++];
-@@ -702,6 +705,12 @@ static int j721e_soc_probe_cpb(struct j721e_priv *priv, int *link_idx,
- 	(*conf_idx)++;
- 
- 	return 0;
-+
-+put_codec_node:
-+	of_node_put(codec_node);
-+put_dai_node:
-+	of_node_put(dai_node);
-+	return ret;
- }
- 
- static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
-@@ -726,23 +735,25 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
- 	codeca_node = of_parse_phandle(node, "ti,ivi-codec-a", 0);
- 	if (!codeca_node) {
- 		dev_err(priv->dev, "IVI codec-a node is not provided\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_dai_node;
- 	}
- 
- 	codecb_node = of_parse_phandle(node, "ti,ivi-codec-b", 0);
- 	if (!codecb_node) {
- 		dev_warn(priv->dev, "IVI codec-b node is not provided\n");
--		return 0;
-+		ret = 0;
-+		goto put_codeca_node;
- 	}
- 
- 	domain = &priv->audio_domains[J721E_AUDIO_DOMAIN_IVI];
- 	ret = j721e_get_clocks(priv->dev, &domain->codec, "ivi-codec-scki");
- 	if (ret)
--		return ret;
-+		goto put_codecb_node;
- 
- 	ret = j721e_get_clocks(priv->dev, &domain->mcasp, "ivi-mcasp-auxclk");
- 	if (ret)
--		return ret;
-+		goto put_codecb_node;
- 
- 	/*
- 	 * IVI extension, two links
-@@ -754,8 +765,10 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
- 	comp_count = 8;
- 	compnent = devm_kzalloc(priv->dev, comp_count * sizeof(*compnent),
- 				GFP_KERNEL);
--	if (!compnent)
--		return -ENOMEM;
-+	if (!compnent) {
-+		ret = -ENOMEM;
-+		goto put_codecb_node;
-+	}
- 
- 	comp_idx = 0;
- 	priv->dai_links[*link_idx].cpus = &compnent[comp_idx++];
-@@ -816,6 +829,15 @@ static int j721e_soc_probe_ivi(struct j721e_priv *priv, int *link_idx,
- 	(*conf_idx)++;
- 
- 	return 0;
-+
-+
-+put_codecb_node:
-+	of_node_put(codecb_node);
-+put_codeca_node:
-+	of_node_put(codeca_node);
-+put_dai_node:
-+	of_node_put(dai_node);
-+	return ret;
- }
- 
- static int j721e_soc_probe(struct platform_device *pdev)
 -- 
 2.35.1
 
