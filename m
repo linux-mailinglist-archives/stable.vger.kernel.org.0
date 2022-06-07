@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F5775417C2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9922E541798
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358024AbiFGVDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
+        id S1378944AbiFGVEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379223AbiFGVCN (ORCPT
+        with ESMTP id S1379226AbiFGVCN (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9026EBBC;
-        Tue,  7 Jun 2022 11:46:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C3A614C;
+        Tue,  7 Jun 2022 11:46:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48D7EB81FE1;
-        Tue,  7 Jun 2022 18:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95656C34115;
-        Tue,  7 Jun 2022 18:46:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F0E96156D;
+        Tue,  7 Jun 2022 18:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FAE6C385A5;
+        Tue,  7 Jun 2022 18:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627615;
-        bh=InTEJxokk0gSldDDmnuCDCLtUbImqooZSkroi+Xe/fA=;
+        s=korg; t=1654627618;
+        bh=mLvHhE7q4dlXMPcB+5rAF8lzM5mQNsQtmSS0dFF7Lj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ConUKPUQljQl8f38nIqrienv97ERXDR3w6xAlTNtPpPL/jVfYK3pFEM19lfwX/9Tn
-         YJrucOM6WBEpzotHj+TndYqP8H7aeT9SelNbqJHaVyXte1oqLW3c7WZFAGoEXrhpVh
-         0cbzaBx1j4k3/dtU1qqZWpu1x8K2y9iK8gc2BmxQ=
+        b=DpL2iP7xAbuyw+JZ077nHh2PoxGWn60EeXIYLyiIjPwKY82j9fjuyJnDjaj7ovXqx
+         gcqTKuE3JLMrU/xrF0xmL+hkhSjUgcvzrg9eMrGCLgQ7VR/kz09qIChWKNGlZPltxm
+         8KFiQCp/vqTYoImJVJ13/tcDVZvKD9Ftj+bzemD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Bergantinos <rbergant@redhat.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.18 032/879] cifs: fix potential double free during failed mount
-Date:   Tue,  7 Jun 2022 18:52:30 +0200
-Message-Id: <20220607165003.608638078@linuxfoundation.org>
+Subject: [PATCH 5.18 033/879] cifs: when extending a file with falloc we should make files not-sparse
+Date:   Tue,  7 Jun 2022 18:52:31 +0200
+Message-Id: <20220607165003.637742817@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -56,44 +55,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 8378a51e3f8140f60901fb27208cc7a6e47047b5 upstream.
+commit f66f8b94e7f2f4ac9fffe710be231ca8f25c5057 upstream.
 
-RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=2088799
+as this is the only way to make sure the region is allocated.
+Fix the conditional that was wrong and only tried to make already
+non-sparse files non-sparse.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Roberto Bergantinos <rbergant@redhat.com>
 Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -836,7 +836,7 @@ cifs_smb3_do_mount(struct file_system_ty
- 	      int flags, struct smb3_fs_context *old_ctx)
- {
- 	int rc;
--	struct super_block *sb;
-+	struct super_block *sb = NULL;
- 	struct cifs_sb_info *cifs_sb = NULL;
- 	struct cifs_mnt_data mnt_data;
- 	struct dentry *root;
-@@ -932,9 +932,11 @@ out_super:
- 	return root;
- out:
- 	if (cifs_sb) {
--		kfree(cifs_sb->prepath);
--		smb3_cleanup_fs_context(cifs_sb->ctx);
--		kfree(cifs_sb);
-+		if (!sb || IS_ERR(sb)) {  /* otherwise kill_sb will handle */
-+			kfree(cifs_sb->prepath);
-+			smb3_cleanup_fs_context(cifs_sb->ctx);
-+			kfree(cifs_sb);
-+		}
- 	}
- 	return root;
- }
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3837,7 +3837,7 @@ static long smb3_simple_falloc(struct fi
+ 		if (rc)
+ 			goto out;
+ 
+-		if ((cifsi->cifsAttrs & FILE_ATTRIBUTE_SPARSE_FILE) == 0)
++		if (cifsi->cifsAttrs & FILE_ATTRIBUTE_SPARSE_FILE)
+ 			smb2_set_sparse(xid, tcon, cfile, inode, false);
+ 
+ 		eof = cpu_to_le64(off + len);
 
 
