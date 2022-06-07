@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3620E5409A6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1732D5404E1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350704AbiFGSLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35738 "EHLO
+        id S1345818AbiFGRTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:19:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347428AbiFGSIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:08:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B0BF6B035;
-        Tue,  7 Jun 2022 10:48:04 -0700 (PDT)
+        with ESMTP id S1345750AbiFGRTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5AD104CB2;
+        Tue,  7 Jun 2022 10:19:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F3886171A;
-        Tue,  7 Jun 2022 17:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A7B7C385A5;
-        Tue,  7 Jun 2022 17:48:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 882DCB82239;
+        Tue,  7 Jun 2022 17:19:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0ACAC385A5;
+        Tue,  7 Jun 2022 17:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624082;
-        bh=r7jRCbeD7ibDVQb0i+qLhsqpb8a+4ZpDIGUZQA4nKpA=;
+        s=korg; t=1654622349;
+        bh=zpv29um/dWI23YVZluNHBcHbfAfuGpB5TvtabHfD68o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=adrAcfhRA6VE7o8qa33YbsoStWwj1KCuqznYoeJKZ3AdSblif42nfB1A6fPYghV+Z
-         x/ugooDDUlplXkszc8sgv3tesT4iOQ1HLcjrC3dyfDYMD7U3Qz40npimlF1BqtBWq+
-         G2o9I5xKNKXd9SFiIKxN2qGvQBDXPlP7EMAiDDzo=
+        b=dN8/yTJ1lE/GrUAAVUJ1/FrDo1weKSVl7OWIEVfjHPHlIyur0XOuP1kKic/A+bkxE
+         HiuDPa8LZZwkS1kcVnjlM3AI8qfBeI3KOAnV/fEMsgarr3unuqd6UzUjrTvCP03F9q
+         ZCGYguG+OoXf9Vdw6bhy9N4/q2tPKH3g3/dO9eWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 198/667] drm/vc4: hvs: Fix frame count register readout
+        stable@vger.kernel.org, Rik van der Kemp <rik@upto11.nl>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 006/452] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9520 laptop
 Date:   Tue,  7 Jun 2022 18:57:43 +0200
-Message-Id: <20220607164940.738693291@linuxfoundation.org>
+Message-Id: <20220607164908.721449000@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Rik van der Kemp <rik@upto11.nl>
 
-[ Upstream commit b51cd7ad143d2eb31a6df81c2183128920e47c2b ]
+commit 15dad62f4bdb5dc0f0efde8181d680db9963544c upstream.
 
-In order to get the field currently being output, the driver has been
-using the display FIFO frame count in the HVS, reading a 6-bit field at
-the offset 12 in the DISPSTATx register.
+The 2022-model XPS 15 appears to use the same 4-speakers-on-ALC289
+audio setup as the Dell XPS 15 9510, so requires the same quirk to
+enable woofer output. Tested on my own 9520.
 
-While that field is indeed at that location for the FIFO 1 and 2, the
-one for the FIFO0 is actually in the DISPSTAT1 register, at the offset
-18.
+[ Move the entry to the right position in the SSID order -- tiwai ]
 
-Fixes: e538092cb15c ("drm/vc4: Enable precise vblank timestamping for interlaced modes.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://lore.kernel.org/r/20220331143744.777652-3-maxime@cerno.tech
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216035
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Rik van der Kemp <rik@upto11.nl>
+Link: https://lore.kernel.org/r/181056a137b.d14baf90133058.8425453735588429828@upto11.nl
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c |  2 +-
- drivers/gpu/drm/vc4/vc4_drv.h  |  1 +
- drivers/gpu/drm/vc4/vc4_hvs.c  | 23 +++++++++++++++++++++++
- drivers/gpu/drm/vc4/vc4_regs.h | 12 ++++++++++--
- 4 files changed, 35 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 3e61184e194c..88dbb282d15c 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -123,7 +123,7 @@ static bool vc4_crtc_get_scanout_position(struct drm_crtc *crtc,
- 		*vpos /= 2;
- 
- 		/* Use hpos to correct for field offset in interlaced mode. */
--		if (VC4_GET_FIELD(val, SCALER_DISPSTATX_FRAME_COUNT) % 2)
-+		if (vc4_hvs_get_fifo_frame_count(dev, vc4_crtc_state->assigned_channel) % 2)
- 			*hpos += mode->crtc_htotal / 2;
- 	}
- 
-diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
-index 4b550ebd9572..94c178738fc1 100644
---- a/drivers/gpu/drm/vc4/vc4_drv.h
-+++ b/drivers/gpu/drm/vc4/vc4_drv.h
-@@ -933,6 +933,7 @@ void vc4_irq_reset(struct drm_device *dev);
- extern struct platform_driver vc4_hvs_driver;
- void vc4_hvs_stop_channel(struct drm_device *dev, unsigned int output);
- int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output);
-+u8 vc4_hvs_get_fifo_frame_count(struct drm_device *dev, unsigned int fifo);
- int vc4_hvs_atomic_check(struct drm_crtc *crtc, struct drm_atomic_state *state);
- void vc4_hvs_atomic_begin(struct drm_crtc *crtc, struct drm_atomic_state *state);
- void vc4_hvs_atomic_enable(struct drm_crtc *crtc, struct drm_atomic_state *state);
-diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
-index 604933e20e6a..c8cae10500b9 100644
---- a/drivers/gpu/drm/vc4/vc4_hvs.c
-+++ b/drivers/gpu/drm/vc4/vc4_hvs.c
-@@ -197,6 +197,29 @@ static void vc4_hvs_update_gamma_lut(struct drm_crtc *crtc)
- 	vc4_hvs_lut_load(crtc);
- }
- 
-+u8 vc4_hvs_get_fifo_frame_count(struct drm_device *dev, unsigned int fifo)
-+{
-+	struct vc4_dev *vc4 = to_vc4_dev(dev);
-+	u8 field = 0;
-+
-+	switch (fifo) {
-+	case 0:
-+		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT1),
-+				      SCALER_DISPSTAT1_FRCNT0);
-+		break;
-+	case 1:
-+		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT1),
-+				      SCALER_DISPSTAT1_FRCNT1);
-+		break;
-+	case 2:
-+		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT2),
-+				      SCALER_DISPSTAT2_FRCNT2);
-+		break;
-+	}
-+
-+	return field;
-+}
-+
- int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output)
- {
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
-diff --git a/drivers/gpu/drm/vc4/vc4_regs.h b/drivers/gpu/drm/vc4/vc4_regs.h
-index 489f921ef44d..8ac2f088106a 100644
---- a/drivers/gpu/drm/vc4/vc4_regs.h
-+++ b/drivers/gpu/drm/vc4/vc4_regs.h
-@@ -379,8 +379,6 @@
- # define SCALER_DISPSTATX_MODE_EOF		3
- # define SCALER_DISPSTATX_FULL			BIT(29)
- # define SCALER_DISPSTATX_EMPTY			BIT(28)
--# define SCALER_DISPSTATX_FRAME_COUNT_MASK	VC4_MASK(17, 12)
--# define SCALER_DISPSTATX_FRAME_COUNT_SHIFT	12
- # define SCALER_DISPSTATX_LINE_MASK		VC4_MASK(11, 0)
- # define SCALER_DISPSTATX_LINE_SHIFT		0
- 
-@@ -403,9 +401,15 @@
- 						 (x) * (SCALER_DISPBKGND1 - \
- 							SCALER_DISPBKGND0))
- #define SCALER_DISPSTAT1                        0x00000058
-+# define SCALER_DISPSTAT1_FRCNT0_MASK		VC4_MASK(23, 18)
-+# define SCALER_DISPSTAT1_FRCNT0_SHIFT		18
-+# define SCALER_DISPSTAT1_FRCNT1_MASK		VC4_MASK(17, 12)
-+# define SCALER_DISPSTAT1_FRCNT1_SHIFT		12
-+
- #define SCALER_DISPSTATX(x)			(SCALER_DISPSTAT0 +        \
- 						 (x) * (SCALER_DISPSTAT1 - \
- 							SCALER_DISPSTAT0))
-+
- #define SCALER_DISPBASE1                        0x0000005c
- #define SCALER_DISPBASEX(x)			(SCALER_DISPBASE0 +        \
- 						 (x) * (SCALER_DISPBASE1 - \
-@@ -415,7 +419,11 @@
- 						 (x) * (SCALER_DISPCTRL1 - \
- 							SCALER_DISPCTRL0))
- #define SCALER_DISPBKGND2                       0x00000064
-+
- #define SCALER_DISPSTAT2                        0x00000068
-+# define SCALER_DISPSTAT2_FRCNT2_MASK		VC4_MASK(17, 12)
-+# define SCALER_DISPSTAT2_FRCNT2_SHIFT		12
-+
- #define SCALER_DISPBASE2                        0x0000006c
- #define SCALER_DISPALPHA2                       0x00000070
- #define SCALER_GAMADDR                          0x00000078
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8651,6 +8651,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1028, 0x0a62, "Dell Precision 5560", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x0a9d, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0a9e, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1028, 0x0b19, "Dell XPS 15 9520", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 
 
