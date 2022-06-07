@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0585540936
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D8D5419AC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349062AbiFGSGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32902 "EHLO
+        id S1377878AbiFGVXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349606AbiFGSDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:03:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0466950028;
-        Tue,  7 Jun 2022 10:47:10 -0700 (PDT)
+        with ESMTP id S1380320AbiFGVVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:21:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D57118027;
+        Tue,  7 Jun 2022 11:59:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36AD4B8233D;
-        Tue,  7 Jun 2022 17:47:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D263C385A5;
-        Tue,  7 Jun 2022 17:47:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83FB661787;
+        Tue,  7 Jun 2022 18:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C434C385A2;
+        Tue,  7 Jun 2022 18:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624027;
-        bh=Do59Zxbar/R53/RRVCDrJBRmogE79B0Y/2QF3y0rC8U=;
+        s=korg; t=1654628390;
+        bh=mPjFnB12v9QIjvkloTIVfkJB+ZjteATQWCqedBdGsPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDjx+zHsAtiyJdpmXMQe4e8AxI+yXpICds6vVbTWxQlfMunjwYrtarHRmjRBsbxZv
-         4Ux5vR69l3L08mDrOjSS3GtsOQCSheZF3f9WFIQ7PDTCqBWLYMGO0VmEDsTw9a1N0G
-         //hmqRnNXPDdimbfNMw1+OjsromIzax11tEObJBQ=
+        b=cCC+02Zl5jldYfKGqXndauODc0JNXbKAvYhttgzmoosfKePLIX6gS7Tz6asnBK4HB
+         2Xep4H2xdL9ZtCcsVCsRFdggr0wyzddrfZUDnTuhq3AsULUyakhJBfDAjsGXwDMtFU
+         wOjAfknVruY1/sl97ApKjmxyErCISJF29erXbTJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, Ammar Faizi <ammarfaizi2@gnuweeb.org>,
         Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 137/667] x86/microcode: Add explicit CPU vendor dependency
-Date:   Tue,  7 Jun 2022 18:56:42 +0200
-Message-Id: <20220607164938.930244713@linuxfoundation.org>
+Subject: [PATCH 5.18 285/879] x86/delay: Fix the wrong asm constraint in delay_loop()
+Date:   Tue,  7 Jun 2022 18:56:43 +0200
+Message-Id: <20220607165011.119924192@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-[ Upstream commit 9c55d99e099bd7aa6b91fce8718505c35d5dfc65 ]
+[ Upstream commit b86eb74098a92afd789da02699b4b0dd3f73b889 ]
 
-Add an explicit dependency to the respective CPU vendor so that the
-respective microcode support for it gets built only when that support is
-enabled.
+The asm constraint does not reflect the fact that the asm statement can
+modify the value of the local variable loops. Which it does.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Specifying the wrong constraint may lead to undefined behavior, it may
+clobber random stuff (e.g. local variable, important temporary value in
+regs, etc.). This is especially dangerous when the compiler decides to
+inline the function and since it doesn't know that the value gets
+modified, it might decide to use it from a register directly without
+reloading it.
+
+Change the constraint to "+a" to denote that the first argument is an
+input and an output argument.
+
+  [ bp: Fix typo, massage commit message. ]
+
+Fixes: e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/8ead0da9-9545-b10d-e3db-7df1a1f219e4@infradead.org
+Link: https://lore.kernel.org/r/20220329104705.65256-2-ammarfaizi2@gnuweeb.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig | 4 ++--
+ arch/x86/lib/delay.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index d02b04d30096..1d0f16b53393 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1323,7 +1323,7 @@ config MICROCODE
+diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
+index 65d15df6212d..0e65d00e2339 100644
+--- a/arch/x86/lib/delay.c
++++ b/arch/x86/lib/delay.c
+@@ -54,8 +54,8 @@ static void delay_loop(u64 __loops)
+ 		"	jnz 2b		\n"
+ 		"3:	dec %0		\n"
  
- config MICROCODE_INTEL
- 	bool "Intel microcode loading support"
--	depends on MICROCODE
-+	depends on CPU_SUP_INTEL && MICROCODE
- 	default MICROCODE
- 	help
- 	  This options enables microcode patch loading support for Intel
-@@ -1335,7 +1335,7 @@ config MICROCODE_INTEL
+-		: /* we don't need output */
+-		:"a" (loops)
++		: "+a" (loops)
++		:
+ 	);
+ }
  
- config MICROCODE_AMD
- 	bool "AMD microcode loading support"
--	depends on MICROCODE
-+	depends on CPU_SUP_AMD && MICROCODE
- 	help
- 	  If you select this option, microcode patch loading support for AMD
- 	  processors will be enabled.
 -- 
 2.35.1
 
