@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CF0540C08
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC52E540BE5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351886AbiFGScy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:32:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42082 "EHLO
+        id S1351760AbiFGScq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351539AbiFGS3z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C06817B849;
-        Tue,  7 Jun 2022 10:55:35 -0700 (PDT)
+        with ESMTP id S1351579AbiFGSaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C816817B85B;
+        Tue,  7 Jun 2022 10:55:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEBB4617A6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A059B82370;
+        Tue,  7 Jun 2022 17:55:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E23E0C341C5;
         Tue,  7 Jun 2022 17:55:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E24FC34115;
-        Tue,  7 Jun 2022 17:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624534;
-        bh=VAG+3uL6h5kOCfu6AuzyUB7t+yIhbm19oEA/UYTLcX8=;
+        s=k20201202; t=1654624536;
+        bh=reSh3o33ZqNq0NqYioUu+8w+hd6FEd7K/Cf3BqMB9N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZDOB/q6nznt3YUijwQSwlc06wih5Wp7PhT5BzmKW4328letOO8kidVILErW1slta
-         Ccy628lAHeCJ6MmVJx4rw62i6CqLXOmEqgDM/3BiRIyZsoCT/DVFkM0O57/0Fyra+4
-         v+xYxwj3KSsSl0HdP+5qq66CC3R59Xf14j4ill+k2irBoPolKpEjc48FEaKDMmDkBC
-         djqzmEGjvYLLP2iKg6K5MvQXM1KR/sS8jV7FyZ3tscXpWd+MP3Rn6CshAomNtSsKIk
-         +XZkq9HlvNLLJPpIz7MrvWvNlPxf77ILCo5uUsDgGomNRCQSQqH4B6fxCLHbR4FH5L
-         0kLX7WBGEkGkA==
+        b=Yyp3XO9lLG8PDkjm6oHJrzY+j9nDVAjwZRIrs0a5GrJdii72ofS3KTB8A82pH9RVN
+         NCKyZ8QdUHxR+68D1uCxx5PapObMJ0sr1/8A3G9nWL3KbchYQUdDP/0b421I15aD0R
+         DCppTRSLOZrO5Qh0i5JCx2UefmyC+AESenCI2XjVERO8H2fAIJt3YdRtKTLhT5WgxO
+         V22IKKIjH5iFuSAt3jqpCE9f9fdzRMKUEvXV+WxWqWSvzTLkASKVpXCyauyINWlSJD
+         Xfn0Y2JOAChdGPhjgMPA8PR1tiODdtT6vij1gLI2KWIb6o+UAd0wvxlNe3HCKz9+/u
+         f05G/tVnsFfsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Cyril Brulebois <kibi@debian.org>,
-        Sasha Levin <sashal@kernel.org>, jim2101024@gmail.com,
-        nsaenz@kernel.org, f.fainelli@gmail.com, lpieralisi@kernel.org,
-        linux-pci@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 56/60] Revert "PCI: brcmstb: Split brcm_pcie_setup() into two funcs"
-Date:   Tue,  7 Jun 2022 13:52:53 -0400
-Message-Id: <20220607175259.478835-56-sashal@kernel.org>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
+        gor@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 57/60] s390/gmap: voluntarily schedule during key setting
+Date:   Tue,  7 Jun 2022 13:52:54 -0400
+Message-Id: <20220607175259.478835-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -59,135 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-[ Upstream commit f4fd559de3434c44bed1d2912bd0c75cfa42898b ]
+[ Upstream commit 6d5946274df1fff539a7eece458a43be733d1db8 ]
 
-This reverts commit 830aa6f29f07a4e2f1a947dfa72b3ccddb46dd21.
+With large and many guest with storage keys it is possible to create
+large latencies or stalls during initial key setting:
 
-This is part of a revert of the following commits:
+rcu: INFO: rcu_sched self-detected stall on CPU
+rcu:   18-....: (2099 ticks this GP) idle=54e/1/0x4000000000000002 softirq=35598716/35598716 fqs=998
+       (t=2100 jiffies g=155867385 q=20879)
+Task dump for CPU 18:
+CPU 1/KVM       R  running task        0 1030947 256019 0x06000004
+Call Trace:
+sched_show_task
+rcu_dump_cpu_stacks
+rcu_sched_clock_irq
+update_process_times
+tick_sched_handle
+tick_sched_timer
+__hrtimer_run_queues
+hrtimer_interrupt
+do_IRQ
+ext_int_handler
+ptep_zap_key
 
-  11ed8b8624b8 ("PCI: brcmstb: Do not turn off WOL regulators on suspend")
-  93e41f3fca3d ("PCI: brcmstb: Add control of subdevice voltage regulators")
-  67211aadcb4b ("PCI: brcmstb: Add mechanism to turn on subdev regulators")
-  830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup() into two funcs")
+The mmap lock is held during the page walking but since this is a
+semaphore scheduling is still possible. Same for the kvm srcu.
+To minimize overhead do this on every segment table entry or large page.
 
-Cyril reported that 830aa6f29f07 ("PCI: brcmstb: Split brcm_pcie_setup()
-into two funcs"), which appeared in v5.17-rc1, broke booting on the
-Raspberry Pi Compute Module 4.  Apparently 830aa6f29f07 panics with an
-Asynchronous SError Interrupt, and after further commits here is a black
-screen on HDMI and no output on the serial console.
-
-This does not seem to affect the Raspberry Pi 4 B.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
-Link: https://lore.kernel.org/r/20220511201856.808690-5-helgaas@kernel.org
-Reported-by: Cyril Brulebois <kibi@debian.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220530092706.11637-2-borntraeger@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 65 +++++++++++----------------
- 1 file changed, 26 insertions(+), 39 deletions(-)
+ arch/s390/mm/gmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index 0e8346114a8d..e61058e13818 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -926,9 +926,16 @@ static inline int brcm_pcie_get_rc_bar2_size_and_offset(struct brcm_pcie *pcie,
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index dfee0ebb2fac..88f6d923ee45 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2601,6 +2601,18 @@ static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
+ 	return 0;
+ }
  
- static int brcm_pcie_setup(struct brcm_pcie *pcie)
- {
-+	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
- 	u64 rc_bar2_offset, rc_bar2_size;
- 	void __iomem *base = pcie->base;
--	int ret, memc;
-+	struct device *dev = pcie->dev;
-+	struct resource_entry *entry;
-+	bool ssc_good = false;
-+	struct resource *res;
-+	int num_out_wins = 0;
-+	u16 nlw, cls, lnksta;
-+	int i, ret, memc;
- 	u32 tmp, burst, aspm_support;
- 
- 	/* Reset the bridge */
-@@ -1018,40 +1025,6 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
- 	if (pcie->gen)
- 		brcm_pcie_set_gen(pcie, pcie->gen);
- 
--	/* Don't advertise L0s capability if 'aspm-no-l0s' */
--	aspm_support = PCIE_LINK_STATE_L1;
--	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
--		aspm_support |= PCIE_LINK_STATE_L0S;
--	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
--	u32p_replace_bits(&tmp, aspm_support,
--		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
--	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
--
--	/*
--	 * For config space accesses on the RC, show the right class for
--	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
--	 */
--	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
--	u32p_replace_bits(&tmp, 0x060400,
--			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
--	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
--
--	return 0;
--}
--
--static int brcm_pcie_linkup(struct brcm_pcie *pcie)
--{
--	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
--	struct device *dev = pcie->dev;
--	void __iomem *base = pcie->base;
--	struct resource_entry *entry;
--	struct resource *res;
--	int num_out_wins = 0;
--	u16 nlw, cls, lnksta;
--	bool ssc_good = false;
--	u32 tmp;
--	int ret, i;
--
- 	/* Unassert the fundamental reset */
- 	pcie->perst_set(pcie, 0);
- 
-@@ -1102,6 +1075,24 @@ static int brcm_pcie_linkup(struct brcm_pcie *pcie)
- 		num_out_wins++;
- 	}
- 
-+	/* Don't advertise L0s capability if 'aspm-no-l0s' */
-+	aspm_support = PCIE_LINK_STATE_L1;
-+	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
-+		aspm_support |= PCIE_LINK_STATE_L0S;
-+	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
-+	u32p_replace_bits(&tmp, aspm_support,
-+		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
-+	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
++/*
++ * Give a chance to schedule after setting a key to 256 pages.
++ * We only hold the mm lock, which is a rwsem and the kvm srcu.
++ * Both can sleep.
++ */
++static int __s390_enable_skey_pmd(pmd_t *pmd, unsigned long addr,
++				  unsigned long next, struct mm_walk *walk)
++{
++	cond_resched();
++	return 0;
++}
 +
-+	/*
-+	 * For config space accesses on the RC, show the right class for
-+	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
-+	 */
-+	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
-+	u32p_replace_bits(&tmp, 0x060400,
-+			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
-+	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
-+
- 	if (pcie->ssc) {
- 		ret = brcm_pcie_set_ssc(pcie);
- 		if (ret == 0)
-@@ -1290,10 +1281,6 @@ static int brcm_pcie_resume(struct device *dev)
- 	if (ret)
- 		goto err_reset;
+ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 				      unsigned long hmask, unsigned long next,
+ 				      struct mm_walk *walk)
+@@ -2623,12 +2635,14 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 	end = start + HPAGE_SIZE - 1;
+ 	__storage_key_init_range(start, end);
+ 	set_bit(PG_arch_1, &page->flags);
++	cond_resched();
+ 	return 0;
+ }
  
--	ret = brcm_pcie_linkup(pcie);
--	if (ret)
--		goto err_reset;
--
- 	if (pcie->msi)
- 		brcm_msi_set_regs(pcie->msi);
+ static const struct mm_walk_ops enable_skey_walk_ops = {
+ 	.hugetlb_entry		= __s390_enable_skey_hugetlb,
+ 	.pte_entry		= __s390_enable_skey_pte,
++	.pmd_entry		= __s390_enable_skey_pmd,
+ };
  
+ int s390_enable_skey(void)
 -- 
 2.35.1
 
