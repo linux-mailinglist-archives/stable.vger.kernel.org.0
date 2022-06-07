@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E52525413FB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:09:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3C3540A5A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358972AbiFGUJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:09:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56484 "EHLO
+        id S1351481AbiFGSUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358571AbiFGUJC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDD7ED8FD;
-        Tue,  7 Jun 2022 11:26:30 -0700 (PDT)
+        with ESMTP id S1352440AbiFGSRL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E4C8117656;
+        Tue,  7 Jun 2022 10:52:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 385BFB80B66;
-        Tue,  7 Jun 2022 18:26:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A475CC34115;
-        Tue,  7 Jun 2022 18:26:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C5261794;
+        Tue,  7 Jun 2022 17:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B01EDC34115;
+        Tue,  7 Jun 2022 17:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626388;
-        bh=o2wbFfEQvs2eiY4N0Y272HxREAh16iSWwNULUjZBAAI=;
+        s=korg; t=1654624327;
+        bh=3y8EYkaL4lEkRVnGBiZD2pIdl3/6uSxRyWFL2CmEBd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgZMzkOusIV8BLXDhMbXX+V2gPPWayOUfprD36s3d5oAHB1Tz2Nc6qe2b9AR3pUi2
-         eCpKJsT4tmKbHQBbWKoTtsrnC2OqxAqaG7d4+xwQfpHyFvHWoFzr2eIQJYbcC4gTWR
-         zQfUpEmNxgGF7su4AoPITbl8RLnGogeLtViEzZb0=
+        b=Ndc5pDtNV70RhHS/TNDBjP7iTGEtQkwtTts7wKTIXTkVLQD1OJQ41NNmuTrIetRiq
+         glXR9nVdkBoHLEpXInse8/ByNTvEemzpZtLXmJgzObF0PmADoaqra4Nn/WitAsZeBM
+         9Muhd+mlYYlLuohvlSktdZbkhXwRreA/oan98wHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Pierre Gondois <pierre.gondois@arm.com>,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 360/772] PM: EM: Decrement policy counter
+Subject: [PATCH 5.15 287/667] regulator: core: Fix enable_count imbalance with EXCLUSIVE_GET
 Date:   Tue,  7 Jun 2022 18:59:12 +0200
-Message-Id: <20220607164959.624428129@linuxfoundation.org>
+Message-Id: <20220607164943.387945727@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre Gondois <Pierre.Gondois@arm.com>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-[ Upstream commit c9d8923bfbcb63f15ea6cb2b5c8426fc3d96f643 ]
+[ Upstream commit c3e3ca05dae37f8f74bb80358efd540911cbc2c8 ]
 
-In commit e458716a92b57 ("PM: EM: Mark inefficiencies in CPUFreq"),
-cpufreq_cpu_get() is called without a cpufreq_cpu_put(), permanently
-increasing the reference counts of the policy struct.
+Since the introduction of regulator->enable_count, a driver that did
+an exclusive get on an already-enabled regulator would end up with
+enable_count initialized to 0 but rdev->use_count initialized to 1.
+With that starting point the regulator is effectively stuck enabled,
+because if the driver attempted to disable it it would fail the
+enable_count underflow check in _regulator_handle_consumer_disable().
 
-Decrement the reference count once the policy struct is not used
-anymore.
+The EXCLUSIVE_GET path in _regulator_get() now initializes
+enable_count along with rdev->use_count so that the regulator can be
+disabled without underflowing the former.
 
-Fixes: e458716a92b57 ("PM: EM: Mark inefficiencies in CPUFreq")
-Tested-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
-Reviewed-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Fixes: 5451781dadf85 ("regulator: core: Only count load for enabled consumers")
+Link: https://lore.kernel.org/r/20220505043152.12933-1-zev@bewilderbeest.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/energy_model.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
-index 0153b0ca7b23..6219aaa454b5 100644
---- a/kernel/power/energy_model.c
-+++ b/kernel/power/energy_model.c
-@@ -259,6 +259,8 @@ static void em_cpufreq_update_efficiencies(struct device *dev)
- 			found++;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 46e76b5b21ef..f4f28e5888b1 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -2132,10 +2132,13 @@ struct regulator *_regulator_get(struct device *dev, const char *id,
+ 		rdev->exclusive = 1;
+ 
+ 		ret = _regulator_is_enabled(rdev);
+-		if (ret > 0)
++		if (ret > 0) {
+ 			rdev->use_count = 1;
+-		else
++			regulator->enable_count = 1;
++		} else {
+ 			rdev->use_count = 0;
++			regulator->enable_count = 0;
++		}
  	}
  
-+	cpufreq_cpu_put(policy);
-+
- 	if (!found)
- 		return;
- 
+ 	link = device_link_add(dev, &rdev->dev, DL_FLAG_STATELESS);
 -- 
 2.35.1
 
