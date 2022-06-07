@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF7E5409BD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC989541A1A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244570AbiFGSM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:12:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35898 "EHLO
+        id S1378862AbiFGV3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:29:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349622AbiFGSLx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:11:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEBB5132A05;
-        Tue,  7 Jun 2022 10:48:46 -0700 (PDT)
+        with ESMTP id S1378778AbiFGV1d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:27:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8125152BB2;
+        Tue,  7 Jun 2022 12:02:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A279C6171A;
-        Tue,  7 Jun 2022 17:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE34EC385A5;
-        Tue,  7 Jun 2022 17:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E484617C8;
+        Tue,  7 Jun 2022 19:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1383FC385A2;
+        Tue,  7 Jun 2022 19:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624126;
-        bh=wWRjEqG2Y+DWTjc/55XtqJj8VE6UoC3O30TEATDi1+w=;
+        s=korg; t=1654628523;
+        bh=4en+cC/nYj++7MgCIJDMIe5jSsByg+LEvsp7KKofpjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9teDVAJwUVVTUDWhKE+JWnv/H0tuWHT4Ptr7xQdhbkCWcpXmj5csSq3y+726GTy7
-         q4mzntzHwhqBjRg/pOUq5j81wc4cNTc9MAl6Ayc9pdveRTXz3NUWeSGSt97GoKAJl9
-         aJa+9KxsDYkC+jjcjTRnxUy9xmYiYSaxO/7xKKno=
+        b=CZM0B7O5lsSKl1Mcwn/E2qm5Qu+Wg5iss56J/AxYUW/FKdYBvEYlny1j3Za7iMXei
+         BTOipycdg0dXK4vIcvvh5h/FsjZWM5PTWxXRk8G3bHddjL5Nf9B8/HLB7RRwHn+GMq
+         6ZONYFgYftQNeXfzYAVEEwI6YnGzShavkcvjSTgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 212/667] ixp4xx_eth: fix error check return value of platform_get_irq()
+Subject: [PATCH 5.18 359/879] selftests/resctrl: Fix null pointer dereference on open failed
 Date:   Tue,  7 Jun 2022 18:57:57 +0200
-Message-Id: <20220607164941.155480514@linuxfoundation.org>
+Message-Id: <20220607165013.284404152@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit f45ba67eb74ab4b775616af731bdf8944afce3f1 ]
+[ Upstream commit c7b607fa9325ccc94982774c505176677117689c ]
 
-platform_get_irq() return negative value on failure, so null check of
-return value is incorrect. Fix it by comparing whether it is less than
-zero.
+Currently if opening /dev/null fails to open then file pointer fp
+is null and further access to fp via fprintf will cause a null
+pointer dereference. Fix this by returning a negative error value
+when a null fp is detected.
 
-Fixes: 9055a2f59162 ("ixp4xx_eth: make ptp support a platform driver")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220412085126.2532924-1-lv.ruyi@zte.com.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Detected using cppcheck static analysis:
+tools/testing/selftests/resctrl/fill_buf.c:124:6: note: Assuming
+that condition '!fp' is not redundant
+ if (!fp)
+     ^
+tools/testing/selftests/resctrl/fill_buf.c:126:10: note: Null
+pointer dereference
+ fprintf(fp, "Sum: %d ", ret);
+
+Fixes: a2561b12fe39 ("selftests/resctrl: Add built in benchmark")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xscale/ptp_ixp46x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/resctrl/fill_buf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xscale/ptp_ixp46x.c b/drivers/net/ethernet/xscale/ptp_ixp46x.c
-index 39234852e01b..20f6aa508003 100644
---- a/drivers/net/ethernet/xscale/ptp_ixp46x.c
-+++ b/drivers/net/ethernet/xscale/ptp_ixp46x.c
-@@ -272,7 +272,7 @@ static int ptp_ixp_probe(struct platform_device *pdev)
- 	ixp_clock.master_irq = platform_get_irq(pdev, 0);
- 	ixp_clock.slave_irq = platform_get_irq(pdev, 1);
- 	if (IS_ERR(ixp_clock.regs) ||
--	    !ixp_clock.master_irq || !ixp_clock.slave_irq)
-+	    ixp_clock.master_irq < 0 || ixp_clock.slave_irq < 0)
- 		return -ENXIO;
+diff --git a/tools/testing/selftests/resctrl/fill_buf.c b/tools/testing/selftests/resctrl/fill_buf.c
+index 51e5cf22632f..56ccbeae0638 100644
+--- a/tools/testing/selftests/resctrl/fill_buf.c
++++ b/tools/testing/selftests/resctrl/fill_buf.c
+@@ -121,8 +121,10 @@ static int fill_cache_read(unsigned char *start_ptr, unsigned char *end_ptr,
  
- 	ixp_clock.caps = ptp_ixp_caps;
+ 	/* Consume read result so that reading memory is not optimized out. */
+ 	fp = fopen("/dev/null", "w");
+-	if (!fp)
++	if (!fp) {
+ 		perror("Unable to write to /dev/null");
++		return -1;
++	}
+ 	fprintf(fp, "Sum: %d ", ret);
+ 	fclose(fp);
+ 
 -- 
 2.35.1
 
