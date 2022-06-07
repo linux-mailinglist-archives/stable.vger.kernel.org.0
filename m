@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BD58540E0A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 138D85406D2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353783AbiFGSwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:52:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
+        id S1347217AbiFGRiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:38:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347168AbiFGSrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C8593997;
-        Tue,  7 Jun 2022 11:02:52 -0700 (PDT)
+        with ESMTP id S1347231AbiFGRhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:37:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33671929F;
+        Tue,  7 Jun 2022 10:33:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7D91B82343;
-        Tue,  7 Jun 2022 18:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36EFAC34119;
-        Tue,  7 Jun 2022 18:02:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B868A6146F;
+        Tue,  7 Jun 2022 17:33:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA505C385A5;
+        Tue,  7 Jun 2022 17:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624969;
-        bh=Sb1Da9R1h6PFoUXuZpKZcTv76uGodmMk5hoLNQtJKfY=;
+        s=korg; t=1654623189;
+        bh=lvjgWwCWMMG4oPUt5XqFiKHL2VFjfq8Xa8zNktZpPmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+WwxxYbPYn0N6TdxWVHHZT2VSVIa+PMlCkilbDQAVKF8e8Z4sUtB2aDcrDv3UXR6
-         dvoZILztcaWaBiqvffYRNshF/pFOxwZsSgPgKPWkIAWOWtMZe8tpdO4c0lHOx59C7D
-         6BB6hNshssnH6+exW3WSD6QCxerodfssWypL8JOU=
+        b=ZSHoxsOwvD5kDiLv/cTblZnngxsW/IVrXK5GHgpkbMX5C0Uj/Oak5Zsv770LrKCGa
+         a5QrAFik7Wl42J29nnZNa0HQb84tfuC0ytpZxq/1IAa8sGxMpR67VtCYmiKMCUjZXg
+         kO4CSMRo4F+EHJEyUuYXH+RcVfQ6z10Uy8RDspYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 518/667] f2fs: fix to clear dirty inode in f2fs_evict_inode()
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Michael Walle <michael@walle.cc>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 326/452] i2c: at91: Initialize dma_buf in at91_twi_xfer()
 Date:   Tue,  7 Jun 2022 19:03:03 +0200
-Message-Id: <20220607164950.239830377@linuxfoundation.org>
+Message-Id: <20220607164918.275566049@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit f2db71053dc0409fae785096ad19cce4c8a95af7 upstream.
+[ Upstream commit 6977262c2eee111645668fe9e235ef2f5694abf7 ]
 
-As Yanming reported in bugzilla:
+Clang warns:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215904
+  drivers/i2c/busses/i2c-at91-master.c:707:6: warning: variable 'dma_buf' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+          if (dev->use_dma) {
+              ^~~~~~~~~~~~
+  drivers/i2c/busses/i2c-at91-master.c:717:27: note: uninitialized use occurs here
+          i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
+                                   ^~~~~~~
 
-The kernel message is shown below:
+Initialize dma_buf to NULL, as i2c_put_dma_safe_msg_buf() is a no-op
+when the first argument is NULL, which will work for the !dev->use_dma
+case.
 
-kernel BUG at fs/f2fs/inode.c:825!
-Call Trace:
- evict+0x282/0x4e0
- __dentry_kill+0x2b2/0x4d0
- shrink_dentry_list+0x17c/0x4f0
- shrink_dcache_parent+0x143/0x1e0
- do_one_tree+0x9/0x30
- shrink_dcache_for_umount+0x51/0x120
- generic_shutdown_super+0x5c/0x3a0
- kill_block_super+0x90/0xd0
- kill_f2fs_super+0x225/0x310
- deactivate_locked_super+0x78/0xc0
- cleanup_mnt+0x2b7/0x480
- task_work_run+0xc8/0x150
- exit_to_user_mode_prepare+0x14a/0x150
- syscall_exit_to_user_mode+0x1d/0x40
- do_syscall_64+0x48/0x90
-
-The root cause is: inode node and dnode node share the same nid,
-so during f2fs_evict_inode(), dnode node truncation will invalidate
-its NAT entry, so when truncating inode node, it fails due to
-invalid NAT entry, result in inode is still marked as dirty, fix
-this issue by clearing dirty for inode and setting SBI_NEED_FSCK
-flag in filesystem.
-
-output from dump.f2fs:
-[print_node_info: 354] Node ID [0xf:15] is inode
-i_nid[0]                      		[0x       f : 15]
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 03fbb903c8bf ("i2c: at91: use dma safe buffers")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1629
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inode.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-at91-master.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -786,8 +786,22 @@ retry:
- 		f2fs_lock_op(sbi);
- 		err = f2fs_remove_inode_page(inode);
- 		f2fs_unlock_op(sbi);
--		if (err == -ENOENT)
-+		if (err == -ENOENT) {
- 			err = 0;
-+
-+			/*
-+			 * in fuzzed image, another node may has the same
-+			 * block address as inode's, if it was truncated
-+			 * previously, truncation of inode node will fail.
-+			 */
-+			if (is_inode_flag_set(inode, FI_DIRTY_INODE)) {
-+				f2fs_warn(F2FS_I_SB(inode),
-+					"f2fs_evict_inode: inconsistent node id, ino:%lu",
-+					inode->i_ino);
-+				f2fs_inode_synced(inode);
-+				set_sbi_flag(sbi, SBI_NEED_FSCK);
-+			}
-+		}
- 	}
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index 974225faaf96..7960fa4b8c5b 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -657,7 +657,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	unsigned int_addr_flag = 0;
+ 	struct i2c_msg *m_start = msg;
+ 	bool is_read;
+-	u8 *dma_buf;
++	u8 *dma_buf = NULL;
  
- 	/* give more chances, if ENOMEM case */
+ 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+ 
+-- 
+2.35.1
+
 
 
