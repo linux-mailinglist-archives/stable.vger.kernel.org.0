@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3595540AC0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D0E540AC3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351500AbiFGSXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51586 "EHLO
+        id S1345860AbiFGSXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352375AbiFGSRE (ORCPT
+        with ESMTP id S1352389AbiFGSRE (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D659BF89C;
-        Tue,  7 Jun 2022 10:51:29 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEB9DF59C;
+        Tue,  7 Jun 2022 10:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B09617A8;
-        Tue,  7 Jun 2022 17:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4270EC385A5;
-        Tue,  7 Jun 2022 17:51:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F3FCB8233E;
+        Tue,  7 Jun 2022 17:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 057FDC385A5;
+        Tue,  7 Jun 2022 17:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624288;
-        bh=CdgY2UMdM7b4PIzezruemoOeBob9V9P4jF5Sqw7qqn0=;
+        s=korg; t=1654624291;
+        bh=4crKvbaRKfRDh58CHafqCLlcae/1alFJ2GNdRhB1c08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yI1AkgNEvZVdo3G67EjG2J7xNQeVuLTPGMt2Cyu83dm+7646HgQJBxQoOYxTVKWfq
-         ZqZtDM3kiM6RKzSx5VRFZLSIr+lzWorEfkpy/G0cTA1usBNWfV76aKsMj7os+lLQMl
-         TJ/tMBPBD795bYdZruOKCZyGZIJMYtvRHdUtxDls=
+        b=CnaitzvPB3EMxYq/hfkLU10T9JDT/StjLYkksdYox4UZbPmiLU2vHRHolMmY+f3rs
+         zOrWRGtTqjRkQimwu22x5mNoDQtfjI5XGygxU4ENaYMSotFwhNKAFso4SKC9BTduri
+         ki5eGajXxOv7LzjGMC0xi4vdRk8fLh6YaOf5YHi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Daniel Latypov <dlatypov@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 274/667] drm/panel: panel-simple: Fix proper bpc for AM-1280800N3TZQW-T00H
-Date:   Tue,  7 Jun 2022 18:58:59 +0200
-Message-Id: <20220607164943.003208468@linuxfoundation.org>
+Subject: [PATCH 5.15 275/667] kunit: fix debugfs code to use enum kunit_status, not bool
+Date:   Tue,  7 Jun 2022 18:59:00 +0200
+Message-Id: <20220607164943.034042715@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -54,38 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jagan Teki <jagan@amarulasolutions.com>
+From: Daniel Latypov <dlatypov@google.com>
 
-[ Upstream commit 7eafbecd2288c542ea15ea20cf1a7e64a25c21bc ]
+[ Upstream commit 38289a26e1b8a37755f3e07056ca416c1ee2a2e8 ]
 
-AM-1280800N3TZQW-T00H panel support 8 bpc not 6 bpc as per
-recent testing in i.MX8MM platform.
+Commit 6d2426b2f258 ("kunit: Support skipped tests") switched to using
+`enum kunit_status` to track the result of running a test/suite since we
+now have more than just pass/fail.
 
-Fix it.
+This callsite wasn't updated, silently converting to enum to a bool and
+then back.
 
-Fixes: bca684e69c4c ("drm/panel: simple: Add AM-1280800N3TZQW-T00H")
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211111094103.494831-1-jagan@amarulasolutions.com
+Fixes: 6d2426b2f258 ("kunit: Support skipped tests")
+Signed-off-by: Daniel Latypov <dlatypov@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 2 +-
+ lib/kunit/debugfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 93a1d6b41117..8dd7013c75f2 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -862,7 +862,7 @@ static const struct drm_display_mode ampire_am_1280800n3tzqw_t00h_mode = {
- static const struct panel_desc ampire_am_1280800n3tzqw_t00h = {
- 	.modes = &ampire_am_1280800n3tzqw_t00h_mode,
- 	.num_modes = 1,
--	.bpc = 6,
-+	.bpc = 8,
- 	.size = {
- 		.width = 217,
- 		.height = 136,
+diff --git a/lib/kunit/debugfs.c b/lib/kunit/debugfs.c
+index b71db0abc12b..1048ef1b8d6e 100644
+--- a/lib/kunit/debugfs.c
++++ b/lib/kunit/debugfs.c
+@@ -52,7 +52,7 @@ static void debugfs_print_result(struct seq_file *seq,
+ static int debugfs_print_results(struct seq_file *seq, void *v)
+ {
+ 	struct kunit_suite *suite = (struct kunit_suite *)seq->private;
+-	bool success = kunit_suite_has_succeeded(suite);
++	enum kunit_status success = kunit_suite_has_succeeded(suite);
+ 	struct kunit_case *test_case;
+ 
+ 	if (!suite || !suite->log)
 -- 
 2.35.1
 
