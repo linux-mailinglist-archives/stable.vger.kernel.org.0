@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6298A5418E8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD15D5412AB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346725AbiFGVSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52394 "EHLO
+        id S1354464AbiFGTyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381459AbiFGVRp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:45 -0400
+        with ESMTP id S1358253AbiFGTwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459E7222A7C;
-        Tue,  7 Jun 2022 11:59:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56090996AE;
+        Tue,  7 Jun 2022 11:19:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39C44B82399;
-        Tue,  7 Jun 2022 18:59:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A37AC385A2;
-        Tue,  7 Jun 2022 18:58:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B928B8237D;
+        Tue,  7 Jun 2022 18:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0143C36B01;
+        Tue,  7 Jun 2022 18:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628339;
-        bh=Aq7vSxKcjetfj93aKlRfrOrn3yESDQPRup+E2ckv/ac=;
+        s=korg; t=1654625994;
+        bh=SvxtK91i3xQESf6tbSBGHp7J+Iwy+arLxPKjfKCQuOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYwUiv3exzTdxUR0MKIEY+Utb8plV2BL39iOVjh+OzTI+7zzLwIScflpOw/mH9Grw
-         wsS2c0GGv99pkYg0rihliXGU4CZPiaQNcM7hjGUJ61f+qL2H/Gx0eRf6ZGwvgrAO7t
-         3NmtFuOsrKjb2rsPCbsZWKJxSgY9OEqA2aOp5Tu8=
+        b=MY99TftLAFvM1heayWeCyPRdmeSGbp37v+Resy2R4HxYhZRinkoDOB0hGW5P9KYPI
+         gL75fiWPE+y3ujhwz8hZga1D2Ac0cyqkia5M6S/A174YGeytts4PtT/wW8srZCiq6Q
+         6mQhamvLm131Qa1pUhbdL+dLrZf6oPT6rCDqsj9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Vasily Averin <vvs@openvz.org>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 294/879] drm/vc4: txp: Force alpha to be 0xff if its disabled
+Subject: [PATCH 5.17 220/772] fanotify: fix incorrect fmode_t casts
 Date:   Tue,  7 Jun 2022 18:56:52 +0200
-Message-Id: <20220607165011.382011372@linuxfoundation.org>
+Message-Id: <20220607164955.515895606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Vasily Averin <vvs@openvz.org>
 
-[ Upstream commit 5453343a88ede8b12812fced81ecd24cb888ccc3 ]
+[ Upstream commit dccd855771b37820b6d976a99729c88259549f85 ]
 
-If we use a format that has padding instead of the alpha component (such
-as XRGB8888), it appears that the Transposer will fill the padding to 0,
-disregarding what was stored in the input buffer padding.
+Fixes sparce warnings:
+fs/notify/fanotify/fanotify_user.c:267:63: sparse:
+ warning: restricted fmode_t degrades to integer
+fs/notify/fanotify/fanotify_user.c:1351:28: sparse:
+ warning: restricted fmode_t degrades to integer
 
-This leads to issues with IGT, since it will set the padding to 0xff,
-but will then compare the CRC of the two frames which will thus fail.
-Another nice side effect is that it is now possible to just use the
-buffer as ARGB.
+FMODE_NONTIFY have bitwise fmode_t type and requires __force attribute
+for any casts.
 
-Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://lore.kernel.org/r/20220328153659.2382206-4-maxime@cerno.tech
+Signed-off-by: Vasily Averin <vvs@openvz.org>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/9adfd6ac-1b89-791e-796b-49ada3293985@openvz.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_txp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/notify/fanotify/fanotify_user.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
-index ace2d03649ba..82beb8c159f2 100644
---- a/drivers/gpu/drm/vc4/vc4_txp.c
-+++ b/drivers/gpu/drm/vc4/vc4_txp.c
-@@ -304,6 +304,12 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
+diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+index f2a1947ec5ee..ead37db01ab5 100644
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -264,7 +264,7 @@ static int create_fd(struct fsnotify_group *group, struct path *path,
+ 	 * originally opened O_WRONLY.
+ 	 */
+ 	new_file = dentry_open(path,
+-			       group->fanotify_data.f_flags | FMODE_NONOTIFY,
++			       group->fanotify_data.f_flags | __FMODE_NONOTIFY,
+ 			       current_cred());
+ 	if (IS_ERR(new_file)) {
+ 		/*
+@@ -1329,7 +1329,7 @@ SYSCALL_DEFINE2(fanotify_init, unsigned int, flags, unsigned int, event_f_flags)
+ 	    (!(fid_mode & FAN_REPORT_NAME) || !(fid_mode & FAN_REPORT_FID)))
+ 		return -EINVAL;
  
- 	if (fb->format->has_alpha)
- 		ctrl |= TXP_ALPHA_ENABLE;
-+	else
-+		/*
-+		 * If TXP_ALPHA_ENABLE isn't set and TXP_ALPHA_INVERT is, the
-+		 * hardware will force the output padding to be 0xff.
-+		 */
-+		ctrl |= TXP_ALPHA_INVERT;
- 
- 	gem = drm_fb_cma_get_gem_obj(fb, 0);
- 	TXP_WRITE(TXP_DST_PTR, gem->paddr + fb->offsets[0]);
+-	f_flags = O_RDWR | FMODE_NONOTIFY;
++	f_flags = O_RDWR | __FMODE_NONOTIFY;
+ 	if (flags & FAN_CLOEXEC)
+ 		f_flags |= O_CLOEXEC;
+ 	if (flags & FAN_NONBLOCK)
 -- 
 2.35.1
 
