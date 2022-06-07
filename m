@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338B5541CF1
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2BD540E36
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378838AbiFGWHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38598 "EHLO
+        id S1353074AbiFGSxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382686AbiFGWEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:31 -0400
+        with ESMTP id S1347427AbiFGStJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:49:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D453025025A;
-        Tue,  7 Jun 2022 12:14:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D95419034;
+        Tue,  7 Jun 2022 11:03:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87236B823C6;
-        Tue,  7 Jun 2022 19:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6906C385A5;
-        Tue,  7 Jun 2022 19:14:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DD7BB82182;
+        Tue,  7 Jun 2022 18:03:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD784C34115;
+        Tue,  7 Jun 2022 18:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629291;
-        bh=Qf0riGe9jag1RYINbAwIoHFgerM8YVcYGRZBgOZVPGE=;
+        s=korg; t=1654624986;
+        bh=1fnCYEHFdDXiebIMF3JIQlXednadZc3hyC/x3Lsi5wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0q1OAIDTASiJVC6Fb3FK8+5VPgj6Yn33g7vq8d0FtLaj8OOUenBIJoOBP3UzxEgE
-         /DAMTDTnP4wUQT333YTYP/2owt/pCZqoWe/D6y/eKepZpkzg2CwuJBOm5VPmuK2H0y
-         Q24VuAkGsmFGEQplPbh+RvHyY+CIa9UcYsAGzkDc=
+        b=1DZI2QnCiQ0W34YoiTQT4xDeWfqYIxtmJHJGMKFwSCXUL10DcwOuotwbLmRkrIsIx
+         70pD2fyRhCasoMzJaZE0rmW+AiK9lxpKm1z17/j4iUypgbJbiqNq7djg9r95BBFZHk
+         LA82sTFc/rjL46x/SUSukJRMPonmSrK8tTQ0LPfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 631/879] KVM: PPC: Book3S HV: Fix vcore_blocked tracepoint
+        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
+        Yong Wu <yong.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 484/667] iommu/mediatek: Add mutex for m4u_group and m4u_dom in data
 Date:   Tue,  7 Jun 2022 19:02:29 +0200
-Message-Id: <20220607165021.164568507@linuxfoundation.org>
+Message-Id: <20220607164949.217726478@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +57,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit ad55bae7dc364417434b69dd6c30104f20d0f84d ]
+[ Upstream commit 0e5a3f2e630b28e88e018655548212ef8eb4dfcb ]
 
-We removed most of the vcore logic from the P9 path but there's still
-a tracepoint that tried to dereference vc->runner.
+Add a mutex to protect the data in the structure mtk_iommu_data,
+like ->"m4u_group" ->"m4u_dom". For the internal data, we should
+protect it in ourselves driver. Add a mutex for this.
+This could be a fix for the multi-groups support.
 
-Fixes: ecb6a7207f92 ("KVM: PPC: Book3S HV P9: Remove most of the vcore logic")
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220328215831.320409-1-farosas@linux.ibm.com
+Fixes: c3045f39244e ("iommu/mediatek: Support for multi domains")
+Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/20220503071427.2285-8-yong.wu@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 8 ++++----
- arch/powerpc/kvm/trace_hv.h  | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/iommu/mtk_iommu.c | 13 +++++++++++--
+ drivers/iommu/mtk_iommu.h |  2 ++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 43af871383c2..aef0a6b423d8 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -4233,13 +4233,13 @@ static void kvmppc_vcore_blocked(struct kvmppc_vcore *vc)
- 	start_wait = ktime_get();
- 
- 	vc->vcore_state = VCORE_SLEEPING;
--	trace_kvmppc_vcore_blocked(vc, 0);
-+	trace_kvmppc_vcore_blocked(vc->runner, 0);
- 	spin_unlock(&vc->lock);
- 	schedule();
- 	finish_rcuwait(&vc->wait);
- 	spin_lock(&vc->lock);
- 	vc->vcore_state = VCORE_INACTIVE;
--	trace_kvmppc_vcore_blocked(vc, 1);
-+	trace_kvmppc_vcore_blocked(vc->runner, 1);
- 	++vc->runner->stat.halt_successful_wait;
- 
- 	cur = ktime_get();
-@@ -4619,9 +4619,9 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
- 			if (kvmppc_vcpu_check_block(vcpu))
- 				break;
- 
--			trace_kvmppc_vcore_blocked(vc, 0);
-+			trace_kvmppc_vcore_blocked(vcpu, 0);
- 			schedule();
--			trace_kvmppc_vcore_blocked(vc, 1);
-+			trace_kvmppc_vcore_blocked(vcpu, 1);
- 		}
- 		finish_rcuwait(wait);
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index b9d690327eae..9b3ded518f83 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -469,15 +469,16 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 		dom->data = data;
  	}
-diff --git a/arch/powerpc/kvm/trace_hv.h b/arch/powerpc/kvm/trace_hv.h
-index 38cd0ed0a617..32e2cb5811cc 100644
---- a/arch/powerpc/kvm/trace_hv.h
-+++ b/arch/powerpc/kvm/trace_hv.h
-@@ -409,9 +409,9 @@ TRACE_EVENT(kvmppc_run_core,
- );
  
- TRACE_EVENT(kvmppc_vcore_blocked,
--	TP_PROTO(struct kvmppc_vcore *vc, int where),
-+	TP_PROTO(struct kvm_vcpu *vcpu, int where),
++	mutex_lock(&data->mutex);
+ 	if (!data->m4u_dom) { /* Initialize the M4U HW */
+ 		ret = pm_runtime_resume_and_get(m4udev);
+ 		if (ret < 0)
+-			return ret;
++			goto err_unlock;
  
--	TP_ARGS(vc, where),
-+	TP_ARGS(vcpu, where),
+ 		ret = mtk_iommu_hw_init(data);
+ 		if (ret) {
+ 			pm_runtime_put(m4udev);
+-			return ret;
++			goto err_unlock;
+ 		}
+ 		data->m4u_dom = dom;
+ 		writel(dom->cfg.arm_v7s_cfg.ttbr & MMU_PT_ADDR_MASK,
+@@ -485,9 +486,14 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
  
- 	TP_STRUCT__entry(
- 		__field(int,	n_runnable)
-@@ -421,8 +421,8 @@ TRACE_EVENT(kvmppc_vcore_blocked,
- 	),
+ 		pm_runtime_put(m4udev);
+ 	}
++	mutex_unlock(&data->mutex);
  
- 	TP_fast_assign(
--		__entry->runner_vcpu = vc->runner->vcpu_id;
--		__entry->n_runnable  = vc->n_runnable;
-+		__entry->runner_vcpu = vcpu->vcpu_id;
-+		__entry->n_runnable  = vcpu->arch.vcore->n_runnable;
- 		__entry->where       = where;
- 		__entry->tgid	     = current->tgid;
- 	),
+ 	mtk_iommu_config(data, dev, true, domid);
+ 	return 0;
++
++err_unlock:
++	mutex_unlock(&data->mutex);
++	return ret;
+ }
+ 
+ static void mtk_iommu_detach_device(struct iommu_domain *domain,
+@@ -627,6 +633,7 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
+ 	if (domid < 0)
+ 		return ERR_PTR(domid);
+ 
++	mutex_lock(&data->mutex);
+ 	group = data->m4u_group[domid];
+ 	if (!group) {
+ 		group = iommu_group_alloc();
+@@ -635,6 +642,7 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
+ 	} else {
+ 		iommu_group_ref_get(group);
+ 	}
++	mutex_unlock(&data->mutex);
+ 	return group;
+ }
+ 
+@@ -909,6 +917,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, data);
++	mutex_init(&data->mutex);
+ 
+ 	ret = iommu_device_sysfs_add(&data->iommu, dev, NULL,
+ 				     "mtk-iommu.%pa", &ioaddr);
+diff --git a/drivers/iommu/mtk_iommu.h b/drivers/iommu/mtk_iommu.h
+index f81fa8862ed0..f413546ac6e5 100644
+--- a/drivers/iommu/mtk_iommu.h
++++ b/drivers/iommu/mtk_iommu.h
+@@ -80,6 +80,8 @@ struct mtk_iommu_data {
+ 
+ 	struct dma_iommu_mapping	*mapping; /* For mtk_iommu_v1.c */
+ 
++	struct mutex			mutex; /* Protect m4u_group/m4u_dom above */
++
+ 	struct list_head		list;
+ 	struct mtk_smi_larb_iommu	larb_imu[MTK_LARB_NR_MAX];
+ };
 -- 
 2.35.1
 
