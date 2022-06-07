@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F00541B69
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4156541462
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357083AbiFGVrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:47:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51940 "EHLO
+        id S1358322AbiFGURh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381861AbiFGVpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:45:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DC3235137;
-        Tue,  7 Jun 2022 12:07:31 -0700 (PDT)
+        with ESMTP id S1359667AbiFGUP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:15:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10CB91C9251;
+        Tue,  7 Jun 2022 11:28:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3980A612EC;
-        Tue,  7 Jun 2022 19:07:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D99C385A2;
-        Tue,  7 Jun 2022 19:07:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6FB3612EC;
+        Tue,  7 Jun 2022 18:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E32EBC385A5;
+        Tue,  7 Jun 2022 18:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628849;
-        bh=j4qLntO3VaOtB7btRAveV4YpRZHf6JXJpBSgnbjuGuk=;
+        s=korg; t=1654626512;
+        bh=rFUmO2eCpiuWmXjiSQBqGcHExDGAR+qKjNun3mFwazE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsLRtBO2RvLGT0cBL7r39fkwo8MZPlkytMHm3U8PDALXwZzeBY+ck5pEfoCSYsepR
-         r5nTRj8/vYHDQXH0veDVHSP480C8s7pOAjuzaoTN3Ipyeg2TrOp6vuHyttTChG3P0y
-         Kdw1/UK5zlEIhFFq8i8H0AL+uVR7i9LUhuf9vhYU=
+        b=CvEcfC68uDL1D+JePx6rCpmU3D05GwlFk2CJqKmRnW7xlhQv33TfICgf5JRn4hjd2
+         toenAoUiMR5Nybhs4zjMBy/gRxxkriAzYls9iXSFDF7yBQoNqRUQCoro/FrtNy5t9F
+         xB8TvZdkrNMCDbAn6GmOXR5ohhnuX1cDE4kXbjfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Sebastian Fricke <sebastian.fricke@collabora.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 478/879] regulator: scmi: Fix refcount leak in scmi_regulator_probe
-Date:   Tue,  7 Jun 2022 18:59:56 +0200
-Message-Id: <20220607165016.753275018@linuxfoundation.org>
+Subject: [PATCH 5.17 405/772] media: rkvdec: h264: Fix dpb_valid implementation
+Date:   Tue,  7 Jun 2022 18:59:57 +0200
+Message-Id: <20220607165000.944176093@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +58,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit 68d6c8476fd4f448e70e0ab31ff972838ac41dae ]
+[ Upstream commit 7ab889f09dfa70e8097ec1b9186fd228124112cb ]
 
-of_find_node_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+The ref builder only provided references that are marked as valid in the
+dpb. Thus the current implementation of dpb_valid would always set the
+flag to 1. This is not representing missing frames (this is called
+'non-existing' pictures in the spec). In some context, these non-existing
+pictures still need to occupy a slot in the reference list according to
+the spec.
 
-Fixes: 0fbeae70ee7c ("regulator: add SCMI driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220516074433.32433-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/scmi-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/rkvdec/rkvdec-h264.c | 33 ++++++++++++++++------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/regulator/scmi-regulator.c b/drivers/regulator/scmi-regulator.c
-index 1f02f60ad136..41ae7ac27ff6 100644
---- a/drivers/regulator/scmi-regulator.c
-+++ b/drivers/regulator/scmi-regulator.c
-@@ -352,7 +352,7 @@ static int scmi_regulator_probe(struct scmi_device *sdev)
- 			return ret;
- 		}
+diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
+index 951e19231da2..f5d8c6cb740b 100644
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -112,6 +112,7 @@ struct rkvdec_h264_run {
+ 	const struct v4l2_ctrl_h264_sps *sps;
+ 	const struct v4l2_ctrl_h264_pps *pps;
+ 	const struct v4l2_ctrl_h264_scaling_matrix *scaling_matrix;
++	int ref_buf_idx[V4L2_H264_NUM_DPB_ENTRIES];
+ };
+ 
+ struct rkvdec_h264_ctx {
+@@ -725,6 +726,26 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
  	}
+ }
+ 
++static void lookup_ref_buf_idx(struct rkvdec_ctx *ctx,
++			       struct rkvdec_h264_run *run)
++{
++	const struct v4l2_ctrl_h264_decode_params *dec_params = run->decode_params;
++	u32 i;
++
++	for (i = 0; i < ARRAY_SIZE(dec_params->dpb); i++) {
++		struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
++		const struct v4l2_h264_dpb_entry *dpb = run->decode_params->dpb;
++		struct vb2_queue *cap_q = &m2m_ctx->cap_q_ctx.q;
++		int buf_idx = -1;
++
++		if (dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE)
++			buf_idx = vb2_find_timestamp(cap_q,
++						     dpb[i].reference_ts, 0);
++
++		run->ref_buf_idx[i] = buf_idx;
++	}
++}
++
+ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
+ 			    struct rkvdec_h264_run *run)
+ {
+@@ -762,7 +783,7 @@ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
+ 
+ 	for (j = 0; j < RKVDEC_NUM_REFLIST; j++) {
+ 		for (i = 0; i < h264_ctx->reflists.num_valid; i++) {
+-			u8 dpb_valid = 0;
++			bool dpb_valid = run->ref_buf_idx[i] >= 0;
+ 			u8 idx = 0;
+ 
+ 			switch (j) {
+@@ -779,8 +800,6 @@ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
+ 
+ 			if (idx >= ARRAY_SIZE(dec_params->dpb))
+ 				continue;
+-			dpb_valid = !!(dpb[idx].flags &
+-				       V4L2_H264_DPB_ENTRY_FLAG_ACTIVE);
+ 
+ 			set_ps_field(hw_rps, DPB_INFO(i, j),
+ 				     idx | dpb_valid << 4);
+@@ -859,13 +878,8 @@ get_ref_buf(struct rkvdec_ctx *ctx, struct rkvdec_h264_run *run,
+ 	    unsigned int dpb_idx)
+ {
+ 	struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
+-	const struct v4l2_h264_dpb_entry *dpb = run->decode_params->dpb;
+ 	struct vb2_queue *cap_q = &m2m_ctx->cap_q_ctx.q;
+-	int buf_idx = -1;
 -
-+	of_node_put(np);
+-	if (dpb[dpb_idx].flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE)
+-		buf_idx = vb2_find_timestamp(cap_q,
+-					     dpb[dpb_idx].reference_ts, 0);
++	int buf_idx = run->ref_buf_idx[dpb_idx];
+ 
  	/*
- 	 * Register a regulator for each valid regulator-DT-entry that we
- 	 * can successfully reach via SCMI and has a valid associated voltage
+ 	 * If a DPB entry is unused or invalid, address of current destination
+@@ -1102,6 +1116,7 @@ static int rkvdec_h264_run(struct rkvdec_ctx *ctx)
+ 
+ 	assemble_hw_scaling_list(ctx, &run);
+ 	assemble_hw_pps(ctx, &run);
++	lookup_ref_buf_idx(ctx, &run);
+ 	assemble_hw_rps(ctx, &run);
+ 	config_registers(ctx, &run);
+ 
 -- 
 2.35.1
 
