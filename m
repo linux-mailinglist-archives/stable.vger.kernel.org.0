@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34EC7540ABB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6171A540B37
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351493AbiFGSXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
+        id S1350011AbiFGS1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:27:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352416AbiFGSRI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505812716B;
-        Tue,  7 Jun 2022 10:52:03 -0700 (PDT)
+        with ESMTP id S1352426AbiFGSRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7317D10D934;
+        Tue,  7 Jun 2022 10:52:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA53FB82366;
-        Tue,  7 Jun 2022 17:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCD5C34119;
-        Tue,  7 Jun 2022 17:51:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C520761782;
+        Tue,  7 Jun 2022 17:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 632D6C385A5;
+        Tue,  7 Jun 2022 17:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624320;
-        bh=aqBhceqBGhC+HNxaI5YNjyD+0ZRKEAmv1OOd4cUY2SY=;
+        s=k20201202; t=1654624325;
+        bh=gXYvlZnPFUNaM7G9ja0Y0pLazVMlcUftyKWO1ibNkxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIO/KgIgI7mwWA611k4B0yOcu3Ja91pgk4SZDZuJ3xkQVpo0B8N8HEFrfOmJRgCAi
-         cFgl/HfzVsXp1O9KDhpov/SWJadfF6aYCuLeluMUVgrRJJ8hYjNcvPFTlGFpcJyQ0X
-         p18R5G32Wat0GE1QR84sRswIxVLvWN4a+0z+A28EZrKv01PAW0ljru7prAzF1w61FI
-         x1LYPIg7uRWXxptsSn+/SDN7WJii0LfsHvBKKOL1HA0aRSH38zPXg7wLSHCD1zqAlb
-         JdX/1O1FPxztGt3LoYVp3FimonQnRjw4Y8dnZB1JknmrvBzt7gNF2ieGqLSj84h6kA
-         vvFyDzIFnU+JQ==
+        b=HNzoz0NKuUwVkcr4002XwwyJNPQS1c9/ZsQlYU3bbxdOPsjbOpWuooGCMXU3wzVwa
+         AWLSRLuKVpFjfbNHweI0GnluxE+sBF9nvSzUeHuaWnDn+oPQUxrHNmhpx7NikG5CVM
+         Sdc2Fx1FopCaRKMAkunhA79DkXrbQ58YeVZGWcOVxNMGSs/lbinSX3/oBjpLY6Bu1G
+         hfvM1DEvdq1YzjIW2gLO2V1X2k3zWFeeEw+S0PsdxQ2ck71DMxqWpHi4dR6PQ2x59l
+         hHe/N/THGrPI45AO9DYPhQALmhe4Oly3OF8JYcKs8RykSN2JzCIpjX10FrY6ifayV4
+         oSfc2Gq1HgycA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lijo Lazar <lijo.lazar@amd.com>,
-        Yang Wang <kevinyang.wang@amd.com>,
+Cc:     Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, kevin1.wang@amd.com, luben.tuikov@amd.com,
-        Stanley.Yang@amd.com, tao.zhou1@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 49/68] drm/amd/pm: Fix missing thermal throttler status
-Date:   Tue,  7 Jun 2022 13:48:15 -0400
-Message-Id: <20220607174846.477972-49-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        lijo.lazar@amd.com, luben.tuikov@amd.com,
+        andrey.grodzovsky@amd.com, sathishkumar.sundararaju@amd.com,
+        danijel.slivka@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.18 50/68] drm/amd/pm: correct the metrics version for SMU 11.0.11/12/13
+Date:   Tue,  7 Jun 2022 13:48:16 -0400
+Message-Id: <20220607174846.477972-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -61,34 +61,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijo Lazar <lijo.lazar@amd.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit b0f4d663fce6a4232d3c20ce820f919111b1c60b ]
+[ Upstream commit 396beb91a9eb86cbfa404e4220cca8f3ada70777 ]
 
-On aldebaran, when thermal throttling happens due to excessive GPU
-temperature, the reason for throttling event is missed in warning
-message. This patch fixes it.
+Correct the metrics version used for SMU 11.0.11/12/13.
+Fixes misreported GPU metrics (e.g., fan speed, etc.) depending
+on which version of SMU firmware is loaded.
 
-Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Yang Wang <kevinyang.wang@amd.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1925
+Signed-off-by: Evan Quan <evan.quan@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../amd/pm/swsmu/smu11/sienna_cichlid_ppt.c   | 57 ++++++++++++++-----
+ 1 file changed, 44 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-index cd81f848d45a..7f998f24af81 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-@@ -1664,6 +1664,7 @@ static const struct throttling_logging_label {
- 	uint32_t feature_mask;
- 	const char *label;
- } logging_label[] = {
-+	{(1U << THROTTLER_TEMP_GPU_BIT), "GPU"},
- 	{(1U << THROTTLER_TEMP_MEM_BIT), "HBM"},
- 	{(1U << THROTTLER_TEMP_VR_GFX_BIT), "VR of GFX rail"},
- 	{(1U << THROTTLER_TEMP_VR_MEM_BIT), "VR of HBM rail"},
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index 38f04836c82f..7a1e225fb823 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -586,12 +586,28 @@ static int sienna_cichlid_get_smu_metrics_data(struct smu_context *smu,
+ 	uint16_t average_gfx_activity;
+ 	int ret = 0;
+ 
+-	if ((smu->adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
+-		(smu->smc_fw_version >= 0x3A4900))
+-		use_metrics_v3 = true;
+-	else if ((smu->adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
+-		(smu->smc_fw_version >= 0x3A4300))
+-		use_metrics_v2 =  true;
++	switch (smu->adev->ip_versions[MP1_HWIP][0]) {
++	case IP_VERSION(11, 0, 7):
++		if (smu->smc_fw_version >= 0x3A4900)
++			use_metrics_v3 = true;
++		else if (smu->smc_fw_version >= 0x3A4300)
++			use_metrics_v2 = true;
++		break;
++	case IP_VERSION(11, 0, 11):
++		if (smu->smc_fw_version >= 0x412D00)
++			use_metrics_v2 = true;
++		break;
++	case IP_VERSION(11, 0, 12):
++		if (smu->smc_fw_version >= 0x3B2300)
++			use_metrics_v2 = true;
++		break;
++	case IP_VERSION(11, 0, 13):
++		if (smu->smc_fw_version >= 0x491100)
++			use_metrics_v2 = true;
++		break;
++	default:
++		break;
++	}
+ 
+ 	ret = smu_cmn_get_metrics_table(smu,
+ 					NULL,
+@@ -3701,13 +3717,28 @@ static ssize_t sienna_cichlid_get_gpu_metrics(struct smu_context *smu,
+ 	uint16_t average_gfx_activity;
+ 	int ret = 0;
+ 
+-	if ((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
+-		(smu->smc_fw_version >= 0x3A4900))
+-		use_metrics_v3 = true;
+-	else if ((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(11, 0, 7)) &&
+-		(smu->smc_fw_version >= 0x3A4300))
+-		use_metrics_v2 = true;
+-
++	switch (smu->adev->ip_versions[MP1_HWIP][0]) {
++	case IP_VERSION(11, 0, 7):
++		if (smu->smc_fw_version >= 0x3A4900)
++			use_metrics_v3 = true;
++		else if (smu->smc_fw_version >= 0x3A4300)
++			use_metrics_v2 = true;
++		break;
++	case IP_VERSION(11, 0, 11):
++		if (smu->smc_fw_version >= 0x412D00)
++			use_metrics_v2 = true;
++		break;
++	case IP_VERSION(11, 0, 12):
++		if (smu->smc_fw_version >= 0x3B2300)
++			use_metrics_v2 = true;
++		break;
++	case IP_VERSION(11, 0, 13):
++		if (smu->smc_fw_version >= 0x491100)
++			use_metrics_v2 = true;
++		break;
++	default:
++		break;
++	}
+ 
+ 	ret = smu_cmn_get_metrics_table(smu,
+ 					&metrics_external,
 -- 
 2.35.1
 
