@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09278540B73
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653D3541B6C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350675AbiFGS3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
+        id S1378087AbiFGVrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:47:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351460AbiFGSXe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F5AC9ED5;
-        Tue,  7 Jun 2022 10:54:21 -0700 (PDT)
+        with ESMTP id S1381979AbiFGVpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:45:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A42235260;
+        Tue,  7 Jun 2022 12:07:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D95461846;
-        Tue,  7 Jun 2022 17:54:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B820C385A5;
-        Tue,  7 Jun 2022 17:54:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CAA9B823B4;
+        Tue,  7 Jun 2022 19:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792E7C385A2;
+        Tue,  7 Jun 2022 19:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624459;
-        bh=y1kr5Heb/C7va/aR2tlmANm0HN4/JLfZxF885GOasXQ=;
+        s=korg; t=1654628857;
+        bh=6Bw7n5DpPSq0LsUhzO7WxUFhcxXLj80U1w2T9SxWBAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSD1qpS7jJBvXE4e0fFl7mIGYSX5iXXLT3wJgHfZz75N3VmLJkzKsNP9oMTCgmsw/
-         M3Db/tmZ7Z/5MaTpv53IJP5cmm/cQVMv6Rb9AbD+JIu+VuG64B3Y7P8Hy5V5Xmmo64
-         8jgLiUME68ko0cB+eifvmxlzi3dFDbzBeK/ebTUE=
+        b=0AgIvIOOvRxHv+KDQg+ytpz1YoatdXkkfWN23Vxb0Ff9F+liOHFHYsPyxgSkPbDcI
+         N+d3kH4SL4NT6hccUxTfCmN+Ilw6gOGr7LimBkDC5fRaAfd1mtCxsiBfORICqYLOX+
+         ZQAzPq6foLQtiikMBAPBg4u+B+WpXCkeyqGiNHY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Moshe Tal <moshet@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 334/667] sctp: read sk->sk_bound_dev_if once in sctp_rcv()
+Subject: [PATCH 5.18 481/879] net/mlx5e: Correct the calculation of max channels for rep
 Date:   Tue,  7 Jun 2022 18:59:59 +0200
-Message-Id: <20220607164944.784390057@linuxfoundation.org>
+Message-Id: <20220607165016.837135001@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Moshe Tal <moshet@nvidia.com>
 
-[ Upstream commit a20ea298071f46effa3aaf965bf9bb34c901db3f ]
+[ Upstream commit 6d0ba49321a40a8dada22c223bbe91c063b08db4 ]
 
-sctp_rcv() reads sk->sk_bound_dev_if twice while the socket
-is not locked. Another cpu could change this field under us.
+Correct the calculation of maximum channels of rep to better utilize
+the hardware resources and allow a larger scale of reps.
 
-Fixes: 0fd9a65a76e8 ("[SCTP] Support SO_BINDTODEVICE socket option on incoming packets.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This will allow creation of all virtual ports configured.
+
+Fixes: 473baf2e9e8c ("net/mlx5e: Allow profile-specific limitation on max num of channels")
+Signed-off-by: Moshe Tal <moshet@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h      |  1 +
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |  9 +++++++++
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c  | 10 ++++++++--
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 1f1786021d9c..d16b3885dccc 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -92,6 +92,7 @@ int sctp_rcv(struct sk_buff *skb)
- 	struct sctp_chunk *chunk;
- 	union sctp_addr src;
- 	union sctp_addr dest;
-+	int bound_dev_if;
- 	int family;
- 	struct sctp_af *af;
- 	struct net *net = dev_net(skb->dev);
-@@ -169,7 +170,8 @@ int sctp_rcv(struct sk_buff *skb)
- 	 * If a frame arrives on an interface and the receiving socket is
- 	 * bound to another interface, via SO_BINDTODEVICE, treat it as OOTB
- 	 */
--	if (sk->sk_bound_dev_if && (sk->sk_bound_dev_if != af->skb_iif(skb))) {
-+	bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
-+	if (bound_dev_if && (bound_dev_if != af->skb_iif(skb))) {
- 		if (transport) {
- 			sctp_transport_put(transport);
- 			asoc = NULL;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index 8653ac0fd865..ee34e861d3af 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -1221,6 +1221,7 @@ mlx5e_tx_mpwqe_supported(struct mlx5_core_dev *mdev)
+ 		MLX5_CAP_ETH(mdev, enhanced_multi_pkt_send_wqe);
+ }
+ 
++int mlx5e_get_pf_num_tirs(struct mlx5_core_dev *mdev);
+ int mlx5e_priv_init(struct mlx5e_priv *priv,
+ 		    const struct mlx5e_profile *profile,
+ 		    struct net_device *netdev,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index fa229998606c..72867a8ff48b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -5251,6 +5251,15 @@ mlx5e_calc_max_nch(struct mlx5_core_dev *mdev, struct net_device *netdev,
+ 	return max_nch;
+ }
+ 
++int mlx5e_get_pf_num_tirs(struct mlx5_core_dev *mdev)
++{
++	/* Indirect TIRS: 2 sets of TTCs (inner + outer steering)
++	 * and 1 set of direct TIRS
++	 */
++	return 2 * MLX5E_NUM_INDIR_TIRS
++		+ mlx5e_profile_max_num_channels(mdev, &mlx5e_nic_profile);
++}
++
+ /* mlx5e generic netdev management API (move to en_common.c) */
+ int mlx5e_priv_init(struct mlx5e_priv *priv,
+ 		    const struct mlx5e_profile *profile,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+index 6b7e7ea6ded2..a464461f1418 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -604,10 +604,16 @@ bool mlx5e_eswitch_vf_rep(const struct net_device *netdev)
+ 	return netdev->netdev_ops == &mlx5e_netdev_ops_rep;
+ }
+ 
++/* One indirect TIR set for outer. Inner not supported in reps. */
++#define REP_NUM_INDIR_TIRS MLX5E_NUM_INDIR_TIRS
++
+ static int mlx5e_rep_max_nch_limit(struct mlx5_core_dev *mdev)
+ {
+-	return (1 << MLX5_CAP_GEN(mdev, log_max_tir)) /
+-		mlx5_eswitch_get_total_vports(mdev);
++	int max_tir_num = 1 << MLX5_CAP_GEN(mdev, log_max_tir);
++	int num_vports = mlx5_eswitch_get_total_vports(mdev);
++
++	return (max_tir_num - mlx5e_get_pf_num_tirs(mdev)
++		- (num_vports * REP_NUM_INDIR_TIRS)) / num_vports;
+ }
+ 
+ static void mlx5e_build_rep_params(struct net_device *netdev)
 -- 
 2.35.1
 
