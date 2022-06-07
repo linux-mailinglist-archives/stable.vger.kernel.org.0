@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB8C54191F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A984541219
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359344AbiFGVSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54504 "EHLO
+        id S1346216AbiFGToA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380455AbiFGVQU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:20 -0400
+        with ESMTP id S1357713AbiFGTmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8927F21CBE3;
-        Tue,  7 Jun 2022 11:55:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00BB1B6FD8;
+        Tue,  7 Jun 2022 11:15:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBF83612F2;
-        Tue,  7 Jun 2022 18:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A10C385A2;
-        Tue,  7 Jun 2022 18:55:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B2C160C1A;
+        Tue,  7 Jun 2022 18:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F089C385A2;
+        Tue,  7 Jun 2022 18:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628102;
-        bh=tO43DjKucU72pP0RHq0rgcL4dGdhO7HahM+k57aUjI0=;
+        s=korg; t=1654625757;
+        bh=ANvR0+X6vi8dluHkHYvQMoS88/nWD+GMOygl+QCxWBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05YYQWxlMZdE/e51i1W7QvRYMTIy4XPv8B6BBQQ+61nCuKqgext0e96Dlj8EtYuvX
-         jc460Fsr8T9SlYaR9AGjJaTazkJGULiZ7isCvj54DYEtFti/yA9vE9waiTRSuxZv67
-         7t9wTzDA4F8bK8rMfn8pJuQbRWGhcvsxNCKXl6cQ=
+        b=m/o0fLbgwU5jZjvSHdKfqRQ+ayiD8Psbnl90St1ct4wgc6Gm6eQ++bwvVgRcERJeN
+         0D3Y0dSxnGEpaoMNQNkte+Kj/HBvnJp0gEn3CfBNZpwvxMnhdVsDpDlf5OgZAjQ5zD
+         DD4wK6UW+cFhEbd3qnHwdotX1LL//rzXWDd54Z9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Joe Wiese <jwiese@rackspace.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 208/879] kunit: fix executor OOM error handling logic on non-UML
+Subject: [PATCH 5.17 134/772] ipmi: Add an intializer for ipmi_smi_msg struct
 Date:   Tue,  7 Jun 2022 18:55:26 +0200
-Message-Id: <20220607165008.887415960@linuxfoundation.org>
+Message-Id: <20220607164952.992981677@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Latypov <dlatypov@google.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 1b11063d32d7e11366e48be64215ff517ce32217 ]
+[ Upstream commit 9824117dd964ecebf5d81990dbf21dfb56445049 ]
 
-The existing logic happens to work fine on UML, but is not correct when
-running on other arches.
+There was a "type" element added to this structure, but some static
+values were missed.  The default value will be zero, which is correct,
+but create an initializer for the type and initialize the type properly
+in the initializer to avoid future issues.
 
-1. We didn't initialize `int err`, and kunit_filter_suites() doesn't
-   explicitly set it to 0 on success. So we had false "failures".
-   Note: it doesn't happen on UML, causing this to get overlooked.
-2. If we error out, we do not call kunit_handle_shutdown().
-   This makes kunit.py timeout when using a non-UML arch, since the QEMU
-   process doesn't ever exit.
-
-Fixes: a02353f49162 ("kunit: bail out of test filtering logic quicker if OOM")
-Signed-off-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reported-by: Joe Wiese <jwiese@rackspace.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kunit/executor.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/char/ipmi/ipmi_poweroff.c |  4 +---
+ drivers/char/ipmi/ipmi_watchdog.c | 14 +++++---------
+ include/linux/ipmi_smi.h          |  6 ++++++
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/lib/kunit/executor.c b/lib/kunit/executor.c
-index 2f73a6a35a7e..96f96e42ce06 100644
---- a/lib/kunit/executor.c
-+++ b/lib/kunit/executor.c
-@@ -247,13 +247,13 @@ int kunit_run_all_tests(void)
- 		.start = __kunit_suites_start,
- 		.end = __kunit_suites_end,
- 	};
--	int err;
-+	int err = 0;
- 
- 	if (filter_glob_param) {
- 		suite_set = kunit_filter_suites(&suite_set, filter_glob_param, &err);
- 		if (err) {
- 			pr_err("kunit executor: error filtering suites: %d\n", err);
--			return err;
-+			goto out;
- 		}
+diff --git a/drivers/char/ipmi/ipmi_poweroff.c b/drivers/char/ipmi/ipmi_poweroff.c
+index bc3a18daf97a..62e71c46ac5f 100644
+--- a/drivers/char/ipmi/ipmi_poweroff.c
++++ b/drivers/char/ipmi/ipmi_poweroff.c
+@@ -94,9 +94,7 @@ static void dummy_recv_free(struct ipmi_recv_msg *msg)
+ {
+ 	atomic_dec(&dummy_count);
+ }
+-static struct ipmi_smi_msg halt_smi_msg = {
+-	.done = dummy_smi_free
+-};
++static struct ipmi_smi_msg halt_smi_msg = INIT_IPMI_SMI_MSG(dummy_smi_free);
+ static struct ipmi_recv_msg halt_recv_msg = {
+ 	.done = dummy_recv_free
+ };
+diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
+index 883b4a341012..8e536ce0a5d2 100644
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -354,9 +354,7 @@ static void msg_free_recv(struct ipmi_recv_msg *msg)
+ 			complete(&msg_wait);
  	}
- 
-@@ -268,9 +268,10 @@ int kunit_run_all_tests(void)
- 		kunit_free_suite_set(suite_set);
- 	}
- 
--	kunit_handle_shutdown();
- 
--	return 0;
-+out:
-+	kunit_handle_shutdown();
-+	return err;
+ }
+-static struct ipmi_smi_msg smi_msg = {
+-	.done = msg_free_smi
+-};
++static struct ipmi_smi_msg smi_msg = INIT_IPMI_SMI_MSG(msg_free_smi);
+ static struct ipmi_recv_msg recv_msg = {
+ 	.done = msg_free_recv
+ };
+@@ -475,9 +473,8 @@ static void panic_recv_free(struct ipmi_recv_msg *msg)
+ 	atomic_dec(&panic_done_count);
  }
  
- #if IS_BUILTIN(CONFIG_KUNIT_TEST)
+-static struct ipmi_smi_msg panic_halt_heartbeat_smi_msg = {
+-	.done = panic_smi_free
+-};
++static struct ipmi_smi_msg panic_halt_heartbeat_smi_msg =
++	INIT_IPMI_SMI_MSG(panic_smi_free);
+ static struct ipmi_recv_msg panic_halt_heartbeat_recv_msg = {
+ 	.done = panic_recv_free
+ };
+@@ -516,9 +513,8 @@ static void panic_halt_ipmi_heartbeat(void)
+ 		atomic_sub(2, &panic_done_count);
+ }
+ 
+-static struct ipmi_smi_msg panic_halt_smi_msg = {
+-	.done = panic_smi_free
+-};
++static struct ipmi_smi_msg panic_halt_smi_msg =
++	INIT_IPMI_SMI_MSG(panic_smi_free);
+ static struct ipmi_recv_msg panic_halt_recv_msg = {
+ 	.done = panic_recv_free
+ };
+diff --git a/include/linux/ipmi_smi.h b/include/linux/ipmi_smi.h
+index 9277d21c2690..5d69820d8b02 100644
+--- a/include/linux/ipmi_smi.h
++++ b/include/linux/ipmi_smi.h
+@@ -125,6 +125,12 @@ struct ipmi_smi_msg {
+ 	void (*done)(struct ipmi_smi_msg *msg);
+ };
+ 
++#define INIT_IPMI_SMI_MSG(done_handler) \
++{						\
++	.done = done_handler,			\
++	.type = IPMI_SMI_MSG_TYPE_NORMAL	\
++}
++
+ struct ipmi_smi_handlers {
+ 	struct module *owner;
+ 
 -- 
 2.35.1
 
