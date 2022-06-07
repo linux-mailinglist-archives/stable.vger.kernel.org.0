@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E210B540ED4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABBF540ECF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346246AbiFGS5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:57:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
+        id S1348997AbiFGS54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:57:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351936AbiFGSxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA7D1EC41;
-        Tue,  7 Jun 2022 11:03:40 -0700 (PDT)
+        with ESMTP id S1353107AbiFGSxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE4714ACA1;
+        Tue,  7 Jun 2022 11:03:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4EDA617C4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA612B82368;
+        Tue,  7 Jun 2022 18:03:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80CA3C385A5;
         Tue,  7 Jun 2022 18:03:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8E1EC34115;
-        Tue,  7 Jun 2022 18:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654625019;
-        bh=rQEkonLA1YADugnWeYW7KfUtah3MwnizqTX+nl2xgIs=;
+        s=k20201202; t=1654625020;
+        bh=FbHW7wJdsutLxte77RD+vKYaOV2opqcOLhcyd1Y6Q4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2UlHEf1zr/LgAIgvBuRBTIUbm1NBldlXV5wFN/1G+OKMIt8syZmA3SZ4Z8GcWx8/
-         n0zJGTmB4EOquldecsGf1mLPh9lFEK5u0Kv8zk7xzu37VgR6UR3zxuwyZ+AFE7SX+4
-         UI49SbPiwtqfI+Uqn4zAXDmxU+Ns4aNNvT9IYNklMxAMuDXGr5GjufCaDsQEghMI1q
-         kNSQaJMWXLIMd2hmivPo5XdudISNv7ilPswh5q53OyImHF/X2ytMfCDLzVzMkKac5o
-         amX3FY/b7Fkb/rllHetmth2DDO3dPxmLn2torv2GUbsmcxSJ2vZ1iEEKQVB83W/EMd
-         CqJyCPLyjjo0w==
+        b=lpbYalJwe8sjRvw7rJz3vl0MZM/bdTna6CGipNZfuuwJFi1cKlNXspVGJOWziz9hW
+         7Dh0k9W7ByoEA09IW0u33oJA7UrA3py2k6ccoWFL8vIKD17JShwuUn3K1RuF209gQ9
+         VUXlsXJsJIokOkXdNtoegeyFnB2KHXeHsU74EPW6aPdutEO2EwHn/bG7Rn9cW6hrGz
+         YE1i1C4YcjG8APYXH1T6luTrJBx8OZ0rGOlvrqVNBdmf0+mxsn8ua/m5n1oWKtfWJi
+         HrTOdRxSvxZJJMj+8JfMLm1yrFO0pBPLjN5Jbu/GCU8c0coCpFfPDmCq0sgqS3kEeR
+         ewJFNgCfhkReQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Green <evgreen@chromium.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, yj84.jang@samsung.com,
-        bhelgaas@google.com, christophe.leroy@csgroup.eu,
+        Sasha Levin <sashal@kernel.org>, hminas@synopsys.com,
         linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/19] USB: hcd-pci: Fully suspend across freeze/thaw cycle
-Date:   Tue,  7 Jun 2022 14:03:04 -0400
-Message-Id: <20220607180317.482354-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/19] usb: dwc2: gadget: don't reset gadget's driver->bus
+Date:   Tue,  7 Jun 2022 14:03:05 -0400
+Message-Id: <20220607180317.482354-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607180317.482354-1-sashal@kernel.org>
 References: <20220607180317.482354-1-sashal@kernel.org>
@@ -59,48 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 63acaa8e9c65dc34dc249440216f8e977f5d2748 ]
+[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
 
-The documentation for the freeze() method says that it "should quiesce
-the device so that it doesn't generate IRQs or DMA". The unspoken
-consequence of not doing this is that MSIs aimed at non-boot CPUs may
-get fully lost if they're sent during the period where the target CPU is
-offline.
+UDC driver should not touch gadget's driver internals, especially it
+should not reset driver->bus. This wasn't harmful so far, but since
+commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
+subsystem got it's own bus and messing with ->bus triggers the
+following NULL pointer dereference:
 
-The current callbacks for USB HCD do not fully quiesce interrupts,
-specifically on XHCI. Change to use the full suspend/resume flow for
-freeze/thaw to ensure interrupts are fully quiesced. This fixes issues
-where USB devices fail to thaw during hibernation because XHCI misses
-its interrupt and cannot recover.
+dwc2 12480000.hsotg: bound driver g_ether
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in: ...
+CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
+Hardware name: Samsung Exynos (Flattened Device Tree)
+PC is at module_add_driver+0x44/0xe8
+LR is at sysfs_do_create_link_sd+0x84/0xe0
+...
+Process modprobe (pid: 620, stack limit = 0x(ptrval))
+...
+ module_add_driver from bus_add_driver+0xf4/0x1e4
+ bus_add_driver from driver_register+0x78/0x10c
+ driver_register from usb_gadget_register_driver_owner+0x40/0xb4
+ usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
+ do_one_initcall from do_init_module+0x44/0x1c8
+ do_init_module from load_module+0x19b8/0x1b9c
+ load_module from sys_finit_module+0xdc/0xfc
+ sys_finit_module from ret_fast_syscall+0x0/0x54
+Exception stack(0xf1771fa8 to 0xf1771ff0)
+...
+dwc2 12480000.hsotg: new device is high-speed
+---[ end trace 0000000000000000 ]---
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20220421103751.v3.2.I8226c7fdae88329ef70957b96a39b346c69a914e@changeid
+Fix this by removing driver->bus entry reset.
+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd-pci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/gadget.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
-index 7af23b215254..a416eea9a366 100644
---- a/drivers/usb/core/hcd-pci.c
-+++ b/drivers/usb/core/hcd-pci.c
-@@ -637,10 +637,10 @@ const struct dev_pm_ops usb_hcd_pci_pm_ops = {
- 	.suspend_noirq	= hcd_pci_suspend_noirq,
- 	.resume_noirq	= hcd_pci_resume_noirq,
- 	.resume		= hcd_pci_resume,
--	.freeze		= check_root_hub_suspended,
-+	.freeze		= hcd_pci_suspend,
- 	.freeze_noirq	= check_root_hub_suspended,
- 	.thaw_noirq	= NULL,
--	.thaw		= NULL,
-+	.thaw		= hcd_pci_resume,
- 	.poweroff	= hcd_pci_suspend,
- 	.poweroff_noirq	= hcd_pci_suspend_noirq,
- 	.restore_noirq	= hcd_pci_resume_noirq,
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 65bcbbad6d54..44bab6727b43 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -3445,7 +3445,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
+ 
+ 	WARN_ON(hsotg->driver);
+ 
+-	driver->driver.bus = NULL;
+ 	hsotg->driver = driver;
+ 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
+ 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
 -- 
 2.35.1
 
