@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA08A540A1E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D480654050D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350799AbiFGSSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49554 "EHLO
+        id S1345794AbiFGRVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:21:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350979AbiFGSPM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:15:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3993D15BAF0;
-        Tue,  7 Jun 2022 10:49:16 -0700 (PDT)
+        with ESMTP id S1345946AbiFGRUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F3C1059CF;
+        Tue,  7 Jun 2022 10:19:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B287FB82239;
-        Tue,  7 Jun 2022 17:49:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258ABC385A5;
-        Tue,  7 Jun 2022 17:49:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3556A617C0;
+        Tue,  7 Jun 2022 17:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D103C385A5;
+        Tue,  7 Jun 2022 17:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624153;
-        bh=u0uLyzgE+ia6tDIqfwqEGTu45WQk2+LGG1+RdUhBmCU=;
+        s=korg; t=1654622394;
+        bh=EI6kyMEv2r+oMfMB12oZQKomnwfH3xTNuKb7+f/Swr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuF7e/vWVmlJSqFTTsNu+F3glarJtnrhlq3Im+t4RzlEtjVceJ9ES2xjX60qL/MOW
-         45KJoEaRDB304Znt1idN7CM43MrfL8c2AkleCTKM8XacWR0WUownUSU/GueKlPBKpR
-         LOa8V9Yu0EB/H7WEogq5s+cv96Ces6lSx5/YpCtY=
+        b=0B2md4TahkScyU5lCKEz+tYAVmui4zMZqmb5+tDCxfn6ZCiHl9NolRXxj2ugox5SI
+         D8yhevW2f1gNQtc8FFD6utuVxILCOcKTsbogu+P9IBbwl1DiXPtqZB2JhBIFx6dSo5
+         zoC4fEu2CgbV2/uT7jXti8bpFLte1kM6e0bNslhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 217/667] target: remove an incorrect unmap zeroes data deduction
-Date:   Tue,  7 Jun 2022 18:58:02 +0200
-Message-Id: <20220607164941.301285681@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 026/452] selftests/bpf: Fix vfs_link kprobe definition
+Date:   Tue,  7 Jun 2022 18:58:03 +0200
+Message-Id: <20220607164909.326145660@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit 179d8609d8424529e95021df939ed7b0b82b37f1 ]
+[ Upstream commit e299bcd4d16ff86f46c48df1062c8aae0eca1ed8 ]
 
-For block devices, the SCSI target drivers implements UNMAP as calls to
-blkdev_issue_discard, which does not guarantee zeroing just because
-Write Zeroes is supported.
+Since commit 6521f8917082 ("namei: prepare for idmapped mounts")
+vfs_link's prototype was changed, the kprobe definition in
+profiler selftest in turn wasn't updated. The result is that all
+argument after the first are now stored in different registers. This
+means that self-test has been broken ever since. Fix it by updating the
+kprobe definition accordingly.
 
-Note that this does not affect the file backed path which uses
-fallocate to punch holes.
-
-Fixes: 2237498f0b5c ("target/iblock: Convert WRITE_SAME to blkdev_issue_zeroout")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220415045258.199825-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220331140949.1410056-1-nborisov@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_device.c | 1 -
- 1 file changed, 1 deletion(-)
+ tools/testing/selftests/bpf/progs/profiler.inc.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-index 44bb380e7390..fa866acef5bb 100644
---- a/drivers/target/target_core_device.c
-+++ b/drivers/target/target_core_device.c
-@@ -850,7 +850,6 @@ bool target_configure_unmap_from_queue(struct se_dev_attrib *attrib,
- 	attrib->unmap_granularity = q->limits.discard_granularity / block_size;
- 	attrib->unmap_granularity_alignment = q->limits.discard_alignment /
- 								block_size;
--	attrib->unmap_zeroes_data = !!(q->limits.max_write_zeroes_sectors);
- 	return true;
- }
- EXPORT_SYMBOL(target_configure_unmap_from_queue);
+diff --git a/tools/testing/selftests/bpf/progs/profiler.inc.h b/tools/testing/selftests/bpf/progs/profiler.inc.h
+index 4896fdf816f7..92331053dba3 100644
+--- a/tools/testing/selftests/bpf/progs/profiler.inc.h
++++ b/tools/testing/selftests/bpf/progs/profiler.inc.h
+@@ -826,8 +826,9 @@ int kprobe_ret__do_filp_open(struct pt_regs* ctx)
+ 
+ SEC("kprobe/vfs_link")
+ int BPF_KPROBE(kprobe__vfs_link,
+-	       struct dentry* old_dentry, struct inode* dir,
+-	       struct dentry* new_dentry, struct inode** delegated_inode)
++	       struct dentry* old_dentry, struct user_namespace *mnt_userns,
++	       struct inode* dir, struct dentry* new_dentry,
++	       struct inode** delegated_inode)
+ {
+ 	struct bpf_func_stats_ctx stats_ctx;
+ 	bpf_stats_enter(&stats_ctx, profiler_bpf_vfs_link);
 -- 
 2.35.1
 
