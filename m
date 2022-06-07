@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB3454136F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:02:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA275541A8A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358069AbiFGUCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
+        id S1379487AbiFGVe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:34:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358652AbiFGUBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:01:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37971C0CB3;
-        Tue,  7 Jun 2022 11:25:17 -0700 (PDT)
+        with ESMTP id S1352049AbiFGVcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:32:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF5A17A88B;
+        Tue,  7 Jun 2022 12:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82931B82384;
-        Tue,  7 Jun 2022 18:25:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A10C385A2;
-        Tue,  7 Jun 2022 18:25:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1936661787;
+        Tue,  7 Jun 2022 19:04:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23E9BC385A5;
+        Tue,  7 Jun 2022 19:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626312;
-        bh=wKp8HDsungbWvC983amotRgL7FLHO8cc43t/Whwxl/o=;
+        s=korg; t=1654628653;
+        bh=z738e8BO/UJzm9zIi0Uml3nSYGvE+UB3QROE2NXxJmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kmzHlstIQBxhcQC/1fn12l5Yrdm5okREo9ihoQEpOie7W91aKJCcoA3xlDLx4pff
-         8eic0P42Hv3H3+gxFQHRBYKYp4R9g0AiGIBJCyFFRuK3NqR9abbAq/Ox/ZVW2C3kiU
-         f7Hbi3xcoWISCqcjmFPCN2NYwUwLTdGk4LqrBfK8=
+        b=Mi8uqq72aLpQc898sKeKyaeHIgD0rr+SIL3ectcBMvobQZ19tTuXqBnAUAWk1lpXv
+         UuVtvJbEF9nsRSK1NuZ0etl6ALP8LKC9Ng2bbY9PwvAU6INe1nsAsu+Gee0CnE+3VF
+         8lOuJbLLNt7yNE+fcNfVpaP0AY7vEtNYQQMV1rWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 332/772] irqchip/aspeed-i2c-ic: Fix irq_of_parse_and_map() return value
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 406/879] selftests/bpf: Prevent skeleton generation race
 Date:   Tue,  7 Jun 2022 18:58:44 +0200
-Message-Id: <20220607164958.806852664@linuxfoundation.org>
+Message-Id: <20220607165014.646932607@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 50f0f26e7c8665763d0d7d3372dbcf191f94d077 ]
+[ Upstream commit 1e2666e029e5cc2b81dbd7c85af5bcc8c80524e0 ]
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+Prevent "classic" and light skeleton generation rules from stomping on
+each other's toes due to the use of the same <obj>.linked{1,2,3}.o
+naming pattern. There is no coordination and synchronizataion between
+.skel.h and .lskel.h rules, so they can easily overwrite each other's
+intermediate object files, leading to errors like:
 
-Fixes: f48e699ddf70 ("irqchip/aspeed-i2c-ic: Add I2C IRQ controller for Aspeed")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220423094227.33148-1-krzysztof.kozlowski@linaro.org
+  /bin/sh: line 1: 170928 Bus error               (core dumped)
+  /data/users/andriin/linux/tools/testing/selftests/bpf/tools/sbin/bpftool gen skeleton
+  /data/users/andriin/linux/tools/testing/selftests/bpf/test_ksyms_weak.linked3.o
+  name test_ksyms_weak
+  > /data/users/andriin/linux/tools/testing/selftests/bpf/test_ksyms_weak.skel.h
+  make: *** [Makefile:507: /data/users/andriin/linux/tools/testing/selftests/bpf/test_ksyms_weak.skel.h] Error 135
+  make: *** Deleting file '/data/users/andriin/linux/tools/testing/selftests/bpf/test_ksyms_weak.skel.h'
+
+Fix by using different suffix for light skeleton rule.
+
+Fixes: c48e51c8b07a ("bpf: selftests: Add selftests for module kfunc support")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220509004148.1801791-2-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-aspeed-i2c-ic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/irqchip/irq-aspeed-i2c-ic.c b/drivers/irqchip/irq-aspeed-i2c-ic.c
-index a47db16ff960..9c9fc3e2967e 100644
---- a/drivers/irqchip/irq-aspeed-i2c-ic.c
-+++ b/drivers/irqchip/irq-aspeed-i2c-ic.c
-@@ -77,8 +77,8 @@ static int __init aspeed_i2c_ic_of_init(struct device_node *node,
- 	}
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index 3820608faf57..a15c47d2fa73 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -415,11 +415,11 @@ $(TRUNNER_BPF_SKELS): %.skel.h: %.o $(BPFTOOL) | $(TRUNNER_OUTPUT)
  
- 	i2c_ic->parent_irq = irq_of_parse_and_map(node, 0);
--	if (i2c_ic->parent_irq < 0) {
--		ret = i2c_ic->parent_irq;
-+	if (!i2c_ic->parent_irq) {
-+		ret = -EINVAL;
- 		goto err_iounmap;
- 	}
+ $(TRUNNER_BPF_LSKELS): %.lskel.h: %.o $(BPFTOOL) | $(TRUNNER_OUTPUT)
+ 	$$(call msg,GEN-SKEL,$(TRUNNER_BINARY),$$@)
+-	$(Q)$$(BPFTOOL) gen object $$(<:.o=.linked1.o) $$<
+-	$(Q)$$(BPFTOOL) gen object $$(<:.o=.linked2.o) $$(<:.o=.linked1.o)
+-	$(Q)$$(BPFTOOL) gen object $$(<:.o=.linked3.o) $$(<:.o=.linked2.o)
+-	$(Q)diff $$(<:.o=.linked2.o) $$(<:.o=.linked3.o)
+-	$(Q)$$(BPFTOOL) gen skeleton -L $$(<:.o=.linked3.o) name $$(notdir $$(<:.o=_lskel)) > $$@
++	$(Q)$$(BPFTOOL) gen object $$(<:.o=.llinked1.o) $$<
++	$(Q)$$(BPFTOOL) gen object $$(<:.o=.llinked2.o) $$(<:.o=.llinked1.o)
++	$(Q)$$(BPFTOOL) gen object $$(<:.o=.llinked3.o) $$(<:.o=.llinked2.o)
++	$(Q)diff $$(<:.o=.llinked2.o) $$(<:.o=.llinked3.o)
++	$(Q)$$(BPFTOOL) gen skeleton -L $$(<:.o=.llinked3.o) name $$(notdir $$(<:.o=_lskel)) > $$@
  
+ $(TRUNNER_BPF_SKELS_LINKED): $(TRUNNER_BPF_OBJS) $(BPFTOOL) | $(TRUNNER_OUTPUT)
+ 	$$(call msg,LINK-BPF,$(TRUNNER_BINARY),$$(@:.skel.h=.o))
 -- 
 2.35.1
 
