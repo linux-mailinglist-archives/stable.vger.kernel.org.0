@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0BB5406D1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2099540DE4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347183AbiFGRhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53190 "EHLO
+        id S1354656AbiFGSvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348409AbiFGRgU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4C41C11C;
-        Tue,  7 Jun 2022 10:32:38 -0700 (PDT)
+        with ESMTP id S1354559AbiFGSrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22BC5DD1F;
+        Tue,  7 Jun 2022 11:02:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C029661534;
-        Tue,  7 Jun 2022 17:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2504C385A5;
-        Tue,  7 Jun 2022 17:32:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BC5761804;
+        Tue,  7 Jun 2022 18:02:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9068DC341C0;
+        Tue,  7 Jun 2022 18:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623150;
-        bh=1QLzhrmPaBDasbV1MuyL7akoWZqN/JmMdcgAMgH4qjM=;
+        s=korg; t=1654624930;
+        bh=XAGJ6U13VmkrVh5Zc7zRwbkmBQUzO0nmuegqfoYHRKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IL/bBZ9lo1u/HGNvVpzvWDd8el/wP6ngKAPHx5oB1h1iOJLfFjgUVvlUWhU1ApuyI
-         SY5JFGOtfqcNBLVy7M270ee2E+khHUJz7Y2cFT8MY7uWWeJbtdayitvnFqYVEKU8+8
-         EIE3izxVuLVBtXId5YctvMh/AMreIZMHjzANT1co=
+        b=PsI29JOCn7k/UB5WmLepI8rlcHxzyF1oDsXM1TcQMqABSRCxWOXxgFqIGjJhV/I6a
+         tMzFd8TGTOz3ClzaMIdkEbExxCMzLk5VxpttHuuRBmsbF8HW7XH6B/gH/b1I1bgaQz
+         kD6oClvX0bNfvdyNICzJJOQ04m9IlXXYcbYLdPRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 313/452] powerpc/fsl_rio: Fix refcount leak in fsl_rio_setup
+        stable@vger.kernel.org, Tyrone Ting <kfting@nuvoton.com>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 505/667] i2c: npcm: Correct register access width
 Date:   Tue,  7 Jun 2022 19:02:50 +0200
-Message-Id: <20220607164917.887571378@linuxfoundation.org>
+Message-Id: <20220607164949.847757337@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Tyrone Ting <kfting@nuvoton.com>
 
-[ Upstream commit fcee96924ba1596ca80a6770b2567ca546f9a482 ]
+[ Upstream commit ea9f8426d17620214ee345ffb77ee6cc196ff14f ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+The SMBnCTL3 register is 8-bit wide and the 32-bit access was always
+incorrect, but simply didn't cause a visible error on the 32-bit machine.
 
-Fixes: abc3aeae3aaa ("fsl-rio: Add two ports and rapidio message units support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220512123724.62931-1-linmq006@gmail.com
+On the 64-bit machine, the kernel message reports that ESR value is
+0x96000021. Checking Arm Architecture Reference Manual Armv8 suggests that
+it's the alignment fault.
+
+SMBnCTL3's address is 0xE.
+
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+Reviewed-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/fsl_rio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-npcm7xx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/fsl_rio.c b/arch/powerpc/sysdev/fsl_rio.c
-index 07c164f7f8cf..3f9f78621cf3 100644
---- a/arch/powerpc/sysdev/fsl_rio.c
-+++ b/arch/powerpc/sysdev/fsl_rio.c
-@@ -505,8 +505,10 @@ int fsl_rio_setup(struct platform_device *dev)
- 	if (rc) {
- 		dev_err(&dev->dev, "Can't get %pOF property 'reg'\n",
- 				rmu_node);
-+		of_node_put(rmu_node);
- 		goto err_rmu;
- 	}
-+	of_node_put(rmu_node);
- 	rmu_regs_win = ioremap(rmu_regs.start, resource_size(&rmu_regs));
- 	if (!rmu_regs_win) {
- 		dev_err(&dev->dev, "Unable to map rmu register window\n");
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 92fd88a3f415..cdea7f440a9e 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -359,14 +359,14 @@ static int npcm_i2c_get_SCL(struct i2c_adapter *_adap)
+ {
+ 	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
+ 
+-	return !!(I2CCTL3_SCL_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
++	return !!(I2CCTL3_SCL_LVL & ioread8(bus->reg + NPCM_I2CCTL3));
+ }
+ 
+ static int npcm_i2c_get_SDA(struct i2c_adapter *_adap)
+ {
+ 	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
+ 
+-	return !!(I2CCTL3_SDA_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
++	return !!(I2CCTL3_SDA_LVL & ioread8(bus->reg + NPCM_I2CCTL3));
+ }
+ 
+ static inline u16 npcm_i2c_get_index(struct npcm_i2c *bus)
 -- 
 2.35.1
 
