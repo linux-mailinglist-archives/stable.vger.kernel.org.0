@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0029254155B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1923540691
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359315AbiFGUfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:35:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59692 "EHLO
+        id S234157AbiFGRgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:36:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376553AbiFGUbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:31:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C6F1E1745;
-        Tue,  7 Jun 2022 11:34:26 -0700 (PDT)
+        with ESMTP id S1347481AbiFGRfS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E865010F374;
+        Tue,  7 Jun 2022 10:30:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23CD5B8237B;
-        Tue,  7 Jun 2022 18:34:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E6EEC34115;
-        Tue,  7 Jun 2022 18:34:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA69D6152A;
+        Tue,  7 Jun 2022 17:30:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B7AC385A5;
+        Tue,  7 Jun 2022 17:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626862;
-        bh=ucIaXTRbVB/oL/7bl68xYrtIpt1U6H0UrivdO4ahS1Q=;
+        s=korg; t=1654623022;
+        bh=20MCyB5rMbOhS6tJ+rz1pmkEOBZUeaGMgtx6VftxxMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cX0eDpnmo9GNCEhU818YTH3+W50I0O8q961MiCLCABqKxoNCIkpD1WKGPowkWyywO
-         ntAPvVVaBAp+dwJ46lVQ3RaJSbQJsLMRGrx2gbpQWOdUq8YRMZLsFVDDxcEpmgi4Sm
-         tWzLiUoKPPqzDdWj00WUAdz9EaR8BkOkyq46iE5o=
+        b=lVzkVs1WmEfV8ILFMGDEZDc8o9c43zBz+GIy+S9Fvf6Isu/gCb9le4+bWuPs5nniI
+         Y048C1RqT9xt4qyg8VmQjmG3yX3Aqng/4aYPyZwyMj8qO7+vONVXrupSg47ljwCEUZ
+         BTMVkQVHNPt212S5hiADy0+I+2K5cnbqc8LS+KEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 532/772] crypto: cryptd - Protect per-CPU resource by disabling BH.
+Subject: [PATCH 5.10 267/452] soc: qcom: llcc: Add MODULE_DEVICE_TABLE()
 Date:   Tue,  7 Jun 2022 19:02:04 +0200
-Message-Id: <20220607165004.646799415@linuxfoundation.org>
+Message-Id: <20220607164916.508371672@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 91e8bcd7b4da182e09ea19a2c73167345fe14c98 ]
+[ Upstream commit 5334a3b12a7233b31788de60d61bfd890059d783 ]
 
-The access to cryptd_queue::cpu_queue is synchronized by disabling
-preemption in cryptd_enqueue_request() and disabling BH in
-cryptd_queue_worker(). This implies that access is allowed from BH.
+The llcc-qcom driver can be compiled as a module, but lacks
+MODULE_DEVICE_TABLE() and will therefore not be loaded automatically.
+Fix this.
 
-If cryptd_enqueue_request() is invoked from preemptible context _and_
-soft interrupt then this can lead to list corruption since
-cryptd_enqueue_request() is not protected against access from
-soft interrupt.
-
-Replace get_cpu() in cryptd_enqueue_request() with local_bh_disable()
-to ensure BH is always disabled.
-Remove preempt_disable() from cryptd_queue_worker() since it is not
-needed because local_bh_disable() ensures synchronisation.
-
-Fixes: 254eff771441 ("crypto: cryptd - Per-CPU thread implementation...")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220408213336.581661-3-bjorn.andersson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/cryptd.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/soc/qcom/llcc-qcom.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/cryptd.c b/crypto/cryptd.c
-index a1bea0f4baa8..668095eca0fa 100644
---- a/crypto/cryptd.c
-+++ b/crypto/cryptd.c
-@@ -39,6 +39,10 @@ struct cryptd_cpu_queue {
+diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
+index 70fbe70c6213..2e06f48d683d 100644
+--- a/drivers/soc/qcom/llcc-qcom.c
++++ b/drivers/soc/qcom/llcc-qcom.c
+@@ -496,6 +496,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
+ 	{ .compatible = "qcom,sdm845-llcc", .data = &sdm845_cfg },
+ 	{ }
  };
++MODULE_DEVICE_TABLE(of, qcom_llcc_of_match);
  
- struct cryptd_queue {
-+	/*
-+	 * Protected by disabling BH to allow enqueueing from softinterrupt and
-+	 * dequeuing from kworker (cryptd_queue_worker()).
-+	 */
- 	struct cryptd_cpu_queue __percpu *cpu_queue;
- };
- 
-@@ -125,28 +129,28 @@ static void cryptd_fini_queue(struct cryptd_queue *queue)
- static int cryptd_enqueue_request(struct cryptd_queue *queue,
- 				  struct crypto_async_request *request)
- {
--	int cpu, err;
-+	int err;
- 	struct cryptd_cpu_queue *cpu_queue;
- 	refcount_t *refcnt;
- 
--	cpu = get_cpu();
-+	local_bh_disable();
- 	cpu_queue = this_cpu_ptr(queue->cpu_queue);
- 	err = crypto_enqueue_request(&cpu_queue->queue, request);
- 
- 	refcnt = crypto_tfm_ctx(request->tfm);
- 
- 	if (err == -ENOSPC)
--		goto out_put_cpu;
-+		goto out;
- 
--	queue_work_on(cpu, cryptd_wq, &cpu_queue->work);
-+	queue_work_on(smp_processor_id(), cryptd_wq, &cpu_queue->work);
- 
- 	if (!refcount_read(refcnt))
--		goto out_put_cpu;
-+		goto out;
- 
- 	refcount_inc(refcnt);
- 
--out_put_cpu:
--	put_cpu();
-+out:
-+	local_bh_enable();
- 
- 	return err;
- }
-@@ -162,15 +166,10 @@ static void cryptd_queue_worker(struct work_struct *work)
- 	cpu_queue = container_of(work, struct cryptd_cpu_queue, work);
- 	/*
- 	 * Only handle one request at a time to avoid hogging crypto workqueue.
--	 * preempt_disable/enable is used to prevent being preempted by
--	 * cryptd_enqueue_request(). local_bh_disable/enable is used to prevent
--	 * cryptd_enqueue_request() being accessed from software interrupts.
- 	 */
- 	local_bh_disable();
--	preempt_disable();
- 	backlog = crypto_get_backlog(&cpu_queue->queue);
- 	req = crypto_dequeue_request(&cpu_queue->queue);
--	preempt_enable();
- 	local_bh_enable();
- 
- 	if (!req)
+ static struct platform_driver qcom_llcc_driver = {
+ 	.driver = {
 -- 
 2.35.1
 
