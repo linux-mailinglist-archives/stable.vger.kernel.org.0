@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8285414E6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DD2540648
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359142AbiFGUXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:23:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49956 "EHLO
+        id S1347060AbiFGRdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359241AbiFGUWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF5617C6AA;
-        Tue,  7 Jun 2022 11:31:50 -0700 (PDT)
+        with ESMTP id S1347126AbiFGRaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C8A106357;
+        Tue,  7 Jun 2022 10:25:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BABDB82188;
-        Tue,  7 Jun 2022 18:31:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E89C385A2;
-        Tue,  7 Jun 2022 18:31:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FD0FB8220C;
+        Tue,  7 Jun 2022 17:25:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B36C34119;
+        Tue,  7 Jun 2022 17:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626707;
-        bh=kHhAYoGsPhV9+EArSetHwxqqBlxp/Pw5NoliB/+7KMQ=;
+        s=korg; t=1654622749;
+        bh=4oSBZ2chzdyPHk6sCJjt2l+LxkycHf5dOy0q0eZOCxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gw4mitRRJCeCK3iaWD4I5vq2rq7fREJsuCyWUunl6J3lWtG6mEYuMWNGY1b3IbMEm
-         /0cL1tQmXKSYgGgYD4xrxMHMY0xHgqIlKXz1BppeEHTTVmexKXM78FF3rlCqb2odcy
-         YpJXQwPCchsYa5v/uawaydxGh6iHHxn30D/+5S28=
+        b=12CIYBzM4lSkl+YcXx9QeNZjhGNTLiWVkxAdmIzbkX/aEKdv8ibuD2xFMm66JkbZ/
+         hDNj+pCxonnaf6RxqyUGAfuzs8612DmscLN916lxJDDoKHGzzKk5uDyV7WcIvzewdG
+         7NK5kmku1+1zdCp60xUTlzIggGN6Q5FPn1WdZfpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 435/772] hv_netvsc: Fix potential dereference of NULL pointer
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 170/452] x86/speculation: Add missing prototype for unpriv_ebpf_notify()
 Date:   Tue,  7 Jun 2022 19:00:27 +0200
-Message-Id: <20220607165001.821144219@linuxfoundation.org>
+Message-Id: <20220607164913.628356974@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit eb4c0788964730d12e8dd520bd8f5217ca48321c ]
+[ Upstream commit 2147c438fde135d6c145a96e373d9348e7076f7f ]
 
-The return value of netvsc_devinfo_get()
-needs to be checked to avoid use of NULL
-pointer in case of an allocation failure.
+Fix the following warnings seen with "make W=1":
 
-Fixes: 0efeea5fb153 ("hv_netvsc: Add the support of hibernation")
-Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Link: https://lore.kernel.org/r/1652962188-129281-1-git-send-email-lyz_cs@pku.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  kernel/sysctl.c:183:13: warning: no previous prototype for ‘unpriv_ebpf_notify’ [-Wmissing-prototypes]
+    183 | void __weak unpriv_ebpf_notify(int new_state)
+        |             ^~~~~~~~~~~~~~~~~~
+
+  arch/x86/kernel/cpu/bugs.c:659:6: warning: no previous prototype for ‘unpriv_ebpf_notify’ [-Wmissing-prototypes]
+    659 | void unpriv_ebpf_notify(int new_state)
+        |      ^~~~~~~~~~~~~~~~~~
+
+Fixes: 44a3918c8245 ("x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/5689d065f739602ececaee1e05e68b8644009608.1650930000.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/bpf.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index fde1c492ca02..b1dece6b9698 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -2671,7 +2671,10 @@ static int netvsc_suspend(struct hv_device *dev)
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index ea3ff499e94a..f21bc441e3fa 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1730,6 +1730,8 @@ void bpf_offload_dev_netdev_unregister(struct bpf_offload_dev *offdev,
+ 				       struct net_device *netdev);
+ bool bpf_offload_dev_match(struct bpf_prog *prog, struct net_device *netdev);
  
- 	/* Save the current config info */
- 	ndev_ctx->saved_netvsc_dev_info = netvsc_devinfo_get(nvdev);
--
-+	if (!ndev_ctx->saved_netvsc_dev_info) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
- 	ret = netvsc_detach(net, nvdev);
- out:
- 	rtnl_unlock();
++void unpriv_ebpf_notify(int new_state);
++
+ #if defined(CONFIG_NET) && defined(CONFIG_BPF_SYSCALL)
+ int bpf_prog_offload_init(struct bpf_prog *prog, union bpf_attr *attr);
+ 
 -- 
 2.35.1
 
