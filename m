@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD335408EE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDF654127F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238464AbiFGSD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55848 "EHLO
+        id S1357085AbiFGTsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351504AbiFGSCG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19FC152DA3;
-        Tue,  7 Jun 2022 10:44:47 -0700 (PDT)
+        with ESMTP id S1357820AbiFGTrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:47:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36BAB6BFEB;
+        Tue,  7 Jun 2022 11:19:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A191B80B66;
-        Tue,  7 Jun 2022 17:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7BC3C385A5;
-        Tue,  7 Jun 2022 17:44:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D499CB82380;
+        Tue,  7 Jun 2022 18:19:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B059C385A2;
+        Tue,  7 Jun 2022 18:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623885;
-        bh=0qLbL55MF/P0+Qou/QahJDBlhd7ow5V6cdXeBWPYJEE=;
+        s=korg; t=1654625939;
+        bh=XHRtkpxftbgTm/PySu+8nLF6MiAvmFtE9vRGXyrzS1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfMpUfSMmS9exOZqS3FazQaS4+ZPU25RWxDKqdwglEvwobY0uks+1c6XVYWiDJs98
-         Pk5EiVCL5jLr4VX5dByU3/TDC4GOKf/KQDp/WhvHNnHZvTr+E+FTcIAPBDvajKdxdC
-         iJt/rYvOUtFeQDNrxC05LOyPNJA2ZSpQakhlaABU=
+        b=JBnMiyxx/nY+eo0plCKrg91U0qbUsc2nKyVKjV/Rw7hQaopEavg1Sg5F1ole0ym6A
+         TQymfecwmJKkXgL8L6u+YcrhIVG56IDOKHrCkZ4f+9BgqcQypY/MagfGi3p6OlccdZ
+         XeTR0Mtc2sNFdSoRFZWjWkI9ExQdFOhJEZRGjITE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/667] ASoC: rt5645: Fix errorenous cleanup order
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 198/772] ARM: OMAP1: clock: Fix UART rate reporting algorithm
 Date:   Tue,  7 Jun 2022 18:56:30 +0200
-Message-Id: <20220607164938.574807955@linuxfoundation.org>
+Message-Id: <20220607164954.867653027@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit 2def44d3aec59e38d2701c568d65540783f90f2f ]
+[ Upstream commit 338d5d476cde853dfd97378d20496baabc2ce3c0 ]
 
-There is a logic error when removing rt5645 device as the function
-rt5645_i2c_remove() first cancel the &rt5645->jack_detect_work and
-delete the &rt5645->btn_check_timer latter. However, since the timer
-handler rt5645_btn_check_callback() will re-queue the jack_detect_work,
-this cleanup order is buggy.
+Since its introduction to the mainline kernel, omap1_uart_recalc() helper
+makes incorrect use of clk->enable_bit as a ready to use bitmap mask while
+it only provides the bit number.  Fix it.
 
-That is, once the del_timer_sync in rt5645_i2c_remove is concurrently
-run with the rt5645_btn_check_callback, the canceled jack_detect_work
-will be rescheduled again, leading to possible use-after-free.
-
-This patch fix the issue by placing the del_timer_sync function before
-the cancel_delayed_work_sync.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220516092035.28283-1-linma@zju.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5645.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap1/clock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
-index 9408ee63cb26..8ea6d4333562 100644
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -4154,9 +4154,14 @@ static int rt5645_i2c_remove(struct i2c_client *i2c)
- 	if (i2c->irq)
- 		free_irq(i2c->irq, rt5645);
+diff --git a/arch/arm/mach-omap1/clock.c b/arch/arm/mach-omap1/clock.c
+index 9d4a0ab50a46..d63d5eb8d8fd 100644
+--- a/arch/arm/mach-omap1/clock.c
++++ b/arch/arm/mach-omap1/clock.c
+@@ -41,7 +41,7 @@ static DEFINE_SPINLOCK(clockfw_lock);
+ unsigned long omap1_uart_recalc(struct clk *clk)
+ {
+ 	unsigned int val = __raw_readl(clk->enable_reg);
+-	return val & clk->enable_bit ? 48000000 : 12000000;
++	return val & 1 << clk->enable_bit ? 48000000 : 12000000;
+ }
  
-+	/*
-+	 * Since the rt5645_btn_check_callback() can queue jack_detect_work,
-+	 * the timer need to be delted first
-+	 */
-+	del_timer_sync(&rt5645->btn_check_timer);
-+
- 	cancel_delayed_work_sync(&rt5645->jack_detect_work);
- 	cancel_delayed_work_sync(&rt5645->rcclock_work);
--	del_timer_sync(&rt5645->btn_check_timer);
- 
- 	regulator_bulk_disable(ARRAY_SIZE(rt5645->supplies), rt5645->supplies);
- 
+ unsigned long omap1_sossi_recalc(struct clk *clk)
 -- 
 2.35.1
 
