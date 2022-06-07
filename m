@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 119CA541C39
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91401541553
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382268AbiFGV51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:57:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47620 "EHLO
+        id S1378246AbiFGUfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382044AbiFGVzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:55:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA96A24B62C;
-        Tue,  7 Jun 2022 12:13:36 -0700 (PDT)
+        with ESMTP id S1359370AbiFGU2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544201DE2CA;
+        Tue,  7 Jun 2022 11:34:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C06F3B8233E;
-        Tue,  7 Jun 2022 19:12:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CEECC385A2;
-        Tue,  7 Jun 2022 19:12:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8487B8237C;
+        Tue,  7 Jun 2022 18:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20044C385A2;
+        Tue,  7 Jun 2022 18:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629177;
-        bh=7xMcwb9TiKoQhDGVCSyKHR4w3KZW+4Mbltbx2mEeF3k=;
+        s=korg; t=1654626843;
+        bh=KuBggibQ2kdcdl6AKmQWBZtOYCkJvlXn2LcbUtvG/BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EeHcInzG8gWCFsvfmFqII8L7jP9EVhI1DjWCnw4C2LTIhenlevukx7L4NyylprMTv
-         +OtCNlM8awY+xLckzDo61ZPlckO79K6GGXy8vUd4rssG/12V7HzziNpc+ab91xyMaE
-         ez/PoUQkNfYbzdkwj2wqX9gedunDyoWIPLLBx1q0=
+        b=DUsuFfp/go0V79BqtXeQsYLj5NRzE89AHtELw8Jr3VKpVv60zoXT/cCXN8kswHYxk
+         nDFShr12XCjcwNl4YUqpZeLX6LJJ09S6n17PLOd5NJREvZiTz2gpW3MHX5z+5UwZPe
+         MSpIWg9bwsi2wGhwNzqPGYx8gUVJZLt5UtQBZf1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arunachalam Ganapathy <arunachalam.ganapathy@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Richard Zhu <hongxing.zhu@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 598/879] firmware: arm_ffa: Fix uuid parameter to ffa_partition_probe
-Date:   Tue,  7 Jun 2022 19:01:56 +0200
-Message-Id: <20220607165020.210792995@linuxfoundation.org>
+Subject: [PATCH 5.17 525/772] PCI: imx6: Fix PERST# start-up sequence
+Date:   Tue,  7 Jun 2022 19:01:57 +0200
+Message-Id: <20220607165004.444815841@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,40 +57,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-[ Upstream commit f3c45c045e25ed52461829d2ce07954f72b6ad15 ]
+[ Upstream commit a6809941c1f17f455db2cf4ca19c6d8c8746ec25 ]
 
-While we pass uuid_null intentionally to ffa_partition_probe in
-ffa_setup_partitions to get the count of the partitions, it must not be
-uuid_null in ffa_partition_info_get which is used by the ffa_drivers
-to fetch the specific partition info passing the UUID of the partition.
+According to the PCIe standard the PERST# signal (reset-gpio in
+fsl,imx* compatible dts) should be kept asserted for at least 100 usec
+before the PCIe refclock is stable, should be kept asserted for at
+least 100 msec after the power rails are stable and the host should wait
+at least 100 msec after it is de-asserted before accessing the
+configuration space of any attached device.
 
-Fix ffa_partition_info_get by passing the received uuid down to
-ffa_partition_probe so that the correct partition information is fetched.
+>From PCIe CEM r2.0, sec 2.6.2
 
-Link: https://lore.kernel.org/r/20220429113946.2087145-1-sudeep.holla@arm.com
-Fixes: d0c0bce83122 ("firmware: arm_ffa: Setup in-kernel users of FFA partitions")
-Reported-by: Arunachalam Ganapathy <arunachalam.ganapathy@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+  T-PVPERL: Power stable to PERST# inactive - 100 msec
+  T-PERST-CLK: REFCLK stable before PERST# inactive - 100 usec.
+
+>From PCIe r5.0, sec 6.6.1
+
+  With a Downstream Port that does not support Link speeds greater than
+  5.0 GT/s, software must wait a minimum of 100 ms before sending a
+  Configuration Request to the device immediately below that Port.
+
+Failure to do so could prevent PCIe devices to be working correctly,
+and this was experienced with real devices.
+
+Move reset assert to imx6_pcie_assert_core_reset(), this way we ensure
+that PERST# is asserted before enabling any clock, move de-assert to the
+end of imx6_pcie_deassert_core_reset() after the clock is enabled and
+deemed stable and add a new delay of 100 msec just afterward.
+
+Link: https://lore.kernel.org/all/20220211152550.286821-1-francesco.dolcini@toradex.com
+Link: https://lore.kernel.org/r/20220404081509.94356-1-francesco.dolcini@toradex.com
+Fixes: bb38919ec56e ("PCI: imx6: Add support for i.MX6 PCIe controller")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Richard Zhu <hongxing.zhu@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_ffa/driver.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pci-imx6.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/firmware/arm_ffa/driver.c b/drivers/firmware/arm_ffa/driver.c
-index 14f900047ac0..8fa1785afd42 100644
---- a/drivers/firmware/arm_ffa/driver.c
-+++ b/drivers/firmware/arm_ffa/driver.c
-@@ -582,7 +582,7 @@ static int ffa_partition_info_get(const char *uuid_str,
- 		return -ENODEV;
+diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
+index 343fe1429e3c..ce3a36d1f2fa 100644
+--- a/drivers/pci/controller/dwc/pci-imx6.c
++++ b/drivers/pci/controller/dwc/pci-imx6.c
+@@ -408,6 +408,11 @@ static void imx6_pcie_assert_core_reset(struct imx6_pcie *imx6_pcie)
+ 			dev_err(dev, "failed to disable vpcie regulator: %d\n",
+ 				ret);
+ 	}
++
++	/* Some boards don't have PCIe reset GPIO. */
++	if (gpio_is_valid(imx6_pcie->reset_gpio))
++		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
++					imx6_pcie->gpio_active_high);
+ }
+ 
+ static unsigned int imx6_pcie_grp_offset(const struct imx6_pcie *imx6_pcie)
+@@ -540,15 +545,6 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
+ 	/* allow the clocks to stabilize */
+ 	usleep_range(200, 500);
+ 
+-	/* Some boards don't have PCIe reset GPIO. */
+-	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
+-		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
+-					imx6_pcie->gpio_active_high);
+-		msleep(100);
+-		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
+-					!imx6_pcie->gpio_active_high);
+-	}
+-
+ 	switch (imx6_pcie->drvdata->variant) {
+ 	case IMX8MQ:
+ 		reset_control_deassert(imx6_pcie->pciephy_reset);
+@@ -595,6 +591,15 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
+ 		break;
  	}
  
--	count = ffa_partition_probe(&uuid_null, &pbuf);
-+	count = ffa_partition_probe(&uuid, &pbuf);
- 	if (count <= 0)
- 		return -ENOENT;
++	/* Some boards don't have PCIe reset GPIO. */
++	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
++		msleep(100);
++		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
++					!imx6_pcie->gpio_active_high);
++		/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
++		msleep(100);
++	}
++
+ 	return;
  
+ err_ref_clk:
 -- 
 2.35.1
 
