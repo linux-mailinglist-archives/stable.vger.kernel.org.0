@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1EA541CE0
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942B6540F17
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378680AbiFGWGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40080 "EHLO
+        id S1346523AbiFGTBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:01:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383432AbiFGWFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:05:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F93195950;
-        Tue,  7 Jun 2022 12:16:34 -0700 (PDT)
+        with ESMTP id S1353602AbiFGS7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:59:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0458814FC84;
+        Tue,  7 Jun 2022 11:04:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 121E2B8233E;
-        Tue,  7 Jun 2022 19:16:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D40AC385A2;
-        Tue,  7 Jun 2022 19:16:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A41FB61804;
+        Tue,  7 Jun 2022 18:04:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BC32C385A5;
+        Tue,  7 Jun 2022 18:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629391;
-        bh=M+wO0gucsAXwhXB5py56e2MHX9Zk2IutE7e7PbRevos=;
+        s=korg; t=1654625064;
+        bh=MbQT3yDB4fBHzRho6MJMlu6Da25l/MOTCcZEZ46eGKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OV/O2Oyl526Ei60u+EqzxYKPenqYsNKg3xXA1Hltw4qQddIKThQQUm7pE/9NZlgnF
-         PGSU4tZaUEkbdq7/kFrEvn1sq92KImKpw4JKh9IMLpRklKxkCv0/A0vyiTfpZebvg3
-         ZYNMvqpW4P1OUM2FcLjrtN65i11xzGGsUJVkJ9Mo=
+        b=aAwU4Hy9oqpBj+asYzDAz/2fz9HO2F2i91/JuxwHheP2myPxRENofCN4RDHb42XUa
+         JyJgpTKp5PeMC3Mz/rn3zhS0aOegLkMqCdAoeJIsbgViwem/DoHTCV5nbE5+s+Zk8n
+         jSg7BKQnlH2cXfdJycjt4Z6fYWaN7atMS/laBqw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhi Li <lizhi01@loongson.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 672/879] MIPS: Loongson: Use hwmon_device_register_with_groups() to register hwmon
-Date:   Tue,  7 Jun 2022 19:03:10 +0200
-Message-Id: <20220607165022.355887807@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>
+Subject: [PATCH 5.15 526/667] objtool: Fix symbol creation
+Date:   Tue,  7 Jun 2022 19:03:11 +0200
+Message-Id: <20220607164950.480058906@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,212 +55,346 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit abae018a03821be2b65c01ebe2bef06fd7d85a4c ]
+commit ead165fa1042247b033afad7be4be9b815d04ade upstream.
 
-Calling hwmon_device_register_with_info() with NULL dev and/or chip
-information parameters is an ABI abuse and not a real conversion to
-the new API. Also, the code creates sysfs attributes _after_ creating
-the hwmon device, which is racy and unsupported to start with. On top
-of that, the removal code tries to remove the name attribute which is
-owned by the hwmon core.
+Nathan reported objtool failing with the following messages:
 
-Use hwmon_device_register_with_groups() to register the hwmon device
-instead.
+  warning: objtool: no non-local symbols !?
+  warning: objtool: gelf_update_symshndx: invalid section index
 
-In the future, the hwmon subsystem will reject calls to
-hwmon_device_register_with_info with NULL dev or chip/info parameters.
-Without this patch, the hwmon device will fail to register.
+The problem is due to commit 4abff6d48dbc ("objtool: Fix code relocs
+vs weak symbols") failing to consider the case where an object would
+have no non-local symbols.
 
-Fixes: f59dc5119192 ("MIPS: Loongson: Fix boot warning about hwmon_device_register()")
-Cc: Zhi Li <lizhi01@loongson.cn>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem that commit tries to address is adding a STB_LOCAL symbol
+to the symbol table in light of the ELF spec's requirement that:
+
+  In each symbol table, all symbols with STB_LOCAL binding preced the
+  weak and global symbols.  As ``Sections'' above describes, a symbol
+  table section's sh_info section header member holds the symbol table
+  index for the first non-local symbol.
+
+The approach taken is to find this first non-local symbol, move that
+to the end and then re-use the freed spot to insert a new local symbol
+and increment sh_info.
+
+Except it never considered the case of object files without global
+symbols and got a whole bunch of details wrong -- so many in fact that
+it is a wonder it ever worked :/
+
+Specifically:
+
+ - It failed to re-hash the symbol on the new index, so a subsequent
+   find_symbol_by_index() would not find it at the new location and a
+   query for the old location would now return a non-deterministic
+   choice between the old and new symbol.
+
+ - It failed to appreciate that the GElf wrappers are not a valid disk
+   format (it works because GElf is basically Elf64 and we only
+   support x86_64 atm.)
+
+ - It failed to fully appreciate how horrible the libelf API really is
+   and got the gelf_update_symshndx() call pretty much completely
+   wrong; with the direct consequence that if inserting a second
+   STB_LOCAL symbol would require moving the same STB_GLOBAL symbol
+   again it would completely come unstuck.
+
+Write a new elf_update_symbol() function that wraps all the magic
+required to update or create a new symbol at a given index.
+
+Specifically, gelf_update_sym*() require an @ndx argument that is
+relative to the @data argument; this means you have to manually
+iterate the section data descriptor list and update @ndx.
+
+Fixes: 4abff6d48dbc ("objtool: Fix code relocs vs weak symbols")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/YoPCTEYjoPqE4ZxB@hirez.programming.kicks-ass.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/mips/cpu_hwmon.c | 127 ++++++++++--------------------
- 1 file changed, 41 insertions(+), 86 deletions(-)
+ tools/objtool/elf.c |  196 +++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 128 insertions(+), 68 deletions(-)
 
-diff --git a/drivers/platform/mips/cpu_hwmon.c b/drivers/platform/mips/cpu_hwmon.c
-index 386389ffec41..d8c5f9195f85 100644
---- a/drivers/platform/mips/cpu_hwmon.c
-+++ b/drivers/platform/mips/cpu_hwmon.c
-@@ -55,55 +55,6 @@ int loongson3_cpu_temp(int cpu)
- static int nr_packages;
- static struct device *cpu_hwmon_dev;
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -314,6 +314,8 @@ static void elf_add_symbol(struct elf *e
+ 	struct list_head *entry;
+ 	struct rb_node *pnode;
  
--static SENSOR_DEVICE_ATTR(name, 0444, NULL, NULL, 0);
--
--static struct attribute *cpu_hwmon_attributes[] = {
--	&sensor_dev_attr_name.dev_attr.attr,
--	NULL
--};
--
--/* Hwmon device attribute group */
--static struct attribute_group cpu_hwmon_attribute_group = {
--	.attrs = cpu_hwmon_attributes,
--};
--
--static ssize_t get_cpu_temp(struct device *dev,
--			struct device_attribute *attr, char *buf);
--static ssize_t cpu_temp_label(struct device *dev,
--			struct device_attribute *attr, char *buf);
--
--static SENSOR_DEVICE_ATTR(temp1_input, 0444, get_cpu_temp, NULL, 1);
--static SENSOR_DEVICE_ATTR(temp1_label, 0444, cpu_temp_label, NULL, 1);
--static SENSOR_DEVICE_ATTR(temp2_input, 0444, get_cpu_temp, NULL, 2);
--static SENSOR_DEVICE_ATTR(temp2_label, 0444, cpu_temp_label, NULL, 2);
--static SENSOR_DEVICE_ATTR(temp3_input, 0444, get_cpu_temp, NULL, 3);
--static SENSOR_DEVICE_ATTR(temp3_label, 0444, cpu_temp_label, NULL, 3);
--static SENSOR_DEVICE_ATTR(temp4_input, 0444, get_cpu_temp, NULL, 4);
--static SENSOR_DEVICE_ATTR(temp4_label, 0444, cpu_temp_label, NULL, 4);
--
--static const struct attribute *hwmon_cputemp[4][3] = {
--	{
--		&sensor_dev_attr_temp1_input.dev_attr.attr,
--		&sensor_dev_attr_temp1_label.dev_attr.attr,
--		NULL
--	},
--	{
--		&sensor_dev_attr_temp2_input.dev_attr.attr,
--		&sensor_dev_attr_temp2_label.dev_attr.attr,
--		NULL
--	},
--	{
--		&sensor_dev_attr_temp3_input.dev_attr.attr,
--		&sensor_dev_attr_temp3_label.dev_attr.attr,
--		NULL
--	},
--	{
--		&sensor_dev_attr_temp4_input.dev_attr.attr,
--		&sensor_dev_attr_temp4_label.dev_attr.attr,
--		NULL
--	}
--};
--
- static ssize_t cpu_temp_label(struct device *dev,
- 			struct device_attribute *attr, char *buf)
- {
-@@ -121,24 +72,47 @@ static ssize_t get_cpu_temp(struct device *dev,
- 	return sprintf(buf, "%d\n", value);
++	sym->alias = sym;
++
+ 	sym->type = GELF_ST_TYPE(sym->sym.st_info);
+ 	sym->bind = GELF_ST_BIND(sym->sym.st_info);
+ 
+@@ -375,7 +377,6 @@ static int read_symbols(struct elf *elf)
+ 			return -1;
+ 		}
+ 		memset(sym, 0, sizeof(*sym));
+-		sym->alias = sym;
+ 
+ 		sym->idx = i;
+ 
+@@ -539,24 +540,21 @@ static void elf_dirty_reloc_sym(struct e
  }
  
--static int create_sysfs_cputemp_files(struct kobject *kobj)
--{
--	int i, ret = 0;
--
--	for (i = 0; i < nr_packages; i++)
--		ret = sysfs_create_files(kobj, hwmon_cputemp[i]);
-+static SENSOR_DEVICE_ATTR(temp1_input, 0444, get_cpu_temp, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp1_label, 0444, cpu_temp_label, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp2_input, 0444, get_cpu_temp, NULL, 2);
-+static SENSOR_DEVICE_ATTR(temp2_label, 0444, cpu_temp_label, NULL, 2);
-+static SENSOR_DEVICE_ATTR(temp3_input, 0444, get_cpu_temp, NULL, 3);
-+static SENSOR_DEVICE_ATTR(temp3_label, 0444, cpu_temp_label, NULL, 3);
-+static SENSOR_DEVICE_ATTR(temp4_input, 0444, get_cpu_temp, NULL, 4);
-+static SENSOR_DEVICE_ATTR(temp4_label, 0444, cpu_temp_label, NULL, 4);
- 
--	return ret;
--}
-+static struct attribute *cpu_hwmon_attributes[] = {
-+	&sensor_dev_attr_temp1_input.dev_attr.attr,
-+	&sensor_dev_attr_temp1_label.dev_attr.attr,
-+	&sensor_dev_attr_temp2_input.dev_attr.attr,
-+	&sensor_dev_attr_temp2_label.dev_attr.attr,
-+	&sensor_dev_attr_temp3_input.dev_attr.attr,
-+	&sensor_dev_attr_temp3_label.dev_attr.attr,
-+	&sensor_dev_attr_temp4_input.dev_attr.attr,
-+	&sensor_dev_attr_temp4_label.dev_attr.attr,
-+	NULL
-+};
- 
--static void remove_sysfs_cputemp_files(struct kobject *kobj)
-+static umode_t cpu_hwmon_is_visible(struct kobject *kobj,
-+				    struct attribute *attr, int i)
+ /*
+- * Move the first global symbol, as per sh_info, into a new, higher symbol
+- * index. This fees up the shndx for a new local symbol.
++ * The libelf API is terrible; gelf_update_sym*() takes a data block relative
++ * index value, *NOT* the symbol index. As such, iterate the data blocks and
++ * adjust index until it fits.
++ *
++ * If no data block is found, allow adding a new data block provided the index
++ * is only one past the end.
+  */
+-static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
+-				  struct section *symtab_shndx)
++static int elf_update_symbol(struct elf *elf, struct section *symtab,
++			     struct section *symtab_shndx, struct symbol *sym)
  {
--	int i;
-+	int id = i / 2;
- 
--	for (i = 0; i < nr_packages; i++)
--		sysfs_remove_files(kobj, hwmon_cputemp[i]);
-+	if (id < nr_packages)
-+		return attr->mode;
-+	return 0;
- }
- 
-+static struct attribute_group cpu_hwmon_group = {
-+	.attrs = cpu_hwmon_attributes,
-+	.is_visible = cpu_hwmon_is_visible,
-+};
-+
-+static const struct attribute_group *cpu_hwmon_groups[] = {
-+	&cpu_hwmon_group,
-+	NULL
-+};
-+
- #define CPU_THERMAL_THRESHOLD 90000
- static struct delayed_work thermal_work;
- 
-@@ -159,50 +133,31 @@ static void do_thermal_timer(struct work_struct *work)
- 
- static int __init loongson_hwmon_init(void)
- {
--	int ret;
+-	Elf_Data *data, *shndx_data = NULL;
+-	Elf32_Word first_non_local;
+-	struct symbol *sym;
+-	Elf_Scn *s;
 -
- 	pr_info("Loongson Hwmon Enter...\n");
- 
- 	if (cpu_has_csr())
- 		csr_temp_enable = csr_readl(LOONGSON_CSR_FEATURES) &
- 				  LOONGSON_CSRF_TEMP;
- 
--	cpu_hwmon_dev = hwmon_device_register_with_info(NULL, "cpu_hwmon", NULL, NULL, NULL);
--	if (IS_ERR(cpu_hwmon_dev)) {
--		ret = PTR_ERR(cpu_hwmon_dev);
--		pr_err("hwmon_device_register fail!\n");
--		goto fail_hwmon_device_register;
+-	first_non_local = symtab->sh.sh_info;
+-
+-	sym = find_symbol_by_index(elf, first_non_local);
+-	if (!sym) {
+-		WARN("no non-local symbols !?");
+-		return first_non_local;
 -	}
--
- 	nr_packages = loongson_sysconf.nr_cpus /
- 		loongson_sysconf.cores_per_package;
++	Elf32_Word shndx = sym->sec ? sym->sec->idx : SHN_UNDEF;
++	Elf_Data *symtab_data = NULL, *shndx_data = NULL;
++	Elf64_Xword entsize = symtab->sh.sh_entsize;
++	int max_idx, idx = sym->idx;
++	Elf_Scn *s, *t = NULL;
  
--	ret = create_sysfs_cputemp_files(&cpu_hwmon_dev->kobj);
--	if (ret) {
--		pr_err("fail to create cpu temperature interface!\n");
--		goto fail_create_sysfs_cputemp_files;
-+	cpu_hwmon_dev = hwmon_device_register_with_groups(NULL, "cpu_hwmon",
-+							  NULL, cpu_hwmon_groups);
-+	if (IS_ERR(cpu_hwmon_dev)) {
-+		pr_err("hwmon_device_register fail!\n");
-+		return PTR_ERR(cpu_hwmon_dev);
+ 	s = elf_getscn(elf->elf, symtab->idx);
+ 	if (!s) {
+@@ -564,79 +562,124 @@ static int elf_move_global_symbol(struct
+ 		return -1;
  	}
  
- 	INIT_DEFERRABLE_WORK(&thermal_work, do_thermal_timer);
- 	schedule_delayed_work(&thermal_work, msecs_to_jiffies(20000));
+-	data = elf_newdata(s);
+-	if (!data) {
+-		WARN_ELF("elf_newdata");
+-		return -1;
++	if (symtab_shndx) {
++		t = elf_getscn(elf->elf, symtab_shndx->idx);
++		if (!t) {
++			WARN_ELF("elf_getscn");
++			return -1;
++		}
+ 	}
  
--	return ret;
+-	data->d_buf = &sym->sym;
+-	data->d_size = sizeof(sym->sym);
+-	data->d_align = 1;
+-	data->d_type = ELF_T_SYM;
++	for (;;) {
++		/* get next data descriptor for the relevant sections */
++		symtab_data = elf_getdata(s, symtab_data);
++		if (t)
++			shndx_data = elf_getdata(t, shndx_data);
++
++		/* end-of-list */
++		if (!symtab_data) {
++			void *buf;
++
++			if (idx) {
++				/* we don't do holes in symbol tables */
++				WARN("index out of range");
++				return -1;
++			}
+ 
+-	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
+-	elf_dirty_reloc_sym(elf, sym);
++			/* if @idx == 0, it's the next contiguous entry, create it */
++			symtab_data = elf_newdata(s);
++			if (t)
++				shndx_data = elf_newdata(t);
++
++			buf = calloc(1, entsize);
++			if (!buf) {
++				WARN("malloc");
++				return -1;
++			}
+ 
+-	symtab->sh.sh_info += 1;
+-	symtab->sh.sh_size += data->d_size;
+-	symtab->changed = true;
++			symtab_data->d_buf = buf;
++			symtab_data->d_size = entsize;
++			symtab_data->d_align = 1;
++			symtab_data->d_type = ELF_T_SYM;
++
++			symtab->sh.sh_size += entsize;
++			symtab->changed = true;
++
++			if (t) {
++				shndx_data->d_buf = &sym->sec->idx;
++				shndx_data->d_size = sizeof(Elf32_Word);
++				shndx_data->d_align = sizeof(Elf32_Word);
++				shndx_data->d_type = ELF_T_WORD;
+ 
+-	if (symtab_shndx) {
+-		s = elf_getscn(elf->elf, symtab_shndx->idx);
+-		if (!s) {
+-			WARN_ELF("elf_getscn");
++				symtab_shndx->sh.sh_size += sizeof(Elf32_Word);
++				symtab_shndx->changed = true;
++			}
++
++			break;
++		}
++
++		/* empty blocks should not happen */
++		if (!symtab_data->d_size) {
++			WARN("zero size data");
+ 			return -1;
+ 		}
+ 
+-		shndx_data = elf_newdata(s);
++		/* is this the right block? */
++		max_idx = symtab_data->d_size / entsize;
++		if (idx < max_idx)
++			break;
++
++		/* adjust index and try again */
++		idx -= max_idx;
++	}
++
++	/* something went side-ways */
++	if (idx < 0) {
++		WARN("negative index");
++		return -1;
++	}
++
++	/* setup extended section index magic and write the symbol */
++	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
++		sym->sym.st_shndx = shndx;
++		if (!shndx_data)
++			shndx = 0;
++	} else {
++		sym->sym.st_shndx = SHN_XINDEX;
+ 		if (!shndx_data) {
+-			WARN_ELF("elf_newshndx_data");
++			WARN("no .symtab_shndx");
+ 			return -1;
+ 		}
++	}
+ 
+-		shndx_data->d_buf = &sym->sec->idx;
+-		shndx_data->d_size = sizeof(Elf32_Word);
+-		shndx_data->d_align = 4;
+-		shndx_data->d_type = ELF_T_WORD;
 -
--fail_create_sysfs_cputemp_files:
--	sysfs_remove_group(&cpu_hwmon_dev->kobj,
--				&cpu_hwmon_attribute_group);
--	hwmon_device_unregister(cpu_hwmon_dev);
--
--fail_hwmon_device_register:
--	return ret;
+-		symtab_shndx->sh.sh_size += 4;
+-		symtab_shndx->changed = true;
++	if (!gelf_update_symshndx(symtab_data, shndx_data, idx, &sym->sym, shndx)) {
++		WARN_ELF("gelf_update_symshndx");
++		return -1;
+ 	}
+ 
+-	return first_non_local;
 +	return 0;
  }
  
- static void __exit loongson_hwmon_exit(void)
+ static struct symbol *
+ elf_create_section_symbol(struct elf *elf, struct section *sec)
  {
- 	cancel_delayed_work_sync(&thermal_work);
--	remove_sysfs_cputemp_files(&cpu_hwmon_dev->kobj);
--	sysfs_remove_group(&cpu_hwmon_dev->kobj,
--				&cpu_hwmon_attribute_group);
- 	hwmon_device_unregister(cpu_hwmon_dev);
- }
+ 	struct section *symtab, *symtab_shndx;
+-	Elf_Data *shndx_data = NULL;
+-	struct symbol *sym;
+-	Elf32_Word shndx;
++	Elf32_Word first_non_local, new_idx;
++	struct symbol *sym, *old;
  
--- 
-2.35.1
-
+ 	symtab = find_section_by_name(elf, ".symtab");
+ 	if (symtab) {
+ 		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
+-		if (symtab_shndx)
+-			shndx_data = symtab_shndx->data;
+ 	} else {
+ 		WARN("no .symtab");
+ 		return NULL;
+ 	}
+ 
+-	sym = malloc(sizeof(*sym));
++	sym = calloc(1, sizeof(*sym));
+ 	if (!sym) {
+ 		perror("malloc");
+ 		return NULL;
+ 	}
+-	memset(sym, 0, sizeof(*sym));
+-
+-	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
+-	if (sym->idx < 0) {
+-		WARN("elf_move_global_symbol");
+-		return NULL;
+-	}
+ 
+ 	sym->name = sec->name;
+ 	sym->sec = sec;
+@@ -646,24 +689,41 @@ elf_create_section_symbol(struct elf *el
+ 	// st_other 0
+ 	// st_value 0
+ 	// st_size 0
+-	shndx = sec->idx;
+-	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
+-		sym->sym.st_shndx = shndx;
+-		if (!shndx_data)
+-			shndx = 0;
+-	} else {
+-		sym->sym.st_shndx = SHN_XINDEX;
+-		if (!shndx_data) {
+-			WARN("no .symtab_shndx");
++
++	/*
++	 * Move the first global symbol, as per sh_info, into a new, higher
++	 * symbol index. This fees up a spot for a new local symbol.
++	 */
++	first_non_local = symtab->sh.sh_info;
++	new_idx = symtab->sh.sh_size / symtab->sh.sh_entsize;
++	old = find_symbol_by_index(elf, first_non_local);
++	if (old) {
++		old->idx = new_idx;
++
++		hlist_del(&old->hash);
++		elf_hash_add(symbol, &old->hash, old->idx);
++
++		elf_dirty_reloc_sym(elf, old);
++
++		if (elf_update_symbol(elf, symtab, symtab_shndx, old)) {
++			WARN("elf_update_symbol move");
+ 			return NULL;
+ 		}
++
++		new_idx = first_non_local;
+ 	}
+ 
+-	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
+-		WARN_ELF("gelf_update_symshndx");
++	sym->idx = new_idx;
++	if (elf_update_symbol(elf, symtab, symtab_shndx, sym)) {
++		WARN("elf_update_symbol");
+ 		return NULL;
+ 	}
+ 
++	/*
++	 * Either way, we added a LOCAL symbol.
++	 */
++	symtab->sh.sh_info += 1;
++
+ 	elf_add_symbol(elf, sym);
+ 
+ 	return sym;
 
 
