@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83325541CAB
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6EB5406AA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347258AbiFGWDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:03:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57264 "EHLO
+        id S1343861AbiFGRhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383421AbiFGWCC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:02:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7EDC24E1DE;
-        Tue,  7 Jun 2022 12:14:28 -0700 (PDT)
+        with ESMTP id S1347821AbiFGRft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7506C10A627;
+        Tue,  7 Jun 2022 10:31:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E84361807;
-        Tue,  7 Jun 2022 19:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B291C385A2;
-        Tue,  7 Jun 2022 19:14:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9CD0DCE23CF;
+        Tue,  7 Jun 2022 17:31:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AECDEC385A5;
+        Tue,  7 Jun 2022 17:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629266;
-        bh=EiSjocjnXZ3Sefu6jfOPUzWV7XoFiois5Khd0F2S5w8=;
+        s=korg; t=1654623100;
+        bh=zX8lzbqxhfOlrj0q8h8Cav/lxo8godD981MPSPuUDXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqbOK11xTQ/PWvcaDFTFWIaXsrw4sIaWKTN3OzWbDIx8uNiE1i1jjBmqN0yQJsVEB
-         bUFltaievYkyr6gVuFfs4QDmvAO/r4jOrE8rLike/a9z2n3WoBFQTfAbaMJHTZCkxu
-         yMyHbAQ4jfqPpK+iFQZ+JhXJEMe6ScGtB/t+gzI0=
+        b=gEa5TjiCl7WsnOxrP0AxEVjuFO687Koo1+yxVylIRMY+f7wkWpN1JVy5aIhQ9mSpC
+         EfqTeAN2+GQuW5837QvVgRsClZdfD+o9OCDtAKtObR48mdxtE3PPW5EFLSdCNTXuOH
+         XA4rrIiRzU+pfos+MiV5v3RV7D/tB2ipvtfcMShg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
-        Jane Chu <jane.chu@oracle.com>, Borislav Petkov <bp@suse.de>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 627/879] x86/mce: relocate set{clear}_mce_nospec() functions
+Subject: [PATCH 5.10 288/452] nvdimm: Fix firmware activation deadlock scenarios
 Date:   Tue,  7 Jun 2022 19:02:25 +0200
-Message-Id: <20220607165021.048717739@linuxfoundation.org>
+Message-Id: <20220607164917.132585746@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,196 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Chu <jane.chu@oracle.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit b3fdf9398a16f01dc013967a4ab25e99c3f4fc12 ]
+[ Upstream commit e6829d1bd3c4b58296ee9e412f7ed4d6cb390192 ]
 
-Relocate the twin mce functions to arch/x86/mm/pat/set_memory.c
-file where they belong.
+Lockdep reports the following deadlock scenarios for CXL root device
+power-management, device_prepare(), operations, and device_shutdown()
+operations for 'nd_region' devices:
 
-While at it, fixup a function name in a comment.
+ Chain exists of:
+   &nvdimm_region_key --> &nvdimm_bus->reconfig_mutex --> system_transition_mutex
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-[sfr: gate {set,clear}_mce_nospec() by CONFIG_X86_64]
-Link: https://lore.kernel.org/r/165272527328.90175.8336008202048685278.stgit@dwillia2-desk3.amr.corp.intel.com
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(system_transition_mutex);
+                                lock(&nvdimm_bus->reconfig_mutex);
+                                lock(system_transition_mutex);
+   lock(&nvdimm_region_key);
+
+ Chain exists of:
+   &cxl_nvdimm_bridge_key --> acpi_scan_lock --> &cxl_root_key
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(&cxl_root_key);
+                                lock(acpi_scan_lock);
+                                lock(&cxl_root_key);
+   lock(&cxl_nvdimm_bridge_key);
+
+These stem from holding nvdimm_bus_lock() over hibernate_quiet_exec()
+which walks the entire system device topology taking device_lock() along
+the way. The nvdimm_bus_lock() is protecting against unregistration,
+multiple simultaneous ops callers, and preventing activate_show() from
+racing activate_store(). For the first 2, the lock is redundant.
+Unregistration already flushes all ops users, and sysfs already prevents
+multiple threads to be active in an ops handler at the same time. For
+the last userspace should already be waiting for its last
+activate_store() to complete, and does not need activate_show() to flush
+the write side, so this lock usage can be deleted in these attributes.
+
+Fixes: 48001ea50d17 ("PM, libnvdimm: Add runtime firmware activation support")
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Link: https://lore.kernel.org/r/165074883800.4116052.10737040861825806582.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/set_memory.h | 52 -------------------------------
- arch/x86/mm/pat/set_memory.c      | 50 +++++++++++++++++++++++++++--
- include/linux/set_memory.h        |  8 ++---
- 3 files changed, 52 insertions(+), 58 deletions(-)
+ drivers/nvdimm/core.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
-index 78ca53512486..b45c4d27fd46 100644
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -86,56 +86,4 @@ bool kernel_page_present(struct page *page);
+diff --git a/drivers/nvdimm/core.c b/drivers/nvdimm/core.c
+index c21ba0602029..1c92c883afdd 100644
+--- a/drivers/nvdimm/core.c
++++ b/drivers/nvdimm/core.c
+@@ -400,9 +400,7 @@ static ssize_t capability_show(struct device *dev,
+ 	if (!nd_desc->fw_ops)
+ 		return -EOPNOTSUPP;
  
- extern int kernel_set_to_readonly;
+-	nvdimm_bus_lock(dev);
+ 	cap = nd_desc->fw_ops->capability(nd_desc);
+-	nvdimm_bus_unlock(dev);
  
--#ifdef CONFIG_X86_64
--/*
-- * Prevent speculative access to the page by either unmapping
-- * it (if we do not require access to any part of the page) or
-- * marking it uncacheable (if we want to try to retrieve data
-- * from non-poisoned lines in the page).
-- */
--static inline int set_mce_nospec(unsigned long pfn, bool unmap)
--{
--	unsigned long decoy_addr;
--	int rc;
+ 	switch (cap) {
+ 	case NVDIMM_FWA_CAP_QUIESCE:
+@@ -427,10 +425,8 @@ static ssize_t activate_show(struct device *dev,
+ 	if (!nd_desc->fw_ops)
+ 		return -EOPNOTSUPP;
+ 
+-	nvdimm_bus_lock(dev);
+ 	cap = nd_desc->fw_ops->capability(nd_desc);
+ 	state = nd_desc->fw_ops->activate_state(nd_desc);
+-	nvdimm_bus_unlock(dev);
+ 
+ 	if (cap < NVDIMM_FWA_CAP_QUIESCE)
+ 		return -EOPNOTSUPP;
+@@ -475,7 +471,6 @@ static ssize_t activate_store(struct device *dev,
+ 	else
+ 		return -EINVAL;
+ 
+-	nvdimm_bus_lock(dev);
+ 	state = nd_desc->fw_ops->activate_state(nd_desc);
+ 
+ 	switch (state) {
+@@ -493,7 +488,6 @@ static ssize_t activate_store(struct device *dev,
+ 	default:
+ 		rc = -ENXIO;
+ 	}
+-	nvdimm_bus_unlock(dev);
+ 
+ 	if (rc == 0)
+ 		rc = len;
+@@ -516,10 +510,7 @@ static umode_t nvdimm_bus_firmware_visible(struct kobject *kobj, struct attribut
+ 	if (!nd_desc->fw_ops)
+ 		return 0;
+ 
+-	nvdimm_bus_lock(dev);
+ 	cap = nd_desc->fw_ops->capability(nd_desc);
+-	nvdimm_bus_unlock(dev);
 -
--	/* SGX pages are not in the 1:1 map */
--	if (arch_is_platform_page(pfn << PAGE_SHIFT))
--		return 0;
--	/*
--	 * We would like to just call:
--	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
--	 * but doing that would radically increase the odds of a
--	 * speculative access to the poison page because we'd have
--	 * the virtual address of the kernel 1:1 mapping sitting
--	 * around in registers.
--	 * Instead we get tricky.  We create a non-canonical address
--	 * that looks just like the one we want, but has bit 63 flipped.
--	 * This relies on set_memory_XX() properly sanitizing any __pa()
--	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
--	 */
--	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
--
--	if (unmap)
--		rc = set_memory_np(decoy_addr, 1);
--	else
--		rc = set_memory_uc(decoy_addr, 1);
--	if (rc)
--		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
--	return rc;
--}
--#define set_mce_nospec set_mce_nospec
--
--/* Restore full speculative operation to the pfn. */
--static inline int clear_mce_nospec(unsigned long pfn)
--{
--	return set_memory_wb((unsigned long) pfn_to_kaddr(pfn), 1);
--}
--#define clear_mce_nospec clear_mce_nospec
--#else
--/*
-- * Few people would run a 32-bit kernel on a machine that supports
-- * recoverable errors because they have too much memory to boot 32-bit.
-- */
--#endif
--
- #endif /* _ASM_X86_SET_MEMORY_H */
-diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index 0656db33574d..417440c6bf80 100644
---- a/arch/x86/mm/pat/set_memory.c
-+++ b/arch/x86/mm/pat/set_memory.c
-@@ -19,6 +19,7 @@
- #include <linux/vmstat.h>
- #include <linux/kernel.h>
- #include <linux/cc_platform.h>
-+#include <linux/set_memory.h>
+ 	if (cap < NVDIMM_FWA_CAP_QUIESCE)
+ 		return 0;
  
- #include <asm/e820/api.h>
- #include <asm/processor.h>
-@@ -29,7 +30,6 @@
- #include <asm/pgalloc.h>
- #include <asm/proto.h>
- #include <asm/memtype.h>
--#include <asm/set_memory.h>
- #include <asm/hyperv-tlfs.h>
- #include <asm/mshyperv.h>
- 
-@@ -1805,7 +1805,7 @@ static inline int cpa_clear_pages_array(struct page **pages, int numpages,
- }
- 
- /*
-- * _set_memory_prot is an internal helper for callers that have been passed
-+ * __set_memory_prot is an internal helper for callers that have been passed
-  * a pgprot_t value from upper layers and a reservation has already been taken.
-  * If you want to set the pgprot to a specific page protocol, use the
-  * set_memory_xx() functions.
-@@ -1914,6 +1914,52 @@ int set_memory_wb(unsigned long addr, int numpages)
- }
- EXPORT_SYMBOL(set_memory_wb);
- 
-+/*
-+ * Prevent speculative access to the page by either unmapping
-+ * it (if we do not require access to any part of the page) or
-+ * marking it uncacheable (if we want to try to retrieve data
-+ * from non-poisoned lines in the page).
-+ */
-+#ifdef CONFIG_X86_64
-+int set_mce_nospec(unsigned long pfn, bool unmap)
-+{
-+	unsigned long decoy_addr;
-+	int rc;
-+
-+	/* SGX pages are not in the 1:1 map */
-+	if (arch_is_platform_page(pfn << PAGE_SHIFT))
-+		return 0;
-+	/*
-+	 * We would like to just call:
-+	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
-+	 * but doing that would radically increase the odds of a
-+	 * speculative access to the poison page because we'd have
-+	 * the virtual address of the kernel 1:1 mapping sitting
-+	 * around in registers.
-+	 * Instead we get tricky.  We create a non-canonical address
-+	 * that looks just like the one we want, but has bit 63 flipped.
-+	 * This relies on set_memory_XX() properly sanitizing any __pa()
-+	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
-+	 */
-+	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
-+
-+	if (unmap)
-+		rc = set_memory_np(decoy_addr, 1);
-+	else
-+		rc = set_memory_uc(decoy_addr, 1);
-+	if (rc)
-+		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
-+	return rc;
-+}
-+
-+/* Restore full speculative operation to the pfn. */
-+int clear_mce_nospec(unsigned long pfn)
-+{
-+	return set_memory_wb((unsigned long) pfn_to_kaddr(pfn), 1);
-+}
-+EXPORT_SYMBOL_GPL(clear_mce_nospec);
-+#endif /* CONFIG_X86_64 */
-+
- int set_memory_x(unsigned long addr, int numpages)
- {
- 	if (!(__supported_pte_mask & _PAGE_NX))
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-index f36be5166c19..683a6c3f7179 100644
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -42,14 +42,14 @@ static inline bool can_set_direct_map(void)
- #endif
- #endif /* CONFIG_ARCH_HAS_SET_DIRECT_MAP */
- 
--#ifndef set_mce_nospec
-+#ifdef CONFIG_X86_64
-+int set_mce_nospec(unsigned long pfn, bool unmap);
-+int clear_mce_nospec(unsigned long pfn);
-+#else
- static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	return 0;
- }
--#endif
--
--#ifndef clear_mce_nospec
- static inline int clear_mce_nospec(unsigned long pfn)
- {
- 	return 0;
 -- 
 2.35.1
 
