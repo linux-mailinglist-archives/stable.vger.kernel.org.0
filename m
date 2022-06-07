@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90E05417E1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C902A5410AC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378377AbiFGVGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53574 "EHLO
+        id S1353114AbiFGT2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379405AbiFGVFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:05:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F5118E47E;
-        Tue,  7 Jun 2022 11:49:27 -0700 (PDT)
+        with ESMTP id S1356649AbiFGT2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4AF1A0AD5;
+        Tue,  7 Jun 2022 11:10:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D5846156D;
-        Tue,  7 Jun 2022 18:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89095C385A5;
-        Tue,  7 Jun 2022 18:49:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C65F8B82374;
+        Tue,  7 Jun 2022 18:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F2C4C385A2;
+        Tue,  7 Jun 2022 18:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627765;
-        bh=mFZmCmXfkFOAG5ewdktFRxWxnqMPBYAH8t2tEQhXe+o=;
+        s=korg; t=1654625416;
+        bh=xXLFWftSkAvr+ult2Lpc9PstGpW7d7BWajMASz5VVno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9HUP1DbnV8cFB12TOWTE+2ngn1VhqVZmh4XIQTzsQZJN1W3v5Rys8B1DpaQAANdy
-         Yf7rleUBjlq+5ktqe1K5bn2OUjFvbxxM5REgsUFbYqToigRVvryobppR8rj7EG9EkV
-         md58Gidu5+JaIbZrOi8htjOJ4JdwesIa+G0uuf0c=
+        b=vroPHW+oIL5Ft0PqMLDaxnmMqs5rpz41yxrh8c+/jcWuPj8BMtl6lBydodA0sVUfA
+         RV7CJ83Qd8tVvJteU48tv7lr43ROdhKnUiZkMVQimMcLxlmvKqZJtZoD0Hvi2NEr0y
+         eMhFC3MdW03sI8j5vMPqDz4F5dECTcWFe3KYpbBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Len Brown <len.brown@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 085/879] tools/power turbostat: fix ICX DRAM power numbers
-Date:   Tue,  7 Jun 2022 18:53:23 +0200
-Message-Id: <20220607165005.159684515@linuxfoundation.org>
+        Marios Levogiannis <marios.levogiannis@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 012/772] ALSA: hda/realtek - Fix microphone noise on ASUS TUF B550M-PLUS
+Date:   Tue,  7 Jun 2022 18:53:24 +0200
+Message-Id: <20220607164949.361571625@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Marios Levogiannis <marios.levogiannis@gmail.com>
 
-[ Upstream commit 6397b6418935773a34b533b3348b03f4ce3d7050 ]
+commit 9bfa7b36343c7d84370bc61c9ed774635b05e4eb upstream.
 
-ICX (and its duplicates) require special hard-coded DRAM RAPL units,
-rather than using the generic RAPL energy units.
+Set microphone pins 0x18 (rear) and 0x19 (front) to VREF_50 to fix the
+microphone noise on ASUS TUF B550M-PLUS which uses the ALCS1200A codec.
+The initial value was VREF_80.
 
-Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Len Brown <len.brown@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The same issue is also present on Windows using both the default Windows
+driver and all tested Realtek drivers before version 6.0.9049.1. Comparing
+Realtek driver 6.0.9049.1 (the first one without the microphone noise) to
+Realtek driver 6.0.9047.1 (the last one with the microphone noise)
+revealed that the fix is the result of setting pins 0x18 and 0x19 to
+VREF_50.
+
+This fix may also work for other boards that have been reported to have
+the same microphone issue and use the ALC1150 and ALCS1200A codecs, since
+these codecs are similar and the fix in the Realtek driver on Windows is
+common for both. However, it is currently enabled only for ASUS TUF
+B550M-PLUS as this is the only board that could be tested.
+
+Signed-off-by: Marios Levogiannis <marios.levogiannis@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220530074131.12258-1-marios.levogiannis@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index bc5ae0872fed..babede4486de 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4376,6 +4376,7 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
- 	case INTEL_FAM6_BROADWELL_X:	/* BDX */
- 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
- 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
-+	case INTEL_FAM6_ICELAKE_X:	/* ICX */
- 		return (rapl_dram_energy_units = 15.3 / 1000000);
- 	default:
- 		return (rapl_energy_units);
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -1981,6 +1981,7 @@ enum {
+ 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
+ 	ALC887_FIXUP_ASUS_AUDIO,
+ 	ALC887_FIXUP_ASUS_HMIC,
++	ALCS1200A_FIXUP_MIC_VREF,
+ };
+ 
+ static void alc889_fixup_coef(struct hda_codec *codec,
+@@ -2526,6 +2527,14 @@ static const struct hda_fixup alc882_fix
+ 		.chained = true,
+ 		.chain_id = ALC887_FIXUP_ASUS_AUDIO,
+ 	},
++	[ALCS1200A_FIXUP_MIC_VREF] = {
++		.type = HDA_FIXUP_PINCTLS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x18, PIN_VREF50 }, /* rear mic */
++			{ 0x19, PIN_VREF50 }, /* front mic */
++			{}
++		}
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
+@@ -2563,6 +2572,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
+ 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
+ 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
++	SND_PCI_QUIRK(0x1043, 0x8797, "ASUS TUF B550M-PLUS", ALCS1200A_FIXUP_MIC_VREF),
+ 	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
 
 
