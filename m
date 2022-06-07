@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4CE540C52
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9346A540C15
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351616AbiFGSdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56726 "EHLO
+        id S1351491AbiFGSdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352391AbiFGSa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CF217B86A;
-        Tue,  7 Jun 2022 10:56:04 -0700 (PDT)
+        with ESMTP id S1352491AbiFGSbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E408B1451CE;
+        Tue,  7 Jun 2022 10:56:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FBAA617AE;
-        Tue,  7 Jun 2022 17:56:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B6FC34115;
-        Tue,  7 Jun 2022 17:56:01 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5AADECE242A;
+        Tue,  7 Jun 2022 17:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38A2C3411C;
+        Tue,  7 Jun 2022 17:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624563;
-        bh=IQLEsmrKiVuGX+dVFlCbbaUWubNS1XxR6sRXnYMgr/o=;
+        s=k20201202; t=1654624571;
+        bh=PD9e8Q2ln03IrdWmHwh9Oq+TnF2LvQdLrZsDfZ77aVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHlyJnDLk84jld9H4PVjHVOwapr2M2hMszxM84W8zHqsyVEerQpFpf4eLf+w4KgHK
-         27Wy10vUbQkSgtNI3j28b3cEL95NsCht0216VupTUmp2/Qtj9zF0VGTuDl4BO1rqbq
-         vZQtR828XBeiHatAu+nCVfe8FzAu+bhnhoKWk5m3u2+3VKP2zEbveFSbArwZZqpQjT
-         fF/dkj4ZUqA60m9HxAsi5HpY34EOvDPqsLH9O8/Oqpko1hfmWqiuge0jFIGmvFCtAR
-         X6qGfZf3Ai+jo2DmmwLbBZwgD/y6KEQ0DES832asZ+WrzS5Z+kTYhc8c7d/hUjp2RD
-         jhBjz4nVgjm9Q==
+        b=DIrwbPlkhf7fGuf82dX7nQH+eoon/Lvq04+hjzM191nTPcqOFL2yPFufTwI0EhCv6
+         IdwOBQRERqPapRKwE2osnY94l+T5zG3+loQWNGAR7Flk1ZIvtZSPULvoqGAH2erT5A
+         LwmT6c4uyyThE8sRZudGWL6O63Y3SEZEP4XXQCvpOCEaU8Lazous1ghQ8f16aECBQ8
+         mIFXDq9OL+hcclU94er4x0tK8gMHJdHH/kZUsnNgcZ/IMNgDW1kinMOcbU87MY16cq
+         dpNJO6U4YVs5/WZb6wObrmLVuXVDNMHUg6I1VzDGhpjXbo5+GU4WKgJiGHRKamlBB4
+         at3EmwJTGZp+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Larry.Finger@lwfinger.net,
-        florian.c.schilhabel@googlemail.com, kuba@kernel.org,
-        paskripkin@gmail.com, len.baker@gmx.com, skumark1902@gmail.com,
-        wanngchenng@gmail.com, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 02/51] staging: rtl8712: fix a potential memory leak in r871xu_drv_init()
-Date:   Tue,  7 Jun 2022 13:55:01 -0400
-Message-Id: <20220607175552.479948-2-sashal@kernel.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Denis Ciocca <denis.ciocca@st.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
+        lars@metafoo.de, aardelean@deviqon.com, cai.huoqing@linux.dev,
+        andy.shevchenko@gmail.com, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 03/51] iio: st_sensors: Add a local lock for protecting odr
+Date:   Tue,  7 Jun 2022 13:55:02 -0400
+Message-Id: <20220607175552.479948-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175552.479948-1-sashal@kernel.org>
 References: <20220607175552.479948-1-sashal@kernel.org>
@@ -60,79 +60,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 7288ff561de650d4139fab80e9cb0da9b5b32434 ]
+[ Upstream commit 474010127e2505fc463236470908e1ff5ddb3578 ]
 
-In r871xu_drv_init(), if r8712_init_drv_sw() fails, then the memory
-allocated by r8712_alloc_io_queue() in r8712_usb_dvobj_init() is not
-properly released as there is no action will be performed by
-r8712_usb_dvobj_deinit().
-To properly release it, we should call r8712_free_io_queue() in
-r8712_usb_dvobj_deinit().
+Right now the (framework) mlock lock is (ab)used for multiple purposes:
+1- protecting concurrent accesses over the odr local cache
+2- avoid changing samplig frequency whilst buffer is running
 
-Besides, in r871xu_dev_remove(), r8712_usb_dvobj_deinit() will be called
-by r871x_dev_unload() under condition `padapter->bup` and
-r8712_free_io_queue() is called by r8712_free_drv_sw().
-However, r8712_usb_dvobj_deinit() does not rely on `padapter->bup` and
-calling r8712_free_io_queue() in r8712_free_drv_sw() is negative for
-better understading the code.
-So I move r8712_usb_dvobj_deinit() into r871xu_dev_remove(), and remove
-r8712_free_io_queue() from r8712_free_drv_sw().
+Let's start by handling situation #1 with a local lock.
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_B8048C592777830380A23A7C4409F9DF1305@qq.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Jonathan Cameron <jic23@kernel.org>
+Cc: Denis Ciocca <denis.ciocca@st.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220207143840.707510-7-miquel.raynal@bootlin.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/os_intfs.c | 1 -
- drivers/staging/rtl8712/usb_intf.c | 6 +++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ .../iio/common/st_sensors/st_sensors_core.c   | 24 ++++++++++++++-----
+ include/linux/iio/common/st_sensors.h         |  3 +++
+ 2 files changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/os_intfs.c b/drivers/staging/rtl8712/os_intfs.c
-index 9502f6aa5306..bc033849fcea 100644
---- a/drivers/staging/rtl8712/os_intfs.c
-+++ b/drivers/staging/rtl8712/os_intfs.c
-@@ -332,7 +332,6 @@ void r8712_free_drv_sw(struct _adapter *padapter)
- 	r8712_free_evt_priv(&padapter->evtpriv);
- 	r8712_DeInitSwLeds(padapter);
- 	r8712_free_mlme_priv(&padapter->mlmepriv);
--	r8712_free_io_queue(padapter);
- 	_free_xmit_priv(&padapter->xmitpriv);
- 	_r8712_free_sta_priv(&padapter->stapriv);
- 	_r8712_free_recv_priv(&padapter->recvpriv);
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index cae04272deff..a61dd96ab2a4 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -265,6 +265,7 @@ static uint r8712_usb_dvobj_init(struct _adapter *padapter)
+diff --git a/drivers/iio/common/st_sensors/st_sensors_core.c b/drivers/iio/common/st_sensors/st_sensors_core.c
+index 0bbb090b108c..aff981551617 100644
+--- a/drivers/iio/common/st_sensors/st_sensors_core.c
++++ b/drivers/iio/common/st_sensors/st_sensors_core.c
+@@ -71,16 +71,18 @@ static int st_sensors_match_odr(struct st_sensor_settings *sensor_settings,
  
- static void r8712_usb_dvobj_deinit(struct _adapter *padapter)
+ int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
  {
-+	r8712_free_io_queue(padapter);
+-	int err;
++	int err = 0;
+ 	struct st_sensor_odr_avl odr_out = {0, 0};
+ 	struct st_sensor_data *sdata = iio_priv(indio_dev);
+ 
++	mutex_lock(&sdata->odr_lock);
++
+ 	if (!sdata->sensor_settings->odr.mask)
+-		return 0;
++		goto unlock_mutex;
+ 
+ 	err = st_sensors_match_odr(sdata->sensor_settings, odr, &odr_out);
+ 	if (err < 0)
+-		goto st_sensors_match_odr_error;
++		goto unlock_mutex;
+ 
+ 	if ((sdata->sensor_settings->odr.addr ==
+ 					sdata->sensor_settings->pw.addr) &&
+@@ -103,7 +105,9 @@ int st_sensors_set_odr(struct iio_dev *indio_dev, unsigned int odr)
+ 	if (err >= 0)
+ 		sdata->odr = odr_out.hz;
+ 
+-st_sensors_match_odr_error:
++unlock_mutex:
++	mutex_unlock(&sdata->odr_lock);
++
+ 	return err;
  }
+ EXPORT_SYMBOL(st_sensors_set_odr);
+@@ -365,6 +369,8 @@ int st_sensors_init_sensor(struct iio_dev *indio_dev,
+ 	struct st_sensors_platform_data *of_pdata;
+ 	int err = 0;
  
- void rtl871x_intf_stop(struct _adapter *padapter)
-@@ -302,9 +303,6 @@ void r871x_dev_unload(struct _adapter *padapter)
- 			rtl8712_hal_deinit(padapter);
- 		}
++	mutex_init(&sdata->odr_lock);
++
+ 	/* If OF/DT pdata exists, it will take precedence of anything else */
+ 	of_pdata = st_sensors_dev_probe(indio_dev->dev.parent, pdata);
+ 	if (IS_ERR(of_pdata))
+@@ -558,18 +564,24 @@ int st_sensors_read_info_raw(struct iio_dev *indio_dev,
+ 		err = -EBUSY;
+ 		goto out;
+ 	} else {
++		mutex_lock(&sdata->odr_lock);
+ 		err = st_sensors_set_enable(indio_dev, true);
+-		if (err < 0)
++		if (err < 0) {
++			mutex_unlock(&sdata->odr_lock);
+ 			goto out;
++		}
  
--		/*s6.*/
--		if (padapter->dvobj_deinit)
--			padapter->dvobj_deinit(padapter);
- 		padapter->bup = false;
+ 		msleep((sdata->sensor_settings->bootime * 1000) / sdata->odr);
+ 		err = st_sensors_read_axis_data(indio_dev, ch, val);
+-		if (err < 0)
++		if (err < 0) {
++			mutex_unlock(&sdata->odr_lock);
+ 			goto out;
++		}
+ 
+ 		*val = *val >> ch->scan_type.shift;
+ 
+ 		err = st_sensors_set_enable(indio_dev, false);
++		mutex_unlock(&sdata->odr_lock);
  	}
- }
-@@ -607,6 +605,8 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
- 	/* Stop driver mlme relation timer */
- 	r8712_stop_drv_timers(padapter);
- 	r871x_dev_unload(padapter);
-+	if (padapter->dvobj_deinit)
-+		padapter->dvobj_deinit(padapter);
- 	r8712_free_drv_sw(padapter);
- 	free_netdev(pnetdev);
+ out:
+ 	mutex_unlock(&indio_dev->mlock);
+diff --git a/include/linux/iio/common/st_sensors.h b/include/linux/iio/common/st_sensors.h
+index 8bdbaf3f3796..69f4a1f6b536 100644
+--- a/include/linux/iio/common/st_sensors.h
++++ b/include/linux/iio/common/st_sensors.h
+@@ -238,6 +238,7 @@ struct st_sensor_settings {
+  * @hw_irq_trigger: if we're using the hardware interrupt on the sensor.
+  * @hw_timestamp: Latest timestamp from the interrupt handler, when in use.
+  * @buffer_data: Data used by buffer part.
++ * @odr_lock: Local lock for preventing concurrent ODR accesses/changes
+  */
+ struct st_sensor_data {
+ 	struct device *dev;
+@@ -263,6 +264,8 @@ struct st_sensor_data {
+ 	s64 hw_timestamp;
  
+ 	char buffer_data[ST_SENSORS_MAX_BUFFER_SIZE] ____cacheline_aligned;
++
++	struct mutex odr_lock;
+ };
+ 
+ #ifdef CONFIG_IIO_BUFFER
 -- 
 2.35.1
 
