@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0663F5412B8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4CD541958
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356477AbiFGTyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38406 "EHLO
+        id S1349950AbiFGVVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:21:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358085AbiFGTvm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:51:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72718CB0D;
-        Tue,  7 Jun 2022 11:19:47 -0700 (PDT)
+        with ESMTP id S1381382AbiFGVRl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8C014CDF5;
+        Tue,  7 Jun 2022 11:58:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 74E4CCE2439;
-        Tue,  7 Jun 2022 18:19:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38817C385A2;
-        Tue,  7 Jun 2022 18:19:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A4666179F;
+        Tue,  7 Jun 2022 18:58:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D500C385A2;
+        Tue,  7 Jun 2022 18:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625980;
-        bh=aD2bwhTaBdhLJlZgj84uncUpqKZ/Ttho7VUAKt9ILjo=;
+        s=korg; t=1654628327;
+        bh=84IfR7RwwFTk8qrcm0SBcSTrKK/dW3sr/Vog+1TxXdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPxWDnyBFW+6ryfuxW4zbuTDxfRc7Zn0S8IVBmsaYXubfxr8jEp2MN585t1KBXjzo
-         IRh/KS6xiCVLEaEO64VLZlmk9q+mO2O5g1b6yuClqKHXgV/YZi2dEEORniZS484h6K
-         UzMswgRHHxuAlBKaUDsOfF/gNKAmFd1eaRtFRiA4=
+        b=lyqfN13hz1LGMegCoapNUT7QYcUNnqTpw5W+WxwFY81dU8tKwWp0niCUpRrHwnoU1
+         9Mn1ReRZoHbhkb2Ee5qv5TAK6VBNe3Z53jsLRlUYIGIQU1QlOsvvcNDVwCxoivpYrt
+         Dd7aZmQ7xbxAdDWc+GAErCDYSvRXWv6npMxAGE7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laibin Qiu <qiulaibin@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Parshuram Thombare <pthombar@cadence.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 163/772] blk-throttle: Set BIO_THROTTLED when bio has been throttled
-Date:   Tue,  7 Jun 2022 18:55:55 +0200
-Message-Id: <20220607164953.844118036@linuxfoundation.org>
+Subject: [PATCH 5.18 238/879] PCI: cadence: Clear FLR in device capabilities register
+Date:   Tue,  7 Jun 2022 18:55:56 +0200
+Message-Id: <20220607165009.761206695@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,124 +54,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laibin Qiu <qiulaibin@huawei.com>
+From: Parshuram Thombare <pthombar@cadence.com>
 
-[ Upstream commit 5a011f889b4832aa80c2a872a5aade5c48d2756f ]
+[ Upstream commit 95b00f68209e2bc9f2ee9126afcebab451e0e9d8 ]
 
-1.In current process, all bio will set the BIO_THROTTLED flag
-after __blk_throtl_bio().
+Clear FLR (Function Level Reset) from device capabilities
+registers for all physical functions.
 
-2.If bio needs to be throttled, it will start the timer and
-stop submit bio directly. Bio will submit in
-blk_throtl_dispatch_work_fn() when the timer expires.But in
-the current process, if bio is throttled. The BIO_THROTTLED
-will be set to bio after timer start. If the bio has been
-completed, it may cause use-after-free blow.
+During FLR, the Margining Lane Status and Margining Lane Control
+registers should not be reset, as per PCIe specification.
+However, the controller incorrectly resets these registers upon FLR.
+This causes PCISIG compliance FLR test to fail. Hence preventing
+all functions from advertising FLR support if flag quirk_disable_flr
+is set.
 
-BUG: KASAN: use-after-free in blk_throtl_bio+0x12f0/0x2c70
-Read of size 2 at addr ffff88801b8902d4 by task fio/26380
-
- dump_stack+0x9b/0xce
- print_address_description.constprop.6+0x3e/0x60
- kasan_report.cold.9+0x22/0x3a
- blk_throtl_bio+0x12f0/0x2c70
- submit_bio_checks+0x701/0x1550
- submit_bio_noacct+0x83/0xc80
- submit_bio+0xa7/0x330
- mpage_readahead+0x380/0x500
- read_pages+0x1c1/0xbf0
- page_cache_ra_unbounded+0x471/0x6f0
- do_page_cache_ra+0xda/0x110
- ondemand_readahead+0x442/0xae0
- page_cache_async_ra+0x210/0x300
- generic_file_buffered_read+0x4d9/0x2130
- generic_file_read_iter+0x315/0x490
- blkdev_read_iter+0x113/0x1b0
- aio_read+0x2ad/0x450
- io_submit_one+0xc8e/0x1d60
- __se_sys_io_submit+0x125/0x350
- do_syscall_64+0x2d/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Allocated by task 26380:
- kasan_save_stack+0x19/0x40
- __kasan_kmalloc.constprop.2+0xc1/0xd0
- kmem_cache_alloc+0x146/0x440
- mempool_alloc+0x125/0x2f0
- bio_alloc_bioset+0x353/0x590
- mpage_alloc+0x3b/0x240
- do_mpage_readpage+0xddf/0x1ef0
- mpage_readahead+0x264/0x500
- read_pages+0x1c1/0xbf0
- page_cache_ra_unbounded+0x471/0x6f0
- do_page_cache_ra+0xda/0x110
- ondemand_readahead+0x442/0xae0
- page_cache_async_ra+0x210/0x300
- generic_file_buffered_read+0x4d9/0x2130
- generic_file_read_iter+0x315/0x490
- blkdev_read_iter+0x113/0x1b0
- aio_read+0x2ad/0x450
- io_submit_one+0xc8e/0x1d60
- __se_sys_io_submit+0x125/0x350
- do_syscall_64+0x2d/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Freed by task 0:
- kasan_save_stack+0x19/0x40
- kasan_set_track+0x1c/0x30
- kasan_set_free_info+0x1b/0x30
- __kasan_slab_free+0x111/0x160
- kmem_cache_free+0x94/0x460
- mempool_free+0xd6/0x320
- bio_free+0xe0/0x130
- bio_put+0xab/0xe0
- bio_endio+0x3a6/0x5d0
- blk_update_request+0x590/0x1370
- scsi_end_request+0x7d/0x400
- scsi_io_completion+0x1aa/0xe50
- scsi_softirq_done+0x11b/0x240
- blk_mq_complete_request+0xd4/0x120
- scsi_mq_done+0xf0/0x200
- virtscsi_vq_done+0xbc/0x150
- vring_interrupt+0x179/0x390
- __handle_irq_event_percpu+0xf7/0x490
- handle_irq_event_percpu+0x7b/0x160
- handle_irq_event+0xcc/0x170
- handle_edge_irq+0x215/0xb20
- common_interrupt+0x60/0x120
- asm_common_interrupt+0x1e/0x40
-
-Fix this by move BIO_THROTTLED set into the queue_lock.
-
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20220301123919.2381579-1-qiulaibin@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/1635165075-89864-1-git-send-email-pthombar@cadence.com
+Signed-off-by: Parshuram Thombare <pthombar@cadence.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-throttle.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/controller/cadence/pci-j721e.c     |  3 +++
+ .../pci/controller/cadence/pcie-cadence-ep.c   | 18 +++++++++++++++++-
+ drivers/pci/controller/cadence/pcie-cadence.h  |  3 +++
+ 3 files changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 87769b337fc5..e1b253775a56 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -2167,13 +2167,14 @@ bool __blk_throtl_bio(struct bio *bio)
- 	}
+diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
+index 768d33f9ebc8..a82f845cc4b5 100644
+--- a/drivers/pci/controller/cadence/pci-j721e.c
++++ b/drivers/pci/controller/cadence/pci-j721e.c
+@@ -69,6 +69,7 @@ struct j721e_pcie_data {
+ 	enum j721e_pcie_mode	mode;
+ 	unsigned int		quirk_retrain_flag:1;
+ 	unsigned int		quirk_detect_quiet_flag:1;
++	unsigned int		quirk_disable_flr:1;
+ 	u32			linkdown_irq_regfield;
+ 	unsigned int		byte_access_allowed:1;
+ };
+@@ -307,6 +308,7 @@ static const struct j721e_pcie_data j7200_pcie_rc_data = {
+ static const struct j721e_pcie_data j7200_pcie_ep_data = {
+ 	.mode = PCI_MODE_EP,
+ 	.quirk_detect_quiet_flag = true,
++	.quirk_disable_flr = true,
+ };
  
- out_unlock:
--	spin_unlock_irq(&q->queue_lock);
- 	bio_set_flag(bio, BIO_THROTTLED);
+ static const struct j721e_pcie_data am64_pcie_rc_data = {
+@@ -405,6 +407,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 			return -ENOMEM;
  
- #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
- 	if (throttled || !td->track_bio_latency)
- 		bio->bi_issue.value |= BIO_ISSUE_THROTL_SKIP_LATENCY;
- #endif
-+	spin_unlock_irq(&q->queue_lock);
+ 		ep->quirk_detect_quiet_flag = data->quirk_detect_quiet_flag;
++		ep->quirk_disable_flr = data->quirk_disable_flr;
+ 
+ 		cdns_pcie = &ep->pcie;
+ 		cdns_pcie->dev = dev;
+diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+index 88e05b9c2e5b..4b1c4bc4e003 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
++++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+@@ -565,7 +565,8 @@ static int cdns_pcie_ep_start(struct pci_epc *epc)
+ 	struct cdns_pcie_ep *ep = epc_get_drvdata(epc);
+ 	struct cdns_pcie *pcie = &ep->pcie;
+ 	struct device *dev = pcie->dev;
+-	int ret;
++	int max_epfs = sizeof(epc->function_num_map) * 8;
++	int ret, value, epf;
+ 
+ 	/*
+ 	 * BIT(0) is hardwired to 1, hence function 0 is always enabled
+@@ -573,6 +574,21 @@ static int cdns_pcie_ep_start(struct pci_epc *epc)
+ 	 */
+ 	cdns_pcie_writel(pcie, CDNS_PCIE_LM_EP_FUNC_CFG, epc->function_num_map);
+ 
++	if (ep->quirk_disable_flr) {
++		for (epf = 0; epf < max_epfs; epf++) {
++			if (!(epc->function_num_map & BIT(epf)))
++				continue;
 +
- 	rcu_read_unlock();
- 	return throttled;
- }
++			value = cdns_pcie_ep_fn_readl(pcie, epf,
++					CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET +
++					PCI_EXP_DEVCAP);
++			value &= ~PCI_EXP_DEVCAP_FLR;
++			cdns_pcie_ep_fn_writel(pcie, epf,
++					CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET +
++					PCI_EXP_DEVCAP, value);
++		}
++	}
++
+ 	ret = cdns_pcie_start_link(pcie);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to start link\n");
+diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
+index c8a27b6290ce..d9c785365da3 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence.h
++++ b/drivers/pci/controller/cadence/pcie-cadence.h
+@@ -123,6 +123,7 @@
+ 
+ #define CDNS_PCIE_EP_FUNC_MSI_CAP_OFFSET	0x90
+ #define CDNS_PCIE_EP_FUNC_MSIX_CAP_OFFSET	0xb0
++#define CDNS_PCIE_EP_FUNC_DEV_CAP_OFFSET	0xc0
+ #define CDNS_PCIE_EP_FUNC_SRIOV_CAP_OFFSET	0x200
+ 
+ /*
+@@ -357,6 +358,7 @@ struct cdns_pcie_epf {
+  *        minimize time between read and write
+  * @epf: Structure to hold info about endpoint function
+  * @quirk_detect_quiet_flag: LTSSM Detect Quiet min delay set as quirk
++ * @quirk_disable_flr: Disable FLR (Function Level Reset) quirk flag
+  */
+ struct cdns_pcie_ep {
+ 	struct cdns_pcie	pcie;
+@@ -372,6 +374,7 @@ struct cdns_pcie_ep {
+ 	spinlock_t		lock;
+ 	struct cdns_pcie_epf	*epf;
+ 	unsigned int		quirk_detect_quiet_flag:1;
++	unsigned int		quirk_disable_flr:1;
+ };
+ 
+ 
 -- 
 2.35.1
 
