@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E61B5414BF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD1E541C64
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358769AbiFGUVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
+        id S1382823AbiFGV7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359819AbiFGUVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:20 -0400
+        with ESMTP id S1382814AbiFGVv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215811D30E3;
-        Tue,  7 Jun 2022 11:30:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97635192269;
+        Tue,  7 Jun 2022 12:09:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 527B4B822C0;
-        Tue,  7 Jun 2022 18:30:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C075DC385A2;
-        Tue,  7 Jun 2022 18:30:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAF53B823B1;
+        Tue,  7 Jun 2022 19:09:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5147BC385A5;
+        Tue,  7 Jun 2022 19:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626641;
-        bh=Vbdwe/T0f5JOUSiNqbAGHbB+2pd0/m5eObuptyLOk7Q=;
+        s=korg; t=1654628978;
+        bh=7JNySWG9G7almkc45VVzVriFrHF3dyFSg50wqEO2dSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUTHpMME7mvmEFH8vXgr8OztNTma7n+nesEPS3UQm3NtD4uVjbxhAYg1Jc2TyIlof
-         I5HE111+nriFCaa0R91MkHttpHf2/YS8IEIJoOjG9U4F5wxWQwgSicrdgQrgbtVQc7
-         D1L3jjqq0Ox0/NHd1lxNqrzoIIKhKVIdGE0emoVE=
+        b=ehjKjeiIAH45gaBW9/rCgf8JhvUDR1VSGx5M7HmHsjZtPALgThTHI4HPXs+OrlqOl
+         2CnTckDEB5Hj9PO5O5GV5akNY0GKgxvE0XdDAlsjYuQaOpHiPzz3jDbH/EaJVAH9M5
+         s5+5SxrQF0hA7/0LDv6a6tpuKkj84+0EyHFt0cBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 451/772] arm64: dts: rockchip: Move drive-impedance-ohm to emmc phy on rk3399
+Subject: [PATCH 5.18 525/879] dpaa2-eth: unmap the SGT buffer before accessing its contents
 Date:   Tue,  7 Jun 2022 19:00:43 +0200
-Message-Id: <20220607165002.291945466@linuxfoundation.org>
+Message-Id: <20220607165018.113810611@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Lin <shawn.lin@rock-chips.com>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 4246d0bab2a8685e3d4aec2cb0ef8c526689ce96 ]
+[ Upstream commit 0a09c5b8cb8f75344da7d90c771b84f7cdeaea04 ]
 
-drive-impedance-ohm is introduced for emmc phy instead of pcie phy.
+DMA unmap the Scatter/Gather table before going through the array to
+unmap and free each of the header and data chunks. This is so we do not
+touch the data between the dma_map and dma_unmap calls.
 
-Fixes: fb8b7460c995 ("arm64: dts: rockchip: Define drive-impedance-ohm for RK3399's emmc-phy.")
-Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/1647336426-154797-1-git-send-email-shawn.lin@rock-chips.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: 3dc709e0cd47 ("dpaa2-eth: add support for software TSO")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 080457a68e3c..88f26d89eea1 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1534,6 +1534,7 @@
- 			reg = <0xf780 0x24>;
- 			clocks = <&sdhci>;
- 			clock-names = "emmcclk";
-+			drive-impedance-ohm = <50>;
- 			#phy-cells = <0>;
- 			status = "disabled";
- 		};
-@@ -1544,7 +1545,6 @@
- 			clock-names = "refclk";
- 			#phy-cells = <1>;
- 			resets = <&cru SRST_PCIEPHY>;
--			drive-impedance-ohm = <50>;
- 			reset-names = "phy";
- 			status = "disabled";
- 		};
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index f1f140277184..cd9ec80522e7 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -1136,6 +1136,10 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
+ 			sgt = (struct dpaa2_sg_entry *)(buffer_start +
+ 							priv->tx_data_offset);
+ 
++			/* Unmap the SGT buffer */
++			dma_unmap_single(dev, fd_addr, swa->tso.sgt_size,
++					 DMA_BIDIRECTIONAL);
++
+ 			/* Unmap and free the header */
+ 			tso_hdr = dpaa2_iova_to_virt(priv->iommu_domain, dpaa2_sg_get_addr(sgt));
+ 			dma_unmap_single(dev, dpaa2_sg_get_addr(sgt), TSO_HEADER_SIZE,
+@@ -1147,10 +1151,6 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
+ 				dma_unmap_single(dev, dpaa2_sg_get_addr(&sgt[i]),
+ 						 dpaa2_sg_get_len(&sgt[i]), DMA_TO_DEVICE);
+ 
+-			/* Unmap the SGT buffer */
+-			dma_unmap_single(dev, fd_addr, swa->tso.sgt_size,
+-					 DMA_BIDIRECTIONAL);
+-
+ 			if (!swa->tso.is_last_fd)
+ 				should_free_skb = 0;
+ 		} else {
 -- 
 2.35.1
 
