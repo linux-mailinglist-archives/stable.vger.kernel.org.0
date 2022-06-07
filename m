@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE96541118
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07624541872
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353465AbiFGTdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:33:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53360 "EHLO
+        id S1379762AbiFGVM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356700AbiFGTby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:31:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BD31A882F;
-        Tue,  7 Jun 2022 11:12:47 -0700 (PDT)
+        with ESMTP id S1359576AbiFGVJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:09:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042AF214882;
+        Tue,  7 Jun 2022 11:51:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB22E6006F;
-        Tue,  7 Jun 2022 18:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE6AAC385A2;
-        Tue,  7 Jun 2022 18:12:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 525B16156D;
+        Tue,  7 Jun 2022 18:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622A5C385A2;
+        Tue,  7 Jun 2022 18:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625549;
-        bh=nQbb+Dvg94Bd3lpBOt9d1emxz4LV6Rz434ipGpczzEo=;
+        s=korg; t=1654627898;
+        bh=mkOZcs9H0Fc6oEmSvunN1C04xzrsehRv9BhzW7OHhdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JF+EknuKNVbgpxdjeOgSs2tKcvOX0Da0ic3y7TAlnaUeXRSC1j8QxgvCeWY8ObQVX
-         dxwDBAHLpagiLz9uXz28lSgZB95AOPiaol4KaZtsNiz+WnrYTPVwttnrl2FgKcfsu2
-         1VAQhYhvPBhOGJ8NSZySr0FukvdizHSNMdS9U7L8=
+        b=mOu6V0fe5zqnyrRNVdoSmol+0hr53822HZ5UYvdbYT4zTvn8o6F7ZRPGCtlKocYQV
+         d+KKpwRC10qRkzbTU1AOpOU1tPBhc6kqQBmu1D4K+88nVp+m5aGCB4cxomyu8LfkEN
+         YjCqqwOy1b/XdiMVdabutdImdUvFgCb2fkN58Aw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 058/772] b43legacy: Fix assigning negative value to unsigned variable
-Date:   Tue,  7 Jun 2022 18:54:10 +0200
-Message-Id: <20220607164950.749829242@linuxfoundation.org>
+        stable@vger.kernel.org, Alice Wong <shiwei.wong@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 133/879] drm/amdgpu/ucode: Remove firmware load type check in amdgpu_ucode_free_bo
+Date:   Tue,  7 Jun 2022 18:54:11 +0200
+Message-Id: <20220607165006.563819317@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Alice Wong <shiwei.wong@amd.com>
 
-[ Upstream commit 3f6b867559b3d43a7ce1b4799b755e812fc0d503 ]
+[ Upstream commit ab0cd4a9ae5b4679b714d8dbfedc0901fecdce9f ]
 
-fix warning reported by smatch:
-drivers/net/wireless/broadcom/b43legacy/phy.c:1181 b43legacy_phy_lo_b_measure()
-warn: assigning (-772) to unsigned variable 'fval'
+When psp_hw_init failed, it will set the load_type to AMDGPU_FW_LOAD_DIRECT.
+During amdgpu_device_ip_fini, amdgpu_ucode_free_bo checks that load_type is
+AMDGPU_FW_LOAD_DIRECT and skips deallocating fw_buf causing memory leak.
+Remove load_type check in amdgpu_ucode_free_bo.
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648203433-8736-1-git-send-email-baihaowen@meizu.com
+Signed-off-by: Alice Wong <shiwei.wong@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43legacy/phy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43legacy/phy.c b/drivers/net/wireless/broadcom/b43legacy/phy.c
-index 05404fbd1e70..c1395e622759 100644
---- a/drivers/net/wireless/broadcom/b43legacy/phy.c
-+++ b/drivers/net/wireless/broadcom/b43legacy/phy.c
-@@ -1123,7 +1123,7 @@ void b43legacy_phy_lo_b_measure(struct b43legacy_wldev *dev)
- 	struct b43legacy_phy *phy = &dev->phy;
- 	u16 regstack[12] = { 0 };
- 	u16 mls;
--	u16 fval;
-+	s16 fval;
- 	int i;
- 	int j;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+index ca3350502618..aebafbc327fb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+@@ -714,8 +714,7 @@ int amdgpu_ucode_create_bo(struct amdgpu_device *adev)
  
+ void amdgpu_ucode_free_bo(struct amdgpu_device *adev)
+ {
+-	if (adev->firmware.load_type != AMDGPU_FW_LOAD_DIRECT)
+-		amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
++	amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
+ 		&adev->firmware.fw_buf_mc,
+ 		&adev->firmware.fw_buf_ptr);
+ }
 -- 
 2.35.1
 
