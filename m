@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A0A5407E0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4210354103B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348408AbiFGRwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40700 "EHLO
+        id S1352495AbiFGTVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:21:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350029AbiFGRvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:49 -0400
+        with ESMTP id S1355174AbiFGTTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:19:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF7413FD73;
-        Tue,  7 Jun 2022 10:39:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5DBCEA8B1;
+        Tue,  7 Jun 2022 11:08:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 561C1615B5;
-        Tue,  7 Jun 2022 17:38:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D0F5C385A5;
-        Tue,  7 Jun 2022 17:38:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56D94617AE;
+        Tue,  7 Jun 2022 18:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D4B1C385A5;
+        Tue,  7 Jun 2022 18:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623516;
-        bh=bGKUlB+stWvlUSMfdSGssdWsMlsCDWNVuR+RfD/mrXg=;
+        s=korg; t=1654625302;
+        bh=0uxE18e2AfanWQQDQShi5sm63VVmRKaaDhXCasV9Sko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sxn+NuwpH7WKDWr8fOz4iQjzPDHnHrFjwA2pTTdZh/42vy8W12RiWQvKHQsYRozXi
-         ZdujZ5lRHnNEGKtYAcDW7tw82fGeI1dKQcZheSnVx7XHlgF+SKLSgzVBR3d9vTk+RY
-         LrY8ZfWO5F7QxoMNH6scutVEuNkQssYzSPlB2l4c=
+        b=TP2bQv/Kxd+mqbgryFxKR2SiHhde5/DKM0bDGgGRmftK/2v7cSn0y2uKtapp65y0T
+         3aQNBrbt8Bue+1ydDHBE7x2UzIqKwIjUsJVBEOCDD6M0tfi6jL/9FHNoLY1ETsKYfs
+         Pxcwd9uv6gWiQJrhuSDGJzRTX/bFSxmox4EhHDxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>,
-        Donald Buczek <buczek@molgen.mpg.de>
-Subject: [PATCH 5.10 446/452] block: fix bio_clone_blkg_association() to associate with proper blkcg_gq
+        stable@vger.kernel.org, Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.15 638/667] clk: tegra: Add missing reset deassertion
 Date:   Tue,  7 Jun 2022 19:05:03 +0200
-Message-Id: <20220607164921.860742429@linuxfoundation.org>
+Message-Id: <20220607164953.795329854@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>
 
-commit 22b106e5355d6e7a9c3b5cb5ed4ef22ae585ea94 upstream.
+commit 23a43cc437e747473d5f8f98b4fe189fb5c433b7 upstream.
 
-Commit d92c370a16cb ("block: really clone the block cgroup in
-bio_clone_blkg_association") changed bio_clone_blkg_association() to
-just clone bio->bi_blkg reference from source to destination bio. This
-is however wrong if the source and destination bios are against
-different block devices because struct blkcg_gq is different for each
-bdev-blkcg pair. This will result in IOs being accounted (and throttled
-as a result) multiple times against the same device (src bdev) while
-throttling of the other device (dst bdev) is ignored. In case of BFQ the
-inconsistency can even result in crashes in bfq_bic_update_cgroup().
-Fix the problem by looking up correct blkcg_gq for the cloned bio.
+Commit 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling
+clocks") removed deassertion of reset lines when enabling peripheral
+clocks. This breaks the initialization of the DFLL driver which relied
+on this behaviour.
 
-Reported-by: Logan Gunthorpe <logang@deltatee.com>
-Reported-and-tested-by: Donald Buczek <buczek@molgen.mpg.de>
-Fixes: d92c370a16cb ("block: really clone the block cgroup in bio_clone_blkg_association")
-CC: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220602081242.7731-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix this problem by adding explicit deassert/assert requests to the
+driver. Tested on Google Pixel C.
+
+Cc: stable@vger.kernel.org
+Fixes: 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling clocks")
+Signed-off-by: Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-cgroup.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/clk/tegra/clk-dfll.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1892,12 +1892,8 @@ EXPORT_SYMBOL_GPL(bio_associate_blkg);
-  */
- void bio_clone_blkg_association(struct bio *dst, struct bio *src)
- {
--	if (src->bi_blkg) {
--		if (dst->bi_blkg)
--			blkg_put(dst->bi_blkg);
--		blkg_get(src->bi_blkg);
--		dst->bi_blkg = src->bi_blkg;
--	}
-+	if (src->bi_blkg)
-+		bio_associate_blkg_from_css(dst, &bio_blkcg(src)->css);
- }
- EXPORT_SYMBOL_GPL(bio_clone_blkg_association);
+--- a/drivers/clk/tegra/clk-dfll.c
++++ b/drivers/clk/tegra/clk-dfll.c
+@@ -271,6 +271,7 @@ struct tegra_dfll {
+ 	struct clk			*ref_clk;
+ 	struct clk			*i2c_clk;
+ 	struct clk			*dfll_clk;
++	struct reset_control		*dfll_rst;
+ 	struct reset_control		*dvco_rst;
+ 	unsigned long			ref_rate;
+ 	unsigned long			i2c_clk_rate;
+@@ -1464,6 +1465,7 @@ static int dfll_init(struct tegra_dfll *
+ 		return -EINVAL;
+ 	}
  
++	reset_control_deassert(td->dfll_rst);
+ 	reset_control_deassert(td->dvco_rst);
+ 
+ 	ret = clk_prepare(td->ref_clk);
+@@ -1509,6 +1511,7 @@ di_err1:
+ 	clk_unprepare(td->ref_clk);
+ 
+ 	reset_control_assert(td->dvco_rst);
++	reset_control_assert(td->dfll_rst);
+ 
+ 	return ret;
+ }
+@@ -1530,6 +1533,7 @@ int tegra_dfll_suspend(struct device *de
+ 	}
+ 
+ 	reset_control_assert(td->dvco_rst);
++	reset_control_assert(td->dfll_rst);
+ 
+ 	return 0;
+ }
+@@ -1548,6 +1552,7 @@ int tegra_dfll_resume(struct device *dev
+ {
+ 	struct tegra_dfll *td = dev_get_drvdata(dev);
+ 
++	reset_control_deassert(td->dfll_rst);
+ 	reset_control_deassert(td->dvco_rst);
+ 
+ 	pm_runtime_get_sync(td->dev);
+@@ -1951,6 +1956,12 @@ int tegra_dfll_register(struct platform_
+ 
+ 	td->soc = soc;
+ 
++	td->dfll_rst = devm_reset_control_get_optional(td->dev, "dfll");
++	if (IS_ERR(td->dfll_rst)) {
++		dev_err(td->dev, "couldn't get dfll reset\n");
++		return PTR_ERR(td->dfll_rst);
++	}
++
+ 	td->dvco_rst = devm_reset_control_get(td->dev, "dvco");
+ 	if (IS_ERR(td->dvco_rst)) {
+ 		dev_err(td->dev, "couldn't get dvco reset\n");
+@@ -2087,6 +2098,7 @@ struct tegra_dfll_soc_data *tegra_dfll_u
+ 	clk_unprepare(td->i2c_clk);
+ 
+ 	reset_control_assert(td->dvco_rst);
++	reset_control_assert(td->dfll_rst);
+ 
+ 	return td->soc;
+ }
 
 
