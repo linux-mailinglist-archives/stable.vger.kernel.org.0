@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 085F8541CF3
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22867540705
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382743AbiFGWHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40030 "EHLO
+        id S1347514AbiFGRln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:41:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383095AbiFGWFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:05:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464AB195945;
-        Tue,  7 Jun 2022 12:16:29 -0700 (PDT)
+        with ESMTP id S1348412AbiFGRkt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626FC11CB49;
+        Tue,  7 Jun 2022 10:34:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B338FCE24AA;
-        Tue,  7 Jun 2022 19:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92EB1C34115;
-        Tue,  7 Jun 2022 19:16:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB65C6157D;
+        Tue,  7 Jun 2022 17:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD48FC385A5;
+        Tue,  7 Jun 2022 17:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629386;
-        bh=bztlmvwcCgpEkjqxhJVwCHE/RQIR8mjqYy01g1meIeY=;
+        s=korg; t=1654623222;
+        bh=r+PiPBr4xTAxxMb9zWAk9Kk81bO+/sVjicksRNPqiGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yk2aeMDkrFZb3lIaQiYm6jGwxUODbguSIDH6zhrsCdfEgLbMhMpTSuCMpOLQnflpB
-         zfrqz7SgA5OwRmOsRPaNYndyvwRSRBl68p/OkLDXI0jxmQ7c1D4TlG0AvZdGMeK30D
-         8tiW6pJo6GczIv1yWNjtME6xh2WyvdL6b5FFr+us=
+        b=TlHkrWQlUdxp1ge34B9ZjzrhN7cA9rjuvZq4FoC6evka4ELCoM3+a8jVfByZHwiVQ
+         UKkIzSvzGAogpobzWoMn2cnsLi1ZjDpb2EvS2oR6dm5stwkvM9q6kvbG70KtQpsU/3
+         apCZujA2ZMX54oTQ7ulL7431yJpP13cVQDyQ1fkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 670/879] cpufreq: mediatek: Unregister platform device on exit
-Date:   Tue,  7 Jun 2022 19:03:08 +0200
-Message-Id: <20220607165022.298206332@linuxfoundation.org>
+Subject: [PATCH 5.10 332/452] NFSv4/pNFS: Do not fail I/O when we fail to allocate the pNFS layout
+Date:   Tue,  7 Jun 2022 19:03:09 +0200
+Message-Id: <20220607164918.452934740@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rex-BC Chen <rex-bc.chen@mediatek.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit f126fbadce92b92c3a7be41e4abc1fbae93ae2ef ]
+[ Upstream commit 3764a17e31d579cf9b4bd0a69894b577e8d75702 ]
 
-We register the platform device when driver inits. However, we do not
-unregister it when driver exits.
+Commit 587f03deb69b caused pnfs_update_layout() to stop returning ENOMEM
+when the memory allocation fails, and hence causes it to fall back to
+trying to do I/O through the MDS. There is no guarantee that this will
+fare any better. If we're failing the pNFS layout allocation, then we
+should just redirty the page and retry later.
 
-To resolve this, we declare the platform data to be a global static
-variable and rename it to be "cpufreq_pdev". With this global variable,
-we can do platform_device_unregister() when driver exits.
-
-Fixes: 501c574f4e3a ("cpufreq: mediatek: Add support of cpufreq to MT2701/MT7623 SoC")
-Signed-off-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-[ Viresh: Commit log and Subject ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 587f03deb69b ("pnfs: refactor send_layoutget")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/mediatek-cpufreq.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/nfs/pnfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/cpufreq/mediatek-cpufreq.c b/drivers/cpufreq/mediatek-cpufreq.c
-index 9d7d9c8dc184..bfe240c726e3 100644
---- a/drivers/cpufreq/mediatek-cpufreq.c
-+++ b/drivers/cpufreq/mediatek-cpufreq.c
-@@ -44,6 +44,8 @@ struct mtk_cpu_dvfs_info {
- 	bool need_voltage_tracking;
- };
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index b3b9eff5d572..8c0803d98008 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2006,6 +2006,7 @@ pnfs_update_layout(struct inode *ino,
+ 	lo = pnfs_find_alloc_layout(ino, ctx, gfp_flags);
+ 	if (lo == NULL) {
+ 		spin_unlock(&ino->i_lock);
++		lseg = ERR_PTR(-ENOMEM);
+ 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
+ 				 PNFS_UPDATE_LAYOUT_NOMEM);
+ 		goto out;
+@@ -2134,6 +2135,7 @@ pnfs_update_layout(struct inode *ino,
  
-+static struct platform_device *cpufreq_pdev;
-+
- static LIST_HEAD(dvfs_info_list);
- 
- static struct mtk_cpu_dvfs_info *mtk_cpu_dvfs_info_lookup(int cpu)
-@@ -547,7 +549,6 @@ static int __init mtk_cpufreq_driver_init(void)
- {
- 	struct device_node *np;
- 	const struct of_device_id *match;
--	struct platform_device *pdev;
- 	int err;
- 
- 	np = of_find_node_by_path("/");
-@@ -571,11 +572,11 @@ static int __init mtk_cpufreq_driver_init(void)
- 	 * and the device registration codes are put here to handle defer
- 	 * probing.
- 	 */
--	pdev = platform_device_register_simple("mtk-cpufreq", -1, NULL, 0);
--	if (IS_ERR(pdev)) {
-+	cpufreq_pdev = platform_device_register_simple("mtk-cpufreq", -1, NULL, 0);
-+	if (IS_ERR(cpufreq_pdev)) {
- 		pr_err("failed to register mtk-cpufreq platform device\n");
- 		platform_driver_unregister(&mtk_cpufreq_platdrv);
--		return PTR_ERR(pdev);
-+		return PTR_ERR(cpufreq_pdev);
- 	}
- 
- 	return 0;
-@@ -584,6 +585,7 @@ module_init(mtk_cpufreq_driver_init)
- 
- static void __exit mtk_cpufreq_driver_exit(void)
- {
-+	platform_device_unregister(cpufreq_pdev);
- 	platform_driver_unregister(&mtk_cpufreq_platdrv);
- }
- module_exit(mtk_cpufreq_driver_exit)
+ 	lgp = pnfs_alloc_init_layoutget_args(ino, ctx, &stateid, &arg, gfp_flags);
+ 	if (!lgp) {
++		lseg = ERR_PTR(-ENOMEM);
+ 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, NULL,
+ 					 PNFS_UPDATE_LAYOUT_NOMEM);
+ 		nfs_layoutget_end(lo);
 -- 
 2.35.1
 
