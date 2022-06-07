@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FBFB540B87
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 818EA541A09
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345873AbiFGS3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
+        id S1379124AbiFGV1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350863AbiFGSPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:15:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1593415A772;
-        Tue,  7 Jun 2022 10:49:11 -0700 (PDT)
+        with ESMTP id S1379528AbiFGVZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F5522871B;
+        Tue,  7 Jun 2022 12:01:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C791B82349;
-        Tue,  7 Jun 2022 17:49:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C42C34115;
-        Tue,  7 Jun 2022 17:49:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 019CAB8220B;
+        Tue,  7 Jun 2022 19:01:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB63C385A5;
+        Tue,  7 Jun 2022 19:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624148;
-        bh=vQUwpjNBc2/uBCLZmEOyoUfx/E7nhiAOOMBOrT/b+Xs=;
+        s=korg; t=1654628509;
+        bh=LQq/7blpbZyhfx4zRTEyWiRAUMsgZCLnSCZeVlsS+RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hn0IX1IjKvy0KVEJW6iX5sjSbRyO9y3VNfIAa9NXWhFRxKdn3QU8uXe3O0Yx/zQqJ
-         qa26UzHlicyAZILH5FmnFSDa07X1yQA/iEI6/7VBwd1ICq5Y02tp6mCrGyUrNVlacV
-         GmWxGbquTdqS6+7uyNqNcqG/vwsGVhaMDHemyYAo=
+        b=I+FAD5ANiGV5TI/769ITUsqdpOzN998TTd+wuBzq4jhuNPnEldtpmD21sXL3iXc4k
+         3ZP1pl4ufwAR4FBEhRaHvq3TsgWMY8nsUZHpYLP75gV6G49AM7u+F3OpxFxEYUD4gB
+         e1/ifH3KQXmeQDQMWO491Bo6t658pF8W8nnCx/pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Adam Ward <Adam.Ward.Opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 181/667] Input: gpio-keys - cancel delayed work only in case of GPIO
+Subject: [PATCH 5.18 328/879] regulator: da9121: Fix uninit-value in da9121_assign_chip_model()
 Date:   Tue,  7 Jun 2022 18:57:26 +0200
-Message-Id: <20220607164940.237977755@linuxfoundation.org>
+Message-Id: <20220607165012.374554430@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,87 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit cee409bbba0d1bd3fb73064fb480ff365f453b5d ]
+[ Upstream commit bab76514aca36bc513224525d5598da676938218 ]
 
-gpio_keys module can either accept gpios or interrupts. The module
-initializes delayed work in case of gpios only and is only used if
-debounce timer is not used, so make sure cancel_delayed_work_sync()
-is called only when its gpio-backed and debounce_use_hrtimer is false.
+KASAN report slab-out-of-bounds in __regmap_init as follows:
 
-This fixes the issue seen below when the gpio_keys module is unloaded and
-an interrupt pin is used instead of GPIO:
+BUG: KASAN: slab-out-of-bounds in __regmap_init drivers/base/regmap/regmap.c:841
+Read of size 1 at addr ffff88803678cdf1 by task xrun/9137
 
-[  360.297569] ------------[ cut here ]------------
-[  360.302303] WARNING: CPU: 0 PID: 237 at kernel/workqueue.c:3066 __flush_work+0x414/0x470
-[  360.310531] Modules linked in: gpio_keys(-)
-[  360.314797] CPU: 0 PID: 237 Comm: rmmod Not tainted 5.18.0-rc5-arm64-renesas-00116-g73636105874d-dirty #166
-[  360.324662] Hardware name: Renesas SMARC EVK based on r9a07g054l2 (DT)
-[  360.331270] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  360.338318] pc : __flush_work+0x414/0x470
-[  360.342385] lr : __cancel_work_timer+0x140/0x1b0
-[  360.347065] sp : ffff80000a7fba00
-[  360.350423] x29: ffff80000a7fba00 x28: ffff000012b9c5c0 x27: 0000000000000000
-[  360.357664] x26: ffff80000a7fbb80 x25: ffff80000954d0a8 x24: 0000000000000001
-[  360.364904] x23: ffff800009757000 x22: 0000000000000000 x21: ffff80000919b000
-[  360.372143] x20: ffff00000f5974e0 x19: ffff00000f5974e0 x18: ffff8000097fcf48
-[  360.379382] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000053f40
-[  360.386622] x14: ffff800009850e88 x13: 0000000000000002 x12: 000000000000a60c
-[  360.393861] x11: 000000000000a610 x10: 0000000000000000 x9 : 0000000000000008
-[  360.401100] x8 : 0101010101010101 x7 : 00000000a473c394 x6 : 0080808080808080
-[  360.408339] x5 : 0000000000000001 x4 : 0000000000000000 x3 : ffff80000919b458
-[  360.415578] x2 : ffff8000097577f0 x1 : 0000000000000001 x0 : 0000000000000000
-[  360.422818] Call trace:
-[  360.425299]  __flush_work+0x414/0x470
-[  360.429012]  __cancel_work_timer+0x140/0x1b0
-[  360.433340]  cancel_delayed_work_sync+0x10/0x18
-[  360.437931]  gpio_keys_quiesce_key+0x28/0x58 [gpio_keys]
-[  360.443327]  devm_action_release+0x10/0x18
-[  360.447481]  release_nodes+0x8c/0x1a0
-[  360.451194]  devres_release_all+0x90/0x100
-[  360.455346]  device_unbind_cleanup+0x14/0x60
-[  360.459677]  device_release_driver_internal+0xe8/0x168
-[  360.464883]  driver_detach+0x4c/0x90
-[  360.468509]  bus_remove_driver+0x54/0xb0
-[  360.472485]  driver_unregister+0x2c/0x58
-[  360.476462]  platform_driver_unregister+0x10/0x18
-[  360.481230]  gpio_keys_exit+0x14/0x828 [gpio_keys]
-[  360.486088]  __arm64_sys_delete_module+0x1e0/0x270
-[  360.490945]  invoke_syscall+0x40/0xf8
-[  360.494661]  el0_svc_common.constprop.3+0xf0/0x110
-[  360.499515]  do_el0_svc+0x20/0x78
-[  360.502877]  el0_svc+0x48/0xf8
-[  360.505977]  el0t_64_sync_handler+0x88/0xb0
-[  360.510216]  el0t_64_sync+0x148/0x14c
-[  360.513930] irq event stamp: 4306
-[  360.517288] hardirqs last  enabled at (4305): [<ffff8000080b0300>] __cancel_work_timer+0x130/0x1b0
-[  360.526359] hardirqs last disabled at (4306): [<ffff800008d194fc>] el1_dbg+0x24/0x88
-[  360.534204] softirqs last  enabled at (4278): [<ffff8000080104a0>] _stext+0x4a0/0x5e0
-[  360.542133] softirqs last disabled at (4267): [<ffff8000080932ac>] irq_exit_rcu+0x18c/0x1b0
-[  360.550591] ---[ end trace 0000000000000000 ]---
+CPU: 0 PID: 9137 Comm: xrun Tainted: G        W         5.18.0-rc2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x15a lib/dump_stack.c:88
+ print_report.cold+0xcd/0x69b mm/kasan/report.c:313
+ kasan_report+0x8e/0xc0 mm/kasan/report.c:491
+ __regmap_init+0x4540/0x4ba0 drivers/base/regmap/regmap.c:841
+ __devm_regmap_init+0x7a/0x100 drivers/base/regmap/regmap.c:1266
+ __devm_regmap_init_i2c+0x65/0x80 drivers/base/regmap/regmap-i2c.c:394
+ da9121_i2c_probe+0x386/0x6d1 drivers/regulator/da9121-regulator.c:1039
+ i2c_device_probe+0x959/0xac0 drivers/i2c/i2c-core-base.c:563
 
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Link: https://lore.kernel.org/r/20220524135822.14764-1-prabhakar.mahadev-lad.rj@bp.renesas.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This happend when da9121 device is probe by da9121_i2c_id, but with
+invalid dts. Thus, chip->subvariant_id is set to -EINVAL, and later
+da9121_assign_chip_model() will access 'regmap' without init it.
+
+Fix it by return -EINVAL from da9121_assign_chip_model() if
+'chip->subvariant_id' is invalid.
+
+Fixes: f3fbd5566f6a ("regulator: da9121: Add device variants")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Adam Ward <Adam.Ward.Opensource@diasemi.com>
+Link: https://lore.kernel.org/r/20220421090335.1876149-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/gpio_keys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/da9121-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 8dbf1e69c90a..22a91db645b8 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -131,7 +131,7 @@ static void gpio_keys_quiesce_key(void *data)
+diff --git a/drivers/regulator/da9121-regulator.c b/drivers/regulator/da9121-regulator.c
+index eb9df485bd8a..76e0e23bf598 100644
+--- a/drivers/regulator/da9121-regulator.c
++++ b/drivers/regulator/da9121-regulator.c
+@@ -1030,6 +1030,8 @@ static int da9121_assign_chip_model(struct i2c_client *i2c,
+ 		chip->variant_id = DA9121_TYPE_DA9142;
+ 		regmap = &da9121_2ch_regmap_config;
+ 		break;
++	default:
++		return -EINVAL;
+ 	}
  
- 	if (!bdata->gpiod)
- 		hrtimer_cancel(&bdata->release_timer);
--	if (bdata->debounce_use_hrtimer)
-+	else if (bdata->debounce_use_hrtimer)
- 		hrtimer_cancel(&bdata->debounce_timer);
- 	else
- 		cancel_delayed_work_sync(&bdata->work);
+ 	/* Set these up for of_regulator_match call which may want .of_map_modes */
 -- 
 2.35.1
 
