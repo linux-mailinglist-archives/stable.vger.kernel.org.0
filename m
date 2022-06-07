@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1807B541999
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED0815411CA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378017AbiFGVX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:23:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52394 "EHLO
+        id S1356512AbiFGTnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380307AbiFGVQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:04 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D11157E8E;
-        Tue,  7 Jun 2022 11:55:00 -0700 (PDT)
+        with ESMTP id S1357712AbiFGTmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17581B6FD6;
+        Tue,  7 Jun 2022 11:15:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9AC77CE1D50;
-        Tue,  7 Jun 2022 18:54:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83456C385A2;
-        Tue,  7 Jun 2022 18:54:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76AF5B82368;
+        Tue,  7 Jun 2022 18:15:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9536C385A5;
+        Tue,  7 Jun 2022 18:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628096;
-        bh=jAuNF6M+3PV9HonytzGTV1kYObV5ikBT2owp1pOQg1U=;
+        s=korg; t=1654625755;
+        bh=N8UbqJnFB6zL7Fltg5vHOaYoZGdWHnypTXLxuzrfcyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eEFjN7f2Lk9jTr5hQpBd/m3Qnjo5B6WsdGlhNosW9Vp+rePVmsBtN/hH6HOpklIpg
-         MVViYT/kgpGEt68Xw4FSCzpNHATWoZHoABXospJZSzZwa/lxjSc6grJI1Tdx8TFtcF
-         uM6sI0OIYH3bjVFc8LLPQd8KUim3vlf3ChNMacXU=
+        b=a9n8f8FnyYkh2arIa+t90QPbHrj4uE21rZldQr4S5DQhWuZbs3B4W+6lEh3vOVE/E
+         cnZPtouN0qZAI4jtR1qczgOk6XXdTtjgTEOCaLRT6Udtzk90a0vm83iN+WP8EMOhGT
+         WV+b5A5LZFf3hIshloL6V+e11ItiXxe7j9kgIwow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 206/879] linux/types.h: reinstate "__bitwise__" macro for user space use
-Date:   Tue,  7 Jun 2022 18:55:24 +0200
-Message-Id: <20220607165008.829694453@linuxfoundation.org>
+Subject: [PATCH 5.17 133/772] ipmi:ssif: Check for NULL msg when handling events and messages
+Date:   Tue,  7 Jun 2022 18:55:25 +0200
+Message-Id: <20220607164952.962507398@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit caa28984163cb63ea0be4cb8dbf05defdc7303f9 ]
+[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
 
-Commit c724c866bb70 ("linux/types.h: remove unnecessary __bitwise__")
-was right that there are no users of __bitwise__ in the kernel, but it
-turns out there are user space users of it that do expect it.
+Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
+SSIF_GETTING_EVENTS states without a valid message in the msg field,
+it's probably best to be defensive here and check and print a log, since
+that means something else went wrong.
 
-It is, after all, in the uapi directory, so user space usage is to be
-expected.
+Also add a default clause to that switch statement to release the lock
+and print a log, in case the state variable gets messed up somehow.
 
-Instead of reverting the commit completely, let's just clarify the
-situation so that it doesn't happen again, and have some in-code
-explanations for why that "__bitwise__" still exists.
-
-Reported-by: Jiri Slaby <jirislaby@kernel.org>
-Cc: Bjorn Helgaas <helgaas@kernel.org>
-Link: https://lore.kernel.org/all/b5c0a68d-8387-4909-beea-f70ab9e6e3d5@kernel.org/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Haowen Bai <baihaowen@meizu.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/types.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/include/uapi/linux/types.h b/include/uapi/linux/types.h
-index c4dc597f3dcf..308433be33c2 100644
---- a/include/uapi/linux/types.h
-+++ b/include/uapi/linux/types.h
-@@ -26,6 +26,9 @@
- #define __bitwise
- #endif
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index 48aab77abebf..588610236de1 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -814,6 +814,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
  
-+/* The kernel doesn't use this legacy form, but user space does */
-+#define __bitwise__ __bitwise
+ 	case SSIF_GETTING_EVENTS:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting events\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
 +
- typedef __u16 __bitwise __le16;
- typedef __u16 __bitwise __be16;
- typedef __u32 __bitwise __le32;
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -838,6 +846,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		break;
+ 
+ 	case SSIF_GETTING_MESSAGES:
++		if (!msg) {
++			/* Should never happen, but just in case. */
++			dev_warn(&ssif_info->client->dev,
++				 "No message set while getting messages\n");
++			ipmi_ssif_unlock_cond(ssif_info, flags);
++			break;
++		}
++
+ 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
+ 			/* Error getting event, probably done. */
+ 			msg->done(msg);
+@@ -861,6 +877,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			deliver_recv_msg(ssif_info, msg);
+ 		}
+ 		break;
++
++	default:
++		/* Should never happen, but just in case. */
++		dev_warn(&ssif_info->client->dev,
++			 "Invalid state in message done handling: %d\n",
++			 ssif_info->ssif_state);
++		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 	}
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
 -- 
 2.35.1
 
