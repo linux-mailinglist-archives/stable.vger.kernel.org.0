@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAC7541D58
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034E6541688
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384113AbiFGWMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:12:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51426 "EHLO
+        id S1376928AbiFGUxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379944AbiFGWLz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:11:55 -0400
+        with ESMTP id S1378269AbiFGUve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB183259F55;
-        Tue,  7 Jun 2022 12:19:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BCE51FE8D6;
+        Tue,  7 Jun 2022 11:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B80ADB823CE;
-        Tue,  7 Jun 2022 19:18:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26F46C34115;
-        Tue,  7 Jun 2022 19:18:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04647B82182;
+        Tue,  7 Jun 2022 18:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB89C385A2;
+        Tue,  7 Jun 2022 18:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629532;
-        bh=Wbu9QY/RGG+sXYd4xeirkbf5jNFHONniUP8DAZ46mGU=;
+        s=korg; t=1654627314;
+        bh=bMeP3TdBU0MLzEVLX4M4aq30+vz2kCbplZYoeO4zO3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjJTzbaFEVfZp0jAbdcf3cJLgr7rl3aGUBy9OqGlKwlSjC+rqQzAWahvZ4SdOG4Uf
-         cVUfEelnQKF9VCCyruIsQLE3ZOLXKaytUvdWHPP2oWOBHVoUT8CqpnypK2uA6izmT4
-         OiXkNh6fi/K2DgCsypr0bea7wPb4/HaYHE1oEO60=
+        b=js860Z6ry8sczxNqiYaZkJFI5lMcZUueTxiIW8YnnCdJpw0V+JkQ4t+Sh5kYszR5v
+         7y7rq3zEeL3rNO0uHzp5JEiuJ5O81C2cBSDUgWGeIO8KQ30aPRvimgSXYKayqgZnOe
+         KLhhh/cxRHaLqS/m2p3I8OqqiAjQAhHM7qn9U6Uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>
-Subject: [PATCH 5.18 718/879] objtool: Fix symbol creation
+        stable@vger.kernel.org, stable@kernel.org,
+        Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.17 644/772] ext4: fix bug_on in __es_tree_search
 Date:   Tue,  7 Jun 2022 19:03:56 +0200
-Message-Id: <20220607165023.695240593@linuxfoundation.org>
+Message-Id: <20220607165008.043480745@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,348 +55,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit ead165fa1042247b033afad7be4be9b815d04ade upstream.
+commit d36f6ed761b53933b0b4126486c10d3da7751e7f upstream.
 
-Nathan reported objtool failing with the following messages:
+Hulk Robot reported a BUG_ON:
+==================================================================
+kernel BUG at fs/ext4/extents_status.c:199!
+[...]
+RIP: 0010:ext4_es_end fs/ext4/extents_status.c:199 [inline]
+RIP: 0010:__es_tree_search+0x1e0/0x260 fs/ext4/extents_status.c:217
+[...]
+Call Trace:
+ ext4_es_cache_extent+0x109/0x340 fs/ext4/extents_status.c:766
+ ext4_cache_extents+0x239/0x2e0 fs/ext4/extents.c:561
+ ext4_find_extent+0x6b7/0xa20 fs/ext4/extents.c:964
+ ext4_ext_map_blocks+0x16b/0x4b70 fs/ext4/extents.c:4384
+ ext4_map_blocks+0xe26/0x19f0 fs/ext4/inode.c:567
+ ext4_getblk+0x320/0x4c0 fs/ext4/inode.c:980
+ ext4_bread+0x2d/0x170 fs/ext4/inode.c:1031
+ ext4_quota_read+0x248/0x320 fs/ext4/super.c:6257
+ v2_read_header+0x78/0x110 fs/quota/quota_v2.c:63
+ v2_check_quota_file+0x76/0x230 fs/quota/quota_v2.c:82
+ vfs_load_quota_inode+0x5d1/0x1530 fs/quota/dquot.c:2368
+ dquot_enable+0x28a/0x330 fs/quota/dquot.c:2490
+ ext4_quota_enable fs/ext4/super.c:6137 [inline]
+ ext4_enable_quotas+0x5d7/0x960 fs/ext4/super.c:6163
+ ext4_fill_super+0xa7c9/0xdc00 fs/ext4/super.c:4754
+ mount_bdev+0x2e9/0x3b0 fs/super.c:1158
+ mount_fs+0x4b/0x1e4 fs/super.c:1261
+[...]
+==================================================================
 
-  warning: objtool: no non-local symbols !?
-  warning: objtool: gelf_update_symshndx: invalid section index
+Above issue may happen as follows:
+-------------------------------------
+ext4_fill_super
+ ext4_enable_quotas
+  ext4_quota_enable
+   ext4_iget
+    __ext4_iget
+     ext4_ext_check_inode
+      ext4_ext_check
+       __ext4_ext_check
+        ext4_valid_extent_entries
+         Check for overlapping extents does't take effect
+   dquot_enable
+    vfs_load_quota_inode
+     v2_check_quota_file
+      v2_read_header
+       ext4_quota_read
+        ext4_bread
+         ext4_getblk
+          ext4_map_blocks
+           ext4_ext_map_blocks
+            ext4_find_extent
+             ext4_cache_extents
+              ext4_es_cache_extent
+               ext4_es_cache_extent
+                __es_tree_search
+                 ext4_es_end
+                  BUG_ON(es->es_lblk + es->es_len < es->es_lblk)
 
-The problem is due to commit 4abff6d48dbc ("objtool: Fix code relocs
-vs weak symbols") failing to consider the case where an object would
-have no non-local symbols.
+The error ext4 extents is as follows:
+0af3 0300 0400 0000 00000000    extent_header
+00000000 0100 0000 12000000     extent1
+00000000 0100 0000 18000000     extent2
+02000000 0400 0000 14000000     extent3
 
-The problem that commit tries to address is adding a STB_LOCAL symbol
-to the symbol table in light of the ELF spec's requirement that:
+In the ext4_valid_extent_entries function,
+if prev is 0, no error is returned even if lblock<=prev.
+This was intended to skip the check on the first extent, but
+in the error image above, prev=0+1-1=0 when checking the second extent,
+so even though lblock<=prev, the function does not return an error.
+As a result, bug_ON occurs in __es_tree_search and the system panics.
 
-  In each symbol table, all symbols with STB_LOCAL binding preced the
-  weak and global symbols.  As ``Sections'' above describes, a symbol
-  table section's sh_info section header member holds the symbol table
-  index for the first non-local symbol.
+To solve this problem, we only need to check that:
+1. The lblock of the first extent is not less than 0.
+2. The lblock of the next extent  is not less than
+   the next block of the previous extent.
+The same applies to extent_idx.
 
-The approach taken is to find this first non-local symbol, move that
-to the end and then re-use the freed spot to insert a new local symbol
-and increment sh_info.
-
-Except it never considered the case of object files without global
-symbols and got a whole bunch of details wrong -- so many in fact that
-it is a wonder it ever worked :/
-
-Specifically:
-
- - It failed to re-hash the symbol on the new index, so a subsequent
-   find_symbol_by_index() would not find it at the new location and a
-   query for the old location would now return a non-deterministic
-   choice between the old and new symbol.
-
- - It failed to appreciate that the GElf wrappers are not a valid disk
-   format (it works because GElf is basically Elf64 and we only
-   support x86_64 atm.)
-
- - It failed to fully appreciate how horrible the libelf API really is
-   and got the gelf_update_symshndx() call pretty much completely
-   wrong; with the direct consequence that if inserting a second
-   STB_LOCAL symbol would require moving the same STB_GLOBAL symbol
-   again it would completely come unstuck.
-
-Write a new elf_update_symbol() function that wraps all the magic
-required to update or create a new symbol at a given index.
-
-Specifically, gelf_update_sym*() require an @ndx argument that is
-relative to the @data argument; this means you have to manually
-iterate the section data descriptor list and update @ndx.
-
-Fixes: 4abff6d48dbc ("objtool: Fix code relocs vs weak symbols")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/YoPCTEYjoPqE4ZxB@hirez.programming.kicks-ass.net
+Cc: stable@kernel.org
+Fixes: 5946d089379a ("ext4: check for overlapping extents in ext4_valid_extent_entries()")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220518120816.1541863-1-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/elf.c |  198 +++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 129 insertions(+), 69 deletions(-)
+ fs/ext4/extents.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -374,6 +374,9 @@ static void elf_add_symbol(struct elf *e
- 	struct list_head *entry;
- 	struct rb_node *pnode;
- 
-+	INIT_LIST_HEAD(&sym->pv_target);
-+	sym->alias = sym;
-+
- 	sym->type = GELF_ST_TYPE(sym->sym.st_info);
- 	sym->bind = GELF_ST_BIND(sym->sym.st_info);
- 
-@@ -435,8 +438,6 @@ static int read_symbols(struct elf *elf)
- 			return -1;
- 		}
- 		memset(sym, 0, sizeof(*sym));
--		INIT_LIST_HEAD(&sym->pv_target);
--		sym->alias = sym;
- 
- 		sym->idx = i;
- 
-@@ -600,24 +601,21 @@ static void elf_dirty_reloc_sym(struct e
- }
- 
- /*
-- * Move the first global symbol, as per sh_info, into a new, higher symbol
-- * index. This fees up the shndx for a new local symbol.
-+ * The libelf API is terrible; gelf_update_sym*() takes a data block relative
-+ * index value, *NOT* the symbol index. As such, iterate the data blocks and
-+ * adjust index until it fits.
-+ *
-+ * If no data block is found, allow adding a new data block provided the index
-+ * is only one past the end.
-  */
--static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
--				  struct section *symtab_shndx)
-+static int elf_update_symbol(struct elf *elf, struct section *symtab,
-+			     struct section *symtab_shndx, struct symbol *sym)
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -372,7 +372,7 @@ static int ext4_valid_extent_entries(str
  {
--	Elf_Data *data, *shndx_data = NULL;
--	Elf32_Word first_non_local;
--	struct symbol *sym;
--	Elf_Scn *s;
--
--	first_non_local = symtab->sh.sh_info;
--
--	sym = find_symbol_by_index(elf, first_non_local);
--	if (!sym) {
--		WARN("no non-local symbols !?");
--		return first_non_local;
--	}
-+	Elf32_Word shndx = sym->sec ? sym->sec->idx : SHN_UNDEF;
-+	Elf_Data *symtab_data = NULL, *shndx_data = NULL;
-+	Elf64_Xword entsize = symtab->sh.sh_entsize;
-+	int max_idx, idx = sym->idx;
-+	Elf_Scn *s, *t = NULL;
+ 	unsigned short entries;
+ 	ext4_lblk_t lblock = 0;
+-	ext4_lblk_t prev = 0;
++	ext4_lblk_t cur = 0;
  
- 	s = elf_getscn(elf->elf, symtab->idx);
- 	if (!s) {
-@@ -625,79 +623,124 @@ static int elf_move_global_symbol(struct
- 		return -1;
- 	}
+ 	if (eh->eh_entries == 0)
+ 		return 1;
+@@ -396,11 +396,11 @@ static int ext4_valid_extent_entries(str
  
--	data = elf_newdata(s);
--	if (!data) {
--		WARN_ELF("elf_newdata");
--		return -1;
-+	if (symtab_shndx) {
-+		t = elf_getscn(elf->elf, symtab_shndx->idx);
-+		if (!t) {
-+			WARN_ELF("elf_getscn");
-+			return -1;
-+		}
- 	}
- 
--	data->d_buf = &sym->sym;
--	data->d_size = sizeof(sym->sym);
--	data->d_align = 1;
--	data->d_type = ELF_T_SYM;
-+	for (;;) {
-+		/* get next data descriptor for the relevant sections */
-+		symtab_data = elf_getdata(s, symtab_data);
-+		if (t)
-+			shndx_data = elf_getdata(t, shndx_data);
-+
-+		/* end-of-list */
-+		if (!symtab_data) {
-+			void *buf;
-+
-+			if (idx) {
-+				/* we don't do holes in symbol tables */
-+				WARN("index out of range");
-+				return -1;
-+			}
- 
--	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
--	elf_dirty_reloc_sym(elf, sym);
-+			/* if @idx == 0, it's the next contiguous entry, create it */
-+			symtab_data = elf_newdata(s);
-+			if (t)
-+				shndx_data = elf_newdata(t);
-+
-+			buf = calloc(1, entsize);
-+			if (!buf) {
-+				WARN("malloc");
-+				return -1;
-+			}
- 
--	symtab->sh.sh_info += 1;
--	symtab->sh.sh_size += data->d_size;
--	symtab->changed = true;
-+			symtab_data->d_buf = buf;
-+			symtab_data->d_size = entsize;
-+			symtab_data->d_align = 1;
-+			symtab_data->d_type = ELF_T_SYM;
-+
-+			symtab->sh.sh_size += entsize;
-+			symtab->changed = true;
-+
-+			if (t) {
-+				shndx_data->d_buf = &sym->sec->idx;
-+				shndx_data->d_size = sizeof(Elf32_Word);
-+				shndx_data->d_align = sizeof(Elf32_Word);
-+				shndx_data->d_type = ELF_T_WORD;
- 
--	if (symtab_shndx) {
--		s = elf_getscn(elf->elf, symtab_shndx->idx);
--		if (!s) {
--			WARN_ELF("elf_getscn");
-+				symtab_shndx->sh.sh_size += sizeof(Elf32_Word);
-+				symtab_shndx->changed = true;
-+			}
-+
-+			break;
-+		}
-+
-+		/* empty blocks should not happen */
-+		if (!symtab_data->d_size) {
-+			WARN("zero size data");
- 			return -1;
+ 			/* Check for overlapping extents */
+ 			lblock = le32_to_cpu(ext->ee_block);
+-			if ((lblock <= prev) && prev) {
++			if (lblock < cur) {
+ 				*pblk = ext4_ext_pblock(ext);
+ 				return 0;
+ 			}
+-			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
++			cur = lblock + ext4_ext_get_actual_len(ext);
+ 			ext++;
+ 			entries--;
  		}
+@@ -420,13 +420,13 @@ static int ext4_valid_extent_entries(str
  
--		shndx_data = elf_newdata(s);
-+		/* is this the right block? */
-+		max_idx = symtab_data->d_size / entsize;
-+		if (idx < max_idx)
-+			break;
-+
-+		/* adjust index and try again */
-+		idx -= max_idx;
-+	}
-+
-+	/* something went side-ways */
-+	if (idx < 0) {
-+		WARN("negative index");
-+		return -1;
-+	}
-+
-+	/* setup extended section index magic and write the symbol */
-+	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
-+		sym->sym.st_shndx = shndx;
-+		if (!shndx_data)
-+			shndx = 0;
-+	} else {
-+		sym->sym.st_shndx = SHN_XINDEX;
- 		if (!shndx_data) {
--			WARN_ELF("elf_newshndx_data");
-+			WARN("no .symtab_shndx");
- 			return -1;
+ 			/* Check for overlapping index extents */
+ 			lblock = le32_to_cpu(ext_idx->ei_block);
+-			if ((lblock <= prev) && prev) {
++			if (lblock < cur) {
+ 				*pblk = ext4_idx_pblock(ext_idx);
+ 				return 0;
+ 			}
+ 			ext_idx++;
+ 			entries--;
+-			prev = lblock;
++			cur = lblock + 1;
  		}
-+	}
- 
--		shndx_data->d_buf = &sym->sec->idx;
--		shndx_data->d_size = sizeof(Elf32_Word);
--		shndx_data->d_align = 4;
--		shndx_data->d_type = ELF_T_WORD;
--
--		symtab_shndx->sh.sh_size += 4;
--		symtab_shndx->changed = true;
-+	if (!gelf_update_symshndx(symtab_data, shndx_data, idx, &sym->sym, shndx)) {
-+		WARN_ELF("gelf_update_symshndx");
-+		return -1;
  	}
- 
--	return first_non_local;
-+	return 0;
- }
- 
- static struct symbol *
- elf_create_section_symbol(struct elf *elf, struct section *sec)
- {
- 	struct section *symtab, *symtab_shndx;
--	Elf_Data *shndx_data = NULL;
--	struct symbol *sym;
--	Elf32_Word shndx;
-+	Elf32_Word first_non_local, new_idx;
-+	struct symbol *sym, *old;
- 
- 	symtab = find_section_by_name(elf, ".symtab");
- 	if (symtab) {
- 		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
--		if (symtab_shndx)
--			shndx_data = symtab_shndx->data;
- 	} else {
- 		WARN("no .symtab");
- 		return NULL;
- 	}
- 
--	sym = malloc(sizeof(*sym));
-+	sym = calloc(1, sizeof(*sym));
- 	if (!sym) {
- 		perror("malloc");
- 		return NULL;
- 	}
--	memset(sym, 0, sizeof(*sym));
--
--	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
--	if (sym->idx < 0) {
--		WARN("elf_move_global_symbol");
--		return NULL;
--	}
- 
- 	sym->name = sec->name;
- 	sym->sec = sec;
-@@ -707,24 +750,41 @@ elf_create_section_symbol(struct elf *el
- 	// st_other 0
- 	// st_value 0
- 	// st_size 0
--	shndx = sec->idx;
--	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
--		sym->sym.st_shndx = shndx;
--		if (!shndx_data)
--			shndx = 0;
--	} else {
--		sym->sym.st_shndx = SHN_XINDEX;
--		if (!shndx_data) {
--			WARN("no .symtab_shndx");
-+
-+	/*
-+	 * Move the first global symbol, as per sh_info, into a new, higher
-+	 * symbol index. This fees up a spot for a new local symbol.
-+	 */
-+	first_non_local = symtab->sh.sh_info;
-+	new_idx = symtab->sh.sh_size / symtab->sh.sh_entsize;
-+	old = find_symbol_by_index(elf, first_non_local);
-+	if (old) {
-+		old->idx = new_idx;
-+
-+		hlist_del(&old->hash);
-+		elf_hash_add(symbol, &old->hash, old->idx);
-+
-+		elf_dirty_reloc_sym(elf, old);
-+
-+		if (elf_update_symbol(elf, symtab, symtab_shndx, old)) {
-+			WARN("elf_update_symbol move");
- 			return NULL;
- 		}
-+
-+		new_idx = first_non_local;
- 	}
- 
--	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
--		WARN_ELF("gelf_update_symshndx");
-+	sym->idx = new_idx;
-+	if (elf_update_symbol(elf, symtab, symtab_shndx, sym)) {
-+		WARN("elf_update_symbol");
- 		return NULL;
- 	}
- 
-+	/*
-+	 * Either way, we added a LOCAL symbol.
-+	 */
-+	symtab->sh.sh_info += 1;
-+
- 	elf_add_symbol(elf, sym);
- 
- 	return sym;
+ 	return 1;
 
 
