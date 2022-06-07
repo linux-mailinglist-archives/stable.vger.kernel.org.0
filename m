@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DA65404A7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37BF05409D6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345518AbiFGRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:18:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
+        id S1350819AbiFGSOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:14:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345517AbiFGRSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45473104C96;
-        Tue,  7 Jun 2022 10:18:21 -0700 (PDT)
+        with ESMTP id S1350410AbiFGSNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:13:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F728158976;
+        Tue,  7 Jun 2022 10:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D68B0618CF;
-        Tue,  7 Jun 2022 17:18:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E44F0C34115;
-        Tue,  7 Jun 2022 17:18:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3BB8B82343;
+        Tue,  7 Jun 2022 17:48:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FB4C385A5;
+        Tue,  7 Jun 2022 17:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622300;
-        bh=quySYJtomJ+ruxzvdbbgP8BcCD9LVEd0iWQJMe7v50s=;
+        s=korg; t=1654624098;
+        bh=SfL4ZS5ZSKLeYfug2c1BNi01hwrXoCpz82t+YI/bsI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y755U4w0ekXmuxuiWgXTRZNrCxnJ9X1i8CeBX9hwKYhbVhVsbIZXI+H/8lDhppveo
-         ib5olTDb11dgfKsxk9Ha+hqAE/nF7d07qK3bT+2AsrF3ZPLwPUAH6W6gku9wlPOmUq
-         Lma93u7KJV3n85ll+XAFwAYrAblhyRb8Y5sKAekA=
+        b=isW8myvP8ve5X8f9/5ftgGYS/W//EjMEVn5JaA0BkgmoEV4KF7bWRFweydYR5fleC
+         pxwSuXZmoWA1BWk0eogsCq4uLNqssQiINiAvykiK4P20o81NzX95jOJ6fBT3anxXIw
+         OFgk24UcPkLa2JnEPa7BSY1xFwNC6394froqgizw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Albert Wang <albertccwang@google.com>
-Subject: [PATCH 5.10 011/452] usb: dwc3: gadget: Move null pinter check to proper place
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 203/667] libbpf: Dont error out on CO-RE relos for overriden weak subprogs
 Date:   Tue,  7 Jun 2022 18:57:48 +0200
-Message-Id: <20220607164908.873134406@linuxfoundation.org>
+Message-Id: <20220607164940.888535931@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Albert Wang <albertccwang@google.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-commit 3c5880745b4439ac64eccdb040e37fc1cc4c5406 upstream.
+[ Upstream commit e89d57d938c8fa80c457982154ed6110804814fe ]
 
-When dwc3_gadget_ep_cleanup_completed_requests() called to
-dwc3_gadget_giveback() where the dwc3 lock is released, other thread is
-able to execute. In this situation, usb_ep_disable() gets the chance to
-clear endpoint descriptor pointer which leds to the null pointer
-dereference problem. So needs to move the null pointer check to a proper
-place.
+During BPF static linking, all the ELF relocations and .BTF.ext
+information (including CO-RE relocations) are preserved for __weak
+subprograms that were logically overriden by either previous weak
+subprogram instance or by corresponding "strong" (non-weak) subprogram.
+This is just how native user-space linkers work, nothing new.
 
-Example call stack:
+But libbpf is over-zealous when processing CO-RE relocation to error out
+when CO-RE relocation belonging to such eliminated weak subprogram is
+encountered. Instead of erroring out on this expected situation, log
+debug-level message and skip the relocation.
 
-Thread#1:
-dwc3_thread_interrupt()
-  spin_lock
-  -> dwc3_process_event_buf()
-   -> dwc3_process_event_entry()
-    -> dwc3_endpoint_interrupt()
-     -> dwc3_gadget_endpoint_trbs_complete()
-      -> dwc3_gadget_ep_cleanup_completed_requests()
-       ...
-       -> dwc3_giveback()
-          spin_unlock
-          Thread#2 executes
-
-Thread#2:
-configfs_composite_disconnect()
-  -> __composite_disconnect()
-   -> ffs_func_disable()
-    -> ffs_func_set_alt()
-     -> ffs_func_eps_disable()
-      -> usb_ep_disable()
-         wait for dwc3 spin_lock
-         Thread#1 released lock
-         clear endpoint.desc
-
-Fixes: 26288448120b ("usb: dwc3: gadget: Fix null pointer exception")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Albert Wang <albertccwang@google.com>
-Link: https://lore.kernel.org/r/20220518061315.3359198-1-albertccwang@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: db2b8b06423c ("libbpf: Support CO-RE relocations for multi-prog sections")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220408181425.2287230-2-andrii@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/lib/bpf/libbpf.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2960,14 +2960,14 @@ static bool dwc3_gadget_endpoint_trbs_co
- 	struct dwc3		*dwc = dep->dwc;
- 	bool			no_started_trb = true;
- 
--	if (!dep->endpoint.desc)
--		return no_started_trb;
--
- 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
- 
- 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
- 		goto out;
- 
-+	if (!dep->endpoint.desc)
-+		return no_started_trb;
-+
- 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
- 		list_empty(&dep->started_list) &&
- 		(list_empty(&dep->pending_list) || status == -EXDEV))
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 693e14799fb9..5612d0938fc9 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -5238,10 +5238,17 @@ bpf_object__relocate_core(struct bpf_object *obj, const char *targ_btf_path)
+ 			insn_idx = rec->insn_off / BPF_INSN_SZ;
+ 			prog = find_prog_by_sec_insn(obj, sec_idx, insn_idx);
+ 			if (!prog) {
+-				pr_warn("sec '%s': failed to find program at insn #%d for CO-RE offset relocation #%d\n",
+-					sec_name, insn_idx, i);
+-				err = -EINVAL;
+-				goto out;
++				/* When __weak subprog is "overridden" by another instance
++				 * of the subprog from a different object file, linker still
++				 * appends all the .BTF.ext info that used to belong to that
++				 * eliminated subprogram.
++				 * This is similar to what x86-64 linker does for relocations.
++				 * So just ignore such relocations just like we ignore
++				 * subprog instructions when discovering subprograms.
++				 */
++				pr_debug("sec '%s': skipping CO-RE relocation #%d for insn #%d belonging to eliminated weak subprogram\n",
++					 sec_name, i, insn_idx);
++				continue;
+ 			}
+ 			/* no need to apply CO-RE relocation if the program is
+ 			 * not going to be loaded
+-- 
+2.35.1
+
 
 
