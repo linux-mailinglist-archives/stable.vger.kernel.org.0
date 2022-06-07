@@ -2,175 +2,279 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D27D7541FFC
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 02:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C311541FEA
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 02:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388479AbiFHAE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 20:04:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44412 "EHLO
+        id S1583396AbiFGXqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 19:46:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388670AbiFGWwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:52:11 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27192C8597
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 12:46:07 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id bo5so16404443pfb.4
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 12:46:07 -0700 (PDT)
+        with ESMTP id S1444062AbiFGXBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 19:01:41 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F59227CD64
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 13:11:05 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id i1so15742726plg.7
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 13:11:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=5cqyIOVjyKhSdVV0ZrkOiz/8G3fV4JxMSunIafe5Tmg=;
-        b=l27NJh4LY4iZTTFbpRoy2cnFw5imi/eFH/qH994X9egqH+jcRc0xeKnsF8ih8Soluc
-         jmn0DqC8hUxioRmV8Chf8E+3AmuPCeL72o4WxwBrFjNGQP7eOQIi1eqItXFLMY1U9ofJ
-         GlKrX+EZhORNPdUpTJnr2R2pLFGfb3myiAjdTCG6ScHhN9z6p/NGAvsKcmVYMD9WOksU
-         TPahuKovDVi1nXC7sacpErq5BLlAve3WJHPg1jgSbw/ShoHeCC+xW+4my62oXvohVu6L
-         S0rhdj/p3pNLmgMxqrx+y9M9+McX18A8VP+pDiRal5aL5MlOU3TYMG4qpAaaAio4GhTv
-         FZOg==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iuJE0Q7DfXnlnhnw0IIXOuSAghXg0uVOqcT62LbQKmY=;
+        b=NpKV9Yd6aOZrr8/iFam1dEkVPjO3lpzl91PT14yntsl1g59u1pTLLlSZowN73CyPJi
+         ZyJglMANiw8igrxmofhVPO4Yf95idfw+fATUY4UEO9MiEETPfhY/SfnBNcgN4mYOo6nd
+         YeCQ9Aqze6yrfKCNOs0d+kqg4Yb7C1tnpwbikRcRN3N558BP0pOFoBrHN9gyNgnupMv+
+         RKz7VZcw//y1FrPz2u2E5jjyogSL7fayOrH/rBB2ESSeW4/XqSdOP4TgPuWCt6zjJW5T
+         GOjUjA+kFIUy66PpYLu9TuZSF7Dxf5FErnsWAewFVrFMTwonJRTePeb5DflGerXyBHb+
+         a3gQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=5cqyIOVjyKhSdVV0ZrkOiz/8G3fV4JxMSunIafe5Tmg=;
-        b=M5LLLAjN/E0eTkxAwnaGvdqVDsr67czSdriT5LIRuFuXE/1Tf7VCH3CDirfQxKN4XS
-         wl8oik2Tx4UZTudQ6UuTZi6P5E7cdTZbUVw35avEJ8vimmcC92Nrok3fGk6dom+rP7sD
-         3012zw//NZ2/76RdkWC3ekSfYtKlCupZsKQJX52jtzSRnJP3wZm36xE/dPu1saAfj8CJ
-         s2CNrtEMKQIkyJTjJ/tAHPbn7L1OE5Mh9txoj5AIesNThsmpYbXwdSmEVFjI5VzIOjhb
-         Yt6JtAnb8oDhLOLuSDPycCsUElz4NwB5uQqq+lAcudWRUg5v5S0B31y7c4ikbui4YUY3
-         pu9g==
-X-Gm-Message-State: AOAM531y7BoowDcgVluL4wU8MoS75o7X2rtXD7np6b3lzItMos5aoJ9m
-        ZB9UFOxTDCdM1pOP/KNYduT0UtFEiz+NIFgwPY0=
-X-Google-Smtp-Source: ABdhPJw6VIZRGXit9A2bkqeLYSnpoH2zGI2HpCD9Rlwh+7ADC50DozfjTOsDHfjJ9H7iMeUWBjpAuw==
-X-Received: by 2002:a65:6cc9:0:b0:399:26da:29af with SMTP id g9-20020a656cc9000000b0039926da29afmr26737210pgw.489.1654631166921;
-        Tue, 07 Jun 2022 12:46:06 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id kw3-20020a17090b220300b001e2f6c7b6f6sm12350882pjb.10.2022.06.07.12.46.05
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iuJE0Q7DfXnlnhnw0IIXOuSAghXg0uVOqcT62LbQKmY=;
+        b=ACmjTAMTbdNNWeYiGlMYkOx6ItxC6Swg/L3Ju56gytRjC/jLBrmp4E5cjErK7d9ImE
+         BjK+6zH2XE0oFVeJL5AtfQaiGjmwpmYIlQhKfSmWud4KZaSLhLn2IR8n+7uGDjAIIavD
+         V6DjKo6AeTL+BQaBZGQnHjr/ZKg+JdCs9QDpDZzrza24mnicBVQzM1c5wYIHnJ9K9Lyf
+         DddqEqgMRmNc8wDIQU7B1oZCtl+2sFP0uLYCEnx25exiJNR4vIBdalh63ZmTPxI9wopr
+         vYg7u0Iw5Se/9T2JOveh1B8MVJ2ci3EtRwkaxIDPW8qQhCGWwb7ec73gfT03N+D4vdcC
+         kCVQ==
+X-Gm-Message-State: AOAM531tvX17P5pO1rM2tLHaRJqP7VvKRxFvZvhKZmHRR5mAC69ifUoK
+        HAUy3QcFGpv4KItN7sPlofGMMRvf2FQ=
+X-Google-Smtp-Source: ABdhPJy0RWKGmf/jiYlG9OpG/P8SGJOYzqILLhvMpXzg/rJyCtT44XFNwFfLIKR0naCPKY6FiqwWog==
+X-Received: by 2002:a17:90b:1a8f:b0:1e8:7dfe:c4f with SMTP id ng15-20020a17090b1a8f00b001e87dfe0c4fmr13709869pjb.17.1654632664432;
+        Tue, 07 Jun 2022 13:11:04 -0700 (PDT)
+Received: from lrumancik.svl.corp.google.com ([2620:15c:2cd:202:9454:edb9:ddbb:8c27])
+        by smtp.gmail.com with ESMTPSA id bf7-20020a170902b90700b00163c6ac211fsm12921110plb.111.2022.06.07.13.11.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 12:46:06 -0700 (PDT)
-Message-ID: <629faafe.1c69fb81.e9ac3.b552@mx.google.com>
-Date:   Tue, 07 Jun 2022 12:46:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 07 Jun 2022 13:11:03 -0700 (PDT)
+From:   Leah Rumancik <leah.rumancik@gmail.com>
+X-Google-Original-From: Leah Rumancik <lrumancik@google.com>
+To:     stable@vger.kernel.org
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.10] nfsd: Replace use of rwsem with errseq_t
+Date:   Tue,  7 Jun 2022 13:10:36 -0700
+Message-Id: <20220607201036.4018806-1-lrumancik@google.com>
+X-Mailer: git-send-email 2.36.1.255.ge46751e96f-goog
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.45-667-g6f48aa0f6b54d
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 157 runs,
- 2 regressions (v5.15.45-667-g6f48aa0f6b54d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 157 runs, 2 regressions (v5.15.45-667-g6f48a=
-a0f6b54d)
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-Regressions Summary
--------------------
+[ Upstream commit 555dbf1a9aac6d3150c8b52fa35f768a692f4eeb ]
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-jetson-tk1       | arm   | lab-baylibre  | gcc-10   | tegra_defconfig      =
-      | 1          =
+The nfsd_file nf_rwsem is currently being used to separate file write
+and commit instances to ensure that we catch errors and apply them to
+the correct write/commit.
+We can improve scalability at the expense of a little accuracy (some
+extra false positives) by replacing the nf_rwsem with more careful
+use of the errseq_t mechanism to track errors across the different
+operations.
 
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+[Leah: This patch is for 5.10. 5011af4c698a ("nfsd: Fix stable writes")
+introduced a 75% performance regression on parallel random write
+workloads. With this commit, the performance is restored to 90% of what
+it was prior to 5011af4c698a. The changes to the fsync for asynchronous
+copies were not included in this backport version as the fsync was not
+added until 5.14 (eac0b17a77fb).]
 
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+[ cel: rebased on zero-verifier fix ]
+---
+ fs/nfsd/filecache.c |  1 -
+ fs/nfsd/filecache.h |  1 -
+ fs/nfsd/nfs4proc.c  |  7 ++++---
+ fs/nfsd/vfs.c       | 40 +++++++++++++++-------------------------
+ 4 files changed, 19 insertions(+), 30 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.45-667-g6f48aa0f6b54d/plan/baseline/
+diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
+index acd0898e3866..e30e1ddc1ace 100644
+--- a/fs/nfsd/filecache.c
++++ b/fs/nfsd/filecache.c
+@@ -194,7 +194,6 @@ nfsd_file_alloc(struct inode *inode, unsigned int may, unsigned int hashval,
+ 				__set_bit(NFSD_FILE_BREAK_READ, &nf->nf_flags);
+ 		}
+ 		nf->nf_mark = NULL;
+-		init_rwsem(&nf->nf_rwsem);
+ 		trace_nfsd_file_alloc(nf);
+ 	}
+ 	return nf;
+diff --git a/fs/nfsd/filecache.h b/fs/nfsd/filecache.h
+index 7872df5a0fe3..435ceab27897 100644
+--- a/fs/nfsd/filecache.h
++++ b/fs/nfsd/filecache.h
+@@ -46,7 +46,6 @@ struct nfsd_file {
+ 	refcount_t		nf_ref;
+ 	unsigned char		nf_may;
+ 	struct nfsd_file_mark	*nf_mark;
+-	struct rw_semaphore	nf_rwsem;
+ };
+ 
+ int nfsd_file_cache_init(void);
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 7850d141c762..735ee8a79870 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1380,6 +1380,8 @@ static void nfsd4_init_copy_res(struct nfsd4_copy *copy, bool sync)
+ 
+ static ssize_t _nfsd_copy_file_range(struct nfsd4_copy *copy)
+ {
++	struct file *dst = copy->nf_dst->nf_file;
++	struct file *src = copy->nf_src->nf_file;
+ 	ssize_t bytes_copied = 0;
+ 	size_t bytes_total = copy->cp_count;
+ 	u64 src_pos = copy->cp_src_pos;
+@@ -1388,9 +1390,8 @@ static ssize_t _nfsd_copy_file_range(struct nfsd4_copy *copy)
+ 	do {
+ 		if (kthread_should_stop())
+ 			break;
+-		bytes_copied = nfsd_copy_file_range(copy->nf_src->nf_file,
+-				src_pos, copy->nf_dst->nf_file, dst_pos,
+-				bytes_total);
++		bytes_copied = nfsd_copy_file_range(src, src_pos, dst, dst_pos,
++						    bytes_total);
+ 		if (bytes_copied <= 0)
+ 			break;
+ 		bytes_total -= bytes_copied;
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index 011cd570b50d..548ebc913f92 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -535,10 +535,11 @@ __be32 nfsd4_clone_file_range(struct nfsd_file *nf_src, u64 src_pos,
+ {
+ 	struct file *src = nf_src->nf_file;
+ 	struct file *dst = nf_dst->nf_file;
++	errseq_t since;
+ 	loff_t cloned;
+ 	__be32 ret = 0;
+ 
+-	down_write(&nf_dst->nf_rwsem);
++	since = READ_ONCE(dst->f_wb_err);
+ 	cloned = vfs_clone_file_range(src, src_pos, dst, dst_pos, count, 0);
+ 	if (cloned < 0) {
+ 		ret = nfserrno(cloned);
+@@ -552,6 +553,8 @@ __be32 nfsd4_clone_file_range(struct nfsd_file *nf_src, u64 src_pos,
+ 		loff_t dst_end = count ? dst_pos + count - 1 : LLONG_MAX;
+ 		int status = vfs_fsync_range(dst, dst_pos, dst_end, 0);
+ 
++		if (!status)
++			status = filemap_check_wb_err(dst->f_mapping, since);
+ 		if (!status)
+ 			status = commit_inode_metadata(file_inode(src));
+ 		if (status < 0) {
+@@ -561,7 +564,6 @@ __be32 nfsd4_clone_file_range(struct nfsd_file *nf_src, u64 src_pos,
+ 		}
+ 	}
+ out_err:
+-	up_write(&nf_dst->nf_rwsem);
+ 	return ret;
+ }
+ 
+@@ -980,6 +982,7 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
+ 	struct file		*file = nf->nf_file;
+ 	struct svc_export	*exp;
+ 	struct iov_iter		iter;
++	errseq_t		since;
+ 	__be32			nfserr;
+ 	int			host_err;
+ 	int			use_wgather;
+@@ -1009,21 +1012,18 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
+ 		flags |= RWF_SYNC;
+ 
+ 	iov_iter_kvec(&iter, WRITE, vec, vlen, *cnt);
++	since = READ_ONCE(file->f_wb_err);
+ 	if (flags & RWF_SYNC) {
+-		down_write(&nf->nf_rwsem);
+ 		host_err = vfs_iter_write(file, &iter, &pos, flags);
+ 		if (host_err < 0)
+ 			nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+ 						 nfsd_net_id));
+-		up_write(&nf->nf_rwsem);
+ 	} else {
+-		down_read(&nf->nf_rwsem);
+ 		if (verf)
+ 			nfsd_copy_boot_verifier(verf,
+ 					net_generic(SVC_NET(rqstp),
+ 					nfsd_net_id));
+ 		host_err = vfs_iter_write(file, &iter, &pos, flags);
+-		up_read(&nf->nf_rwsem);
+ 	}
+ 	if (host_err < 0) {
+ 		nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+@@ -1033,6 +1033,9 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
+ 	*cnt = host_err;
+ 	nfsdstats.io_write += *cnt;
+ 	fsnotify_modify(file);
++	host_err = filemap_check_wb_err(file->f_mapping, since);
++	if (host_err < 0)
++		goto out_nfserr;
+ 
+ 	if (stable && use_wgather) {
+ 		host_err = wait_for_concurrent_writes(file);
+@@ -1113,19 +1116,6 @@ nfsd_write(struct svc_rqst *rqstp, struct svc_fh *fhp, loff_t offset,
+ }
+ 
+ #ifdef CONFIG_NFSD_V3
+-static int
+-nfsd_filemap_write_and_wait_range(struct nfsd_file *nf, loff_t offset,
+-				  loff_t end)
+-{
+-	struct address_space *mapping = nf->nf_file->f_mapping;
+-	int ret = filemap_fdatawrite_range(mapping, offset, end);
+-
+-	if (ret)
+-		return ret;
+-	filemap_fdatawait_range_keep_errors(mapping, offset, end);
+-	return 0;
+-}
+-
+ /*
+  * Commit all pending writes to stable storage.
+  *
+@@ -1156,25 +1146,25 @@ nfsd_commit(struct svc_rqst *rqstp, struct svc_fh *fhp,
+ 	if (err)
+ 		goto out;
+ 	if (EX_ISSYNC(fhp->fh_export)) {
+-		int err2 = nfsd_filemap_write_and_wait_range(nf, offset, end);
++		errseq_t since = READ_ONCE(nf->nf_file->f_wb_err);
++		int err2;
+ 
+-		down_write(&nf->nf_rwsem);
+-		if (!err2)
+-			err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
++		err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
+ 		switch (err2) {
+ 		case 0:
+ 			nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+ 						nfsd_net_id));
++			err2 = filemap_check_wb_err(nf->nf_file->f_mapping,
++						    since);
+ 			break;
+ 		case -EINVAL:
+ 			err = nfserr_notsupp;
+ 			break;
+ 		default:
+-			err = nfserrno(err2);
+ 			nfsd_reset_boot_verifier(net_generic(nf->nf_net,
+ 						 nfsd_net_id));
+ 		}
+-		up_write(&nf->nf_rwsem);
++		err = nfserrno(err2);
+ 	} else
+ 		nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+ 					nfsd_net_id));
+-- 
+2.36.1.255.ge46751e96f-goog
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.45-667-g6f48aa0f6b54d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6f48aa0f6b54d692e031f829501a69c0ea421fa6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-jetson-tk1       | arm   | lab-baylibre  | gcc-10   | tegra_defconfig      =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629faadc70163cf17aa39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g6f48aa0f6b54d/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g6f48aa0f6b54d/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629faadc70163cf17aa39=
-bce
-        failing since 14 days (last pass: v5.15.40-98-g6e388a6f5046, first =
-fail: v5.15.41-132-gede7034a09d1) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629f7b7bb99f49bf86a39c0e
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g6f48aa0f6b54d/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g6f48aa0f6b54d/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/629f7b7cb99f49bf86a39c30
-        failing since 91 days (last pass: v5.15.26-42-gc89c0807b943, first =
-fail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-06-07T16:23:16.573450  /lava-6564313/1/../bin/lava-test-case
-    2022-06-07T16:23:16.584410  <8>[   33.448116] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
