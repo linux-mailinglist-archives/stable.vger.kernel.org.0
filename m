@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B307541915
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E6F2541211
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351287AbiFGVT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54486 "EHLO
+        id S1356907AbiFGTnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380545AbiFGVQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD38021DA39;
-        Tue,  7 Jun 2022 11:55:25 -0700 (PDT)
+        with ESMTP id S1357808AbiFGTmW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C483415A75A;
+        Tue,  7 Jun 2022 11:16:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41FF861277;
-        Tue,  7 Jun 2022 18:55:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FBDC385A2;
-        Tue,  7 Jun 2022 18:55:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77EF3B81F38;
+        Tue,  7 Jun 2022 18:16:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC505C385A2;
+        Tue,  7 Jun 2022 18:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628124;
-        bh=5ijuIaRbgd+oSgheT9EPvH3wQ/y54m1bFMPcfGh+Pzk=;
+        s=korg; t=1654625780;
+        bh=AdGGf4zFhyOXTVqJk1xXgDVuwRXFdUoO2QbCYMJZo1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zsqatreeRUGkly+ZDvF9xkdAtRxu5QnkYK/yKUHD9C6YTsX8SRwo5c5cd2U6WiSWj
-         hVjZO40ZcVNc+xaWJDgcZ8aEZ7M5DFrJglmRt6StCIVioRzY5sOAYwdHwHd5dfBM6Z
-         Fd7qs+BA7qsKt4Rwg8hJROGW/3U1hf8XdUtT8MIQ=
+        b=C+zByKDcxg/CfAkLf8o9BrT9uC4w3+D+mT3PFaPesGGpMqMP8dabfJn8HZTlgQ0WS
+         IG17z05UTJ0+E2MPvkZbLh+eHyaTSTiNTZmTGmzabaH4qADgGP+em5RSBVtZEEMkJ4
+         Xd0ZQ+UBw/Q8PSFh5xQEQesby/EsXAxU79DPNnjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 215/879] arm64: dts: qcom: msm8994: Fix the cont_splash_mem address
+Subject: [PATCH 5.17 141/772] media: coda: limit frame interval enumeration to supported encoder frame sizes
 Date:   Tue,  7 Jun 2022 18:55:33 +0200
-Message-Id: <20220607165009.094740814@linuxfoundation.org>
+Message-Id: <20220607164953.198393225@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 049c46f31a726bf8d202ff1681661513447fac84 ]
+[ Upstream commit 67e33dd957880879e785cfea83a3aa24bd5c5577 ]
 
-The default memory map places cont_splash_mem at 3401000, which was
-overlooked.. Fix it!
+Let VIDIOC_ENUM_FRAMEINTERVALS return -EINVAL if userspace queries
+frame intervals for frame sizes unsupported by the encoder. Fixes the
+following v4l2-compliance failure:
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220319174645.340379-9-konrad.dybcio@somainline.org
+		fail: v4l2-test-formats.cpp(123): found frame intervals for invalid size 47x16
+		fail: v4l2-test-formats.cpp(282): node->codec_mask & STATEFUL_ENCODER
+	test VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS: FAIL
+
+[hverkuil: drop incorrect 'For decoder devices, return -ENOTTY.' in the commit log]
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8994.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/coda/coda-common.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
-index 8c1dc5155b71..c65618b95ce0 100644
---- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
-@@ -183,8 +183,8 @@
- 			no-map;
- 		};
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index a57822b05070..a2cad1830318 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -1324,7 +1324,8 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
+ 				    struct v4l2_frmivalenum *f)
+ {
+ 	struct coda_ctx *ctx = fh_to_ctx(fh);
+-	int i;
++	struct coda_q_data *q_data;
++	const struct coda_codec *codec;
  
--		cont_splash_mem: memory@3800000 {
--			reg = <0 0x03800000 0 0x2400000>;
-+		cont_splash_mem: memory@3401000 {
-+			reg = <0 0x03401000 0 0x2200000>;
- 			no-map;
- 		};
+ 	if (f->index)
+ 		return -EINVAL;
+@@ -1333,12 +1334,19 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
+ 	if (!ctx->vdoa && f->pixel_format == V4L2_PIX_FMT_YUYV)
+ 		return -EINVAL;
  
+-	for (i = 0; i < CODA_MAX_FORMATS; i++) {
+-		if (f->pixel_format == ctx->cvd->src_formats[i] ||
+-		    f->pixel_format == ctx->cvd->dst_formats[i])
+-			break;
++	if (coda_format_normalize_yuv(f->pixel_format) == V4L2_PIX_FMT_YUV420) {
++		q_data = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
++		codec = coda_find_codec(ctx->dev, f->pixel_format,
++					q_data->fourcc);
++	} else {
++		codec = coda_find_codec(ctx->dev, V4L2_PIX_FMT_YUV420,
++					f->pixel_format);
+ 	}
+-	if (i == CODA_MAX_FORMATS)
++	if (!codec)
++		return -EINVAL;
++
++	if (f->width < MIN_W || f->width > codec->max_w ||
++	    f->height < MIN_H || f->height > codec->max_h)
+ 		return -EINVAL;
+ 
+ 	f->type = V4L2_FRMIVAL_TYPE_CONTINUOUS;
 -- 
 2.35.1
 
