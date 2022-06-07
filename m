@@ -2,102 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6925B540662
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6388E540C57
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245006AbiFGRet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39636 "EHLO
+        id S1352356AbiFGSdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347464AbiFGRap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913231116FD;
-        Tue,  7 Jun 2022 10:26:51 -0700 (PDT)
+        with ESMTP id S1352892AbiFGSbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9906517CC88;
+        Tue,  7 Jun 2022 10:56:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D478613F8;
-        Tue,  7 Jun 2022 17:26:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BABDC385A5;
-        Tue,  7 Jun 2022 17:26:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC961B82239;
+        Tue,  7 Jun 2022 17:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28FAEC341C0;
+        Tue,  7 Jun 2022 17:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622810;
-        bh=Ne7KVx6tMWNa+nAq3BGWlIAOefOfu5GOIIKzDMxoiXE=;
+        s=korg; t=1654624593;
+        bh=DxbXnSW2uog2tx8FmAG553nlM6XAU98zE5wp9CQKcoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K97OtODj6fJlS/p0eaNS3+e2LGycDLVhKV60DbulbA2Qb4ej32FEUxyanBSpHzhkT
-         2VJzGA6GLhApVwrNSLJhdlqc6K7cxK2XzX/8lTiToW/kP/SFT7paslkbf6jEybsYrA
-         D3ngVSN8tIWZVIUqr5HWYniKrdnlwoG1sLBGu6fo=
+        b=gNHdQxec5iHqP6WqF+i+/Y9hmZlAOsnSK7MoZ4ZX1UVRxgGuKBW2voJk9e+kOd55G
+         xui8f/r8lnSvv9BhoHLPOKk3VIKaHZ+pEbVRTL1gAFgKEU5xI0ZIOMhuoT4QwSOsqk
+         45vjVe1QheuvU/n72r+zCxVRaHkIyAv068nz34tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 190/452] regulator: core: Fix enable_count imbalance with EXCLUSIVE_GET
+Subject: [PATCH 5.15 382/667] arm64: dts: mt8192: Fix nor_flash status disable typo
 Date:   Tue,  7 Jun 2022 19:00:47 +0200
-Message-Id: <20220607164914.224384055@linuxfoundation.org>
+Message-Id: <20220607164946.206588572@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
 
-[ Upstream commit c3e3ca05dae37f8f74bb80358efd540911cbc2c8 ]
+[ Upstream commit 27f0eb16b0d417c155e96b5d3b89074699944e09 ]
 
-Since the introduction of regulator->enable_count, a driver that did
-an exclusive get on an already-enabled regulator would end up with
-enable_count initialized to 0 but rdev->use_count initialized to 1.
-With that starting point the regulator is effectively stuck enabled,
-because if the driver attempted to disable it it would fail the
-enable_count underflow check in _regulator_handle_consumer_disable().
+Correct nor_flash status disable typo of mt8192 SoC.
 
-The EXCLUSIVE_GET path in _regulator_get() now initializes
-enable_count along with rdev->use_count so that the regulator can be
-disabled without underflowing the former.
+Fixes: d0a197a0d064a ("arm64: dts: mt8192: add nor_flash device node")
 
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Fixes: 5451781dadf85 ("regulator: core: Only count load for enabled consumers")
-Link: https://lore.kernel.org/r/20220505043152.12933-1-zev@bewilderbeest.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Link: https://lore.kernel.org/r/20220318144534.17996-11-allen-kh.cheng@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8192.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 2c48e55c4104..6e3f3511e7dd 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -2027,10 +2027,13 @@ struct regulator *_regulator_get(struct device *dev, const char *id,
- 		rdev->exclusive = 1;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8192.dtsi b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
+index 9757138a8bbd..cb1e46d2c1ba 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8192.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
+@@ -433,7 +433,7 @@
+ 			clock-names = "spi", "sf", "axi";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-			status = "disable";
++			status = "disabled";
+ 		};
  
- 		ret = _regulator_is_enabled(rdev);
--		if (ret > 0)
-+		if (ret > 0) {
- 			rdev->use_count = 1;
--		else
-+			regulator->enable_count = 1;
-+		} else {
- 			rdev->use_count = 0;
-+			regulator->enable_count = 0;
-+		}
- 	}
- 
- 	link = device_link_add(dev, &rdev->dev, DL_FLAG_STATELESS);
+ 		i2c3: i2c3@11cb0000 {
 -- 
 2.35.1
 
