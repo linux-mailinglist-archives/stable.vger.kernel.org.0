@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D53540FA6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3726D540FB4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350793AbiFGTLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:11:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47124 "EHLO
+        id S1354780AbiFGTLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:11:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354524AbiFGTJQ (ORCPT
+        with ESMTP id S1354865AbiFGTJQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:09:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AB9192C44;
-        Tue,  7 Jun 2022 11:06:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA92E192C4C;
+        Tue,  7 Jun 2022 11:06:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD7546171C;
-        Tue,  7 Jun 2022 18:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB34EC385A5;
-        Tue,  7 Jun 2022 18:06:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64937616B6;
+        Tue,  7 Jun 2022 18:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796F1C385A5;
+        Tue,  7 Jun 2022 18:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625175;
-        bh=fh98o9JfXKscxLcEWhWjcFhLkDzvvPrMBrnCd4wQVg4=;
+        s=korg; t=1654625177;
+        bh=HplrpNmY7M+tguF3+6EkcKSnhuhXimBvQS/rGeEEEww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1bOApV6yAJhYZ/ZvMpnIgXxBSyyJtS+nIlNi9VCBdZKRwSQnEUiRFYEGtzQ7KLSp
-         hUcV6zhI4Kv9+SOwn8Ju3m+C8EAmeCVgJqoTfujVKror+tl8gKHYPieQgTs+PPMuxd
-         iZX4VHsxtnlZwGraW1G/ahjrFurg77Yv2wYgeLHQ=
+        b=rflYA2XxIs8enM9qhFYWGPS5PE2F75FrugtHxcrvehaMPKXC0qzJop7zpTyvMEPlC
+         ci6ZeoodPYJQz0TgGh0bWM6CMze4ExpP6FWmeptbiwxTDTJB0UO2FEkzu86y38RDEb
+         Jgq36MVIKPKJHuVqkbIhmF3ZCYgrbwT/1K9S8gzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.15 592/667] drm/nouveau/kms/nv50-: atom: fix an incorrect NULL check on list iterator
-Date:   Tue,  7 Jun 2022 19:04:17 +0200
-Message-Id: <20220607164952.438669333@linuxfoundation.org>
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.15 593/667] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+Date:   Tue,  7 Jun 2022 19:04:18 +0200
+Message-Id: <20220607164952.467753831@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -53,97 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 6ce4431c7ba7954c4fa6a96ce16ca1b2943e1a83 upstream.
+commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
 
-The bug is here:
-	return encoder;
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-The list iterator value 'encoder' will *always* be set and non-NULL
-by drm_for_each_encoder_mask(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element found.
-Otherwise it will bypass some NULL checks and lead to invalid memory
-access passing the check.
+Let's get a runtime PM reference, and check that we "see" the panel.
+Don't force any panel power-up, etc., because that can be intrusive, and
+that's not what other drivers do (see
+drivers/gpu/drm/bridge/ti-sn65dsi86.c and
+drivers/gpu/drm/bridge/parade-ps8640.c.)
 
-To fix this bug, just return 'encoder' when found, otherwise return
-NULL.
-
-Cc: stable@vger.kernel.org
-Fixes: 12885ecbfe62d ("drm/nouveau/kms/nvd9-: Add CRC support")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-[Changed commit title]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327073925.11121-1-xiam0nd.tong@gmail.com
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/atom.h |    6 +++---
- drivers/gpu/drm/nouveau/dispnv50/crc.c  |   27 ++++++++++++++++++++++-----
- 2 files changed, 25 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/nouveau/dispnv50/atom.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/atom.h
-@@ -160,14 +160,14 @@ nv50_head_atom_get(struct drm_atomic_sta
- static inline struct drm_encoder *
- nv50_head_atom_get_encoder(struct nv50_head_atom *atom)
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1632,8 +1632,19 @@ static ssize_t analogix_dpaux_transfer(s
+ 				       struct drm_dp_aux_msg *msg)
  {
--	struct drm_encoder *encoder = NULL;
-+	struct drm_encoder *encoder;
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret;
  
- 	/* We only ever have a single encoder */
- 	drm_for_each_encoder_mask(encoder, atom->state.crtc->dev,
- 				  atom->state.encoder_mask)
--		break;
-+		return encoder;
- 
--	return encoder;
-+	return NULL;
+-	return analogix_dp_transfer(dp, msg);
++	pm_runtime_get_sync(dp->dev);
++
++	ret = analogix_dp_detect_hpd(dp);
++	if (ret)
++		goto out;
++
++	ret = analogix_dp_transfer(dp, msg);
++out:
++	pm_runtime_put(dp->dev);
++
++	return ret;
  }
  
- #define nv50_wndw_atom(p) container_of((p), struct nv50_wndw_atom, state)
---- a/drivers/gpu/drm/nouveau/dispnv50/crc.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/crc.c
-@@ -411,9 +411,18 @@ void nv50_crc_atomic_check_outp(struct n
- 		struct nv50_head_atom *armh = nv50_head_atom(old_crtc_state);
- 		struct nv50_head_atom *asyh = nv50_head_atom(new_crtc_state);
- 		struct nv50_outp_atom *outp_atom;
--		struct nouveau_encoder *outp =
--			nv50_real_outp(nv50_head_atom_get_encoder(armh));
--		struct drm_encoder *encoder = &outp->base.base;
-+		struct nouveau_encoder *outp;
-+		struct drm_encoder *encoder, *enc;
-+
-+		enc = nv50_head_atom_get_encoder(armh);
-+		if (!enc)
-+			continue;
-+
-+		outp = nv50_real_outp(enc);
-+		if (!outp)
-+			continue;
-+
-+		encoder = &outp->base.base;
- 
- 		if (!asyh->clr.crc)
- 			continue;
-@@ -464,8 +473,16 @@ void nv50_crc_atomic_set(struct nv50_hea
- 	struct drm_device *dev = crtc->dev;
- 	struct nv50_crc *crc = &head->crc;
- 	const struct nv50_crc_func *func = nv50_disp(dev)->core->func->crc;
--	struct nouveau_encoder *outp =
--		nv50_real_outp(nv50_head_atom_get_encoder(asyh));
-+	struct nouveau_encoder *outp;
-+	struct drm_encoder *encoder;
-+
-+	encoder = nv50_head_atom_get_encoder(asyh);
-+	if (!encoder)
-+		return;
-+
-+	outp = nv50_real_outp(encoder);
-+	if (!outp)
-+		return;
- 
- 	func->set_src(head, outp->or,
- 		      nv50_crc_source_type(outp, asyh->crc.src),
+ struct analogix_dp_device *
 
 
