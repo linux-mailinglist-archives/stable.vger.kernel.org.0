@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E257E5418F1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1FF5408F1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359819AbiFGVSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S1347903AbiFGSEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380734AbiFGVQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9894F21F9E5;
-        Tue,  7 Jun 2022 11:56:51 -0700 (PDT)
+        with ESMTP id S1351647AbiFGSCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522CF158744;
+        Tue,  7 Jun 2022 10:45:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A996159D;
-        Tue,  7 Jun 2022 18:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CBFFC385A2;
-        Tue,  7 Jun 2022 18:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02D26B822B8;
+        Tue,  7 Jun 2022 17:45:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D203C385A5;
+        Tue,  7 Jun 2022 17:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628210;
-        bh=SIzEPNmhi3uXel6os5Hdua5jcjP8PY79NTHws9hQrjE=;
+        s=korg; t=1654623901;
+        bh=mY7KrG6r191VUiGCfk7TkE+/2zhyGYPgoN5cuvSvJXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqk1TUdoZ7J+8mXE4el3hPxTlf2y+vSj1UquQxHEsnFfEH3yEfixmx3LtnOGCP4zX
-         1lEhvILx4dDvjCZY/eBbHpzi60bpEGeof6h4bZTc0Dxg3dfofwP9T+ElinPvtxtpEx
-         Y7R+vB2nVVWu+vovtimifZc9gLs+oNWkhgPw2yEw=
+        b=bmijJJpkF3f7yb/PA/rKSgmJWath5yyQnGAq/f04SavHzzD4m+SZaqVuAepkasont
+         tL5uULHITKxK+jtOk80Z23rgD23/QuDyvtbI4VSCja7eiOz4S6MJKSwFuce7zCTqhh
+         uuMt1prlI73gp7Ih5HIAhAXMXLjt7ROxKB+YZ96w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, jianghaoran <jianghaoran@kylinos.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 239/879] KVM: PPC: Book3S HV Nested: L2 LPCR should inherit L1 LPES setting
+Subject: [PATCH 5.15 092/667] ipv6: Dont send rs packets to the interface of ARPHRD_TUNNEL
 Date:   Tue,  7 Jun 2022 18:55:57 +0200
-Message-Id: <20220607165009.790152442@linuxfoundation.org>
+Message-Id: <20220607164937.579629019@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: jianghaoran <jianghaoran@kylinos.cn>
 
-[ Upstream commit 2852ebfa10afdcefff35ec72c8da97141df9845c ]
+[ Upstream commit b52e1cce31ca721e937d517411179f9196ee6135 ]
 
-The L1 should not be able to adjust LPES mode for the L2. Setting LPES
-if the L0 needs it clear would cause external interrupts to be sent to
-L2 and missed by the L0.
+ARPHRD_TUNNEL interface can't process rs packets
+and will generate TX errors
 
-Clearing LPES when it may be set, as typically happens with XIVE enabled
-could cause a performance issue despite having no native XIVE support in
-the guest, because it will cause mediated interrupts for the L2 to be
-taken in HV mode, which then have to be injected.
+ex:
+ip tunnel add ethn mode ipip local 192.168.1.1 remote 192.168.1.2
+ifconfig ethn x.x.x.x
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220303053315.1056880-7-npiggin@gmail.com
+ethn: flags=209<UP,POINTOPOINT,RUNNING,NOARP>  mtu 1480
+	inet x.x.x.x  netmask 255.255.255.255  destination x.x.x.x
+	inet6 fe80::5efe:ac1e:3cdb  prefixlen 64  scopeid 0x20<link>
+	tunnel   txqueuelen 1000  (IPIP Tunnel)
+	RX packets 0  bytes 0 (0.0 B)
+	RX errors 0  dropped 0  overruns 0  frame 0
+	TX packets 0  bytes 0 (0.0 B)
+	TX errors 3  dropped 0 overruns 0  carrier 0  collisions 0
+
+Signed-off-by: jianghaoran <jianghaoran@kylinos.cn>
+Link: https://lore.kernel.org/r/20220429053802.246681-1-jianghaoran@kylinos.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c        | 4 ++++
- arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ net/ipv6/addrconf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 6fa518f6501d..43af871383c2 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -5283,6 +5283,10 @@ static int kvmppc_core_init_vm_hv(struct kvm *kvm)
- 		kvm->arch.host_lpcr = lpcr = mfspr(SPRN_LPCR);
- 		lpcr &= LPCR_PECE | LPCR_LPES;
- 	} else {
-+		/*
-+		 * The L2 LPES mode will be set by the L0 according to whether
-+		 * or not it needs to take external interrupts in HV mode.
-+		 */
- 		lpcr = 0;
- 	}
- 	lpcr |= (4UL << LPCR_DPFD_SH) | LPCR_HDICE |
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index c943a051c6e7..265bb30a0af2 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -261,8 +261,7 @@ static void load_l2_hv_regs(struct kvm_vcpu *vcpu,
- 	/*
- 	 * Don't let L1 change LPCR bits for the L2 except these:
- 	 */
--	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD |
--		LPCR_LPES | LPCR_MER;
-+	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD | LPCR_MER;
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 1ba5ff21412c..07b868c002a3 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -4219,7 +4219,8 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
+ 	send_rs = send_mld &&
+ 		  ipv6_accept_ra(ifp->idev) &&
+ 		  ifp->idev->cnf.rtr_solicits != 0 &&
+-		  (dev->flags&IFF_LOOPBACK) == 0;
++		  (dev->flags & IFF_LOOPBACK) == 0 &&
++		  (dev->type != ARPHRD_TUNNEL);
+ 	read_unlock_bh(&ifp->idev->lock);
  
- 	/*
- 	 * Additional filtering is required depending on hardware
+ 	/* While dad is in progress mld report's source address is in6_addrany.
 -- 
 2.35.1
 
