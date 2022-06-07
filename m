@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D2954054A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287FF541B2F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346082AbiFGRYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:24:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45946 "EHLO
+        id S1378746AbiFGVmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346272AbiFGRXk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:23:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759991091A5;
-        Tue,  7 Jun 2022 10:21:38 -0700 (PDT)
+        with ESMTP id S1381319AbiFGVk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51AD18FA73;
+        Tue,  7 Jun 2022 12:06:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0513560906;
-        Tue,  7 Jun 2022 17:21:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B7ABC385A5;
-        Tue,  7 Jun 2022 17:21:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F37BB81F6D;
+        Tue,  7 Jun 2022 19:06:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA1FDC385A2;
+        Tue,  7 Jun 2022 19:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622497;
-        bh=WWXwnluIknTI8FY8VAf+fD5iMRaR7CaezF5xqnWvTIU=;
+        s=korg; t=1654628802;
+        bh=Wv8LqfiVahQyHFgoG9Vecq8fraqBk8Ym4cTjhUqnw5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9Y24Keq46y2gDIUz74bAhAFHxUYMNaIEZ8bGK/t9BA2Mrwt9QqNPxAagqbuGKBYH
-         aoqfIhb0ULHWRCH1n3DyCZYYtFW8zbxVQ6QTwDVV6iR/ziMUh8hfd+sT4wQ/CiEhhW
-         93U2Ga2oya4e1cJqnA2ERvMefVAU2PjvF34adNlU=
+        b=dJohvddY23ijjM2B7zc/9kZ4T5kP89JzAKdoTFifnd08YIFcgnvclVAYcD1chCSsj
+         YxlXtxrJZw2Bh4HAOP6k+4aJUtXrNDhI9JBGt6N9LvyuIEDPAP4FEiRM3jUZUwT04y
+         ZUXtGpBU1L/Oy+eir8z10iyyEXXIN27aeYdBVXD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>, Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/452] openrisc: start CPU timer early in boot
+Subject: [PATCH 5.18 420/879] regulator: pfuze100: Fix refcount leak in pfuze_parse_regulators_dt
 Date:   Tue,  7 Jun 2022 18:58:58 +0200
-Message-Id: <20220607164910.966827865@linuxfoundation.org>
+Message-Id: <20220607165015.054490266@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,60 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 516dd4aacd67a0f27da94f3fe63fe0f4dbab6e2b ]
+[ Upstream commit afaa7b933ef00a2d3262f4d1252087613fb5c06d ]
 
-In order to measure the boot process, the timer should be switched on as
-early in boot as possible. As well, the commit defines the get_cycles
-macro, like the previous patches in this series, so that generic code is
-aware that it's implemented by the platform, as is done on other archs.
+of_node_get() returns a node with refcount incremented.
+Calling of_node_put() to drop the reference when not needed anymore.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Acked-by: Stafford Horne <shorne@gmail.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 3784b6d64dc5 ("regulator: pfuze100: add pfuze100 regulator driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220511113506.45185-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/include/asm/timex.h | 1 +
- arch/openrisc/kernel/head.S       | 9 +++++++++
- 2 files changed, 10 insertions(+)
+ drivers/regulator/pfuze100-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
-index d52b4e536e3f..5487fa93dd9b 100644
---- a/arch/openrisc/include/asm/timex.h
-+++ b/arch/openrisc/include/asm/timex.h
-@@ -23,6 +23,7 @@ static inline cycles_t get_cycles(void)
- {
- 	return mfspr(SPR_TTCR);
- }
-+#define get_cycles get_cycles
+diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
+index d60d7d1b7fa2..aa55cfca9e40 100644
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -521,6 +521,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
+ 	parent = of_get_child_by_name(np, "regulators");
+ 	if (!parent) {
+ 		dev_err(dev, "regulators node not found\n");
++		of_node_put(np);
+ 		return -EINVAL;
+ 	}
  
- /* This isn't really used any more */
- #define CLOCK_TICK_RATE 1000
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index af355e3f4619..459b0a1e4eb2 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -521,6 +521,15 @@ _start:
- 	l.ori	r3,r0,0x1
- 	l.mtspr	r0,r3,SPR_SR
+@@ -550,6 +551,7 @@ static int pfuze_parse_regulators_dt(struct pfuze_chip *chip)
+ 	}
  
-+	/*
-+	 * Start the TTCR as early as possible, so that the RNG can make use of
-+	 * measurements of boot time from the earliest opportunity. Especially
-+	 * important is that the TTCR does not return zero by the time we reach
-+	 * rand_initialize().
-+	 */
-+	l.movhi r3,hi(SPR_TTMR_CR)
-+	l.mtspr r0,r3,SPR_TTMR
-+
- 	CLEAR_GPR(r1)
- 	CLEAR_GPR(r2)
- 	CLEAR_GPR(r3)
+ 	of_node_put(parent);
++	of_node_put(np);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Error parsing regulator init data: %d\n",
+ 			ret);
 -- 
 2.35.1
 
