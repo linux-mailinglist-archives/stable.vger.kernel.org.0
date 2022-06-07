@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ABBC54102D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E61541DFF
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355036AbiFGTTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:19:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
+        id S1380305AbiFGWXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:23:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356063AbiFGTRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:17:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 110212B19B;
-        Tue,  7 Jun 2022 11:08:06 -0700 (PDT)
+        with ESMTP id S1385325AbiFGWVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42BDF198C3A;
+        Tue,  7 Jun 2022 12:21:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F4160CE240B;
-        Tue,  7 Jun 2022 18:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF64C385A5;
-        Tue,  7 Jun 2022 18:08:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3149560907;
+        Tue,  7 Jun 2022 19:21:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388E5C385A2;
+        Tue,  7 Jun 2022 19:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625283;
-        bh=wEN67JUF7h90gFRJYEPgOYbXPQQrDcNRic4aTK3LJmM=;
+        s=korg; t=1654629677;
+        bh=6nJBrccheWnM5ciNkIqxjkMTEOgsOFsh5eV64RSSDek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muGAnfOqPhCVNMAZ1Utg+JK0a4sr/V6sohjV3AuA9GMnSomeDGYGnRuisuLmo166o
-         +QTlYicamGN0Jc4oy73E/PKEgYaOw0piE+ZFtQxV90NnPGV739TB9RMFENnFbOgbmn
-         UwkITDlc1WOIQshHdnA6VSWyJ9ojIhgiHrJKcf3g=
+        b=Ypo5Gs60rXULp5hF++7wXm1bW0udu2pswI9GWPBT1Xl56eMlDd1/qHHJCuiBweP6L
+         TzeGWhe0OsPZU2nDofLvu980EyTcsTKCnKB0bR9kAwQnIL4EJpuYYe1oteDWm6bqT2
+         puXzetsLm44RFMvdiFw7UeKMWNSgco9d3bOKe4u4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 631/667] bcache: remove incremental dirty sector counting for bch_sectors_dirty_init()
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.18 778/879] selftests/landlock: Make tests build with old libc
 Date:   Tue,  7 Jun 2022 19:04:56 +0200
-Message-Id: <20220607164953.591587744@linuxfoundation.org>
+Message-Id: <20220607165025.453332382@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,138 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 80db4e4707e78cb22287da7d058d7274bd4cb370 upstream.
+commit 87129ef13603ae46c82bcd09eed948acf0506dbb upstream.
 
-After making bch_sectors_dirty_init() being multithreaded, the existing
-incremental dirty sector counting in bch_root_node_dirty_init() doesn't
-release btree occupation after iterating 500000 (INIT_KEYS_EACH_TIME)
-bkeys. Because a read lock is added on btree root node to prevent the
-btree to be split during the dirty sectors counting, other I/O requester
-has no chance to gain the write lock even restart bcache_btree().
+Replace SYS_<syscall> with __NR_<syscall>.  Using the __NR_<syscall>
+notation, provided by UAPI, is useful to build tests on systems without
+the SYS_<syscall> definitions.
 
-That is to say, the incremental dirty sectors counting is incompatible
-to the multhreaded bch_sectors_dirty_init(). We have to choose one and
-drop another one.
+Replace SYS_pivot_root with __NR_pivot_root, and SYS_move_mount with
+__NR_move_mount.
 
-In my testing, with 512 bytes random writes, I generate 1.2T dirty data
-and a btree with 400K nodes. With single thread and incremental dirty
-sectors counting, it takes 30+ minites to register the backing device.
-And with multithreaded dirty sectors counting, the backing device
-registration can be accomplished within 2 minutes.
+Define renameat2() and RENAME_EXCHANGE if they are unknown to old build
+systems.
 
-The 30+ minutes V.S. 2- minutes difference makes me decide to keep
-multithreaded bch_sectors_dirty_init() and drop the incremental dirty
-sectors counting. This is what this patch does.
-
-But INIT_KEYS_EACH_TIME is kept, in sectors_dirty_init_fn() the CPU
-will be released by cond_resched() after every INIT_KEYS_EACH_TIME keys
-iterated. This is to avoid the watchdog reports a bogus soft lockup
-warning.
-
-Fixes: b144e45fc576 ("bcache: make bch_sectors_dirty_init() to be multithreaded")
-Signed-off-by: Coly Li <colyli@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-3-mic@digikod.net
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220524102336.10684-4-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/writeback.c |   39 ++++++++++++---------------------------
- 1 file changed, 12 insertions(+), 27 deletions(-)
+ tools/testing/selftests/landlock/fs_test.c |   23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -802,13 +802,11 @@ static int bch_writeback_thread(void *ar
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -22,6 +22,19 @@
  
- /* Init */
- #define INIT_KEYS_EACH_TIME	500000
--#define INIT_KEYS_SLEEP_MS	100
+ #include "common.h"
  
- struct sectors_dirty_init {
- 	struct btree_op	op;
- 	unsigned int	inode;
- 	size_t		count;
--	struct bkey	start;
- };
- 
- static int sectors_dirty_init_fn(struct btree_op *_op, struct btree *b,
-@@ -824,11 +822,8 @@ static int sectors_dirty_init_fn(struct
- 					     KEY_START(k), KEY_SIZE(k));
- 
- 	op->count++;
--	if (atomic_read(&b->c->search_inflight) &&
--	    !(op->count % INIT_KEYS_EACH_TIME)) {
--		bkey_copy_key(&op->start, k);
--		return -EAGAIN;
--	}
-+	if (!(op->count % INIT_KEYS_EACH_TIME))
-+		cond_resched();
- 
- 	return MAP_CONTINUE;
- }
-@@ -843,24 +838,16 @@ static int bch_root_node_dirty_init(stru
- 	bch_btree_op_init(&op.op, -1);
- 	op.inode = d->id;
- 	op.count = 0;
--	op.start = KEY(op.inode, 0, 0);
- 
--	do {
--		ret = bcache_btree(map_keys_recurse,
--				   k,
--				   c->root,
--				   &op.op,
--				   &op.start,
--				   sectors_dirty_init_fn,
--				   0);
--		if (ret == -EAGAIN)
--			schedule_timeout_interruptible(
--				msecs_to_jiffies(INIT_KEYS_SLEEP_MS));
--		else if (ret < 0) {
--			pr_warn("sectors dirty init failed, ret=%d!\n", ret);
--			break;
--		}
--	} while (ret == -EAGAIN);
-+	ret = bcache_btree(map_keys_recurse,
-+			   k,
-+			   c->root,
-+			   &op.op,
-+			   &KEY(op.inode, 0, 0),
-+			   sectors_dirty_init_fn,
-+			   0);
-+	if (ret < 0)
-+		pr_warn("sectors dirty init failed, ret=%d!\n", ret);
- 
- 	return ret;
- }
-@@ -904,7 +891,6 @@ static int bch_dirty_init_thread(void *a
- 				goto out;
- 			}
- 			skip_nr--;
--			cond_resched();
- 		}
- 
- 		if (p) {
-@@ -914,7 +900,6 @@ static int bch_dirty_init_thread(void *a
- 
- 		p = NULL;
- 		prev_idx = cur_idx;
--		cond_resched();
- 	}
- 
- out:
-@@ -953,11 +938,11 @@ void bch_sectors_dirty_init(struct bcach
- 		bch_btree_op_init(&op.op, -1);
- 		op.inode = d->id;
- 		op.count = 0;
--		op.start = KEY(op.inode, 0, 0);
- 
- 		for_each_key_filter(&c->root->keys,
- 				    k, &iter, bch_ptr_invalid)
- 			sectors_dirty_init_fn(&op.op, c->root, k);
++#ifndef renameat2
++int renameat2(int olddirfd, const char *oldpath, int newdirfd,
++	      const char *newpath, unsigned int flags)
++{
++	return syscall(__NR_renameat2, olddirfd, oldpath, newdirfd, newpath,
++		       flags);
++}
++#endif
 +
- 		rw_unlock(0, c->root);
- 		return;
++#ifndef RENAME_EXCHANGE
++#define RENAME_EXCHANGE (1 << 1)
++#endif
++
+ #define TMP_DIR "tmp"
+ #define BINARY_PATH "./true"
+ 
+@@ -1279,7 +1292,7 @@ TEST_F_FORK(layout1, rule_inside_mount_n
+ 	int ruleset_fd;
+ 
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+-	ASSERT_EQ(0, syscall(SYS_pivot_root, dir_s3d2, dir_s3d3))
++	ASSERT_EQ(0, syscall(__NR_pivot_root, dir_s3d2, dir_s3d3))
+ 	{
+ 		TH_LOG("Failed to pivot root: %s", strerror(errno));
+ 	};
+@@ -1313,7 +1326,7 @@ TEST_F_FORK(layout1, mount_and_pivot)
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+ 	ASSERT_EQ(-1, mount(NULL, dir_s3d2, NULL, MS_RDONLY, NULL));
+ 	ASSERT_EQ(EPERM, errno);
+-	ASSERT_EQ(-1, syscall(SYS_pivot_root, dir_s3d2, dir_s3d3));
++	ASSERT_EQ(-1, syscall(__NR_pivot_root, dir_s3d2, dir_s3d3));
+ 	ASSERT_EQ(EPERM, errno);
+ 	clear_cap(_metadata, CAP_SYS_ADMIN);
+ }
+@@ -1332,13 +1345,13 @@ TEST_F_FORK(layout1, move_mount)
+ 	ASSERT_LE(0, ruleset_fd);
+ 
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+-	ASSERT_EQ(0, syscall(SYS_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
++	ASSERT_EQ(0, syscall(__NR_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
+ 			     dir_s1d2, 0))
+ 	{
+ 		TH_LOG("Failed to move mount: %s", strerror(errno));
  	}
+ 
+-	ASSERT_EQ(0, syscall(SYS_move_mount, AT_FDCWD, dir_s1d2, AT_FDCWD,
++	ASSERT_EQ(0, syscall(__NR_move_mount, AT_FDCWD, dir_s1d2, AT_FDCWD,
+ 			     dir_s3d2, 0));
+ 	clear_cap(_metadata, CAP_SYS_ADMIN);
+ 
+@@ -1346,7 +1359,7 @@ TEST_F_FORK(layout1, move_mount)
+ 	ASSERT_EQ(0, close(ruleset_fd));
+ 
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+-	ASSERT_EQ(-1, syscall(SYS_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
++	ASSERT_EQ(-1, syscall(__NR_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
+ 			      dir_s1d2, 0));
+ 	ASSERT_EQ(EPERM, errno);
+ 	clear_cap(_metadata, CAP_SYS_ADMIN);
 
 
