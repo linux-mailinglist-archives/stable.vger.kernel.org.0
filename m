@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F535404E5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9926541A07
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243766AbiFGRTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:19:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41130 "EHLO
+        id S1379085AbiFGV1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345785AbiFGRTS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7381053F0;
-        Tue,  7 Jun 2022 10:19:17 -0700 (PDT)
+        with ESMTP id S1379070AbiFGVZL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CF9227CFB;
+        Tue,  7 Jun 2022 12:01:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37434B822B2;
-        Tue,  7 Jun 2022 17:19:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 882B5C36B03;
-        Tue,  7 Jun 2022 17:19:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F41617CC;
+        Tue,  7 Jun 2022 19:01:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA949C385A2;
+        Tue,  7 Jun 2022 19:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622354;
-        bh=u5A224ITF7Jbd92lBShOSFEqPcfNp0/n/3/NNPqjs1g=;
+        s=korg; t=1654628487;
+        bh=+tuo2CRgp+QVPGwPvewXtMmsI8rHSTGcq5AMWNkynzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJ4PYiy7FKBwvBglogJ0to5XGvZgrbI2KpKfpupBFQ6Yhr/qK+FxePfRD/4aFYWGJ
-         PHObj0WCvxFtvuQzPRluYy4KIN6XOOY7CqUHR5pF/deaIVv0zyID3T+fNG85WrVyXs
-         VmIy7Ths7qQ/oViWAWSWCsdJXE64C4Nj0bxTprf4=
+        b=S87ANvnJpIDEvhi0sPwEubYmdvViMZAFnYhYhhGIqKpLelV1E+ZvgjJiDhSAOJU8j
+         gUKcftrNsp1MimqcaUa6TSnk+MzuwTu4AtoO0d2JoesAnR0POtiJyoFOwoiQuiL55U
+         lGtVdlrY0Ng2ZtdQ0gA3P6kKm2b19r2kQsPklBd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6912c9592caca7ca0e7d@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 008/452] ALSA: usb-audio: Cancel pending work at closing a MIDI substream
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 347/879] mtdblock: warn if opened on NAND
 Date:   Tue,  7 Jun 2022 18:57:45 +0200
-Message-Id: <20220607164908.782783180@linuxfoundation.org>
+Message-Id: <20220607165012.932889479@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bjørn Mork <bjorn@mork.no>
 
-commit 0125de38122f0f66bf61336158d12a1aabfe6425 upstream.
+[ Upstream commit 96a3295c351da82d7af99b2fc004a3cf9f4716a9 ]
 
-At closing a USB MIDI output substream, there might be still a pending
-work, which would eventually access the rawmidi runtime object that is
-being released.  For fixing the race, make sure to cancel the pending
-work at closing.
+Warning on every translated mtd partition results in excessive log noise
+if this driver is loaded:
 
-Reported-by: syzbot+6912c9592caca7ca0e7d@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/000000000000e7e75005dfd07cf6@google.com
-Link: https://lore.kernel.org/r/20220525131203.11299-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  nand: device found, Manufacturer ID: 0xc2, Chip ID: 0xf1
+  nand: Macronix MX30LF1G18AC
+  nand: 128 MiB, SLC, erase size: 128 KiB, page size: 2048, OOB size: 64
+  mt7621-nand 1e003000.nand: ECC strength adjusted to 4 bits
+  read_bbt: found bbt at block 1023
+  10 fixed-partitions partitions found on MTD device mt7621-nand
+  Creating 10 MTD partitions on "mt7621-nand":
+  0x000000000000-0x000000080000 : "Bootloader"
+  mtdblock: MTD device 'Bootloader' is NAND, please consider using UBI block devices instead.
+  0x000000080000-0x000000100000 : "Config"
+  mtdblock: MTD device 'Config' is NAND, please consider using UBI block devices instead.
+  0x000000100000-0x000000140000 : "Factory"
+  mtdblock: MTD device 'Factory' is NAND, please consider using UBI block devices instead.
+  0x000000140000-0x000002000000 : "Kernel"
+  mtdblock: MTD device 'Kernel' is NAND, please consider using UBI block devices instead.
+  0x000000540000-0x000002000000 : "ubi"
+  mtdblock: MTD device 'ubi' is NAND, please consider using UBI block devices instead.
+  0x000002140000-0x000004000000 : "Kernel2"
+  mtdblock: MTD device 'Kernel2' is NAND, please consider using UBI block devices instead.
+  0x000004000000-0x000004100000 : "wwan"
+  mtdblock: MTD device 'wwan' is NAND, please consider using UBI block devices instead.
+  0x000004100000-0x000005100000 : "data"
+  mtdblock: MTD device 'data' is NAND, please consider using UBI block devices instead.
+  0x000005100000-0x000005200000 : "rom-d"
+  mtdblock: MTD device 'rom-d' is NAND, please consider using UBI block devices instead.
+  0x000005200000-0x000005280000 : "reserve"
+  mtdblock: MTD device 'reserve' is NAND, please consider using UBI block devices instead.
+  mtk_soc_eth 1e100000.ethernet eth0: mediatek frame engine at 0xbe100000, irq 21
+
+This is more likely to annoy than to help users of embedded distros where
+this driver is enabled by default.  Making the blockdevs available does
+not imply that they are in use, and warning about bootloader partitions
+or other devices which obviously never will be mounted is more confusing
+than helpful.
+
+Move the warning to open(), where it will be of more use - actually warning
+anyone who mounts a file system on NAND using mtdblock.
+
+Fixes: e07403a8c6be ("mtdblock: Warn if added for a NAND device")
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220328161108.87757-1-bjorn@mork.no
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/midi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/mtdblock.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1161,6 +1161,9 @@ static int snd_usbmidi_output_open(struc
+diff --git a/drivers/mtd/mtdblock.c b/drivers/mtd/mtdblock.c
+index 03e3de3a5d79..1e94e7d10b8b 100644
+--- a/drivers/mtd/mtdblock.c
++++ b/drivers/mtd/mtdblock.c
+@@ -257,6 +257,10 @@ static int mtdblock_open(struct mtd_blktrans_dev *mbd)
+ 		return 0;
+ 	}
  
- static int snd_usbmidi_output_close(struct snd_rawmidi_substream *substream)
- {
-+	struct usbmidi_out_port *port = substream->runtime->private_data;
++	if (mtd_type_is_nand(mbd->mtd))
++		pr_warn("%s: MTD device '%s' is NAND, please consider using UBI block devices instead.\n",
++			mbd->tr->name, mbd->mtd->name);
 +
-+	cancel_work_sync(&port->ep->work);
- 	return substream_open(substream, 0, 0);
- }
+ 	/* OK, it's not open. Create cache info for it */
+ 	mtdblk->count = 1;
+ 	mutex_init(&mtdblk->cache_mutex);
+@@ -322,10 +326,6 @@ static void mtdblock_add_mtd(struct mtd_blktrans_ops *tr, struct mtd_info *mtd)
+ 	if (!(mtd->flags & MTD_WRITEABLE))
+ 		dev->mbd.readonly = 1;
  
+-	if (mtd_type_is_nand(mtd))
+-		pr_warn("%s: MTD device '%s' is NAND, please consider using UBI block devices instead.\n",
+-			tr->name, mtd->name);
+-
+ 	if (add_mtd_blktrans_dev(&dev->mbd))
+ 		kfree(dev);
+ }
+-- 
+2.35.1
+
 
 
