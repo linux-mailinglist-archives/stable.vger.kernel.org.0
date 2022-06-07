@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 356A554105A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7DA541691
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242324AbiFGTXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:23:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37518 "EHLO
+        id S1376946AbiFGUx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352722AbiFGTVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:21:40 -0400
+        with ESMTP id S1378817AbiFGUwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B0219C3A0;
-        Tue,  7 Jun 2022 11:08:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EDBD1057B;
+        Tue,  7 Jun 2022 11:43:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA9E6192C;
-        Tue,  7 Jun 2022 18:08:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4DBBC385A5;
-        Tue,  7 Jun 2022 18:08:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDCDD6169F;
+        Tue,  7 Jun 2022 18:43:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF70C385A2;
+        Tue,  7 Jun 2022 18:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625333;
-        bh=WGSj4W086o1+ZNgctrT1C4iZahxev2p7Ktexo1KmK6E=;
+        s=korg; t=1654627389;
+        bh=p6AyCMNuodEwCOkW6r5sEFSQXrSzPjcthGFZPDEb/Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2ejnFWiGc/lZj7I+wwduRrRQ5K9q/WLalWGOYcYo88Sjn29AsPYKrDWe8zz8fu11
-         YBLPkgXL7poqjQwWD2N//3aQ6oOvnoZjF0rCmTMFceLiKi81p83qSObKjQGCycZxEm
-         GfonKigRp+zX24mfLrVJyEfputElLa1NB6RQHqws=
+        b=I/4IzPnM6QEd5U6THkPyc7/RE/G9iXLH1rbx/pmOunImiLe2aD5yQOoJtAIdqDe5L
+         lpEYh7/CedW5NUIG+pehfXqQDjRZypIO42lIUaqG5MXFJMiMMPHdmrNR0Z/fAirkPL
+         U5frNQ1mRnXcBwi56x+hr4k3h1y5DCHIpWQejeho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 648/667] phy: qcom-qmp: fix reset-controller leak on probe errors
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.17 721/772] iommu/msm: Fix an incorrect NULL check on list iterator
 Date:   Tue,  7 Jun 2022 19:05:13 +0200
-Message-Id: <20220607164954.088152006@linuxfoundation.org>
+Message-Id: <20220607165010.287116485@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 4d2900f20edfe541f75756a00deeb2ffe7c66bc1 upstream.
+commit 8b9ad480bd1dd25f4ff4854af5685fa334a2f57a upstream.
 
-Make sure to release the lane reset controller in case of a late probe
-error (e.g. probe deferral).
+The bug is here:
+	if (!iommu || iommu->dev->of_node != spec->np) {
 
-Note that due to the reset controller being defined in devicetree in
-"lane" child nodes, devm_reset_control_get_exclusive() cannot be used
-directly.
+The list iterator value 'iommu' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found (in fact,
+it will point to a invalid structure object containing HEAD).
 
-Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220427063243.32576-3-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+To fix the bug, use a new value 'iter' as the list iterator, while use
+the old value 'iommu' as a dedicated variable to point to the found one,
+and remove the unneeded check for 'iommu->dev->of_node != spec->np'
+outside the loop.
+
+Cc: stable@vger.kernel.org
+Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220501132823.12714-1-xiam0nd.tong@gmail.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iommu/msm_iommu.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -5382,6 +5382,11 @@ static const struct phy_ops qcom_qmp_pci
- 	.owner		= THIS_MODULE,
- };
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -615,16 +615,19 @@ static void insert_iommu_master(struct d
+ static int qcom_iommu_of_xlate(struct device *dev,
+ 			       struct of_phandle_args *spec)
+ {
+-	struct msm_iommu_dev *iommu;
++	struct msm_iommu_dev *iommu = NULL, *iter;
+ 	unsigned long flags;
+ 	int ret = 0;
  
-+static void qcom_qmp_reset_control_put(void *data)
-+{
-+	reset_control_put(data);
-+}
-+
- static
- int qcom_qmp_phy_create(struct device *dev, struct device_node *np, int id,
- 			void __iomem *serdes, const struct qmp_phy_cfg *cfg)
-@@ -5476,6 +5481,10 @@ int qcom_qmp_phy_create(struct device *d
- 			dev_err(dev, "failed to get lane%d reset\n", id);
- 			return PTR_ERR(qphy->lane_rst);
- 		}
-+		ret = devm_add_action_or_reset(dev, qcom_qmp_reset_control_put,
-+					       qphy->lane_rst);
-+		if (ret)
-+			return ret;
+ 	spin_lock_irqsave(&msm_iommu_lock, flags);
+-	list_for_each_entry(iommu, &qcom_iommu_devices, dev_node)
+-		if (iommu->dev->of_node == spec->np)
++	list_for_each_entry(iter, &qcom_iommu_devices, dev_node) {
++		if (iter->dev->of_node == spec->np) {
++			iommu = iter;
+ 			break;
++		}
++	}
+ 
+-	if (!iommu || iommu->dev->of_node != spec->np) {
++	if (!iommu) {
+ 		ret = -ENODEV;
+ 		goto fail;
  	}
- 
- 	if (cfg->type == PHY_TYPE_UFS || cfg->type == PHY_TYPE_PCIE)
 
 
