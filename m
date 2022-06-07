@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC84541B61
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5285454059E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:27:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353479AbiFGVqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53900 "EHLO
+        id S1346606AbiFGR1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:27:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381245AbiFGVmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:42:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B5F50043;
-        Tue,  7 Jun 2022 12:07:10 -0700 (PDT)
+        with ESMTP id S1347114AbiFGRZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F2B21091A2;
+        Tue,  7 Jun 2022 10:24:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7AEAB81F6D;
-        Tue,  7 Jun 2022 19:07:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB4EC34115;
-        Tue,  7 Jun 2022 19:07:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01A5260DDA;
+        Tue,  7 Jun 2022 17:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13139C385A5;
+        Tue,  7 Jun 2022 17:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628827;
-        bh=HIQk/uw7vS5y7k9V6eMIFVegpbu+WXgZ8oYpaSKok5U=;
+        s=korg; t=1654622644;
+        bh=6uPA5McGTpqd5J8zNC48J/r6flQs3dTkxrg0JPGFxGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1pPBkLijY12NnTsDfQeEULz1hhL//S5Dd3ruO6M0OdgsN/OkmuVST3pig7ymT+Fl
-         0lHU0fkJr3h95lCpi7TE5BKsf3WpkUtw1nZR1gDFAN/5crNRSa3X7+LXlS7gdfhbBB
-         Q+/02/uQfg8/kE0d0v58UWnHPdSTBzc4j31nklBw=
+        b=Rm1pHFdFAQbPrjxQe0FcD0+krRCcf6kZ9kwqU7c8guN1hNa1Xh4WbkeFtCp3yqDqP
+         bshUblUx9gF5OMCxN1zOE9GQCuD75f/iKWFTGWPo9GwuihXYYovDhU/cOaOO1gR9yq
+         yvFLitE4MQS9obslCP7EXF8opJasrkrbNSxRdSKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 471/879] kselftest/arm64: bti: force static linking
-Date:   Tue,  7 Jun 2022 18:59:49 +0200
-Message-Id: <20220607165016.550577017@linuxfoundation.org>
+Subject: [PATCH 5.10 133/452] drm/vc4: txp: Dont set TXP_VSTART_AT_EOF
+Date:   Tue,  7 Jun 2022 18:59:50 +0200
+Message-Id: <20220607164912.525025973@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit d7a49291d786b4400996afe3afcc3ef5eeb6f0ef ]
+[ Upstream commit 234998df929f14d00cbf2f1e81a7facb69fd9266 ]
 
-The "bti" selftests are built with -nostdlib, which apparently
-automatically creates a statically linked binary, which is what we want
-and need for BTI (to avoid interactions with the dynamic linker).
+The TXP_VSTART_AT_EOF will generate a second VSTART signal to the HVS.
+However, the HVS waits for VSTART to enable the FIFO and will thus start
+filling the FIFO before the start of the frame.
 
-However this is not true when building a PIE binary, which some
-toolchains (Ubuntu) configure as the default.
-When compiling btitest with such a toolchain, it will create a
-dynamically linked binary, which will probably fail some tests, as the
-dynamic linker might not support BTI:
-===================
-TAP version 13
-1..18
-not ok 1 nohint_func/call_using_br_x0
-not ok 2 nohint_func/call_using_br_x16
-not ok 3 nohint_func/call_using_blr
-....
-===================
+This leads to corruption at the beginning of the first frame, and
+content from the previous frame at the beginning of the next frames.
 
-To make sure we create static binaries, add an explicit -static on the
-linker command line. This forces static linking even if the toolchain
-defaults to PIE builds, and fixes btitest runs on BTI enabled machines.
+Since one VSTART is enough, let's get rid of it.
 
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Fixes: 314bcbf09f14 ("kselftest: arm64: Add BTI tests")
-Link: https://lore.kernel.org/r/20220511172129.2078337-1-andre.przywara@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20220328153659.2382206-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/arm64/bti/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_txp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/arm64/bti/Makefile b/tools/testing/selftests/arm64/bti/Makefile
-index 73e013c082a6..dafa1c2aa5c4 100644
---- a/tools/testing/selftests/arm64/bti/Makefile
-+++ b/tools/testing/selftests/arm64/bti/Makefile
-@@ -39,7 +39,7 @@ BTI_OBJS =                                      \
- 	teststubs-bti.o                         \
- 	trampoline-bti.o
- gen/btitest: $(BTI_OBJS)
--	$(CC) $(CFLAGS_BTI) $(CFLAGS_COMMON) -nostdlib -o $@ $^
-+	$(CC) $(CFLAGS_BTI) $(CFLAGS_COMMON) -nostdlib -static -o $@ $^
+diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
+index d13502ae973d..d4e750cf3c02 100644
+--- a/drivers/gpu/drm/vc4/vc4_txp.c
++++ b/drivers/gpu/drm/vc4/vc4_txp.c
+@@ -295,7 +295,7 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
+ 	if (WARN_ON(i == ARRAY_SIZE(drm_fmts)))
+ 		return;
  
- NOBTI_OBJS =                                    \
- 	test-nobti.o                         \
-@@ -50,7 +50,7 @@ NOBTI_OBJS =                                    \
- 	teststubs-nobti.o                       \
- 	trampoline-nobti.o
- gen/nobtitest: $(NOBTI_OBJS)
--	$(CC) $(CFLAGS_BTI) $(CFLAGS_COMMON) -nostdlib -o $@ $^
-+	$(CC) $(CFLAGS_BTI) $(CFLAGS_COMMON) -nostdlib -static -o $@ $^
+-	ctrl = TXP_GO | TXP_VSTART_AT_EOF | TXP_EI |
++	ctrl = TXP_GO | TXP_EI |
+ 	       VC4_SET_FIELD(0xf, TXP_BYTE_ENABLE) |
+ 	       VC4_SET_FIELD(txp_fmts[i], TXP_FORMAT);
  
- # Including KSFT lib.mk here will also mangle the TEST_GEN_PROGS list
- # to account for any OUTPUT target-dirs optionally provided by
 -- 
 2.35.1
 
