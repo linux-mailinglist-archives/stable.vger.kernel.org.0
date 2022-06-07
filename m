@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 569FA5413F5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:09:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B90540ABE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359157AbiFGUJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:09:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47028 "EHLO
+        id S1351497AbiFGSXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358641AbiFGUHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:07:11 -0400
+        with ESMTP id S1352404AbiFGSRI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCA91C4B0C;
-        Tue,  7 Jun 2022 11:26:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5BE1222A2;
+        Tue,  7 Jun 2022 10:51:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BEFA611B9;
-        Tue,  7 Jun 2022 18:26:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D88C34115;
-        Tue,  7 Jun 2022 18:26:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A9261797;
+        Tue,  7 Jun 2022 17:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F42FC34119;
+        Tue,  7 Jun 2022 17:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626362;
-        bh=bkChc6VIB6JtzS4Rga/CFkQ8bKYrPOAxs2A1bHKiS9U=;
+        s=korg; t=1654624307;
+        bh=eI1Prs6HZFky+OeyBZ/e+ucaVtq3KyroYdNwTACoPH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkUK9EWM+ajCcCu/MWvJSM7Va5h6nJjYvoSWrnGUkwox5rcSR7kxKzvdmyWcJ4R0k
-         /GNKGfMIPZw39kjU+E4p1KZp+TMtBzuwKkiGMwGlFSCX38k8ubUO5H76PUDE65KmHf
-         SugnOaFcR3mzU5LoNon5bG4bTCthd3wXoo8O3e88=
+        b=MuRfFyQJgaOikCSpqvq41IrgHypn7ftKkcCQqzvP0MDM4g8QRfqX3qZjiwKu/uHgz
+         JZqa7ER6ev7ctxOaD7O5iJo+bYiwqycxdvJO4gvuMwbvNvS9LMAC/JHOtJHdmD/mU1
+         GPikj789OdPhRzHyjQeRo55RxjI4OjkYTbDHpb14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 352/772] ath11k: Dont check arvif->is_started before sending management frames
-Date:   Tue,  7 Jun 2022 18:59:04 +0200
-Message-Id: <20220607164959.392543958@linuxfoundation.org>
+Subject: [PATCH 5.15 280/667] nl80211: dont hold RTNL in color change request
+Date:   Tue,  7 Jun 2022 18:59:05 +0200
+Message-Id: <20220607164943.183814493@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baochen Qiang <quic_bqiang@quicinc.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 355333a217541916576351446b5832fec7930566 ]
+[ Upstream commit 1b550a0bebfc0b69d6ec08fe6eb58953a8aec48a ]
 
-Commit 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for
-deleted vdev") wants both of below two conditions are true before
-sending management frames:
+It's not necessary to hold the RTNL across color change
+requests, since all the inner locking needs only the
+wiphy mutex which we already hold as well.
 
-1: ar->allocated_vdev_map & (1LL << arvif->vdev_id)
-2: arvif->is_started
-
-Actually the second one is not necessary because with the first one
-we can make sure the vdev is present.
-
-Also use ar->conf_mutex to synchronize vdev delete and mgmt. TX.
-
-This issue is found in case of Passpoint scenario where ath11k
-needs to send action frames before vdev is started.
-
-Fix it by removing the second condition.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Fixes: 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for deleted vdev")
-Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220506013614.1580274-3-quic_bqiang@quicinc.com
+Fixes: 0d2ab3aea50b ("nl80211: add support for BSS coloring")
+Link: https://lore.kernel.org/r/20220414140402.32e03e8c261b.I5e7dc6bc563a129b938c43298da6bb4e812400a5@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 16b45b742f9d..d46f53061d61 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -5515,8 +5515,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 		}
- 
- 		arvif = ath11k_vif_to_arvif(skb_cb->vif);
--		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
--		    arvif->is_started) {
-+		mutex_lock(&ar->conf_mutex);
-+		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id)) {
- 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
- 			if (ret) {
- 				ath11k_warn(ar->ab, "failed to tx mgmt frame, vdev_id %d :%d\n",
-@@ -5534,6 +5534,7 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 				    arvif->is_started);
- 			ath11k_mgmt_over_wmi_tx_drop(ar, skb);
- 		}
-+		mutex_unlock(&ar->conf_mutex);
- 	}
- }
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index dafa2c5b71a4..bb46a6a34614 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -15936,8 +15936,7 @@ static const struct genl_small_ops nl80211_small_ops[] = {
+ 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+ 		.doit = nl80211_color_change,
+ 		.flags = GENL_UNS_ADMIN_PERM,
+-		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
+-				  NL80211_FLAG_NEED_RTNL,
++		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP,
+ 	},
+ };
  
 -- 
 2.35.1
