@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6CC540A63
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9C5C541AF6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351715AbiFGSUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:20:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43402 "EHLO
+        id S1377900AbiFGVmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352738AbiFGSR3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:29 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3939513C377;
-        Tue,  7 Jun 2022 10:52:37 -0700 (PDT)
+        with ESMTP id S1381212AbiFGVkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6EF719D7;
+        Tue,  7 Jun 2022 12:05:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0A8A1CE2422;
-        Tue,  7 Jun 2022 17:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23B0CC3411F;
-        Tue,  7 Jun 2022 17:52:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0960DB822C0;
+        Tue,  7 Jun 2022 19:05:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA0AC385A2;
+        Tue,  7 Jun 2022 19:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624354;
-        bh=h52zxNpYYU8WCZXmj5zjTKIXV+j+MQqMSEZmLGWkZrc=;
+        s=korg; t=1654628755;
+        bh=kTTiIZpJ2ysOrS1uGjg/TY4Npyhe4hfUh2qruWkuNL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fo4vxwNs1yUNoyvu5Abv+WYv7fAs4QPF13RowMmpLrRuIUgkdq5RHeecskITBHYC+
-         XKLHcjRJDpY/0miaTlZ8Yg7nFkX4OCLwj5UAfXgf6CP7+P7kQuPmHzt99w2lA2fuN8
-         KdKgddgy64TGzh8oEE5CFYZ0z2LHRutEzMdaTMn4=
+        b=sSaaq9a/TvCD8t4+dO1o13PkzXgfeFqvZm0EE+MEQoI42L2RojVB5P/te/IOjheTc
+         zKCctDMu6oUZ6hpardNP/w28H06kvxbOCFeA+gwuT6Og8u9ySjcgEkvqDaRbPbGuw9
+         /5sOfeViPvYfunGt1n1UNWZNSnnhnFoCZk3+w9S8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 296/667] spi: spi-fsl-qspi: check return value after calling platform_get_resource_byname()
+Subject: [PATCH 5.18 443/879] media: atmel: atmel-isc: Fix PM disable depth imbalance in atmel_isc_probe
 Date:   Tue,  7 Jun 2022 18:59:21 +0200
-Message-Id: <20220607164943.656664107@linuxfoundation.org>
+Message-Id: <20220607165015.730476467@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit a2b331ac11e1cac56f5b7d367e9f3c5796deaaed ]
+[ Upstream commit 395829c61a196a0821a703a49c4db3ac51daff73 ]
 
-It will cause null-ptr-deref if platform_get_resource_byname() returns NULL,
-we need check the return value.
+The pm_runtime_enable will decrease power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
 
-Fixes: 858e26a515c2 ("spi: spi-fsl-qspi: Reduce devm_ioremap size to 4 times AHB buffer size")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220505093954.1285615-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 0a0e265515db ("media: atmel: atmel-isc: split driver into driver base and isc")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-qspi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/platform/atmel/atmel-sama5d2-isc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-fsl-qspi.c b/drivers/spi/spi-fsl-qspi.c
-index 9851551ebbe0..46ae46a944c5 100644
---- a/drivers/spi/spi-fsl-qspi.c
-+++ b/drivers/spi/spi-fsl-qspi.c
-@@ -876,6 +876,10 @@ static int fsl_qspi_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/atmel/atmel-sama5d2-isc.c b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+index c5b9563e36cb..e9415495e738 100644
+--- a/drivers/media/platform/atmel/atmel-sama5d2-isc.c
++++ b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+@@ -562,7 +562,7 @@ static int atmel_isc_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(isc->ispck);
+ 	if (ret) {
+ 		dev_err(dev, "failed to enable ispck: %d\n", ret);
+-		goto cleanup_subdev;
++		goto disable_pm;
+ 	}
  
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
- 					"QuadSPI-memory");
-+	if (!res) {
-+		ret = -EINVAL;
-+		goto err_put_ctrl;
-+	}
- 	q->memmap_phy = res->start;
- 	/* Since there are 4 cs, map size required is 4 times ahb_buf_size */
- 	q->ahb_addr = devm_ioremap(dev, q->memmap_phy,
+ 	/* ispck should be greater or equal to hclock */
+@@ -580,6 +580,9 @@ static int atmel_isc_probe(struct platform_device *pdev)
+ unprepare_clk:
+ 	clk_disable_unprepare(isc->ispck);
+ 
++disable_pm:
++	pm_runtime_disable(dev);
++
+ cleanup_subdev:
+ 	isc_subdev_cleanup(isc);
+ 
 -- 
 2.35.1
 
