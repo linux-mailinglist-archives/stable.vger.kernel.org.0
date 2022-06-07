@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D720541516
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903EA540C90
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355672AbiFGU2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
+        id S1345730AbiFGShW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359567AbiFGUXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:23:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F076965D3;
-        Tue,  7 Jun 2022 11:32:10 -0700 (PDT)
+        with ESMTP id S1352579AbiFGSey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:34:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB96E147810;
+        Tue,  7 Jun 2022 10:57:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6DE81CE242B;
-        Tue,  7 Jun 2022 18:32:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A22C385A2;
-        Tue,  7 Jun 2022 18:32:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE6C6187F;
+        Tue,  7 Jun 2022 17:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4397DC385A5;
+        Tue,  7 Jun 2022 17:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626726;
-        bh=yCzJMVCUlRwnYxLiqzwsBgrMgG0o7TJdZI532aPA9YI=;
+        s=korg; t=1654624670;
+        bh=5RfgC+jXF8hHJVSRuyWvu7JfVcQ0gFgz8ApQ4Hn+XTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQI6XFaizjnzW3tcuuS+9Sl45/Sv6pGVEUWvLrsReXUkm7G8FFQ3wXBhU6bxl+dBE
-         5vdXTjBiDnk001CVMrtEi/aZH6fKqK/1wYnVZddUgIB7e7STCPj/Q99ZbQfEchDTFZ
-         LcTMFK7AmZeidO4brppMCoZcgnavfFBNlprjnlH4=
+        b=NTI/5dBgvE6J/GrRarP9fLPJURIwPcrCpE9bEXR5xVzhxcS4jEJ1si7ovIk3AkJ0T
+         4qa+DccLpUwdzg5vvRH0X7oZVqPZnUD2NNlW9drvCiwWHvdQ84dZTrOnVSkoDkNofw
+         rzINQhWZlWCsj6AAXnYFhvENazO8zdVm9ZVkAr30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 483/772] crypto: marvell/cesa - ECB does not IV
-Date:   Tue,  7 Jun 2022 19:01:15 +0200
-Message-Id: <20220607165003.220838347@linuxfoundation.org>
+Subject: [PATCH 5.15 411/667] misc: ocxl: fix possible double free in ocxl_file_register_afu
+Date:   Tue,  7 Jun 2022 19:01:16 +0200
+Message-Id: <20220607164947.067754481@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 4ffa1763622ae5752961499588f3f8874315f974 ]
+[ Upstream commit 950cf957fe34d40d63dfa3bf3968210430b6491e ]
 
-The DES3 ECB has an IV size set but ECB does not need one.
+info_release() will be called in device_unregister() when info->dev's
+reference count is 0. So there is no need to call ocxl_afu_put() and
+kfree() again.
 
-Fixes: 4ada483978237 ("crypto: marvell/cesa - add Triple-DES support")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix this by adding free_minor() and return to err_unregister error path.
+
+Fixes: 75ca758adbaf ("ocxl: Create a clear delineation between ocxl backend & frontend")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220418085758.38145-1-hbh25y@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/marvell/cesa/cipher.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/misc/ocxl/file.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/crypto/marvell/cesa/cipher.c b/drivers/crypto/marvell/cesa/cipher.c
-index b739d3b873dc..c6f2fa753b7c 100644
---- a/drivers/crypto/marvell/cesa/cipher.c
-+++ b/drivers/crypto/marvell/cesa/cipher.c
-@@ -624,7 +624,6 @@ struct skcipher_alg mv_cesa_ecb_des3_ede_alg = {
- 	.decrypt = mv_cesa_ecb_des3_ede_decrypt,
- 	.min_keysize = DES3_EDE_KEY_SIZE,
- 	.max_keysize = DES3_EDE_KEY_SIZE,
--	.ivsize = DES3_EDE_BLOCK_SIZE,
- 	.base = {
- 		.cra_name = "ecb(des3_ede)",
- 		.cra_driver_name = "mv-ecb-des3-ede",
+diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
+index e70525eedaae..d278f8ba2c76 100644
+--- a/drivers/misc/ocxl/file.c
++++ b/drivers/misc/ocxl/file.c
+@@ -558,7 +558,9 @@ int ocxl_file_register_afu(struct ocxl_afu *afu)
+ 
+ err_unregister:
+ 	ocxl_sysfs_unregister_afu(info); // safe to call even if register failed
++	free_minor(info);
+ 	device_unregister(&info->dev);
++	return rc;
+ err_put:
+ 	ocxl_afu_put(afu);
+ 	free_minor(info);
 -- 
 2.35.1
 
