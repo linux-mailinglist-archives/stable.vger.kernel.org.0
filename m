@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB32C5413AC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB17E540A66
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358418AbiFGUDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:03:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
+        id S1351740AbiFGSUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358065AbiFGUCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:02:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BE7E8BA7;
-        Tue,  7 Jun 2022 11:25:32 -0700 (PDT)
+        with ESMTP id S1352847AbiFGSRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 475A911C2C;
+        Tue,  7 Jun 2022 10:52:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9693DCE244F;
-        Tue,  7 Jun 2022 18:25:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F879C385A2;
-        Tue,  7 Jun 2022 18:25:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DFE6B8234A;
+        Tue,  7 Jun 2022 17:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E10C34115;
+        Tue,  7 Jun 2022 17:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626328;
-        bh=EmN6mRFvHUwuZ+ZkA9xdAmcxV93AgiIPJqyOVregxIY=;
+        s=korg; t=1654624366;
+        bh=AJpDc4CRCDEYezNwJ7xnI6htH0qAKgCFMdxiiCckPkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HT75eLvRfRYgZ45FlpQrv/+gk9Vwbm9QSCLAkH3nIBRYiqLQIUpkHGthISChKB27j
-         hiY7hEQuw7DKwSThzfHdEWOQGuqdKgdP0Pad475mFpnq8PVkIcfIOUAZQxFJ8AOmI3
-         FHm9fNh49HnG80Fd+4H+wp+8+n7VGQNyTbYmOzHM=
+        b=wDTEmoP1NgkujGmccxEB6fblh/wQyMRYJAlICdgkfKZGCYVE9mvQSrjd5u0gKV3ic
+         Dyn3BPRle46hvCsgJfiBTUAZ1Cmz+FDXmvHVJ1eF/U4LpXS9MEGZHs3tS/8JFguYvm
+         bUVSRh8Z8tkXsUB/Bukopu6C1ITW/okQg4TrotzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Polimera <quic_vpolimer@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 337/772] drm/msm/disp/dpu1: avoid clearing hw interrupts if hw_intr is null during drm uninit
+Subject: [PATCH 5.15 264/667] perf tools: Add missing headers needed by util/data.h
 Date:   Tue,  7 Jun 2022 18:58:49 +0200
-Message-Id: <20220607164958.953767945@linuxfoundation.org>
+Message-Id: <20220607164942.700523751@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +61,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Polimera <quic_vpolimer@quicinc.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-[ Upstream commit 01013ba9bbddc62f7d011163cebfd7ed06bb698b ]
+[ Upstream commit 4d27cf1d9de5becfa4d1efb2ea54dba1b9fc962a ]
 
-If edp modeset init is failed due to panel being not ready and
-probe defers during drm bind, avoid clearing irqs and dereference
-hw_intr when hw_intr is null.
+'struct perf_data' in util/data.h uses the "u64" data type, which is
+defined in "linux/types.h".
 
-BUG: Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+If we only include util/data.h, the following compilation error occurs:
 
-Call trace:
- dpu_core_irq_uninstall+0x50/0xb0
- dpu_irq_uninstall+0x18/0x24
- msm_drm_uninit+0xd8/0x16c
- msm_drm_bind+0x580/0x5fc
- try_to_bring_up_master+0x168/0x1c0
- __component_add+0xb4/0x178
- component_add+0x1c/0x28
- dp_display_probe+0x38c/0x400
- platform_probe+0xb0/0xd0
- really_probe+0xcc/0x2c8
- __driver_probe_device+0xbc/0xe8
- driver_probe_device+0x48/0xf0
- __device_attach_driver+0xa0/0xc8
- bus_for_each_drv+0x8c/0xd8
- __device_attach+0xc4/0x150
- device_initial_probe+0x1c/0x28
+  util/data.h:38:3: error: unknown type name ‘u64’
+     u64    version;
+     ^~~
 
-Changes in V2:
-- Update commit message and coreect fixes tag.
+Solution: include "linux/types.h." to add the needed type definitions.
 
-Fixes: f25f656608e3 ("drm/msm/dpu: merge struct dpu_irq into struct dpu_hw_intr")
-Signed-off-by: Vinod Polimera <quic_vpolimer@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/484430/
-Link: https://lore.kernel.org/r/1651509846-4842-1-git-send-email-quic_vpolimer@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 258031c017c353e8 ("perf header: Add DIR_FORMAT feature to describe directory data")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220429090539.212448-1-yangjihong1@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_interrupts.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/data.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_interrupts.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_interrupts.c
-index a77a5eaa78ad..6730e771bffa 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_interrupts.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_interrupts.c
-@@ -593,6 +593,9 @@ void dpu_core_irq_uninstall(struct dpu_kms *dpu_kms)
- {
- 	int i;
+diff --git a/tools/perf/util/data.h b/tools/perf/util/data.h
+index c9de82af5584..1402d9657ef2 100644
+--- a/tools/perf/util/data.h
++++ b/tools/perf/util/data.h
+@@ -4,6 +4,7 @@
  
-+	if (!dpu_kms->hw_intr)
-+		return;
-+
- 	pm_runtime_get_sync(&dpu_kms->pdev->dev);
- 	for (i = 0; i < dpu_kms->hw_intr->total_irqs; i++)
- 		if (!list_empty(&dpu_kms->hw_intr->irq_cb_tbl[i]))
+ #include <stdio.h>
+ #include <stdbool.h>
++#include <linux/types.h>
+ 
+ enum perf_data_mode {
+ 	PERF_DATA_MODE_WRITE,
 -- 
 2.35.1
 
