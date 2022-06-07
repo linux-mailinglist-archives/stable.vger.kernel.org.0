@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F15C854083D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D1F0540F21
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348858AbiFGR4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:56:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48872 "EHLO
+        id S1353359AbiFGTCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:02:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349153AbiFGRzn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:55:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE82E146416;
-        Tue,  7 Jun 2022 10:40:02 -0700 (PDT)
+        with ESMTP id S1354732AbiFGTB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:01:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6552152437;
+        Tue,  7 Jun 2022 11:04:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64CF56146F;
-        Tue,  7 Jun 2022 17:35:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AB68C385A5;
-        Tue,  7 Jun 2022 17:34:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A802BB82349;
+        Tue,  7 Jun 2022 18:04:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24629C385A5;
+        Tue,  7 Jun 2022 18:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623299;
-        bh=54fPIN8G1JovSP05z2k3xNR+dvWsXyhzfXkHCXyejmo=;
+        s=korg; t=1654625083;
+        bh=9E8DLy1jXcYjYN0wqF0KZRXbQUMR5XhMKZCP7s2JCPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N40sMEUQm/Lv0JGi8Ie07s9FUFffkrCcwqD+1FlG7gscSzVCD2oSahz+1dduQmdKT
-         Ri/nXvO4CwAqY4skivGNMlXUXLVLvPL5dgJnUbrW4mV8X0hLImICUrLpbZF+sy4mF5
-         OAsQftg1onk48CqGc6+tBPDRscOIuSPEHiBHv0zg=
+        b=bQm/zy2CjxyenYnY1IWWdkRtx6aWTZGCw+O+Yg5ac9p2B/12PyJn4k6YJF7Vpn6rW
+         lkYrXygJNx/DHK6xl/1FM43Q6egBaxKC7vuNWFkIMH9phVBRojZmTw4Y6NcvDA+iTe
+         18ClwJ7/YScQsm7jvvpHrKXmZhwHD8lngqZs3O5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 366/452] ACPI: property: Release subnode properties with data nodes
-Date:   Tue,  7 Jun 2022 19:03:43 +0200
-Message-Id: <20220607164919.469141778@linuxfoundation.org>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Subject: [PATCH 5.15 559/667] s390/perf: obtain sie_block from the right address
+Date:   Tue,  7 Jun 2022 19:03:44 +0200
+Message-Id: <20220607164951.465057716@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Nico Boehr <nrb@linux.ibm.com>
 
-commit 3bd561e1572ee02a50cd1a5be339abf1a5b78d56 upstream.
+commit c9bfb460c3e4da2462e16b0f0b200990b36b1dd2 upstream.
 
-struct acpi_device_properties describes one source of properties present
-on either struct acpi_device or struct acpi_data_node. When properties are
-parsed, both are populated but when released, only those properties that
-are associated with the device node are freed.
+Since commit 1179f170b6f0 ("s390: fix fpu restore in entry.S"), the
+sie_block pointer is located at empty1[1], but in sie_block() it was
+taken from empty1[0].
 
-Fix this by also releasing memory of the data node properties.
+This leads to a random pointer being dereferenced, possibly causing
+system crash.
 
-Fixes: 5f5e4890d57a ("ACPI / property: Allow multiple property compatible _DSD entries")
-Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This problem can be observed when running a simple guest with an endless
+loop and recording the cpu-clock event:
+
+  sudo perf kvm --guestvmlinux=<guestkernel> --guest top -e cpu-clock
+
+With this fix, the correct guest address is shown.
+
+Fixes: 1179f170b6f0 ("s390: fix fpu restore in entry.S")
+Cc: stable@vger.kernel.org
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/property.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/s390/kernel/perf_event.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/property.c
-+++ b/drivers/acpi/property.c
-@@ -433,6 +433,16 @@ void acpi_init_properties(struct acpi_de
- 		acpi_extract_apple_properties(adev);
+--- a/arch/s390/kernel/perf_event.c
++++ b/arch/s390/kernel/perf_event.c
+@@ -30,7 +30,7 @@ static struct kvm_s390_sie_block *sie_bl
+ 	if (!stack)
+ 		return NULL;
+ 
+-	return (struct kvm_s390_sie_block *) stack->empty1[0];
++	return (struct kvm_s390_sie_block *)stack->empty1[1];
  }
  
-+static void acpi_free_device_properties(struct list_head *list)
-+{
-+	struct acpi_device_properties *props, *tmp;
-+
-+	list_for_each_entry_safe(props, tmp, list, list) {
-+		list_del(&props->list);
-+		kfree(props);
-+	}
-+}
-+
- static void acpi_destroy_nondev_subnodes(struct list_head *list)
- {
- 	struct acpi_data_node *dn, *next;
-@@ -445,22 +455,18 @@ static void acpi_destroy_nondev_subnodes
- 		wait_for_completion(&dn->kobj_done);
- 		list_del(&dn->sibling);
- 		ACPI_FREE((void *)dn->data.pointer);
-+		acpi_free_device_properties(&dn->data.properties);
- 		kfree(dn);
- 	}
- }
- 
- void acpi_free_properties(struct acpi_device *adev)
- {
--	struct acpi_device_properties *props, *tmp;
--
- 	acpi_destroy_nondev_subnodes(&adev->data.subnodes);
- 	ACPI_FREE((void *)adev->data.pointer);
- 	adev->data.of_compatible = NULL;
- 	adev->data.pointer = NULL;
--	list_for_each_entry_safe(props, tmp, &adev->data.properties, list) {
--		list_del(&props->list);
--		kfree(props);
--	}
-+	acpi_free_device_properties(&adev->data.properties);
- }
- 
- /**
+ static bool is_in_guest(struct pt_regs *regs)
 
 
