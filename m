@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01293540CCC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2835405D4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242489AbiFGSlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36098 "EHLO
+        id S1346628AbiFGRcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351738AbiFGSjD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:39:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9CD18484D;
-        Tue,  7 Jun 2022 10:58:27 -0700 (PDT)
+        with ESMTP id S1347866AbiFGRbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012E410A63F;
+        Tue,  7 Jun 2022 10:28:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDD3617A7;
-        Tue,  7 Jun 2022 17:58:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D48AC34119;
-        Tue,  7 Jun 2022 17:58:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92B1A60906;
+        Tue,  7 Jun 2022 17:28:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A18F5C385A5;
+        Tue,  7 Jun 2022 17:28:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624698;
-        bh=2jA/GTMKTJHBY2Oc4pOOiy4bZGaqPB82S9nyCCUHw2Y=;
+        s=korg; t=1654622917;
+        bh=b9T2ytWkws7EL7G3oLxeMYXBSBUH+aLsHZbV06loISc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9ZvgkFRs15gHm+zASOewDHlcIe/4ugLPehS2on8G0VTqWNrCmK4wNVWLV7wkGtHA
-         FOI++PMNesy0Vc87lwE7Q6o90r27sRwZihdAbZaFcNMSXMDHpQ57An9g2xRb2rHGeg
-         UkM8PgsCzkOZQPHSSm29S2nONCcZD6QExAX5tGH4=
+        b=k3M+Vsai+sZefGe8rxImIalKZltYxanheDUAEIK4KW9H+ti76lJD4LJ66Atv8HM6F
+         9G8gaRPWfit5zAGfPPfsydx5yz69v0HwdP8mGU/q/OCCBEeWV5fmNbfP1S7fvefmj8
+         OTXFQQ6lZjE3B4tmXXvX+LboRqNFpCh05Il+UL7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thorsten Scherer <t.scherer@eckelmann.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 394/667] ARM: dts: ci4x10: Adapt to changes in imx6qdl.dtsi regarding fec clocks
+Subject: [PATCH 5.10 202/452] ASoC: fsl: Fix refcount leak in imx_sgtl5000_probe
 Date:   Tue,  7 Jun 2022 19:00:59 +0200
-Message-Id: <20220607164946.562434947@linuxfoundation.org>
+Message-Id: <20220607164914.583496888@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thorsten Scherer <t.scherer@eckelmann.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3d397a1277853498e8b7b305f2610881357c033f ]
+[ Upstream commit 41cd312dfe980af869c3503b4d38e62ed20dd3b7 ]
 
-Commit f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk
-support") added another item to the list of clocks for the fec
-device. As imx6dl-eckelmann-ci4x10.dts only overwrites clocks,
-but not clock-names this resulted in an inconsistency with
-clocks having one item more than clock-names.
+of_find_i2c_device_by_node() takes a reference,
+In error paths, we should call put_device() to drop
+the reference to aviod refount leak.
 
-Also overwrite clock-names with the same value as in
-imx6qdl.dtsi. This is a no-op today, but prevents similar
-inconsistencies if the soc file will be changed in a similar way
-in the future.
-
-Signed-off-by: Thorsten Scherer <t.scherer@eckelmann.de>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Fixes: f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk support")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20220511065803.3957-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/fsl/imx-sgtl5000.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-index b4a9523e325b..864dc5018451 100644
---- a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-+++ b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-@@ -297,7 +297,11 @@
- 	phy-mode = "rmii";
- 	phy-reset-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
- 	phy-handle = <&phy>;
--	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
-+	clocks = <&clks IMX6QDL_CLK_ENET>,
-+		 <&clks IMX6QDL_CLK_ENET>,
-+		 <&rmii_clk>,
-+		 <&clks IMX6QDL_CLK_ENET_REF>;
-+	clock-names = "ipg", "ahb", "ptp", "enet_out";
- 	status = "okay";
+diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
+index f45cb4bbb6c4..5997bb5acb73 100644
+--- a/sound/soc/fsl/imx-sgtl5000.c
++++ b/sound/soc/fsl/imx-sgtl5000.c
+@@ -120,19 +120,19 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
  
- 	mdio {
+ 	comp = devm_kzalloc(&pdev->dev, 3 * sizeof(*comp), GFP_KERNEL);
+ 	if (!comp) {
+ 		ret = -ENOMEM;
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->codec_clk = clk_get(&codec_dev->dev, NULL);
+ 	if (IS_ERR(data->codec_clk)) {
+ 		ret = PTR_ERR(data->codec_clk);
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	data->clk_frequency = clk_get_rate(data->codec_clk);
+@@ -158,10 +158,10 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	data->card.dev = &pdev->dev;
+ 	ret = snd_soc_of_parse_card_name(&data->card, "model");
+ 	if (ret)
+-		goto fail;
++		goto put_device;
+ 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
+ 	if (ret)
+-		goto fail;
++		goto put_device;
+ 	data->card.num_links = 1;
+ 	data->card.owner = THIS_MODULE;
+ 	data->card.dai_link = &data->dai;
+@@ -176,7 +176,7 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 		if (ret != -EPROBE_DEFER)
+ 			dev_err(&pdev->dev, "snd_soc_register_card failed (%d)\n",
+ 				ret);
+-		goto fail;
++		goto put_device;
+ 	}
+ 
+ 	of_node_put(ssi_np);
+@@ -184,6 +184,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++put_device:
++	put_device(&codec_dev->dev);
+ fail:
+ 	if (data && !IS_ERR(data->codec_clk))
+ 		clk_put(data->codec_clk);
 -- 
 2.35.1
 
