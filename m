@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94BD4540E8E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1354F540EBA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354200AbiFGSzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59044 "EHLO
+        id S1354211AbiFGSzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:55:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354678AbiFGSvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:51:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72DA1498D5;
-        Tue,  7 Jun 2022 11:03:29 -0700 (PDT)
+        with ESMTP id S1349204AbiFGSvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:51:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 014AC149A8C;
+        Tue,  7 Jun 2022 11:03:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C46261804;
-        Tue,  7 Jun 2022 18:03:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EDA0C36AFF;
-        Tue,  7 Jun 2022 18:03:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D420B82182;
+        Tue,  7 Jun 2022 18:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E65DCC385A5;
+        Tue,  7 Jun 2022 18:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654625003;
-        bh=8HQm4g74yzZGpbnIQ9UppM7IGC+JDkrxAdIatCQcOfc=;
+        s=k20201202; t=1654625008;
+        bh=YfQvhTNtRCQoxAKmCzCkkxrzlP3GHt4D3FPbvmkZ/vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AeXNYI0/P4T5g5/6jGXyJUJFalhIGDOTbONmjMVQYaMlPRdh7okpE6lzcj+O9XcuQ
-         2DZbec2vUg3Ngpo0pBgqtv2q5yg0DjEp6HvDwqf+F3RzKRf7SYifB1KxIZSP8qYxOr
-         ZL9Ui6beuE5bg9/ED3OZ9QZcICR8G/2PFONkck9q02iG4bIUCV7R30TXZEMPSivsBD
-         PXX9/dag+MfHnDd4hi1Oa725M+6xVV/WIzVzT34iI/o/ywIuFElgO5BermdH4Z7fMa
-         zWP6nQFjNsZ/uAEGjQbLYEN3QnfB5QgxhCrvNH6Vmrf0xI/cvv8h6GmC/wXlu89d7P
-         Ayi7nODqI1ftw==
+        b=HyldphA3vaApruQxkBOlDtx1hcu7tyyLvgF+2+f4dtskFIfIDcin/kitBcrnH1MNg
+         Ig3nhKN+eXrjBrDIbygsljUH8Mo3f1rvXT4OqLAjerQF5t48G3GOzQ5rbq522L2FA8
+         67K+4B012euDB4DkGV9rcB4rwbc32HYowkyquUNk06v0d1cWavWZ3xkJpOTlqamBcB
+         6ZJ2PuKkhRCqk8Nip4S7RNZMGCZmD1k1sotS0n7miaH/HYgkH4JZhbjO++5yopmhyS
+         i+hJSQ8nejksFCfm7Hg0iOdgBOAuXdl310h72jgT8oH+NCWVmWxkMZSj530z41djNf
+         6zN0Fa+L5jq3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Guobin <huangguobin4@huawei.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
+Cc:     Duoming Zhou <duoming@zju.edu.cn>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/19] tty: Fix a possible resource leak in icom_probe
-Date:   Tue,  7 Jun 2022 14:02:59 -0400
-Message-Id: <20220607180317.482354-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, baihaowen@meizu.com,
+        dan.carpenter@oracle.com, edumazet@google.com, dave@stgolabs.net,
+        len.baker@gmx.com, wjsota@gmail.com, yangyingliang@huawei.com,
+        linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.9 05/19] drivers: staging: rtl8192e: Fix deadlock in rtllib_beacons_stop()
+Date:   Tue,  7 Jun 2022 14:03:00 -0400
+Message-Id: <20220607180317.482354-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607180317.482354-1-sashal@kernel.org>
 References: <20220607180317.482354-1-sashal@kernel.org>
@@ -57,35 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Guobin <huangguobin4@huawei.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit ee157a79e7c82b01ae4c25de0ac75899801f322c ]
+[ Upstream commit 9b6bdbd9337de3917945847bde262a34a87a6303 ]
 
-When pci_read_config_dword failed, call pci_release_regions() and
-pci_disable_device() to recycle the resource previously allocated.
+There is a deadlock in rtllib_beacons_stop(), which is shown
+below:
 
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
-Link: https://lore.kernel.org/r/20220331091005.3290753-1-huangguobin4@huawei.com
+   (Thread 1)              |      (Thread 2)
+                           | rtllib_send_beacon()
+rtllib_beacons_stop()      |  mod_timer()
+ spin_lock_irqsave() //(1) |  (wait a time)
+ ...                       | rtllib_send_beacon_cb()
+ del_timer_sync()          |  spin_lock_irqsave() //(2)
+ (wait timer to stop)      |  ...
+
+We hold ieee->beacon_lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need ieee->beacon_lock in position (2) of thread 2.
+As a result, rtllib_beacons_stop() will block forever.
+
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irqsave(), which could let timer handler to obtain
+the needed lock.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417141641.124388-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/icom.c | 2 +-
+ drivers/staging/rtl8192e/rtllib_softmac.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/icom.c b/drivers/tty/serial/icom.c
-index c60a8d5e4020..a3e420669674 100644
---- a/drivers/tty/serial/icom.c
-+++ b/drivers/tty/serial/icom.c
-@@ -1515,7 +1515,7 @@ static int icom_probe(struct pci_dev *dev,
- 	retval = pci_read_config_dword(dev, PCI_COMMAND, &command_reg);
- 	if (retval) {
- 		dev_err(&dev->dev, "PCI Config read FAILED\n");
--		return retval;
-+		goto probe_exit0;
- 	}
+diff --git a/drivers/staging/rtl8192e/rtllib_softmac.c b/drivers/staging/rtl8192e/rtllib_softmac.c
+index da74dc49b95e..f46def63967b 100644
+--- a/drivers/staging/rtl8192e/rtllib_softmac.c
++++ b/drivers/staging/rtl8192e/rtllib_softmac.c
+@@ -655,9 +655,9 @@ static void rtllib_beacons_stop(struct rtllib_device *ieee)
+ 	spin_lock_irqsave(&ieee->beacon_lock, flags);
  
- 	pci_write_config_dword(dev, PCI_COMMAND,
+ 	ieee->beacon_txing = 0;
+-	del_timer_sync(&ieee->beacon_timer);
+ 
+ 	spin_unlock_irqrestore(&ieee->beacon_lock, flags);
++	del_timer_sync(&ieee->beacon_timer);
+ 
+ }
+ 
 -- 
 2.35.1
 
