@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A6A5409FC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B6954136B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242566AbiFGSTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:19:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42168 "EHLO
+        id S1352733AbiFGUCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352010AbiFGSQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 236EF1339F2;
-        Tue,  7 Jun 2022 10:50:18 -0700 (PDT)
+        with ESMTP id S1358077AbiFGT75 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:59:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7CAC6853;
+        Tue,  7 Jun 2022 11:24:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E8B96146F;
-        Tue,  7 Jun 2022 17:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99995C34119;
-        Tue,  7 Jun 2022 17:50:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D11F561280;
+        Tue,  7 Jun 2022 18:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D718EC385A2;
+        Tue,  7 Jun 2022 18:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624217;
-        bh=fnG+UK/GdWNYtSgoQqZ5bqzvkDaVX9q79kRygAvrBt8=;
+        s=korg; t=1654626276;
+        bh=6nJOq9MQ93VP7Bh5TJSp2Vn6/b1Th3dFzAO8vkQA+ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVP5FXk4kZcEE+Qp7ig64F2eZXXQHTU+809tpZDQFylmPu8LU9mdYYhUZy9JHhJVs
-         BArOvboqFl7lk3TqUlsPzheaeZ0JGKVPP1jM1ORURbrbvvWwUKsFmGM8mRSTIalBhM
-         u31V5iK0j12N6AnIUe4dml8xlk3TEBYzNTOKFDao=
+        b=qYGcYPPtBRhdKqcXIcfK8dRCesf35RrSfB39cgI3mvwGyB/uxDZbWyz+FACPm+A2B
+         9xbm0aqeFcNZ8o68AD3fyKftWzW/QEQcftp50wBmkDZFvHEA6SqzKvigwqGXLpOtZ+
+         OOFj/WSk6egsdF7THUaqmOe+3cpSzfc5YntJ63UI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 246/667] spi: rockchip: fix missing error on unsupported SPI_CS_HIGH
-Date:   Tue,  7 Jun 2022 18:58:31 +0200
-Message-Id: <20220607164942.162365016@linuxfoundation.org>
+Subject: [PATCH 5.17 320/772] drm/msm/hdmi: check return value after calling platform_get_resource_byname()
+Date:   Tue,  7 Jun 2022 18:58:32 +0200
+Message-Id: <20220607164958.453689205@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d5d933f09ac326aebad85bfb787cc786ad477711 ]
+[ Upstream commit a36e506711548df923ceb7ec9f6001375be799a5 ]
 
-The hardware (except for the ROCKCHIP_SPI_VER2_TYPE2 version) does not
-support active-high native chip selects. However if such a CS is configured
-the core does not error as it normally should, because the
-'ctlr->use_gpio_descriptors = true' line in rockchip_spi_probe() makes the
-core set SPI_CS_HIGH in ctlr->mode_bits.
+It will cause null-ptr-deref if platform_get_resource_byname() returns NULL,
+we need check the return value.
 
-In such a case the spi-rockchip driver operates normally but produces an
-active-low chip select signal without notice.
-
-There is no provision in the current core code to handle this
-situation. Fix by adding a check in the ctlr->setup function (similarly to
-what spi-atmel.c does).
-
-This cannot be done reading the SPI_CS_HIGH but in ctlr->mode_bits because
-that bit gets always set by the core for master mode (see above).
-
-Fixes: eb1262e3cc8b ("spi: spi-rockchip: use num-cs property and ctlr->enable_gpiods")
-Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Link: https://lore.kernel.org/r/20220421213251.1077899-1-luca.ceresoli@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c6a57a50ad56 ("drm/msm/hdmi: add hdmi hdcp support (V3)")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/482992/
+Link: https://lore.kernel.org/r/20220422032227.2991553-1-yangyingliang@huawei.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 83da8fdb3c02..b721b62118e1 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -196,6 +196,8 @@ struct rockchip_spi {
- 
- 	bool slave_abort;
- 	bool cs_inactive; /* spi slave tansmition stop when cs inactive */
-+	bool cs_high_supported; /* native CS supports active-high polarity */
-+
- 	struct spi_transfer *xfer; /* Store xfer temporarily */
- };
- 
-@@ -718,6 +720,11 @@ static int rockchip_spi_setup(struct spi_device *spi)
- 	struct rockchip_spi *rs = spi_controller_get_devdata(spi->controller);
- 	u32 cr0;
- 
-+	if (!spi->cs_gpiod && (spi->mode & SPI_CS_HIGH) && !rs->cs_high_supported) {
-+		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
-+		return -EINVAL;
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index 719720709e9e..d3fea6ec5246 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -142,6 +142,10 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
+ 	/* HDCP needs physical address of hdmi register */
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
+ 		config->mmio_name);
++	if (!res) {
++		ret = -EINVAL;
++		goto fail;
 +	}
-+
- 	pm_runtime_get_sync(rs->dev);
+ 	hdmi->mmio_phy_addr = res->start;
  
- 	cr0 = readl_relaxed(rs->regs + ROCKCHIP_SPI_CTRLR0);
-@@ -898,6 +905,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
- 
- 	switch (readl_relaxed(rs->regs + ROCKCHIP_SPI_VERSION)) {
- 	case ROCKCHIP_SPI_VER2_TYPE2:
-+		rs->cs_high_supported = true;
- 		ctlr->mode_bits |= SPI_CS_HIGH;
- 		if (ctlr->can_dma && slave_mode)
- 			rs->cs_inactive = true;
+ 	hdmi->qfprom_mmio = msm_ioremap(pdev,
 -- 
 2.35.1
 
