@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC5505417F6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397205410E1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359150AbiFGVHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50196 "EHLO
+        id S1355481AbiFGT36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378735AbiFGVEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:04:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252E818CE18;
-        Tue,  7 Jun 2022 11:48:58 -0700 (PDT)
+        with ESMTP id S1356590AbiFGT2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABEFB1A075B;
+        Tue,  7 Jun 2022 11:10:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8DACB8220B;
-        Tue,  7 Jun 2022 18:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2149CC385A2;
-        Tue,  7 Jun 2022 18:48:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A95AA6191F;
+        Tue,  7 Jun 2022 18:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4060C385A2;
+        Tue,  7 Jun 2022 18:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627735;
-        bh=Aoq/ZnXVcKk+p7VdfH7dk2D2Y56VczJQo9MgI9eHjA8=;
+        s=korg; t=1654625408;
+        bh=s6qD6yjv6eYKp+r/EsmCt8ddfsgFJ4IIoDGAa0pot5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNC3nVrUzn4nEr8DfhDa+WJ9o/6ul5g1h32KaHNtiQ2ONcNnBqoEbdDv8OvXXsHS9
-         kF4rfx6yJs3z4/UsYnRgTv6QaDJlZdBdfsqFN5gdb7WbQK9VAi5kL1rdk+PylWd7eW
-         Cpfjiw22AXp71ylrGfxr9yWq6zcaJWyeuUIM31Ic=
+        b=PVK4W2XsVh/2kLt99MG1Ok0vN7dWKQOg32GWYwi1JDIPLa1HIH3/V1Hgzt7ps3ipL
+         BsdvK9lbehtnL3G89hWraIjSYRjYs2YKbXN918lZkUE5ezoBJFpW/GhTzX61/pVTWX
+         o977tGklvuwEMLpup+/2wd65w6Dy+YjZs+7YEe2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 075/879] drm/komeda: return early if drm_universal_plane_init() fails.
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.17 001/772] arm64: Initialize jump labels before setup_machine_fdt()
 Date:   Tue,  7 Jun 2022 18:53:13 +0200
-Message-Id: <20220607165004.868468353@linuxfoundation.org>
+Message-Id: <20220607164949.031154328@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,43 +61,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liviu Dudau <liviu.dudau@arm.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit c8f76c37cc3668ee45e081e76a15f24a352ebbdd ]
+commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
 
-If drm_universal_plane_init() fails early we jump to the common cleanup code
-that calls komeda_plane_destroy() which in turn could access the uninitalised
-drm_plane and crash. Return early if an error is detected without going through
-the common code.
+A static key warning splat appears during early boot on arm64 systems
+that credit randomness from devicetrees that contain an "rng-seed"
+property. This is because setup_machine_fdt() is called before
+jump_label_init() during setup_arch(). Let's swap the order of these two
+calls so that jump labels are initialized before the devicetree is
+unflattened and the rng seed is credited.
 
-Reported-by: Steven Price <steven.price@arm.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://lore.kernel.org/dri-devel/20211203100946.2706922-1-liviu.dudau@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
+ WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
+ pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+ pc : static_key_enable_cpuslocked+0xb0/0xb8
+ lr : static_key_enable_cpuslocked+0xb0/0xb8
+ sp : ffffffe51c393cf0
+ x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
+ x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
+ x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
+ x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
+ x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
+ x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
+ x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
+ x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
+ x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
+ x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
+ Call trace:
+  static_key_enable_cpuslocked+0xb0/0xb8
+  static_key_enable+0x2c/0x40
+  crng_set_ready+0x24/0x30
+  execute_in_process_context+0x80/0x90
+  _credit_init_bits+0x100/0x154
+  add_bootloader_randomness+0x64/0x78
+  early_init_dt_scan_chosen+0x140/0x184
+  early_init_dt_scan_nodes+0x28/0x4c
+  early_init_dt_scan+0x40/0x44
+  setup_machine_fdt+0x7c/0x120
+  setup_arch+0x74/0x1d8
+  start_kernel+0x84/0x44c
+  __primary_switched+0xc0/0xc8
+ ---[ end trace 0000000000000000 ]---
+ random: crng init done
+ Machine model: Google Lazor (rev1 - 2) with LTE
+
+Cc: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/arm/display/komeda/komeda_plane.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/setup.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-index d63d83800a8a..d646e3ae1a23 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-@@ -275,8 +275,10 @@ static int komeda_plane_add(struct komeda_kms_dev *kms,
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -314,13 +314,14 @@ void __init __no_sanitize_address setup_
+ 	early_fixmap_init();
+ 	early_ioremap_init();
  
- 	komeda_put_fourcc_list(formats);
+-	setup_machine_fdt(__fdt_pointer);
+-
+ 	/*
+ 	 * Initialise the static keys early as they may be enabled by the
+-	 * cpufeature code and early parameters.
++	 * cpufeature code, early parameters, and DT setup.
+ 	 */
+ 	jump_label_init();
++
++	setup_machine_fdt(__fdt_pointer);
++
+ 	parse_early_param();
  
--	if (err)
--		goto cleanup;
-+	if (err) {
-+		kfree(kplane);
-+		return err;
-+	}
- 
- 	drm_plane_helper_add(plane, &komeda_plane_helper_funcs);
- 
--- 
-2.35.1
-
+ 	/*
 
 
