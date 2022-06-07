@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A63AA5415A8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E0D540E57
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376811AbiFGUhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:37:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S1352993AbiFGSyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356411AbiFGUe6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DADC91EB431;
-        Tue,  7 Jun 2022 11:37:47 -0700 (PDT)
+        with ESMTP id S1354496AbiFGSrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86927737A3;
+        Tue,  7 Jun 2022 11:01:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C59D66157B;
-        Tue,  7 Jun 2022 18:37:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC498C385A2;
-        Tue,  7 Jun 2022 18:37:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22707618DF;
+        Tue,  7 Jun 2022 18:01:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6A9C385A5;
+        Tue,  7 Jun 2022 18:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627066;
-        bh=7GVSzPHphQc2+Ish2I4eyvamIhqbHAOrOfl/h31fIe0=;
+        s=korg; t=1654624892;
+        bh=54oShyB5o9LvImQ36NGWJacrxO3osSvxe7sccidCXN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSScwCHZyDQ6sBQsGROV1A7fYwMrQR9ARtuUj/cCCTygXGkUslAM/BYecMyXvOfO0
-         Qtf2pWNqwp7uqzhYvFPmM18mVsjugAykCvOlWBXSESHwosa1cPEweCFspMDGGGonrp
-         xdGfWe/AY7HDICbGrII6p2X3gHsNCJYq66o9p6RE=
+        b=gILe+Nsnl5Wh4eTXtDazydRcCIjWSXM7YpGBiyvNpLrHv/EMdqrjBjs0EkfdCRCOb
+         DNUglTFHGzK2mEXS9Hhe/A8gTJ+WPxLhU605YD7N1KF1c4eaADOMWZlI7q4yYHqbLj
+         YGZz5TYIQ9iXZEms94sm2oVrvKEv2s3kO64tWk88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 564/772] f2fs: fix to do sanity check on inline_dots inode
-Date:   Tue,  7 Jun 2022 19:02:36 +0200
-Message-Id: <20220607165005.575873327@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 492/667] dmaengine: idxd: Fix the error handling path in idxd_cdev_register()
+Date:   Tue,  7 Jun 2022 19:02:37 +0200
+Message-Id: <20220607164949.454750031@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 12662d19467b391b5b509ac5e9ab4f583c6dde16 ]
+[ Upstream commit aab08c1aac01097815fbcf10fce7021d2396a31f ]
 
-As Wenqing reported in bugzilla:
+If a call to alloc_chrdev_region() fails, the already allocated resources
+are leaking.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215765
+Add the needed error handling path to fix the leak.
 
-It will cause a kernel panic with steps:
-- mkdir mnt
-- mount tmp40.img mnt
-- ls mnt
-
-folio_mark_dirty+0x33/0x50
-f2fs_add_regular_entry+0x541/0xad0 [f2fs]
-f2fs_add_dentry+0x6c/0xb0 [f2fs]
-f2fs_do_add_link+0x182/0x230 [f2fs]
-__recover_dot_dentries+0x2d6/0x470 [f2fs]
-f2fs_lookup+0x5af/0x6a0 [f2fs]
-__lookup_slow+0xac/0x200
-lookup_slow+0x45/0x70
-walk_component+0x16c/0x250
-path_lookupat+0x8b/0x1f0
-filename_lookup+0xef/0x250
-user_path_at_empty+0x46/0x70
-vfs_statx+0x98/0x190
-__do_sys_newlstat+0x41/0x90
-__x64_sys_newlstat+0x1a/0x30
-do_syscall_64+0x37/0xb0
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is for special file: e.g. character, block, fifo or
-socket file, f2fs doesn't assign address space operations pointer array
-for mapping->a_ops field, so, in a fuzzed image, if inline_dots flag was
-tagged in special file, during lookup(), when f2fs runs into
-__recover_dot_dentries(), it will cause NULL pointer access once
-f2fs_add_regular_entry() calls a_ops->set_dirty_page().
-
-Fixes: 510022a85839 ("f2fs: add F2FS_INLINE_DOTS to recover missing dot dentries")
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 42d279f9137a ("dmaengine: idxd: add char driver to expose submission portal to userland")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/1b5033dcc87b5f2a953c413f0306e883e6114542.1650521591.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/dma/idxd/cdev.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index 5f213f05556d..53273aec2627 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -460,6 +460,13 @@ static int __recover_dot_dentries(struct inode *dir, nid_t pino)
- 		return 0;
+diff --git a/drivers/dma/idxd/cdev.c b/drivers/dma/idxd/cdev.c
+index b9b2b4a4124e..033df43db0ce 100644
+--- a/drivers/dma/idxd/cdev.c
++++ b/drivers/dma/idxd/cdev.c
+@@ -369,10 +369,16 @@ int idxd_cdev_register(void)
+ 		rc = alloc_chrdev_region(&ictx[i].devt, 0, MINORMASK,
+ 					 ictx[i].name);
+ 		if (rc)
+-			return rc;
++			goto err_free_chrdev_region;
  	}
  
-+	if (!S_ISDIR(dir->i_mode)) {
-+		f2fs_err(sbi, "inconsistent inode status, skip recovering inline_dots inode (ino:%lu, i_mode:%u, pino:%u)",
-+			  dir->i_ino, dir->i_mode, pino);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return -ENOTDIR;
-+	}
+ 	return 0;
 +
- 	err = f2fs_dquot_initialize(dir);
- 	if (err)
- 		return err;
++err_free_chrdev_region:
++	for (i--; i >= 0; i--)
++		unregister_chrdev_region(ictx[i].devt, MINORMASK);
++
++	return rc;
+ }
+ 
+ void idxd_cdev_remove(void)
 -- 
 2.35.1
 
