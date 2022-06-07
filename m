@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D102541C31
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9222540C8A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379233AbiFGV5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
+        id S1345668AbiFGShR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384023AbiFGVyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F639248519;
-        Tue,  7 Jun 2022 12:12:49 -0700 (PDT)
+        with ESMTP id S1352108AbiFGSdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3952717EF51;
+        Tue,  7 Jun 2022 10:57:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8850B8233E;
-        Tue,  7 Jun 2022 19:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24437C385A2;
-        Tue,  7 Jun 2022 19:12:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9EAD617A7;
+        Tue,  7 Jun 2022 17:57:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6396C34115;
+        Tue,  7 Jun 2022 17:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629155;
-        bh=TZ3jw2i/lBbJ6ycdnyiMSxxAXqvD9R7FYIEzatyBwoY=;
+        s=korg; t=1654624643;
+        bh=S+LuEB/vAHLawqqkqLNO9RbPIIAJOkBSRKlNXTJ0S4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQn+Kl13rbEo+AfSKT5rHAoC9qADlXbzNhwwzsMVUR9eiuL8Do7TM5D+VxV34VObt
-         sVPoDXrjHMU1+/VjWgL0a3JbEyOBqA3VMPewtFSDupFGslYq/9Ot0r8WD1XAmynT2+
-         JyiKluVqBEZq0JGcCjE3OtwkDPfc+33AWPt/Pk7k=
+        b=vjFxctQMxYDYfnJWsAE0cP6sB3nmpPpOTAYydsO2Ujcp8tM6HflvYOpAlLFct+TbR
+         QLLmB9Axy4im1gGALnRHBNEeaQx045ec7Hbp1Z6hr93Mci58YuNlVkQhGnD1W5I4AQ
+         09XtvD27OF35O85Zt8AGCR2O8YRbe0yGkpNhZ/EE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 549/879] soc: qcom: llcc: Add MODULE_DEVICE_TABLE()
+Subject: [PATCH 5.15 402/667] platform/chrome: cros_ec: fix error handling in cros_ec_register()
 Date:   Tue,  7 Jun 2022 19:01:07 +0200
-Message-Id: <20220607165018.803159822@linuxfoundation.org>
+Message-Id: <20220607164946.801247270@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Tzung-Bi Shih <tzungbi@kernel.org>
 
-[ Upstream commit 5334a3b12a7233b31788de60d61bfd890059d783 ]
+[ Upstream commit 2cd01bd6b117df07b1bc2852f08694fdd29e40ed ]
 
-The llcc-qcom driver can be compiled as a module, but lacks
-MODULE_DEVICE_TABLE() and will therefore not be loaded automatically.
-Fix this.
+Fix cros_ec_register() to unregister platform devices if
+blocking_notifier_chain_register() fails.
 
-Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220408213336.581661-3-bjorn.andersson@linaro.org
+Also use the single exit path to handle the platform device
+unregistration.
+
+Fixes: 42cd0ab476e2 ("platform/chrome: cros_ec: Query EC protocol version if EC transitions between RO/RW")
+Reviewed-by: Prashant Malani <pmalani@chromium.org>
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/llcc-qcom.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/chrome/cros_ec.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
-index eecafeded56f..85ba8209b182 100644
---- a/drivers/soc/qcom/llcc-qcom.c
-+++ b/drivers/soc/qcom/llcc-qcom.c
-@@ -749,6 +749,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
- 	{ .compatible = "qcom,sm8450-llcc", .data = &sm8450_cfg },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, qcom_llcc_of_match);
+diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
+index fc5aa1525d13..ff2a24b0c611 100644
+--- a/drivers/platform/chrome/cros_ec.c
++++ b/drivers/platform/chrome/cros_ec.c
+@@ -189,6 +189,8 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 	ec_dev->max_request = sizeof(struct ec_params_hello);
+ 	ec_dev->max_response = sizeof(struct ec_response_get_protocol_info);
+ 	ec_dev->max_passthru = 0;
++	ec_dev->ec = NULL;
++	ec_dev->pd = NULL;
  
- static struct platform_driver qcom_llcc_driver = {
- 	.driver = {
+ 	ec_dev->din = devm_kzalloc(dev, ec_dev->din_size, GFP_KERNEL);
+ 	if (!ec_dev->din)
+@@ -245,18 +247,16 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		if (IS_ERR(ec_dev->pd)) {
+ 			dev_err(ec_dev->dev,
+ 				"Failed to create CrOS PD platform device\n");
+-			platform_device_unregister(ec_dev->ec);
+-			return PTR_ERR(ec_dev->pd);
++			err = PTR_ERR(ec_dev->pd);
++			goto exit;
+ 		}
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_OF) && dev->of_node) {
+ 		err = devm_of_platform_populate(dev);
+ 		if (err) {
+-			platform_device_unregister(ec_dev->pd);
+-			platform_device_unregister(ec_dev->ec);
+ 			dev_err(dev, "Failed to register sub-devices\n");
+-			return err;
++			goto exit;
+ 		}
+ 	}
+ 
+@@ -278,7 +278,7 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		err = blocking_notifier_chain_register(&ec_dev->event_notifier,
+ 						      &ec_dev->notifier_ready);
+ 		if (err)
+-			return err;
++			goto exit;
+ 	}
+ 
+ 	dev_info(dev, "Chrome EC device registered\n");
+@@ -291,6 +291,10 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		cros_ec_irq_thread(0, ec_dev);
+ 
+ 	return 0;
++exit:
++	platform_device_unregister(ec_dev->ec);
++	platform_device_unregister(ec_dev->pd);
++	return err;
+ }
+ EXPORT_SYMBOL(cros_ec_register);
+ 
 -- 
 2.35.1
 
