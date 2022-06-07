@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D9D541E31
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BE55416B5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382841AbiFGWYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:24:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45052 "EHLO
+        id S1377543AbiFGUyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382957AbiFGWWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:22:51 -0400
+        with ESMTP id S1378861AbiFGUwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C0826D242;
-        Tue,  7 Jun 2022 12:22:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A6D36687;
+        Tue,  7 Jun 2022 11:43:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A81DEB823CC;
-        Tue,  7 Jun 2022 19:22:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086E4C385A5;
-        Tue,  7 Jun 2022 19:22:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11120B8220B;
+        Tue,  7 Jun 2022 18:43:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F44C385A2;
+        Tue,  7 Jun 2022 18:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629733;
-        bh=HplrpNmY7M+tguF3+6EkcKSnhuhXimBvQS/rGeEEEww=;
+        s=korg; t=1654627394;
+        bh=yI9kI2cUy2EEHoPBVfyPg7NWlnZiJY+u04TNrxOuZLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Il8VDtjZSYUi7aJ7RhxZEziTmzVupytHUIDUp8a0LuG+VAhcRijDOuFlxA3dc4es/
-         KqdnOocdtrxTPtpwpU511Li6qkk1j8Rd2+0emjrX0OriIsPbJGzpLqHG4I0bQXb8yP
-         TbP03tdhcZT4Jvud3dO7AG0KGRaSzcN17WaPEiXo=
+        b=OgpOaKEuIR+OOUDfcMG8hWDlXw2YhtvJTuGERnh2lYECEjlG4ohhwXI4ux7dSFpyz
+         lKtJbBQgkrbNC/NEsesp7hZ42E7eCB7jDxaXthbbxKOvWimzyOPZ+BLlp32RuF3VVy
+         rWif5u2r1EG0scYL96qRYmAqjywNopVRuytoKF+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 5.18 796/879] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
-Date:   Tue,  7 Jun 2022 19:05:14 +0200
-Message-Id: <20220607165025.966692713@linuxfoundation.org>
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Minchan Kim <minchan@kernel.org>,
+        David Hildenbrand <david@redhat.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.17 723/772] Revert "mm/cma.c: remove redundant cma_mutex lock"
+Date:   Tue,  7 Jun 2022 19:05:15 +0200
+Message-Id: <20220607165010.345912864@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +58,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
+commit 60a60e32cf91169840abcb4a80f0b0df31708ba7 upstream.
 
-If the display is not enable()d, then we aren't holding a runtime PM
-reference here. Thus, it's easy to accidentally cause a hang, if user
-space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
+This reverts commit a4efc174b382fcdb which introduced a regression issue
+that when there're multiple processes allocating dma memory in parallel by
+calling dma_alloc_coherent(), it may fail sometimes as follows:
 
-Let's get a runtime PM reference, and check that we "see" the panel.
-Don't force any panel power-up, etc., because that can be intrusive, and
-that's not what other drivers do (see
-drivers/gpu/drm/bridge/ti-sn65dsi86.c and
-drivers/gpu/drm/bridge/parade-ps8640.c.)
+Error log:
+cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
+cma: number of available pages:
+3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
+108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
+7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
 
-Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
-Cc: <stable@vger.kernel.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
+When issue happened, we saw there were still 33161 pages (129M) free CMA
+memory and a lot available free slots for 148 pages in CMA bitmap that we
+want to allocate.
+
+When dumping memory info, we found that there was also ~342M normal
+memory, but only 1352K CMA memory left in buddy system while a lot of
+pageblocks were isolated.
+
+Memory info log:
+Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
+	    active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
+	    unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
+	    bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
+Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
+	36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
+	8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
+
+The root cause of this issue is that since commit a4efc174b382 ("mm/cma.c:
+remove redundant cma_mutex lock"), CMA supports concurrent memory
+allocation.  It's possible that the memory range process A trying to alloc
+has already been isolated by the allocation of process B during memory
+migration.
+
+The problem here is that the memory range isolated during one allocation
+by start_isolate_page_range() could be much bigger than the real size we
+want to alloc due to the range is aligned to MAX_ORDER_NR_PAGES.
+
+Taking an ARMv7 platform with 1G memory as an example, when
+MAX_ORDER_NR_PAGES is big (e.g.  32M with max_order 14) and CMA memory is
+relatively small (e.g.  128M), there're only 4 MAX_ORDER slot, then it's
+very easy that all CMA memory may have already been isolated by other
+processes when one trying to allocate memory using dma_alloc_coherent().
+Since current CMA code will only scan one time of whole available CMA
+memory, then dma_alloc_coherent() may easy fail due to contention with
+other processes.
+
+This patch simply falls back to the original method that using cma_mutex
+to make alloc_contig_range() run sequentially to avoid the issue.
+
+Link: https://lkml.kernel.org/r/20220509094551.3596244-1-aisheng.dong@nxp.com
+Link: https://lore.kernel.org/all/20220315144521.3810298-2-aisheng.dong@nxp.com/
+Fixes: a4efc174b382 ("mm/cma.c: remove redundant cma_mutex lock")
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>	[5.11+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ mm/cma.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1632,8 +1632,19 @@ static ssize_t analogix_dpaux_transfer(s
- 				       struct drm_dp_aux_msg *msg)
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -37,6 +37,7 @@
+ 
+ struct cma cma_areas[MAX_CMA_AREAS];
+ unsigned cma_area_count;
++static DEFINE_MUTEX(cma_mutex);
+ 
+ phys_addr_t cma_get_base(const struct cma *cma)
  {
- 	struct analogix_dp_device *dp = to_dp(aux);
-+	int ret;
+@@ -471,9 +472,10 @@ struct page *cma_alloc(struct cma *cma,
+ 		spin_unlock_irq(&cma->lock);
  
--	return analogix_dp_transfer(dp, msg);
-+	pm_runtime_get_sync(dp->dev);
-+
-+	ret = analogix_dp_detect_hpd(dp);
-+	if (ret)
-+		goto out;
-+
-+	ret = analogix_dp_transfer(dp, msg);
-+out:
-+	pm_runtime_put(dp->dev);
-+
-+	return ret;
- }
- 
- struct analogix_dp_device *
+ 		pfn = cma->base_pfn + (bitmap_no << cma->order_per_bit);
++		mutex_lock(&cma_mutex);
+ 		ret = alloc_contig_range(pfn, pfn + count, MIGRATE_CMA,
+ 				     GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0));
+-
++		mutex_unlock(&cma_mutex);
+ 		if (ret == 0) {
+ 			page = pfn_to_page(pfn);
+ 			break;
 
 
