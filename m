@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 609D4541AC2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D66540AAF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376930AbiFGViB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:38:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37002 "EHLO
+        id S1351428AbiFGSXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381141AbiFGVgd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:36:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1899814087F;
-        Tue,  7 Jun 2022 12:04:58 -0700 (PDT)
+        with ESMTP id S1352392AbiFGSRF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A803193E8;
+        Tue,  7 Jun 2022 10:51:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85961B823B0;
-        Tue,  7 Jun 2022 19:04:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0DDCC385A2;
-        Tue,  7 Jun 2022 19:04:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAE61616A3;
+        Tue,  7 Jun 2022 17:51:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A9AC34115;
+        Tue,  7 Jun 2022 17:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628695;
-        bh=ldGhd7bSBWMTDEq9RvkJwTdry4k2qspt5cCyIwrHyVg=;
+        s=korg; t=1654624294;
+        bh=QTqEj261x6htSNu8XBT8A/STkvQUoVY2oB/tVFDKhq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odDAOy5Q+GORoSe/DdlY2JYPaqLZa+DHLsl+asNtyackLQL4r2uFCILI2nyC30fZz
-         W0KPbSbRdXAClePrh5z6gqz3VzIDQg1yL3UDUCfGn2rxC/UNs29/hmk8VbOXkCZtRV
-         T2vcjbn0WQcjPwdlMsXVI3QaOdUcGVSTXtauQjeI=
+        b=vLjfIgVCd0UwGYZtP+Caqefliaoh9VfN8MMGqLBq0NvdBmJq0Av4HQDF2qJ93PHSc
+         wqX4nld6sBl/bKoKGKlDyzFjj3cun5NdqicuxzboschdoCuo6sJFEl4ng4lKPVnfFV
+         3BS/gl8Q3WGdkRYFNRQ/1Rz+1RNzWLRfuCqo366o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 423/879] ASoC: samsung: Fix refcount leak in aries_audio_probe
+Subject: [PATCH 5.15 276/667] drm/rockchip: vop: fix possible null-ptr-deref in vop_bind()
 Date:   Tue,  7 Jun 2022 18:59:01 +0200
-Message-Id: <20220607165015.144184549@linuxfoundation.org>
+Message-Id: <20220607164943.063837310@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bf4a9b2467b775717d0e9034ad916888e19713a3 ]
+[ Upstream commit f8c242908ad15bbd604d3bcb54961b7d454c43f8 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-If extcon_find_edev_by_node() fails, it doesn't call of_node_put()
-Calling of_node_put() after extcon_find_edev_by_node() to fix this.
+It will cause null-ptr-deref in resource_size(), if platform_get_resource()
+returns NULL, move calling resource_size() after devm_ioremap_resource() that
+will check 'res' to avoid null-ptr-deref.
 
-Fixes: 7a3a7671fa6c ("ASoC: samsung: Add driver for Aries boards")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220512043828.496-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 2048e3286f34 ("drm: rockchip: Add basic drm driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220422032854.2995175-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/aries_wm8994.c | 2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/samsung/aries_wm8994.c b/sound/soc/samsung/aries_wm8994.c
-index 5265e546b124..83acbe57b248 100644
---- a/sound/soc/samsung/aries_wm8994.c
-+++ b/sound/soc/samsung/aries_wm8994.c
-@@ -585,10 +585,10 @@ static int aries_audio_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index a25b98b7f5bd..8b4287d40379 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -2116,10 +2116,10 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
+ 	vop_win_init(vop);
  
- 	extcon_np = of_parse_phandle(np, "extcon", 0);
- 	priv->usb_extcon = extcon_find_edev_by_node(extcon_np);
-+	of_node_put(extcon_np);
- 	if (IS_ERR(priv->usb_extcon))
- 		return dev_err_probe(dev, PTR_ERR(priv->usb_extcon),
- 				     "Failed to get extcon device");
--	of_node_put(extcon_np);
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	vop->len = resource_size(res);
+ 	vop->regs = devm_ioremap_resource(dev, res);
+ 	if (IS_ERR(vop->regs))
+ 		return PTR_ERR(vop->regs);
++	vop->len = resource_size(res);
  
- 	priv->adc = devm_iio_channel_get(dev, "headset-detect");
- 	if (IS_ERR(priv->adc))
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+ 	if (res) {
 -- 
 2.35.1
 
