@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D331454086D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A516354122A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349020AbiFGR6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58646 "EHLO
+        id S1357096AbiFGTo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348973AbiFGR5i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C893EB8B;
-        Tue,  7 Jun 2022 10:40:38 -0700 (PDT)
+        with ESMTP id S1357265AbiFGTli (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:41:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6E51B1CE9;
+        Tue,  7 Jun 2022 11:14:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51902B820C3;
-        Tue,  7 Jun 2022 17:40:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97038C34119;
-        Tue,  7 Jun 2022 17:40:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3A4B60B16;
+        Tue,  7 Jun 2022 18:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D305FC3411C;
+        Tue,  7 Jun 2022 18:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623635;
-        bh=o4aUOWLA8RpPXlxa1DtVqdROtOMPs/gt8c2SnTVOPbs=;
+        s=korg; t=1654625692;
+        bh=a6ZbcZ0pyviOct835Ub4+gXpK5eWBK1Jv1/OF+CY8kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CxoSfU75BnuRAMH0a50WNYrPQbhTE4MxOkXoJYsvxnco1uZ00re6GMBLjwb5PNIW9
-         KA5oGIuqOc7p/yo0wxi7inNurGQcaJUL0v0hjoSu7vGzlsjnw/ys19SPLMpsTtCjtS
-         UA4fOan68qZ76487Qg9iUyf6gSCgZfMaJ0abiGyw=
+        b=RDavsxgfhSfUY08bIpJJTMDfKnSXyqX7ZgPwFk8A+YvblBBvYkyFZWPrK+XVc8j5C
+         DF2RcrpswEoXxJR7b4Nqa51eNct9U2BZzraz0X9C37GmxYhYxdfyfd58e+6KoC89LJ
+         T/fzAFr1YNB/oxjKh8SuHA49hLAowh2HRTM7Y9Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kristen Carlson Accardi <kristen@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>
-Subject: [PATCH 5.15 035/667] x86/sgx: Set active memcg prior to shmem allocation
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 108/772] ath11k: fix warning of not found station for bssid in message
 Date:   Tue,  7 Jun 2022 18:55:00 +0200
-Message-Id: <20220607164935.850129760@linuxfoundation.org>
+Message-Id: <20220607164952.229417340@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,237 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristen Carlson Accardi <kristen@linux.intel.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-commit 0c9782e204d3cc5625b9e8bf4e8625d38dfe0139 upstream.
+[ Upstream commit 7330e1ec9748948177830c6e1a13379835d577f9 ]
 
-When the system runs out of enclave memory, SGX can reclaim EPC pages
-by swapping to normal RAM. These backing pages are allocated via a
-per-enclave shared memory area. Since SGX allows unlimited over
-commit on EPC memory, the reclaimer thread can allocate a large
-number of backing RAM pages in response to EPC memory pressure.
+When test connect/disconnect to an AP frequently with WCN6855, sometimes
+it show below log.
 
-When the shared memory backing RAM allocation occurs during
-the reclaimer thread context, the shared memory is charged to
-the root memory control group, and the shmem usage of the enclave
-is not properly accounted for, making cgroups ineffective at
-limiting the amount of RAM an enclave can consume.
+[  277.040121] wls1: deauthenticating from 8c:21:0a:b3:5a:64 by local choice (Reason: 3=DEAUTH_LEAVING)
+[  277.050906] ath11k_pci 0000:05:00.0: wmi stats vdev id 0 mac 00:03:7f:29:61:11
+[  277.050944] ath11k_pci 0000:05:00.0: wmi stats bssid 8c:21:0a:b3:5a:64 vif         pK-error
+[  277.050954] ath11k_pci 0000:05:00.0: not found station for bssid 8c:21:0a:b3:5a:64
+[  277.050961] ath11k_pci 0000:05:00.0: failed to parse rssi chain -71
+[  277.050967] ath11k_pci 0000:05:00.0: failed to pull fw stats: -71
+[  277.050976] ath11k_pci 0000:05:00.0: wmi stats vdev id 0 mac 00:03:7f:29:61:11
+[  277.050983] ath11k_pci 0000:05:00.0: wmi stats bssid 8c:21:0a:b3:5a:64 vif         pK-error
+[  277.050989] ath11k_pci 0000:05:00.0: not found station for bssid 8c:21:0a:b3:5a:64
+[  277.050995] ath11k_pci 0000:05:00.0: failed to parse rssi chain -71
+[  277.051000] ath11k_pci 0000:05:00.0: failed to pull fw stats: -71
+[  278.064050] ath11k_pci 0000:05:00.0: failed to request fw stats: -110
 
-For example, when using a cgroup to launch a set of test
-enclaves, the kernel does not properly account for 50% - 75% of
-shmem page allocations on average. In the worst case, when
-nearly all allocations occur during the reclaimer thread, the
-kernel accounts less than a percent of the amount of shmem used
-by the enclave's cgroup to the correct cgroup.
+Reason is:
+When running disconnect operation, sta_info removed from local->sta_hash
+by __sta_info_destroy_part1() from __sta_info_flush(), after this,
+ieee80211_find_sta_by_ifaddr() which called by
+ath11k_wmi_tlv_fw_stats_data_parse() and ath11k_wmi_tlv_rssi_chain_parse()
+cannot find this station, then failed log printed.
 
-SGX stores a list of mm_structs that are associated with
-an enclave. Pick one of them during reclaim and charge that
-mm's memcg with the shmem allocation. The one that gets picked
-is arbitrary, but this list almost always only has one mm. The
-cases where there is more than one mm with different memcg's
-are not worth considering.
+steps are like this:
+1. when disconnect from AP, __sta_info_destroy() called __sta_info_destroy_part1()
+and __sta_info_destroy_part2().
 
-Create a new function - sgx_encl_alloc_backing(). This function
-is used whenever a new backing storage page needs to be
-allocated. Previously the same function was used for page
-allocation as well as retrieving a previously allocated page.
-Prior to backing page allocation, if there is a mm_struct associated
-with the enclave that is requesting the allocation, it is set
-as the active memory control group.
+2. in __sta_info_destroy_part1(),  it has "sta_info_hash_del(local, sta)"
+and "list_del_rcu(&sta->list)", it will remove the ieee80211_sta from the
+list of ieee80211_hw.
 
-[ dhansen: - fix merge conflict with ELDU fixes
-           - check against actual ksgxd_tsk, not ->mm ]
+3. in __sta_info_destroy_part2(), it called drv_sta_state()->ath11k_mac_op_sta_state(),
+then peer->sta is clear at this moment.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Kristen Carlson Accardi <kristen@linux.intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-Link: https://lkml.kernel.org/r/20220520174248.4918-1-kristen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+4. in __sta_info_destroy_part2(), it then called sta_set_sinfo()->drv_sta_statistics()
+->ath11k_mac_op_sta_statistics(), then WMI_REQUEST_STATS_CMDID sent to firmware.
+
+5. WMI_UPDATE_STATS_EVENTID reported from firmware, at this moment, the
+ieee80211_sta can not be found again because it has remove from list in
+step2 and also peer->sta is clear in step3.
+
+6. in __sta_info_destroy_part2(), it then called cleanup_single_sta()->
+sta_info_free()->kfree(sta), at this moment, the ieee80211_sta is freed
+in memory, then the failed log will not happen because function
+ath11k_mac_op_sta_state() will not be called.
+
+Actually this print log is not a real error, it is only to skip parse the
+info, so change to skip print by default debug setting.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220428022426.2927-1-quic_wgong@quicinc.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/sgx/encl.c |  105 ++++++++++++++++++++++++++++++++++++++++-
- arch/x86/kernel/cpu/sgx/encl.h |    7 +-
- arch/x86/kernel/cpu/sgx/main.c |    9 ++-
- 3 files changed, 115 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath11k/wmi.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -152,7 +152,7 @@ static int __sgx_encl_eldu(struct sgx_en
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index 22921673e956..4ad3fe7d7d1f 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -5616,9 +5616,9 @@ static int ath11k_wmi_tlv_rssi_chain_parse(struct ath11k_base *ab,
+ 					   arvif->bssid,
+ 					   NULL);
+ 	if (!sta) {
+-		ath11k_warn(ab, "not found station for bssid %pM\n",
+-			    arvif->bssid);
+-		ret = -EPROTO;
++		ath11k_dbg(ab, ATH11K_DBG_WMI,
++			   "not found station of bssid %pM for rssi chain\n",
++			   arvif->bssid);
+ 		goto exit;
+ 	}
  
- 	page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
+@@ -5716,8 +5716,9 @@ static int ath11k_wmi_tlv_fw_stats_data_parse(struct ath11k_base *ab,
+ 					   "wmi stats vdev id %d snr %d\n",
+ 					   src->vdev_id, src->beacon_snr);
+ 			} else {
+-				ath11k_warn(ab, "not found station for bssid %pM\n",
+-					    arvif->bssid);
++				ath11k_dbg(ab, ATH11K_DBG_WMI,
++					   "not found station of bssid %pM for vdev stat\n",
++					   arvif->bssid);
+ 			}
+ 		}
  
--	ret = sgx_encl_get_backing(encl, page_index, &b);
-+	ret = sgx_encl_lookup_backing(encl, page_index, &b);
- 	if (ret)
- 		return ret;
- 
-@@ -718,7 +718,7 @@ static struct page *sgx_encl_get_backing
-  *   0 on success,
-  *   -errno otherwise.
-  */
--int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
-+static int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
- 			 struct sgx_backing *backing)
- {
- 	pgoff_t page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
-@@ -743,6 +743,107 @@ int sgx_encl_get_backing(struct sgx_encl
- 	return 0;
- }
- 
-+/*
-+ * When called from ksgxd, returns the mem_cgroup of a struct mm stored
-+ * in the enclave's mm_list. When not called from ksgxd, just returns
-+ * the mem_cgroup of the current task.
-+ */
-+static struct mem_cgroup *sgx_encl_get_mem_cgroup(struct sgx_encl *encl)
-+{
-+	struct mem_cgroup *memcg = NULL;
-+	struct sgx_encl_mm *encl_mm;
-+	int idx;
-+
-+	/*
-+	 * If called from normal task context, return the mem_cgroup
-+	 * of the current task's mm. The remainder of the handling is for
-+	 * ksgxd.
-+	 */
-+	if (!current_is_ksgxd())
-+		return get_mem_cgroup_from_mm(current->mm);
-+
-+	/*
-+	 * Search the enclave's mm_list to find an mm associated with
-+	 * this enclave to charge the allocation to.
-+	 */
-+	idx = srcu_read_lock(&encl->srcu);
-+
-+	list_for_each_entry_rcu(encl_mm, &encl->mm_list, list) {
-+		if (!mmget_not_zero(encl_mm->mm))
-+			continue;
-+
-+		memcg = get_mem_cgroup_from_mm(encl_mm->mm);
-+
-+		mmput_async(encl_mm->mm);
-+
-+		break;
-+	}
-+
-+	srcu_read_unlock(&encl->srcu, idx);
-+
-+	/*
-+	 * In the rare case that there isn't an mm associated with
-+	 * the enclave, set memcg to the current active mem_cgroup.
-+	 * This will be the root mem_cgroup if there is no active
-+	 * mem_cgroup.
-+	 */
-+	if (!memcg)
-+		return get_mem_cgroup_from_mm(NULL);
-+
-+	return memcg;
-+}
-+
-+/**
-+ * sgx_encl_alloc_backing() - allocate a new backing storage page
-+ * @encl:	an enclave pointer
-+ * @page_index:	enclave page index
-+ * @backing:	data for accessing backing storage for the page
-+ *
-+ * When called from ksgxd, sets the active memcg from one of the
-+ * mms in the enclave's mm_list prior to any backing page allocation,
-+ * in order to ensure that shmem page allocations are charged to the
-+ * enclave.
-+ *
-+ * Return:
-+ *   0 on success,
-+ *   -errno otherwise.
-+ */
-+int sgx_encl_alloc_backing(struct sgx_encl *encl, unsigned long page_index,
-+			   struct sgx_backing *backing)
-+{
-+	struct mem_cgroup *encl_memcg = sgx_encl_get_mem_cgroup(encl);
-+	struct mem_cgroup *memcg = set_active_memcg(encl_memcg);
-+	int ret;
-+
-+	ret = sgx_encl_get_backing(encl, page_index, backing);
-+
-+	set_active_memcg(memcg);
-+	mem_cgroup_put(encl_memcg);
-+
-+	return ret;
-+}
-+
-+/**
-+ * sgx_encl_lookup_backing() - retrieve an existing backing storage page
-+ * @encl:	an enclave pointer
-+ * @page_index:	enclave page index
-+ * @backing:	data for accessing backing storage for the page
-+ *
-+ * Retrieve a backing page for loading data back into an EPC page with ELDU.
-+ * It is the caller's responsibility to ensure that it is appropriate to use
-+ * sgx_encl_lookup_backing() rather than sgx_encl_alloc_backing(). If lookup is
-+ * not used correctly, this will cause an allocation which is not accounted for.
-+ *
-+ * Return:
-+ *   0 on success,
-+ *   -errno otherwise.
-+ */
-+int sgx_encl_lookup_backing(struct sgx_encl *encl, unsigned long page_index,
-+			   struct sgx_backing *backing)
-+{
-+	return sgx_encl_get_backing(encl, page_index, backing);
-+}
-+
- /**
-  * sgx_encl_put_backing() - Unpin the backing storage
-  * @backing:	data for accessing backing storage for the page
---- a/arch/x86/kernel/cpu/sgx/encl.h
-+++ b/arch/x86/kernel/cpu/sgx/encl.h
-@@ -103,10 +103,13 @@ static inline int sgx_encl_find(struct m
- int sgx_encl_may_map(struct sgx_encl *encl, unsigned long start,
- 		     unsigned long end, unsigned long vm_flags);
- 
-+bool current_is_ksgxd(void);
- void sgx_encl_release(struct kref *ref);
- int sgx_encl_mm_add(struct sgx_encl *encl, struct mm_struct *mm);
--int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
--			 struct sgx_backing *backing);
-+int sgx_encl_lookup_backing(struct sgx_encl *encl, unsigned long page_index,
-+			    struct sgx_backing *backing);
-+int sgx_encl_alloc_backing(struct sgx_encl *encl, unsigned long page_index,
-+			   struct sgx_backing *backing);
- void sgx_encl_put_backing(struct sgx_backing *backing);
- int sgx_encl_test_and_clear_young(struct mm_struct *mm,
- 				  struct sgx_encl_page *page);
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -292,7 +292,7 @@ static void sgx_reclaimer_write(struct s
- 	sgx_encl_put_backing(backing);
- 
- 	if (!encl->secs_child_cnt && test_bit(SGX_ENCL_INITIALIZED, &encl->flags)) {
--		ret = sgx_encl_get_backing(encl, PFN_DOWN(encl->size),
-+		ret = sgx_encl_alloc_backing(encl, PFN_DOWN(encl->size),
- 					   &secs_backing);
- 		if (ret)
- 			goto out;
-@@ -365,7 +365,7 @@ static void sgx_reclaim_pages(void)
- 		page_index = PFN_DOWN(encl_page->desc - encl_page->encl->base);
- 
- 		mutex_lock(&encl_page->encl->lock);
--		ret = sgx_encl_get_backing(encl_page->encl, page_index, &backing[i]);
-+		ret = sgx_encl_alloc_backing(encl_page->encl, page_index, &backing[i]);
- 		if (ret) {
- 			mutex_unlock(&encl_page->encl->lock);
- 			goto skip;
-@@ -462,6 +462,11 @@ static bool __init sgx_page_reclaimer_in
- 	return true;
- }
- 
-+bool current_is_ksgxd(void)
-+{
-+	return current == ksgxd_tsk;
-+}
-+
- static struct sgx_epc_page *__sgx_alloc_epc_page_from_node(int nid)
- {
- 	struct sgx_numa_node *node = &sgx_numa_nodes[nid];
+-- 
+2.35.1
+
 
 
