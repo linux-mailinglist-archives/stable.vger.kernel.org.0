@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C6054093B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E4655409F2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349562AbiFGSE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32780 "EHLO
+        id S1350761AbiFGSS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:18:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352060AbiFGSCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:37 -0400
+        with ESMTP id S1350811AbiFGSOc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:14:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9B756B655;
-        Tue,  7 Jun 2022 10:46:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7AEC15AB06;
+        Tue,  7 Jun 2022 10:49:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71C53616B6;
-        Tue,  7 Jun 2022 17:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D8B1C34115;
-        Tue,  7 Jun 2022 17:46:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B84E61744;
+        Tue,  7 Jun 2022 17:49:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BEC3C385A5;
+        Tue,  7 Jun 2022 17:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624012;
-        bh=Z8axk3wY4vH8/Dseo94rtU2nY3WpgHiZ0Yz2/nELLWk=;
+        s=korg; t=1654624150;
+        bh=4VbD8WfJB44zlOa5xh/C+Vp346v74EgwC6bktjAuxDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oeUTkZn6+U3Y3Ifr5RPPALo4EyuxZ8MSwpoIgZ49FRW7+/ONWjrN2AIMwYcLsIROY
-         Su6d1p0y2u5DYJS7arfu7HuGHHI/xAq1QcMrVEfGx3QGagS1MEAW91bZrJO3wH51WW
-         U8GVMFeA55oN7apIOLkSK1UZpeTDh9+itusb6G6w=
+        b=nbEkDuMoklZKZEjmaUPZrzj4KytaCz1Zl+uP9ePPWO8MBxxS9xtzc/dqliEqgYby6
+         qBh42m9L3zElNBPZ34jRbYJpxta9MaKX7NsYorTdcouN8aZK0mpnrOj0Wzm6PCgNuZ
+         2WNT49xAwLO6qSe4HppkNXFtBOJJcISeUcSQ+CSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 171/667] KVM: PPC: Book3S HV Nested: L2 LPCR should inherit L1 LPES setting
-Date:   Tue,  7 Jun 2022 18:57:16 +0200
-Message-Id: <20220607164939.941318184@linuxfoundation.org>
+Subject: [PATCH 5.15 172/667] alpha: fix alloc_zeroed_user_highpage_movable()
+Date:   Tue,  7 Jun 2022 18:57:17 +0200
+Message-Id: <20220607164939.970555353@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -55,58 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 2852ebfa10afdcefff35ec72c8da97141df9845c ]
+[ Upstream commit f9c668d281aa20e38c9bda3b7b0adeb8891aa15e ]
 
-The L1 should not be able to adjust LPES mode for the L2. Setting LPES
-if the L0 needs it clear would cause external interrupts to be sent to
-L2 and missed by the L0.
+Due to a typo, the final argument to alloc_page_vma() didn't refer to a
+real variable.  This only affected CONFIG_NUMA, which was marked BROKEN in
+2006 and removed from alpha in 2021.  Found due to a refactoring patch.
 
-Clearing LPES when it may be set, as typically happens with XIVE enabled
-could cause a performance issue despite having no native XIVE support in
-the guest, because it will cause mediated interrupts for the L2 to be
-taken in HV mode, which then have to be injected.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220303053315.1056880-7-npiggin@gmail.com
+Link: https://lkml.kernel.org/r/20220504182857.4013401-4-willy@infradead.org
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c        | 4 ++++
- arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ arch/alpha/include/asm/page.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 7fa685711669..eba77096c443 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -5235,6 +5235,10 @@ static int kvmppc_core_init_vm_hv(struct kvm *kvm)
- 		kvm->arch.host_lpcr = lpcr = mfspr(SPRN_LPCR);
- 		lpcr &= LPCR_PECE | LPCR_LPES;
- 	} else {
-+		/*
-+		 * The L2 LPES mode will be set by the L0 according to whether
-+		 * or not it needs to take external interrupts in HV mode.
-+		 */
- 		lpcr = 0;
- 	}
- 	lpcr |= (4UL << LPCR_DPFD_SH) | LPCR_HDICE |
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index 6c4e0e93105f..ddea14e5cb5e 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -261,8 +261,7 @@ static void load_l2_hv_regs(struct kvm_vcpu *vcpu,
- 	/*
- 	 * Don't let L1 change LPCR bits for the L2 except these:
- 	 */
--	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD |
--		LPCR_LPES | LPCR_MER;
-+	mask = LPCR_DPFD | LPCR_ILE | LPCR_TC | LPCR_AIL | LPCR_LD | LPCR_MER;
+diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
+index 18f48a6f2ff6..8f3f5eecba28 100644
+--- a/arch/alpha/include/asm/page.h
++++ b/arch/alpha/include/asm/page.h
+@@ -18,7 +18,7 @@ extern void clear_page(void *page);
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
  
- 	/*
- 	 * Additional filtering is required depending on hardware
+ #define alloc_zeroed_user_highpage_movable(vma, vaddr) \
+-	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vmaddr)
++	alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE_MOVABLE
+ 
+ extern void copy_page(void * _to, void * _from);
 -- 
 2.35.1
 
