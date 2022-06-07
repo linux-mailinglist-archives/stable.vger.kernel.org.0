@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A25C5414C3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC51540C06
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358657AbiFGUVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44004 "EHLO
+        id S230140AbiFGSdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359854AbiFGUVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB126179C11;
-        Tue,  7 Jun 2022 11:30:49 -0700 (PDT)
+        with ESMTP id S1352548AbiFGSbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E678A146432;
+        Tue,  7 Jun 2022 10:56:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02D44B8237F;
-        Tue,  7 Jun 2022 18:30:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FED5C385A2;
-        Tue,  7 Jun 2022 18:30:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F87A61882;
+        Tue,  7 Jun 2022 17:56:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A974FC34115;
+        Tue,  7 Jun 2022 17:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626646;
-        bh=W+ZYBwAKVLvmrcCdopsd3RaKMXAZ/iOmPCbaHwgRtho=;
+        s=korg; t=1654624588;
+        bh=O5JT5+VvzEisjjF0FEtEb5N0G8F6D2H0gpnUHuMuMkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJktVNuu5ZMtwVK752By5+9Rl+S/fXgzOMyHGLEGAJR9ggxchutOjV2GZ7YvWpS09
-         IzJwRgWOFaG2uhRvsl9OFlIBb/kgf3sfsubAyNwPn66MgBn9jdK2FmdMOkuLFqRUBG
-         qIi1Flq0Yki1Oz3SDtICdBebVQyR+QrDKNDdMFGU=
+        b=JwdGA1HPSzRNvE8irfs71tnidbDrHJ/UehwrsUKLgqNR6Qw0f4S+SQ4l8ATAKgAQD
+         e8H9AH0UNs67HFn63QPFShvoYMdMmQTZiG3+pQbxkbHhW5W0jzE/aG5FRVj93q2zvU
+         JgCbji3jxt99DV1CgP7frljZYX/KaXbSBRpTiFmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        David Rientjes <rientjes@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 453/772] PCI/ACPI: Allow D3 only if Root Port can signal and wake from D3
+Subject: [PATCH 5.15 380/667] dma-direct: dont over-decrypt memory
 Date:   Tue,  7 Jun 2022 19:00:45 +0200
-Message-Id: <20220607165002.351907019@linuxfoundation.org>
+Message-Id: <20220607164946.146389737@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,122 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit dff6139015dc68e93be3822a7bd406a1d138628b ]
+[ Upstream commit 4a37f3dd9a83186cb88d44808ab35b78375082c9 ]
 
-acpi_pci_bridge_d3(dev) returns "true" if "dev" is a hotplug bridge that
-can handle hotplug events while in D3.  Previously this meant either:
+The original x86 sev_alloc() only called set_memory_decrypted() on
+memory returned by alloc_pages_node(), so the page order calculation
+fell out of that logic. However, the common dma-direct code has several
+potential allocators, not all of which are guaranteed to round up the
+underlying allocation to a power-of-two size, so carrying over that
+calculation for the encryption/decryption size was a mistake. Fix it by
+rounding to a *number* of pages, rather than an order.
 
-  - "dev" has a _PS0 or _PR0 method (acpi_pci_power_manageable()), or
+Until recently there was an even worse interaction with DMA_DIRECT_REMAP
+where we could have ended up decrypting part of the next adjacent
+vmalloc area, only averted by no architecture actually supporting both
+configs at once. Don't ask how I found that one out...
 
-  - The Root Port above "dev" has a _DSD with a "HotPlugSupportInD3"
-    property with value 1.
-
-This did not consider _PRW, which tells us about wakeup GPEs (ACPI v6.4,
-sec 7.3.13).  Without a wakeup GPE, from an ACPI perspective the Root Port
-has no way of generating wakeup signals, so hotplug events will be lost if
-we use D3.
-
-Similarly, it did not consider _S0W, which tells us the deepest D-state
-from which a device can wake itself (sec 7.3.20).  If _S0W tells us the
-device cannot wake from D3, hotplug events will again be lost if we use D3.
-
-Some platforms, e.g., AMD Yellow Carp, supply "HotPlugSupportInD3" without
-_PRW or with an _S0W that says the Root Port cannot wake from D3.  On those
-platforms, we previously put bridges in D3hot, hotplug events were lost,
-and hotplugged devices would not be recognized without manually rescanning.
-
-Allow bridges to be put in D3 only if the Root Port can generate wakeup
-GPEs (wakeup.flags.valid), it can wake from D3 (_S0W), AND it has the
-"HotPlugSupportInD3" property.
-
-Neither Windows 10 nor Windows 11 puts the bridge in D3 when the firmware
-is configured this way, and this change aligns the handling of the
-situation to be the same.
-
-[bhelgaas: commit log, tidy "HotPlugSupportInD3" check and comment]
-Link: https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/07_Power_and_Performance_Mgmt/device-power-management-objects.html?highlight=s0w#s0w-s0-device-wake-state
-Link: https://docs.microsoft.com/en-us/windows-hardware/drivers/pci/dsd-for-pcie-root-ports#identifying-pcie-root-ports-supporting-hot-plug-in-d3
-Link: https://lore.kernel.org/r/20220401034003.3166-1-mario.limonciello@amd.com
-Fixes: 26ad34d510a87 ("PCI / ACPI: Whitelist D3 for more PCIe hotplug ports")
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: c10f07aa27da ("dma/direct: Handle force decryption for DMA coherent buffers in common code")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: David Rientjes <rientjes@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-acpi.c | 41 ++++++++++++++++++++++++++++++-----------
- 1 file changed, 30 insertions(+), 11 deletions(-)
+ kernel/dma/direct.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
-index a42dbf448860..1243e2156ac8 100644
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -974,9 +974,11 @@ bool acpi_pci_power_manageable(struct pci_dev *dev)
- 
- bool acpi_pci_bridge_d3(struct pci_dev *dev)
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 8e24455dd236..854d6df969de 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -79,7 +79,7 @@ static int dma_set_decrypted(struct device *dev, void *vaddr, size_t size)
  {
--	const union acpi_object *obj;
--	struct acpi_device *adev;
- 	struct pci_dev *rpdev;
-+	struct acpi_device *adev;
-+	acpi_status status;
-+	unsigned long long state;
-+	const union acpi_object *obj;
- 
- 	if (acpi_pci_disabled || !dev->is_hotplug_bridge)
- 		return false;
-@@ -985,12 +987,6 @@ bool acpi_pci_bridge_d3(struct pci_dev *dev)
- 	if (acpi_pci_power_manageable(dev))
- 		return true;
- 
--	/*
--	 * The ACPI firmware will provide the device-specific properties through
--	 * _DSD configuration object. Look for the 'HotPlugSupportInD3' property
--	 * for the root port and if it is set we know the hierarchy behind it
--	 * supports D3 just fine.
--	 */
- 	rpdev = pcie_find_root_port(dev);
- 	if (!rpdev)
- 		return false;
-@@ -999,11 +995,34 @@ bool acpi_pci_bridge_d3(struct pci_dev *dev)
- 	if (!adev)
- 		return false;
- 
--	if (acpi_dev_get_property(adev, "HotPlugSupportInD3",
--				   ACPI_TYPE_INTEGER, &obj) < 0)
-+	/*
-+	 * If the Root Port cannot signal wakeup signals at all, i.e., it
-+	 * doesn't supply a wakeup GPE via _PRW, it cannot signal hotplug
-+	 * events from low-power states including D3hot and D3cold.
-+	 */
-+	if (!adev->wakeup.flags.valid)
- 		return false;
- 
--	return obj->integer.value == 1;
-+	/*
-+	 * If the Root Port cannot wake itself from D3hot or D3cold, we
-+	 * can't use D3.
-+	 */
-+	status = acpi_evaluate_integer(adev->handle, "_S0W", NULL, &state);
-+	if (ACPI_SUCCESS(status) && state < ACPI_STATE_D3_HOT)
-+		return false;
-+
-+	/*
-+	 * The "HotPlugSupportInD3" property in a Root Port _DSD indicates
-+	 * the Port can signal hotplug events while in D3.  We assume any
-+	 * bridges *below* that Root Port can also signal hotplug events
-+	 * while in D3.
-+	 */
-+	if (!acpi_dev_get_property(adev, "HotPlugSupportInD3",
-+				   ACPI_TYPE_INTEGER, &obj) &&
-+	    obj->integer.value == 1)
-+		return true;
-+
-+	return false;
+ 	if (!force_dma_unencrypted(dev))
+ 		return 0;
+-	return set_memory_decrypted((unsigned long)vaddr, 1 << get_order(size));
++	return set_memory_decrypted((unsigned long)vaddr, PFN_UP(size));
  }
  
- int acpi_pci_set_power_state(struct pci_dev *dev, pci_power_t state)
+ static int dma_set_encrypted(struct device *dev, void *vaddr, size_t size)
+@@ -88,7 +88,7 @@ static int dma_set_encrypted(struct device *dev, void *vaddr, size_t size)
+ 
+ 	if (!force_dma_unencrypted(dev))
+ 		return 0;
+-	ret = set_memory_encrypted((unsigned long)vaddr, 1 << get_order(size));
++	ret = set_memory_encrypted((unsigned long)vaddr, PFN_UP(size));
+ 	if (ret)
+ 		pr_warn_ratelimited("leaking DMA memory that can't be re-encrypted\n");
+ 	return ret;
 -- 
 2.35.1
 
