@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30721541A5A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523A2541390
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379390AbiFGVcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
+        id S1353602AbiFGUC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:02:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380379AbiFGVax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26F67229B75;
-        Tue,  7 Jun 2022 12:02:50 -0700 (PDT)
+        with ESMTP id S1358374AbiFGUA7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:00:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8207FD4A3D;
+        Tue,  7 Jun 2022 11:24:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E062FCE2424;
-        Tue,  7 Jun 2022 19:02:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5731C385A2;
-        Tue,  7 Jun 2022 19:02:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52B1CB8237F;
+        Tue,  7 Jun 2022 18:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0297C385A5;
+        Tue,  7 Jun 2022 18:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628567;
-        bh=bTxqzaCwIkZOunONRNJEGMBbJbWENtOBNXkA+CRq77k=;
+        s=korg; t=1654626257;
+        bh=fnG+UK/GdWNYtSgoQqZ5bqzvkDaVX9q79kRygAvrBt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EGSQDnhHvXFajQKhxI4VHTiDnYA4w4Flvbg+Ab/dCqFsUYs4sZDDp1hYzdCStTOR9
-         tHLU3H4kYGj2oK58gag/nfByK12LSV6GOdRoQdh5b9g9Ti9Mfbv/obTfstNMoC5H0+
-         cgIGBmyz0pRIwUOmbF8iBy/qvOi46DhMumNE4cg8=
+        b=cz5nDozrmhMe308RjGfkgdF3SinEA4mN6zz54qWSdU4X4bT8qgsRPGmuaWsv6I5qu
+         WNW/yCUkDjW6XpZYoIly8lyxvru2s0i+9PUj9PCyh87n+1KmU3WXyIIXEG4hZZ37A5
+         HYUiJzpy2xnt3eHtUeMrRx8PbXqWnlcLHaHHL1Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 369/879] drm/msm/dp: stop event kernel thread when DP unbind
-Date:   Tue,  7 Jun 2022 18:58:07 +0200
-Message-Id: <20220607165013.583683640@linuxfoundation.org>
+Subject: [PATCH 5.17 296/772] spi: rockchip: fix missing error on unsupported SPI_CS_HIGH
+Date:   Tue,  7 Jun 2022 18:58:08 +0200
+Message-Id: <20220607164957.745814757@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,162 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-[ Upstream commit 570d3e5d28db7a94557fa179167a9fb8642fb8a1 ]
+[ Upstream commit d5d933f09ac326aebad85bfb787cc786ad477711 ]
 
-Current DP driver implementation, event thread is kept running
-after DP display is unbind. This patch fix this problem by disabling
-DP irq and stop event thread to exit gracefully at dp_display_unbind().
+The hardware (except for the ROCKCHIP_SPI_VER2_TYPE2 version) does not
+support active-high native chip selects. However if such a CS is configured
+the core does not error as it normally should, because the
+'ctlr->use_gpio_descriptors = true' line in rockchip_spi_probe() makes the
+core set SPI_CS_HIGH in ctlr->mode_bits.
 
-Changes in v2:
--- start event thread at dp_display_bind()
+In such a case the spi-rockchip driver operates normally but produces an
+active-low chip select signal without notice.
 
-Changes in v3:
--- disable all HDP interrupts at unbind
--- replace dp_hpd_event_setup() with dp_hpd_event_thread_start()
--- replace dp_hpd_event_stop() with dp_hpd_event_thread_stop()
--- move init_waitqueue_head(&dp->event_q) to probe()
--- move spin_lock_init(&dp->event_lock) to probe()
+There is no provision in the current core code to handle this
+situation. Fix by adding a check in the ctlr->setup function (similarly to
+what spi-atmel.c does).
 
-Changes in v4:
--- relocate both dp_display_bind() and dp_display_unbind() to bottom of file
+This cannot be done reading the SPI_CS_HIGH but in ctlr->mode_bits because
+that bit gets always set by the core for master mode (see above).
 
-Changes in v5:
--- cancel relocation of both dp_display_bind() and dp_display_unbind()
-
-Changes in v6:
--- move empty event q to dp_event_thread_start()
-
-Changes in v7:
--- call ktheread_stop() directly instead of dp_hpd_event_thread_stop() function
-
-Changes in v8:
--- return error immediately if audio registration failed.
-
-Changes in v9:
--- return error immediately if event thread create failed.
-
-Changes in v10:
--- delete extra  DRM_ERROR("failed to create DP event thread\n");
-
-Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/482399/
-Link: https://lore.kernel.org/r/1650318988-17580-1-git-send-email-quic_khsieh@quicinc.com
-[DB: fixed Fixes tag]
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: eb1262e3cc8b ("spi: spi-rockchip: use num-cs property and ctlr->enable_gpiods")
+Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Link: https://lore.kernel.org/r/20220421213251.1077899-1-luca.ceresoli@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 39 +++++++++++++++++++++++------
- 1 file changed, 31 insertions(+), 8 deletions(-)
+ drivers/spi/spi-rockchip.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 178b774a5fbd..332065b882af 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -113,6 +113,7 @@ struct dp_display_private {
- 	u32 hpd_state;
- 	u32 event_pndx;
- 	u32 event_gndx;
-+	struct task_struct *ev_tsk;
- 	struct dp_event event_list[DP_EVENT_Q_MAX];
- 	spinlock_t event_lock;
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index 83da8fdb3c02..b721b62118e1 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -196,6 +196,8 @@ struct rockchip_spi {
  
-@@ -249,6 +250,8 @@ void dp_display_signal_audio_complete(struct msm_dp *dp_display)
- 	complete_all(&dp->audio_comp);
- }
- 
-+static int dp_hpd_event_thread_start(struct dp_display_private *dp_priv);
+ 	bool slave_abort;
+ 	bool cs_inactive; /* spi slave tansmition stop when cs inactive */
++	bool cs_high_supported; /* native CS supports active-high polarity */
 +
- static int dp_display_bind(struct device *dev, struct device *master,
- 			   void *data)
- {
-@@ -282,9 +285,18 @@ static int dp_display_bind(struct device *dev, struct device *master,
- 	}
+ 	struct spi_transfer *xfer; /* Store xfer temporarily */
+ };
  
- 	rc = dp_register_audio_driver(dev, dp->audio);
--	if (rc)
-+	if (rc) {
- 		DRM_ERROR("Audio registration Dp failed\n");
-+		goto end;
-+	}
+@@ -718,6 +720,11 @@ static int rockchip_spi_setup(struct spi_device *spi)
+ 	struct rockchip_spi *rs = spi_controller_get_devdata(spi->controller);
+ 	u32 cr0;
  
-+	rc = dp_hpd_event_thread_start(dp);
-+	if (rc) {
-+		DRM_ERROR("Event thread create failed\n");
-+		goto end;
++	if (!spi->cs_gpiod && (spi->mode & SPI_CS_HIGH) && !rs->cs_high_supported) {
++		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
++		return -EINVAL;
 +	}
 +
-+	return 0;
- end:
- 	return rc;
- }
-@@ -295,6 +307,11 @@ static void dp_display_unbind(struct device *dev, struct device *master,
- 	struct dp_display_private *dp = dev_get_dp_display_private(dev);
- 	struct msm_drm_private *priv = dev_get_drvdata(master);
+ 	pm_runtime_get_sync(rs->dev);
  
-+	/* disable all HPD interrupts */
-+	dp_catalog_hpd_config_intr(dp->catalog, DP_DP_HPD_INT_MASK, false);
-+
-+	kthread_stop(dp->ev_tsk);
-+
- 	dp_power_client_deinit(dp->power);
- 	dp_aux_unregister(dp->aux);
- 	priv->dp[dp->id] = NULL;
-@@ -1090,7 +1107,7 @@ static int hpd_event_thread(void *data)
+ 	cr0 = readl_relaxed(rs->regs + ROCKCHIP_SPI_CTRLR0);
+@@ -898,6 +905,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
  
- 	dp_priv = (struct dp_display_private *)data;
- 
--	while (1) {
-+	while (!kthread_should_stop()) {
- 		if (timeout_mode) {
- 			wait_event_timeout(dp_priv->event_q,
- 				(dp_priv->event_pndx == dp_priv->event_gndx),
-@@ -1168,12 +1185,17 @@ static int hpd_event_thread(void *data)
- 	return 0;
- }
- 
--static void dp_hpd_event_setup(struct dp_display_private *dp_priv)
-+static int dp_hpd_event_thread_start(struct dp_display_private *dp_priv)
- {
--	init_waitqueue_head(&dp_priv->event_q);
--	spin_lock_init(&dp_priv->event_lock);
-+	/* set event q to empty */
-+	dp_priv->event_gndx = 0;
-+	dp_priv->event_pndx = 0;
- 
--	kthread_run(hpd_event_thread, dp_priv, "dp_hpd_handler");
-+	dp_priv->ev_tsk = kthread_run(hpd_event_thread, dp_priv, "dp_hpd_handler");
-+	if (IS_ERR(dp_priv->ev_tsk))
-+		return PTR_ERR(dp_priv->ev_tsk);
-+
-+	return 0;
- }
- 
- static irqreturn_t dp_display_irq_handler(int irq, void *dev_id)
-@@ -1303,7 +1325,10 @@ static int dp_display_probe(struct platform_device *pdev)
- 		return -EPROBE_DEFER;
- 	}
- 
-+	/* setup event q */
- 	mutex_init(&dp->event_mutex);
-+	init_waitqueue_head(&dp->event_q);
-+	spin_lock_init(&dp->event_lock);
- 
- 	/* Store DP audio handle inside DP display */
- 	dp->dp_display.dp_audio = dp->audio;
-@@ -1483,8 +1508,6 @@ void msm_dp_irq_postinstall(struct msm_dp *dp_display)
- 
- 	dp = container_of(dp_display, struct dp_display_private, dp_display);
- 
--	dp_hpd_event_setup(dp);
--
- 	dp_add_event(dp, EV_HPD_INIT_SETUP, 0, 100);
- }
- 
+ 	switch (readl_relaxed(rs->regs + ROCKCHIP_SPI_VERSION)) {
+ 	case ROCKCHIP_SPI_VER2_TYPE2:
++		rs->cs_high_supported = true;
+ 		ctlr->mode_bits |= SPI_CS_HIGH;
+ 		if (ctlr->can_dma && slave_mode)
+ 			rs->cs_inactive = true;
 -- 
 2.35.1
 
