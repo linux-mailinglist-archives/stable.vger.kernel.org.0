@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC04A541637
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F58540751
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359818AbiFGUsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
+        id S1345004AbiFGRq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:46:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376610AbiFGUpr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:45:47 -0400
+        with ESMTP id S1347837AbiFGRof (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:44:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680771F589C;
-        Tue,  7 Jun 2022 11:39:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C5381312A5;
+        Tue,  7 Jun 2022 10:35:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CDAB6159D;
-        Tue,  7 Jun 2022 18:39:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DA9C385A5;
-        Tue,  7 Jun 2022 18:39:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74E40614D8;
+        Tue,  7 Jun 2022 17:35:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85350C385A5;
+        Tue,  7 Jun 2022 17:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627160;
-        bh=pJleXnQAqwEM7iZbJoC8qGeIQitwSn577DxdbRHysLE=;
+        s=korg; t=1654623321;
+        bh=9DMQ6JgSqIf8HKJKCjCTfDvP43n2npVk0dYewib4UoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3jxhMhZ3Z25g4KwKmUHem3g4s1iq0dOWFEfdnUtQVb9TXh15Kes3q/fb5wdulVL2
-         iof9LV9flZkNlrs+3jCP6ON1a4j46d1pbIYKVcAUec9FYGtWpBK202yoD1xO4XBM5n
-         T6zobqBMsQOrBVNi8XVxXhxe56oTBeLjB9HvE/LE=
+        b=JrPXzUvEYFTikIuXLG4PsEzWoWK/1OAEBa1Gw+fIrPhFFAk70f5w+Ro82qyP02Itv
+         fr15fTXEbeOi+MR5POOObLyQLoWpgCiUp4x5wcZ+9ma3WyN2gjDRLydNi0lE6rdpqG
+         x1RKsqLAeA5HUq+KWTEjAJG98aQ5i7qZ8BXAHySE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ojaswin Mujoo <ojaswin@linux.ibm.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.17 638/772] ext4: fix journal_ioprio mount option handling
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 5.10 373/452] dlm: fix plock invalid read
 Date:   Tue,  7 Jun 2022 19:03:50 +0200
-Message-Id: <20220607165007.734891467@linuxfoundation.org>
+Message-Id: <20220607164919.680098473@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +54,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit e4e58e5df309d695799c494958962100a4c25039 upstream.
+commit 42252d0d2aa9b94d168241710a761588b3959019 upstream.
 
-In __ext4_super() we always overwrote the user specified journal_ioprio
-value with a default value, expecting parse_apply_sb_mount_options() to
-later correctly set ctx->journal_ioprio to the user specified value.
-However, if parse_apply_sb_mount_options() returned early because of
-empty sbi->es_s->s_mount_opts, the correct journal_ioprio value was
-never set.
+This patch fixes an invalid read showed by KASAN. A unlock will allocate a
+"struct plock_op" and a followed send_op() will append it to a global
+send_list data structure. In some cases a followed dev_read() moves it
+to recv_list and dev_write() will cast it to "struct plock_xop" and access
+fields which are only available in those structures. At this point an
+invalid read happens by accessing those fields.
 
-This patch fixes __ext4_super() to only use the default value if the
-user has not specified any value for journal_ioprio.
+To fix this issue the "callback" field is moved to "struct plock_op" to
+indicate that a cast to "plock_xop" is allowed and does the additional
+"plock_xop" handling if set.
 
-Similarly, the remount behavior was to either use journal_ioprio
-value specified during initial mount, or use the default value
-irrespective of the journal_ioprio value specified during remount.
-This patch modifies this to first check if a new value for ioprio
-has been passed during remount and apply it.  If no new value is
-passed, use the value specified during initial mount.
+Example of the KASAN output which showed the invalid read:
 
-Signed-off-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Tested-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220418083545.45778-1-ojaswin@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+[ 2064.296453] ==================================================================
+[ 2064.304852] BUG: KASAN: slab-out-of-bounds in dev_write+0x52b/0x5a0 [dlm]
+[ 2064.306491] Read of size 8 at addr ffff88800ef227d8 by task dlm_controld/7484
+[ 2064.308168]
+[ 2064.308575] CPU: 0 PID: 7484 Comm: dlm_controld Kdump: loaded Not tainted 5.14.0+ #9
+[ 2064.310292] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[ 2064.311618] Call Trace:
+[ 2064.312218]  dump_stack_lvl+0x56/0x7b
+[ 2064.313150]  print_address_description.constprop.8+0x21/0x150
+[ 2064.314578]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.315610]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.316595]  kasan_report.cold.14+0x7f/0x11b
+[ 2064.317674]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.318687]  dev_write+0x52b/0x5a0 [dlm]
+[ 2064.319629]  ? dev_read+0x4a0/0x4a0 [dlm]
+[ 2064.320713]  ? bpf_lsm_kernfs_init_security+0x10/0x10
+[ 2064.321926]  vfs_write+0x17e/0x930
+[ 2064.322769]  ? __fget_light+0x1aa/0x220
+[ 2064.323753]  ksys_write+0xf1/0x1c0
+[ 2064.324548]  ? __ia32_sys_read+0xb0/0xb0
+[ 2064.325464]  do_syscall_64+0x3a/0x80
+[ 2064.326387]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2064.327606] RIP: 0033:0x7f807e4ba96f
+[ 2064.328470] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 39 87 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 7c 87 f8 ff 48
+[ 2064.332902] RSP: 002b:00007ffd50cfe6e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+[ 2064.334658] RAX: ffffffffffffffda RBX: 000055cc3886eb30 RCX: 00007f807e4ba96f
+[ 2064.336275] RDX: 0000000000000040 RSI: 00007ffd50cfe7e0 RDI: 0000000000000010
+[ 2064.337980] RBP: 00007ffd50cfe7e0 R08: 0000000000000000 R09: 0000000000000001
+[ 2064.339560] R10: 000055cc3886eb30 R11: 0000000000000293 R12: 000055cc3886eb80
+[ 2064.341237] R13: 000055cc3886eb00 R14: 000055cc3886f590 R15: 0000000000000001
+[ 2064.342857]
+[ 2064.343226] Allocated by task 12438:
+[ 2064.344057]  kasan_save_stack+0x1c/0x40
+[ 2064.345079]  __kasan_kmalloc+0x84/0xa0
+[ 2064.345933]  kmem_cache_alloc_trace+0x13b/0x220
+[ 2064.346953]  dlm_posix_unlock+0xec/0x720 [dlm]
+[ 2064.348811]  do_lock_file_wait.part.32+0xca/0x1d0
+[ 2064.351070]  fcntl_setlk+0x281/0xbc0
+[ 2064.352879]  do_fcntl+0x5e4/0xfe0
+[ 2064.354657]  __x64_sys_fcntl+0x11f/0x170
+[ 2064.356550]  do_syscall_64+0x3a/0x80
+[ 2064.358259]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2064.360745]
+[ 2064.361511] Last potentially related work creation:
+[ 2064.363957]  kasan_save_stack+0x1c/0x40
+[ 2064.365811]  __kasan_record_aux_stack+0xaf/0xc0
+[ 2064.368100]  call_rcu+0x11b/0xf70
+[ 2064.369785]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
+[ 2064.372404]  receive_from_sock+0x290/0x770 [dlm]
+[ 2064.374607]  process_recv_sockets+0x32/0x40 [dlm]
+[ 2064.377290]  process_one_work+0x9a8/0x16e0
+[ 2064.379357]  worker_thread+0x87/0xbf0
+[ 2064.381188]  kthread+0x3ac/0x490
+[ 2064.383460]  ret_from_fork+0x22/0x30
+[ 2064.385588]
+[ 2064.386518] Second to last potentially related work creation:
+[ 2064.389219]  kasan_save_stack+0x1c/0x40
+[ 2064.391043]  __kasan_record_aux_stack+0xaf/0xc0
+[ 2064.393303]  call_rcu+0x11b/0xf70
+[ 2064.394885]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
+[ 2064.397694]  receive_from_sock+0x290/0x770 [dlm]
+[ 2064.399932]  process_recv_sockets+0x32/0x40 [dlm]
+[ 2064.402180]  process_one_work+0x9a8/0x16e0
+[ 2064.404388]  worker_thread+0x87/0xbf0
+[ 2064.406124]  kthread+0x3ac/0x490
+[ 2064.408021]  ret_from_fork+0x22/0x30
+[ 2064.409834]
+[ 2064.410599] The buggy address belongs to the object at ffff88800ef22780
+[ 2064.410599]  which belongs to the cache kmalloc-96 of size 96
+[ 2064.416495] The buggy address is located 88 bytes inside of
+[ 2064.416495]  96-byte region [ffff88800ef22780, ffff88800ef227e0)
+[ 2064.422045] The buggy address belongs to the page:
+[ 2064.424635] page:00000000b6bef8bc refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0xef22
+[ 2064.428970] flags: 0xfffffc0000200(slab|node=0|zone=1|lastcpupid=0x1fffff)
+[ 2064.432515] raw: 000fffffc0000200 ffffea0000d68b80 0000001400000014 ffff888001041780
+[ 2064.436110] raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+[ 2064.439813] page dumped because: kasan: bad access detected
+[ 2064.442548]
+[ 2064.443310] Memory state around the buggy address:
+[ 2064.445988]  ffff88800ef22680: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.449444]  ffff88800ef22700: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.452941] >ffff88800ef22780: 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc
+[ 2064.456383]                                                     ^
+[ 2064.459386]  ffff88800ef22800: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
+[ 2064.462788]  ffff88800ef22880: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.466239] ==================================================================
+
+reproducer in python:
+
+import argparse
+import struct
+import fcntl
+import os
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-f', '--file',
+		    help='file to use fcntl, must be on dlm lock filesystem e.g. gfs2')
+
+args = parser.parse_args()
+
+f = open(args.file, 'wb+')
+
+lockdata = struct.pack('hhllhh', fcntl.F_WRLCK,0,0,0,0,0)
+fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
+lockdata = struct.pack('hhllhh', fcntl.F_UNLCK,0,0,0,0,0)
+fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
+
+Fixes: 586759f03e2e ("gfs2: nfs lock support for gfs2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ fs/dlm/plock.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4394,7 +4394,8 @@ static int __ext4_fill_super(struct fs_c
- 	int silent = fc->sb_flags & SB_SILENT;
+--- a/fs/dlm/plock.c
++++ b/fs/dlm/plock.c
+@@ -23,11 +23,11 @@ struct plock_op {
+ 	struct list_head list;
+ 	int done;
+ 	struct dlm_plock_info info;
++	int (*callback)(struct file_lock *fl, int result);
+ };
  
- 	/* Set defaults for the variables that will be set during parsing */
--	ctx->journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
-+	if (!(ctx->spec & EXT4_SPEC_JOURNAL_IOPRIO))
-+		ctx->journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
+ struct plock_xop {
+ 	struct plock_op xop;
+-	int (*callback)(struct file_lock *fl, int result);
+ 	void *fl;
+ 	void *file;
+ 	struct file_lock flc;
+@@ -129,19 +129,18 @@ int dlm_posix_lock(dlm_lockspace_t *lock
+ 		/* fl_owner is lockd which doesn't distinguish
+ 		   processes on the nfs client */
+ 		op->info.owner	= (__u64) fl->fl_pid;
+-		xop->callback	= fl->fl_lmops->lm_grant;
++		op->callback	= fl->fl_lmops->lm_grant;
+ 		locks_init_lock(&xop->flc);
+ 		locks_copy_lock(&xop->flc, fl);
+ 		xop->fl		= fl;
+ 		xop->file	= file;
+ 	} else {
+ 		op->info.owner	= (__u64)(long) fl->fl_owner;
+-		xop->callback	= NULL;
+ 	}
  
- 	sbi->s_inode_readahead_blks = EXT4_DEF_INODE_READAHEAD_BLKS;
- 	sbi->s_sectors_written_start =
-@@ -6261,7 +6262,6 @@ static int __ext4_remount(struct fs_cont
- 	char *to_free[EXT4_MAXQUOTAS];
- #endif
+ 	send_op(op);
  
--	ctx->journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
+-	if (xop->callback == NULL) {
++	if (!op->callback) {
+ 		rv = wait_event_interruptible(recv_wq, (op->done != 0));
+ 		if (rv == -ERESTARTSYS) {
+ 			log_debug(ls, "dlm_posix_lock: wait killed %llx",
+@@ -203,7 +202,7 @@ static int dlm_plock_callback(struct plo
+ 	file = xop->file;
+ 	flc = &xop->flc;
+ 	fl = xop->fl;
+-	notify = xop->callback;
++	notify = op->callback;
  
- 	/* Store the original options */
- 	old_sb_flags = sb->s_flags;
-@@ -6287,9 +6287,14 @@ static int __ext4_remount(struct fs_cont
- 		} else
- 			old_opts.s_qf_names[i] = NULL;
- #endif
--	if (sbi->s_journal && sbi->s_journal->j_task->io_context)
--		ctx->journal_ioprio =
--			sbi->s_journal->j_task->io_context->ioprio;
-+	if (!(ctx->spec & EXT4_SPEC_JOURNAL_IOPRIO)) {
-+		if (sbi->s_journal && sbi->s_journal->j_task->io_context)
-+			ctx->journal_ioprio =
-+				sbi->s_journal->j_task->io_context->ioprio;
-+		else
-+			ctx->journal_ioprio = DEFAULT_JOURNAL_IOPRIO;
-+
-+	}
- 
- 	ext4_apply_options(fc, sb);
- 
+ 	if (op->info.rv) {
+ 		notify(fl, op->info.rv);
+@@ -436,10 +435,9 @@ static ssize_t dev_write(struct file *fi
+ 		if (op->info.fsid == info.fsid &&
+ 		    op->info.number == info.number &&
+ 		    op->info.owner == info.owner) {
+-			struct plock_xop *xop = (struct plock_xop *)op;
+ 			list_del_init(&op->list);
+ 			memcpy(&op->info, &info, sizeof(info));
+-			if (xop->callback)
++			if (op->callback)
+ 				do_callback = 1;
+ 			else
+ 				op->done = 1;
 
 
