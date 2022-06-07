@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C84A3540714
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8334A541CFE
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348063AbiFGRmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45608 "EHLO
+        id S1383563AbiFGWHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348669AbiFGRlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:17 -0400
+        with ESMTP id S1383737AbiFGWGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7C2122974;
-        Tue,  7 Jun 2022 10:34:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD41D196A98;
+        Tue,  7 Jun 2022 12:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 921E26157D;
-        Tue,  7 Jun 2022 17:34:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FAE0C34119;
-        Tue,  7 Jun 2022 17:34:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A44F6192F;
+        Tue,  7 Jun 2022 19:17:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C8BC385A2;
+        Tue,  7 Jun 2022 19:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623269;
-        bh=Szbdp3dbQL5SZT5WgSpBoqQq5qpRBZObrw0n2Sa/d6M=;
+        s=korg; t=1654629452;
+        bh=6oCEsGrH4yCyfhP7SrWq+do8nPz28zA/Cu2zTNcGrHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaIwS87RBUezg3taiRnEMO+vXsRPwWl2FUpndyKSIqMCflM416XCBADNvVaBvObTs
-         HIiuEnWcgnisWOWrX4CRYo8VhZl7db5zPg4wv+KABDYieCtZkbPeNmO+mvQa7lzDkL
-         A8Fm6RU/0MkEvd4cldk481agJUNPXFSZ4Rq3QwjE=
+        b=HlnepKPparM/cb27mRvM5OusKxt3rX1VN4VsUk7GbMf1i1BvL/1fkesVQNrjmeUJW
+         XL0UI5JPu6KebaC7JNCHnU+VMAfymQDfLCispKXWjtulBg5U2fQTRmOBQN/bWbvf0q
+         9sx0otLS02dxA9iVhiMqJGzfv7nFsKaUn6kDAgFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 356/452] bfq: Split shared queues on move between cgroups
-Date:   Tue,  7 Jun 2022 19:03:33 +0200
-Message-Id: <20220607164919.173105589@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 696/879] perf build: Fix btf__load_from_kernel_by_id() feature check
+Date:   Tue,  7 Jun 2022 19:03:34 +0200
+Message-Id: <20220607165023.049031152@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +61,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit 3bc5e683c67d94bd839a1da2e796c15847b51b69 upstream.
+[ Upstream commit 73534617dfa3c4cd95fe5ffaeff5315e9ffc2de6 ]
 
-When bfqq is shared by multiple processes it can happen that one of the
-processes gets moved to a different cgroup (or just starts submitting IO
-for different cgroup). In case that happens we need to split the merged
-bfqq as otherwise we will have IO for multiple cgroups in one bfqq and
-we will just account IO time to wrong entities etc.
+The btf__load_from_kernel_by_id() only takes one arg, not two.
 
-Similarly if the bfqq is scheduled to merge with another bfqq but the
-merge didn't happen yet, cancel the merge as it need not be valid
-anymore.
+Committer notes:
 
-CC: stable@vger.kernel.org
-Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-3-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I tested it just with an older libbpf, one where
+btf__load_from_kernel_by_id() wasn't introduced yet.
+
+A test with a newer dynamic libbpf would fail because the
+btf__load_from_kernel_by_id() is there, but takes just one arg.
+
+Fixes: 0ae065a5d265bc5a ("perf build: Fix check for btf__load_from_kernel_by_id() in libbpf")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/linux-perf-users/YozLKby7ITEtchC9@krava
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-cgroup.c  |   36 +++++++++++++++++++++++++++++++++---
- block/bfq-iosched.c |    2 +-
- block/bfq-iosched.h |    1 +
- 3 files changed, 35 insertions(+), 4 deletions(-)
+ .../build/feature/test-libbpf-btf__load_from_kernel_by_id.c  | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -725,9 +725,39 @@ static struct bfq_group *__bfq_bic_chang
- 	}
+diff --git a/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
+index f7c084428735..a17647f7d5a4 100644
+--- a/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
++++ b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
+@@ -1,7 +1,8 @@
+ // SPDX-License-Identifier: GPL-2.0
+-#include <bpf/libbpf.h>
++#include <bpf/btf.h>
  
- 	if (sync_bfqq) {
--		entity = &sync_bfqq->entity;
--		if (entity->sched_data != &bfqg->sched_data)
--			bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-+		if (!sync_bfqq->new_bfqq && !bfq_bfqq_coop(sync_bfqq)) {
-+			/* We are the only user of this bfqq, just move it */
-+			if (sync_bfqq->entity.sched_data != &bfqg->sched_data)
-+				bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-+		} else {
-+			struct bfq_queue *bfqq;
-+
-+			/*
-+			 * The queue was merged to a different queue. Check
-+			 * that the merge chain still belongs to the same
-+			 * cgroup.
-+			 */
-+			for (bfqq = sync_bfqq; bfqq; bfqq = bfqq->new_bfqq)
-+				if (bfqq->entity.sched_data !=
-+				    &bfqg->sched_data)
-+					break;
-+			if (bfqq) {
-+				/*
-+				 * Some queue changed cgroup so the merge is
-+				 * not valid anymore. We cannot easily just
-+				 * cancel the merge (by clearing new_bfqq) as
-+				 * there may be other processes using this
-+				 * queue and holding refs to all queues below
-+				 * sync_bfqq->new_bfqq. Similarly if the merge
-+				 * already happened, we need to detach from
-+				 * bfqq now so that we cannot merge bio to a
-+				 * request from the old cgroup.
-+				 */
-+				bfq_put_cooperator(sync_bfqq);
-+				bfq_release_process_ref(bfqd, sync_bfqq);
-+				bic_set_bfqq(bic, NULL, 1);
-+			}
-+		}
- 	}
- 
- 	return bfqg;
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -4917,7 +4917,7 @@ void bfq_put_queue(struct bfq_queue *bfq
- 	bfqg_and_blkg_put(bfqg);
- }
- 
--static void bfq_put_cooperator(struct bfq_queue *bfqq)
-+void bfq_put_cooperator(struct bfq_queue *bfqq)
+ int main(void)
  {
- 	struct bfq_queue *__bfqq, *next;
- 
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -954,6 +954,7 @@ void bfq_weights_tree_remove(struct bfq_
- void bfq_bfqq_expire(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 		     bool compensate, enum bfqq_expiration reason);
- void bfq_put_queue(struct bfq_queue *bfqq);
-+void bfq_put_cooperator(struct bfq_queue *bfqq);
- void bfq_end_wr_async_queues(struct bfq_data *bfqd, struct bfq_group *bfqg);
- void bfq_release_process_ref(struct bfq_data *bfqd, struct bfq_queue *bfqq);
- void bfq_schedule_dispatch(struct bfq_data *bfqd);
+-	return btf__load_from_kernel_by_id(20151128, NULL);
++	btf__load_from_kernel_by_id(20151128);
++	return 0;
+ }
+-- 
+2.35.1
+
 
 
