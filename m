@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D59EA54073F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184095416A8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347634AbiFGRqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52836 "EHLO
+        id S1377416AbiFGUyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344561AbiFGRoS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:44:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1EB10EA4C;
-        Tue,  7 Jun 2022 10:35:19 -0700 (PDT)
+        with ESMTP id S1376933AbiFGUsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:48:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D90E1F62FC;
+        Tue,  7 Jun 2022 11:39:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B7CDB822CD;
-        Tue,  7 Jun 2022 17:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E1BC385A5;
-        Tue,  7 Jun 2022 17:35:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D94DFB81FE1;
+        Tue,  7 Jun 2022 18:39:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A65C385A2;
+        Tue,  7 Jun 2022 18:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623308;
-        bh=71iZuazlHWsSm3pEEWOxIU5p3GRTctvVzUij2ICTwWU=;
+        s=korg; t=1654627151;
+        bh=QkiFAHOJFLYpTE4pDqY8HSQkwJMKiiJioaFUGFDAQSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/TDewUIz5Ups3DzOiBmx9quExl0YBCilfUDk63GcW2AJyyDcgbZ3LYgpN+ARNUzk
-         SOjx0SFXLjf9TZi8iA/yzz8gC8wy9UXLbBv9ul08oDrUeiovrIAIjT7HEsOo4anYai
-         jTvTWp0Cqf//BuYG83Wp8vvZo4YAyt+K+7lgnUSM=
+        b=a++uQWqQTw9BIazdjHYlqv56UguIkM4FS5kXrULLb6+orv+c398zHhqF1jjiRrmXg
+         lxgl18AwAzwewQQB/s6vJ2Mj7TDmfW/j2I1yLWQ4lQMAhvdjC1uzc2snAMfg9UX7Zs
+         QR9SuAjlvtJlVDzFDbYyCkso+KcjKA8r9pSW/8WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.10 369/452] PCI: qcom: Fix runtime PM imbalance on probe errors
-Date:   Tue,  7 Jun 2022 19:03:46 +0200
-Message-Id: <20220607164919.559363635@linuxfoundation.org>
+        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 635/772] bfq: Make sure bfqg for which we are queueing requests is online
+Date:   Tue,  7 Jun 2022 19:03:47 +0200
+Message-Id: <20220607165007.647021878@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 87d83b96c8d6c6c2d2096bd0bdba73bcf42b8ef0 upstream.
+commit 075a53b78b815301f8d3dd1ee2cd99554e34f0dd upstream.
 
-Drop the leftover pm_runtime_disable() calls from the late probe error
-paths that would, for example, prevent runtime PM from being reenabled
-after a probe deferral.
+Bios queued into BFQ IO scheduler can be associated with a cgroup that
+was already offlined. This may then cause insertion of this bfq_group
+into a service tree. But this bfq_group will get freed as soon as last
+bio associated with it is completed leading to use after free issues for
+service tree users. Fix the problem by making sure we always operate on
+online bfq_group. If the bfq_group associated with the bio is not
+online, we pick the first online parent.
 
-Link: https://lore.kernel.org/r/20220401133854.10421-2-johan+linaro@kernel.org
-Fixes: 6e5da6f7d824 ("PCI: qcom: Fix error handling in runtime PM support")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org      # 4.20
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+CC: stable@vger.kernel.org
+Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-9-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ block/bfq-cgroup.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1443,17 +1443,14 @@ static int qcom_pcie_probe(struct platfo
- 	}
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -612,10 +612,19 @@ static void bfq_link_bfqg(struct bfq_dat
+ struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
+ {
+ 	struct blkcg_gq *blkg = bio->bi_blkg;
++	struct bfq_group *bfqg;
  
- 	ret = phy_init(pcie->phy);
--	if (ret) {
--		pm_runtime_disable(&pdev->dev);
-+	if (ret)
- 		goto err_pm_runtime_put;
--	}
+-	if (!blkg)
+-		return bfqd->root_group;
+-	return blkg_to_bfqg(blkg);
++	while (blkg) {
++		bfqg = blkg_to_bfqg(blkg);
++		if (bfqg->online) {
++			bio_associate_blkg_from_css(bio, &blkg->blkcg->css);
++			return bfqg;
++		}
++		blkg = blkg->parent;
++	}
++	bio_associate_blkg_from_css(bio,
++				&bfqg_to_blkg(bfqd->root_group)->blkcg->css);
++	return bfqd->root_group;
+ }
  
- 	platform_set_drvdata(pdev, pcie);
- 
- 	ret = dw_pcie_host_init(pp);
- 	if (ret) {
- 		dev_err(dev, "cannot initialize host\n");
--		pm_runtime_disable(&pdev->dev);
- 		goto err_pm_runtime_put;
- 	}
- 
+ /**
 
 
