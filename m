@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C195542718
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B4E5425F8
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343547AbiFHCQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 22:16:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36212 "EHLO
+        id S237513AbiFHBaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444862AbiFHCLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:11:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3DE25A818;
-        Tue,  7 Jun 2022 12:24:43 -0700 (PDT)
+        with ESMTP id S242760AbiFHBX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 21:23:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF99B26F366;
+        Tue,  7 Jun 2022 12:22:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04F4D6077B;
-        Tue,  7 Jun 2022 19:24:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C548C385A2;
-        Tue,  7 Jun 2022 19:24:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B4DD60B01;
+        Tue,  7 Jun 2022 19:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3479BC3411C;
+        Tue,  7 Jun 2022 19:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629882;
-        bh=SOVgZGmxox99chUL0j/dLJdoiw+f0+Ci7SsA5C0yofA=;
+        s=korg; t=1654629777;
+        bh=FfadC9C66rH2lacYrTMtOrPQ5n/QT/RHFNMsY8y2TuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIKEqwJ9JY35nTCOAossBxhSiCDoORh09P8h7/Omfe2LvJRX8wKOKghtMS6/h7sm4
-         Kk7kKAYF5v0p2S1K5Ee/yvVmiRUl2F3efG8CwGdqlw7p0evLqQoV/nSp1DFBSP9qX8
-         Dwq1VtFSGXmvyAOmGG7aaoPjDfcyzp0ANQIsNOJ0=
+        b=bMgvY5NcS8eAmpjOgOJDh0coi7s5FLSWqaEFe/n/i1TIaT9qS4uW6QSTdqQRBombf
+         FRzbn6xsSYu97/Lw4IJGTROv6TxHKgOz7w+mMb99d4HY4yceQL8rQOKm5+1AASxRi1
+         XdM4qPu4tcrFy9neec49FiXSHXed3P0sT/ykHvhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.18 810/879] irqchip/armada-370-xp: Do not touch Performance Counter Overflow on A375, A38x, A39x
-Date:   Tue,  7 Jun 2022 19:05:28 +0200
-Message-Id: <20220607165026.369091113@linuxfoundation.org>
+        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.18 814/879] cfg80211: declare MODULE_FIRMWARE for regulatory.db
+Date:   Tue,  7 Jun 2022 19:05:32 +0200
+Message-Id: <20220607165026.485151127@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,45 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 
-commit a3d66a76348daf559873f19afc912a2a7c2ccdaf upstream.
+commit 7bc7981eeebe1b8e603ad2ffc5e84f4df76920dd upstream.
 
-Register ARMADA_370_XP_INT_FABRIC_MASK_OFFS is Armada 370 and XP specific
-and on new Armada platforms it has different meaning. It does not configure
-Performance Counter Overflow interrupt masking. So do not touch this
-register on non-A370/XP platforms (A375, A38x and A39x).
+Add MODULE_FIRMWARE declarations for regulatory.db and
+regulatory.db.p7s such that userspace tooling can discover and include
+these files.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 28da06dfd9e4 ("irqchip: armada-370-xp: Enable the PMU interrupts")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220425113706.29310-1-pali@kernel.org
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Link: https://lore.kernel.org/r/20220414125004.267819-1-dimitri.ledkov@canonical.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-armada-370-xp.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ net/wireless/reg.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/irqchip/irq-armada-370-xp.c
-+++ b/drivers/irqchip/irq-armada-370-xp.c
-@@ -308,7 +308,16 @@ static inline int armada_370_xp_msi_init
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -807,6 +807,8 @@ static int __init load_builtin_regdb_key
+ 	return 0;
+ }
  
- static void armada_xp_mpic_perf_init(void)
++MODULE_FIRMWARE("regulatory.db.p7s");
++
+ static bool regdb_has_valid_signature(const u8 *data, unsigned int size)
  {
--	unsigned long cpuid = cpu_logical_map(smp_processor_id());
-+	unsigned long cpuid;
-+
-+	/*
-+	 * This Performance Counter Overflow interrupt is specific for
-+	 * Armada 370 and XP. It is not available on Armada 375, 38x and 39x.
-+	 */
-+	if (!of_machine_is_compatible("marvell,armada-370-xp"))
-+		return;
-+
-+	cpuid = cpu_logical_map(smp_processor_id());
+ 	const struct firmware *sig;
+@@ -1078,6 +1080,8 @@ static void regdb_fw_cb(const struct fir
+ 	release_firmware(fw);
+ }
  
- 	/* Enable Performance Counter Overflow interrupts */
- 	writel(ARMADA_370_XP_INT_CAUSE_PERF(cpuid),
++MODULE_FIRMWARE("regulatory.db");
++
+ static int query_regdb_file(const char *alpha2)
+ {
+ 	ASSERT_RTNL();
 
 
