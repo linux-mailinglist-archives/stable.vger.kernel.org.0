@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F10D541284
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B63A541966
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354471AbiFGTse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:48:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39596 "EHLO
+        id S1359578AbiFGVV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:21:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357909AbiFGTrZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:47:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE5FE6EB28;
-        Tue,  7 Jun 2022 11:19:16 -0700 (PDT)
+        with ESMTP id S1381130AbiFGVRV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC5A132771;
+        Tue,  7 Jun 2022 11:58:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BEF13CE2428;
-        Tue,  7 Jun 2022 18:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1FA8C385A5;
-        Tue,  7 Jun 2022 18:19:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B86D5617E7;
+        Tue,  7 Jun 2022 18:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC352C385A2;
+        Tue,  7 Jun 2022 18:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625953;
-        bh=TLR9qUvj/0sLCsIOv3xfnFG3iF0rfWWP61ap7+Ebwaw=;
+        s=korg; t=1654628300;
+        bh=eXwn9jpORhMFXa/l7hvpGfaQ1a87GZ++SVdKibfdzLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2llcPh1lhM/ldmy6BQoro7akY4EYTkAuO3FlCJ2qQemGsxcx9jAxtDu1G5V7pHeP
-         uzTAG8Cd+YZc2F6UDSz2TiPhIzgE0xIW/B/L2jM2Zwd4B0XCE0bq1SEsmSL0aS+N95
-         qzRc4fwHgWIP/4c87DXLQT3+PvzocujGYMTb4uWw=
+        b=Av/vi081c7iyDUuIQjKun7wmELEqYYe2JspBvTNdCV0m1gQ3s7x9o4fgZx5VGj4ye
+         cMUct/oPSrcYxdHmTVcP3uUXXUa8yDNSTJamu89aydnJ3s7vrLRTz+/LQqhEfRKIMW
+         50YqO3YOg+D4XokKg1pjQYxCHzT5X0dFj1zr0X2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaitanya Kulkarni <kch@nvidia.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 167/772] nvme: set non-mdts limits in nvme_scan_work
-Date:   Tue,  7 Jun 2022 18:55:59 +0200
-Message-Id: <20220607164953.961594213@linuxfoundation.org>
+        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.de>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 242/879] cifs: return ENOENT for DFS lookup_cache_entry()
+Date:   Tue,  7 Jun 2022 18:56:00 +0200
+Message-Id: <20220607165009.877765372@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <kch@nvidia.com>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-[ Upstream commit 78288665b5d0154978fed431985310cb4f166836 ]
+[ Upstream commit 337b8b0e4343567221ef8d88aac5e418208d4ac1 ]
 
-In current implementation we set the non-mdts limits by calling
-nvme_init_non_mdts_limits() from nvme_init_ctrl_finish().
-This also tries to set the limits for the discovery controller which
-has no I/O queues resulting in the warning message reported by the
-nvme_log_error() when running blktest nvme/002: -
+EEXIST didn't make sense to use when dfs_cache_find() couldn't find a
+cache entry nor retrieve a referral target.
 
-[ 2005.155946] run blktests nvme/002 at 2022-04-09 16:57:47
-[ 2005.192223] loop: module loaded
-[ 2005.196429] nvmet: adding nsid 1 to subsystem blktests-subsystem-0
-[ 2005.200334] nvmet: adding nsid 1 to subsystem blktests-subsystem-1
+It also doesn't make sense cifs_dfs_query_info_nonascii_quirk() to
+emulate ENOENT anymore.
 
-<------------------------------SNIP---------------------------------->
-
-[ 2008.958108] nvmet: adding nsid 1 to subsystem blktests-subsystem-997
-[ 2008.962082] nvmet: adding nsid 1 to subsystem blktests-subsystem-998
-[ 2008.966102] nvmet: adding nsid 1 to subsystem blktests-subsystem-999
-[ 2008.973132] nvmet: creating discovery controller 1 for subsystem nqn.2014-08.org.nvmexpress.discovery for NQN testhostnqn.
-*[ 2008.973196] nvme1: Identify(0x6), Invalid Field in Command (sct 0x0 / sc 0x2) MORE DNR*
-[ 2008.974595] nvme nvme1: new ctrl: "nqn.2014-08.org.nvmexpress.discovery"
-[ 2009.103248] nvme nvme1: Removing ctrl: NQN "nqn.2014-08.org.nvmexpress.discovery"
-
-Move the call of nvme_init_non_mdts_limits() to nvme_scan_work() after
-we verify that I/O queues are created since that is a converging point
-for each transport where these limits are actually used.
-
-1. FC :
-nvme_fc_create_association()
- ...
- nvme_fc_create_io_queues(ctrl);
- ...
- nvme_start_ctrl()
-  nvme_scan_queue()
-   nvme_scan_work()
-
-2. PCIe:-
-nvme_reset_work()
- ...
- nvme_setup_io_queues()
-  nvme_create_io_queues()
-   nvme_alloc_queue()
- ...
- nvme_start_ctrl()
-  nvme_scan_queue()
-   nvme_scan_work()
-
-3. RDMA :-
-nvme_rdma_setup_ctrl
- ...
-  nvme_rdma_configure_io_queues
-  ...
-  nvme_start_ctrl()
-   nvme_scan_queue()
-    nvme_scan_work()
-
-4. TCP :-
-nvme_tcp_setup_ctrl
- ...
-  nvme_tcp_configure_io_queues
-  ...
-  nvme_start_ctrl()
-   nvme_scan_queue()
-    nvme_scan_work()
-
-* nvme_scan_work()
-...
-nvme_validate_or_alloc_ns()
-  nvme_alloc_ns()
-   nvme_update_ns_info()
-    nvme_update_disk_info()
-     nvme_config_discard() <---
-     blk_queue_max_write_zeroes_sectors() <---
-
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ fs/cifs/connect.c   | 6 ++++--
+ fs/cifs/dfs_cache.c | 6 +++---
+ fs/cifs/misc.c      | 6 +-----
+ 3 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 0abd772c57f0..79ef46356d40 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3096,10 +3096,6 @@ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl)
- 	if (ret)
- 		return ret;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 2a639fc79c30..b28b1ff39fed 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3406,8 +3406,9 @@ cifs_are_all_path_components_accessible(struct TCP_Server_Info *server,
+ }
  
--	ret = nvme_init_non_mdts_limits(ctrl);
--	if (ret < 0)
--		return ret;
--
- 	ret = nvme_configure_apst(ctrl);
- 	if (ret < 0)
- 		return ret;
-@@ -4160,11 +4156,26 @@ static void nvme_scan_work(struct work_struct *work)
+ /*
+- * Check if path is remote (e.g. a DFS share). Return -EREMOTE if it is,
+- * otherwise 0.
++ * Check if path is remote (i.e. a DFS share).
++ *
++ * Return -EREMOTE if it is, otherwise 0 or -errno.
+  */
+ static int is_path_remote(struct mount_ctx *mnt_ctx)
  {
- 	struct nvme_ctrl *ctrl =
- 		container_of(work, struct nvme_ctrl, scan_work);
-+	int ret;
+@@ -3697,6 +3698,7 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb3_fs_context *ctx)
+ 	if (!isdfs)
+ 		goto out;
  
- 	/* No tagset on a live ctrl means IO queues could not created */
- 	if (ctrl->state != NVME_CTRL_LIVE || !ctrl->tagset)
- 		return;
++	/* proceed as DFS mount */
+ 	uuid_gen(&mnt_ctx.mount_id);
+ 	rc = connect_dfs_root(&mnt_ctx, &tl);
+ 	dfs_cache_free_tgts(&tl);
+diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
+index 956f8e5cf3e7..c5dd6f7305bd 100644
+--- a/fs/cifs/dfs_cache.c
++++ b/fs/cifs/dfs_cache.c
+@@ -654,7 +654,7 @@ static struct cache_entry *__lookup_cache_entry(const char *path, unsigned int h
+ 			return ce;
+ 		}
+ 	}
+-	return ERR_PTR(-EEXIST);
++	return ERR_PTR(-ENOENT);
+ }
  
-+	/*
-+	 * Identify controller limits can change at controller reset due to
-+	 * new firmware download, even though it is not common we cannot ignore
-+	 * such scenario. Controller's non-mdts limits are reported in the unit
-+	 * of logical blocks that is dependent on the format of attached
-+	 * namespace. Hence re-read the limits at the time of ns allocation.
-+	 */
-+	ret = nvme_init_non_mdts_limits(ctrl);
-+	if (ret < 0) {
-+		dev_warn(ctrl->device,
-+			"reading non-mdts-limits failed: %d\n", ret);
-+		return;
-+	}
-+
- 	if (test_and_clear_bit(NVME_AER_NOTICE_NS_CHANGED, &ctrl->events)) {
- 		dev_info(ctrl->device, "rescanning namespaces.\n");
- 		nvme_clear_changed_ns_log(ctrl);
+ /*
+@@ -662,7 +662,7 @@ static struct cache_entry *__lookup_cache_entry(const char *path, unsigned int h
+  *
+  * Use whole path components in the match.  Must be called with htable_rw_lock held.
+  *
+- * Return ERR_PTR(-EEXIST) if the entry is not found.
++ * Return ERR_PTR(-ENOENT) if the entry is not found.
+  */
+ static struct cache_entry *lookup_cache_entry(const char *path)
+ {
+@@ -710,7 +710,7 @@ static struct cache_entry *lookup_cache_entry(const char *path)
+ 		while (e > s && *e != sep)
+ 			e--;
+ 	}
+-	return ERR_PTR(-EEXIST);
++	return ERR_PTR(-ENOENT);
+ }
+ 
+ /**
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+index 114810e563a9..5a803d686146 100644
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -1308,7 +1308,7 @@ int cifs_update_super_prepath(struct cifs_sb_info *cifs_sb, char *prefix)
+  * for "\<server>\<dfsname>\<linkpath>" DFS reference,
+  * where <dfsname> contains non-ASCII unicode symbols.
+  *
+- * Check such DFS reference and emulate -ENOENT if it is actual.
++ * Check such DFS reference.
+  */
+ int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
+ 				       struct cifs_tcon *tcon,
+@@ -1340,10 +1340,6 @@ int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
+ 		cifs_dbg(FYI, "DFS ref '%s' is found, emulate -EREMOTE\n",
+ 			 dfspath);
+ 		rc = -EREMOTE;
+-	} else if (rc == -EEXIST) {
+-		cifs_dbg(FYI, "DFS ref '%s' is not found, emulate -ENOENT\n",
+-			 dfspath);
+-		rc = -ENOENT;
+ 	} else {
+ 		cifs_dbg(FYI, "%s: dfs_cache_find returned %d\n", __func__, rc);
+ 	}
 -- 
 2.35.1
 
