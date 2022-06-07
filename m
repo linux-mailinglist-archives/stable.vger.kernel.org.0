@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3815541A99
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203C7540B61
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376390AbiFGVgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:36:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
+        id S1351171AbiFGS2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380526AbiFGVf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:35:29 -0400
+        with ESMTP id S1351410AbiFGSQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9DAA170661;
-        Tue,  7 Jun 2022 12:04:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C543815FE00;
+        Tue,  7 Jun 2022 10:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 027F261277;
-        Tue,  7 Jun 2022 19:04:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1251EC385A2;
-        Tue,  7 Jun 2022 19:04:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DDBB6172E;
+        Tue,  7 Jun 2022 17:49:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FAB5C385A5;
+        Tue,  7 Jun 2022 17:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628678;
-        bh=Ztqhd0TbowCC03CC7VBugIukC/iEmK/9YAQ1b5xz4RU=;
+        s=korg; t=1654624162;
+        bh=fNkJkBOthq+LhW72L2cl/PpwrwQpCtvNTh0mCjjeWfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMDkRzx2T3r8lnStIXydvygSKbKcyw2TFJ+3Cm291cFri9mKkjj417DsFlx0Wwu9p
-         RamVP2Dp7JY88qdhwy27mUdZmWEqr7UzzedEncHCPUEknQYa/z9B/bj3wcYSAYcR8S
-         EgGFM1PrbPRPIodAyfMyV6V0b1+Gm7xanSga3kMg=
+        b=bBOchRv/YT4yHY/xFcAEH/tYHxOASma8KZHuaXYVYGYHqYHDnQjB6ESMjh5VdpmzY
+         hdTrTuWDsOZLGZwyP/MTADigVikOW7jo17e3d5lyUQlkItjCjL75zqkvuyuefw+VJo
+         rj0H74BlZJRkj/AxM8o5gJySB35Hig02i6eacqVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org,
+        Martin Steigerwald <Martin.Steigerwald@proact.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 375/879] drm/msm/hdmi: fix error check return value of irq_of_parse_and_map()
+Subject: [PATCH 5.15 228/667] sched/psi: report zeroes for CPU full at the system level
 Date:   Tue,  7 Jun 2022 18:58:13 +0200
-Message-Id: <20220607165013.755957146@linuxfoundation.org>
+Message-Id: <20220607164941.628049082@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +57,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-[ Upstream commit 03371e4fbdeb7f596cbceacb59e474248b6d95ac ]
+[ Upstream commit 890d550d7dbac7a31ecaa78732aa22be282bb6b8 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return a negative value anyhow, so never enter this conditional branch.
+Martin find it confusing when look at the /proc/pressure/cpu output,
+and found no hint about that CPU "full" line in psi Documentation.
 
-Fixes: f6a8eaca0ea1 ("drm/msm/mdp5: use irqdomains")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483294/
-Link: https://lore.kernel.org/r/20220425091831.3500487-1-lv.ruyi@zte.com.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+% cat /proc/pressure/cpu
+some avg10=0.92 avg60=0.91 avg300=0.73 total=933490489
+full avg10=0.22 avg60=0.23 avg300=0.16 total=358783277
+
+The PSI_CPU_FULL state is introduced by commit e7fcd7622823
+("psi: Add PSI_CPU_FULL state"), which mainly for cgroup level,
+but also counted at the system level as a side effect.
+
+Naturally, the FULL state doesn't exist for the CPU resource at
+the system level. These "full" numbers can come from CPU idle
+schedule latency. For example, t1 is the time when task wakeup
+on an idle CPU, t2 is the time when CPU pick and switch to it.
+The delta of (t2 - t1) will be in CPU_FULL state.
+
+Another case all processes can be stalled is when all cgroups
+have been throttled at the same time, which unlikely to happen.
+
+Anyway, CPU_FULL metric is meaningless and confusing at the
+system level. So this patch will report zeroes for CPU full
+at the system level, and update psi Documentation accordingly.
+
+Fixes: e7fcd7622823 ("psi: Add PSI_CPU_FULL state")
+Reported-by: Martin Steigerwald <Martin.Steigerwald@proact.de>
+Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Link: https://lore.kernel.org/r/20220408121914.82855-1-zhouchengming@bytedance.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/accounting/psi.rst |  9 ++++-----
+ kernel/sched/psi.c               | 15 +++++++++------
+ 2 files changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index 07e2ad527af9..f6229262dcb0 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -302,9 +302,9 @@ int msm_hdmi_modeset_init(struct hdmi *hdmi,
- 	drm_connector_attach_encoder(hdmi->connector, hdmi->encoder);
+diff --git a/Documentation/accounting/psi.rst b/Documentation/accounting/psi.rst
+index 860fe651d645..5e40b3f437f9 100644
+--- a/Documentation/accounting/psi.rst
++++ b/Documentation/accounting/psi.rst
+@@ -37,11 +37,7 @@ Pressure interface
+ Pressure information for each resource is exported through the
+ respective file in /proc/pressure/ -- cpu, memory, and io.
  
- 	hdmi->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
--	if (hdmi->irq < 0) {
--		ret = hdmi->irq;
--		DRM_DEV_ERROR(dev->dev, "failed to get irq: %d\n", ret);
-+	if (!hdmi->irq) {
-+		ret = -EINVAL;
-+		DRM_DEV_ERROR(dev->dev, "failed to get irq\n");
- 		goto fail;
- 	}
+-The format for CPU is as such::
+-
+-	some avg10=0.00 avg60=0.00 avg300=0.00 total=0
+-
+-and for memory and IO::
++The format is as such::
  
+ 	some avg10=0.00 avg60=0.00 avg300=0.00 total=0
+ 	full avg10=0.00 avg60=0.00 avg300=0.00 total=0
+@@ -58,6 +54,9 @@ situation from a state where some tasks are stalled but the CPU is
+ still doing productive work. As such, time spent in this subset of the
+ stall state is tracked separately and exported in the "full" averages.
+ 
++CPU full is undefined at the system level, but has been reported
++since 5.13, so it is set to zero for backward compatibility.
++
+ The ratios (in %) are tracked as recent trends over ten, sixty, and
+ three hundred second windows, which gives insight into short term events
+ as well as medium and long term trends. The total absolute stall time
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 422f3b0445cf..cad2a1b34ed0 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1062,14 +1062,17 @@ int psi_show(struct seq_file *m, struct psi_group *group, enum psi_res res)
+ 	mutex_unlock(&group->avgs_lock);
+ 
+ 	for (full = 0; full < 2; full++) {
+-		unsigned long avg[3];
+-		u64 total;
++		unsigned long avg[3] = { 0, };
++		u64 total = 0;
+ 		int w;
+ 
+-		for (w = 0; w < 3; w++)
+-			avg[w] = group->avg[res * 2 + full][w];
+-		total = div_u64(group->total[PSI_AVGS][res * 2 + full],
+-				NSEC_PER_USEC);
++		/* CPU FULL is undefined at the system level */
++		if (!(group == &psi_system && res == PSI_CPU && full)) {
++			for (w = 0; w < 3; w++)
++				avg[w] = group->avg[res * 2 + full][w];
++			total = div_u64(group->total[PSI_AVGS][res * 2 + full],
++					NSEC_PER_USEC);
++		}
+ 
+ 		seq_printf(m, "%s avg10=%lu.%02lu avg60=%lu.%02lu avg300=%lu.%02lu total=%llu\n",
+ 			   full ? "full" : "some",
 -- 
 2.35.1
 
