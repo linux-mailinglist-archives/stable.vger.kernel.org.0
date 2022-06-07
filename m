@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A52F65414C4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6925B540662
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358895AbiFGUV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
+        id S245006AbiFGRet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359868AbiFGUVX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B4A17A880;
-        Tue,  7 Jun 2022 11:30:55 -0700 (PDT)
+        with ESMTP id S1347464AbiFGRap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913231116FD;
+        Tue,  7 Jun 2022 10:26:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A90F5B82340;
-        Tue,  7 Jun 2022 18:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 075FFC385A2;
-        Tue,  7 Jun 2022 18:30:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D478613F8;
+        Tue,  7 Jun 2022 17:26:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BABDC385A5;
+        Tue,  7 Jun 2022 17:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626652;
-        bh=bFhZ957r2YH94rqSbhXVV4Hj1qf6FyXRtokEAkKhViw=;
+        s=korg; t=1654622810;
+        bh=Ne7KVx6tMWNa+nAq3BGWlIAOefOfu5GOIIKzDMxoiXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYaZhX190OOJmP1fZfbn2eE97MlDRUDAgNS2xtxFFvsibYm2VttWZCGn1aKGyIRJ7
-         X6RJt/FaK3BCr7tDlgye1eUxkpb8VF2mbXWXwqMsVxLiAL3fTaGsRiksLIqvshluwg
-         obnws4Id8/wUcfapaJa5j1ZyD/ypc4vJ98hBYWeI=
+        b=K97OtODj6fJlS/p0eaNS3+e2LGycDLVhKV60DbulbA2Qb4ej32FEUxyanBSpHzhkT
+         2VJzGA6GLhApVwrNSLJhdlqc6K7cxK2XzX/8lTiToW/kP/SFT7paslkbf6jEybsYrA
+         D3ngVSN8tIWZVIUqr5HWYniKrdnlwoG1sLBGu6fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 455/772] ARM: dts: BCM5301X: Update pin controller node name
+Subject: [PATCH 5.10 190/452] regulator: core: Fix enable_count imbalance with EXCLUSIVE_GET
 Date:   Tue,  7 Jun 2022 19:00:47 +0200
-Message-Id: <20220607165002.410240153@linuxfoundation.org>
+Message-Id: <20220607164914.224384055@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-[ Upstream commit 130b5e32ba9d2d2313e39cf3f6d0729bff02b76a ]
+[ Upstream commit c3e3ca05dae37f8f74bb80358efd540911cbc2c8 ]
 
-This fixes:
-arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dtb: cru-bus@100: 'pin-controller@1c0' does not match any of the regexes: '^clock-controller@[a-f0-9]+$', '^phy@[a-f0-9]+$', '^pinctrl@[a-f0-9]+$', '^syscon@[a-f0-9]+$', '^thermal@[a-f0-9]+$'
-        From schema: Documentation/devicetree/bindings/mfd/brcm,cru.yaml
-arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dtb: pin-controller@1c0: $nodename:0: 'pin-controller@1c0' does not match '^(pinctrl|pinmux)(@[0-9a-f]+)?$'
-        From schema: Documentation/devicetree/bindings/pinctrl/brcm,ns-pinmux.yaml
+Since the introduction of regulator->enable_count, a driver that did
+an exclusive get on an already-enabled regulator would end up with
+enable_count initialized to 0 but rdev->use_count initialized to 1.
+With that starting point the regulator is effectively stuck enabled,
+because if the driver attempted to disable it it would fail the
+enable_count underflow check in _regulator_handle_consumer_disable().
 
-Ref: e7391b021e3f ("dt-bindings: mfd: brcm,cru: Rename pinctrl node")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+The EXCLUSIVE_GET path in _regulator_get() now initializes
+enable_count along with rdev->use_count so that the regulator can be
+disabled without underflowing the former.
+
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Fixes: 5451781dadf85 ("regulator: core: Only count load for enabled consumers")
+Link: https://lore.kernel.org/r/20220505043152.12933-1-zev@bewilderbeest.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index 603c700c706f..65f8a759f1e3 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -455,7 +455,7 @@
- 				reg = <0x180 0x4>;
- 			};
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 2c48e55c4104..6e3f3511e7dd 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -2027,10 +2027,13 @@ struct regulator *_regulator_get(struct device *dev, const char *id,
+ 		rdev->exclusive = 1;
  
--			pinctrl: pin-controller@1c0 {
-+			pinctrl: pinctrl@1c0 {
- 				compatible = "brcm,bcm4708-pinmux";
- 				reg = <0x1c0 0x24>;
- 				reg-names = "cru_gpio_control";
+ 		ret = _regulator_is_enabled(rdev);
+-		if (ret > 0)
++		if (ret > 0) {
+ 			rdev->use_count = 1;
+-		else
++			regulator->enable_count = 1;
++		} else {
+ 			rdev->use_count = 0;
++			regulator->enable_count = 0;
++		}
+ 	}
+ 
+ 	link = device_link_add(dev, &rdev->dev, DL_FLAG_STATELESS);
 -- 
 2.35.1
 
