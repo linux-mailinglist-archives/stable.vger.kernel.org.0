@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BBB8540727
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF484540F04
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245731AbiFGRnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:43:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60504 "EHLO
+        id S1352857AbiFGS7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:59:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347669AbiFGRmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:42:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E59612B01C;
-        Tue,  7 Jun 2022 10:34:59 -0700 (PDT)
+        with ESMTP id S1352733AbiFGS6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:58:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E094214D781;
+        Tue,  7 Jun 2022 11:04:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6322B822CD;
-        Tue,  7 Jun 2022 17:34:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C09C341C5;
-        Tue,  7 Jun 2022 17:34:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 011D7617AE;
+        Tue,  7 Jun 2022 18:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F567C385A5;
+        Tue,  7 Jun 2022 18:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623274;
-        bh=KITF080HglxN5AzB2BU/A8itvTQUXKIvYIZS6LlOGvM=;
+        s=korg; t=1654625055;
+        bh=EQHT8tM8gfnX9EZbi9v4iQ1oKykoYXKNpgeMQ0c5VaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ZartB6R6bNrTRMtxY7hrOejLjEfVDItdoNRj1mOxTtPaHOTMEt2ycYP15t5l6A9f
-         oP9o7UiZCvW8mJuBxdBPw7JBW/CHN32dRBIY30pzB5ZwFAChuSX3vtwIXQ28HKNr13
-         kJEw/bWQlPVGDg0dlrFWLyxUmNp10CPSoUr4fWYU=
+        b=hofvq/PtQtpEoEzx04UTJzdXKIECababV164iSuPpbuoIXu8KRJtzJb+Se6x0K0/l
+         my/kzyepu07Rg5jWXDbYr+mVqkKcXWRqosq/7WvQPUv8ZZ96L9mR/TbUjk8GA0IS7B
+         VF6B414/kWGLGW3bSkcVYqXYldNU4X8BNp+GP3qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 358/452] bfq: Track whether bfq_group is still online
+        stable@vger.kernel.org, Laurent Vivier <laurent@vivier.eu>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.15 550/667] tty: goldfish: Introduce gf_ioread32()/gf_iowrite32()
 Date:   Tue,  7 Jun 2022 19:03:35 +0200
-Message-Id: <20220607164919.231706205@linuxfoundation.org>
+Message-Id: <20220607164951.195995458@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +53,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Laurent Vivier <laurent@vivier.eu>
 
-commit 09f871868080c33992cd6a9b72a5ca49582578fa upstream.
+commit 2e2ac4a3327479f7e2744cdd88a5c823f2057bad upstream.
 
-Track whether bfq_group is still online. We cannot rely on
-blkcg_gq->online because that gets cleared only after all policies are
-offlined and we need something that gets updated already under
-bfqd->lock when we are cleaning up our bfq_group to be able to guarantee
-that when we see online bfq_group, it will stay online while we are
-holding bfqd->lock lock.
+The goldfish TTY device was clearly defined as having little-endian
+registers, but the switch to __raw_{read,write}l(() broke its driver
+when running on big-endian kernels (if anyone ever tried this).
 
-CC: stable@vger.kernel.org
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-7-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The m68k qemu implementation got this wrong, and assumed native-endian
+registers.  While this is a bug in qemu, it is probably impossible to
+fix that since there is no way of knowing which other operating systems
+have started relying on that bug over the years.
+
+Hence revert commit da31de35cd2f ("tty: goldfish: use
+__raw_writel()/__raw_readl()", and define gf_ioread32()/gf_iowrite32()
+to be able to use accessors defined by the architecture.
+
+Cc: stable@vger.kernel.org # v5.11+
+Fixes: da31de35cd2fb78f ("tty: goldfish: use __raw_writel()/__raw_readl()")
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+Link: https://lore.kernel.org/r/20220406201523.243733-2-laurent@vivier.eu
+[geert: Add rationale based on Arnd's comments]
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-cgroup.c  |    3 ++-
- block/bfq-iosched.h |    2 ++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/goldfish.c   |   20 ++++++++++----------
+ include/linux/goldfish.h |   15 +++++++++++----
+ 2 files changed, 21 insertions(+), 14 deletions(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -553,6 +553,7 @@ static void bfq_pd_init(struct blkg_poli
- 				   */
- 	bfqg->bfqd = bfqd;
- 	bfqg->active_entities = 0;
-+	bfqg->online = true;
- 	bfqg->rq_pos_tree = RB_ROOT;
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -61,13 +61,13 @@ static void do_rw_io(struct goldfish_tty
+ 	spin_lock_irqsave(&qtty->lock, irq_flags);
+ 	gf_write_ptr((void *)address, base + GOLDFISH_TTY_REG_DATA_PTR,
+ 		     base + GOLDFISH_TTY_REG_DATA_PTR_HIGH);
+-	__raw_writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
++	gf_iowrite32(count, base + GOLDFISH_TTY_REG_DATA_LEN);
+ 
+ 	if (is_write)
+-		__raw_writel(GOLDFISH_TTY_CMD_WRITE_BUFFER,
++		gf_iowrite32(GOLDFISH_TTY_CMD_WRITE_BUFFER,
+ 		       base + GOLDFISH_TTY_REG_CMD);
+ 	else
+-		__raw_writel(GOLDFISH_TTY_CMD_READ_BUFFER,
++		gf_iowrite32(GOLDFISH_TTY_CMD_READ_BUFFER,
+ 		       base + GOLDFISH_TTY_REG_CMD);
+ 
+ 	spin_unlock_irqrestore(&qtty->lock, irq_flags);
+@@ -142,7 +142,7 @@ static irqreturn_t goldfish_tty_interrup
+ 	unsigned char *buf;
+ 	u32 count;
+ 
+-	count = __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
++	count = gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
+ 	if (count == 0)
+ 		return IRQ_NONE;
+ 
+@@ -159,7 +159,7 @@ static int goldfish_tty_activate(struct
+ {
+ 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
+ 									port);
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+ 	return 0;
  }
  
-@@ -599,7 +600,6 @@ struct bfq_group *bfq_find_set_group(str
- 	struct bfq_entity *entity;
+@@ -167,7 +167,7 @@ static void goldfish_tty_shutdown(struct
+ {
+ 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
+ 									port);
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+ }
  
- 	bfqg = bfq_lookup_bfqg(bfqd, blkcg);
--
- 	if (unlikely(!bfqg))
- 		return NULL;
+ static int goldfish_tty_open(struct tty_struct *tty, struct file *filp)
+@@ -202,7 +202,7 @@ static unsigned int goldfish_tty_chars_i
+ {
+ 	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
+ 	void __iomem *base = qtty->base;
+-	return __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
++	return gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
+ }
  
-@@ -961,6 +961,7 @@ static void bfq_pd_offline(struct blkg_p
+ static void goldfish_tty_console_write(struct console *co, const char *b,
+@@ -357,7 +357,7 @@ static int goldfish_tty_probe(struct pla
+ 	 * on Ranchu emulator (qemu2) returns 1 here and
+ 	 * driver will use physical addresses.
+ 	 */
+-	qtty->version = __raw_readl(base + GOLDFISH_TTY_REG_VERSION);
++	qtty->version = gf_ioread32(base + GOLDFISH_TTY_REG_VERSION);
  
- put_async_queues:
- 	bfq_put_async_queues(bfqd, bfqg);
-+	bfqg->online = false;
- 
- 	spin_unlock_irqrestore(&bfqd->lock, flags);
  	/*
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -901,6 +901,8 @@ struct bfq_group {
+ 	 * Goldfish TTY device on Ranchu emulator (qemu2)
+@@ -376,7 +376,7 @@ static int goldfish_tty_probe(struct pla
+ 		}
+ 	}
  
- 	/* reference counter (see comments in bfq_bic_update_cgroup) */
- 	int ref;
-+	/* Is bfq_group still online? */
-+	bool online;
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
  
- 	struct bfq_entity entity;
- 	struct bfq_sched_data sched_data;
+ 	ret = request_irq(irq, goldfish_tty_interrupt, IRQF_SHARED,
+ 			  "goldfish_tty", qtty);
+@@ -438,7 +438,7 @@ static int goldfish_tty_remove(struct pl
+ #ifdef CONFIG_GOLDFISH_TTY_EARLY_CONSOLE
+ static void gf_early_console_putchar(struct uart_port *port, int ch)
+ {
+-	__raw_writel(ch, port->membase);
++	gf_iowrite32(ch, port->membase);
+ }
+ 
+ static void gf_early_write(struct console *con, const char *s, unsigned int n)
+--- a/include/linux/goldfish.h
++++ b/include/linux/goldfish.h
+@@ -8,14 +8,21 @@
+ 
+ /* Helpers for Goldfish virtual platform */
+ 
++#ifndef gf_ioread32
++#define gf_ioread32 ioread32
++#endif
++#ifndef gf_iowrite32
++#define gf_iowrite32 iowrite32
++#endif
++
+ static inline void gf_write_ptr(const void *ptr, void __iomem *portl,
+ 				void __iomem *porth)
+ {
+ 	const unsigned long addr = (unsigned long)ptr;
+ 
+-	__raw_writel(lower_32_bits(addr), portl);
++	gf_iowrite32(lower_32_bits(addr), portl);
+ #ifdef CONFIG_64BIT
+-	__raw_writel(upper_32_bits(addr), porth);
++	gf_iowrite32(upper_32_bits(addr), porth);
+ #endif
+ }
+ 
+@@ -23,9 +30,9 @@ static inline void gf_write_dma_addr(con
+ 				     void __iomem *portl,
+ 				     void __iomem *porth)
+ {
+-	__raw_writel(lower_32_bits(addr), portl);
++	gf_iowrite32(lower_32_bits(addr), portl);
+ #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
+-	__raw_writel(upper_32_bits(addr), porth);
++	gf_iowrite32(upper_32_bits(addr), porth);
+ #endif
+ }
+ 
 
 
