@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C784540E55
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED80541587
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353489AbiFGSyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:54:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58482 "EHLO
+        id S1357799AbiFGUge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354520AbiFGSrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2134C880FE;
-        Tue,  7 Jun 2022 11:01:47 -0700 (PDT)
+        with ESMTP id S1377838AbiFGUeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E79571E7AF8;
+        Tue,  7 Jun 2022 11:36:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3FEC617A7;
-        Tue,  7 Jun 2022 18:01:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5301C385A5;
-        Tue,  7 Jun 2022 18:01:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 302C4B8233E;
+        Tue,  7 Jun 2022 18:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FF8C385A2;
+        Tue,  7 Jun 2022 18:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624906;
-        bh=3/dxwaV8h0U1TQVEUSuQrKCo/nqCsdi4jNTFr+Wp83g=;
+        s=korg; t=1654626969;
+        bh=1fnCYEHFdDXiebIMF3JIQlXednadZc3hyC/x3Lsi5wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8XIxMMaUdRMHdQ9EECseT5hqgMNlzURnT5xVGTHC0CBjhA63KPYpH+cTycYYyJyt
-         TjDtPpiQk9ChWwqQKF+2cZqh8whbDpEaN6neVJlG+Ys4yYE0MfMOQHct5bQWLvRnEh
-         kbcopl0VFRRplCoVkWQaJIoZiGK8xMdGHtXexZTk=
+        b=yRT5AMx5Dua92RtYwUqTSeLf6E5I16GaWq4Yqca04p07/5MPt4sw0mXjKGsIPu402
+         kRWAe1ReeGt1gzTTkSqX5k0oA/S9fpyXEM/XkeNrGg+BduXLZd40MoeAc3uCb8TtmM
+         Q9GG27ujrcbEdqI9IzjJfu8qjCLBeDqLEqit4vjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 497/667] NFS: Dont report errors from nfs_pageio_complete() more than once
-Date:   Tue,  7 Jun 2022 19:02:42 +0200
-Message-Id: <20220607164949.605959446@linuxfoundation.org>
+        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
+        Yong Wu <yong.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 571/772] iommu/mediatek: Add mutex for m4u_group and m4u_dom in data
+Date:   Tue,  7 Jun 2022 19:02:43 +0200
+Message-Id: <20220607165005.779832757@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +57,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit c5e483b77cc2edb318da152abe07e33006b975fd ]
+[ Upstream commit 0e5a3f2e630b28e88e018655548212ef8eb4dfcb ]
 
-Since errors from nfs_pageio_complete() are already being reported
-through nfs_async_write_error(), we should not be returning them to the
-callers of do_writepages() as well. They will end up being reported
-through the generic mechanism instead.
+Add a mutex to protect the data in the structure mtk_iommu_data,
+like ->"m4u_group" ->"m4u_dom". For the internal data, we should
+protect it in ourselves driver. Add a mutex for this.
+This could be a fix for the multi-groups support.
 
-Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: c3045f39244e ("iommu/mediatek: Support for multi domains")
+Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/20220503071427.2285-8-yong.wu@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/write.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/iommu/mtk_iommu.c | 13 +++++++++++--
+ drivers/iommu/mtk_iommu.h |  2 ++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index daaa4f56b074..f47cf3e8c720 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -675,11 +675,7 @@ static int nfs_writepage_locked(struct page *page,
- 	err = nfs_do_writepage(page, wbc, &pgio);
- 	pgio.pg_error = 0;
- 	nfs_pageio_complete(&pgio);
--	if (err < 0)
--		return err;
--	if (nfs_error_is_fatal(pgio.pg_error))
--		return pgio.pg_error;
--	return 0;
-+	return err;
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index b9d690327eae..9b3ded518f83 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -469,15 +469,16 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 		dom->data = data;
+ 	}
+ 
++	mutex_lock(&data->mutex);
+ 	if (!data->m4u_dom) { /* Initialize the M4U HW */
+ 		ret = pm_runtime_resume_and_get(m4udev);
+ 		if (ret < 0)
+-			return ret;
++			goto err_unlock;
+ 
+ 		ret = mtk_iommu_hw_init(data);
+ 		if (ret) {
+ 			pm_runtime_put(m4udev);
+-			return ret;
++			goto err_unlock;
+ 		}
+ 		data->m4u_dom = dom;
+ 		writel(dom->cfg.arm_v7s_cfg.ttbr & MMU_PT_ADDR_MASK,
+@@ -485,9 +486,14 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 
+ 		pm_runtime_put(m4udev);
+ 	}
++	mutex_unlock(&data->mutex);
+ 
+ 	mtk_iommu_config(data, dev, true, domid);
+ 	return 0;
++
++err_unlock:
++	mutex_unlock(&data->mutex);
++	return ret;
  }
  
- int nfs_writepage(struct page *page, struct writeback_control *wbc)
-@@ -737,9 +733,6 @@ int nfs_writepages(struct address_space *mapping, struct writeback_control *wbc)
+ static void mtk_iommu_detach_device(struct iommu_domain *domain,
+@@ -627,6 +633,7 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
+ 	if (domid < 0)
+ 		return ERR_PTR(domid);
  
- 	if (err < 0)
- 		goto out_err;
--	err = pgio.pg_error;
--	if (nfs_error_is_fatal(err))
--		goto out_err;
- 	return 0;
- out_err:
- 	return err;
++	mutex_lock(&data->mutex);
+ 	group = data->m4u_group[domid];
+ 	if (!group) {
+ 		group = iommu_group_alloc();
+@@ -635,6 +642,7 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
+ 	} else {
+ 		iommu_group_ref_get(group);
+ 	}
++	mutex_unlock(&data->mutex);
+ 	return group;
+ }
+ 
+@@ -909,6 +917,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, data);
++	mutex_init(&data->mutex);
+ 
+ 	ret = iommu_device_sysfs_add(&data->iommu, dev, NULL,
+ 				     "mtk-iommu.%pa", &ioaddr);
+diff --git a/drivers/iommu/mtk_iommu.h b/drivers/iommu/mtk_iommu.h
+index f81fa8862ed0..f413546ac6e5 100644
+--- a/drivers/iommu/mtk_iommu.h
++++ b/drivers/iommu/mtk_iommu.h
+@@ -80,6 +80,8 @@ struct mtk_iommu_data {
+ 
+ 	struct dma_iommu_mapping	*mapping; /* For mtk_iommu_v1.c */
+ 
++	struct mutex			mutex; /* Protect m4u_group/m4u_dom above */
++
+ 	struct list_head		list;
+ 	struct mtk_smi_larb_iommu	larb_imu[MTK_LARB_NR_MAX];
+ };
 -- 
 2.35.1
 
