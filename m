@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FD5540517
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C84541A74
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345919AbiFGRVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
+        id S1379831AbiFGVdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345802AbiFGRVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:06 -0400
+        with ESMTP id S1381074AbiFGVbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:31:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE4D10636F;
-        Tue,  7 Jun 2022 10:20:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E00322CBDA;
+        Tue,  7 Jun 2022 12:04:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA06FB822AF;
-        Tue,  7 Jun 2022 17:20:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340D7C385A5;
-        Tue,  7 Jun 2022 17:20:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20E3FB822C0;
+        Tue,  7 Jun 2022 19:04:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78455C385A2;
+        Tue,  7 Jun 2022 19:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622450;
-        bh=r0fIl1paJppCtESdUdyUAQ98xxiKIcSO5MMEPsCXkb4=;
+        s=korg; t=1654628639;
+        bh=6X4d72LwQTIc+6PTx5vEOmfhb6pBrV/KYQO5s5tQhc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3wFzwsSS7hKSylTcH8HFomwBemi3zz1lXb2iJ2ysMc8On7X0SEZsrcNkjaXclSQd
-         h6/FEMi9ghBrVpEBz8H/SOMMLroS89cOQTLtPxig83BR/1jONQ10X0kD95HUVyKQio
-         sUTTHTMynvswUpMzbRp/Dnqkuperj6w6vw+SXLxs=
+        b=tcOLTucFpB7oKXo8+0/TBNh/1OdWv1v2dnf9PXnFiGWcJnK2/467dmbjs6QTNFIu9
+         c21TanQf/b2w7BjGlA/XEs3AcWfS8mTQ/eQnMrXhOosk/VFVlRtL1gu3AP3BfPp9xG
+         XqYlOdInJYdKwbOr4pb7bCvbmf4/fODKH477R18Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/452] ASoC: dapm: Dont fold register value changes into notifications
+Subject: [PATCH 5.18 401/879] drm/msm: return an error pointer in msm_gem_prime_get_sg_table()
 Date:   Tue,  7 Jun 2022 18:58:39 +0200
-Message-Id: <20220607164910.397055905@linuxfoundation.org>
+Message-Id: <20220607165014.502970283@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
+[ Upstream commit cf575e31611eb6dccf08fad02e57e35b2187704d ]
 
-DAPM tracks and reports the value presented to the user from DAPM controls
-separately to the register value, these may diverge during initialisation
-or when an autodisable control is in use.
+The msm_gem_prime_get_sg_table() needs to return error pointers on
+error.  This is called from drm_gem_map_dma_buf() and returning a
+NULL will lead to a crash in that function.
 
-When writing DAPM controls we currently report that a change has occurred
-if either the DAPM value or the value stored in the register has changed,
-meaning that if the two are out of sync we may appear to report a spurious
-event to userspace. Since we use this folded in value for nothing other
-than the value reported to userspace simply drop the folding in of the
-register change.
-
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ac45146733b0 ("drm/msm: fix msm_gem_prime_get_sg_table()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/485023/
+Link: https://lore.kernel.org/r/YnOmtS5tfENywR9m@kili
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/msm/msm_gem_prime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index 417732bdf286..f2f7f2dde93c 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -3427,7 +3427,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
- 			update.val = val;
- 			card->update = &update;
- 		}
--		change |= reg_change;
+diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
+index e8f1b7a2ca9c..94ab705e9b8a 100644
+--- a/drivers/gpu/drm/msm/msm_gem_prime.c
++++ b/drivers/gpu/drm/msm/msm_gem_prime.c
+@@ -17,7 +17,7 @@ struct sg_table *msm_gem_prime_get_sg_table(struct drm_gem_object *obj)
+ 	int npages = obj->size >> PAGE_SHIFT;
  
- 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
- 						  rconnect);
-@@ -3529,7 +3528,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
- 			update.val = val;
- 			card->update = &update;
- 		}
--		change |= reg_change;
+ 	if (WARN_ON(!msm_obj->pages))  /* should have already pinned! */
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
  
- 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
- 
+ 	return drm_prime_pages_to_sg(obj->dev, msm_obj->pages, npages);
+ }
 -- 
 2.35.1
 
