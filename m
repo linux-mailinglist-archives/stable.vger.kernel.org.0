@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D8D5419AC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 981A454091F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377878AbiFGVXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:23:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55246 "EHLO
+        id S1350021AbiFGSFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:05:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380320AbiFGVVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:21:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D57118027;
-        Tue,  7 Jun 2022 11:59:55 -0700 (PDT)
+        with ESMTP id S1351729AbiFGSCS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7CA109180;
+        Tue,  7 Jun 2022 10:45:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83FB661787;
-        Tue,  7 Jun 2022 18:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C434C385A2;
-        Tue,  7 Jun 2022 18:59:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CEA5616B1;
+        Tue,  7 Jun 2022 17:45:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43662C385A5;
+        Tue,  7 Jun 2022 17:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628390;
-        bh=mPjFnB12v9QIjvkloTIVfkJB+ZjteATQWCqedBdGsPw=;
+        s=korg; t=1654623912;
+        bh=o9zNJFyYPWthPvxfa3aU9+R/Vxq7Wbw/vekxHbjVKK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCC+02Zl5jldYfKGqXndauODc0JNXbKAvYhttgzmoosfKePLIX6gS7Tz6asnBK4HB
-         2Xep4H2xdL9ZtCcsVCsRFdggr0wyzddrfZUDnTuhq3AsULUyakhJBfDAjsGXwDMtFU
-         wOjAfknVruY1/sl97ApKjmxyErCISJF29erXbTJ0=
+        b=RibPQx7Vm4EWSlkos5WiHf9iR6GLQecZNsyAsodwc5UVmM8XpMTkBjcbPj+MpJvCl
+         zsWG135t4mh7j/WxGmOEUoZc72pGhxHYMNtXjL75fENEZlumO7olkHRyRfnxMpADfK
+         xQg4OM1cWQCpmE+mnP9sFA8T2w+yvBbjJ4ZReuKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 285/879] x86/delay: Fix the wrong asm constraint in delay_loop()
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 138/667] net: ipa: ignore endianness if there is no header
 Date:   Tue,  7 Jun 2022 18:56:43 +0200
-Message-Id: <20220607165011.119924192@linuxfoundation.org>
+Message-Id: <20220607164938.960215937@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit b86eb74098a92afd789da02699b4b0dd3f73b889 ]
+[ Upstream commit 332ef7c814bdd60f08d0d9013d0e1104798b2d23 ]
 
-The asm constraint does not reflect the fact that the asm statement can
-modify the value of the local variable loops. Which it does.
+If we program an RX endpoint to have no header (header length is 0),
+header-related endpoint configuration values are meaningless and are
+ignored.
 
-Specifying the wrong constraint may lead to undefined behavior, it may
-clobber random stuff (e.g. local variable, important temporary value in
-regs, etc.). This is especially dangerous when the compiler decides to
-inline the function and since it doesn't know that the value gets
-modified, it might decide to use it from a register directly without
-reloading it.
+The only case we support that defines a header is QMAP endpoints.
+In ipa_endpoint_init_hdr_ext() we set the endianness mask value
+unconditionally, but it should not be done if there is no header
+(meaning it is not configured for QMAP).
 
-Change the constraint to "+a" to denote that the first argument is an
-input and an output argument.
+Set the endianness conditionally, and rearrange the logic in that
+function slightly to avoid testing the qmap flag twice.
 
-  [ bp: Fix typo, massage commit message. ]
+Delete an incorrect comment in ipa_endpoint_init_aggr().
 
-Fixes: e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220329104705.65256-2-ammarfaizi2@gnuweeb.org
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/delay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ipa/ipa_endpoint.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
-index 65d15df6212d..0e65d00e2339 100644
---- a/arch/x86/lib/delay.c
-+++ b/arch/x86/lib/delay.c
-@@ -54,8 +54,8 @@ static void delay_loop(u64 __loops)
- 		"	jnz 2b		\n"
- 		"3:	dec %0		\n"
+diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
+index 477eb4051bed..703e1630f9c2 100644
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -570,19 +570,23 @@ static void ipa_endpoint_init_hdr_ext(struct ipa_endpoint *endpoint)
+ 	struct ipa *ipa = endpoint->ipa;
+ 	u32 val = 0;
  
--		: /* we don't need output */
--		:"a" (loops)
-+		: "+a" (loops)
-+		:
- 	);
- }
+-	val |= HDR_ENDIANNESS_FMASK;		/* big endian */
+-
+-	/* A QMAP header contains a 6 bit pad field at offset 0.  The RMNet
+-	 * driver assumes this field is meaningful in packets it receives,
+-	 * and assumes the header's payload length includes that padding.
+-	 * The RMNet driver does *not* pad packets it sends, however, so
+-	 * the pad field (although 0) should be ignored.
+-	 */
+-	if (endpoint->data->qmap && !endpoint->toward_ipa) {
+-		val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
+-		/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
+-		val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
+-		/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
++	if (endpoint->data->qmap) {
++		/* We have a header, so we must specify its endianness */
++		val |= HDR_ENDIANNESS_FMASK;	/* big endian */
++
++		/* A QMAP header contains a 6 bit pad field at offset 0.
++		 * The RMNet driver assumes this field is meaningful in
++		 * packets it receives, and assumes the header's payload
++		 * length includes that padding.  The RMNet driver does
++		 * *not* pad packets it sends, however, so the pad field
++		 * (although 0) should be ignored.
++		 */
++		if (!endpoint->toward_ipa) {
++			val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
++			/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
++			val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
++			/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
++		}
+ 	}
  
+ 	/* HDR_PAYLOAD_LEN_INC_PADDING is 0 */
+@@ -740,8 +744,6 @@ static void ipa_endpoint_init_aggr(struct ipa_endpoint *endpoint)
+ 
+ 			close_eof = endpoint->data->rx.aggr_close_eof;
+ 			val |= aggr_sw_eof_active_encoded(version, close_eof);
+-
+-			/* AGGR_HARD_BYTE_LIMIT_ENABLE is 0 */
+ 		} else {
+ 			val |= u32_encode_bits(IPA_ENABLE_DEAGGR,
+ 					       AGGR_EN_FMASK);
 -- 
 2.35.1
 
