@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D985411DB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF297541882
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356690AbiFGTjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44038 "EHLO
+        id S1379815AbiFGVMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356676AbiFGTiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:38:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61EBDD31A7;
-        Tue,  7 Jun 2022 11:14:06 -0700 (PDT)
+        with ESMTP id S1380106AbiFGVLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62B6217621;
+        Tue,  7 Jun 2022 11:53:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5DFC2CE2443;
-        Tue,  7 Jun 2022 18:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 436FBC385A2;
-        Tue,  7 Jun 2022 18:14:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F10C6176D;
+        Tue,  7 Jun 2022 18:53:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9EDFC385A5;
+        Tue,  7 Jun 2022 18:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625642;
-        bh=PH+cowAQ+wr2TocWy9i17v14NXwGOM4fF5selByEHAY=;
+        s=korg; t=1654627989;
+        bh=1QCkvUVKkSssoNrecKUlG97xKfGrKuMFunKfeuff/Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqaJKh57YbpaZvnlRd8oJShz0PjqJm93nHeN+tLwwOtfMZqJBisrl7EC93YycrwMI
-         E2EPnRxqBtVE9yWAQ9Lp5H2YwNUSGIwLpp3Wd42HYaIiMiM6XZZ83kMff/Aw2P86Xx
-         Z0Hmx5gYRrzrxewjO5Yvg87fJ/RL7XlCLFtYb2Yk=
+        b=nTeD/sfuUDCzGdqnWDgmRD1KMA7wsb9hEAzghzIKzf6dr2FL1w4d9L5uJGqmOwM2q
+         ALQDpKQsWAGwz57K4WOp2jBVDcNE/v7Lz5T1HIwIxIg8T4gg+TXoxn1sBaAffh0iHP
+         HRoTvFyeRoYwTzTKLjP/yG+Ss0Kk+qh3iv471ogM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Heming Zhao <heming.zhao@suse.com>, Song Liu <song@kernel.org>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 092/772] md/bitmap: dont set sb values if cant pass sanity check
-Date:   Tue,  7 Jun 2022 18:54:44 +0200
-Message-Id: <20220607164951.758472347@linuxfoundation.org>
+Subject: [PATCH 5.18 167/879] media: cec-adap.c: fix is_configuring state
+Date:   Tue,  7 Jun 2022 18:54:45 +0200
+Message-Id: <20220607165007.556567139@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,161 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao <heming.zhao@suse.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit e68cb83a57a458b01c9739e2ad9cb70b04d1e6d2 ]
+[ Upstream commit 59267fc34f4900dcd2ec3295f6be04b79aee2186 ]
 
-If bitmap area contains invalid data, kernel will crash then mdadm
-triggers "Segmentation fault".
-This is cluster-md speical bug. In non-clustered env, mdadm will
-handle broken metadata case. In clustered array, only kernel space
-handles bitmap slot info. But even this bug only happened in clustered
-env, current sanity check is wrong, the code should be changed.
+If an adapter is trying to claim a free logical address then it is
+in the 'is_configuring' state. If during that process the cable is
+disconnected (HPD goes low, which in turn invalidates the physical
+address), then cec_adap_unconfigure() is called, and that set the
+is_configuring boolean to false, even though the thread that's
+trying to claim an LA is still running.
 
-How to trigger: (faulty injection)
+Don't touch the is_configuring bool in cec_adap_unconfigure(), it
+will eventually be cleared by the thread. By making that change
+the cec_config_log_addr() function also had to change: it was
+aborting if is_configuring became false (since that is what
+cec_adap_unconfigure() did), but that no longer works. Instead
+check if the physical address is invalid. That is a much
+more appropriate check anyway.
 
-dd if=/dev/zero bs=1M count=1 oflag=direct of=/dev/sda
-dd if=/dev/zero bs=1M count=1 oflag=direct of=/dev/sdb
-mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sda /dev/sdb
-mdadm -Ss
-echo aaa > magic.txt
- == below modifying slot 2 bitmap data ==
-dd if=magic.txt of=/dev/sda seek=16384 bs=1 count=3 <== destroy magic
-dd if=/dev/zero of=/dev/sda seek=16436 bs=1 count=4 <== ZERO chunksize
-mdadm -A /dev/md0 /dev/sda /dev/sdb
- == kernel crashes. mdadm outputs "Segmentation fault" ==
+This fixes a bug where the the adapter could be disabled even
+though the device was still configuring. This could cause POLL
+transmits to time out.
 
-Reason of kernel crash:
-
-In md_bitmap_read_sb (called by md_bitmap_create), bad bitmap magic didn't
-block chunksize assignment, and zero value made DIV_ROUND_UP_SECTOR_T()
-trigger "divide error".
-
-Crash log:
-
-kernel: md: md0 stopped.
-kernel: md/raid1:md0: not clean -- starting background reconstruction
-kernel: md/raid1:md0: active with 2 out of 2 mirrors
-kernel: dlm: ... ...
-kernel: md-cluster: Joined cluster 44810aba-38bb-e6b8-daca-bc97a0b254aa slot 1
-kernel: md0: invalid bitmap file superblock: bad magic
-kernel: md_bitmap_copy_from_slot can't get bitmap from slot 2
-kernel: md-cluster: Could not gather bitmaps from slot 2
-kernel: divide error: 0000 [#1] SMP NOPTI
-kernel: CPU: 0 PID: 1603 Comm: mdadm Not tainted 5.14.6-1-default
-kernel: Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-kernel: RIP: 0010:md_bitmap_create+0x1d1/0x850 [md_mod]
-kernel: RSP: 0018:ffffc22ac0843ba0 EFLAGS: 00010246
-kernel: ... ...
-kernel: Call Trace:
-kernel:  ? dlm_lock_sync+0xd0/0xd0 [md_cluster 77fe..7a0]
-kernel:  md_bitmap_copy_from_slot+0x2c/0x290 [md_mod 24ea..d3a]
-kernel:  load_bitmaps+0xec/0x210 [md_cluster 77fe..7a0]
-kernel:  md_bitmap_load+0x81/0x1e0 [md_mod 24ea..d3a]
-kernel:  do_md_run+0x30/0x100 [md_mod 24ea..d3a]
-kernel:  md_ioctl+0x1290/0x15a0 [md_mod 24ea....d3a]
-kernel:  ? mddev_unlock+0xaa/0x130 [md_mod 24ea..d3a]
-kernel:  ? blkdev_ioctl+0xb1/0x2b0
-kernel:  block_ioctl+0x3b/0x40
-kernel:  __x64_sys_ioctl+0x7f/0xb0
-kernel:  do_syscall_64+0x59/0x80
-kernel:  ? exit_to_user_mode_prepare+0x1ab/0x230
-kernel:  ? syscall_exit_to_user_mode+0x18/0x40
-kernel:  ? do_syscall_64+0x69/0x80
-kernel:  entry_SYSCALL_64_after_hwframe+0x44/0xae
-kernel: RIP: 0033:0x7f4a15fa722b
-kernel: ... ...
-kernel: ---[ end trace 8afa7612f559c868 ]---
-kernel: RIP: 0010:md_bitmap_create+0x1d1/0x850 [md_mod]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md-bitmap.c | 44 ++++++++++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 21 deletions(-)
+ drivers/media/cec/core/cec-adap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
-index bfd6026d7809..612460d2bdaf 100644
---- a/drivers/md/md-bitmap.c
-+++ b/drivers/md/md-bitmap.c
-@@ -639,14 +639,6 @@ static int md_bitmap_read_sb(struct bitmap *bitmap)
- 	daemon_sleep = le32_to_cpu(sb->daemon_sleep) * HZ;
- 	write_behind = le32_to_cpu(sb->write_behind);
- 	sectors_reserved = le32_to_cpu(sb->sectors_reserved);
--	/* Setup nodes/clustername only if bitmap version is
--	 * cluster-compatible
--	 */
--	if (sb->version == cpu_to_le32(BITMAP_MAJOR_CLUSTERED)) {
--		nodes = le32_to_cpu(sb->nodes);
--		strlcpy(bitmap->mddev->bitmap_info.cluster_name,
--				sb->cluster_name, 64);
--	}
+diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
+index 2e12331c12a9..01766e744772 100644
+--- a/drivers/media/cec/core/cec-adap.c
++++ b/drivers/media/cec/core/cec-adap.c
+@@ -1278,7 +1278,7 @@ static int cec_config_log_addr(struct cec_adapter *adap,
+ 		 * While trying to poll the physical address was reset
+ 		 * and the adapter was unconfigured, so bail out.
+ 		 */
+-		if (!adap->is_configuring)
++		if (adap->phys_addr == CEC_PHYS_ADDR_INVALID)
+ 			return -EINTR;
  
- 	/* verify that the bitmap-specific fields are valid */
- 	if (sb->magic != cpu_to_le32(BITMAP_MAGIC))
-@@ -668,6 +660,16 @@ static int md_bitmap_read_sb(struct bitmap *bitmap)
- 		goto out;
- 	}
+ 		if (err)
+@@ -1335,7 +1335,6 @@ static void cec_adap_unconfigure(struct cec_adapter *adap)
+ 	    adap->phys_addr != CEC_PHYS_ADDR_INVALID)
+ 		WARN_ON(adap->ops->adap_log_addr(adap, CEC_LOG_ADDR_INVALID));
+ 	adap->log_addrs.log_addr_mask = 0;
+-	adap->is_configuring = false;
+ 	adap->is_configured = false;
+ 	cec_flush(adap);
+ 	wake_up_interruptible(&adap->kthread_waitq);
+@@ -1527,9 +1526,10 @@ static int cec_config_thread_func(void *arg)
+ 	for (i = 0; i < las->num_log_addrs; i++)
+ 		las->log_addr[i] = CEC_LOG_ADDR_INVALID;
+ 	cec_adap_unconfigure(adap);
++	adap->is_configuring = false;
+ 	adap->kthread_config = NULL;
+-	mutex_unlock(&adap->lock);
+ 	complete(&adap->config_completion);
++	mutex_unlock(&adap->lock);
+ 	return 0;
+ }
  
-+	/*
-+	 * Setup nodes/clustername only if bitmap version is
-+	 * cluster-compatible
-+	 */
-+	if (sb->version == cpu_to_le32(BITMAP_MAJOR_CLUSTERED)) {
-+		nodes = le32_to_cpu(sb->nodes);
-+		strlcpy(bitmap->mddev->bitmap_info.cluster_name,
-+				sb->cluster_name, 64);
-+	}
-+
- 	/* keep the array size field of the bitmap superblock up to date */
- 	sb->sync_size = cpu_to_le64(bitmap->mddev->resync_max_sectors);
- 
-@@ -700,9 +702,9 @@ static int md_bitmap_read_sb(struct bitmap *bitmap)
- 
- out:
- 	kunmap_atomic(sb);
--	/* Assigning chunksize is required for "re_read" */
--	bitmap->mddev->bitmap_info.chunksize = chunksize;
- 	if (err == 0 && nodes && (bitmap->cluster_slot < 0)) {
-+		/* Assigning chunksize is required for "re_read" */
-+		bitmap->mddev->bitmap_info.chunksize = chunksize;
- 		err = md_setup_cluster(bitmap->mddev, nodes);
- 		if (err) {
- 			pr_warn("%s: Could not setup cluster service (%d)\n",
-@@ -713,18 +715,18 @@ static int md_bitmap_read_sb(struct bitmap *bitmap)
- 		goto re_read;
- 	}
- 
--
- out_no_sb:
--	if (test_bit(BITMAP_STALE, &bitmap->flags))
--		bitmap->events_cleared = bitmap->mddev->events;
--	bitmap->mddev->bitmap_info.chunksize = chunksize;
--	bitmap->mddev->bitmap_info.daemon_sleep = daemon_sleep;
--	bitmap->mddev->bitmap_info.max_write_behind = write_behind;
--	bitmap->mddev->bitmap_info.nodes = nodes;
--	if (bitmap->mddev->bitmap_info.space == 0 ||
--	    bitmap->mddev->bitmap_info.space > sectors_reserved)
--		bitmap->mddev->bitmap_info.space = sectors_reserved;
--	if (err) {
-+	if (err == 0) {
-+		if (test_bit(BITMAP_STALE, &bitmap->flags))
-+			bitmap->events_cleared = bitmap->mddev->events;
-+		bitmap->mddev->bitmap_info.chunksize = chunksize;
-+		bitmap->mddev->bitmap_info.daemon_sleep = daemon_sleep;
-+		bitmap->mddev->bitmap_info.max_write_behind = write_behind;
-+		bitmap->mddev->bitmap_info.nodes = nodes;
-+		if (bitmap->mddev->bitmap_info.space == 0 ||
-+			bitmap->mddev->bitmap_info.space > sectors_reserved)
-+			bitmap->mddev->bitmap_info.space = sectors_reserved;
-+	} else {
- 		md_bitmap_print_sb(bitmap);
- 		if (bitmap->cluster_slot < 0)
- 			md_cluster_stop(bitmap->mddev);
 -- 
 2.35.1
 
