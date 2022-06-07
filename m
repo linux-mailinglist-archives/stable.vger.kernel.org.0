@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 256E2540865
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 507555418F0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348953AbiFGR6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:58:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39640 "EHLO
+        id S1353790AbiFGVSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349030AbiFGR5s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC98237F3;
-        Tue,  7 Jun 2022 10:40:49 -0700 (PDT)
+        with ESMTP id S1380299AbiFGVQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6FB158750;
+        Tue,  7 Jun 2022 11:54:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E72761499;
-        Tue,  7 Jun 2022 17:40:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A931C34115;
-        Tue,  7 Jun 2022 17:40:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 201E8B81FE1;
+        Tue,  7 Jun 2022 18:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85513C385A2;
+        Tue,  7 Jun 2022 18:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623648;
-        bh=lIQbYf0TkVPgHqacQsbXEfI+WghXsnVMfGGAywaL/M8=;
+        s=korg; t=1654628085;
+        bh=rtHzjj2GFfazvNSR27w6EM4Oeo2YGiREyRIw+vC3rmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqdVL4N6SJhyoV/x+MYeWEBdINUUhezwH41GcY4qopkA4ot3LSfrs5OYe8a6blITK
-         7W9BGEes4AIJ3xZysuOARQBf99FVvlWfgG9FE/oANR1IdzOXUrO72N/523NH+gd/Mz
-         MsFWkurX8jT1ZMjK0whuo1jyurs32E2Q7oHI/rGU=
+        b=Pk74MNeSdHj7EdsUhuj7se1jle8JmV8c4LETPOd1LoTGcSMUNc9S0TJAnjdT3ht9l
+         JxeTmUfznG852oW6LkhtTI5qOj8YQ3lQ92p1OYmicuZaJHto9bDXRIngptKRjla4oy
+         s2ve/UT2ABV6CZgHy1Eh1N+RPC37FE7B1K/1OLlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 004/667] parisc/stifb: Keep track of hardware path of graphics card
+        stable@vger.kernel.org,
+        Seth Forshee <seth.forshee@digitalocean.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 151/879] fs: hold writers when changing mounts idmapping
 Date:   Tue,  7 Jun 2022 18:54:29 +0200
-Message-Id: <20220607164934.909123304@linuxfoundation.org>
+Message-Id: <20220607165007.088140974@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +58,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit b046f984814af7985f444150ec28716d42d00d9a upstream.
+[ Upstream commit e1bbcd277a53e08d619ffeec56c5c9287f2bf42f ]
 
-Keep the pa_path (hardware path) of the graphics card in sti_struct and use
-this info to give more useful info which card is currently being used.
+Hold writers when changing a mount's idmapping to make it more robust.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org   # v5.10+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The vfs layer takes care to retrieve the idmapping of a mount once
+ensuring that the idmapping used for vfs permission checking is
+identical to the idmapping passed down to the filesystem.
+
+For ioctl codepaths the filesystem itself is responsible for taking the
+idmapping into account if they need to. While all filesystems with
+FS_ALLOW_IDMAP raised take the same precautions as the vfs we should
+enforce it explicitly by making sure there are no active writers on the
+relevant mount while changing the idmapping.
+
+This is similar to turning a mount ro with the difference that in
+contrast to turning a mount ro changing the idmapping can only ever be
+done once while a mount can transition between ro and rw as much as it
+wants.
+
+This is a minor user-visible change. But it is extremely unlikely to
+matter. The caller must've created a detached mount via OPEN_TREE_CLONE
+and then handed that O_PATH fd to another process or thread which then
+must've gotten a writable fd for that mount and started creating files
+in there while the caller is still changing mount properties. While not
+impossible it will be an extremely rare corner-case and should in
+general be considered a bug in the application. Consider making a mount
+MOUNT_ATTR_NOEXEC or MOUNT_ATTR_NODEV while allowing someone else to
+perform lookups or exec'ing in parallel by handing them a copy of the
+OPEN_TREE_CLONE fd or another fd beneath that mount.
+
+Link: https://lore.kernel.org/r/20220510095840.152264-1-brauner@kernel.org
+Cc: Seth Forshee <seth.forshee@digitalocean.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/console/sticon.c  |    5 ++++-
- drivers/video/console/sticore.c |   15 +++++++--------
- drivers/video/fbdev/sticore.h   |    3 +++
- 3 files changed, 14 insertions(+), 9 deletions(-)
+ fs/namespace.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/video/console/sticon.c
-+++ b/drivers/video/console/sticon.c
-@@ -46,6 +46,7 @@
- #include <linux/slab.h>
- #include <linux/font.h>
- #include <linux/crc32.h>
-+#include <linux/fb.h>
- 
- #include <asm/io.h>
- 
-@@ -392,7 +393,9 @@ static int __init sticonsole_init(void)
-     for (i = 0; i < MAX_NR_CONSOLES; i++)
- 	font_data[i] = STI_DEF_FONT;
- 
--    pr_info("sticon: Initializing STI text console.\n");
-+    pr_info("sticon: Initializing STI text console on %s at [%s]\n",
-+	sticon_sti->sti_data->inq_outptr.dev_name,
-+	sticon_sti->pa_path);
-     console_lock();
-     err = do_take_over_console(&sti_con, 0, MAX_NR_CONSOLES - 1,
- 		PAGE0->mem_cons.cl_class != CL_DUPLEX);
---- a/drivers/video/console/sticore.c
-+++ b/drivers/video/console/sticore.c
-@@ -34,7 +34,7 @@
- 
- #include "../fbdev/sticore.h"
- 
--#define STI_DRIVERVERSION "Version 0.9b"
-+#define STI_DRIVERVERSION "Version 0.9c"
- 
- static struct sti_struct *default_sti __read_mostly;
- 
-@@ -503,7 +503,7 @@ sti_select_fbfont(struct sti_cooked_rom
- 	if (!fbfont)
- 		return NULL;
- 
--	pr_info("STI selected %ux%u framebuffer font %s for sticon\n",
-+	pr_info("    using %ux%u framebuffer font %s\n",
- 			fbfont->width, fbfont->height, fbfont->name);
- 			
- 	bpc = ((fbfont->width+7)/8) * fbfont->height; 
-@@ -947,6 +947,7 @@ out_err:
- 
- static void sticore_check_for_default_sti(struct sti_struct *sti, char *path)
+diff --git a/fs/namespace.c b/fs/namespace.c
+index afe2b64b14f1..41461f55c039 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -4026,8 +4026,9 @@ static int can_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
+ static inline bool mnt_allow_writers(const struct mount_kattr *kattr,
+ 				     const struct mount *mnt)
  {
-+	pr_info("    located at [%s]\n", sti->pa_path);
- 	if (strcmp (path, default_sti_path) == 0)
- 		default_sti = sti;
- }
-@@ -958,7 +959,6 @@ static void sticore_check_for_default_st
-  */
- static int __init sticore_pa_init(struct parisc_device *dev)
- {
--	char pa_path[21];
- 	struct sti_struct *sti = NULL;
- 	int hpa = dev->hpa.start;
- 
-@@ -971,8 +971,8 @@ static int __init sticore_pa_init(struct
- 	if (!sti)
- 		return 1;
- 
--	print_pa_hwpath(dev, pa_path);
--	sticore_check_for_default_sti(sti, pa_path);
-+	print_pa_hwpath(dev, sti->pa_path);
-+	sticore_check_for_default_sti(sti, sti->pa_path);
- 	return 0;
+-	return !(kattr->attr_set & MNT_READONLY) ||
+-	       (mnt->mnt.mnt_flags & MNT_READONLY);
++	return (!(kattr->attr_set & MNT_READONLY) ||
++		(mnt->mnt.mnt_flags & MNT_READONLY)) &&
++	       !kattr->mnt_userns;
  }
  
-@@ -1008,9 +1008,8 @@ static int sticore_pci_init(struct pci_d
- 
- 	sti = sti_try_rom_generic(rom_base, fb_base, pd);
- 	if (sti) {
--		char pa_path[30];
--		print_pci_hwpath(pd, pa_path);
--		sticore_check_for_default_sti(sti, pa_path);
-+		print_pci_hwpath(pd, sti->pa_path);
-+		sticore_check_for_default_sti(sti, sti->pa_path);
- 	}
- 	
- 	if (!sti) {
---- a/drivers/video/fbdev/sticore.h
-+++ b/drivers/video/fbdev/sticore.h
-@@ -370,6 +370,9 @@ struct sti_struct {
- 
- 	/* pointer to all internal data */
- 	struct sti_all_data *sti_data;
-+
-+	/* pa_path of this device */
-+	char pa_path[24];
- };
- 
- 
+ static int mount_setattr_prepare(struct mount_kattr *kattr, struct mount *mnt)
+-- 
+2.35.1
+
 
 
