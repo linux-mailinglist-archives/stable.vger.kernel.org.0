@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7F4540B0D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D7FF540AF6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350959AbiFGSYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:24:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42168 "EHLO
+        id S1350930AbiFGSYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:24:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352162AbiFGSQ5 (ORCPT
+        with ESMTP id S1352163AbiFGSQ5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E725E09A;
-        Tue,  7 Jun 2022 10:50:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37560FD28;
+        Tue,  7 Jun 2022 10:50:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1AA56172E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C89B76146F;
+        Tue,  7 Jun 2022 17:50:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98FFC34115;
         Tue,  7 Jun 2022 17:50:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8214C385A5;
-        Tue,  7 Jun 2022 17:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624247;
-        bh=O81XcMlN/TnTWCUyaNqzBZdDsQkHdCrUlFjxtCxOq20=;
+        s=k20201202; t=1654624249;
+        bh=KgLkVpm/eCq7pTrqhy/1TWHRr1bnRifLYUD1rkYJal0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jm5qaEMeKiFayEde/8zolbMgOqgiuZaJGFdLVij/auvwKO4Ie8zkUpAF+Pi27nFHt
-         BaCMnFM/cS/5+esy/xDORSroZmy6qwcrjUDSKVRulQFX7cF2CDyAZFvm9jVBOv1y8d
-         uIJAunt4xEu0DnB1gTv+X+Bk66mr2iVciSTS1fvcp0I8QZgQZ7QR1UqmaROuFl7nPE
-         IlKcmS/3mjEo4fKOj4zrr4FsB0a6cKr1UNc5XBsju3ORFjurs9vqUUomoOrWSd8mk7
-         8PbML7ZJKoXg54JDnOHOb+nRsdtWv3dHmlvdHo0v7AuZ/x44RGasmIvdkG31zx4Mya
-         qGCUsEJbR4mPw==
+        b=Ub+VtufDduOXMSv4TZ9gQU3zOrvM1SsnkzzkhdwhZCv1lv56F+kq8Bf/vgxdxebWm
+         mF7yA56VUm7ldmjLlSF2PneCn+xFkeT5SpPIDalt1Tc2h/c/B9Q6NuZm7iyTtGd4eK
+         9LoRAyoA/fPkvigYeFf4vdkb/RzjcpwfCsgdtfp4jRiwL9F41rHd4GQ7YdXzkiWeKZ
+         fvotHf7tSvA6c92nFMVTY8/d3dO0GYVdS6F0ulVLwpGVbrS6U+Wn9Zl+0su8nq2Sae
+         8JYV/xd7sy+sEEP/i44c9LIkG4MNiH1zQPaSW7Cs0J16Dy7T/0B85bWBIITrlL1b2O
+         hv//HYJvwPAsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Cheng <wanngchenng@gmail.com>,
-        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     John Ogness <john.ogness@linutronix.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Petr Mladek <pmladek@suse.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Larry.Finger@lwfinger.net,
-        florian.c.schilhabel@googlemail.com, paskripkin@gmail.com,
-        skumark1902@gmail.com, kuba@kernel.org, xkernel.wang@foxmail.com,
-        linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.18 29/68] staging: rtl8712: fix uninit-value in r871xu_drv_init()
-Date:   Tue,  7 Jun 2022 13:47:55 -0400
-Message-Id: <20220607174846.477972-29-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, jirislaby@kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 30/68] serial: msm_serial: disable interrupts in __msm_console_write()
+Date:   Tue,  7 Jun 2022 13:47:56 -0400
+Message-Id: <20220607174846.477972-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -61,86 +60,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
+[ Upstream commit aabdbb1b7a5819e18c403334a31fb0cc2c06ad41 ]
 
-When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
-'mac[6]' will not be initialized.
+__msm_console_write() assumes that interrupts are disabled, but
+with threaded console printers it is possible that the write()
+callback of the console is called with interrupts enabled.
 
-BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
- usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
- usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
- hub_port_connect drivers/usb/core/hub.c:5358 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
- port_event drivers/usb/core/hub.c:5660 [inline]
- hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
- process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
- worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
- kthread+0x3c7/0x500 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
+Explicitly disable interrupts using local_irq_save() to preserve
+the assumed context.
 
-Local variable mac created at:
- r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
-
-KMSAN: uninit-value in r871xu_drv_init
-https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
-
-Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20220506213324.470461-1-john.ogness@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/usb_intf.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/serial/msm_serial.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index 56450ede9f23..1ff3e2658e77 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -536,13 +536,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
- 		} else {
- 			AutoloadFail = false;
- 		}
--		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
-+		if ((!AutoloadFail) ||
-+		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
- 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
- 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
- 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
- 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
--		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
--		     (!AutoloadFail)) {
-+		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
- 			mac[0] = 0x00;
- 			mac[1] = 0xe0;
- 			mac[2] = 0x4c;
+diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
+index 23c94b927776..e676ec761f18 100644
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -1599,6 +1599,7 @@ static inline struct uart_port *msm_get_port_from_line(unsigned int line)
+ static void __msm_console_write(struct uart_port *port, const char *s,
+ 				unsigned int count, bool is_uartdm)
+ {
++	unsigned long flags;
+ 	int i;
+ 	int num_newlines = 0;
+ 	bool replaced = false;
+@@ -1616,6 +1617,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
+ 			num_newlines++;
+ 	count += num_newlines;
+ 
++	local_irq_save(flags);
++
+ 	if (port->sysrq)
+ 		locked = 0;
+ 	else if (oops_in_progress)
+@@ -1661,6 +1664,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
+ 
+ 	if (locked)
+ 		spin_unlock(&port->lock);
++
++	local_irq_restore(flags);
+ }
+ 
+ static void msm_console_write(struct console *co, const char *s,
 -- 
 2.35.1
 
