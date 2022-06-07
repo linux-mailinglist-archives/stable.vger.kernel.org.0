@@ -2,98 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C08540269
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 17:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BDE6540292
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 17:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344045AbiFGPaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 11:30:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
+        id S234571AbiFGPfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 11:35:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344031AbiFGPaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 11:30:20 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC370C6E6B;
-        Tue,  7 Jun 2022 08:30:18 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id AB73E21C18;
-        Tue,  7 Jun 2022 15:30:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1654615817;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3HFwAjcrpNdT9WsOGb53ZllR/O+OUsuf7sR4cWRnJHY=;
-        b=bh6KBFCDZNgFoRZJrLE4zernO8quW5kHaKKdZfWEdXq4r9XPA09zAPO1lWximj+mVbZkq6
-        uU+KrSWuEphQOYjOaOoTlb248JqEEN36rn4bXe+LR/YpeqxguADtFvtMf+5aPodIspOtHE
-        RrFbjZO86f4TOdCyOqZMit8mcsfnvi0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1654615817;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3HFwAjcrpNdT9WsOGb53ZllR/O+OUsuf7sR4cWRnJHY=;
-        b=u3v7VY2GYYvmgBrn8erjAk13tU69QsfOAZW5t+3ZpLqlvOeFKamKOOjTv2aqU8fHs/CRx8
-        YGCA37RXU+o0YBAg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 86DDA13A88;
-        Tue,  7 Jun 2022 15:30:17 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id IerYHwlvn2IMYgAAMHmgww
-        (envelope-from <dsterba@suse.cz>); Tue, 07 Jun 2022 15:30:17 +0000
-Date:   Tue, 7 Jun 2022 17:25:47 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Anand Jain <anand.jain@oracle.com>
-Cc:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] btrfs: add error messages to all unrecognized mount
- options
-Message-ID: <20220607152547.GJ20633@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220606110819.3943-1-dsterba@suse.com>
- <80a1469f-e5ce-11e1-b637-dba40706ce80@oracle.com>
+        with ESMTP id S236329AbiFGPfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 11:35:38 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA2BF68AB
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 08:35:37 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id n185so9531787wmn.4
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 08:35:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=raspberrypi.com; s=google;
+        h=message-id:date:mime-version:user-agent:subject:to:cc:references
+         :from:in-reply-to:content-transfer-encoding;
+        bh=UzAFOh0dSi5b7YcRWFXZow4QCyM7X3zyC4kDiKLs6oA=;
+        b=T5kR40O4jIf93Fzt2vVjHZsWJdRsDbXUsWf+mvn1wIXbxiVgaP5IefQAlFt7hUxPLw
+         rUHJnaENpHIaQQ5LD5GYbGFLr/ivNwinMXUz3J/LMQc0uSeEv5klV5kQgxojKKCrqT6K
+         z8O5hGcPPFVeRibn0sn6StjcyJugXjVuKtNDos/NoE4mFB64LDwtgd4zef/99rLnWwm4
+         vQIC98SKhKJePLMpRBVse3kuDKRKqQvLkTE3ABXMs6kjiVEwmUQzkVohuwLxerT1z9sa
+         0mFV7MhEypGwD8gH/3TNX6QqtchzS5h+UoteVBwLpPaJlUYlXl00HMEKhepD5Y/Nbv7U
+         0HvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :to:cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=UzAFOh0dSi5b7YcRWFXZow4QCyM7X3zyC4kDiKLs6oA=;
+        b=c9WqgBIuJP31FPHepfefbJmcCW/hThn8iNBI9S8RXuD3LY1KxNgH5Xx4/62v1YgQHk
+         fHnYGLUwxccyCNn4C/vl1DJ+wAb9G+lgvaFAs5b8QYaxCsFeGUKZ69NpjzALKpd5x8V+
+         h1wEw+0sO1KRm3hrinpFoKi6iONaiAvi26oKK0ykMZgs/3Dx1lVUPcfQ5k4tMctuZ9Kr
+         ben6BjOLlrlUEclVfrFvdAlEKb9MTldi2G9p0ZVCnGVvg4YPAzC9yToSt3srOOxmOZj9
+         NzQbv3kIkEjcMUgr1moXIdscbnfKULUZQhI+GN4t8sMYftjefzM+K6BbyJo5DfFnOxF8
+         nOFQ==
+X-Gm-Message-State: AOAM5300StfZvUiSGvlHY5PlwJH+Mufl93lRInm3EzUIHOVoitcild82
+        4U2TPbbfUqfRyQ8w8dQpvEoz4w==
+X-Google-Smtp-Source: ABdhPJy6bavYQeyfic2q5zoBbUISR1gSP0m3TPaWhyrDKXYy9SywIwfxjCPR6erasubUzeaAz8h6gQ==
+X-Received: by 2002:a05:600c:2054:b0:39c:3f73:3552 with SMTP id p20-20020a05600c205400b0039c3f733552mr23997611wmg.15.1654616135853;
+        Tue, 07 Jun 2022 08:35:35 -0700 (PDT)
+Received: from [192.168.187.211] ([86.12.200.143])
+        by smtp.gmail.com with ESMTPSA id s13-20020a5d6a8d000000b0020c5253d8f7sm18217141wru.67.2022.06.07.08.35.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jun 2022 08:35:35 -0700 (PDT)
+Message-ID: <25c1a57e-af67-ebc8-ab13-6532bf6e6e75@raspberrypi.com>
+Date:   Tue, 7 Jun 2022 16:35:32 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <80a1469f-e5ce-11e1-b637-dba40706ce80@oracle.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        stable <stable@vger.kernel.org>
+References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
+ <CAHmME9o6R2RRdwzB9f+464xH+Aw-9wx2dm=ZsQYFbTk_-66yJw@mail.gmail.com>
+ <8c3fe744-0181-043a-3af9-dd00165a6356@raspberrypi.com>
+ <Yp9rc1G6xfTSSUjF@zx2c4.com>
+From:   Phil Elwell <phil@raspberrypi.com>
+In-Reply-To: <Yp9rc1G6xfTSSUjF@zx2c4.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 07, 2022 at 05:07:55PM +0530, Anand Jain wrote:
+Jason,
+
+On 07/06/2022 16:14, Jason A. Donenfeld wrote:
+> Hey again,
 > 
-> LGTM.
-> Reviewed-by: Anand Jain <anand.jain@oracle.com>
+> On Tue, Jun 07, 2022 at 10:15:27AM +0100, Phil Elwell wrote:
+>> On 07/06/2022 09:43, Jason A. Donenfeld wrote:
+>>> Hi Phil,
+>>>
+>>> On Tue, Jun 7, 2022 at 10:29 AM Phil Elwell <phil@raspberrypi.com> wrote:
+>>>>
+>>>> This patch is fatal for me in the downstream Raspberry Pi kernel - it locks up
+>>>> on boot even before the earlycon output is available. Hacking jump_label_init to
+>>>> skip the jump_entry for "crng_is_ready" allows it to boot, but is likely to have
+>>>> consequences further down the line.
+>>>
+>>> Also, reading this a few times, I'm not 100% sure I understand what
+>>> you did to hack around this and why that works. Think you could paste
+>>> your hackpatch just out of interest to the discussion (but obviously
+>>> not to be applied)?
+>>
+>> This is the minimal version of my workaround patch that at least allows the
+>> board to boot. Bear in mind that it was written with no previous knowledge of
+>> jump labels and was arrived at by iteratively bisecting the list of jump_labels
+>> until the first dangerous one was found, then later working out that there was
+>> only one.
 > 
-> While we are on this topic-
-> Not all valid mount options get printed either.
+> Looks like this patch fails due to CONFIG_STRICT_KERNEL_RWX.
+> Investigating deeper now, but that for starters seems to be the
+> differentiating factor between my prior test rig and one that reproduces
+> the error. I assume your raspi also sets CONFIG_STRICT_KERNEL_RWX.
 
-Looking at the amount of other informative messages we already print, I
-think it won't be that bad to add the mount/umount messages, but it
-depends on the system, there was an argument that bind mounts can make a
-loot of noise in the logs.
+Yes, it does, as does multi_v7_defconfig.
 
-> I sent a patch a long 
-> time back [1] to fix it. If there is enough interest, I could revive it.
-
-As was mentioned in the VFS version, other filesystems also print that
-so let's do it for btrfs too. Please update and resend the patch, we may
-then discuss what exactly to print, I'm not convinced we need all the
-internal stats like the refcounts but it would be better to have
-something for start.
+Phil
