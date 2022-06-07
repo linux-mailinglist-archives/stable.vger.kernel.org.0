@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32965541E02
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CAE4541E3D
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351616AbiFGWWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49788 "EHLO
+        id S1379970AbiFGW1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:27:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358031AbiFGWVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991C326D275;
-        Tue,  7 Jun 2022 12:22:31 -0700 (PDT)
+        with ESMTP id S1382490AbiFGWYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:24:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F07F226D37B;
+        Tue,  7 Jun 2022 12:22:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1CB89CE2476;
-        Tue,  7 Jun 2022 19:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E233EC385A2;
-        Tue,  7 Jun 2022 19:22:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F10FB60A1D;
+        Tue,  7 Jun 2022 19:22:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05AF5C385A2;
+        Tue,  7 Jun 2022 19:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629747;
-        bh=DerCkNsI2Cf3QemMT/beBdirNFSwUzXe5oOGb6F9b4A=;
+        s=korg; t=1654629758;
+        bh=+DFhx/+zMYy9AJgFEs5i0jMWEHc2bLU2fzKwpiStgNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLGqbIlEpTRqjEEQxW7IRL55tmHEpAT/+aB7/22wQCdVwjIM9VlhhgOPJAJCPYTEN
-         Jd+5gLjqcO7PsbMDFRNqgEjB06meZrRnd4vD2pB8DcjIeNjYiAcc5F7ZMsSR1jrocp
-         t+JRWDyNAB3+D0y3ZuqK1g1+8h85Dof7T4TCAzPc=
+        b=2Qkh6MafUN658oH/PBRmdKIptxqnb37TVVPiskiOg3wU5x9WgnEwnc8zJ2hbFNW+V
+         57iTv7w4W9EarY4df/8VAUyaaFXkqMUQHshJp3a6GO2W4zs2eMTWuFcK1+yJeXvLxM
+         woAgunQ9wubFbtKuqGg2vSG/U9Jv9U9/Z1rDG+mM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         David Teigland <teigland@redhat.com>
-Subject: [PATCH 5.18 765/879] dlm: fix wake_up() calls for pending remove
-Date:   Tue,  7 Jun 2022 19:04:43 +0200
-Message-Id: <20220607165025.068730715@linuxfoundation.org>
+Subject: [PATCH 5.18 766/879] dlm: fix missing lkb refcount handling
+Date:   Tue,  7 Jun 2022 19:04:44 +0200
+Message-Id: <20220607165025.097431083@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,60 +55,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-commit f6f7418357457ed58cbb020fc97e74d4e0e7b47f upstream.
+commit 1689c169134f4b5a39156122d799b7dca76d8ddb upstream.
 
-This patch move the wake_up() call at the point when a remove message
-completed. Before it was only when a remove message was going to be
-sent. The possible waiter in wait_pending_remove() waits until a remove
-is done if the resource name matches with the per ls variable
-ls->ls_remove_name. If this is the case we must wait until a pending
-remove is done which is indicated if DLM_WAIT_PENDING_COND() returns
-false which will always be the case when ls_remove_len and
-ls_remove_name are unset to indicate that a remove is not going on
-anymore.
+We always call hold_lkb(lkb) if we increment lkb->lkb_wait_count.
+So, we always need to call unhold_lkb(lkb) if we decrement
+lkb->lkb_wait_count. This patch will add missing unhold_lkb(lkb) if we
+decrement lkb->lkb_wait_count. In case of setting lkb->lkb_wait_count to
+zero we need to countdown until reaching zero and call unhold_lkb(lkb).
+The waiters list unhold_lkb(lkb) can be removed because it's done for
+the last lkb_wait_count decrement iteration as it's done in
+_remove_from_waiters().
 
-Fixes: 21d9ac1a5376 ("fs: dlm: use event based wait for pending remove")
+This issue was discovered by a dlm gfs2 test case which use excessively
+dlm_unlock(LKF_CANCEL) feature. Probably the lkb->lkb_wait_count value
+never reached above 1 if this feature isn't used and so it was not
+discovered before.
+
+The testcase ended in a rsb on the rsb keep data structure with a
+refcount of 1 but no lkb was associated with it, which is itself
+an invalid behaviour. A side effect of that was a condition in which
+the dlm was sending remove messages in a looping behaviour. With this
+patch that has not been reproduced.
+
 Cc: stable@vger.kernel.org
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/lock.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/dlm/lock.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 --- a/fs/dlm/lock.c
 +++ b/fs/dlm/lock.c
-@@ -1795,7 +1795,6 @@ static void shrink_bucket(struct dlm_ls
- 		memcpy(ls->ls_remove_name, name, DLM_RESNAME_MAXLEN);
- 		spin_unlock(&ls->ls_remove_spin);
- 		spin_unlock(&ls->ls_rsbtbl[b].lock);
--		wake_up(&ls->ls_remove_wait);
- 
- 		send_remove(r);
- 
-@@ -1804,6 +1803,7 @@ static void shrink_bucket(struct dlm_ls
- 		ls->ls_remove_len = 0;
- 		memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
- 		spin_unlock(&ls->ls_remove_spin);
-+		wake_up(&ls->ls_remove_wait);
- 
- 		dlm_free_rsb(r);
+@@ -1559,6 +1559,7 @@ static int _remove_from_waiters(struct d
+ 		lkb->lkb_wait_type = 0;
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
+ 		lkb->lkb_wait_count--;
++		unhold_lkb(lkb);
+ 		goto out_del;
  	}
-@@ -4079,7 +4079,6 @@ static void send_repeat_remove(struct dl
- 	memcpy(ls->ls_remove_name, name, DLM_RESNAME_MAXLEN);
- 	spin_unlock(&ls->ls_remove_spin);
- 	spin_unlock(&ls->ls_rsbtbl[b].lock);
--	wake_up(&ls->ls_remove_wait);
  
- 	rv = _create_message(ls, sizeof(struct dlm_message) + len,
- 			     dir_nodeid, DLM_MSG_REMOVE, &ms, &mh);
-@@ -4095,6 +4094,7 @@ static void send_repeat_remove(struct dl
- 	ls->ls_remove_len = 0;
- 	memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
- 	spin_unlock(&ls->ls_remove_spin);
-+	wake_up(&ls->ls_remove_wait);
- }
+@@ -1585,6 +1586,7 @@ static int _remove_from_waiters(struct d
+ 		log_error(ls, "remwait error %x reply %d wait_type %d overlap",
+ 			  lkb->lkb_id, mstype, lkb->lkb_wait_type);
+ 		lkb->lkb_wait_count--;
++		unhold_lkb(lkb);
+ 		lkb->lkb_wait_type = 0;
+ 	}
  
- static int receive_request(struct dlm_ls *ls, struct dlm_message *ms)
+@@ -5331,11 +5333,16 @@ int dlm_recover_waiters_post(struct dlm_
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_UNLOCK;
+ 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
+ 		lkb->lkb_wait_type = 0;
+-		lkb->lkb_wait_count = 0;
++		/* drop all wait_count references we still
++		 * hold a reference for this iteration.
++		 */
++		while (lkb->lkb_wait_count) {
++			lkb->lkb_wait_count--;
++			unhold_lkb(lkb);
++		}
+ 		mutex_lock(&ls->ls_waiters_mutex);
+ 		list_del_init(&lkb->lkb_wait_reply);
+ 		mutex_unlock(&ls->ls_waiters_mutex);
+-		unhold_lkb(lkb); /* for waiters list */
+ 
+ 		if (oc || ou) {
+ 			/* do an unlock or cancel instead of resending */
 
 
