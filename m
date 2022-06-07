@@ -2,58 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6918D53FDA8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 13:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9934F53FDD9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 13:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237616AbiFGLkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 07:40:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40828 "EHLO
+        id S234167AbiFGLtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 07:49:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243091AbiFGLkH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 07:40:07 -0400
-Received: from mailout.rz.uni-frankfurt.de (mailout.rz.uni-frankfurt.de [141.2.22.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF481A8695
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 04:40:05 -0700 (PDT)
-Received: from smtpauth1.cluster.uni-frankfurt.de ([10.1.1.45])
-        by mailout.rz.uni-frankfurt.de with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <sattler@med.uni-frankfurt.de>)
-        id 1nyXZ5-00013t-LG; Tue, 07 Jun 2022 13:40:03 +0200
-Received: from p57bcf684.dip0.t-ipconnect.de ([87.188.246.132] helo=[192.168.2.17])
-        by smtpauth1.cluster.uni-frankfurt.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <sattler@med.uni-frankfurt.de>)
-        id 1nyXZ5-0005DF-Jb; Tue, 07 Jun 2022 13:40:03 +0200
-Message-ID: <4dc96ed3-169e-37b9-7b8f-85e58dca0bbf@med.uni-frankfurt.de>
-Date:   Tue, 7 Jun 2022 13:40:03 +0200
+        with ESMTP id S243221AbiFGLsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 07:48:50 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA5385EEE;
+        Tue,  7 Jun 2022 04:48:43 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 49D6B1F920;
+        Tue,  7 Jun 2022 11:48:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1654602522; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=NUwf3Gk9Ls+AmYFjduKNpBrgoW1N6oRmrELloAJjmks=;
+        b=b3s3RkuCMvV1Jl6K534V81LTCpKmWJncosYpSTxRmpU+lep9lZE6m+nH51kdl4v0RTNnwt
+        X3QnWV/45K28WKqdub3Up5tgUKObWmvKUh7PkmmBwBpebOOvHCCPTZYzVqSWbgnJqDyAeE
+        dY1s3Qv5lZLcusZgpt9nIUq/TqMsQ1I=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7325E13638;
+        Tue,  7 Jun 2022 11:48:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 3A73Dxk7n2KzdQAAMHmgww
+        (envelope-from <wqu@suse.com>); Tue, 07 Jun 2022 11:48:41 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2] btrfs: reject log replay if there is unsupported RO flag
+Date:   Tue,  7 Jun 2022 19:48:24 +0800
+Message-Id: <a6612cd9432b8ae6429cceee561c0259232cc554.1654602414.git.wqu@suse.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: boot loop since 5.17.6
-Content-Language: en-US
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-References: <11495172-41dd-5c44-3ef6-8d3ff3ebd1b2@med.uni-frankfurt.de>
- <c3b370a8-193e-329b-c73a-1371bd62edf3@med.uni-frankfurt.de>
- <181a6369-e373-b020-2059-33fb5161d8d3@med.uni-frankfurt.de>
- <YpksflOG2Y1Xng89@dev-arch.thelio-3990X>
- <1f8a4bec-53bd-aaaa-49a7-b5ed4fc5ae34@med.uni-frankfurt.de>
- <a9a68c68-8830-2aa0-acbe-d5d3bb04968f@leemhuis.info>
-From:   Thomas Sattler <sattler@med.uni-frankfurt.de>
-In-Reply-To: <a9a68c68-8830-2aa0-acbe-d5d3bb04968f@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Thorsten,
+[BUG]
+If we have a btrfs image with dirty log, along with an unsupported RO
+compatible flag:
 
-I just compiled 5.19-rc1 and my issue is solved there.
+log_root		30474240
+...
+compat_flags		0x0
+compat_ro_flags		0x40000003
+			( FREE_SPACE_TREE |
+			  FREE_SPACE_TREE_VALID |
+			  unknown flag: 0x40000000 )
 
-Thomas
+Then even if we can only mount it RO, we will still cause metadata
+update for log replay:
+
+ BTRFS info (device dm-1): flagging fs with big metadata feature
+ BTRFS info (device dm-1): using free space tree
+ BTRFS info (device dm-1): has skinny extents
+ BTRFS info (device dm-1): start tree-log replay
+
+This is definitely against RO compact flag requirement.
+
+[CAUSE]
+RO compact flag only forces us to do RO mount, but we will still do log
+replay for plain RO mount.
+
+Thus this will result us to do log replay and update metadata.
+
+This can be very problematic for new RO compat flag, for example older
+kernel can not understand v2 cache, and if we allow metadata update on
+RO mount and invalidate/corrupt v2 cache.
+
+[FIX]
+Just reject the mount unless rescue=nologreplay is provided:
+
+  BTRFS error (device dm-1): cannot replay dirty log with unsupport optional features (0x40000000), try rescue=nologreplay instead
+
+We don't want to set rescue=nologreply directly, as this would make the
+end user to read the old data, and cause confusion.
+
+Since the such case is really rare, we're mostly fine to just reject the
+mount with an error message, which also includes the proper workaround.
+
+Cc: stable@vger.kernel.org #4.9+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+Changelog:
+v2:
+- Reject the mount instead of setting nologreplay
+  To avoid the confusion which can return old data.
+  Unfortunately I don't have a better to shrink the new error message
+  into one 80-char line.
+---
+ fs/btrfs/disk-io.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index fe309db9f5ff..f20bd8024334 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3655,6 +3655,20 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
+ 		err = -EINVAL;
+ 		goto fail_alloc;
+ 	}
++	/*
++	 * We have unsupported RO compat features, although RO mounted, we
++	 * should not cause any metadata write, including log replay.
++	 * Or we can screw up whatever the new feature requires.
++	 */
++	if (unlikely(features && btrfs_super_log_root(disk_super) &&
++		     !btrfs_test_opt(fs_info, NOLOGREPLAY))) {
++		btrfs_err(fs_info,
++"cannot replay dirty log with unsupport optional features (0x%llx), try rescue=nologreplay instead",
++			  features);
++		err = -EINVAL;
++		goto fail_alloc;
++	}
++
+ 
+ 	if (sectorsize < PAGE_SIZE) {
+ 		struct btrfs_subpage_info *subpage_info;
+-- 
+2.36.1
+
