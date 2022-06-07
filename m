@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEE95404F3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 818E2541348
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235273AbiFGRUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43020 "EHLO
+        id S1357195AbiFGT6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:58:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345938AbiFGRUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE11510657F;
-        Tue,  7 Jun 2022 10:19:54 -0700 (PDT)
+        with ESMTP id S1357511AbiFGT4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:56:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89354AFB2C;
+        Tue,  7 Jun 2022 11:24:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F06FDB822B1;
-        Tue,  7 Jun 2022 17:19:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6567DC34119;
-        Tue,  7 Jun 2022 17:19:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2F7961277;
+        Tue,  7 Jun 2022 18:24:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE45AC385A2;
+        Tue,  7 Jun 2022 18:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622391;
-        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
+        s=korg; t=1654626243;
+        bh=CnLwyclVVSbwC4oc11KchLvc8sUbiTu2u0ilES9Syzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmQ6XtZTrM6G4EKhawzUi3tZP02t4oOYAvyw1Hmtn5dReoLdjXiGigEWY+MwT9an7
-         r8JRi/YHFXcZ+4l/fQ48fS3xdrWiWxBufCo7x5yzPd1lOq6EKIQc573NTTmL6fnkl3
-         mNq2bg8SO8lfOGDcrjH9cw78wzYaaVwjADPrNAYc=
+        b=MAZi4iKdMf3xO77hCqU1BSMlExVY/m1kEx2r4gvrTUJSj4GSf5+de3mdpN1N3tWRv
+         ySNRtA/qaT4HpGswyKt9/v65synyNyHNPSBIFskUAlbJzRICDuFycurZOZEfhbetfo
+         /esmCyRwJOSZp9YfuGEXxvorjI8bZGQ0dpsUZcG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/452] ath9k: fix QCA9561 PA bias level
-Date:   Tue,  7 Jun 2022 18:58:20 +0200
-Message-Id: <20220607164909.831571207@linuxfoundation.org>
+Subject: [PATCH 5.17 309/772] mtd: rawnand: cadence: fix possible null-ptr-deref in cadence_nand_dt_probe()
+Date:   Tue,  7 Jun 2022 18:58:21 +0200
+Message-Id: <20220607164958.131972127@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
+[ Upstream commit a28ed09dafee20da51eb26452950839633afd824 ]
 
-This patch fixes an invalid TX PA DC bias level on QCA9561, which
-results in a very low output power and very low throughput as devices
-are further away from the AP (compared to other 2.4GHz APs).
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-This patch was suggested by Felix Fietkau, who noted[1]:
-"The value written to that register is wrong, because while the mask
-definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
-shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
-wrong for 9561."
-
-In real life testing, without this patch the 2.4GHz throughput on
-Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
-practical maximum with the patch applied.
-
-[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
-
-Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
+Fixes: ec4ba01e894d ("mtd: rawnand: Add new Cadence NAND driver to MTD subsystem")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220426084913.4021868-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/cadence-nand-controller.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-index a171dbb29fbb..ad949eb02f3d 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-@@ -720,7 +720,7 @@
- #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
- 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
- #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
--#define AR_CH0_TOP2_XPABIASLVL_S	12
-+#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
+diff --git a/drivers/mtd/nand/raw/cadence-nand-controller.c b/drivers/mtd/nand/raw/cadence-nand-controller.c
+index 7eec60ea9056..0d72672f8b64 100644
+--- a/drivers/mtd/nand/raw/cadence-nand-controller.c
++++ b/drivers/mtd/nand/raw/cadence-nand-controller.c
+@@ -2983,11 +2983,10 @@ static int cadence_nand_dt_probe(struct platform_device *ofdev)
+ 	if (IS_ERR(cdns_ctrl->reg))
+ 		return PTR_ERR(cdns_ctrl->reg);
  
- #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
- 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
+-	res = platform_get_resource(ofdev, IORESOURCE_MEM, 1);
+-	cdns_ctrl->io.dma = res->start;
+-	cdns_ctrl->io.virt = devm_ioremap_resource(&ofdev->dev, res);
++	cdns_ctrl->io.virt = devm_platform_get_and_ioremap_resource(ofdev, 1, &res);
+ 	if (IS_ERR(cdns_ctrl->io.virt))
+ 		return PTR_ERR(cdns_ctrl->io.virt);
++	cdns_ctrl->io.dma = res->start;
+ 
+ 	dt->clk = devm_clk_get(cdns_ctrl->dev, "nf_clk");
+ 	if (IS_ERR(dt->clk))
 -- 
 2.35.1
 
