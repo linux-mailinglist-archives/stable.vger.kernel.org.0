@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CFE540512
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CAB2540A23
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345874AbiFGRVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:21:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44928 "EHLO
+        id S1348713AbiFGSTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345915AbiFGRUt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05C2B1059C4;
-        Tue,  7 Jun 2022 10:20:45 -0700 (PDT)
+        with ESMTP id S1352094AbiFGSQx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1CDDEA3;
+        Tue,  7 Jun 2022 10:50:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F22EB822B0;
-        Tue,  7 Jun 2022 17:20:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B33C385A5;
-        Tue,  7 Jun 2022 17:20:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E62E6146F;
+        Tue,  7 Jun 2022 17:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C24EC385A5;
+        Tue,  7 Jun 2022 17:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622442;
-        bh=jxgzeRVlGIsHZ8OH4MRJO1jMySOYdjsQ6g1qIZCAgEI=;
+        s=korg; t=1654624230;
+        bh=JGu5/sJQWhxYWpYIMKgqESsrp3SFHjGVwap1IYN4MQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7d3wYM+v0jBfG1UH4Fij4ps1HmP7EB6KmtPyUyKOYN4KWiZM1TpFWR0Aj7XqHFFO
-         nJmc5Ye02RuWCozAkHrOemPSgG0uRY4TI4TzANCTIYXWbW9gIfAHKUNdSgKuI8/PRQ
-         gWmGSWkcsJDB5EL7qiyAiP+JqMBZinZqGKlc40sE=
+        b=s8pag7z1wDW3ZbzhY7LEG+ehMxdDea8AeAoaiks4U/GRRpzDaz0eD7Pz4pcRD7cpV
+         hSqCFQEA4IBrkDIKlmO/x1RNhs+I3Bq1Hpw9sVUgbQMNkzVykwmusQmspCFY0QXG5B
+         Pg2wSllvMMZWs5dBOVeQS6fySuFcVy1LG3yvBV8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/452] drm: msm: fix error check return value of irq_of_parse_and_map()
+Subject: [PATCH 5.15 251/667] drm/msm/dpu: adjust display_v_end for eDP and DP
 Date:   Tue,  7 Jun 2022 18:58:36 +0200
-Message-Id: <20220607164910.306680891@linuxfoundation.org>
+Message-Id: <20220607164942.312261844@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit b9e4f1d2b505df8e2439b63e67afaa287c1c43e2 ]
+[ Upstream commit e18aeea7f5efb9508722c8c7fd4d32e6f8cdfe50 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+The “DP timing” requires the active region to be defined in the
+bottom-right corner of the frame dimensions which is different
+with DSI. Therefore both display_h_end and display_v_end need
+to be adjusted accordingly. However current implementation has
+only display_h_end adjusted.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+
+Fixes: fc3a69ec68d3 ("drm/msm/dpu: intf timing path for displayport")
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483175/
-Link: https://lore.kernel.org/r/20220424031959.3172406-1-lv.ruyi@zte.com.cn
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/476277/
+Link: https://lore.kernel.org/r/1645824192-29670-2-git-send-email-quic_khsieh@quicinc.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-index e193865ce9a2..9baaaef706ab 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
-@@ -598,9 +598,9 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
- 	pdev = mdp5_kms->pdev;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c
+index 116e2b5b1a90..284f5610dc35 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c
+@@ -148,6 +148,7 @@ static void dpu_hw_intf_setup_timing_engine(struct dpu_hw_intf *ctx,
+ 		active_v_end = active_v_start + (p->yres * hsync_period) - 1;
  
- 	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
--	if (irq < 0) {
--		ret = irq;
--		DRM_DEV_ERROR(&pdev->dev, "failed to get irq: %d\n", ret);
-+	if (!irq) {
-+		ret = -EINVAL;
-+		DRM_DEV_ERROR(&pdev->dev, "failed to get irq\n");
- 		goto fail;
- 	}
+ 		display_v_start += p->hsync_pulse_width + p->h_back_porch;
++		display_v_end   -= p->h_front_porch; 
  
+ 		active_hctl = (active_h_end << 16) | active_h_start;
+ 		display_hctl = active_hctl;
 -- 
 2.35.1
 
