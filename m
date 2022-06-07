@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29574540539
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5892F541ABA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238507AbiFGRXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:23:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45358 "EHLO
+        id S1380096AbiFGVhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:37:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346069AbiFGRVt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:49 -0400
+        with ESMTP id S1381043AbiFGVg1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:36:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAF5107887;
-        Tue,  7 Jun 2022 10:21:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BBD22FA2D;
+        Tue,  7 Jun 2022 12:04:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CAD4B822B0;
-        Tue,  7 Jun 2022 17:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7BAC34119;
-        Tue,  7 Jun 2022 17:21:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28F7AB82182;
+        Tue,  7 Jun 2022 19:04:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81DAFC385A2;
+        Tue,  7 Jun 2022 19:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622469;
-        bh=Bkd23sX7Gv/V+UyqdUT5JU9g3D19EXhrLTVzmu+pFg8=;
+        s=korg; t=1654628686;
+        bh=18FgYgxpK/GSh/zk3qboJruba3KYu3wZkoqWO2P5yoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQlIxANOY5tWgXmdq11Pb0qIjqm8wakfbtNoEJMrfXT6TqSmp2hEdXCU08qjgAiwk
-         QWk2YB26Xq7rPxnC9fZziyLj+9yQv+ntcVpdi9Qu0RLo2ER132WP3xFdI5gskmPHF7
-         /68ALlA/Gh2Gxo8JBiX+7GpEC7ie5u5zXrHm0XWU=
+        b=fUp1mxikn5sLH9RAR3Hvkv5NK1z+HJg5wL89t8338OKk5soCyikfEhM5wa2HI6OFK
+         lHNTuCJbwQMxgnVIHEObVbsXn2GjEiL6HdxXlrIHnPIi0xctthH7AkL4O9Yx9JNy9M
+         yh8aCj4QT/UvkYUazkBLIqNn4tt/Ti1KxaKFXF48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 029/452] b43: Fix assigning negative value to unsigned variable
+        stable@vger.kernel.org, Vinod Polimera <quic_vpolimer@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 368/879] drm/msm/disp/dpu1: set vbif hw config to NULL to avoid use after memory free during pm runtime resume
 Date:   Tue,  7 Jun 2022 18:58:06 +0200
-Message-Id: <20220607164909.415359836@linuxfoundation.org>
+Message-Id: <20220607165013.554997161@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Vinod Polimera <quic_vpolimer@quicinc.com>
 
-[ Upstream commit 11800d893b38e0e12d636c170c1abc19c43c730c ]
+[ Upstream commit fa5186b279ecf44b14fb435540d2065be91cb1ed ]
 
-fix warning reported by smatch:
-drivers/net/wireless/broadcom/b43/phy_n.c:585 b43_nphy_adjust_lna_gain_table()
-warn: assigning (-2) to unsigned variable '*(lna_gain[0])'
+BUG: Unable to handle kernel paging request at virtual address 006b6b6b6b6b6be3
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648203315-28093-1-git-send-email-baihaowen@meizu.com
+Call trace:
+  dpu_vbif_init_memtypes+0x40/0xb8
+  dpu_runtime_resume+0xcc/0x1c0
+  pm_generic_runtime_resume+0x30/0x44
+  __genpd_runtime_resume+0x68/0x7c
+  genpd_runtime_resume+0x134/0x258
+  __rpm_callback+0x98/0x138
+  rpm_callback+0x30/0x88
+  rpm_resume+0x36c/0x49c
+  __pm_runtime_resume+0x80/0xb0
+  dpu_core_irq_uninstall+0x30/0xb0
+  dpu_irq_uninstall+0x18/0x24
+  msm_drm_uninit+0xd8/0x16c
+
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Vinod Polimera <quic_vpolimer@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/483255/
+Link: https://lore.kernel.org/r/1650857213-30075-1-git-send-email-quic_vpolimer@quicinc.com
+[DB: fixed Fixes tag]
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
-index 665b737fbb0d..39975b7d1a16 100644
---- a/drivers/net/wireless/broadcom/b43/phy_n.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_n.c
-@@ -582,7 +582,7 @@ static void b43_nphy_adjust_lna_gain_table(struct b43_wldev *dev)
- 	u16 data[4];
- 	s16 gain[2];
- 	u16 minmax[2];
--	static const u16 lna_gain[4] = { -2, 10, 19, 25 };
-+	static const s16 lna_gain[4] = { -2, 10, 19, 25 };
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index e29796c4f27b..ad13a9423601 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -793,8 +793,10 @@ static void _dpu_kms_hw_destroy(struct dpu_kms *dpu_kms)
+ 		for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
+ 			u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
  
- 	if (nphy->hang_avoid)
- 		b43_nphy_stay_in_carrier_search(dev, 1);
+-			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx])
++			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx]) {
+ 				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[vbif_idx]);
++				dpu_kms->hw_vbif[vbif_idx] = NULL;
++			}
+ 		}
+ 	}
+ 
 -- 
 2.35.1
 
