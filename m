@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBFE5406CE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 241F1540DCF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346826AbiFGRid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53294 "EHLO
+        id S1354100AbiFGSuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347259AbiFGReW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:34:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4C611990E;
-        Tue,  7 Jun 2022 10:30:34 -0700 (PDT)
+        with ESMTP id S1353974AbiFGSqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01AE18DAE9;
+        Tue,  7 Jun 2022 10:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C2B361529;
-        Tue,  7 Jun 2022 17:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970BCC385A5;
-        Tue,  7 Jun 2022 17:30:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ADEF618E5;
+        Tue,  7 Jun 2022 17:59:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D4FCC36B00;
+        Tue,  7 Jun 2022 17:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623011;
-        bh=hzmh5xx+LcFfdBOwF9UjRFodRuc2GeEb4Zhds6M05Yo=;
+        s=korg; t=1654624791;
+        bh=gdWMOUDKVAqi6yCejsLZGzwhdUsyVmA79NthQ2UU4Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBMrSQL/1YnXKZwJy/DW6lw+O6m/ekJTq2FEGbxQZaTMUTG9SdbREPZ45AJiQhq2D
-         U7taDg/8/m7EHEuX2ac5lV1K/mHcKYGjpNMwu+yPvjvtTu2LfkfpR9Im7mGXXsZ/tK
-         M5Lm+hjn1ezeIZjlK8e2w5g3TKXSyUlXQq7JLio8=
+        b=GLCpCRAQr421UQQiteHvU4tAE0VuPSV827F6a2mhuscFh+wikJ8ih+DKHOOqLZ+bR
+         w7McxenPan0lc3jkCJDK3LJA54FRLjfh8iUECfYwVagbJOKQZQagypOkmCMtEqUKPk
+         /z5K79p5JV6fZHmQrn94OoLp6AKN8ojwjFHA1SbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 263/452] PCI: cadence: Fix find_first_zero_bit() limit
+Subject: [PATCH 5.15 455/667] crypto: sun8i-ss - handle zero sized sg
 Date:   Tue,  7 Jun 2022 19:02:00 +0200
-Message-Id: <20220607164916.389779494@linuxfoundation.org>
+Message-Id: <20220607164948.359558265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 0aa3a0937feeb91a0e4e438c3c063b749b194192 ]
+[ Upstream commit c149e4763d28bb4c0e5daae8a59f2c74e889f407 ]
 
-The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
+sun8i-ss does not handle well the possible zero sized sg.
 
-Link: https://lore.kernel.org/r/20220315065829.GA13572@kili
-Fixes: 37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pcie-cadence-ep.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-index 1af14474abcf..4c5e6349d78c 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-@@ -154,8 +154,7 @@ static int cdns_pcie_ep_map_addr(struct pci_epc *epc, u8 fn, phys_addr_t addr,
- 	struct cdns_pcie *pcie = &ep->pcie;
- 	u32 r;
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+index 1a71ed49d233..ca4f280af35d 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+@@ -380,13 +380,21 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
+ 	}
  
--	r = find_first_zero_bit(&ep->ob_region_map,
--				sizeof(ep->ob_region_map) * BITS_PER_LONG);
-+	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
- 	if (r >= ep->max_regions - 1) {
- 		dev_err(&epc->dev, "no free outbound region\n");
- 		return -EINVAL;
+ 	len = areq->nbytes;
+-	for_each_sg(areq->src, sg, nr_sgs, i) {
++	sg = areq->src;
++	i = 0;
++	while (len > 0 && sg) {
++		if (sg_dma_len(sg) == 0) {
++			sg = sg_next(sg);
++			continue;
++		}
+ 		rctx->t_src[i].addr = sg_dma_address(sg);
+ 		todo = min(len, sg_dma_len(sg));
+ 		rctx->t_src[i].len = todo / 4;
+ 		len -= todo;
+ 		rctx->t_dst[i].addr = addr_res;
+ 		rctx->t_dst[i].len = digestsize / 4;
++		sg = sg_next(sg);
++		i++;
+ 	}
+ 	if (len > 0) {
+ 		dev_err(ss->dev, "remaining len %d\n", len);
 -- 
 2.35.1
 
