@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01BAD541E0B
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AD95410C3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380391AbiFGWXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:23:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51782 "EHLO
+        id S1355225AbiFGT3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385098AbiFGWU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:20:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25E6263DFF;
-        Tue,  7 Jun 2022 12:20:59 -0700 (PDT)
+        with ESMTP id S1355030AbiFGTXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:23:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F36D720BFE;
+        Tue,  7 Jun 2022 11:09:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 081D2B8237B;
-        Tue,  7 Jun 2022 19:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73378C385A2;
-        Tue,  7 Jun 2022 19:20:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06AAC617B0;
+        Tue,  7 Jun 2022 18:09:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A23BC385A5;
+        Tue,  7 Jun 2022 18:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629654;
-        bh=hmOnrUcH7670N2tE92uyQ8lRAcXD4hwB3zS1oR7mbno=;
+        s=korg; t=1654625352;
+        bh=BBjQ27Q8OJPUcEA+cqHSmTj5l0Dq6bbFJeZaytQ4doY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCV0chrCyrjb5WV7CPJEK4uGp7kah22FnuDzdayKqXW21Gu/EtoHg22foeCMdwqtU
-         eOFIGJEy2BN9bQEq6m6i/L3MYDt35jruIN2rR8LIm7E+DJXVDstkMM/2070mu3hhpP
-         QXVSgf7JGZdnmQpDJFOYCcEW0J8aqihTPpW9eM5c=
+        b=JCr92YJsOUI12fq4K8M6MIlgUkUky9Fs8TtQuiI4dz9VqVT/IqFEBtIi9pQWfsFOW
+         0wjKimAFhLHi/0XZ95aC3tOl0LmDZtIyo/oOri/QYo4lMrcZcQYC+Tgg3Wmn/9SDsB
+         MPUyLq0JooBau1eTKpZHGe/2tsDm3JDf7NiL00KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.18 762/879] s390/stp: clock_delta should be signed
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 615/667] ftrace: Clean up hash direct_functions on register failures
 Date:   Tue,  7 Jun 2022 19:04:40 +0200
-Message-Id: <20220607165024.982490421@linuxfoundation.org>
+Message-Id: <20220607164953.117215527@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Song Liu <song@kernel.org>
 
-commit 5ace65ebb5ce9fe1cc8fdbdd97079fb566ef0ea4 upstream.
+commit 7d54c15cb89a29a5f59e5ffc9ee62e6591769ef1 upstream.
 
-clock_delta is declared as unsigned long in various places. However,
-the clock sync delta can be negative. This would add a huge positive
-offset in clock_sync_global where clock_delta is added to clk.eitod
-which is a 72 bit integer. Declare it as signed long to fix this.
+We see the following GPF when register_ftrace_direct fails:
+
+[ ] general protection fault, probably for non-canonical address \
+  0x200000000000010: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
+[...]
+[ ] RIP: 0010:ftrace_find_rec_direct+0x53/0x70
+[ ] Code: 48 c1 e0 03 48 03 42 08 48 8b 10 31 c0 48 85 d2 74 [...]
+[ ] RSP: 0018:ffffc9000138bc10 EFLAGS: 00010206
+[ ] RAX: 0000000000000000 RBX: ffffffff813e0df0 RCX: 000000000000003b
+[ ] RDX: 0200000000000000 RSI: 000000000000000c RDI: ffffffff813e0df0
+[ ] RBP: ffffffffa00a3000 R08: ffffffff81180ce0 R09: 0000000000000001
+[ ] R10: ffffc9000138bc18 R11: 0000000000000001 R12: ffffffff813e0df0
+[ ] R13: ffffffff813e0df0 R14: ffff888171b56400 R15: 0000000000000000
+[ ] FS:  00007fa9420c7780(0000) GS:ffff888ff6a00000(0000) knlGS:000000000
+[ ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ ] CR2: 000000000770d000 CR3: 0000000107d50003 CR4: 0000000000370ee0
+[ ] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ ] Call Trace:
+[ ]  <TASK>
+[ ]  register_ftrace_direct+0x54/0x290
+[ ]  ? render_sigset_t+0xa0/0xa0
+[ ]  bpf_trampoline_update+0x3f5/0x4a0
+[ ]  ? 0xffffffffa00a3000
+[ ]  bpf_trampoline_link_prog+0xa9/0x140
+[ ]  bpf_tracing_prog_attach+0x1dc/0x450
+[ ]  bpf_raw_tracepoint_open+0x9a/0x1e0
+[ ]  ? find_held_lock+0x2d/0x90
+[ ]  ? lock_release+0x150/0x430
+[ ]  __sys_bpf+0xbd6/0x2700
+[ ]  ? lock_is_held_type+0xd8/0x130
+[ ]  __x64_sys_bpf+0x1c/0x20
+[ ]  do_syscall_64+0x3a/0x80
+[ ]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ ] RIP: 0033:0x7fa9421defa9
+[ ] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 9 f8 [...]
+[ ] RSP: 002b:00007ffed743bd78 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
+[ ] RAX: ffffffffffffffda RBX: 00000000069d2480 RCX: 00007fa9421defa9
+[ ] RDX: 0000000000000078 RSI: 00007ffed743bd80 RDI: 0000000000000011
+[ ] RBP: 00007ffed743be00 R08: 0000000000bb7270 R09: 0000000000000000
+[ ] R10: 00000000069da210 R11: 0000000000000246 R12: 0000000000000001
+[ ] R13: 00007ffed743c4b0 R14: 00000000069d2480 R15: 0000000000000001
+[ ]  </TASK>
+[ ] Modules linked in: klp_vm(OK)
+[ ] ---[ end trace 0000000000000000 ]---
+
+One way to trigger this is:
+  1. load a livepatch that patches kernel function xxx;
+  2. run bpftrace -e 'kfunc:xxx {}', this will fail (expected for now);
+  3. repeat #2 => gpf.
+
+This is because the entry is added to direct_functions, but not removed.
+Fix this by remove the entry from direct_functions when
+register_ftrace_direct fails.
+
+Also remove the last trailing space from ftrace.c, so we don't have to
+worry about it anymore.
+
+Link: https://lkml.kernel.org/r/20220524170839.900849-1-song@kernel.org
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 763e34e74bb7 ("ftrace: Add register_ftrace_direct()")
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/cio.h |    2 +-
- arch/s390/kernel/time.c     |    8 ++++----
- drivers/s390/cio/chsc.c     |    4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ kernel/trace/ftrace.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -369,7 +369,7 @@ void cio_gp_dma_destroy(struct gen_pool
- struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
- 
- /* Function from drivers/s390/cio/chsc.c */
--int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
-+int chsc_sstpc(void *page, unsigned int op, u16 ctrl, long *clock_delta);
- int chsc_sstpi(void *page, void *result, size_t size);
- int chsc_stzi(void *page, void *result, size_t size);
- int chsc_sgib(u32 origin);
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -364,7 +364,7 @@ static inline int check_sync_clock(void)
-  * Apply clock delta to the global data structures.
-  * This is called once on the CPU that performed the clock sync.
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -4420,7 +4420,7 @@ int ftrace_func_mapper_add_ip(struct ftr
+  * @ip: The instruction pointer address to remove the data from
+  *
+  * Returns the data if it is found, otherwise NULL.
+- * Note, if the data pointer is used as the data itself, (see 
++ * Note, if the data pointer is used as the data itself, (see
+  * ftrace_func_mapper_find_ip(), then the return value may be meaningless,
+  * if the data pointer was set to zero.
   */
--static void clock_sync_global(unsigned long delta)
-+static void clock_sync_global(long delta)
- {
- 	unsigned long now, adj;
- 	struct ptff_qto qto;
-@@ -400,7 +400,7 @@ static void clock_sync_global(unsigned l
-  * Apply clock delta to the per-CPU data structures of this CPU.
-  * This is called for each online CPU after the call to clock_sync_global.
-  */
--static void clock_sync_local(unsigned long delta)
-+static void clock_sync_local(long delta)
- {
- 	/* Add the delta to the clock comparator. */
- 	if (S390_lowcore.clock_comparator != clock_comparator_max) {
-@@ -424,7 +424,7 @@ static void __init time_init_wq(void)
- struct clock_sync_data {
- 	atomic_t cpus;
- 	int in_sync;
--	unsigned long clock_delta;
-+	long clock_delta;
- };
+@@ -5146,8 +5146,6 @@ int register_ftrace_direct(unsigned long
+ 	__add_hash_entry(direct_functions, entry);
  
- /*
-@@ -544,7 +544,7 @@ static int stpinfo_valid(void)
- static int stp_sync_clock(void *data)
- {
- 	struct clock_sync_data *sync = data;
--	u64 clock_delta, flags;
-+	long clock_delta, flags;
- 	static int first;
- 	int rc;
+ 	ret = ftrace_set_filter_ip(&direct_ops, ip, 0, 0);
+-	if (ret)
+-		remove_hash_entry(direct_functions, entry);
  
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -1255,7 +1255,7 @@ exit:
- EXPORT_SYMBOL_GPL(css_general_characteristics);
- EXPORT_SYMBOL_GPL(css_chsc_characteristics);
+ 	if (!ret && !(direct_ops.flags & FTRACE_OPS_FL_ENABLED)) {
+ 		ret = register_ftrace_function(&direct_ops);
+@@ -5156,6 +5154,7 @@ int register_ftrace_direct(unsigned long
+ 	}
  
--int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta)
-+int chsc_sstpc(void *page, unsigned int op, u16 ctrl, long *clock_delta)
- {
- 	struct {
- 		struct chsc_header request;
-@@ -1266,7 +1266,7 @@ int chsc_sstpc(void *page, unsigned int
- 		unsigned int rsvd2[5];
- 		struct chsc_header response;
- 		unsigned int rsvd3[3];
--		u64 clock_delta;
-+		s64 clock_delta;
- 		unsigned int rsvd4[2];
- 	} *rr;
- 	int rc;
+ 	if (ret) {
++		remove_hash_entry(direct_functions, entry);
+ 		kfree(entry);
+ 		if (!direct->count) {
+ 			list_del_rcu(&direct->next);
 
 
