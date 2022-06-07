@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB98E5416F1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 953A1541DAB
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377243AbiFGU4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44636 "EHLO
+        id S1345325AbiFGWS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:18:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377700AbiFGUux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:53 -0400
+        with ESMTP id S1385037AbiFGWRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:17:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE791FBF68;
-        Tue,  7 Jun 2022 11:40:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665CE262706;
+        Tue,  7 Jun 2022 12:20:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD46CB8233E;
-        Tue,  7 Jun 2022 18:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14351C385A2;
-        Tue,  7 Jun 2022 18:40:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E09E3B8233E;
+        Tue,  7 Jun 2022 19:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57601C385A5;
+        Tue,  7 Jun 2022 19:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627226;
-        bh=wVbbGLDEgiHbwO+8ceB4LaEgkGTDRdVe8SWyZV+ln8w=;
+        s=korg; t=1654629593;
+        bh=1xR0J75ZXSv9F3XwtXuUO8C7ILR4HML9B/tq5xySGAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwC6N6lnkKFE0rRfDyjTsiIoFZJ760EsMO5sftiZcKuy1cGbAKfksL0MrnELNUQ7Z
-         hGzPdZ6UBN85/NqIJ7tMfJHTVioIJL/PBWEg1DoJtLwBmkS6TkRD+OHB4pdhdvBApL
-         ZzSgGRkgkvutZECvTZfBshxxm+YUMfu6Z5GA0sis=
+        b=ev4CnCyW2zesNdcn8gvTabIncHOMAXpWIUikYPUAHboF4aeh9IBHpO6T3HrHv8yqH
+         PgQiPcNegbOqUeYrpc8WD8dfbtX3ZWIRR7tyyerA1TBo12t79OkNYjH1Q4ubQmYsTG
+         Bzna4iAvBDK74U95SSLYG0zoxwmekGs3JnL/2jj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.17 646/772] ext4: avoid cycles in directory h-tree
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Gregory Greenman <gregory.greenman@intel.com>
+Subject: [PATCH 5.18 720/879] iwlwifi: fw: init SAR GEO table only if data is present
 Date:   Tue,  7 Jun 2022 19:03:58 +0200
-Message-Id: <20220607165008.100029731@linuxfoundation.org>
+Message-Id: <20220607165023.753760422@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 3ba733f879c2a88910744647e41edeefbc0d92b2 upstream.
+commit d1f6530c3e373ddd7c76b05646052a27eead14ad upstream.
 
-A maliciously corrupted filesystem can contain cycles in the h-tree
-stored inside a directory. That can easily lead to the kernel corrupting
-tree nodes that were already verified under its hands while doing a node
-split and consequently accessing unallocated memory. Fix the problem by
-verifying traversed block numbers are unique.
+When no table data was read from ACPI, then filling the data
+and returning success here will fill zero values, which means
+transmit power will be limited to 0 dBm. This is clearly not
+intended.
+
+Return an error from iwl_sar_geo_init() if there's no data to
+fill into the command structure.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220518093332.13986-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 78a19d5285d9 ("iwlwifi: mvm: Read the PPAG and SAR tables at INIT stage")
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Link: https://lore.kernel.org/r/20220517120044.bc45923b74e9.Id2b4362234b7f8ced82c591b95d4075dd2ec12f4@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/acpi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -777,12 +777,14 @@ static struct dx_frame *
- dx_probe(struct ext4_filename *fname, struct inode *dir,
- 	 struct dx_hash_info *hinfo, struct dx_frame *frame_in)
+--- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+@@ -937,6 +937,9 @@ int iwl_sar_geo_init(struct iwl_fw_runti
  {
--	unsigned count, indirect;
-+	unsigned count, indirect, level, i;
- 	struct dx_entry *at, *entries, *p, *q, *m;
- 	struct dx_root *root;
- 	struct dx_frame *frame = frame_in;
- 	struct dx_frame *ret_err = ERR_PTR(ERR_BAD_DX_DIR);
- 	u32 hash;
-+	ext4_lblk_t block;
-+	ext4_lblk_t blocks[EXT4_HTREE_LEVEL];
+ 	int i, j;
  
- 	memset(frame_in, 0, EXT4_HTREE_LEVEL * sizeof(frame_in[0]));
- 	frame->bh = ext4_read_dirblock(dir, 0, INDEX);
-@@ -854,6 +856,8 @@ dx_probe(struct ext4_filename *fname, st
- 	}
- 
- 	dxtrace(printk("Look up %x", hash));
-+	level = 0;
-+	blocks[0] = 0;
- 	while (1) {
- 		count = dx_get_count(entries);
- 		if (!count || count > dx_get_limit(entries)) {
-@@ -882,15 +886,27 @@ dx_probe(struct ext4_filename *fname, st
- 			       dx_get_block(at)));
- 		frame->entries = entries;
- 		frame->at = at;
--		if (!indirect--)
++	if (!fwrt->geo_enabled)
++		return -ENODATA;
 +
-+		block = dx_get_block(at);
-+		for (i = 0; i <= level; i++) {
-+			if (blocks[i] == block) {
-+				ext4_warning_inode(dir,
-+					"dx entry: tree cycle block %u points back to block %u",
-+					blocks[level], block);
-+				goto fail;
-+			}
-+		}
-+		if (++level > indirect)
- 			return frame;
-+		blocks[level] = block;
- 		frame++;
--		frame->bh = ext4_read_dirblock(dir, dx_get_block(at), INDEX);
-+		frame->bh = ext4_read_dirblock(dir, block, INDEX);
- 		if (IS_ERR(frame->bh)) {
- 			ret_err = (struct dx_frame *) frame->bh;
- 			frame->bh = NULL;
- 			goto fail;
- 		}
-+
- 		entries = ((struct dx_node *) frame->bh->b_data)->entries;
+ 	if (!iwl_sar_geo_support(fwrt))
+ 		return -EOPNOTSUPP;
  
- 		if (dx_get_limit(entries) != dx_node_limit(dir)) {
 
 
