@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 838755406FD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04156541596
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347297AbiFGRlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
+        id S1359213AbiFGUg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348559AbiFGRlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:10 -0400
+        with ESMTP id S1378153AbiFGUey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1819912088B;
-        Tue,  7 Jun 2022 10:34:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1641EA04D;
+        Tue,  7 Jun 2022 11:37:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C8CC61480;
-        Tue,  7 Jun 2022 17:33:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A653C3411C;
-        Tue,  7 Jun 2022 17:33:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 875BE615D2;
+        Tue,  7 Jun 2022 18:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D6CC385A5;
+        Tue,  7 Jun 2022 18:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623216;
-        bh=eaLkmUmdG/Xo6u8ERxj5u85vYOJwe/jt0YfOMpJMybE=;
+        s=korg; t=1654627046;
+        bh=DLwWHDiK86MBmRvx35YmuRnwRWDcKIAibL+V2Fw+nPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIdPsHeo84U7AX8Reh5ISGZuQe//Gr34jaNvh9T7RmTk+dEKINoXY2G9oxo3t+Tqw
-         jq7eVrOxXNCIXP4oxLmBf6b5HxNapkk+/5DDCwWiblw+k8qMC6nwH62gE0RF8dmj46
-         FC+gXSHNN6vjJX38MrVWqi70zow2mvGepEWYxLeM=
+        b=NexCKgDsU2kfjqQPKQXeLVA1Jfp70NLFjtw8D7h7TKhi48U6AMgqHhSvo+G5Q5+42
+         F9PJKF4rSV7bEBOs71HNWmgO+fF3fH8FBWG0qtXwyabskpqUf36zHoq2Rl25OGuaXA
+         ilSfatfvch3jPtZ6b723CCwJ23nSqxdzVEVry8Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <izh1979@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 296/452] powerpc/idle: Fix return value of __setup() handler
+Subject: [PATCH 5.17 561/772] KVM: LAPIC: Drop pending LAPIC timer injection when canceling the timer
 Date:   Tue,  7 Jun 2022 19:02:33 +0200
-Message-Id: <20220607164917.376665570@linuxfoundation.org>
+Message-Id: <20220607165005.489725587@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit b793a01000122d2bd133ba451a76cc135b5e162c ]
+[ Upstream commit 619f51da097952194a5d4d6a6c5f9ef3b9d1b25a ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
+The timer is disarmed when switching between TSC deadline and other modes;
+however, the pending timer is still in-flight, so let's accurately remove
+any traces of the previous mode.
 
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) argument or environment
-strings.
-
-Also, error return codes don't mean anything to obsolete_checksetup() --
-only non-zero (usually 1) or zero. So return 1 from powersave_off().
-
-Fixes: 302eca184fb8 ("[POWERPC] cell: use ppc_md->power_save instead of cbe_idle_loop")
-Reported-by: Igor Zhbanov <izh1979@gmail.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220502192925.19954-1-rdunlap@infradead.org
+Fixes: 4427593258 ("KVM: x86: thoroughly disarm LAPIC timer around TSC deadline switch")
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/idle.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
-index 1f835539fda4..f0271daa8f6a 100644
---- a/arch/powerpc/kernel/idle.c
-+++ b/arch/powerpc/kernel/idle.c
-@@ -37,7 +37,7 @@ static int __init powersave_off(char *arg)
- {
- 	ppc_md.power_save = NULL;
- 	cpuidle_disable = IDLE_POWERSAVE_OFF;
--	return 0;
-+	return 1;
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 970d5c740b00..dd12c15b69e6 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1508,6 +1508,7 @@ static void cancel_apic_timer(struct kvm_lapic *apic)
+ 	if (apic->lapic_timer.hv_timer_in_use)
+ 		cancel_hv_timer(apic);
+ 	preempt_enable();
++	atomic_set(&apic->lapic_timer.pending, 0);
  }
- __setup("powersave=off", powersave_off);
  
+ static void apic_update_lvtt(struct kvm_lapic *apic)
 -- 
 2.35.1
 
