@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 490B55419A0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E78854090D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378270AbiFGVXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:23:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35472 "EHLO
+        id S1349387AbiFGSEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378188AbiFGVWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:22:10 -0400
+        with ESMTP id S1351930AbiFGSC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D201A15D33E;
-        Tue,  7 Jun 2022 12:00:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8624D131F17;
+        Tue,  7 Jun 2022 10:46:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1029B823A5;
-        Tue,  7 Jun 2022 18:59:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E71E2C385A2;
-        Tue,  7 Jun 2022 18:59:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47379B82239;
+        Tue,  7 Jun 2022 17:46:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A863BC385A5;
+        Tue,  7 Jun 2022 17:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628374;
-        bh=iCzqAaDlEauDmKFP1NvQj5z/6UrWCL92RGzlJmskS8E=;
+        s=korg; t=1654623979;
+        bh=2JYU5DuEm+BMLnrJLtWoA5OKIcB5KezmZmgoLCAFNSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/eMWXYtGJKRePo8EWG8kMfv/8skxSc0Occ93nxEiStwpfGHXhcMkaOo0GnzgWEya
-         PqO0gBNKP1jkfO59bQin892Bp9BJ2VWlTIUA7MPpgioUtD0szCOhEFgL/9xuZCfwYV
-         J6WIcRBWKEFWLyBnaWvBoCe69ms6BzyjEQ7wckZM=
+        b=mc7CjTWl9/a6+orIOrP6KhkreMhYj5tG5QdGehflNu7wCjtbpj5AcaUXFMo6ppIFv
+         mVQRq8qjXyGr7MzAXRMFnKcNl1BHwvgR/ALKjtIsQ0Vb0SA4Z1uZF69gsigl3ucZMX
+         KNw/MK1yXUZ7gj/1UcIfJ0spn+ttETHj2PNXeQxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 306/879] net: ethernet: ti: am65-cpsw: Fix build error without PHYLINK
-Date:   Tue,  7 Jun 2022 18:57:04 +0200
-Message-Id: <20220607165011.730721057@linuxfoundation.org>
+Subject: [PATCH 5.15 160/667] ALSA: usb-audio: Move generic implicit fb quirk entries into quirks.c
+Date:   Tue,  7 Jun 2022 18:57:05 +0200
+Message-Id: <20220607164939.614294451@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit bfa323c659b1016c8e896920ba08cd6914cc3b0c ]
+[ Upstream commit 67d64069bc0867e52e73a1e255b17462005ca9b4 ]
 
-If PHYLINK is n, build fails:
+Use the new quirk bits to manage the generic implicit fb quirk
+entries.  This makes easier to compare with other devices.
 
-drivers/net/ethernet/ti/am65-cpsw-ethtool.o: In function `am65_cpsw_set_link_ksettings':
-am65-cpsw-ethtool.c:(.text+0x118): undefined reference to `phylink_ethtool_ksettings_set'
-drivers/net/ethernet/ti/am65-cpsw-ethtool.o: In function `am65_cpsw_get_link_ksettings':
-am65-cpsw-ethtool.c:(.text+0x138): undefined reference to `phylink_ethtool_ksettings_get'
-drivers/net/ethernet/ti/am65-cpsw-ethtool.o: In function `am65_cpsw_set_eee':
-am65-cpsw-ethtool.c:(.text+0x158): undefined reference to `phylink_ethtool_set_eee'
-
-Select PHYLINK for TI_K3_AM65_CPSW_NUSS to fix this.
-
-Fixes: e8609e69470f ("net: ethernet: ti: am65-cpsw: Convert to PHYLINK")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/20220409105931.9080-1-yuehaibing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220421064101.12456-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/implicit.c | 5 -----
+ sound/usb/quirks.c   | 6 ++++++
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/Kconfig b/drivers/net/ethernet/ti/Kconfig
-index affcf92cd3aa..fb30bc5d56cb 100644
---- a/drivers/net/ethernet/ti/Kconfig
-+++ b/drivers/net/ethernet/ti/Kconfig
-@@ -94,6 +94,7 @@ config TI_K3_AM65_CPSW_NUSS
- 	depends on ARCH_K3 && OF && TI_K3_UDMA_GLUE_LAYER
- 	select NET_DEVLINK
- 	select TI_DAVINCI_MDIO
-+	select PHYLINK
- 	imply PHY_TI_GMII_SEL
- 	depends on TI_K3_AM65_CPTS || !TI_K3_AM65_CPTS
- 	help
+diff --git a/sound/usb/implicit.c b/sound/usb/implicit.c
+index 1fd087128538..e1bf1b5da423 100644
+--- a/sound/usb/implicit.c
++++ b/sound/usb/implicit.c
+@@ -45,11 +45,6 @@ struct snd_usb_implicit_fb_match {
+ 
+ /* Implicit feedback quirk table for playback */
+ static const struct snd_usb_implicit_fb_match playback_implicit_fb_quirks[] = {
+-	/* Generic matching */
+-	IMPLICIT_FB_GENERIC_DEV(0x0499, 0x1509), /* Steinberg UR22 */
+-	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2030), /* M-Audio Fast Track C400 */
+-	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2031), /* M-Audio Fast Track C600 */
+-
+ 	/* Fixed EP */
+ 	/* FIXME: check the availability of generic matching */
+ 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2080, 0x81, 2), /* M-Audio FastTrack Ultra */
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index fbbe59054c3f..e8468f9b007d 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1793,6 +1793,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x046d, 0x09a4, /* Logitech QuickCam E 3500 */
+ 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
++	DEVICE_FLG(0x0499, 0x1509, /* Steinberg UR22 */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 	DEVICE_FLG(0x04d8, 0xfeea, /* Benchmark DAC1 Pre */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
+ 	DEVICE_FLG(0x04e8, 0xa051, /* Samsung USBC Headset (AKG) */
+@@ -1826,6 +1828,10 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
+ 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
++	DEVICE_FLG(0x0763, 0x2030, /* M-Audio Fast Track C400 */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
++	DEVICE_FLG(0x0763, 0x2031, /* M-Audio Fast Track C600 */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
+ 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x0951, 0x16ad, /* Kingston HyperX */
 -- 
 2.35.1
 
