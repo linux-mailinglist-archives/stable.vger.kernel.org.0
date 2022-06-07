@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61CF354174E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1FC5417A7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351666AbiFGVC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49798 "EHLO
+        id S1378884AbiFGVEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379051AbiFGVCA (ORCPT
+        with ESMTP id S1379064AbiFGVCA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A562A188E5F;
-        Tue,  7 Jun 2022 11:46:17 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E6F11AFF1;
+        Tue,  7 Jun 2022 11:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D8D76156D;
-        Tue,  7 Jun 2022 18:46:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A753C385A2;
-        Tue,  7 Jun 2022 18:46:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF7C96160D;
+        Tue,  7 Jun 2022 18:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09978C385A5;
+        Tue,  7 Jun 2022 18:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627576;
-        bh=COKzPOsl7kaNsDvx+z01yEVI+nhAt+B84z1IsdH3tzE=;
+        s=korg; t=1654627579;
+        bh=ISjmmFkAO+VM1yqXdbRb0UZ0YuSh7g7+PxFHZvOoPMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZir+/tXjmrZPpcl9MkFCJjYUNfBu1SxN2kCGpceY1VdPp0DgQICuVC92MhuS1731
-         rYPSMYM4TSvgvBGi1/IKSkWHk7Np97fG0wjm3MnoEFFnOC/ear8KTEuHVd31q4MXPJ
-         OltieqgB3Vn5cf8nRbldipQ2RSrRxYNS0LqPTx2A=
+        b=qMVUHs+zLhCOm/1R3QDBlz66fV3F6KxfkJok0uranU57mPp8C36kne3AmvWmULAnz
+         /S8lYJizsv5EY+WTUYxhgKkhI8nzqdcET/KpqCiBcVTf9aNYD7dYMKffYssElAhmbb
+         L5XEn3WF9nF0A2R4lC9ZOwDlLPh3BtF/GdB/BAHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rui.silva@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.18 018/879] usb: isp1760: Fix out-of-bounds array access
-Date:   Tue,  7 Jun 2022 18:52:16 +0200
-Message-Id: <20220607165003.200430319@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Albert Wang <albertccwang@google.com>
+Subject: [PATCH 5.18 019/879] usb: dwc3: gadget: Move null pinter check to proper place
+Date:   Tue,  7 Jun 2022 18:52:17 +0200
+Message-Id: <20220607165003.228890970@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,85 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Albert Wang <albertccwang@google.com>
 
-commit 26ae2c942b5702f2e43d36b2a4389cfb7d616b6a upstream.
+commit 3c5880745b4439ac64eccdb040e37fc1cc4c5406 upstream.
 
-Running the driver through kasan gives an interesting splat:
+When dwc3_gadget_ep_cleanup_completed_requests() called to
+dwc3_gadget_giveback() where the dwc3 lock is released, other thread is
+able to execute. In this situation, usb_ep_disable() gets the chance to
+clear endpoint descriptor pointer which leds to the null pointer
+dereference problem. So needs to move the null pointer check to a proper
+place.
 
-  BUG: KASAN: global-out-of-bounds in isp1760_register+0x180/0x70c
-  Read of size 20 at addr f1db2e64 by task swapper/0/1
-  (...)
-  isp1760_register from isp1760_plat_probe+0x1d8/0x220
-  (...)
+Example call stack:
 
-This happens because the loop reading the regmap fields for the
-different ISP1760 variants look like this:
+Thread#1:
+dwc3_thread_interrupt()
+  spin_lock
+  -> dwc3_process_event_buf()
+   -> dwc3_process_event_entry()
+    -> dwc3_endpoint_interrupt()
+     -> dwc3_gadget_endpoint_trbs_complete()
+      -> dwc3_gadget_ep_cleanup_completed_requests()
+       ...
+       -> dwc3_giveback()
+          spin_unlock
+          Thread#2 executes
 
-  for (i = 0; i < HC_FIELD_MAX; i++) { ... }
+Thread#2:
+configfs_composite_disconnect()
+  -> __composite_disconnect()
+   -> ffs_func_disable()
+    -> ffs_func_set_alt()
+     -> ffs_func_eps_disable()
+      -> usb_ep_disable()
+         wait for dwc3 spin_lock
+         Thread#1 released lock
+         clear endpoint.desc
 
-Meaning it expects the arrays to be at least HC_FIELD_MAX - 1 long.
-
-However the arrays isp1760_hc_reg_fields[], isp1763_hc_reg_fields[],
-isp1763_hc_volatile_ranges[] and isp1763_dc_volatile_ranges[] are
-dynamically sized during compilation.
-
-Fix this by putting an empty assignment to the [HC_FIELD_MAX]
-and [DC_FIELD_MAX] array member at the end of each array.
-This will make the array one member longer than it needs to be,
-but avoids the risk of overwriting whatever is inside
-[HC_FIELD_MAX - 1] and is simple and intuitive to read. Also
-add comments explaining what is going on.
-
-Fixes: 1da9e1c06873 ("usb: isp1760: move to regmap for register access")
-Cc: stable@vger.kernel.org
-Cc: Rui Miguel Silva <rui.silva@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Reviewed-by: Rui Miguel Silva <rui.silva@linaro.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220516091424.391209-1-linus.walleij@linaro.org
+Fixes: 26288448120b ("usb: dwc3: gadget: Fix null pointer exception")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Albert Wang <albertccwang@google.com>
+Link: https://lore.kernel.org/r/20220518061315.3359198-1-albertccwang@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/isp1760/isp1760-core.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/dwc3/gadget.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/isp1760/isp1760-core.c
-+++ b/drivers/usb/isp1760/isp1760-core.c
-@@ -251,6 +251,8 @@ static const struct reg_field isp1760_hc
- 	[HW_DM_PULLDOWN]	= REG_FIELD(ISP176x_HC_OTG_CTRL, 2, 2),
- 	[HW_DP_PULLDOWN]	= REG_FIELD(ISP176x_HC_OTG_CTRL, 1, 1),
- 	[HW_DP_PULLUP]		= REG_FIELD(ISP176x_HC_OTG_CTRL, 0, 0),
-+	/* Make sure the array is sized properly during compilation */
-+	[HC_FIELD_MAX]		= {},
- };
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3380,14 +3380,14 @@ static bool dwc3_gadget_endpoint_trbs_co
+ 	struct dwc3		*dwc = dep->dwc;
+ 	bool			no_started_trb = true;
  
- static const struct reg_field isp1763_hc_reg_fields[] = {
-@@ -321,6 +323,8 @@ static const struct reg_field isp1763_hc
- 	[HW_DM_PULLDOWN_CLEAR]	= REG_FIELD(ISP1763_HC_OTG_CTRL_CLEAR, 2, 2),
- 	[HW_DP_PULLDOWN_CLEAR]	= REG_FIELD(ISP1763_HC_OTG_CTRL_CLEAR, 1, 1),
- 	[HW_DP_PULLUP_CLEAR]	= REG_FIELD(ISP1763_HC_OTG_CTRL_CLEAR, 0, 0),
-+	/* Make sure the array is sized properly during compilation */
-+	[HC_FIELD_MAX]		= {},
- };
+-	if (!dep->endpoint.desc)
+-		return no_started_trb;
+-
+ 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
  
- static const struct regmap_range isp1763_hc_volatile_ranges[] = {
-@@ -405,6 +409,8 @@ static const struct reg_field isp1761_dc
- 	[DC_CHIP_ID_HIGH]	= REG_FIELD(ISP176x_DC_CHIPID, 16, 31),
- 	[DC_CHIP_ID_LOW]	= REG_FIELD(ISP176x_DC_CHIPID, 0, 15),
- 	[DC_SCRATCH]		= REG_FIELD(ISP176x_DC_SCRATCH, 0, 15),
-+	/* Make sure the array is sized properly during compilation */
-+	[DC_FIELD_MAX]		= {},
- };
+ 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
+ 		goto out;
  
- static const struct regmap_range isp1763_dc_volatile_ranges[] = {
-@@ -458,6 +464,8 @@ static const struct reg_field isp1763_dc
- 	[DC_CHIP_ID_HIGH]	= REG_FIELD(ISP1763_DC_CHIPID_HIGH, 0, 15),
- 	[DC_CHIP_ID_LOW]	= REG_FIELD(ISP1763_DC_CHIPID_LOW, 0, 15),
- 	[DC_SCRATCH]		= REG_FIELD(ISP1763_DC_SCRATCH, 0, 15),
-+	/* Make sure the array is sized properly during compilation */
-+	[DC_FIELD_MAX]		= {},
- };
- 
- static const struct regmap_config isp1763_dc_regmap_conf = {
++	if (!dep->endpoint.desc)
++		return no_started_trb;
++
+ 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
+ 		list_empty(&dep->started_list) &&
+ 		(list_empty(&dep->pending_list) || status == -EXDEV))
 
 
