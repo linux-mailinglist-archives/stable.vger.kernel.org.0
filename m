@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 280B9540AA2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A86540A5E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350952AbiFGSXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49664 "EHLO
+        id S1351593AbiFGSUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352543AbiFGSRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9268F13893F;
-        Tue,  7 Jun 2022 10:52:21 -0700 (PDT)
+        with ESMTP id S1352595AbiFGSRV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7906E13A2CA;
+        Tue,  7 Jun 2022 10:52:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C1C3617AA;
-        Tue,  7 Jun 2022 17:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D215C36B02;
-        Tue,  7 Jun 2022 17:52:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 307AC617AA;
+        Tue,  7 Jun 2022 17:52:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35748C34115;
+        Tue,  7 Jun 2022 17:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624340;
-        bh=Fx89bDr0xooQi1N967Gfk2wxPKTRWLLtU0MNHtBaIxc=;
+        s=k20201202; t=1654624343;
+        bh=QNxyg8a/EeMSToOh3j6ZgqqKkIM/59Fix+XBI1emb1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FneBxfGRnRwuKOn+qiHEcWtwuKnd76MvdTMomOCLs+VhQY3O52+8lRExSnAHX8cke
-         XTRsDPRJp6FJs9JHbJrzvo2gityKzSZBQaaLvRDcNDXOBFXDKRVYYIDq3HF6LmI4re
-         +VhO8N8aIL1n8mijyeBjVVtApSsr+f4XGkR8SwsHZ8KioJddP2Kjb5Umz45ZQiD/Z3
-         XnRBi9rnaXogV9PjipFDxAUQt87gHlygpKIHIHk2u+ue6Sw7iM1aJCRtuFZtaP0M3A
-         O3e4aU1CMs56CzxWrN2RrGZU+suGHGtK81XM5YbM2Va4KyWDcahPv3dVOAXQIYtL/y
-         jtZmFZ+yfwmZQ==
+        b=IvzUvjr46HVsVFEtOIPpBDPMenYncLCA8TQHAMojzxyr2LXj53OJZzIHyUWT6UtQj
+         3+e1hDO4HT8ddkgQNd6kRWp3SVA8TurAOGW3gx6eSsbWXpflUG6fdAXA359Ci/GlFO
+         9b/FU6FT6nYA7SWrXNzd9h3CvgLBKz2KyF2XtrZyY4tDoiEw2cedaPE7oPqPXjkHNg
+         72v2Rv8fPjqXYcL6qp+1bpZqfqtM/XSLF4HT303bt1RA+OuZNFC8XLap413olh3rde
+         P03E8OUzVHkCed31uU10QGtI/ZmjGl3H/rzQvIRQZtjwLYGj2w1P0FUt9VlPGGjxoH
+         A2M0kvGDMd92A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, jpoimboe@kernel.org
-Subject: [PATCH AUTOSEL 5.18 53/68] objtool: Mark __ubsan_handle_builtin_unreachable() as noreturn
-Date:   Tue,  7 Jun 2022 13:48:19 -0400
-Message-Id: <20220607174846.477972-53-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, hpa@zytor.com, keescook@chromium.org
+Subject: [PATCH AUTOSEL 5.18 54/68] x86/cpu: Elide KCSAN for cpu_has() and friends
+Date:   Tue,  7 Jun 2022 13:48:20 -0400
+Message-Id: <20220607174846.477972-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -58,58 +60,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 385bd430c011a8cb8278e61c32d602d11e06f414 ]
+[ Upstream commit a6a5eb269f6f3a2fe392f725a8d9052190c731e2 ]
 
-  fs/ntfs3/ntfs3.prelink.o: warning: objtool: ni_read_frame() falls through to next function ni_readpage_cmpr.cold()
+As x86 uses the <asm-generic/bitops/instrumented-*.h> headers, the
+regular forms of all bitops are instrumented with explicit calls to
+KASAN and KCSAN checks. As these are explicit calls, these are not
+suppressed by the noinstr function attribute.
 
-That is in fact:
+This can result in calls to those check functions in noinstr code, which
+objtool warns about:
 
-000000000000124a <ni_read_frame.cold>:
-    124a:       44 89 e0                mov    %r12d,%eax
-    124d:       0f b6 55 98             movzbl -0x68(%rbp),%edx
-    1251:       48 c7 c7 00 00 00 00    mov    $0x0,%rdi        1254: R_X86_64_32S      .data+0x1380
-    1258:       48 89 c6                mov    %rax,%rsi
-    125b:       e8 00 00 00 00          call   1260 <ni_read_frame.cold+0x16>   125c: R_X86_64_PLT32    __ubsan_handle_shift_out_of_bounds-0x4
-    1260:       48 8d 7d cc             lea    -0x34(%rbp),%rdi
-    1264:       e8 00 00 00 00          call   1269 <ni_read_frame.cold+0x1f>   1265: R_X86_64_PLT32    __tsan_read4-0x4
-    1269:       8b 45 cc                mov    -0x34(%rbp),%eax
-    126c:       e9 00 00 00 00          jmp    1271 <ni_read_frame.cold+0x27>   126d: R_X86_64_PC32     .text+0x19109
-    1271:       48 8b 75 a0             mov    -0x60(%rbp),%rsi
-    1275:       48 63 d0                movslq %eax,%rdx
-    1278:       48 c7 c7 00 00 00 00    mov    $0x0,%rdi        127b: R_X86_64_32S      .data+0x13a0
-    127f:       89 45 88                mov    %eax,-0x78(%rbp)
-    1282:       e8 00 00 00 00          call   1287 <ni_read_frame.cold+0x3d>   1283: R_X86_64_PLT32    __ubsan_handle_shift_out_of_bounds-0x4
-    1287:       8b 45 88                mov    -0x78(%rbp),%eax
-    128a:       e9 00 00 00 00          jmp    128f <ni_read_frame.cold+0x45>   128b: R_X86_64_PC32     .text+0x19098
-    128f:       48 c7 c7 00 00 00 00    mov    $0x0,%rdi        1292: R_X86_64_32S      .data+0x11f0
-    1296:       e8 00 00 00 00          call   129b <ni_readpage_cmpr.cold>     1297: R_X86_64_PLT32    __ubsan_handle_builtin_unreachable-0x4
+vmlinux.o: warning: objtool: enter_from_user_mode+0x24: call to __kcsan_check_access() leaves .noinstr.text section
+vmlinux.o: warning: objtool: syscall_enter_from_user_mode+0x28: call to __kcsan_check_access() leaves .noinstr.text section
+vmlinux.o: warning: objtool: syscall_enter_from_user_mode_prepare+0x24: call to __kcsan_check_access() leaves .noinstr.text section
+vmlinux.o: warning: objtool: irqentry_enter_from_user_mode+0x24: call to __kcsan_check_access() leaves .noinstr.text section
 
-000000000000129b <ni_readpage_cmpr.cold>:
+Prevent this by using the arch_*() bitops, which are the underlying
+bitops without explciit instrumentation.
 
-Tell objtool that __ubsan_handle_builtin_unreachable() is a noreturn.
-
+[null: Changelog]
 Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220502091514.GB479834@worktop.programming.kicks-ass.net
+Link: https://lkml.kernel.org/r/20220502111216.290518605@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/cpufeature.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index ca5b74603008..a0b4a5874fce 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -184,7 +184,8 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"do_group_exit",
- 		"stop_this_cpu",
- 		"__invalid_creds",
--               "cpu_startup_entry",
-+		"cpu_startup_entry",
-+		"__ubsan_handle_builtin_unreachable",
- 	};
+diff --git a/arch/x86/include/asm/cpufeature.h b/arch/x86/include/asm/cpufeature.h
+index 1261842d006c..49a3b122279e 100644
+--- a/arch/x86/include/asm/cpufeature.h
++++ b/arch/x86/include/asm/cpufeature.h
+@@ -51,7 +51,7 @@ extern const char * const x86_power_flags[32];
+ extern const char * const x86_bug_flags[NBUGINTS*32];
  
- 	if (!func)
+ #define test_cpu_cap(c, bit)						\
+-	 test_bit(bit, (unsigned long *)((c)->x86_capability))
++	 arch_test_bit(bit, (unsigned long *)((c)->x86_capability))
+ 
+ /*
+  * There are 32 bits/features in each mask word.  The high bits
 -- 
 2.35.1
 
