@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 604FF541263
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD335408EE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354580AbiFGTrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:47:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38626 "EHLO
+        id S238464AbiFGSD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357773AbiFGTrD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:47:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17E7B6B00B;
-        Tue,  7 Jun 2022 11:19:01 -0700 (PDT)
+        with ESMTP id S1351504AbiFGSCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19FC152DA3;
+        Tue,  7 Jun 2022 10:44:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E435B8237C;
-        Tue,  7 Jun 2022 18:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CD1BC385A5;
-        Tue,  7 Jun 2022 18:18:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A191B80B66;
+        Tue,  7 Jun 2022 17:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7BC3C385A5;
+        Tue,  7 Jun 2022 17:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625936;
-        bh=2JYU5DuEm+BMLnrJLtWoA5OKIcB5KezmZmgoLCAFNSc=;
+        s=korg; t=1654623885;
+        bh=0qLbL55MF/P0+Qou/QahJDBlhd7ow5V6cdXeBWPYJEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktGmuLMs6TtDtBITWid7xdyxZoybz/TnkGhVDA1mzTZLc6CqNaBWM+hDMeXaJiNcP
-         gaU4P+D1Z1LdAt5uTxVCNPx3mwPeuTGe6+H0LbVk9F/ec/OfGcjofoZPBOua7q1A7t
-         RtMniZe+V/lEVF168dcBM4l1LulYC50pVzFpSqik=
+        b=vfMpUfSMmS9exOZqS3FazQaS4+ZPU25RWxDKqdwglEvwobY0uks+1c6XVYWiDJs98
+         Pk5EiVCL5jLr4VX5dByU3/TDC4GOKf/KQDp/WhvHNnHZvTr+E+FTcIAPBDvajKdxdC
+         iJt/rYvOUtFeQDNrxC05LOyPNJA2ZSpQakhlaABU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 197/772] ALSA: usb-audio: Move generic implicit fb quirk entries into quirks.c
-Date:   Tue,  7 Jun 2022 18:56:29 +0200
-Message-Id: <20220607164954.838231122@linuxfoundation.org>
+Subject: [PATCH 5.15 125/667] ASoC: rt5645: Fix errorenous cleanup order
+Date:   Tue,  7 Jun 2022 18:56:30 +0200
+Message-Id: <20220607164938.574807955@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 67d64069bc0867e52e73a1e255b17462005ca9b4 ]
+[ Upstream commit 2def44d3aec59e38d2701c568d65540783f90f2f ]
 
-Use the new quirk bits to manage the generic implicit fb quirk
-entries.  This makes easier to compare with other devices.
+There is a logic error when removing rt5645 device as the function
+rt5645_i2c_remove() first cancel the &rt5645->jack_detect_work and
+delete the &rt5645->btn_check_timer latter. However, since the timer
+handler rt5645_btn_check_callback() will re-queue the jack_detect_work,
+this cleanup order is buggy.
 
-Link: https://lore.kernel.org/r/20220421064101.12456-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+That is, once the del_timer_sync in rt5645_i2c_remove is concurrently
+run with the rt5645_btn_check_callback, the canceled jack_detect_work
+will be rescheduled again, leading to possible use-after-free.
+
+This patch fix the issue by placing the del_timer_sync function before
+the cancel_delayed_work_sync.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220516092035.28283-1-linma@zju.edu.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/implicit.c | 5 -----
- sound/usb/quirks.c   | 6 ++++++
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ sound/soc/codecs/rt5645.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/implicit.c b/sound/usb/implicit.c
-index 1fd087128538..e1bf1b5da423 100644
---- a/sound/usb/implicit.c
-+++ b/sound/usb/implicit.c
-@@ -45,11 +45,6 @@ struct snd_usb_implicit_fb_match {
+diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
+index 9408ee63cb26..8ea6d4333562 100644
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -4154,9 +4154,14 @@ static int rt5645_i2c_remove(struct i2c_client *i2c)
+ 	if (i2c->irq)
+ 		free_irq(i2c->irq, rt5645);
  
- /* Implicit feedback quirk table for playback */
- static const struct snd_usb_implicit_fb_match playback_implicit_fb_quirks[] = {
--	/* Generic matching */
--	IMPLICIT_FB_GENERIC_DEV(0x0499, 0x1509), /* Steinberg UR22 */
--	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2030), /* M-Audio Fast Track C400 */
--	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2031), /* M-Audio Fast Track C600 */
--
- 	/* Fixed EP */
- 	/* FIXME: check the availability of generic matching */
- 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2080, 0x81, 2), /* M-Audio FastTrack Ultra */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index fbbe59054c3f..e8468f9b007d 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1793,6 +1793,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x046d, 0x09a4, /* Logitech QuickCam E 3500 */
- 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
-+	DEVICE_FLG(0x0499, 0x1509, /* Steinberg UR22 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x04d8, 0xfeea, /* Benchmark DAC1 Pre */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x04e8, 0xa051, /* Samsung USBC Headset (AKG) */
-@@ -1826,6 +1828,10 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x0763, 0x2030, /* M-Audio Fast Track C400 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x0763, 0x2031, /* M-Audio Fast Track C600 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x0951, 0x16ad, /* Kingston HyperX */
++	/*
++	 * Since the rt5645_btn_check_callback() can queue jack_detect_work,
++	 * the timer need to be delted first
++	 */
++	del_timer_sync(&rt5645->btn_check_timer);
++
+ 	cancel_delayed_work_sync(&rt5645->jack_detect_work);
+ 	cancel_delayed_work_sync(&rt5645->rcclock_work);
+-	del_timer_sync(&rt5645->btn_check_timer);
+ 
+ 	regulator_bulk_disable(ARRAY_SIZE(rt5645->supplies), rt5645->supplies);
+ 
 -- 
 2.35.1
 
