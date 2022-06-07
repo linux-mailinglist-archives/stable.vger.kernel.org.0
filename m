@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CC765406A5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40457540DD7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243284AbiFGRhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52932 "EHLO
+        id S1354161AbiFGSu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:50:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348073AbiFGRgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:03 -0400
+        with ESMTP id S1354528AbiFGSrG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09AB92A413;
-        Tue,  7 Jun 2022 10:32:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D949C2E5;
+        Tue,  7 Jun 2022 11:01:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CA29B82185;
-        Tue,  7 Jun 2022 17:32:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A77C4C385A5;
-        Tue,  7 Jun 2022 17:32:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 134BCB82354;
+        Tue,  7 Jun 2022 18:01:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FCA0C385A5;
+        Tue,  7 Jun 2022 18:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623128;
-        bh=ucIaXTRbVB/oL/7bl68xYrtIpt1U6H0UrivdO4ahS1Q=;
+        s=korg; t=1654624908;
+        bh=Ga08/OLnyXNnL8sL9UQF+m5AArZ3XQ4eVArDlX0HBPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uf67M0KzbW0ThCmB5d4VYiGBBJwyWXQZvRk6KSM8MURMLOdE9Q/aP/CVITIHD3+94
-         7086N9ilOzmTAkn9oROXXb/txhIR5cH35na5YUxA81P0e2ljsVGFAmwOz9TprpIVew
-         /4G7yzIT5fMLVMVUx7mwLdyHjy8BhiG4sAAaC2Lo=
+        b=lQILqAfCSpVeOY3x4D76iLdaQefSKcikcTS9ba8wwm/Xv3eMMPChLPLFSKbDCYawb
+         ufA0VKDKPccVabi8+pDCsgmKLk94WAJcWjZoaTxCZn5hXNAd7D6D433/YDZK/ORNGD
+         Msc/Z3lEI8c1MudsyjybwmFHiWUGHRwFInEfv4Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 306/452] crypto: cryptd - Protect per-CPU resource by disabling BH.
+Subject: [PATCH 5.15 498/667] NFSv4/pNFS: Do not fail I/O when we fail to allocate the pNFS layout
 Date:   Tue,  7 Jun 2022 19:02:43 +0200
-Message-Id: <20220607164917.677884001@linuxfoundation.org>
+Message-Id: <20220607164949.635381183@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 91e8bcd7b4da182e09ea19a2c73167345fe14c98 ]
+[ Upstream commit 3764a17e31d579cf9b4bd0a69894b577e8d75702 ]
 
-The access to cryptd_queue::cpu_queue is synchronized by disabling
-preemption in cryptd_enqueue_request() and disabling BH in
-cryptd_queue_worker(). This implies that access is allowed from BH.
+Commit 587f03deb69b caused pnfs_update_layout() to stop returning ENOMEM
+when the memory allocation fails, and hence causes it to fall back to
+trying to do I/O through the MDS. There is no guarantee that this will
+fare any better. If we're failing the pNFS layout allocation, then we
+should just redirty the page and retry later.
 
-If cryptd_enqueue_request() is invoked from preemptible context _and_
-soft interrupt then this can lead to list corruption since
-cryptd_enqueue_request() is not protected against access from
-soft interrupt.
-
-Replace get_cpu() in cryptd_enqueue_request() with local_bh_disable()
-to ensure BH is always disabled.
-Remove preempt_disable() from cryptd_queue_worker() since it is not
-needed because local_bh_disable() ensures synchronisation.
-
-Fixes: 254eff771441 ("crypto: cryptd - Per-CPU thread implementation...")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 587f03deb69b ("pnfs: refactor send_layoutget")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/cryptd.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ fs/nfs/pnfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/crypto/cryptd.c b/crypto/cryptd.c
-index a1bea0f4baa8..668095eca0fa 100644
---- a/crypto/cryptd.c
-+++ b/crypto/cryptd.c
-@@ -39,6 +39,10 @@ struct cryptd_cpu_queue {
- };
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 7ddd003ab8b1..9203a17b3f09 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2000,6 +2000,7 @@ pnfs_update_layout(struct inode *ino,
+ 	lo = pnfs_find_alloc_layout(ino, ctx, gfp_flags);
+ 	if (lo == NULL) {
+ 		spin_unlock(&ino->i_lock);
++		lseg = ERR_PTR(-ENOMEM);
+ 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
+ 				 PNFS_UPDATE_LAYOUT_NOMEM);
+ 		goto out;
+@@ -2128,6 +2129,7 @@ pnfs_update_layout(struct inode *ino,
  
- struct cryptd_queue {
-+	/*
-+	 * Protected by disabling BH to allow enqueueing from softinterrupt and
-+	 * dequeuing from kworker (cryptd_queue_worker()).
-+	 */
- 	struct cryptd_cpu_queue __percpu *cpu_queue;
- };
- 
-@@ -125,28 +129,28 @@ static void cryptd_fini_queue(struct cryptd_queue *queue)
- static int cryptd_enqueue_request(struct cryptd_queue *queue,
- 				  struct crypto_async_request *request)
- {
--	int cpu, err;
-+	int err;
- 	struct cryptd_cpu_queue *cpu_queue;
- 	refcount_t *refcnt;
- 
--	cpu = get_cpu();
-+	local_bh_disable();
- 	cpu_queue = this_cpu_ptr(queue->cpu_queue);
- 	err = crypto_enqueue_request(&cpu_queue->queue, request);
- 
- 	refcnt = crypto_tfm_ctx(request->tfm);
- 
- 	if (err == -ENOSPC)
--		goto out_put_cpu;
-+		goto out;
- 
--	queue_work_on(cpu, cryptd_wq, &cpu_queue->work);
-+	queue_work_on(smp_processor_id(), cryptd_wq, &cpu_queue->work);
- 
- 	if (!refcount_read(refcnt))
--		goto out_put_cpu;
-+		goto out;
- 
- 	refcount_inc(refcnt);
- 
--out_put_cpu:
--	put_cpu();
-+out:
-+	local_bh_enable();
- 
- 	return err;
- }
-@@ -162,15 +166,10 @@ static void cryptd_queue_worker(struct work_struct *work)
- 	cpu_queue = container_of(work, struct cryptd_cpu_queue, work);
- 	/*
- 	 * Only handle one request at a time to avoid hogging crypto workqueue.
--	 * preempt_disable/enable is used to prevent being preempted by
--	 * cryptd_enqueue_request(). local_bh_disable/enable is used to prevent
--	 * cryptd_enqueue_request() being accessed from software interrupts.
- 	 */
- 	local_bh_disable();
--	preempt_disable();
- 	backlog = crypto_get_backlog(&cpu_queue->queue);
- 	req = crypto_dequeue_request(&cpu_queue->queue);
--	preempt_enable();
- 	local_bh_enable();
- 
- 	if (!req)
+ 	lgp = pnfs_alloc_init_layoutget_args(ino, ctx, &stateid, &arg, gfp_flags);
+ 	if (!lgp) {
++		lseg = ERR_PTR(-ENOMEM);
+ 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, NULL,
+ 					 PNFS_UPDATE_LAYOUT_NOMEM);
+ 		nfs_layoutget_end(lo);
 -- 
 2.35.1
 
