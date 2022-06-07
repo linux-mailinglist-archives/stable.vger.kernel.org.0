@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A296541AD7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84680540A99
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380655AbiFGVjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:39:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
+        id S235360AbiFGSXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380851AbiFGViQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:38:16 -0400
+        with ESMTP id S1352423AbiFGSRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCEDE1C13A;
-        Tue,  7 Jun 2022 12:05:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A6F10656F;
+        Tue,  7 Jun 2022 10:52:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78435617EE;
-        Tue,  7 Jun 2022 19:05:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849F4C385A2;
-        Tue,  7 Jun 2022 19:05:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D294561794;
+        Tue,  7 Jun 2022 17:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5024C34115;
+        Tue,  7 Jun 2022 17:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628725;
-        bh=Whr85xBJzYK0FWJhwzET+EpOWlc68uR+NHnFIy1/Ln8=;
+        s=korg; t=1654624324;
+        bh=n7mdJGl0agHnUCSyXIFfvAF7u5JxOgJlNavYdXtgUdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vHMLFaMAKNoMUmufzO+LZ0KJhvjvNMsg+HtCBwU+a1ObRr+ZpQrAvpv62QMgeW+8
-         lUuREANm2icpYl66d3EssrGGrEdzZwe3bK44iAbXx1wWVLZ8Y672UnFvmHnvBFoJhe
-         gqnUrplXln30JVICLjrxSK9NBQlY6xDwqczDslss=
+        b=lnkc/Nn1Reir1iCru0xnc2cvLST4nyFBWVW6IEmyxOcTfgWZAjofEej9UHVev/3RM
+         5wsH3H3ON/JqYth1u/LeaB01dFi0xlKMLmcyeyVFJyEt80eKNC8/CHEwO2jBjseegg
+         m+yUmkLPHiI9NMd/sRc71PQKrC1iVJN3nDFoTXTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 433/879] mt76: mt7915: fix possible uninitialized pointer dereference in mt7986_wmac_gpio_setup
+        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 286/667] arm64: fix types in copy_highpage()
 Date:   Tue,  7 Jun 2022 18:59:11 +0200
-Message-Id: <20220607165015.438710968@linuxfoundation.org>
+Message-Id: <20220607164943.357761645@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit 9bd6823f5a64b6465708b244eecc9b7dd4b01bfc ]
+[ Upstream commit 921d161f15d6b090599f6a8c23f131969edbd1fa ]
 
-Add default case for type switch in mt7986_wmac_gpio_setup routine in
-order to avoid a possible uninitialized pointer dereference.
+In copy_highpage() the `kto` and `kfrom` local variables are pointers to
+struct page, but these are used to hold arbitrary pointers to kernel memory
+. Each call to page_address() returns a void pointer to memory associated
+with the relevant page, and copy_page() expects void pointers to this
+memory.
 
-Fixes: 99ad32a4ca3a2 ("mt76: mt7915: add support for MT7986")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+This inconsistency was introduced in commit 2563776b41c3 ("arm64: mte:
+Tags-aware copy_{user_,}highpage() implementations") and while this
+doesn't appear to be harmful in practice it is clearly wrong.
+
+Correct this by making `kto` and `kfrom` void pointers.
+
+Fixes: 2563776b41c3 ("arm64: mte: Tags-aware copy_{user_,}highpage() implementations")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Link: https://lore.kernel.org/r/20220420030418.3189040-3-tongtiangen@huawei.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/soc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/mm/copypage.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/soc.c b/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
-index 3028c02cb840..be448d471b03 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
-@@ -210,6 +210,8 @@ static int mt7986_wmac_gpio_setup(struct mt7915_dev *dev)
- 		if (IS_ERR_OR_NULL(state))
- 			return -EINVAL;
- 		break;
-+	default:
-+		return -EINVAL;
- 	}
+diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
+index b5447e53cd73..0dea80bf6de4 100644
+--- a/arch/arm64/mm/copypage.c
++++ b/arch/arm64/mm/copypage.c
+@@ -16,8 +16,8 @@
  
- 	ret = pinctrl_select_state(pinctrl, state);
+ void copy_highpage(struct page *to, struct page *from)
+ {
+-	struct page *kto = page_address(to);
+-	struct page *kfrom = page_address(from);
++	void *kto = page_address(to);
++	void *kfrom = page_address(from);
+ 
+ 	copy_page(kto, kfrom);
+ 
 -- 
 2.35.1
 
