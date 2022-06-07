@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDC9541E82
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F0E9541755
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350152AbiFGWcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34236 "EHLO
+        id S1377002AbiFGVCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:02:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382057AbiFGW3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:29:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C84274B5F;
-        Tue,  7 Jun 2022 12:23:46 -0700 (PDT)
+        with ESMTP id S1377225AbiFGU7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:59:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C22A2187076;
+        Tue,  7 Jun 2022 11:44:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 613D860B14;
-        Tue,  7 Jun 2022 19:23:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72BADC385A2;
-        Tue,  7 Jun 2022 19:23:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F0D8B8239B;
+        Tue,  7 Jun 2022 18:44:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E1A9C385A2;
+        Tue,  7 Jun 2022 18:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629824;
-        bh=cJcaACk93XZiwSdeQhL4bIIlasHe+pa17GOztwySCbM=;
+        s=korg; t=1654627485;
+        bh=kckRoG9lqxpsZdaB+tTCcD/6R4thHI69wGhEV+seiP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySKyICo/Kt3rxDR/7q/6u4r5NbisQRSwmANpuQrr26jdkzemLDG9qt/Nb/AOgfeWB
-         imZrjGieUBCWyCEMVj9euQYhSLLhQcPYFAvCnrqaXUY5TSSc9Q5JQpvUWzrQ2kWiUe
-         QnjUTnAdwpnBqh/xZ6ONVsOMGp6A0DHA0ksINfmA=
+        b=FlY7upfuFQ+GXV3GPY0YRzrt+9/+dYv0m7Xs66+acGITK5aA06PwiVR9tfdOwGEfl
+         Qo3BFkR7oacz5+DdJINOTqJqVIwf4lEKdy4OU5/OcQWnbXlguWEXQx+F0n9Dbk4ZyT
+         WFM/Q5RVgNteYSHR87h/v2gHkI6DrR3ZTBV9p6WY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Chinner <dchinner@redhat.com>, Jan Kara <jack@suse.cz>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 830/879] mm/page_alloc: always attempt to allocate at least one page during bulk allocation
-Date:   Tue,  7 Jun 2022 19:05:48 +0200
-Message-Id: <20220607165026.946543643@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        peterz@infradead.org, adrian.hunter@intel.com,
+        alexander.shishkin@intel.com, acme@kernel.org, ak@linux.intel.com,
+        jolsa@redhat.com, mingo@redhat.com,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH 5.17 757/772] perf evlist: Extend arch_evsel__must_be_in_group to support hybrid systems
+Date:   Tue,  7 Jun 2022 19:05:49 +0200
+Message-Id: <20220607165011.331502794@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,67 +60,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-commit c572e4888ad1be123c1516ec577ad30a700bbec4 upstream.
+commit e69a5c010246ca6a87c4e6f13d0a291954bdece8 upstream.
 
-Peter Pavlisko reported the following problem on kernel bugzilla 216007.
+For the hybrid system, the "slots" event changes to "cpu_core/slots/", need
+extend API arch_evsel__must_be_in_group() to support hybrid systems.
 
-	When I try to extract an uncompressed tar archive (2.6 milion
-	files, 760.3 GiB in size) on newly created (empty) XFS file system,
-	after first low tens of gigabytes extracted the process hangs in
-	iowait indefinitely. One CPU core is 100% occupied with iowait,
-	the other CPU core is idle (on 2-core Intel Celeron G1610T).
+In the origin code, for hybrid system event "cpu_core/slots/", the output
+of the API arch_evsel__must_be_in_group() is "false" (in fact,it should be
+"true"). Currently only one API evsel__remove_from_group() calls it. In
+evsel__remove_from_group(), it adds the second condition to check, so the
+output of evsel__remove_from_group() still is correct. That's the reason
+why there isn't an instant error. I'd like to fix the issue found in API
+arch_evsel__must_be_in_group() in case someone else using the function in
+the other place.
 
-It was bisected to c9fa563072e1 ("xfs: use alloc_pages_bulk_array() for
-buffers") but XFS is only the messenger.  The problem is that nothing is
-waking kswapd to reclaim some pages at a time the PCP lists cannot be
-refilled until some reclaim happens.  The bulk allocator checks that there
-are some pages in the array and the original intent was that a bulk
-allocator did not necessarily need all the requested pages and it was best
-to return as quickly as possible.
-
-This was fine for the first user of the API but both NFS and XFS require
-the requested number of pages be available before making progress.  Both
-could be adjusted to call the page allocator directly if a bulk allocation
-fails but it puts a burden on users of the API.  Adjust the semantics to
-attempt at least one allocation via __alloc_pages() before returning so
-kswapd is woken if necessary.
-
-It was reported via bugzilla that the patch addressed the problem and that
-the tar extraction completed successfully.  This may also address bug
-215975 but has yet to be confirmed.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216007
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215975
-Link: https://lkml.kernel.org/r/20220526091210.GC3441@techsingularity.net
-Fixes: 387ba26fb1cb ("mm/page_alloc: add a bulk page allocator")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: "Darrick J. Wong" <djwong@kernel.org>
-Cc: Dave Chinner <dchinner@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: Chuck Lever <chuck.lever@oracle.com>
-Cc: <stable@vger.kernel.org>	[5.13+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: d98079c05b5a ("perf evlist: Keep topdown counters in weak group")
+Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/r/20220601152544.1842447-1-zhengjun.xing@linux.intel.com
+Cc: peterz@infradead.org
+Cc: adrian.hunter@intel.com
+Cc: alexander.shishkin@intel.com
+Cc: acme@kernel.org
+Cc: ak@linux.intel.com
+Cc: jolsa@redhat.com
+Cc: mingo@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-perf-users@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/arch/x86/util/evsel.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5324,8 +5324,8 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 		page = __rmqueue_pcplist(zone, 0, ac.migratetype, alloc_flags,
- 								pcp, pcp_list);
- 		if (unlikely(!page)) {
--			/* Try and get at least one page */
--			if (!nr_populated)
-+			/* Try and allocate at least one page */
-+			if (!nr_account)
- 				goto failed_irq;
- 			break;
- 		}
+--- a/tools/perf/arch/x86/util/evsel.c
++++ b/tools/perf/arch/x86/util/evsel.c
+@@ -38,6 +38,6 @@ bool arch_evsel__must_be_in_group(const
+ 		return false;
+ 
+ 	return evsel->name &&
+-		(!strcasecmp(evsel->name, "slots") ||
++		(strcasestr(evsel->name, "slots") ||
+ 		 strcasestr(evsel->name, "topdown"));
+ }
 
 
