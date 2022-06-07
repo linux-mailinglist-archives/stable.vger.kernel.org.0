@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD88540825
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD4F5410A2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348577AbiFGR4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:56:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43594 "EHLO
+        id S1352234AbiFGT2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348713AbiFGRxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:53:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585B31447B8;
-        Tue,  7 Jun 2022 10:39:47 -0700 (PDT)
+        with ESMTP id S1355548AbiFGTZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:25:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50E019D609;
+        Tue,  7 Jun 2022 11:09:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC843615F5;
-        Tue,  7 Jun 2022 17:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25E7C385A5;
-        Tue,  7 Jun 2022 17:39:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E8061927;
+        Tue,  7 Jun 2022 18:09:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88BF6C385A2;
+        Tue,  7 Jun 2022 18:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623552;
-        bh=5YfO6wYxuI36GuaW0/gD8NPiHcmgmSRqF/dYT+hzzsc=;
+        s=korg; t=1654625364;
+        bh=yI9kI2cUy2EEHoPBVfyPg7NWlnZiJY+u04TNrxOuZLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0thlZnn2GL2r8Sl+Q38fQyvPRNes+8+NBBW8ohJO03/zy0PxlpSq/AskQsMvxmDa
-         /tlKBixFmgV0cEnAT7hF8Dv9Z2h1qbFgKL+dW75WohJ7aZCOLZo51XMOtKJwsOPSo7
-         NqRqgxFv+k/dIYMua9UmeexEgD/U42sufV5Sjc9U=
+        b=vDA1zE2Q0k+FiaYOgXcGeUxGsYejTl7acnLeThJsKS2SkEs2wip3xhLraPCimZMfc
+         ofsAt51xDvnwlWj+w9dDorbcJGuLTrdf8Byf8991dFobIuEGqTLxevdFawcStfC0GF
+         kg5Oy5ENTiz3EYVKbl0XwTsHczV1kvYuVonBJ9lM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 427/452] phy: qcom-qmp: fix reset-controller leak on probe errors
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Minchan Kim <minchan@kernel.org>,
+        David Hildenbrand <david@redhat.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 619/667] Revert "mm/cma.c: remove redundant cma_mutex lock"
 Date:   Tue,  7 Jun 2022 19:04:44 +0200
-Message-Id: <20220607164921.279200824@linuxfoundation.org>
+Message-Id: <20220607164953.235548518@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +58,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-commit 4d2900f20edfe541f75756a00deeb2ffe7c66bc1 upstream.
+commit 60a60e32cf91169840abcb4a80f0b0df31708ba7 upstream.
 
-Make sure to release the lane reset controller in case of a late probe
-error (e.g. probe deferral).
+This reverts commit a4efc174b382fcdb which introduced a regression issue
+that when there're multiple processes allocating dma memory in parallel by
+calling dma_alloc_coherent(), it may fail sometimes as follows:
 
-Note that due to the reset controller being defined in devicetree in
-"lane" child nodes, devm_reset_control_get_exclusive() cannot be used
-directly.
+Error log:
+cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
+cma: number of available pages:
+3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
+108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
+7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
 
-Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220427063243.32576-3-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+When issue happened, we saw there were still 33161 pages (129M) free CMA
+memory and a lot available free slots for 148 pages in CMA bitmap that we
+want to allocate.
+
+When dumping memory info, we found that there was also ~342M normal
+memory, but only 1352K CMA memory left in buddy system while a lot of
+pageblocks were isolated.
+
+Memory info log:
+Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
+	    active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
+	    unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
+	    bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
+Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
+	36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
+	8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
+
+The root cause of this issue is that since commit a4efc174b382 ("mm/cma.c:
+remove redundant cma_mutex lock"), CMA supports concurrent memory
+allocation.  It's possible that the memory range process A trying to alloc
+has already been isolated by the allocation of process B during memory
+migration.
+
+The problem here is that the memory range isolated during one allocation
+by start_isolate_page_range() could be much bigger than the real size we
+want to alloc due to the range is aligned to MAX_ORDER_NR_PAGES.
+
+Taking an ARMv7 platform with 1G memory as an example, when
+MAX_ORDER_NR_PAGES is big (e.g.  32M with max_order 14) and CMA memory is
+relatively small (e.g.  128M), there're only 4 MAX_ORDER slot, then it's
+very easy that all CMA memory may have already been isolated by other
+processes when one trying to allocate memory using dma_alloc_coherent().
+Since current CMA code will only scan one time of whole available CMA
+memory, then dma_alloc_coherent() may easy fail due to contention with
+other processes.
+
+This patch simply falls back to the original method that using cma_mutex
+to make alloc_contig_range() run sequentially to avoid the issue.
+
+Link: https://lkml.kernel.org/r/20220509094551.3596244-1-aisheng.dong@nxp.com
+Link: https://lore.kernel.org/all/20220315144521.3810298-2-aisheng.dong@nxp.com/
+Fixes: a4efc174b382 ("mm/cma.c: remove redundant cma_mutex lock")
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>	[5.11+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ mm/cma.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -3717,6 +3717,11 @@ static const struct phy_ops qcom_qmp_pci
- 	.owner		= THIS_MODULE,
- };
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -37,6 +37,7 @@
  
-+static void qcom_qmp_reset_control_put(void *data)
-+{
-+	reset_control_put(data);
-+}
-+
- static
- int qcom_qmp_phy_create(struct device *dev, struct device_node *np, int id,
- 			void __iomem *serdes, const struct qmp_phy_cfg *cfg)
-@@ -3811,6 +3816,10 @@ int qcom_qmp_phy_create(struct device *d
- 			dev_err(dev, "failed to get lane%d reset\n", id);
- 			return PTR_ERR(qphy->lane_rst);
- 		}
-+		ret = devm_add_action_or_reset(dev, qcom_qmp_reset_control_put,
-+					       qphy->lane_rst);
-+		if (ret)
-+			return ret;
- 	}
+ struct cma cma_areas[MAX_CMA_AREAS];
+ unsigned cma_area_count;
++static DEFINE_MUTEX(cma_mutex);
  
- 	if (cfg->type == PHY_TYPE_UFS || cfg->type == PHY_TYPE_PCIE)
+ phys_addr_t cma_get_base(const struct cma *cma)
+ {
+@@ -471,9 +472,10 @@ struct page *cma_alloc(struct cma *cma,
+ 		spin_unlock_irq(&cma->lock);
+ 
+ 		pfn = cma->base_pfn + (bitmap_no << cma->order_per_bit);
++		mutex_lock(&cma_mutex);
+ 		ret = alloc_contig_range(pfn, pfn + count, MIGRATE_CMA,
+ 				     GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0));
+-
++		mutex_unlock(&cma_mutex);
+ 		if (ret == 0) {
+ 			page = pfn_to_page(pfn);
+ 			break;
 
 
