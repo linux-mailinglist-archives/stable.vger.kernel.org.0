@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B045414DF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4678C54060F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358432AbiFGUXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:23:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52354 "EHLO
+        id S1346524AbiFGReF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359435AbiFGUWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CDE17C6BC;
-        Tue,  7 Jun 2022 11:31:51 -0700 (PDT)
+        with ESMTP id S1347548AbiFGRau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B8267D06;
+        Tue,  7 Jun 2022 10:27:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C00D161509;
-        Tue,  7 Jun 2022 18:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6077C341C7;
-        Tue,  7 Jun 2022 18:31:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E10066143F;
+        Tue,  7 Jun 2022 17:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB632C385A5;
+        Tue,  7 Jun 2022 17:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626710;
-        bh=03TV2QLK5fgpBzpNu/fIRw/Z9gJqYgWGIcOPN0CR1B4=;
+        s=korg; t=1654622841;
+        bh=IMgI6uceHhFh8lhaGYlZSulYoA0Q5CINB5VcpWKhQfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3Rm6a0g+k+mQ0ri0KE4SxfwXFavK8/QKnBMP3qpa2PKIHpW6zmVg+RLwUHDR8TI2
-         vPuc5uOEhIiP4uXIGZh4OoL8xgmjIqShks39mEtiYZAjlLnK4gYkJYSYHugHRll4f4
-         zfyY2OrLuNl9ayzbxn+OtO+DjYzXO9MRxzqYUflw=
+        b=F+AEd0CdWn5gLh/fIR1o3jT6auX8V8IviNnJ7EJp3YAfyy7CTXGZ1XZVCXQkp5nnk
+         EZKIWj9gkCBEolPeF+I5vlZULJu2IoLCN9E/CfuibFsP/zwqm8jhycOTXMyLqhslb3
+         sp/0qw+9pYpevpmBi26+VDaf2q5opONN+NQOPL/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 426/772] net: macb: Fix PTP one step sync support
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 161/452] of: overlay: do not break notify on NOTIFY_{OK|STOP}
 Date:   Tue,  7 Jun 2022 19:00:18 +0200
-Message-Id: <20220607165001.556582327@linuxfoundation.org>
+Message-Id: <20220607164913.359447378@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,142 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit 5cebb40bc9554aafcc492431181f43c6231b0459 ]
+[ Upstream commit 5f756a2eaa4436d7d3dc1e040147f5e992ae34b5 ]
 
-PTP one step sync packets cannot have CSUM padding and insertion in
-SW since time stamp is inserted on the fly by HW.
-In addition, ptp4l version 3.0 and above report an error when skb
-timestamps are reported for packets that not processed for TX TS
-after transmission.
-Add a helper to identify PTP one step sync and fix the above two
-errors. Add a common mask for PTP header flag field "twoStepflag".
-Also reset ptp OSS bit when one step is not selected.
+We should not break overlay notifications on NOTIFY_{OK|STOP}
+otherwise we might break on the first fragment. We should only stop
+notifications if a *real* errno is returned by one of the listeners.
 
-Fixes: ab91f0a9b5f4 ("net: macb: Add hardware PTP support")
-Fixes: 653e92a9175e ("net: macb: add support for padding and fcs computation")
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220518170756.7752-1-harini.katakam@xilinx.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a1d19bd4cf1fe ("of: overlay: pr_err from return NOTIFY_OK to overlay apply/remove")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220420130205.89435-1-nuno.sa@analog.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 40 +++++++++++++++++++++---
- drivers/net/ethernet/cadence/macb_ptp.c  |  4 ++-
- include/linux/ptp_classify.h             |  3 ++
- 3 files changed, 42 insertions(+), 5 deletions(-)
+ drivers/of/overlay.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index c1100af5666b..52ee4a825c25 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -35,6 +35,7 @@
- #include <linux/tcp.h>
- #include <linux/iopoll.h>
- #include <linux/pm_runtime.h>
-+#include <linux/ptp_classify.h>
- #include "macb.h"
+diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
+index 43a77d720008..c8a0c0e9dec1 100644
+--- a/drivers/of/overlay.c
++++ b/drivers/of/overlay.c
+@@ -170,9 +170,7 @@ static int overlay_notify(struct overlay_changeset *ovcs,
  
- /* This structure is only used for MACB on SiFive FU540 devices */
-@@ -1122,6 +1123,36 @@ static void macb_tx_error_task(struct work_struct *work)
- 	spin_unlock_irqrestore(&bp->lock, flags);
- }
- 
-+static bool ptp_one_step_sync(struct sk_buff *skb)
-+{
-+	struct ptp_header *hdr;
-+	unsigned int ptp_class;
-+	u8 msgtype;
-+
-+	/* No need to parse packet if PTP TS is not involved */
-+	if (likely(!(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP)))
-+		goto not_oss;
-+
-+	/* Identify and return whether PTP one step sync is being processed */
-+	ptp_class = ptp_classify_raw(skb);
-+	if (ptp_class == PTP_CLASS_NONE)
-+		goto not_oss;
-+
-+	hdr = ptp_parse_header(skb, ptp_class);
-+	if (!hdr)
-+		goto not_oss;
-+
-+	if (hdr->flag_field[0] & PTP_FLAG_TWOSTEP)
-+		goto not_oss;
-+
-+	msgtype = ptp_get_msgtype(hdr, ptp_class);
-+	if (msgtype == PTP_MSGTYPE_SYNC)
-+		return true;
-+
-+not_oss:
-+	return false;
-+}
-+
- static void macb_tx_interrupt(struct macb_queue *queue)
- {
- 	unsigned int tail;
-@@ -1166,8 +1197,8 @@ static void macb_tx_interrupt(struct macb_queue *queue)
- 
- 			/* First, update TX stats if needed */
- 			if (skb) {
--				if (unlikely(skb_shinfo(skb)->tx_flags &
--					     SKBTX_HW_TSTAMP) &&
-+				if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) &&
-+				    !ptp_one_step_sync(skb) &&
- 				    gem_ptp_do_txstamp(queue, skb, desc) == 0) {
- 					/* skb now belongs to timestamp buffer
- 					 * and will be removed later
-@@ -1997,7 +2028,8 @@ static unsigned int macb_tx_map(struct macb *bp,
- 			ctrl |= MACB_BF(TX_LSO, lso_ctrl);
- 			ctrl |= MACB_BF(TX_TCP_SEQ_SRC, seq_ctrl);
- 			if ((bp->dev->features & NETIF_F_HW_CSUM) &&
--			    skb->ip_summed != CHECKSUM_PARTIAL && !lso_ctrl)
-+			    skb->ip_summed != CHECKSUM_PARTIAL && !lso_ctrl &&
-+			    !ptp_one_step_sync(skb))
- 				ctrl |= MACB_BIT(TX_NOCRC);
- 		} else
- 			/* Only set MSS/MFS on payload descriptors
-@@ -2095,7 +2127,7 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
- 
- 	if (!(ndev->features & NETIF_F_HW_CSUM) ||
- 	    !((*skb)->ip_summed != CHECKSUM_PARTIAL) ||
--	    skb_shinfo(*skb)->gso_size)	/* Not available for GSO */
-+	    skb_shinfo(*skb)->gso_size || ptp_one_step_sync(*skb))
- 		return 0;
- 
- 	if (padlen <= 0) {
-diff --git a/drivers/net/ethernet/cadence/macb_ptp.c b/drivers/net/ethernet/cadence/macb_ptp.c
-index fb6b27f46b15..9559c16078f9 100644
---- a/drivers/net/ethernet/cadence/macb_ptp.c
-+++ b/drivers/net/ethernet/cadence/macb_ptp.c
-@@ -470,8 +470,10 @@ int gem_set_hwtst(struct net_device *dev, struct ifreq *ifr, int cmd)
- 	case HWTSTAMP_TX_ONESTEP_SYNC:
- 		if (gem_ptp_set_one_step_sync(bp, 1) != 0)
- 			return -ERANGE;
--		fallthrough;
-+		tx_bd_control = TSTAMP_ALL_FRAMES;
-+		break;
- 	case HWTSTAMP_TX_ON:
-+		gem_ptp_set_one_step_sync(bp, 0);
- 		tx_bd_control = TSTAMP_ALL_FRAMES;
- 		break;
- 	default:
-diff --git a/include/linux/ptp_classify.h b/include/linux/ptp_classify.h
-index 9afd34a2d36c..b760373524fe 100644
---- a/include/linux/ptp_classify.h
-+++ b/include/linux/ptp_classify.h
-@@ -43,6 +43,9 @@
- #define OFF_PTP_SOURCE_UUID	22 /* PTPv1 only */
- #define OFF_PTP_SEQUENCE_ID	30
- 
-+/* PTP header flag fields */
-+#define PTP_FLAG_TWOSTEP	BIT(1)
-+
- /* Below defines should actually be removed at some point in time. */
- #define IP6_HLEN	40
- #define UDP_HLEN	8
+ 		ret = blocking_notifier_call_chain(&overlay_notify_chain,
+ 						   action, &nd);
+-		if (ret == NOTIFY_OK || ret == NOTIFY_STOP)
+-			return 0;
+-		if (ret) {
++		if (notifier_to_errno(ret)) {
+ 			ret = notifier_to_errno(ret);
+ 			pr_err("overlay changeset %s notifier error %d, target: %pOF\n",
+ 			       of_overlay_action_name[action], ret, nd.target);
 -- 
 2.35.1
 
