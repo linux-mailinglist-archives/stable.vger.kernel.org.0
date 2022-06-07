@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A1B54141D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E15AD540A64
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359431AbiFGUNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48834 "EHLO
+        id S1351731AbiFGSUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359207AbiFGUJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A41216ABDE;
-        Tue,  7 Jun 2022 11:27:06 -0700 (PDT)
+        with ESMTP id S1352848AbiFGSRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED62E13F1E3;
+        Tue,  7 Jun 2022 10:52:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEC72B81FF8;
-        Tue,  7 Jun 2022 18:27:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508F5C385A2;
-        Tue,  7 Jun 2022 18:27:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18ED3617B2;
+        Tue,  7 Jun 2022 17:52:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237D6C34115;
+        Tue,  7 Jun 2022 17:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626423;
-        bh=/5rQ7ewDoC/Eso2+1Trr7JRLy65QvGDpVxwx+TL4Axk=;
+        s=korg; t=1654624363;
+        bh=2dfON6Y6ocWRPqByUQw4PeL4NX+VEfRC9VTCbKNrOqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pdy3JSqbAkvqkRjl20wwlufD30PxjmwxuQd2C+HvspgtHZz/odxxsWlde1k+xBm1Y
-         tKG4zLGeaVCO2vF38tquM453uKSLnzr/UCQ7F8pTIIruMsmeFvzE1CC0uR99AEjxr0
-         jQqh2SlSpYStka5u6QFvBCslV3h71U/vx/TP6kiU=
+        b=SNTl0MOBzjSDhUun9iiIVhpchnJQMG5CrSl/tL9AdC9tkRo1M7RVAsJvSz9T1veJ8
+         FuYcxDluaT8LbhozkgE9gmfyJD778yg4msZ5agVVZlXODXY2bodcOdxukoytJZ4RLd
+         JpCiIM/7yT1fmyO5OfeNZD84PWtSSLyWLUha2BnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org, CKI Project <cki-project@redhat.com>,
+        Veronika Kabatova <vkabatov@redhat.com>,
+        Jerome Marchand <jmarchan@redhat.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 372/772] mt76: do not attempt to reorder received 802.3 packets without agg session
+Subject: [PATCH 5.15 299/667] samples: bpf: Dont fail for a missing VMLINUX_BTF when VMLINUX_H is provided
 Date:   Tue,  7 Jun 2022 18:59:24 +0200
-Message-Id: <20220607164959.976474564@linuxfoundation.org>
+Message-Id: <20220607164943.745928702@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Jerome Marchand <jmarchan@redhat.com>
 
-[ Upstream commit 3968a66475b40691c37b5e6c76975f699671e10e ]
+[ Upstream commit ec24704492d8791a52a75a39e3ad762b6e017bc6 ]
 
-Fixes potential latency / packet drop issues in cases where a BA session has
-not (yet) been established.
+samples/bpf build currently always fails if it can't generate
+vmlinux.h from vmlinux, even when vmlinux.h is directly provided by
+VMLINUX_H variable, which makes VMLINUX_H pointless.
+Only fails when neither method works.
 
-Fixes: e195dad14115 ("mt76: add support for 802.3 rx frames")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 384b6b3bbf0d ("samples: bpf: Add vmlinux.h generation support")
+Reported-by: CKI Project <cki-project@redhat.com>
+Reported-by: Veronika Kabatova <vkabatov@redhat.com>
+Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220507161635.2219052-1-jmarchan@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/agg-rx.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ samples/bpf/Makefile | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/agg-rx.c b/drivers/net/wireless/mediatek/mt76/agg-rx.c
-index 72622220051b..6c8b44194579 100644
---- a/drivers/net/wireless/mediatek/mt76/agg-rx.c
-+++ b/drivers/net/wireless/mediatek/mt76/agg-rx.c
-@@ -162,8 +162,9 @@ void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
- 	if (!sta)
- 		return;
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index c6e38e43c3fd..e2c9ea65df9f 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -365,16 +365,15 @@ VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
  
--	if (!status->aggr && !(status->flag & RX_FLAG_8023)) {
--		mt76_rx_aggr_check_ctl(skb, frames);
-+	if (!status->aggr) {
-+		if (!(status->flag & RX_FLAG_8023))
-+			mt76_rx_aggr_check_ctl(skb, frames);
- 		return;
- 	}
+ $(obj)/vmlinux.h: $(VMLINUX_BTF) $(BPFTOOL)
+ ifeq ($(VMLINUX_H),)
++ifeq ($(VMLINUX_BTF),)
++	$(error Cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)",\
++		build the kernel or set VMLINUX_BTF or VMLINUX_H variable)
++endif
+ 	$(Q)$(BPFTOOL) btf dump file $(VMLINUX_BTF) format c > $@
+ else
+ 	$(Q)cp "$(VMLINUX_H)" $@
+ endif
  
+-ifeq ($(VMLINUX_BTF),)
+-	$(error Cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)",\
+-		build the kernel or set VMLINUX_BTF variable)
+-endif
+-
+ clean-files += vmlinux.h
+ 
+ # Get Clang's default includes on this system, as opposed to those seen by
 -- 
 2.35.1
 
