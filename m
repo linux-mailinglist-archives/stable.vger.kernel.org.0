@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7629541C2F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5449D541529
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379051AbiFGV4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44780 "EHLO
+        id S1347754AbiFGU3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:29:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384053AbiFGVyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF7AC24851F;
-        Tue,  7 Jun 2022 12:12:51 -0700 (PDT)
+        with ESMTP id S1377068AbiFGU2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32061DAE79;
+        Tue,  7 Jun 2022 11:33:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A131B82375;
-        Tue,  7 Jun 2022 19:12:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D7D2C3411C;
-        Tue,  7 Jun 2022 19:12:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CAAFB82367;
+        Tue,  7 Jun 2022 18:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78372C385A2;
+        Tue,  7 Jun 2022 18:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629161;
-        bh=idSTYfKqID3ycqU0J+RD3lPvbre/1DQacziwM3YLQwg=;
+        s=korg; t=1654626826;
+        bh=EFmUdl9NrFEx7bbsKO6ZCv5QzcIZLGeHdaaADbLR9TU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eq9lXSCAsc8ZK1UDNFf9xI/MR8VlhGvdDsCh1lGHHkaDbvURjpb/kgxmgsZqY08VJ
-         wfs2dnIOeWvk8LtyFfEmU59FR9yvY7/kHuK62rCPtGjhKv/DblmSD5goMXoUodXWMw
-         f4UWindDtRxeAxq1zNcWWU6jeNVleBuv7bA+f8IY=
+        b=mnnHyDCOvGutB6aatHO/z6Ig57oHIpCG2cGkXYJbxOlkUA9FaM6B1u7g9yjk9ybo9
+         l9GMY6jEwscTBCRpqT8UmoyB8ln5r6WQ+rFax4m2MWw12SSpTVGC75vUMgKUPoiuXU
+         mnZlbj+Jd3p5SnNx+Plw392v97jXC87AQabYGonc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Zach <krzysztof.zach@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 551/879] cxl/pci: Make cxl_dvsec_ranges() failure not fatal to cxl_pci
+Subject: [PATCH 5.17 477/772] ARM: dts: bcm2837-rpi-cm3-io3: Fix GPIO line names for SMPS I2C
 Date:   Tue,  7 Jun 2022 19:01:09 +0200
-Message-Id: <20220607165018.860048093@linuxfoundation.org>
+Message-Id: <20220607165003.049352180@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit 36bfc6ad508af38f212cf5a38147d867fb3f80a8 ]
+[ Upstream commit 9fd26fd02749ec964eb0d588a3bab9e09bf77927 ]
 
-cxl_dvsec_ranges(), the helper for enumerating the presence of an active
-legacy CXL.mem configuration on a CXL 2.0 Memory Expander, is not fatal
-for cxl_pci because there is still value to enable mailbox operations
-even if CXL.mem operation is disabled. Recall that the reason cxl_pci
-does this initialization and not cxl_mem is to preserve the useful
-property (for unit testing) that cxl_mem is cxl_memdev + mmio generic,
-and does not require access to a 'struct pci_dev' to issue config
-cycles.
+The GPIOs 46 & 47 are already used for a I2C interface to a SMPS.
+So fix the GPIO line names accordingly.
 
-Update 'struct cxl_endpoint_dvsec_info' to carry either a positive
-number of non-zero size legacy CXL DVSEC ranges, or the negative error
-code from __cxl_dvsec_ranges() in its @ranges member.
-
-Reported-by: Krzysztof Zach <krzysztof.zach@intel.com>
-Fixes: 560f78559006 ("cxl/pci: Retrieve CXL DVSEC memory info")
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
-Link: https://lore.kernel.org/r/164730735869.3806189.4032428192652531946.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: a54fe8a6cf66 ("ARM: dts: add Raspberry Pi Compute Module 3 and IO board")
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/pci.c | 27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
-index c4941a3ca6a8..bb92853c3b93 100644
---- a/drivers/cxl/pci.c
-+++ b/drivers/cxl/pci.c
-@@ -462,13 +462,18 @@ static int wait_for_media_ready(struct cxl_dev_state *cxlds)
- 	return 0;
- }
- 
--static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
-+/*
-+ * Return positive number of non-zero ranges on success and a negative
-+ * error code on failure. The cxl_mem driver depends on ranges == 0 to
-+ * init HDM operation.
-+ */
-+static int __cxl_dvsec_ranges(struct cxl_dev_state *cxlds,
-+			      struct cxl_endpoint_dvsec_info *info)
- {
--	struct cxl_endpoint_dvsec_info *info = &cxlds->info;
- 	struct pci_dev *pdev = to_pci_dev(cxlds->dev);
-+	int hdm_count, rc, i, ranges = 0;
- 	struct device *dev = &pdev->dev;
- 	int d = cxlds->cxl_dvsec;
--	int hdm_count, rc, i;
- 	u16 cap, ctrl;
- 
- 	if (!d) {
-@@ -545,10 +550,17 @@ static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
- 		};
- 
- 		if (size)
--			info->ranges++;
-+			ranges++;
- 	}
- 
--	return 0;
-+	return ranges;
-+}
-+
-+static void cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
-+{
-+	struct cxl_endpoint_dvsec_info *info = &cxlds->info;
-+
-+	info->ranges = __cxl_dvsec_ranges(cxlds, info);
- }
- 
- static int cxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-@@ -617,10 +629,7 @@ static int cxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (rc)
- 		return rc;
- 
--	rc = cxl_dvsec_ranges(cxlds);
--	if (rc)
--		dev_warn(&pdev->dev,
--			 "Failed to get DVSEC range information (%d)\n", rc);
-+	cxl_dvsec_ranges(cxlds);
- 
- 	cxlmd = devm_cxl_add_memdev(cxlds);
- 	if (IS_ERR(cxlmd))
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts b/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
+index 588d9411ceb6..3dfce4312dfc 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
+@@ -63,8 +63,8 @@
+ 			  "GPIO43",
+ 			  "GPIO44",
+ 			  "GPIO45",
+-			  "GPIO46",
+-			  "GPIO47",
++			  "SMPS_SCL",
++			  "SMPS_SDA",
+ 			  /* Used by eMMC */
+ 			  "SD_CLK_R",
+ 			  "SD_CMD_R",
 -- 
 2.35.1
 
