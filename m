@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E5454071D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEE6541CE7
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347438AbiFGRm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:42:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60508 "EHLO
+        id S1382480AbiFGWG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:06:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347650AbiFGRjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:39:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E31D3EF28;
-        Tue,  7 Jun 2022 10:33:31 -0700 (PDT)
+        with ESMTP id S1383461AbiFGWF0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:05:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA180195927;
+        Tue,  7 Jun 2022 12:16:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABCB0B822B6;
-        Tue,  7 Jun 2022 17:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC7FC385A5;
-        Tue,  7 Jun 2022 17:33:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47DC661922;
+        Tue,  7 Jun 2022 19:16:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7023C385A2;
+        Tue,  7 Jun 2022 19:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623186;
-        bh=M+wO0gucsAXwhXB5py56e2MHX9Zk2IutE7e7PbRevos=;
+        s=korg; t=1654629367;
+        bh=mphYbO6srjaRUuII25UtY+REzhdTdTHmRYtjyLnsmX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9t6l4QnSJ9Q+lY9DGLuRryuknA3D/17YA86g+ghYhh/7c/UACPT5qcb5XuLbRYNS
-         Jw7Msb6mVKG5CzltArfWcz8KBhpIrrX2U/5T8rau5jFMu/QGR+IR/5hYtFs4VLN4Md
-         0FE7c4ECgQ70Kz1YxIH19DZzkyR1761wql1qV2yI=
+        b=iqZsAR3/wcVBKNjbqtkU4tGRoHg3P2EY1ZUWUm/aHh67UXD5NOSaGYD4xYA5rCueu
+         MO+KzQiA0PATRXAw2eMacDzdfJn5vxtmLQ+raPKOQeoOGPBMV7u9dBEnvfpqcaG1Dh
+         zgzQvZ28ZmtEYbQ9CwwC2HUtUACu8JK3cYECq1qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhi Li <lizhi01@loongson.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 325/452] MIPS: Loongson: Use hwmon_device_register_with_groups() to register hwmon
-Date:   Tue,  7 Jun 2022 19:03:02 +0200
-Message-Id: <20220607164918.245455363@linuxfoundation.org>
+        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 665/879] iommu/mediatek: Add list_del in mtk_iommu_remove
+Date:   Tue,  7 Jun 2022 19:03:03 +0200
+Message-Id: <20220607165022.148272854@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,210 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit abae018a03821be2b65c01ebe2bef06fd7d85a4c ]
+[ Upstream commit ee55f75e4bcade81d253163641b63bef3e76cac4 ]
 
-Calling hwmon_device_register_with_info() with NULL dev and/or chip
-information parameters is an ABI abuse and not a real conversion to
-the new API. Also, the code creates sysfs attributes _after_ creating
-the hwmon device, which is racy and unsupported to start with. On top
-of that, the removal code tries to remove the name attribute which is
-owned by the hwmon core.
+Lack the list_del in the mtk_iommu_remove, and remove
+bus_set_iommu(*, NULL) since there may be several iommu HWs.
+we can not bus_set_iommu null when one iommu driver unbind.
 
-Use hwmon_device_register_with_groups() to register the hwmon device
-instead.
+This could be a fix for mt2712 which support 2 M4U HW and list them.
 
-In the future, the hwmon subsystem will reject calls to
-hwmon_device_register_with_info with NULL dev or chip/info parameters.
-Without this patch, the hwmon device will fail to register.
-
-Fixes: f59dc5119192 ("MIPS: Loongson: Fix boot warning about hwmon_device_register()")
-Cc: Zhi Li <lizhi01@loongson.cn>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 7c3a2ec02806 ("iommu/mediatek: Merge 2 M4U HWs into one iommu domain")
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/20220503071427.2285-6-yong.wu@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/mips/cpu_hwmon.c | 127 ++++++++++--------------------
- 1 file changed, 41 insertions(+), 86 deletions(-)
+ drivers/iommu/mtk_iommu.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/platform/mips/cpu_hwmon.c b/drivers/platform/mips/cpu_hwmon.c
-index 386389ffec41..d8c5f9195f85 100644
---- a/drivers/platform/mips/cpu_hwmon.c
-+++ b/drivers/platform/mips/cpu_hwmon.c
-@@ -55,55 +55,6 @@ int loongson3_cpu_temp(int cpu)
- static int nr_packages;
- static struct device *cpu_hwmon_dev;
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 95c82b8bcc35..e4b4ebbcb73f 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -955,8 +955,7 @@ static int mtk_iommu_remove(struct platform_device *pdev)
+ 	iommu_device_sysfs_remove(&data->iommu);
+ 	iommu_device_unregister(&data->iommu);
  
--static SENSOR_DEVICE_ATTR(name, 0444, NULL, NULL, 0);
--
--static struct attribute *cpu_hwmon_attributes[] = {
--	&sensor_dev_attr_name.dev_attr.attr,
--	NULL
--};
--
--/* Hwmon device attribute group */
--static struct attribute_group cpu_hwmon_attribute_group = {
--	.attrs = cpu_hwmon_attributes,
--};
--
--static ssize_t get_cpu_temp(struct device *dev,
--			struct device_attribute *attr, char *buf);
--static ssize_t cpu_temp_label(struct device *dev,
--			struct device_attribute *attr, char *buf);
--
--static SENSOR_DEVICE_ATTR(temp1_input, 0444, get_cpu_temp, NULL, 1);
--static SENSOR_DEVICE_ATTR(temp1_label, 0444, cpu_temp_label, NULL, 1);
--static SENSOR_DEVICE_ATTR(temp2_input, 0444, get_cpu_temp, NULL, 2);
--static SENSOR_DEVICE_ATTR(temp2_label, 0444, cpu_temp_label, NULL, 2);
--static SENSOR_DEVICE_ATTR(temp3_input, 0444, get_cpu_temp, NULL, 3);
--static SENSOR_DEVICE_ATTR(temp3_label, 0444, cpu_temp_label, NULL, 3);
--static SENSOR_DEVICE_ATTR(temp4_input, 0444, get_cpu_temp, NULL, 4);
--static SENSOR_DEVICE_ATTR(temp4_label, 0444, cpu_temp_label, NULL, 4);
--
--static const struct attribute *hwmon_cputemp[4][3] = {
--	{
--		&sensor_dev_attr_temp1_input.dev_attr.attr,
--		&sensor_dev_attr_temp1_label.dev_attr.attr,
--		NULL
--	},
--	{
--		&sensor_dev_attr_temp2_input.dev_attr.attr,
--		&sensor_dev_attr_temp2_label.dev_attr.attr,
--		NULL
--	},
--	{
--		&sensor_dev_attr_temp3_input.dev_attr.attr,
--		&sensor_dev_attr_temp3_label.dev_attr.attr,
--		NULL
--	},
--	{
--		&sensor_dev_attr_temp4_input.dev_attr.attr,
--		&sensor_dev_attr_temp4_label.dev_attr.attr,
--		NULL
--	}
--};
--
- static ssize_t cpu_temp_label(struct device *dev,
- 			struct device_attribute *attr, char *buf)
- {
-@@ -121,24 +72,47 @@ static ssize_t get_cpu_temp(struct device *dev,
- 	return sprintf(buf, "%d\n", value);
- }
+-	if (iommu_present(&platform_bus_type))
+-		bus_set_iommu(&platform_bus_type, NULL);
++	list_del(&data->list);
  
--static int create_sysfs_cputemp_files(struct kobject *kobj)
--{
--	int i, ret = 0;
--
--	for (i = 0; i < nr_packages; i++)
--		ret = sysfs_create_files(kobj, hwmon_cputemp[i]);
-+static SENSOR_DEVICE_ATTR(temp1_input, 0444, get_cpu_temp, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp1_label, 0444, cpu_temp_label, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp2_input, 0444, get_cpu_temp, NULL, 2);
-+static SENSOR_DEVICE_ATTR(temp2_label, 0444, cpu_temp_label, NULL, 2);
-+static SENSOR_DEVICE_ATTR(temp3_input, 0444, get_cpu_temp, NULL, 3);
-+static SENSOR_DEVICE_ATTR(temp3_label, 0444, cpu_temp_label, NULL, 3);
-+static SENSOR_DEVICE_ATTR(temp4_input, 0444, get_cpu_temp, NULL, 4);
-+static SENSOR_DEVICE_ATTR(temp4_label, 0444, cpu_temp_label, NULL, 4);
- 
--	return ret;
--}
-+static struct attribute *cpu_hwmon_attributes[] = {
-+	&sensor_dev_attr_temp1_input.dev_attr.attr,
-+	&sensor_dev_attr_temp1_label.dev_attr.attr,
-+	&sensor_dev_attr_temp2_input.dev_attr.attr,
-+	&sensor_dev_attr_temp2_label.dev_attr.attr,
-+	&sensor_dev_attr_temp3_input.dev_attr.attr,
-+	&sensor_dev_attr_temp3_label.dev_attr.attr,
-+	&sensor_dev_attr_temp4_input.dev_attr.attr,
-+	&sensor_dev_attr_temp4_label.dev_attr.attr,
-+	NULL
-+};
- 
--static void remove_sysfs_cputemp_files(struct kobject *kobj)
-+static umode_t cpu_hwmon_is_visible(struct kobject *kobj,
-+				    struct attribute *attr, int i)
- {
--	int i;
-+	int id = i / 2;
- 
--	for (i = 0; i < nr_packages; i++)
--		sysfs_remove_files(kobj, hwmon_cputemp[i]);
-+	if (id < nr_packages)
-+		return attr->mode;
-+	return 0;
- }
- 
-+static struct attribute_group cpu_hwmon_group = {
-+	.attrs = cpu_hwmon_attributes,
-+	.is_visible = cpu_hwmon_is_visible,
-+};
-+
-+static const struct attribute_group *cpu_hwmon_groups[] = {
-+	&cpu_hwmon_group,
-+	NULL
-+};
-+
- #define CPU_THERMAL_THRESHOLD 90000
- static struct delayed_work thermal_work;
- 
-@@ -159,50 +133,31 @@ static void do_thermal_timer(struct work_struct *work)
- 
- static int __init loongson_hwmon_init(void)
- {
--	int ret;
--
- 	pr_info("Loongson Hwmon Enter...\n");
- 
- 	if (cpu_has_csr())
- 		csr_temp_enable = csr_readl(LOONGSON_CSR_FEATURES) &
- 				  LOONGSON_CSRF_TEMP;
- 
--	cpu_hwmon_dev = hwmon_device_register_with_info(NULL, "cpu_hwmon", NULL, NULL, NULL);
--	if (IS_ERR(cpu_hwmon_dev)) {
--		ret = PTR_ERR(cpu_hwmon_dev);
--		pr_err("hwmon_device_register fail!\n");
--		goto fail_hwmon_device_register;
--	}
--
- 	nr_packages = loongson_sysconf.nr_cpus /
- 		loongson_sysconf.cores_per_package;
- 
--	ret = create_sysfs_cputemp_files(&cpu_hwmon_dev->kobj);
--	if (ret) {
--		pr_err("fail to create cpu temperature interface!\n");
--		goto fail_create_sysfs_cputemp_files;
-+	cpu_hwmon_dev = hwmon_device_register_with_groups(NULL, "cpu_hwmon",
-+							  NULL, cpu_hwmon_groups);
-+	if (IS_ERR(cpu_hwmon_dev)) {
-+		pr_err("hwmon_device_register fail!\n");
-+		return PTR_ERR(cpu_hwmon_dev);
- 	}
- 
- 	INIT_DEFERRABLE_WORK(&thermal_work, do_thermal_timer);
- 	schedule_delayed_work(&thermal_work, msecs_to_jiffies(20000));
- 
--	return ret;
--
--fail_create_sysfs_cputemp_files:
--	sysfs_remove_group(&cpu_hwmon_dev->kobj,
--				&cpu_hwmon_attribute_group);
--	hwmon_device_unregister(cpu_hwmon_dev);
--
--fail_hwmon_device_register:
--	return ret;
-+	return 0;
- }
- 
- static void __exit loongson_hwmon_exit(void)
- {
- 	cancel_delayed_work_sync(&thermal_work);
--	remove_sysfs_cputemp_files(&cpu_hwmon_dev->kobj);
--	sysfs_remove_group(&cpu_hwmon_dev->kobj,
--				&cpu_hwmon_attribute_group);
- 	hwmon_device_unregister(cpu_hwmon_dev);
- }
- 
+ 	clk_disable_unprepare(data->bclk);
+ 	device_link_remove(data->smicomm_dev, &pdev->dev);
 -- 
 2.35.1
 
