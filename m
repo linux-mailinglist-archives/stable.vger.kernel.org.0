@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B5254096A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:08:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E16A654125A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349103AbiFGSHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:07:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60994 "EHLO
+        id S1357230AbiFGTqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:46:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351374AbiFGSB7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:59 -0400
+        with ESMTP id S1357263AbiFGTpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:45:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9A4151FF3;
-        Tue,  7 Jun 2022 10:44:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78E662A0C;
+        Tue,  7 Jun 2022 11:18:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82F7F6165B;
-        Tue,  7 Jun 2022 17:44:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92BFFC385A5;
-        Tue,  7 Jun 2022 17:44:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9126E61129;
+        Tue,  7 Jun 2022 18:18:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1837C385A2;
+        Tue,  7 Jun 2022 18:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623859;
-        bh=ov0LuNiuyG+BT8nA3Az8CHNv6yO/nXoJT8tXa6GRz7k=;
+        s=korg; t=1654625915;
+        bh=3a8gxMHCDSeL/R2EhuktrXzbJmCqXw0BGoZqVqZ6DYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zeSrAx6ZiKv7pS9JVo5NHCJbieLHahVl26M4XW/TgBm9lxg8MIRLEk8JiRivnyc/n
-         1C34dWbm+1qtxq1yaqz20a+muog4jMnp6K058dTFut+Auk0qpMqkrRyzZdX/GB+vfB
-         blLTdR6wxqr9uy0jqNbBRbvn83qCUPVeW0uyrimI=
+        b=DBRx3JgE0PfGYxRWXr1+xkp+FldsZEhO2cMs+LQkZGDFtFDwLs5fymILGxYk1SxHd
+         tE4di9XzVsX+/OhTcirB3j+J56yKQhk3Y91li7UpwmukExs30nDkoGlR01YGzFEyzW
+         zo9kOjyXAIFXPvfaLTIpAUL28RK/yfDGTrYrkxtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/667] media: coda: limit frame interval enumeration to supported encoder frame sizes
+Subject: [PATCH 5.17 190/772] PM / devfreq: rk3399_dmc: Disable edev on remove()
 Date:   Tue,  7 Jun 2022 18:56:22 +0200
-Message-Id: <20220607164938.332738298@linuxfoundation.org>
+Message-Id: <20220607164954.635192018@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 67e33dd957880879e785cfea83a3aa24bd5c5577 ]
+[ Upstream commit 2fccf9e6050e0e3b8b4cd275d41daf7f7fa22804 ]
 
-Let VIDIOC_ENUM_FRAMEINTERVALS return -EINVAL if userspace queries
-frame intervals for frame sizes unsupported by the encoder. Fixes the
-following v4l2-compliance failure:
+Otherwise we hit an unablanced enable-count when unbinding the DFI
+device:
 
-		fail: v4l2-test-formats.cpp(123): found frame intervals for invalid size 47x16
-		fail: v4l2-test-formats.cpp(282): node->codec_mask & STATEFUL_ENCODER
-	test VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS: FAIL
+[ 1279.659119] ------------[ cut here ]------------
+[ 1279.659179] WARNING: CPU: 2 PID: 5638 at drivers/devfreq/devfreq-event.c:360 devfreq_event_remove_edev+0x84/0x8c
+...
+[ 1279.659352] Hardware name: Google Kevin (DT)
+[ 1279.659363] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
+[ 1279.659371] pc : devfreq_event_remove_edev+0x84/0x8c
+[ 1279.659380] lr : devm_devfreq_event_release+0x1c/0x28
+...
+[ 1279.659571] Call trace:
+[ 1279.659582]  devfreq_event_remove_edev+0x84/0x8c
+[ 1279.659590]  devm_devfreq_event_release+0x1c/0x28
+[ 1279.659602]  release_nodes+0x1cc/0x244
+[ 1279.659611]  devres_release_all+0x44/0x60
+[ 1279.659621]  device_release_driver_internal+0x11c/0x1ac
+[ 1279.659629]  device_driver_detach+0x20/0x2c
+[ 1279.659641]  unbind_store+0x7c/0xb0
+[ 1279.659650]  drv_attr_store+0x2c/0x40
+[ 1279.659663]  sysfs_kf_write+0x44/0x58
+[ 1279.659672]  kernfs_fop_write_iter+0xf4/0x190
+[ 1279.659684]  vfs_write+0x2b0/0x2e4
+[ 1279.659693]  ksys_write+0x80/0xec
+[ 1279.659701]  __arm64_sys_write+0x24/0x30
+[ 1279.659714]  el0_svc_common+0xf0/0x1d8
+[ 1279.659724]  do_el0_svc_compat+0x28/0x3c
+[ 1279.659738]  el0_svc_compat+0x10/0x1c
+[ 1279.659746]  el0_sync_compat_handler+0xa8/0xcc
+[ 1279.659758]  el0_sync_compat+0x188/0x1c0
+[ 1279.659768] ---[ end trace cec200e5094155b4 ]---
 
-[hverkuil: drop incorrect 'For decoder devices, return -ENOTTY.' in the commit log]
-
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-common.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/devfreq/rk3399_dmc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index 4a553f42ff0a..befc9db16c86 100644
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -1318,7 +1318,8 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
- 				    struct v4l2_frmivalenum *f)
+diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
+index 293857ebfd75..538e8dc74f40 100644
+--- a/drivers/devfreq/rk3399_dmc.c
++++ b/drivers/devfreq/rk3399_dmc.c
+@@ -477,6 +477,8 @@ static int rk3399_dmcfreq_remove(struct platform_device *pdev)
  {
- 	struct coda_ctx *ctx = fh_to_ctx(fh);
--	int i;
-+	struct coda_q_data *q_data;
-+	const struct coda_codec *codec;
+ 	struct rk3399_dmcfreq *dmcfreq = dev_get_drvdata(&pdev->dev);
  
- 	if (f->index)
- 		return -EINVAL;
-@@ -1327,12 +1328,19 @@ static int coda_enum_frameintervals(struct file *file, void *fh,
- 	if (!ctx->vdoa && f->pixel_format == V4L2_PIX_FMT_YUYV)
- 		return -EINVAL;
- 
--	for (i = 0; i < CODA_MAX_FORMATS; i++) {
--		if (f->pixel_format == ctx->cvd->src_formats[i] ||
--		    f->pixel_format == ctx->cvd->dst_formats[i])
--			break;
-+	if (coda_format_normalize_yuv(f->pixel_format) == V4L2_PIX_FMT_YUV420) {
-+		q_data = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-+		codec = coda_find_codec(ctx->dev, f->pixel_format,
-+					q_data->fourcc);
-+	} else {
-+		codec = coda_find_codec(ctx->dev, V4L2_PIX_FMT_YUV420,
-+					f->pixel_format);
- 	}
--	if (i == CODA_MAX_FORMATS)
-+	if (!codec)
-+		return -EINVAL;
++	devfreq_event_disable_edev(dmcfreq->edev);
 +
-+	if (f->width < MIN_W || f->width > codec->max_w ||
-+	    f->height < MIN_H || f->height > codec->max_h)
- 		return -EINVAL;
- 
- 	f->type = V4L2_FRMIVAL_TYPE_CONTINUOUS;
+ 	/*
+ 	 * Before remove the opp table we need to unregister the opp notifier.
+ 	 */
 -- 
 2.35.1
 
