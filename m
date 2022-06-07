@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 942C6540569
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E86540B0C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345942AbiFGRZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
+        id S245641AbiFGSWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:22:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346780AbiFGRZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868C9110478;
-        Tue,  7 Jun 2022 10:23:10 -0700 (PDT)
+        with ESMTP id S1353065AbiFGSSI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:18:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3F5EFF26;
+        Tue,  7 Jun 2022 10:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBAEF60DDE;
-        Tue,  7 Jun 2022 17:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07344C36AFE;
-        Tue,  7 Jun 2022 17:23:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB5C617B6;
+        Tue,  7 Jun 2022 17:53:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCDFC341C5;
+        Tue,  7 Jun 2022 17:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622589;
-        bh=cXuTShtzdE1Ec3NbiD1d9uwgWXstvFOpe15uNRADvmQ=;
+        s=korg; t=1654624380;
+        bh=dXmaH2EhwG7tVhCM0Ug3qBDAZYxI98BBHOl8ZMPOHBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QSzh72tvI3WXBUJzifMIfIGT6QSKHcllvQDYFkE8KR6lJRaQ+qcal5oR3pMS6YwoS
-         NFt5JxC5qW+YxZpn/yJWzK874Gl0Gtkwvfrmsymjy5poSa9D4BStjBxYceEfNcwJeR
-         fyvDJYfQZAjkXNFeNRzTSMZJbvdFScKWamn07+0w=
+        b=JsojjUDAWTfPevtk96ARy6rfViO+YKSO1RVjBaN2d3u+Fp6ZMpaEk9VZge3rISEN4
+         e4bTJQJaT7B/ILe1JczP1JBtgsibf0iBQo+5uFy6FCpUVEkdNXliY9mnhqJ4EMnL2K
+         CYZkTX3hxIv90UCbn+Qmh4fLxeLkSpM0R6hs7YvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Vinod Polimera <quic_vpolimer@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/452] ACPI: PM: Block ASUS B1400CEAE from suspend to idle by default
+Subject: [PATCH 5.15 265/667] drm/msm/disp/dpu1: set vbif hw config to NULL to avoid use after memory free during pm runtime resume
 Date:   Tue,  7 Jun 2022 18:58:50 +0200
-Message-Id: <20220607164910.727471249@linuxfoundation.org>
+Message-Id: <20220607164942.736571383@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Vinod Polimera <quic_vpolimer@quicinc.com>
 
-[ Upstream commit d52848620de00cde4a3a5df908e231b8c8868250 ]
+[ Upstream commit fa5186b279ecf44b14fb435540d2065be91cb1ed ]
 
-ASUS B1400CEAE fails to resume from suspend to idle by default.  This was
-bisected back to commit df4f9bc4fb9c ("nvme-pci: add support for ACPI
-StorageD3Enable property") but this is a red herring to the problem.
+BUG: Unable to handle kernel paging request at virtual address 006b6b6b6b6b6be3
 
-Before this commit the system wasn't getting into deepest sleep state.
-Presumably this commit is allowing entry into deepest sleep state as
-advertised by firmware, but there are some other problems related to
-the wakeup.
+Call trace:
+  dpu_vbif_init_memtypes+0x40/0xb8
+  dpu_runtime_resume+0xcc/0x1c0
+  pm_generic_runtime_resume+0x30/0x44
+  __genpd_runtime_resume+0x68/0x7c
+  genpd_runtime_resume+0x134/0x258
+  __rpm_callback+0x98/0x138
+  rpm_callback+0x30/0x88
+  rpm_resume+0x36c/0x49c
+  __pm_runtime_resume+0x80/0xb0
+  dpu_core_irq_uninstall+0x30/0xb0
+  dpu_irq_uninstall+0x18/0x24
+  msm_drm_uninit+0xd8/0x16c
 
-As it is confirmed the system works properly with S3, set the default for
-this system to S3.
-
-Reported-by: Jian-Hong Pan <jhp@endlessos.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215742
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Tested-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Vinod Polimera <quic_vpolimer@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/483255/
+Link: https://lore.kernel.org/r/1650857213-30075-1-git-send-email-quic_vpolimer@quicinc.com
+[DB: fixed Fixes tag]
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 503935b1deeb..cfda5720de02 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -377,6 +377,18 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "20GGA00L00"),
- 		},
- 	},
-+	/*
-+	 * ASUS B1400CEAE hangs on resume from suspend (see
-+	 * https://bugzilla.kernel.org/show_bug.cgi?id=215742).
-+	 */
-+	{
-+	.callback = init_default_s3,
-+	.ident = "ASUS B1400CEAE",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "ASUS EXPERTBOOK B1400CEAE"),
-+		},
-+	},
- 	{},
- };
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index 93d916858d5a..33ce6720dfae 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -728,8 +728,10 @@ static void _dpu_kms_hw_destroy(struct dpu_kms *dpu_kms)
+ 		for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
+ 			u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
+ 
+-			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx])
++			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx]) {
+ 				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[vbif_idx]);
++				dpu_kms->hw_vbif[vbif_idx] = NULL;
++			}
+ 		}
+ 	}
  
 -- 
 2.35.1
