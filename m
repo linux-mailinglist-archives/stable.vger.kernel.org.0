@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91231541227
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568EF5418AB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357080AbiFGToU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55194 "EHLO
+        id S1379849AbiFGVNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357482AbiFGTmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E188E1B216B;
-        Tue,  7 Jun 2022 11:15:09 -0700 (PDT)
+        with ESMTP id S1379837AbiFGVMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:12:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFF815352E;
+        Tue,  7 Jun 2022 11:54:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FF16B8233E;
-        Tue,  7 Jun 2022 18:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B381DC385A2;
-        Tue,  7 Jun 2022 18:15:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7330616A9;
+        Tue,  7 Jun 2022 18:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE8DFC385A2;
+        Tue,  7 Jun 2022 18:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625706;
-        bh=4XChG8Mn9Ckp+o5xpIAJPICimju0Ixs9wovnr8tIqy0=;
+        s=korg; t=1654628050;
+        bh=goT196KiQfwpElqIN5celghRGMAp8wKph89erWgkuJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkh1ldocEy3Nl2zD422kZ+HNaWJF+9Y8STUhgtsXYhpiRjqPWaRcGH/L4Ms7hqDqT
-         w297t57+u6mt+DBbuP+KmLLVa5UCg7xlO0Jc3eAGdLdBtRI8ec/6rhvpTrCxu+SwBn
-         U6DeiVKy4JzyCVSqLnMUEx5YsnXQILiYGzgqya7E=
+        b=zW85+kwkfkATKmxAoLVFUNVHznd8lVt7LLxa0nDj99QMur4zyezO41jO+cQQ0lp83
+         sZ3FYEZtlUB7B/RqSe9Rb7ECoqLUFm7b3bYfbaPgpIPXmeTn6fkZfGpEWYRjdFmoZj
+         c97LCeaArHoNKCUKY3OlR69mbH8XqlZlSwiDmz/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 113/772] mlxsw: spectrum_dcb: Do not warn about priority changes
+        stable@vger.kernel.org, Ross Burton <ross.burton@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 187/879] of/fdt: Ignore disabled memory nodes
 Date:   Tue,  7 Jun 2022 18:55:05 +0200
-Message-Id: <20220607164952.379123725@linuxfoundation.org>
+Message-Id: <20220607165008.270554431@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit b6b584562cbe7dc357083459d6dd5b171e12cadb ]
+[ Upstream commit df5cd369876114f91f9ae60658fea80acfb15890 ]
 
-The idea behind the warnings is that the user would get warned in case when
-more than one priority is configured for a given DSCP value on a netdevice.
+When we boot a machine using a devicetree, the generic DT code goes
+through all nodes with a 'device_type = "memory"' property, and collects
+all memory banks mentioned there. However it does not check for the
+status property, so any nodes which are explicitly "disabled" will still
+be added as a memblock.
+This ends up badly for QEMU, when booting with secure firmware on
+arm/arm64 machines, because QEMU adds a node describing secure-only
+memory:
+===================
+	secram@e000000 {
+		secure-status = "okay";
+		status = "disabled";
+		reg = <0x00 0xe000000 0x00 0x1000000>;
+		device_type = "memory";
+	};
+===================
 
-The warning is currently wrong, because dcb_ieee_getapp_mask() returns
-the first matching entry, not all of them, and the warning will then claim
-that some priority is "current", when in fact it is not.
+The kernel will eventually use that memory block (which is located below
+the main DRAM bank), but accesses to that will be answered with an
+SError:
+===================
+[    0.000000] Internal error: synchronous external abort: 96000050 [#1] PREEMPT SMP
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0-rc6-00014-g10c8acb8b679 #524
+[    0.000000] Hardware name: linux,dummy-virt (DT)
+[    0.000000] pstate: 200000c5 (nzCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    0.000000] pc : new_slab+0x190/0x340
+[    0.000000] lr : new_slab+0x184/0x340
+[    0.000000] sp : ffff80000a4b3d10
+....
+==================
+The actual crash location and call stack will be somewhat random, and
+depend on the specific allocation of that physical memory range.
 
-But more importantly, the warning is misleading in general. Consider the
-following commands:
+As the DT spec[1] explicitly mentions standard properties, add a simple
+check to skip over disabled memory nodes, so that we only use memory
+that is meant for non-secure code to use.
 
- # dcb app flush dev swp19 dscp-prio
- # dcb app add dev swp19 dscp-prio 24:3
- # dcb app replace dev swp19 dscp-prio 24:2
+That fixes booting a QEMU arm64 VM with EL3 enabled ("secure=on"), when
+not using UEFI. In this case the QEMU generated DT will be handed on
+to the kernel, which will see the secram node.
+This issue is reproducible when using TF-A together with U-Boot as
+firmware, then booting with the "booti" command.
 
-The last command will issue the following warning:
+When using U-Boot as an UEFI provider, the code there [2] explicitly
+filters for disabled nodes when generating the UEFI memory map, so we
+are safe.
+EDK/2 only reads the first bank of the first DT memory node [3] to learn
+about memory, so we got lucky there.
 
- mlxsw_spectrum3 0000:07:00.0 swp19: Ignoring new priority 2 for DSCP 24 in favor of current value of 3
+[1] https://github.com/devicetree-org/devicetree-specification/blob/main/source/chapter3-devicenodes.rst#memory-node (after the table)
+[2] https://source.denx.de/u-boot/u-boot/-/blob/master/lib/fdtdec.c#L1061-1063
+[3] https://github.com/tianocore/edk2/blob/master/ArmVirtPkg/PrePi/FdtParser.c
 
-The reason is that the "replace" command works by first adding the new
-value, and then removing all old values. This is the only way to make the
-replacement without causing the traffic to be prioritized to whatever the
-chip defaults to. The warning is issued in response to adding the new
-priority, and then no warning is shown when the old priority is removed.
-The upshot is that the canonical way to change traffic prioritization
-always produces a warning about ignoring the new priority, but what gets
-configured is in fact what the user intended.
-
-An option to just emit warning every time that the prioritization changes
-just to make it clear that it happened is obviously unsatisfactory.
-
-Therefore, in this patch, remove the warnings.
-
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Ross Burton <ross.burton@arm.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220517101410.3493781-1-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/of/fdt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-index 5f92b1691360..aff6d4f35cd2 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
-@@ -168,8 +168,6 @@ static int mlxsw_sp_dcbnl_ieee_setets(struct net_device *dev,
- static int mlxsw_sp_dcbnl_app_validate(struct net_device *dev,
- 				       struct dcb_app *app)
- {
--	int prio;
--
- 	if (app->priority >= IEEE_8021QAZ_MAX_TCS) {
- 		netdev_err(dev, "APP entry with priority value %u is invalid\n",
- 			   app->priority);
-@@ -183,17 +181,6 @@ static int mlxsw_sp_dcbnl_app_validate(struct net_device *dev,
- 				   app->protocol);
- 			return -EINVAL;
- 		}
--
--		/* Warn about any DSCP APP entries with the same PID. */
--		prio = fls(dcb_ieee_getapp_mask(dev, app));
--		if (prio--) {
--			if (prio < app->priority)
--				netdev_warn(dev, "Choosing priority %d for DSCP %d in favor of previously-active value of %d\n",
--					    app->priority, app->protocol, prio);
--			else if (prio > app->priority)
--				netdev_warn(dev, "Ignoring new priority %d for DSCP %d in favor of current value of %d\n",
--					    app->priority, app->protocol, prio);
--		}
- 		break;
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index ec315b060cd5..0f30496ce80b 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1105,6 +1105,9 @@ int __init early_init_dt_scan_memory(void)
+ 		if (type == NULL || strcmp(type, "memory") != 0)
+ 			continue;
  
- 	case IEEE_8021QAZ_APP_SEL_ETHERTYPE:
++		if (!of_fdt_device_is_available(fdt, node))
++			continue;
++
+ 		reg = of_get_flat_dt_prop(node, "linux,usable-memory", &l);
+ 		if (reg == NULL)
+ 			reg = of_get_flat_dt_prop(node, "reg", &l);
 -- 
 2.35.1
 
