@@ -2,133 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC9F53FB27
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611AD53FB3D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233279AbiFGK1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 06:27:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45318 "EHLO
+        id S240993AbiFGKaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 06:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240978AbiFGK07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:26:59 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C8BEBEAA
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 03:26:57 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id me5so33713387ejb.2
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 03:26:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=DsUpTMVy3AnG06ab2HPPYE6VPm25Tedt2mleq6KKBcw=;
-        b=d5eYz5T/R0HONhjF3Y84KTg5dFj79tvswAfqg2cbWnkVA6zR7TGEYqMkZKHL1HZACt
-         855oU9tUYYFN8c8iV2/iknbMYrm7PjMEDd7wefljn1I7ZaEjS1ZFYLccEqzZff/uaDxJ
-         luVN+ZmqZTmOmiiKxV+142H4BzCh/LKMYNA0vroRnb42o0F1w2+yWuYKsaJ40RmO9P6/
-         elRRF0ORsGtHDYF5qBIhzjFyuLIriJXBLcYRqvwJKKyVaeCy3hH8zLvmtaCFFgS6HPqG
-         WDIWHHBMbOZ+Jn2lbj92qhXkHd+ungeGUxl3RZ+Y6mCqNNox34mdIqmvMjx3cPF/PGsV
-         xNJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=DsUpTMVy3AnG06ab2HPPYE6VPm25Tedt2mleq6KKBcw=;
-        b=1+lRIagUbgvCczeBJ2ovZfYaXCmA6Lr0vmc5pU7dNRxNjcnlgih+cRNktIgbUOrQR7
-         FIc9KajZvDpIPPfwZyeqUfKcPXOXPqDxwAJj587EsAeW8z/kTU+5NSc32WZtglURN8/e
-         tpxdOzV5+IGSQJa8nPQsJx0Ue4hCX21G35luz+JzmTQq+V0Qw54uZDSENGweZ3roOyIN
-         X9vdpQKhAdBlluBLy/pE+1vk6HTJyWPZjAtkxxg5czLE7ubblMjsgsnvpcVGdjHfVrlq
-         2xOgdowMn7nAPLqnoFHral/lGtbNo2BXOjsTGI+olPk+xPt1U0X9Ma0gZmrnA5OhEIyV
-         VrgQ==
-X-Gm-Message-State: AOAM53252iBmmXqRBIDfW2cLndVdnkWDCSeI9qFSjsvuHVBZtNa9socx
-        7M/Lh8sC7mm1BzoEzcGmxaAaNC//xVPAKHbc+n0=
-X-Google-Smtp-Source: ABdhPJx0yCrYl5TA/rqnmHLbqNwH8nhyHpeKygTwgqkaS8UijcZx/bckmp6/4zEaABYwpYRQfPJ/1o+quFh/VG31J64=
-X-Received: by 2002:a17:906:22c6:b0:711:cf82:cbdb with SMTP id
- q6-20020a17090622c600b00711cf82cbdbmr9324536eja.461.1654597615670; Tue, 07
- Jun 2022 03:26:55 -0700 (PDT)
+        with ESMTP id S241083AbiFGKaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:30:14 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BF856205;
+        Tue,  7 Jun 2022 03:30:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1654597807;
+        bh=KXmvrCVmPTp9ETroo0GXYDXtE5AGQuVE2j1m4dG2o+k=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=HGmtUudUHxMdWG4UG8enWT++g9V6NYhFjfdl3L2orVfp0anulC2P2jQpa23sUth3W
+         KZfj4s5VD9z6dF8afmkKe42RzK2+G6aYyCku92aZ20t6bw6Ae2n/IzF4cS0f4WCThp
+         m4i/zxudANSs7iZ59ZXG7/Cunrs9oMR2R6xaaWB8=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx004
+ [212.227.17.184]) with ESMTPSA (Nemesis) id 1MCbIn-1o6Sx31pch-009hEa; Tue, 07
+ Jun 2022 12:30:07 +0200
+Message-ID: <532d5fd2-e93b-2fec-72d3-d0b0f099e541@gmx.com>
+Date:   Tue, 7 Jun 2022 18:30:03 +0800
 MIME-Version: 1.0
-Sender: mrsaijheidi7@gmail.com
-Received: by 2002:a50:2490:0:0:0:0:0 with HTTP; Tue, 7 Jun 2022 03:26:55 -0700 (PDT)
-From:   Mrs Lila Haber <mrslilahabe2016@gmail.com>
-Date:   Tue, 7 Jun 2022 10:26:55 +0000
-X-Google-Sender-Auth: JO_FeJYyGg30pe7MsbIJ7Xq5uh8
-Message-ID: <CADXrVCp8e84EFy+6xNjH12mO5Qz-bY1jSfc1XEyYB4EC24Jbkw@mail.gmail.com>
-Subject: Dear Child of God
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.3 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
-        BAYES_60,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,HK_SCAM,LOTS_OF_MONEY,
-        MONEY_FRAUD_8,RCVD_IN_DNSWL_NONE,RISK_FREE,SPF_HELO_NONE,SPF_PASS,
-        T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY,URG_BIZ
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:642 listed in]
-        [list.dnswl.org]
-        *  1.5 BAYES_60 BODY: Bayes spam probability is 60 to 80%
-        *      [score: 0.6495]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [mrsaijheidi7[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mrsaijheidi7[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.0 HK_SCAM No description available.
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.6 URG_BIZ Contains urgent matter
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  1.6 RISK_FREE No risk!
-        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
-        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
-        *  0.6 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] btrfs: correctly populate
+ btrfs_super_block::log_root_transid
+Content-Language: en-US
+To:     Filipe Manana <fdmanana@kernel.org>, Qu Wenruo <wqu@suse.com>
+Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
+References: <f7ae86f509d11d941ceac2a153b38a4f3bc5d342.1654578537.git.wqu@suse.com>
+ <20220607094055.GB3554947@falcondesktop>
+From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
+In-Reply-To: <20220607094055.GB3554947@falcondesktop>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:/LcIXZubzgIkLmPUkUPkUJx3DyZ+T3OzDHH48uI6VwGqdpRJUqd
+ QJDAejZh8+RC+rvazGbQLNACgs9Umc/gd5b9JEJ61uhYsugEMLRb2iutAmHN7XcbB/JX3oS
+ E5ZMjn6SLKbGhtMMk+hcF1KI3WeMCM1F243qK48XFRrCGu7cMw1LReoo7YAYIXcXUYONYlP
+ lJHRdDaJz/pCre0WmKc6w==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Szf3RQdGzEo=:gCUye8o1jFgHpPwbpi8ham
+ +x8qmCXChPlXeg4qk1hHVrNL3W01Kb+nnEjZgyN6DFMaQcPQQOmCF+VfgyIIsBi4Wqa24Trty
+ vCbm57jJwmcSfsbCIwnDRMHtfxnrF+5lATo3Gjt6OECVRzKBXQKOAxKoMJ0Tat/g9dlsMryZ5
+ 9jmNvAsOhthbPR4f45Z4IXPFyKwzei3un+VSpHslsNx77RHQ3pVRH5k2SxKaQSIZzDbSqXPE/
+ 6ytUlnZ+eat0/WvlVkoYytHOVTegdlwV8gOhJB7wlgvb++TflaSCX/pdRcLSUkO7XZwSXcE+Y
+ C+SJRujm09o7nZwfBpggsjV69r89MJt4gqlOZpqzQbjCshop22WvMbltkIqVunXhjMHVin89y
+ dE6g4EhhDQaGNMvKBAxM2LTyL6cRO5M4Vox3roN9mN6i8Euui2kRybFou1PlXplJ9GwCutl3D
+ C9pJAB1NztJiTuSw6TJ1NPrVFvGOH9LuIZDXOL9hhDDI7KeafdZdslgyQDyAYzNTXxtooXjlZ
+ getmCudWIRMyymHbB7zag3vokyuHUJ8HHhOeHCwSaGrW14RD2ahmN4Swox/qfk4Ass6g4lvjt
+ e0StbfsXmGiz/7bFLL6nxnd/fHeaUuscWREDUGH5hddgBbdoCrE3GrxIKxunu/rnv8CNVpsZ0
+ jCJ4Jq4yg7gc7nBgFApoCcIx2uyns3BcyR2w0IupYF7aG4ApEgPLFvsZa8svAR129szTgplEJ
+ hh9YeTu2hIrHYdP+W/XkOZo1qqUdvHWwnQniCQwsDy12XgqA3lkwaDhmfyyN6BRa5y/p9b2I2
+ Gm52TsUHfQL3kHhMzhEzwm1v/uK4q9QxAwYOQe4FhMxSXzKZMLvWMyno8VE8OqmK5sFClTUbQ
+ pWJS2hNgo5zH4AyXr2qZvb/MHccX6QGxxcR6jnuwBkfmLIiLn6VGMuG8+XtKydw7qfGNzYl8o
+ RZhRBEBsF0HWq6FFeNjJw/ftd9T/Y71paMqS8LgeAehQJ1d7Kp6KRGKwyFJgcSYiygE+aWYUT
+ WaacjV8meAhZl24fZ5sC4e1WG/5eZyzjlKw/DBkkWzgqqiDlR4X2ysZhPM+LwAjYcA0pb0pZ5
+ 3OwxWSpt6lU1jrCaFg/yA4ppq/6CFxz7Lah6A/QnYSMKlyalgpLSUvcTA==
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Child of God,
 
-Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS
-CHRIST the giver of every good thing. Good day and compliments of the
-seasons, i know this letter will definitely come to you as a huge
-surprise, but I implore you to take the time to go through it
-carefully as the decision you make will go off a long way to determine
-my future and continued existence. I am Mrs Lila Haber aging widow of
-57 years old suffering from long time illness.I have some funds I
-inherited from my late husband, the sum of (7.2Million Dollars) and I
-needed a very honest and God fearing who can withdraw this money then
-use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR
-CHARITY WORKS. I found your email address from the internet after
-honest prayers to the LORD to bring me a helper and i decided to
-contact you if you may be willing and interested to handle these trust
-funds in good faith before anything happens to me.
 
-I accept this decision because I do not have any child who will
-inherit this money after I die. I want your urgent reply to me so that
-I will give you the deposit receipt which the SECURITY COMPANY issued
-to me as next of kin for immediate transfer of the money to your
-account in your country, to start the good work of God, I want you to
-use the 25/percent of the total amount to help yourself in doing the
-project. I am desperately in keen need of assistance and I have
-summoned up courage to contact you for this task, you must not fail me
-and the millions of the poor people in our todays WORLD. This is no
-stolen money and there are no dangers involved,100% RISK FREE with
-full legal proof. Please if you would be able to use the funds for the
-Charity works kindly let me know immediately.I will appreciate your
-utmost confidentiality and trust in this matter to accomplish my heart
-desire, as I don't want anything that will jeopardize my last wish.
+On 2022/6/7 17:40, Filipe Manana wrote:
+> On Tue, Jun 07, 2022 at 01:09:13PM +0800, Qu Wenruo wrote:
+>> [BUG]
+>> After creating a dirty log tree, although
+>> btrfs_super_block::log_root and log_root_level is correctly populated,
+>> its generation is still left 0:
+>>
+>>   log_root                30474240
+>>   log_root_transid        0 <<<
+>>   log_root_level          0
+>>
+>> [CAUSE]
+>> We just forgot to update btrfs_super_block::log_root_transid completely=
+.
+>>
+>> Thus it's always the original value (0) from the initial super block.
+>>
+>> Thankfully this old behavior won't break log replay, as in
+>> btrfs_read_tree(), parent generation 0 means we just skip the generatio=
+n
+>
+> btrfs_read_tree() does not exists, it's btrfs_read_tree_root().
+>
+> This is actually irrelevant, because we don't read the root log tree wit=
+h
+> btrfs_read_tree_root(). We use read_tree_block() for that (at btrfs_repl=
+ay_log()),
 
-Please kindly respond quickly for further details.
+Oh, right, I forgot to check that code, and just assumed every root read
+from superblock would has its generation checked, but it's not the case
+for log tree root.
 
-Warmest Regards,
-Mrs Lila Haber
+> and we use a generation matching the committed transaction + 1 (as it ca=
+n never
+> be anything else).
+>
+> For every other log tree, we use btrfs_read_tree_root(), but the generat=
+ion is
+> stored in the root's root item stored in the root log tree.
+>
+> The log_root_transid field was added to the super block by:
+>
+> commit c3027eb5523d6983f12628f3fe13d8a7576db701
+> Author: Chris Mason <chris.mason@oracle.com>
+> Date:   Mon Dec 8 16:40:21 2008 -0500
+>
+>      Btrfs: Add inode sequence number for NFS and reserved space in a fe=
+w structs
+>
+> But it was never used.
+>
+> So this change is not needed.
+
+Then, considering we have never really set log_root_transid anywhere,
+and in theory we're always using btrfs_super_block::generation + 1, why
+not just deprecate that member?
+
+In fact, every time (thankfully not that many times for me) I checked
+log_root_transid, I can not help but to wonder why it's always 0.
+
+Thanks,
+Qu
+
+>
+> Thanks.
+>
+>
+>> check.
+>>
+>> And per-root log tree is still done properly using the root generation,
+>> so here we really only missed the generation check for log tree root,
+>> and even we fixed it, it should not cause any compatible problem.
+>>
+>> [FIX]
+>> Just update btrfs_super_block::log_root_transid properly.
+>
+> We don't need this.
+>
+> The log_root_transid field was added to the super block by:
+>
+> commit c3027eb5523d6983f12628f3fe13d8a7576db701
+> Author: Chris Mason <chris.mason@oracle.com>
+> Date:   Mon Dec 8 16:40:21 2008 -0500
+>
+>      Btrfs: Add inode sequence number for NFS and reserved space in a fe=
+w structs
+>
+> But it was never used.
+> For btrfs_read_tree_root(), what we use is the
+>
+>
+>
+>>
+>> Cc: stable@vger.kernel.org #4.9+
+>> Signed-off-by: Qu Wenruo <wqu@suse.com>
+>> ---
+>>   fs/btrfs/tree-log.c | 5 ++++-
+>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+>> index 370388fadf96..27a76d6fef8c 100644
+>> --- a/fs/btrfs/tree-log.c
+>> +++ b/fs/btrfs/tree-log.c
+>> @@ -3083,7 +3083,8 @@ int btrfs_sync_log(struct btrfs_trans_handle *tra=
+ns,
+>>   	struct btrfs_log_ctx root_log_ctx;
+>>   	struct blk_plug plug;
+>>   	u64 log_root_start;
+>> -	u64 log_root_level;
+>> +	u64 log_root_transid;
+>> +	u8 log_root_level;
+>>
+>>   	mutex_lock(&root->log_mutex);
+>>   	log_transid =3D ctx->log_transid;
+>> @@ -3297,6 +3298,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *tra=
+ns,
+>>
+>>   	log_root_start =3D log_root_tree->node->start;
+>>   	log_root_level =3D btrfs_header_level(log_root_tree->node);
+>> +	log_root_transid =3D btrfs_header_generation(log_root_tree->node);
+>>   	log_root_tree->log_transid++;
+>>   	mutex_unlock(&log_root_tree->log_mutex);
+>>
+>> @@ -3334,6 +3336,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *tra=
+ns,
+>>
+>>   	btrfs_set_super_log_root(fs_info->super_for_commit, log_root_start);
+>>   	btrfs_set_super_log_root_level(fs_info->super_for_commit, log_root_l=
+evel);
+>> +	btrfs_set_super_log_root_transid(fs_info->super_for_commit, log_root_=
+transid);
+>>   	ret =3D write_all_supers(fs_info, 1);
+>>   	mutex_unlock(&fs_info->tree_log_mutex);
+>>   	if (ret) {
+>> --
+>> 2.36.1
+>>
