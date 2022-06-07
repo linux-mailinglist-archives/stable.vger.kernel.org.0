@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1148541604
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C34541D03
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357713AbiFGUn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58160 "EHLO
+        id S1383568AbiFGWHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357691AbiFGUnE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:43:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDE61F2329;
-        Tue,  7 Jun 2022 11:38:54 -0700 (PDT)
+        with ESMTP id S1383735AbiFGWGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA00A2534CB;
+        Tue,  7 Jun 2022 12:17:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E15D7B82395;
-        Tue,  7 Jun 2022 18:38:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 434EAC385A5;
-        Tue,  7 Jun 2022 18:38:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6282CCE246B;
+        Tue,  7 Jun 2022 19:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C78BC385A2;
+        Tue,  7 Jun 2022 19:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627102;
-        bh=3TG3itixh7NWTFK2FgObI3xmM6oohVm5wjgoSYCYlZk=;
+        s=korg; t=1654629444;
+        bh=RAJ3x2ZhfBQAjh19mcMTVM1NJu9fP1fRaAIm4q3mR/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xl/PmUsKwPUNcEV+lx4yYKZn2pI3fKhLnJeD5g/7F8Q0/v/y1VpUAHm8FZaX4yAQb
-         E1wegPWVwEybuLgfplz2wIZhE8OUge8WOhFlXkjhOZAUrB20+cYBdAFRiKk4FiOhvn
-         M+oXSOaT9g/SEsmLQMSayjAY7lxrDZJQk56IUrgw=
+        b=Q1eDloyQLOMLvFN1s2BXMC32cJO5kUc0kno6gEp+gz4pAkHWJr6jwSKzbj4v67xiC
+         Kb/hMBAx5NKOXVyhu6id+7a/PTFaiPUAkD3mmHc2qrdGof6iZgaAimE5ukgxloH78r
+         9AUa4XcPzLi7rKpZD9Z/U9ncG73DhxJdtAM5NeU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>
-Subject: [PATCH 5.17 619/772] objtool: Fix symbol creation
+        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 693/879] RISC-V: Split out the XIP fixups into their own file
 Date:   Tue,  7 Jun 2022 19:03:31 +0200
-Message-Id: <20220607165007.176569427@linuxfoundation.org>
+Message-Id: <20220607165022.963428462@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,348 +54,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-commit ead165fa1042247b033afad7be4be9b815d04ade upstream.
+[ Upstream commit e7681beba992d5a196476d5d79dfcb48f2a2c477 ]
 
-Nathan reported objtool failing with the following messages:
+This was broken by the original refactoring (as the XIP definitions
+depend on <asm/pgtable.h>) and then more broken by the merge (as I
+accidentally took the old version).  This fixes both breakages, while
+also pulling this out of <asm/asm.h> to avoid polluting most assembly
+files with the XIP fixups.
 
-  warning: objtool: no non-local symbols !?
-  warning: objtool: gelf_update_symshndx: invalid section index
-
-The problem is due to commit 4abff6d48dbc ("objtool: Fix code relocs
-vs weak symbols") failing to consider the case where an object would
-have no non-local symbols.
-
-The problem that commit tries to address is adding a STB_LOCAL symbol
-to the symbol table in light of the ELF spec's requirement that:
-
-  In each symbol table, all symbols with STB_LOCAL binding preced the
-  weak and global symbols.  As ``Sections'' above describes, a symbol
-  table section's sh_info section header member holds the symbol table
-  index for the first non-local symbol.
-
-The approach taken is to find this first non-local symbol, move that
-to the end and then re-use the freed spot to insert a new local symbol
-and increment sh_info.
-
-Except it never considered the case of object files without global
-symbols and got a whole bunch of details wrong -- so many in fact that
-it is a wonder it ever worked :/
-
-Specifically:
-
- - It failed to re-hash the symbol on the new index, so a subsequent
-   find_symbol_by_index() would not find it at the new location and a
-   query for the old location would now return a non-deterministic
-   choice between the old and new symbol.
-
- - It failed to appreciate that the GElf wrappers are not a valid disk
-   format (it works because GElf is basically Elf64 and we only
-   support x86_64 atm.)
-
- - It failed to fully appreciate how horrible the libelf API really is
-   and got the gelf_update_symshndx() call pretty much completely
-   wrong; with the direct consequence that if inserting a second
-   STB_LOCAL symbol would require moving the same STB_GLOBAL symbol
-   again it would completely come unstuck.
-
-Write a new elf_update_symbol() function that wraps all the magic
-required to update or create a new symbol at a given index.
-
-Specifically, gelf_update_sym*() require an @ndx argument that is
-relative to the @data argument; this means you have to manually
-iterate the section data descriptor list and update @ndx.
-
-Fixes: 4abff6d48dbc ("objtool: Fix code relocs vs weak symbols")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/YoPCTEYjoPqE4ZxB@hirez.programming.kicks-ass.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bee7fbc38579 ("RISC-V CPU Idle Support")
+Fixes: 63b13e64a829 ("RISC-V: Add arch functions for non-retentive suspend entry/exit")
+Link: https://lore.kernel.org/r/20220420184056.7886-4-palmer@rivosinc.com
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/elf.c |  198 +++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 129 insertions(+), 69 deletions(-)
+ arch/riscv/include/asm/asm.h       | 26 -------------------------
+ arch/riscv/include/asm/xip_fixup.h | 31 ++++++++++++++++++++++++++++++
+ arch/riscv/kernel/head.S           |  1 +
+ arch/riscv/kernel/suspend_entry.S  |  1 +
+ 4 files changed, 33 insertions(+), 26 deletions(-)
+ create mode 100644 arch/riscv/include/asm/xip_fixup.h
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -314,6 +314,9 @@ static void elf_add_symbol(struct elf *e
- 	struct list_head *entry;
- 	struct rb_node *pnode;
+diff --git a/arch/riscv/include/asm/asm.h b/arch/riscv/include/asm/asm.h
+index 8c2549b16ac0..618d7c5af1a2 100644
+--- a/arch/riscv/include/asm/asm.h
++++ b/arch/riscv/include/asm/asm.h
+@@ -67,30 +67,4 @@
+ #error "Unexpected __SIZEOF_SHORT__"
+ #endif
  
-+	INIT_LIST_HEAD(&sym->pv_target);
-+	sym->alias = sym;
-+
- 	sym->type = GELF_ST_TYPE(sym->sym.st_info);
- 	sym->bind = GELF_ST_BIND(sym->sym.st_info);
- 
-@@ -375,8 +378,6 @@ static int read_symbols(struct elf *elf)
- 			return -1;
- 		}
- 		memset(sym, 0, sizeof(*sym));
--		INIT_LIST_HEAD(&sym->pv_target);
--		sym->alias = sym;
- 
- 		sym->idx = i;
- 
-@@ -540,24 +541,21 @@ static void elf_dirty_reloc_sym(struct e
- }
- 
- /*
-- * Move the first global symbol, as per sh_info, into a new, higher symbol
-- * index. This fees up the shndx for a new local symbol.
-+ * The libelf API is terrible; gelf_update_sym*() takes a data block relative
-+ * index value, *NOT* the symbol index. As such, iterate the data blocks and
-+ * adjust index until it fits.
-+ *
-+ * If no data block is found, allow adding a new data block provided the index
-+ * is only one past the end.
-  */
--static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
--				  struct section *symtab_shndx)
-+static int elf_update_symbol(struct elf *elf, struct section *symtab,
-+			     struct section *symtab_shndx, struct symbol *sym)
- {
--	Elf_Data *data, *shndx_data = NULL;
--	Elf32_Word first_non_local;
--	struct symbol *sym;
--	Elf_Scn *s;
+-#ifdef __ASSEMBLY__
 -
--	first_non_local = symtab->sh.sh_info;
+-/* Common assembly source macros */
 -
--	sym = find_symbol_by_index(elf, first_non_local);
--	if (!sym) {
--		WARN("no non-local symbols !?");
--		return first_non_local;
--	}
-+	Elf32_Word shndx = sym->sec ? sym->sec->idx : SHN_UNDEF;
-+	Elf_Data *symtab_data = NULL, *shndx_data = NULL;
-+	Elf64_Xword entsize = symtab->sh.sh_entsize;
-+	int max_idx, idx = sym->idx;
-+	Elf_Scn *s, *t = NULL;
- 
- 	s = elf_getscn(elf->elf, symtab->idx);
- 	if (!s) {
-@@ -565,79 +563,124 @@ static int elf_move_global_symbol(struct
- 		return -1;
- 	}
- 
--	data = elf_newdata(s);
--	if (!data) {
--		WARN_ELF("elf_newdata");
--		return -1;
-+	if (symtab_shndx) {
-+		t = elf_getscn(elf->elf, symtab_shndx->idx);
-+		if (!t) {
-+			WARN_ELF("elf_getscn");
-+			return -1;
-+		}
- 	}
- 
--	data->d_buf = &sym->sym;
--	data->d_size = sizeof(sym->sym);
--	data->d_align = 1;
--	data->d_type = ELF_T_SYM;
-+	for (;;) {
-+		/* get next data descriptor for the relevant sections */
-+		symtab_data = elf_getdata(s, symtab_data);
-+		if (t)
-+			shndx_data = elf_getdata(t, shndx_data);
-+
-+		/* end-of-list */
-+		if (!symtab_data) {
-+			void *buf;
-+
-+			if (idx) {
-+				/* we don't do holes in symbol tables */
-+				WARN("index out of range");
-+				return -1;
-+			}
- 
--	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
--	elf_dirty_reloc_sym(elf, sym);
-+			/* if @idx == 0, it's the next contiguous entry, create it */
-+			symtab_data = elf_newdata(s);
-+			if (t)
-+				shndx_data = elf_newdata(t);
-+
-+			buf = calloc(1, entsize);
-+			if (!buf) {
-+				WARN("malloc");
-+				return -1;
-+			}
- 
--	symtab->sh.sh_info += 1;
--	symtab->sh.sh_size += data->d_size;
--	symtab->changed = true;
-+			symtab_data->d_buf = buf;
-+			symtab_data->d_size = entsize;
-+			symtab_data->d_align = 1;
-+			symtab_data->d_type = ELF_T_SYM;
-+
-+			symtab->sh.sh_size += entsize;
-+			symtab->changed = true;
-+
-+			if (t) {
-+				shndx_data->d_buf = &sym->sec->idx;
-+				shndx_data->d_size = sizeof(Elf32_Word);
-+				shndx_data->d_align = sizeof(Elf32_Word);
-+				shndx_data->d_type = ELF_T_WORD;
- 
--	if (symtab_shndx) {
--		s = elf_getscn(elf->elf, symtab_shndx->idx);
--		if (!s) {
--			WARN_ELF("elf_getscn");
-+				symtab_shndx->sh.sh_size += sizeof(Elf32_Word);
-+				symtab_shndx->changed = true;
-+			}
-+
-+			break;
-+		}
-+
-+		/* empty blocks should not happen */
-+		if (!symtab_data->d_size) {
-+			WARN("zero size data");
- 			return -1;
- 		}
- 
--		shndx_data = elf_newdata(s);
-+		/* is this the right block? */
-+		max_idx = symtab_data->d_size / entsize;
-+		if (idx < max_idx)
-+			break;
-+
-+		/* adjust index and try again */
-+		idx -= max_idx;
-+	}
-+
-+	/* something went side-ways */
-+	if (idx < 0) {
-+		WARN("negative index");
-+		return -1;
-+	}
-+
-+	/* setup extended section index magic and write the symbol */
-+	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
-+		sym->sym.st_shndx = shndx;
-+		if (!shndx_data)
-+			shndx = 0;
-+	} else {
-+		sym->sym.st_shndx = SHN_XINDEX;
- 		if (!shndx_data) {
--			WARN_ELF("elf_newshndx_data");
-+			WARN("no .symtab_shndx");
- 			return -1;
- 		}
-+	}
- 
--		shndx_data->d_buf = &sym->sec->idx;
--		shndx_data->d_size = sizeof(Elf32_Word);
--		shndx_data->d_align = 4;
--		shndx_data->d_type = ELF_T_WORD;
+-#ifdef CONFIG_XIP_KERNEL
+-.macro XIP_FIXUP_OFFSET reg
+-	REG_L t0, _xip_fixup
+-	add \reg, \reg, t0
+-.endm
+-.macro XIP_FIXUP_FLASH_OFFSET reg
+-	la t1, __data_loc
+-	REG_L t1, _xip_phys_offset
+-	sub \reg, \reg, t1
+-	add \reg, \reg, t0
+-.endm
+-_xip_fixup: .dword CONFIG_PHYS_RAM_BASE - CONFIG_XIP_PHYS_ADDR - XIP_OFFSET
+-_xip_phys_offset: .dword CONFIG_XIP_PHYS_ADDR + XIP_OFFSET
+-#else
+-.macro XIP_FIXUP_OFFSET reg
+-.endm
+-.macro XIP_FIXUP_FLASH_OFFSET reg
+-.endm
+-#endif /* CONFIG_XIP_KERNEL */
 -
--		symtab_shndx->sh.sh_size += 4;
--		symtab_shndx->changed = true;
-+	if (!gelf_update_symshndx(symtab_data, shndx_data, idx, &sym->sym, shndx)) {
-+		WARN_ELF("gelf_update_symshndx");
-+		return -1;
- 	}
- 
--	return first_non_local;
-+	return 0;
- }
- 
- static struct symbol *
- elf_create_section_symbol(struct elf *elf, struct section *sec)
- {
- 	struct section *symtab, *symtab_shndx;
--	Elf_Data *shndx_data = NULL;
--	struct symbol *sym;
--	Elf32_Word shndx;
-+	Elf32_Word first_non_local, new_idx;
-+	struct symbol *sym, *old;
- 
- 	symtab = find_section_by_name(elf, ".symtab");
- 	if (symtab) {
- 		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
--		if (symtab_shndx)
--			shndx_data = symtab_shndx->data;
- 	} else {
- 		WARN("no .symtab");
- 		return NULL;
- 	}
- 
--	sym = malloc(sizeof(*sym));
-+	sym = calloc(1, sizeof(*sym));
- 	if (!sym) {
- 		perror("malloc");
- 		return NULL;
- 	}
--	memset(sym, 0, sizeof(*sym));
+-#endif /* __ASSEMBLY__ */
 -
--	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
--	if (sym->idx < 0) {
--		WARN("elf_move_global_symbol");
--		return NULL;
--	}
+ #endif /* _ASM_RISCV_ASM_H */
+diff --git a/arch/riscv/include/asm/xip_fixup.h b/arch/riscv/include/asm/xip_fixup.h
+new file mode 100644
+index 000000000000..d4ffc3c37649
+--- /dev/null
++++ b/arch/riscv/include/asm/xip_fixup.h
+@@ -0,0 +1,31 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * XIP fixup macros, only useful in assembly.
++ */
++#ifndef _ASM_RISCV_XIP_FIXUP_H
++#define _ASM_RISCV_XIP_FIXUP_H
++
++#include <linux/pgtable.h>
++
++#ifdef CONFIG_XIP_KERNEL
++.macro XIP_FIXUP_OFFSET reg
++        REG_L t0, _xip_fixup
++        add \reg, \reg, t0
++.endm
++.macro XIP_FIXUP_FLASH_OFFSET reg
++	la t1, __data_loc
++	REG_L t1, _xip_phys_offset
++	sub \reg, \reg, t1
++	add \reg, \reg, t0
++.endm
++
++_xip_fixup: .dword CONFIG_PHYS_RAM_BASE - CONFIG_XIP_PHYS_ADDR - XIP_OFFSET
++_xip_phys_offset: .dword CONFIG_XIP_PHYS_ADDR + XIP_OFFSET
++#else
++.macro XIP_FIXUP_OFFSET reg
++.endm
++.macro XIP_FIXUP_FLASH_OFFSET reg
++.endm
++#endif /* CONFIG_XIP_KERNEL */
++
++#endif
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index b605fb1e6a9c..b865046e4dbb 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -14,6 +14,7 @@
+ #include <asm/cpu_ops_sbi.h>
+ #include <asm/hwcap.h>
+ #include <asm/image.h>
++#include <asm/xip_fixup.h>
+ #include "efi-header.S"
  
- 	sym->name = sec->name;
- 	sym->sec = sec;
-@@ -647,24 +690,41 @@ elf_create_section_symbol(struct elf *el
- 	// st_other 0
- 	// st_value 0
- 	// st_size 0
--	shndx = sec->idx;
--	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
--		sym->sym.st_shndx = shndx;
--		if (!shndx_data)
--			shndx = 0;
--	} else {
--		sym->sym.st_shndx = SHN_XINDEX;
--		if (!shndx_data) {
--			WARN("no .symtab_shndx");
-+
-+	/*
-+	 * Move the first global symbol, as per sh_info, into a new, higher
-+	 * symbol index. This fees up a spot for a new local symbol.
-+	 */
-+	first_non_local = symtab->sh.sh_info;
-+	new_idx = symtab->sh.sh_size / symtab->sh.sh_entsize;
-+	old = find_symbol_by_index(elf, first_non_local);
-+	if (old) {
-+		old->idx = new_idx;
-+
-+		hlist_del(&old->hash);
-+		elf_hash_add(symbol, &old->hash, old->idx);
-+
-+		elf_dirty_reloc_sym(elf, old);
-+
-+		if (elf_update_symbol(elf, symtab, symtab_shndx, old)) {
-+			WARN("elf_update_symbol move");
- 			return NULL;
- 		}
-+
-+		new_idx = first_non_local;
- 	}
+ __HEAD
+diff --git a/arch/riscv/kernel/suspend_entry.S b/arch/riscv/kernel/suspend_entry.S
+index 4b07b809a2b8..aafcca58c19d 100644
+--- a/arch/riscv/kernel/suspend_entry.S
++++ b/arch/riscv/kernel/suspend_entry.S
+@@ -8,6 +8,7 @@
+ #include <asm/asm.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/csr.h>
++#include <asm/xip_fixup.h>
  
--	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
--		WARN_ELF("gelf_update_symshndx");
-+	sym->idx = new_idx;
-+	if (elf_update_symbol(elf, symtab, symtab_shndx, sym)) {
-+		WARN("elf_update_symbol");
- 		return NULL;
- 	}
- 
-+	/*
-+	 * Either way, we added a LOCAL symbol.
-+	 */
-+	symtab->sh.sh_info += 1;
-+
- 	elf_add_symbol(elf, sym);
- 
- 	return sym;
+ 	.text
+ 	.altmacro
+-- 
+2.35.1
+
 
 
