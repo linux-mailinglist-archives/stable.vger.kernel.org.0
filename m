@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F6B540F5A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84398541704
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353146AbiFGTGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49228 "EHLO
+        id S1351504AbiFGU5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:57:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353270AbiFGTDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:03:44 -0400
+        with ESMTP id S1377121AbiFGUuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F03FA157EA0;
-        Tue,  7 Jun 2022 11:05:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 134891F2331;
+        Tue,  7 Jun 2022 11:39:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1BED617B4;
-        Tue,  7 Jun 2022 18:05:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BC3C385A5;
-        Tue,  7 Jun 2022 18:05:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D18F461667;
+        Tue,  7 Jun 2022 18:39:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC953C385A2;
+        Tue,  7 Jun 2022 18:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625120;
-        bh=CWpacpZV+I6h3XbEbMIyLimtNJRi0jOE44ohDqfFBnw=;
+        s=korg; t=1654627179;
+        bh=hQLDTp/4gT1tACzdWsoRxpLoseJfIdsqmBXCE368AtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9pxmpKOP5O4PgGqFU6sQtEJarx9E6BPKO6pF38q4rn5TqtPYGWkFJfvmg6KO/BG9
-         5gu4UE00F+TrDezpV0UOCJNKlYBnB3wgrf79N6l72TGyp6A5eY+UPAeahKWZYRvf0E
-         99OpTTgCNfGRmM83ooe/5ysTN2nhPR07IQ6KEJW8=
+        b=IeyoFJLGjEwvBIswHs8rBZspnXhgcZgRh1nmnpfUkPoXXYrFT9igHGd+oP7UBsMO7
+         sXxSNaJBYB9CADRzKh/cwk5cf+wJ6EKrCfR99gL3lprbOeLPsk7IJjuiE7YO4rTyQ1
+         EYrZ/idwz9HMwk5fC7A7ViXJERLs+sBO82b8twBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 532/667] bfq: Avoid merging queues with different parents
-Date:   Tue,  7 Jun 2022 19:03:17 +0200
-Message-Id: <20220607164950.657788528@linuxfoundation.org>
+        stable@vger.kernel.org, Trond Myklebust <trondmy@hammerspace.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 606/772] NFSv4: Fix free of uninitialized nfs4_label on referral lookup.
+Date:   Tue,  7 Jun 2022 19:03:18 +0200
+Message-Id: <20220607165006.798946039@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +55,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit c1cee4ab36acef271be9101590756ed0c0c374d9 upstream.
+[ Upstream commit c3ed222745d9ad7b69299b349a64ba533c64a34f ]
 
-It can happen that the parent of a bfqq changes between the moment we
-decide two queues are worth to merge (and set bic->stable_merge_bfqq)
-and the moment bfq_setup_merge() is called. This can happen e.g. because
-the process submitted IO for a different cgroup and thus bfqq got
-reparented. It can even happen that the bfqq we are merging with has
-parent cgroup that is already offline and going to be destroyed in which
-case the merge can lead to use-after-free issues such as:
+Send along the already-allocated fattr along with nfs4_fs_locations, and
+drop the memcpy of fattr.  We end up growing two more allocations, but this
+fixes up a crash as:
 
-BUG: KASAN: use-after-free in __bfq_deactivate_entity+0x9cb/0xa50
-Read of size 8 at addr ffff88800693c0c0 by task runc:[2:INIT]/10544
+PID: 790    TASK: ffff88811b43c000  CPU: 0   COMMAND: "ls"
+ #0 [ffffc90000857920] panic at ffffffff81b9bfde
+ #1 [ffffc900008579c0] do_trap at ffffffff81023a9b
+ #2 [ffffc90000857a10] do_error_trap at ffffffff81023b78
+ #3 [ffffc90000857a58] exc_stack_segment at ffffffff81be1f45
+ #4 [ffffc90000857a80] asm_exc_stack_segment at ffffffff81c009de
+ #5 [ffffc90000857b08] nfs_lookup at ffffffffa0302322 [nfs]
+ #6 [ffffc90000857b70] __lookup_slow at ffffffff813a4a5f
+ #7 [ffffc90000857c60] walk_component at ffffffff813a86c4
+ #8 [ffffc90000857cb8] path_lookupat at ffffffff813a9553
+ #9 [ffffc90000857cf0] filename_lookup at ffffffff813ab86b
 
-CPU: 0 PID: 10544 Comm: runc:[2:INIT] Tainted: G            E     5.15.2-0.g5fb85fd-default #1 openSUSE Tumbleweed (unreleased) f1f3b891c72369aebecd2e43e4641a6358867c70
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
-Call Trace:
- <IRQ>
- dump_stack_lvl+0x46/0x5a
- print_address_description.constprop.0+0x1f/0x140
- ? __bfq_deactivate_entity+0x9cb/0xa50
- kasan_report.cold+0x7f/0x11b
- ? __bfq_deactivate_entity+0x9cb/0xa50
- __bfq_deactivate_entity+0x9cb/0xa50
- ? update_curr+0x32f/0x5d0
- bfq_deactivate_entity+0xa0/0x1d0
- bfq_del_bfqq_busy+0x28a/0x420
- ? resched_curr+0x116/0x1d0
- ? bfq_requeue_bfqq+0x70/0x70
- ? check_preempt_wakeup+0x52b/0xbc0
- __bfq_bfqq_expire+0x1a2/0x270
- bfq_bfqq_expire+0xd16/0x2160
- ? try_to_wake_up+0x4ee/0x1260
- ? bfq_end_wr_async_queues+0xe0/0xe0
- ? _raw_write_unlock_bh+0x60/0x60
- ? _raw_spin_lock_irq+0x81/0xe0
- bfq_idle_slice_timer+0x109/0x280
- ? bfq_dispatch_request+0x4870/0x4870
- __hrtimer_run_queues+0x37d/0x700
- ? enqueue_hrtimer+0x1b0/0x1b0
- ? kvm_clock_get_cycles+0xd/0x10
- ? ktime_get_update_offsets_now+0x6f/0x280
- hrtimer_interrupt+0x2c8/0x740
-
-Fix the problem by checking that the parent of the two bfqqs we are
-merging in bfq_setup_merge() is the same.
-
-Link: https://lore.kernel.org/linux-block/20211125172809.GC19572@quack2.suse.cz/
-CC: stable@vger.kernel.org
-Fixes: 430a67f9d616 ("block, bfq: merge bursts of newly-created queues")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-2-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Trond Myklebust <trondmy@hammerspace.com>
+Fixes: 9558a007dbc3 ("NFS: Remove the label from the nfs4_lookup_res struct")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/nfs/nfs4namespace.c  |  9 +++++++--
+ fs/nfs/nfs4proc.c       | 15 +++++++--------
+ fs/nfs/nfs4state.c      |  9 ++++++++-
+ fs/nfs/nfs4xdr.c        |  4 ++--
+ include/linux/nfs_xdr.h |  2 +-
+ 5 files changed, 25 insertions(+), 14 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2636,6 +2636,14 @@ bfq_setup_merge(struct bfq_queue *bfqq,
- 	if (process_refs == 0 || new_process_refs == 0)
- 		return NULL;
+diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
+index 3680c8da510c..f2dbf904c598 100644
+--- a/fs/nfs/nfs4namespace.c
++++ b/fs/nfs/nfs4namespace.c
+@@ -417,6 +417,9 @@ static int nfs_do_refmount(struct fs_context *fc, struct rpc_clnt *client)
+ 	fs_locations = kmalloc(sizeof(struct nfs4_fs_locations), GFP_KERNEL);
+ 	if (!fs_locations)
+ 		goto out_free;
++	fs_locations->fattr = nfs_alloc_fattr();
++	if (!fs_locations->fattr)
++		goto out_free_2;
  
-+	/*
-+	 * Make sure merged queues belong to the same parent. Parents could
-+	 * have changed since the time we decided the two queues are suitable
-+	 * for merging.
-+	 */
-+	if (new_bfqq->entity.parent != bfqq->entity.parent)
-+		return NULL;
+ 	/* Get locations */
+ 	dentry = ctx->clone_data.dentry;
+@@ -427,14 +430,16 @@ static int nfs_do_refmount(struct fs_context *fc, struct rpc_clnt *client)
+ 	err = nfs4_proc_fs_locations(client, d_inode(parent), &dentry->d_name, fs_locations, page);
+ 	dput(parent);
+ 	if (err != 0)
+-		goto out_free_2;
++		goto out_free_3;
+ 
+ 	err = -ENOENT;
+ 	if (fs_locations->nlocations <= 0 ||
+ 	    fs_locations->fs_path.ncomponents <= 0)
+-		goto out_free_2;
++		goto out_free_3;
+ 
+ 	err = nfs_follow_referral(fc, fs_locations);
++out_free_3:
++	kfree(fs_locations->fattr);
+ out_free_2:
+ 	kfree(fs_locations);
+ out_free:
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 3d307854c650..7d78ace0f025 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -4246,6 +4246,8 @@ static int nfs4_get_referral(struct rpc_clnt *client, struct inode *dir,
+ 	if (locations == NULL)
+ 		goto out;
+ 
++	locations->fattr = fattr;
 +
- 	bfq_log_bfqq(bfqq->bfqd, bfqq, "scheduling merge with queue %d",
- 		new_bfqq->pid);
+ 	status = nfs4_proc_fs_locations(client, dir, name, locations, page);
+ 	if (status != 0)
+ 		goto out;
+@@ -4255,17 +4257,14 @@ static int nfs4_get_referral(struct rpc_clnt *client, struct inode *dir,
+ 	 * referral.  Cause us to drop into the exception handler, which
+ 	 * will kick off migration recovery.
+ 	 */
+-	if (nfs_fsid_equal(&NFS_SERVER(dir)->fsid, &locations->fattr.fsid)) {
++	if (nfs_fsid_equal(&NFS_SERVER(dir)->fsid, &fattr->fsid)) {
+ 		dprintk("%s: server did not return a different fsid for"
+ 			" a referral at %s\n", __func__, name->name);
+ 		status = -NFS4ERR_MOVED;
+ 		goto out;
+ 	}
+ 	/* Fixup attributes for the nfs_lookup() call to nfs_fhget() */
+-	nfs_fixup_referral_attributes(&locations->fattr);
+-
+-	/* replace the lookup nfs_fattr with the locations nfs_fattr */
+-	memcpy(fattr, &locations->fattr, sizeof(struct nfs_fattr));
++	nfs_fixup_referral_attributes(fattr);
+ 	memset(fhandle, 0, sizeof(struct nfs_fh));
+ out:
+ 	if (page)
+@@ -7906,7 +7905,7 @@ static int _nfs4_proc_fs_locations(struct rpc_clnt *client, struct inode *dir,
+ 	else
+ 		bitmask[1] &= ~FATTR4_WORD1_MOUNTED_ON_FILEID;
  
+-	nfs_fattr_init(&fs_locations->fattr);
++	nfs_fattr_init(fs_locations->fattr);
+ 	fs_locations->server = server;
+ 	fs_locations->nlocations = 0;
+ 	status = nfs4_call_sync(client, server, &msg, &args.seq_args, &res.seq_res, 0);
+@@ -7971,7 +7970,7 @@ static int _nfs40_proc_get_locations(struct nfs_server *server,
+ 	unsigned long now = jiffies;
+ 	int status;
+ 
+-	nfs_fattr_init(&locations->fattr);
++	nfs_fattr_init(locations->fattr);
+ 	locations->server = server;
+ 	locations->nlocations = 0;
+ 
+@@ -8024,7 +8023,7 @@ static int _nfs41_proc_get_locations(struct nfs_server *server,
+ 	};
+ 	int status;
+ 
+-	nfs_fattr_init(&locations->fattr);
++	nfs_fattr_init(locations->fattr);
+ 	locations->server = server;
+ 	locations->nlocations = 0;
+ 
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 0f4818627ef0..9d312a28b2f0 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -2097,6 +2097,11 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
+ 		dprintk("<-- %s: no memory\n", __func__);
+ 		goto out;
+ 	}
++	locations->fattr = nfs_alloc_fattr();
++	if (locations->fattr == NULL) {
++		dprintk("<-- %s: no memory\n", __func__);
++		goto out;
++	}
+ 
+ 	inode = d_inode(server->super->s_root);
+ 	result = nfs4_proc_get_locations(server, NFS_FH(inode), locations,
+@@ -2111,7 +2116,7 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
+ 	if (!locations->nlocations)
+ 		goto out;
+ 
+-	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
++	if (!(locations->fattr->valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
+ 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
+ 			__func__);
+ 		goto out;
+@@ -2136,6 +2141,8 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
+ out:
+ 	if (page != NULL)
+ 		__free_page(page);
++	if (locations != NULL)
++		kfree(locations->fattr);
+ 	kfree(locations);
+ 	if (result) {
+ 		pr_err("NFS: migration recovery failed (server %s)\n",
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 8e70b92df4cc..7dbeb13e7d0d 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -7051,7 +7051,7 @@ static int nfs4_xdr_dec_fs_locations(struct rpc_rqst *req,
+ 	if (res->migration) {
+ 		xdr_enter_page(xdr, PAGE_SIZE);
+ 		status = decode_getfattr_generic(xdr,
+-					&res->fs_locations->fattr,
++					res->fs_locations->fattr,
+ 					 NULL, res->fs_locations,
+ 					 res->fs_locations->server);
+ 		if (status)
+@@ -7064,7 +7064,7 @@ static int nfs4_xdr_dec_fs_locations(struct rpc_rqst *req,
+ 			goto out;
+ 		xdr_enter_page(xdr, PAGE_SIZE);
+ 		status = decode_getfattr_generic(xdr,
+-					&res->fs_locations->fattr,
++					res->fs_locations->fattr,
+ 					 NULL, res->fs_locations,
+ 					 res->fs_locations->server);
+ 	}
+diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+index 728cb0c1f0b6..3091db5732cb 100644
+--- a/include/linux/nfs_xdr.h
++++ b/include/linux/nfs_xdr.h
+@@ -1213,7 +1213,7 @@ struct nfs4_fs_location {
+ 
+ #define NFS4_FS_LOCATIONS_MAXENTRIES 10
+ struct nfs4_fs_locations {
+-	struct nfs_fattr fattr;
++	struct nfs_fattr *fattr;
+ 	const struct nfs_server *server;
+ 	struct nfs4_pathname fs_path;
+ 	int nlocations;
+-- 
+2.35.1
+
 
 
