@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D441E541723
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F178541E57
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351295AbiFGU7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55940 "EHLO
+        id S1380595AbiFGW3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377110AbiFGU5e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:57:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8579D202889;
-        Tue,  7 Jun 2022 11:44:22 -0700 (PDT)
+        with ESMTP id S1380777AbiFGW15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:27:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97A4272341;
+        Tue,  7 Jun 2022 12:23:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94C686157F;
-        Tue,  7 Jun 2022 18:44:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DB9DC36AFF;
-        Tue,  7 Jun 2022 18:44:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9FB460B09;
+        Tue,  7 Jun 2022 19:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C56F6C385A2;
+        Tue,  7 Jun 2022 19:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627461;
-        bh=dCeVzC/jF/iTDOn+inmUhCo29O8Nt84UucMF/ifylBA=;
+        s=korg; t=1654629808;
+        bh=gdjgGA3jTeWt39F5XYCk+VKfrnsbIggp1l16MZwXDVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIktkR7+XIOvIarPmrUIUzRzWJ09sMm2687cBsrMuhD/FiTbTMw4eG2Wk6RbijP8o
-         ZFgsttX2oVqVnMvKm6pqCjtGCJ4eZK9DtDjSCfJe1vuhbkm17Yh8K3vcJCjHLb1201
-         RUEUWei35OYiJPZppqcp4lGKzWBcRxb7YHt+WYuk=
+        b=vf2zvPlWej4IcNIOzyS3tYhEcNaqJtIbLVy1w5v8REoAhXEcUMGnLWB43uDWioorV
+         U3TKJ8PxpNjGb8S5AZS5iJ3YeGMD5m29VqcKHJCwe9OS+GUfRlxjwUW385rzWpVYTJ
+         7x/ttEPc2DE2gIYT8v0U/2Xyg0+PcdX7U4VwUlgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.17 749/772] dt-bindings: gpio: altera: correct interrupt-cells
-Date:   Tue,  7 Jun 2022 19:05:41 +0200
-Message-Id: <20220607165011.099381025@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Yufan Chen <wiz.chen@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.18 824/879] ksmbd: fix outstanding credits related bugs
+Date:   Tue,  7 Jun 2022 19:05:42 +0200
+Message-Id: <20220607165026.772893494@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-commit 3a21c3ac93aff7b4522b152399df8f6a041df56d upstream.
+commit 376b9133826865568167b4091ef92a68c4622b87 upstream.
 
-update documentation to correctly state the interrupt-cells to be 2.
+outstanding credits must be initialized to 0,
+because it means the sum of credits consumed by
+in-flight requests.
+And outstanding credits must be compared with
+total credits in smb2_validate_credit_charge(),
+because total credits are the sum of credits
+granted by ksmbd.
 
+This patch fix the following error,
+while frametest with Windows clients:
+
+Limits exceeding the maximum allowable outstanding requests,
+given : 128, pending : 8065
+
+Fixes: b589f5db6d4a ("ksmbd: limits exceeding the maximum allowable outstanding requests")
 Cc: stable@vger.kernel.org
-Fixes: 4fd9bbc6e071 ("drivers/gpio: Altera soft IP GPIO driver devicetree binding")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Reported-by: Yufan Chen <wiz.chen@gmail.com>
+Tested-by: Yufan Chen <wiz.chen@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/gpio/gpio-altera.txt |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ksmbd/connection.c |    2 +-
+ fs/ksmbd/smb2misc.c   |    2 +-
+ fs/ksmbd/smb_common.c |    4 +++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/Documentation/devicetree/bindings/gpio/gpio-altera.txt
-+++ b/Documentation/devicetree/bindings/gpio/gpio-altera.txt
-@@ -9,8 +9,9 @@ Required properties:
-   - The second cell is reserved and is currently unused.
- - gpio-controller : Marks the device node as a GPIO controller.
- - interrupt-controller: Mark the device node as an interrupt controller
--- #interrupt-cells : Should be 1. The interrupt type is fixed in the hardware.
-+- #interrupt-cells : Should be 2. The interrupt type is fixed in the hardware.
-   - The first cell is the GPIO offset number within the GPIO controller.
-+  - The second cell is the interrupt trigger type and level flags.
- - interrupts: Specify the interrupt.
- - altr,interrupt-type: Specifies the interrupt trigger type the GPIO
-   hardware is synthesized. This field is required if the Altera GPIO controller
-@@ -38,6 +39,6 @@ gpio_altr: gpio@ff200000 {
- 	altr,interrupt-type = <IRQ_TYPE_EDGE_RISING>;
- 	#gpio-cells = <2>;
- 	gpio-controller;
--	#interrupt-cells = <1>;
-+	#interrupt-cells = <2>;
- 	interrupt-controller;
- };
+--- a/fs/ksmbd/connection.c
++++ b/fs/ksmbd/connection.c
+@@ -62,7 +62,7 @@ struct ksmbd_conn *ksmbd_conn_alloc(void
+ 	atomic_set(&conn->req_running, 0);
+ 	atomic_set(&conn->r_count, 0);
+ 	conn->total_credits = 1;
+-	conn->outstanding_credits = 1;
++	conn->outstanding_credits = 0;
+ 
+ 	init_waitqueue_head(&conn->req_running_q);
+ 	INIT_LIST_HEAD(&conn->conns_list);
+--- a/fs/ksmbd/smb2misc.c
++++ b/fs/ksmbd/smb2misc.c
+@@ -338,7 +338,7 @@ static int smb2_validate_credit_charge(s
+ 		ret = 1;
+ 	}
+ 
+-	if ((u64)conn->outstanding_credits + credit_charge > conn->vals->max_credits) {
++	if ((u64)conn->outstanding_credits + credit_charge > conn->total_credits) {
+ 		ksmbd_debug(SMB, "Limits exceeding the maximum allowable outstanding requests, given : %u, pending : %u\n",
+ 			    credit_charge, conn->outstanding_credits);
+ 		ret = 1;
+--- a/fs/ksmbd/smb_common.c
++++ b/fs/ksmbd/smb_common.c
+@@ -140,8 +140,10 @@ int ksmbd_verify_smb_message(struct ksmb
+ 
+ 	hdr = work->request_buf;
+ 	if (*(__le32 *)hdr->Protocol == SMB1_PROTO_NUMBER &&
+-	    hdr->Command == SMB_COM_NEGOTIATE)
++	    hdr->Command == SMB_COM_NEGOTIATE) {
++		work->conn->outstanding_credits++;
+ 		return 0;
++	}
+ 
+ 	return -EINVAL;
+ }
 
 
