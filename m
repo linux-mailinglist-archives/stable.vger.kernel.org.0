@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B78541B30
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D4154142C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349334AbiFGVmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40900 "EHLO
+        id S1359129AbiFGUNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:13:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381432AbiFGVkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB88232A79;
-        Tue,  7 Jun 2022 12:06:57 -0700 (PDT)
+        with ESMTP id S1359647AbiFGUMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:12:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FE3D1C591E;
+        Tue,  7 Jun 2022 11:27:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6CD4BCE249A;
-        Tue,  7 Jun 2022 19:06:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BA15C385A5;
-        Tue,  7 Jun 2022 19:06:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14A9C6131C;
+        Tue,  7 Jun 2022 18:27:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D604C34115;
+        Tue,  7 Jun 2022 18:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628813;
-        bh=59IH4Hwdtk8/94TSVvLP0CH/Namlp4yfyGYO4itvuzc=;
+        s=korg; t=1654626473;
+        bh=CHwzErbfl9g+UchN3LbndQVEtZRfyJw1uJSY2pm+gSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLWk7cqWEYGDcSHKWfp/YMdXWxudUtX9RO1frUDUorn7J+sv0kYW7g9QM9h+qo58M
-         TURaOpp1eZ1w80bbqEN9o1fndwkOUkq33GmDWXX4PlZ+7VWP7NVs71mwHgniBimR/f
-         9GScQI+MWiz+HSJRrRGecGEG1sheXF+9StENMFuc=
+        b=QopPIW8ci/iijoFET76ATmgoweHUYemKve+dpJdR0m7OV8y7gW/FdrfgcEaN8w7EI
+         fNNibbIQj0FePt6mlYYO0RQAXtz2FxKUkeTGx8oWwpZXZVEStM4rPZ3FA54elG85Xs
+         rcsXrtXZ7ny5o+ED8zY4hLXJyRjKtAXX6B0V2gmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 466/879] m68k: math-emu: Fix dependencies of math emulation support
+        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 392/772] io_uring: only wake when the correct events are set
 Date:   Tue,  7 Jun 2022 18:59:44 +0200
-Message-Id: <20220607165016.403396588@linuxfoundation.org>
+Message-Id: <20220607165000.563250959@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Dylan Yudaken <dylany@fb.com>
 
-[ Upstream commit ed6bc6bf0a7d75e80eb1df883c09975ebb74e590 ]
+[ Upstream commit 1b1d7b4bf1d9948c8dba5ee550459ce7c65ac019 ]
 
-If CONFIG_M54xx=y, CONFIG_MMU=y, and CONFIG_M68KFPU_EMU=y:
+The check for waking up a request compares the poll_t bits, however this
+will always contain some common flags so this always wakes up.
 
-    {standard input}:272: Error: invalid instruction for this architecture; needs 68000 or higher (68000 [68ec000, 68hc000, 68hc001, 68008, 68302, 68306, 68307, 68322, 68356], 68010, 68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060], cpu32 [68330, 68331, 68332, 68333, 68334, 68336, 68340, 68341, 68349, 68360], fidoa [fido]) -- statement `sub.b %d1,%d3' ignored
-    {standard input}:609: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `bfextu 4(%a1){%d0,#8},%d0' ignored
-    {standard input}:752: Error: operands mismatch -- statement `mulu.l 4(%a0),%d3:%d0' ignored
-    {standard input}:1155: Error: operands mismatch -- statement `divu.l %d0,%d3:%d7' ignored
+For files with single wait queues such as sockets this can cause the
+request to be sent to the async worker unnecesarily. Further if it is
+non-blocking will complete the request with EAGAIN which is not desired.
 
-The math emulation support code is intended for 68020 and higher, and
-uses several instructions or instruction modes not available on coldfire
-or 68000.
+Here exclude these common events, making sure to not exclude POLLERR which
+might be important.
 
-Originally, the dependency of M68KFPU_EMU on MMU was fine, as MMU
-support was only available on 68020 or higher.  But this assumption
-was broken by the introduction of MMU support for M547x and M548x.
-
-Drop the dependency on MMU, as the code should work fine on 68020 and up
-without MMU (which are not yet supported by Linux, though).
-Add dependencies on M68KCLASSIC (to rule out Coldfire) and FPU (kernel
-has some type of floating-point support --- be it hardware or software
-emulated, to rule out anything below 68020).
-
-Fixes: 1f7034b9616e6f14 ("m68k: allow ColdFire 547x and 548x CPUs to be built with MMU enabled")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Greg Ungerer <gerg@linux-m68k.org>
-Link: https://lore.kernel.org/r/18c34695b7c95107f60ccca82a4ff252f3edf477.1652446117.git.geert@linux-m68k.org
+Fixes: d7718a9d25a6 ("io_uring: use poll driven retry for files that support it")
+Signed-off-by: Dylan Yudaken <dylany@fb.com>
+Link: https://lore.kernel.org/r/20220512091834.728610-3-dylany@fb.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.cpu | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
-index 16ea9a67723c..3d5da25c73b5 100644
---- a/arch/m68k/Kconfig.cpu
-+++ b/arch/m68k/Kconfig.cpu
-@@ -327,7 +327,7 @@ comment "Processor Specific Options"
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 25b0832e0fc3..0bd592af1bf7 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5634,6 +5634,7 @@ static void io_poll_cancel_req(struct io_kiocb *req)
  
- config M68KFPU_EMU
- 	bool "Math emulation support"
--	depends on MMU
-+	depends on M68KCLASSIC && FPU
- 	help
- 	  At some point in the future, this will cause floating-point math
- 	  instructions to be emulated by the kernel on machines that lack a
+ #define wqe_to_req(wait)	((void *)((unsigned long) (wait)->private & ~1))
+ #define wqe_is_double(wait)	((unsigned long) (wait)->private & 1)
++#define IO_ASYNC_POLL_COMMON	(EPOLLONESHOT | POLLPRI)
+ 
+ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 			void *key)
+@@ -5668,7 +5669,7 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 	}
+ 
+ 	/* for instances that support it check for an event match first */
+-	if (mask && !(mask & poll->events))
++	if (mask && !(mask & (poll->events & ~IO_ASYNC_POLL_COMMON)))
+ 		return 0;
+ 
+ 	if (io_poll_get_ownership(req)) {
+@@ -5824,7 +5825,7 @@ static int io_arm_poll_handler(struct io_kiocb *req)
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct async_poll *apoll;
+ 	struct io_poll_table ipt;
+-	__poll_t mask = EPOLLONESHOT | POLLERR | POLLPRI;
++	__poll_t mask = IO_ASYNC_POLL_COMMON | POLLERR;
+ 	int ret;
+ 
+ 	if (!def->pollin && !def->pollout)
 -- 
 2.35.1
 
