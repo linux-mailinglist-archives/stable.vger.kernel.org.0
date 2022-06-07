@@ -2,45 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE1B540604
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB189540CF4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347084AbiFGRc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42264 "EHLO
+        id S239637AbiFGSoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:44:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348087AbiFGRbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8215F11E49A;
-        Tue,  7 Jun 2022 10:29:16 -0700 (PDT)
+        with ESMTP id S1353442AbiFGSmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:42:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2BE187040;
+        Tue,  7 Jun 2022 10:58:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2272060BC6;
-        Tue,  7 Jun 2022 17:29:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31621C385A5;
-        Tue,  7 Jun 2022 17:29:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BADCBB82239;
+        Tue,  7 Jun 2022 17:58:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0907C341C7;
+        Tue,  7 Jun 2022 17:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622955;
-        bh=pwRozGQKNNA1j1GZLpy9hiTpHM2CP4DBqKn95EEHNbE=;
+        s=korg; t=1654624736;
+        bh=sWn2KXKLVPyfsa6n0Io+GouTN/mpcv2HYJkzwIRKHSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zK2c2KO3f3m4tTWNd2c26fCIUnPuyzQkQqKLxOvGvywznBvHfd5PZ5D9Hifu+tnsQ
-         jBun/hvMNwNTixERMiptPgI1ejC8G4Hdg3UEF3jwkf2EAknbIJT0x12EKyKNB0JYt0
-         1F5Xb6OL+XqpCZYKPwmcqp4VvnjV5ovwZJI029uc=
+        b=V6TFFM41Vc5olMda2zkOD9lKC6oFG0sBbvtU+ZdG+bLiCl8o+wWFFd2IDCRxHZfBK
+         WuJ7vticG4FdxWXhcEXMwbrTJy8xZnsMbTQjjiVmA4FB2iPWRbwBRFNnQpI6gp89Zj
+         EBzcmx3pIQ1AVYh5r35OhHwqzuB4ykj55RlhjK9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Alistair Popple <apopple@nvidia.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Hugh Dickins <hughd@google.com>, Jan Kara <jack@suse.cz>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ross Zwisler <zwisler@kernel.org>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 241/452] thermal/drivers/core: Use a char pointer for the cooling device name
+Subject: [PATCH 5.15 433/667] dax: fix cache flush on PMD-mapped pages
 Date:   Tue,  7 Jun 2022 19:01:38 +0200
-Message-Id: <20220607164915.741497011@linuxfoundation.org>
+Message-Id: <20220607164947.712787509@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +66,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 58483761810087e5ffdf36e84ac1bf26df909097 ]
+[ Upstream commit e583b5c472bd23d450e06f148dc1f37be74f7666 ]
 
-We want to have any kind of name for the cooling devices as we do no
-longer want to rely on auto-numbering. Let's replace the cooling
-device's fixed array by a char pointer to be allocated dynamically
-when registering the cooling device, so we don't limit the length of
-the name.
+The flush_cache_page() only remove a PAGE_SIZE sized range from the cache.
+However, it does not cover the full pages in a THP except a head page.
+Replace it with flush_cache_range() to fix this issue.  This is just a
+documentation issue with the respect to properly documenting the expected
+usage of cache flushing before modifying the pmd.  However, in practice
+this is not a problem due to the fact that DAX is not available on
+architectures with virtually indexed caches per:
 
-Rework the error path at the same time as we have to rollback the
-allocations in case of error.
+  commit d92576f1167c ("dax: does not work correctly with virtual aliasing caches")
 
-Tested with a dummy device having the name:
- "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"
-
-A village on the island of Anglesey (Wales), known to have the longest
-name in Europe.
-
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20210314111333.16551-1-daniel.lezcano@linaro.org
+Link: https://lkml.kernel.org/r/20220403053957.10770-3-songmuchun@bytedance.com
+Fixes: f729c8c9b24f ("dax: wrprotect pmd_t in dax_mapping_entry_mkclean")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Ross Zwisler <zwisler@kernel.org>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlxsw/core_thermal.c    |  2 +-
- drivers/thermal/thermal_core.c                | 38 +++++++++++--------
- include/linux/thermal.h                       |  2 +-
- 3 files changed, 24 insertions(+), 18 deletions(-)
+ fs/dax.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-index 7ec1d0ee9bee..ecd1856bef5e 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -133,7 +133,7 @@ static int mlxsw_get_cooling_device_idx(struct mlxsw_thermal *thermal,
- 	/* Allow mlxsw thermal zone binding to an external cooling device */
- 	for (i = 0; i < ARRAY_SIZE(mlxsw_thermal_external_allowed_cdev); i++) {
- 		if (strnstr(cdev->type, mlxsw_thermal_external_allowed_cdev[i],
--			    sizeof(cdev->type)))
-+			    strlen(cdev->type)))
- 			return 0;
- 	}
+diff --git a/fs/dax.c b/fs/dax.c
+index 4e3e5a283a91..1d0658cf9dcf 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -846,7 +846,8 @@ static void dax_entry_mkclean(struct address_space *mapping, pgoff_t index,
+ 			if (!pmd_dirty(*pmdp) && !pmd_write(*pmdp))
+ 				goto unlock_pmd;
  
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index d9e34ac37662..1abef64ccb5f 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -1092,10 +1092,7 @@ __thermal_cooling_device_register(struct device_node *np,
- {
- 	struct thermal_cooling_device *cdev;
- 	struct thermal_zone_device *pos = NULL;
--	int result;
--
--	if (type && strlen(type) >= THERMAL_NAME_LENGTH)
--		return ERR_PTR(-EINVAL);
-+	int ret;
- 
- 	if (!ops || !ops->get_max_state || !ops->get_cur_state ||
- 	    !ops->set_cur_state)
-@@ -1105,14 +1102,17 @@ __thermal_cooling_device_register(struct device_node *np,
- 	if (!cdev)
- 		return ERR_PTR(-ENOMEM);
- 
--	result = ida_simple_get(&thermal_cdev_ida, 0, 0, GFP_KERNEL);
--	if (result < 0) {
--		kfree(cdev);
--		return ERR_PTR(result);
-+	ret = ida_simple_get(&thermal_cdev_ida, 0, 0, GFP_KERNEL);
-+	if (ret < 0)
-+		goto out_kfree_cdev;
-+	cdev->id = ret;
-+
-+	cdev->type = kstrdup(type ? type : "", GFP_KERNEL);
-+	if (!cdev->type) {
-+		ret = -ENOMEM;
-+		goto out_ida_remove;
- 	}
- 
--	cdev->id = result;
--	strlcpy(cdev->type, type ? : "", sizeof(cdev->type));
- 	mutex_init(&cdev->lock);
- 	INIT_LIST_HEAD(&cdev->thermal_instances);
- 	cdev->np = np;
-@@ -1122,12 +1122,9 @@ __thermal_cooling_device_register(struct device_node *np,
- 	cdev->devdata = devdata;
- 	thermal_cooling_device_setup_sysfs(cdev);
- 	dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
--	result = device_register(&cdev->device);
--	if (result) {
--		ida_simple_remove(&thermal_cdev_ida, cdev->id);
--		put_device(&cdev->device);
--		return ERR_PTR(result);
--	}
-+	ret = device_register(&cdev->device);
-+	if (ret)
-+		goto out_kfree_type;
- 
- 	/* Add 'this' new cdev to the global cdev list */
- 	mutex_lock(&thermal_list_lock);
-@@ -1145,6 +1142,14 @@ __thermal_cooling_device_register(struct device_node *np,
- 	mutex_unlock(&thermal_list_lock);
- 
- 	return cdev;
-+
-+out_kfree_type:
-+	kfree(cdev->type);
-+	put_device(&cdev->device);
-+out_ida_remove:
-+	ida_simple_remove(&thermal_cdev_ida, cdev->id);
-+out_kfree_cdev:
-+	return ERR_PTR(ret);
- }
- 
- /**
-@@ -1303,6 +1308,7 @@ void thermal_cooling_device_unregister(struct thermal_cooling_device *cdev)
- 	ida_simple_remove(&thermal_cdev_ida, cdev->id);
- 	device_del(&cdev->device);
- 	thermal_cooling_device_destroy_sysfs(cdev);
-+	kfree(cdev->type);
- 	put_device(&cdev->device);
- }
- EXPORT_SYMBOL_GPL(thermal_cooling_device_unregister);
-diff --git a/include/linux/thermal.h b/include/linux/thermal.h
-index 176d9454e8f3..7097d4dcfdd0 100644
---- a/include/linux/thermal.h
-+++ b/include/linux/thermal.h
-@@ -92,7 +92,7 @@ struct thermal_cooling_device_ops {
- 
- struct thermal_cooling_device {
- 	int id;
--	char type[THERMAL_NAME_LENGTH];
-+	char *type;
- 	struct device device;
- 	struct device_node *np;
- 	void *devdata;
+-			flush_cache_page(vma, address, pfn);
++			flush_cache_range(vma, address,
++					  address + HPAGE_PMD_SIZE);
+ 			pmd = pmdp_invalidate(vma, address, pmdp);
+ 			pmd = pmd_wrprotect(pmd);
+ 			pmd = pmd_mkclean(pmd);
 -- 
 2.35.1
 
