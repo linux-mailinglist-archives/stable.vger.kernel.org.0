@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7FF540AF6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A39540AEC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350930AbiFGSYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
+        id S240387AbiFGSYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:24:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352163AbiFGSQ5 (ORCPT
+        with ESMTP id S1352168AbiFGSQ5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37560FD28;
-        Tue,  7 Jun 2022 10:50:50 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA07A11141;
+        Tue,  7 Jun 2022 10:50:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C89B76146F;
-        Tue,  7 Jun 2022 17:50:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98FFC34115;
-        Tue,  7 Jun 2022 17:50:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8465161650;
+        Tue,  7 Jun 2022 17:50:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A3CDC34115;
+        Tue,  7 Jun 2022 17:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624249;
-        bh=KgLkVpm/eCq7pTrqhy/1TWHRr1bnRifLYUD1rkYJal0=;
+        s=k20201202; t=1654624253;
+        bh=b0y7kcZVJHUzbw5GlGaRG2weKRKicsuh66ywd8v6S5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ub+VtufDduOXMSv4TZ9gQU3zOrvM1SsnkzzkhdwhZCv1lv56F+kq8Bf/vgxdxebWm
-         mF7yA56VUm7ldmjLlSF2PneCn+xFkeT5SpPIDalt1Tc2h/c/B9Q6NuZm7iyTtGd4eK
-         9LoRAyoA/fPkvigYeFf4vdkb/RzjcpwfCsgdtfp4jRiwL9F41rHd4GQ7YdXzkiWeKZ
-         fvotHf7tSvA6c92nFMVTY8/d3dO0GYVdS6F0ulVLwpGVbrS6U+Wn9Zl+0su8nq2Sae
-         8JYV/xd7sy+sEEP/i44c9LIkG4MNiH1zQPaSW7Cs0J16Dy7T/0B85bWBIITrlL1b2O
-         hv//HYJvwPAsQ==
+        b=Q7hStlKvc5btCB3Cj473dwObUBZ2TZOPM9ak5lbryL+4EPwjK35YYnoU+oPoO5ln6
+         353X49dV26sf7xI6SRGLv8pcNtopGJPuXakj85O9zUPUAMyj/V/h1Y0fFtKj3lwCYG
+         J8UQM9wtcuE1jAWZi5RbiPqhADTayCMSBZy4GdHw+BwclUju3PlRKrit+k5Z5J16dR
+         j6vvBOkEZgwANi+NbgtK4XdoJCRtWe9/EWZ0pxlIOheIVh/iqfo7P9d+GCG5ps9OLf
+         nihEoj0VMN+g8dqH5XGQ3rCRxrNmUPANlKbQ5XJEe0zIBV1bZud+C7nY48qjE5P+Tc
+         BkTTNcbtJmTHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Ogness <john.ogness@linutronix.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Petr Mladek <pmladek@suse.com>,
+Cc:     Zheng Bin <zhengbin13@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        bjorn.andersson@linaro.org, jirislaby@kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 30/68] serial: msm_serial: disable interrupts in __msm_console_write()
-Date:   Tue,  7 Jun 2022 13:47:56 -0400
-Message-Id: <20220607174846.477972-30-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, w.d.hubbs@gmail.com,
+        chris@the-brannons.com, kirk@reisers.ca,
+        samuel.thibault@ens-lyon.org, trix@redhat.com,
+        salah.triki@gmail.com, speakup@linux-speakup.org
+Subject: [PATCH AUTOSEL 5.18 31/68] accessiblity: speakup: Add missing misc_deregister in softsynth_probe
+Date:   Tue,  7 Jun 2022 13:47:57 -0400
+Message-Id: <20220607174846.477972-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -60,57 +59,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-[ Upstream commit aabdbb1b7a5819e18c403334a31fb0cc2c06ad41 ]
+[ Upstream commit 106101303eda8f93c65158e5d72b2cc6088ed034 ]
 
-__msm_console_write() assumes that interrupts are disabled, but
-with threaded console printers it is possible that the write()
-callback of the console is called with interrupts enabled.
+softsynth_probe misses a call misc_deregister() in an error path, this
+patch fixes that.
 
-Explicitly disable interrupts using local_irq_save() to preserve
-the assumed context.
-
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Link: https://lore.kernel.org/r/20220506213324.470461-1-john.ogness@linutronix.de
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Link: https://lore.kernel.org/r/20220511032937.2736738-1-zhengbin13@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/msm_serial.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/accessibility/speakup/speakup_soft.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index 23c94b927776..e676ec761f18 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -1599,6 +1599,7 @@ static inline struct uart_port *msm_get_port_from_line(unsigned int line)
- static void __msm_console_write(struct uart_port *port, const char *s,
- 				unsigned int count, bool is_uartdm)
- {
-+	unsigned long flags;
- 	int i;
- 	int num_newlines = 0;
- 	bool replaced = false;
-@@ -1616,6 +1617,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 			num_newlines++;
- 	count += num_newlines;
- 
-+	local_irq_save(flags);
-+
- 	if (port->sysrq)
- 		locked = 0;
- 	else if (oops_in_progress)
-@@ -1661,6 +1664,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 
- 	if (locked)
- 		spin_unlock(&port->lock);
-+
-+	local_irq_restore(flags);
- }
- 
- static void msm_console_write(struct console *co, const char *s,
+diff --git a/drivers/accessibility/speakup/speakup_soft.c b/drivers/accessibility/speakup/speakup_soft.c
+index 19824e7006fe..786dc5d080f3 100644
+--- a/drivers/accessibility/speakup/speakup_soft.c
++++ b/drivers/accessibility/speakup/speakup_soft.c
+@@ -397,6 +397,7 @@ static int softsynth_probe(struct spk_synth *synth)
+ 	synthu_device.name = "softsynthu";
+ 	synthu_device.fops = &softsynthu_fops;
+ 	if (misc_register(&synthu_device)) {
++		misc_deregister(&synth_device);
+ 		pr_warn("Couldn't initialize miscdevice /dev/softsynthu.\n");
+ 		return -ENODEV;
+ 	}
 -- 
 2.35.1
 
