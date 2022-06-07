@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9A7541CA9
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF2354156C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382298AbiFGWCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:02:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37648 "EHLO
+        id S1356319AbiFGUfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379270AbiFGWC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:02:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E0724E1F3;
-        Tue,  7 Jun 2022 12:14:37 -0700 (PDT)
+        with ESMTP id S1377616AbiFGUdx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E1761E562E;
+        Tue,  7 Jun 2022 11:35:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0C1E618DE;
-        Tue,  7 Jun 2022 19:14:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E967FC385A5;
-        Tue,  7 Jun 2022 19:14:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0FBEB8237C;
+        Tue,  7 Jun 2022 18:35:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED334C385A2;
+        Tue,  7 Jun 2022 18:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629269;
-        bh=wtRpv9QwfoalmL4GN3rNYbstJt18keKOX4M31pundK4=;
+        s=korg; t=1654626931;
+        bh=K1VJeX5GCDsY+9X8S0bObVsEpIXlCrJ6Ne/vbZkkzvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5/KNcfbL8T05x52i7bzVdVOPqTdgZCyPYVvJbP8wEG7OYiyycHIAexnyBSJ0b7pM
-         2rWa9qEV+6SqJ4siLzotThUS8bl9rt29gd3l+CVWplCXQg0fZ9jBn6wTSB4mgmDzY6
-         Tf8sZ5sv0D7mSUKG81XYTsm/UhV55ES5z0+BwCXM=
+        b=FR+jnPisAy8yUUHtryOpQrOo6wNnzXmeQlQMs9bvH/V1+xo4GAbEWjk1cVLZYck4+
+         QTi6TJsqkP7IWNZ5yLkMzBmeR8/4Opn94CJWbMugZHElPDyS/5zrGmi3qfFLg8L+pa
+         KoXTEv6m0/+QihovVwi49YYMeA5Mk/e+lBlxJkdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 628/879] mce: fix set_mce_nospec to always unmap the whole page
+Subject: [PATCH 5.17 554/772] powerpc/fsl_book3e: Dont set rodata RO too early
 Date:   Tue,  7 Jun 2022 19:02:26 +0200
-Message-Id: <20220607165021.077610687@linuxfoundation.org>
+Message-Id: <20220607165005.286053255@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,190 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Chu <jane.chu@oracle.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 5898b43af954b83c4a4ee4ab85c4dbafa395822a ]
+[ Upstream commit ad91f66f5fa7c6f9346e721c3159ce818568028b ]
 
-The set_memory_uc() approach doesn't work well in all cases.
-As Dan pointed out when "The VMM unmapped the bad page from
-guest physical space and passed the machine check to the guest."
-"The guest gets virtual #MC on an access to that page. When
-the guest tries to do set_memory_uc() and instructs cpa_flush()
-to do clean caches that results in taking another fault / exception
-perhaps because the VMM unmapped the page from the guest."
+On fsl_book3e, rodata is set read-only at the same time as
+init text is set NX at the end of init. That's too early.
 
-Since the driver has special knowledge to handle NP or UC,
-mark the poisoned page with NP and let driver handle it when
-it comes down to repair.
+As both action are performed at the same time, delay both
+actions to the time rodata is expected to be made read-only.
 
-Please refer to discussions here for more details.
-https://lore.kernel.org/all/CAPcyv4hrXPb1tASBZUg-GgdVs0OOFKXMXLiHmktg_kFi7YBMyQ@mail.gmail.com/
+It means we will have a small window with init mem freed but
+still executable. It shouldn't be an issue though, especially
+because the said memory gets poisoned and should therefore
+result to a bad instruction fault in case it gets executed.
 
-Now since poisoned page is marked as not-present, in order to
-avoid writing to a not-present page and trigger kernel Oops,
-also fix pmem_do_write().
+mmu_mark_initmem_nx() is bailing out before doing anything when
+CONFIG_STRICT_KERNEL_RWX is not selected or rodata_enabled is false.
 
-Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Acked-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/165272615484.103830.2563950688772226611.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+mmu_mark_rodata_ro() is called only when CONFIG_STRICT_KERNEL_RWX
+is selected and rodata_enabled is true so this is equivalent.
+
+Move code from mmu_mark_initmem_nx() into mmu_mark_rodata_ro() and
+remove the call to strict_kernel_rwx_enabled() which is not needed
+anymore.
+
+Fixes: d5970045cf9e ("powerpc/fsl_booke: Update of TLBCAMs after init")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/2e35f0fd649c83c5add17a99514ac040767be93a.1652981047.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c |  6 +++---
- arch/x86/mm/pat/set_memory.c   | 23 +++++++++++------------
- drivers/nvdimm/pmem.c          | 30 +++++++-----------------------
- include/linux/set_memory.h     |  4 ++--
- 4 files changed, 23 insertions(+), 40 deletions(-)
+ arch/powerpc/mm/nohash/fsl_book3e.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 981496e6bc0e..fa67bb9d1afe 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -579,7 +579,7 @@ static int uc_decode_notifier(struct notifier_block *nb, unsigned long val,
+diff --git a/arch/powerpc/mm/nohash/fsl_book3e.c b/arch/powerpc/mm/nohash/fsl_book3e.c
+index dfe715e0f70a..388f7c7dabd3 100644
+--- a/arch/powerpc/mm/nohash/fsl_book3e.c
++++ b/arch/powerpc/mm/nohash/fsl_book3e.c
+@@ -287,22 +287,19 @@ void __init adjust_total_lowmem(void)
  
- 	pfn = mce->addr >> PAGE_SHIFT;
- 	if (!memory_failure(pfn, 0)) {
--		set_mce_nospec(pfn, whole_page(mce));
-+		set_mce_nospec(pfn);
- 		mce->kflags |= MCE_HANDLED_UC;
- 	}
- 
-@@ -1316,7 +1316,7 @@ static void kill_me_maybe(struct callback_head *cb)
- 
- 	ret = memory_failure(p->mce_addr >> PAGE_SHIFT, flags);
- 	if (!ret) {
--		set_mce_nospec(p->mce_addr >> PAGE_SHIFT, p->mce_whole_page);
-+		set_mce_nospec(p->mce_addr >> PAGE_SHIFT);
- 		sync_core();
- 		return;
- 	}
-@@ -1342,7 +1342,7 @@ static void kill_me_never(struct callback_head *cb)
- 	p->mce_count = 0;
- 	pr_err("Kernel accessed poison in user space at %llx\n", p->mce_addr);
- 	if (!memory_failure(p->mce_addr >> PAGE_SHIFT, 0))
--		set_mce_nospec(p->mce_addr >> PAGE_SHIFT, p->mce_whole_page);
-+		set_mce_nospec(p->mce_addr >> PAGE_SHIFT);
- }
- 
- static void queue_task_work(struct mce *m, char *msg, void (*func)(struct callback_head *))
-diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index 417440c6bf80..1abd5438f126 100644
---- a/arch/x86/mm/pat/set_memory.c
-+++ b/arch/x86/mm/pat/set_memory.c
-@@ -1914,14 +1914,9 @@ int set_memory_wb(unsigned long addr, int numpages)
- }
- EXPORT_SYMBOL(set_memory_wb);
- 
--/*
-- * Prevent speculative access to the page by either unmapping
-- * it (if we do not require access to any part of the page) or
-- * marking it uncacheable (if we want to try to retrieve data
-- * from non-poisoned lines in the page).
-- */
-+/* Prevent speculative access to a page by marking it not-present */
- #ifdef CONFIG_X86_64
--int set_mce_nospec(unsigned long pfn, bool unmap)
-+int set_mce_nospec(unsigned long pfn)
+ #ifdef CONFIG_STRICT_KERNEL_RWX
+ void mmu_mark_rodata_ro(void)
+-{
+-	/* Everything is done in mmu_mark_initmem_nx() */
+-}
+-#endif
+-
+-void mmu_mark_initmem_nx(void)
  {
- 	unsigned long decoy_addr;
- 	int rc;
-@@ -1943,19 +1938,23 @@ int set_mce_nospec(unsigned long pfn, bool unmap)
- 	 */
- 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
+ 	unsigned long remapped;
  
--	if (unmap)
--		rc = set_memory_np(decoy_addr, 1);
--	else
--		rc = set_memory_uc(decoy_addr, 1);
-+	rc = set_memory_np(decoy_addr, 1);
- 	if (rc)
- 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
- 	return rc;
+-	if (!strict_kernel_rwx_enabled())
+-		return;
+-
+ 	remapped = map_mem_in_cams(__max_low_memory, CONFIG_LOWMEM_CAM_NUM, false, false);
+ 
+ 	WARN_ON(__max_low_memory != remapped);
  }
- 
-+static int set_memory_present(unsigned long *addr, int numpages)
++#endif
++
++void mmu_mark_initmem_nx(void)
 +{
-+	return change_page_attr_set(addr, numpages, __pgprot(_PAGE_PRESENT), 0);
++	/* Everything is done in mmu_mark_rodata_ro() */
 +}
-+
- /* Restore full speculative operation to the pfn. */
- int clear_mce_nospec(unsigned long pfn)
- {
--	return set_memory_wb((unsigned long) pfn_to_kaddr(pfn), 1);
-+	unsigned long addr = (unsigned long) pfn_to_kaddr(pfn);
-+
-+	return set_memory_present(&addr, 1);
- }
- EXPORT_SYMBOL_GPL(clear_mce_nospec);
- #endif /* CONFIG_X86_64 */
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 58d95242a836..4aa17132a557 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -158,36 +158,20 @@ static blk_status_t pmem_do_write(struct pmem_device *pmem,
- 			struct page *page, unsigned int page_off,
- 			sector_t sector, unsigned int len)
- {
--	blk_status_t rc = BLK_STS_OK;
--	bool bad_pmem = false;
- 	phys_addr_t pmem_off = sector * 512 + pmem->data_offset;
- 	void *pmem_addr = pmem->virt_addr + pmem_off;
  
--	if (unlikely(is_bad_pmem(&pmem->bb, sector, len)))
--		bad_pmem = true;
-+	if (unlikely(is_bad_pmem(&pmem->bb, sector, len))) {
-+		blk_status_t rc = pmem_clear_poison(pmem, pmem_off, len);
-+
-+		if (rc != BLK_STS_OK)
-+			return rc;
-+	}
- 
--	/*
--	 * Note that we write the data both before and after
--	 * clearing poison.  The write before clear poison
--	 * handles situations where the latest written data is
--	 * preserved and the clear poison operation simply marks
--	 * the address range as valid without changing the data.
--	 * In this case application software can assume that an
--	 * interrupted write will either return the new good
--	 * data or an error.
--	 *
--	 * However, if pmem_clear_poison() leaves the data in an
--	 * indeterminate state we need to perform the write
--	 * after clear poison.
--	 */
- 	flush_dcache_page(page);
- 	write_pmem(pmem_addr, page, page_off, len);
--	if (unlikely(bad_pmem)) {
--		rc = pmem_clear_poison(pmem, pmem_off, len);
--		write_pmem(pmem_addr, page, page_off, len);
--	}
- 
--	return rc;
-+	return BLK_STS_OK;
- }
- 
- static void pmem_submit_bio(struct bio *bio)
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-index 683a6c3f7179..369769ce7399 100644
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -43,10 +43,10 @@ static inline bool can_set_direct_map(void)
- #endif /* CONFIG_ARCH_HAS_SET_DIRECT_MAP */
- 
- #ifdef CONFIG_X86_64
--int set_mce_nospec(unsigned long pfn, bool unmap);
-+int set_mce_nospec(unsigned long pfn);
- int clear_mce_nospec(unsigned long pfn);
- #else
--static inline int set_mce_nospec(unsigned long pfn, bool unmap)
-+static inline int set_mce_nospec(unsigned long pfn)
- {
- 	return 0;
- }
+ void setup_initial_memory_limit(phys_addr_t first_memblock_base,
+ 				phys_addr_t first_memblock_size)
 -- 
 2.35.1
 
