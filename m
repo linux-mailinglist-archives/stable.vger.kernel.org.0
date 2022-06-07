@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E91541706
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CEEF540F32
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377026AbiFGU5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:57:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51436 "EHLO
+        id S1352052AbiFGTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:03:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239238AbiFGUuK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0931F77C9;
-        Tue,  7 Jun 2022 11:39:54 -0700 (PDT)
+        with ESMTP id S1353333AbiFGTCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:02:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04717156468;
+        Tue,  7 Jun 2022 11:05:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4208F6160D;
-        Tue,  7 Jun 2022 18:39:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B666C385A5;
-        Tue,  7 Jun 2022 18:39:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A140C616B6;
+        Tue,  7 Jun 2022 18:05:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6747C385A5;
+        Tue,  7 Jun 2022 18:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627162;
-        bh=Y7bGGQGgAnOtggXaJ/RbS4mp+x0NVOu+MyhGWKdtdRc=;
+        s=korg; t=1654625106;
+        bh=6pCZfOF14bBwPJFZpSX3t/6Hfln6Scd7Z7sf8NVSHmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foO/Oge4/UPCRB6xpJQ/orMViCCvCnVDthuabE6SbYWo25mSlzOK/flb5s9pkgzG1
-         vBKhMAEPISHAAQR52OfkUhYyldhJ9ffdP76PpoA2acdKAaZfDAK8Axzz+UO6Yf6l3j
-         bZdRYcDFUoXa5EWhism1OK5f1cn0uMvS+b/g1QcI=
+        b=TUaMi35we3uVZuatWd8cDlHibNPvObPW8Tkc3zVWEYbNPPC/rnwsAUQSsgaHiE7kI
+         hprsmdW5aFswJmQoYQziwcvoiR3XTq2VSs5gr0Gasdw6jZJQh8ZzA+UTQB7BufLj3z
+         yjCzf+jRh8OB3u8vwtAqYWETZfBFIa7ht3rzQQ40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.17 639/772] ext4: fix race condition between ext4_write and ext4_convert_inline_data
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 566/667] scsi: ufs: qcom: Add a readl() to make sure ref_clk gets enabled
 Date:   Tue,  7 Jun 2022 19:03:51 +0200
-Message-Id: <20220607165007.890812659@linuxfoundation.org>
+Message-Id: <20220607164951.669266154@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit f87c7a4b084afc13190cbb263538e444cb2b392a upstream.
+commit 8eecddfca30e1651dc1c74531ed5eef21dcce7e3 upstream.
 
-Hulk Robot reported a BUG_ON:
- ==================================================================
- EXT4-fs error (device loop3): ext4_mb_generate_buddy:805: group 0,
- block bitmap and bg descriptor inconsistent: 25 vs 31513 free clusters
- kernel BUG at fs/ext4/ext4_jbd2.c:53!
- invalid opcode: 0000 [#1] SMP KASAN PTI
- CPU: 0 PID: 25371 Comm: syz-executor.3 Not tainted 5.10.0+ #1
- RIP: 0010:ext4_put_nojournal fs/ext4/ext4_jbd2.c:53 [inline]
- RIP: 0010:__ext4_journal_stop+0x10e/0x110 fs/ext4/ext4_jbd2.c:116
- [...]
- Call Trace:
-  ext4_write_inline_data_end+0x59a/0x730 fs/ext4/inline.c:795
-  generic_perform_write+0x279/0x3c0 mm/filemap.c:3344
-  ext4_buffered_write_iter+0x2e3/0x3d0 fs/ext4/file.c:270
-  ext4_file_write_iter+0x30a/0x11c0 fs/ext4/file.c:520
-  do_iter_readv_writev+0x339/0x3c0 fs/read_write.c:732
-  do_iter_write+0x107/0x430 fs/read_write.c:861
-  vfs_writev fs/read_write.c:934 [inline]
-  do_pwritev+0x1e5/0x380 fs/read_write.c:1031
- [...]
- ==================================================================
+In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
+stable for at least 1us. Even though there is wmb() to make sure the write
+gets "completed", there is no guarantee that the write actually reached the
+UFS device. There is a good chance that the write could be stored in a
+Write Buffer (WB). In that case, even though the CPU waits for 1us, the
+ref_clk might not be stable for that period.
 
-Above issue may happen as follows:
-           cpu1                     cpu2
-__________________________|__________________________
-do_pwritev
- vfs_writev
-  do_iter_write
-   ext4_file_write_iter
-    ext4_buffered_write_iter
-     generic_perform_write
-      ext4_da_write_begin
-                           vfs_fallocate
-                            ext4_fallocate
-                             ext4_convert_inline_data
-                              ext4_convert_inline_data_nolock
-                               ext4_destroy_inline_data_nolock
-                                clear EXT4_STATE_MAY_INLINE_DATA
-                               ext4_map_blocks
-                                ext4_ext_map_blocks
-                                 ext4_mb_new_blocks
-                                  ext4_mb_regular_allocator
-                                   ext4_mb_good_group_nolock
-                                    ext4_mb_init_group
-                                     ext4_mb_init_cache
-                                      ext4_mb_generate_buddy  --> error
-       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
-                                ext4_restore_inline_data
-                                 set EXT4_STATE_MAY_INLINE_DATA
-       ext4_block_write_begin
-      ext4_da_write_end
-       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
-       ext4_write_inline_data_end
-        handle=NULL
-        ext4_journal_stop(handle)
-         __ext4_journal_stop
-          ext4_put_nojournal(handle)
-           ref_cnt = (unsigned long)handle
-           BUG_ON(ref_cnt == 0)  ---> BUG_ON
+So lets do a readl() to make sure that the previous write has reached the
+UFS device before udelay().
 
-The lock held by ext4_convert_inline_data is xattr_sem, but the lock
-held by generic_perform_write is i_rwsem. Therefore, the two locks can
-be concurrent.
+Also, the wmb() after writel_relaxed() is not really needed. Both writel()
+and readl() are ordered on all architectures and the CPU won't speculate
+instructions after readl() due to the in-built control dependency with read
+value on weakly ordered architectures. So it can be safely removed.
 
-To solve above issue, we add inode_lock() for ext4_convert_inline_data().
-At the same time, move ext4_convert_inline_data() in front of
-ext4_punch_hole(), remove similar handling from ext4_punch_hole().
-
-Fixes: 0c8d414f163f ("ext4: let fallocate handle inline data correctly")
+Link: https://lore.kernel.org/r/20220504084212.11605-4-manivannan.sadhasivam@linaro.org
+Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
 Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220428134031.4153381-1-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   10 ++++++----
- fs/ext4/inode.c   |    9 ---------
- 2 files changed, 6 insertions(+), 13 deletions(-)
+ drivers/scsi/ufs/ufs-qcom.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -4694,15 +4694,17 @@ long ext4_fallocate(struct file *file, i
- 		     FALLOC_FL_INSERT_RANGE))
- 		return -EOPNOTSUPP;
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -678,8 +678,11 @@ static void ufs_qcom_dev_ref_clk_ctrl(st
  
-+	inode_lock(inode);
-+	ret = ext4_convert_inline_data(inode);
-+	inode_unlock(inode);
-+	if (ret)
-+		goto exit;
-+
- 	if (mode & FALLOC_FL_PUNCH_HOLE) {
- 		ret = ext4_punch_hole(file, offset, len);
- 		goto exit;
- 	}
+ 		writel_relaxed(temp, host->dev_ref_clk_ctrl_mmio);
  
--	ret = ext4_convert_inline_data(inode);
--	if (ret)
--		goto exit;
--
- 	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
- 		ret = ext4_collapse_range(file, offset, len);
- 		goto exit;
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3958,15 +3958,6 @@ int ext4_punch_hole(struct file *file, l
+-		/* ensure that ref_clk is enabled/disabled before we return */
+-		wmb();
++		/*
++		 * Make sure the write to ref_clk reaches the destination and
++		 * not stored in a Write Buffer (WB).
++		 */
++		readl(host->dev_ref_clk_ctrl_mmio);
  
- 	trace_ext4_punch_hole(inode, offset, length, 0);
- 
--	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
--	if (ext4_has_inline_data(inode)) {
--		filemap_invalidate_lock(mapping);
--		ret = ext4_convert_inline_data(inode);
--		filemap_invalidate_unlock(mapping);
--		if (ret)
--			return ret;
--	}
--
- 	/*
- 	 * Write out all dirty pages to avoid race conditions
- 	 * Then release them.
+ 		/*
+ 		 * If we call hibern8 exit after this, we need to make sure that
 
 
