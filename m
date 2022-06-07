@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C7E542213
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C0BE54227A
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232464AbiFHBy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 21:54:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46296 "EHLO
+        id S238732AbiFHC1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 22:27:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383192AbiFHBtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 21:49:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC9B262700;
-        Tue,  7 Jun 2022 12:20:19 -0700 (PDT)
+        with ESMTP id S1446938AbiFHC1A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:27:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72DB262ADB;
+        Tue,  7 Jun 2022 12:20:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59EB66077B;
-        Tue,  7 Jun 2022 19:20:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F15C385A2;
-        Tue,  7 Jun 2022 19:20:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24221B823CA;
+        Tue,  7 Jun 2022 19:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B394C385A2;
+        Tue,  7 Jun 2022 19:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629618;
-        bh=/nNAardFfiQn0gwg6L9rBRgNKDK5zGiak1Jzhu1Sbq4=;
+        s=korg; t=1654629629;
+        bh=ZDnKYPmPQjxcm4FY6FcGynN3YmPDyHlU/dvI+MVgxa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1n9vxLrEOS/xa//9rf8g2SImKHjI8uoSEYz/kr6xuyclZflAJdT/O/NC2BEvt+LJP
-         Ju3NeEh0jQZ9djWUVkLC3vrfIfikesJ0HNu8T77HjPSOQfsduTHBjXlNc2QrSM8yUE
-         rYSwwgUIsR227Kqwu/FgIwCfQoCOiphbAk5DOjlU=
+        b=znMTv+aEldDwRuBF8lEna0JBeuWnt0vJ5MSKDD60ZEUtPspqnv26ub13jooCCSd/g
+         wfgQmYbFt+Mof7Q3tLUMDVrcgI7ZY2UZfmQI6RSlNQP+5MIG8EpnMjvKSl3FD4YbDq
+         v7G/DNjz1z7EBM5iLocs4XUKFHOpuO4n5E6hUi1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.18 755/879] PCI: qcom: Fix pipe clock imbalance
-Date:   Tue,  7 Jun 2022 19:04:33 +0200
-Message-Id: <20220607165024.776463778@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Efremov <denis.e.efremov@oracle.com>
+Subject: [PATCH 5.18 758/879] staging: r8188eu: prevent ->Ssid overflow in rtw_wx_set_scan()
+Date:   Tue,  7 Jun 2022 19:04:36 +0200
+Message-Id: <20220607165024.865883010@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,44 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Denis Efremov <denis.e.efremov@oracle.com>
 
-commit fdf6a2f533115ec5d4d9629178f8196331f1ac50 upstream.
+commit bc10916e890948d8927a5c8c40fb5dc44be5e1b8 upstream.
 
-Fix a clock imbalance introduced by ed8cc3b1fc84 ("PCI: qcom: Add support
-for SDM845 PCIe controller"), which enables the pipe clock both in init()
-and in post_init() but only disables in post_deinit().
+This code has a check to prevent read overflow but it needs another
+check to prevent writing beyond the end of the ->Ssid[] array.
 
-Note that the pipe clock was also never disabled in the init() error
-paths and that enabling the clock before powering up the PHY looks
-questionable.
-
-Link: https://lore.kernel.org/r/20220401133351.10113-1-johan+linaro@kernel.org
-Fixes: ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe controller")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: stable@vger.kernel.org      # 5.6
+Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov <denis.e.efremov@oracle.com>
+Link: https://lore.kernel.org/r/20220518070052.108287-1-denis.e.efremov@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/staging/r8188eu/os_dep/ioctl_linux.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1238,12 +1238,6 @@ static int qcom_pcie_init_2_7_0(struct q
- 		goto err_disable_clocks;
- 	}
- 
--	ret = clk_prepare_enable(res->pipe_clk);
--	if (ret) {
--		dev_err(dev, "cannot prepare/enable pipe clock\n");
--		goto err_disable_clocks;
--	}
--
- 	/* Wait for reset to complete, required on SM8450 */
- 	usleep_range(1000, 1500);
- 
+--- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+@@ -1131,9 +1131,11 @@ static int rtw_wx_set_scan(struct net_de
+ 						break;
+ 					}
+ 					sec_len = *(pos++); len -= 1;
+-					if (sec_len > 0 && sec_len <= len) {
++					if (sec_len > 0 &&
++					    sec_len <= len &&
++					    sec_len <= 32) {
+ 						ssid[ssid_index].SsidLength = sec_len;
+-						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
++						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
+ 						ssid_index++;
+ 					}
+ 					pos += sec_len;
 
 
