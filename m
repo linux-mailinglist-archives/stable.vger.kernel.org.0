@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 221D3541C2A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C56540D6C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376996AbiFGV4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45980 "EHLO
+        id S1347396AbiFGSsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:48:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384131AbiFGVyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C8BBDA2C;
-        Tue,  7 Jun 2022 12:13:05 -0700 (PDT)
+        with ESMTP id S1353923AbiFGSqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D7D120895;
+        Tue,  7 Jun 2022 10:59:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD149618F2;
-        Tue,  7 Jun 2022 19:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98170C385A2;
-        Tue,  7 Jun 2022 19:13:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 907B9B82239;
+        Tue,  7 Jun 2022 17:59:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F27ECC3411F;
+        Tue,  7 Jun 2022 17:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629183;
-        bh=rcb2EbCweuz3IIvcMuAiaNyBslN563Cuvdbu7vol/Fg=;
+        s=korg; t=1654624783;
+        bh=XK6dYaoh7z/lE/hWuDsaGpQCWTVml299BMiFV3Mgskc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8m204655JuNFxYiHD2GkvwVJ/cWacxIECAudro+NWsnpeqNPMNMXAyKjGpqmEn00
-         1h/JylIfQw6fUmbx1BnWNpvyDLYBd7g1d6FgasVdGMwwVFDN4jfHZ9EuWJzr3KeVbZ
-         hl9o8EsO0EOIabH35ry7Ib24pvN1FYlhEA8ddkYo=
+        b=VIeuJ8rLYyK5J0uAFuSGXvuId4JENu9r5wUUxHcjIjZZ3NWpo89kgv5bz6iA9neJ9
+         UJ7LlhJ5K6DmXMjvYexb6q306b7cpSasdsez3DT96xttBKSm/LOL3u3vRiOuOkQOVt
+         Deq1xbEglPPAsL87R0uelPxr6LcT/86B0FIYX1mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        stable@vger.kernel.org, Qi Zheng <zhengqi.arch@bytedance.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Akinobu Mita <akinobu.mita@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 600/879] ocfs2: fix mounting crash if journal is not alloced
+Subject: [PATCH 5.15 453/667] tty: fix deadlock caused by calling printk() under tty_port->lock
 Date:   Tue,  7 Jun 2022 19:01:58 +0200
-Message-Id: <20220607165020.268176053@linuxfoundation.org>
+Message-Id: <20220607164948.300706531@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,217 +58,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
 
-[ Upstream commit bb20b31dee1a6c329c2f721fbe21c51945cdfc29 ]
+[ Upstream commit 6b9dbedbe3499fef862c4dff5217cf91f34e43b3 ]
 
-Patch series "rewrite error handling during mounting stage".
+pty_write() invokes kmalloc() which may invoke a normal printk() to print
+failure message.  This can cause a deadlock in the scenario reported by
+syz-bot below:
 
-This patch (of 5):
+       CPU0              CPU1                    CPU2
+       ----              ----                    ----
+                         lock(console_owner);
+                                                 lock(&port_lock_key);
+  lock(&port->lock);
+                         lock(&port_lock_key);
+                                                 lock(&port->lock);
+  lock(console_owner);
 
-After commit da5e7c87827e8 ("ocfs2: cleanup journal init and shutdown"),
-journal init later than before, it makes NULL pointer access in free
-routine.
+As commit dbdda842fe96 ("printk: Add console owner and waiter logic to
+load balance console writes") said, such deadlock can be prevented by
+using printk_deferred() in kmalloc() (which is invoked in the section
+guarded by the port->lock).  But there are too many printk() on the
+kmalloc() path, and kmalloc() can be called from anywhere, so changing
+printk() to printk_deferred() is too complicated and inelegant.
 
-Crash flow:
+Therefore, this patch chooses to specify __GFP_NOWARN to kmalloc(), so
+that printk() will not be called, and this deadlock problem can be
+avoided.
 
-ocfs2_fill_super
- + ocfs2_mount_volume
- |  + ocfs2_dlm_init //fail & return, osb->journal is NULL.
- |  + ...
- |  + ocfs2_check_volume //no chance to init osb->journal
- |
- + ...
- + ocfs2_dismount_volume
-    ocfs2_release_system_inodes
-      ...
-       evict
-        ...
-         ocfs2_clear_inode
-          ocfs2_checkpoint_inode
-           ocfs2_ci_fully_checkpointed
-            time_after(journal->j_trans_id, ci->ci_last_trans)
-             + journal is empty, crash!
+Syzbot reported the following lockdep error:
 
-For fixing, there are three solutions:
+======================================================
+WARNING: possible circular locking dependency detected
+5.4.143-00237-g08ccc19a-dirty #10 Not tainted
+------------------------------------------------------
+syz-executor.4/29420 is trying to acquire lock:
+ffffffff8aedb2a0 (console_owner){....}-{0:0}, at: console_trylock_spinning kernel/printk/printk.c:1752 [inline]
+ffffffff8aedb2a0 (console_owner){....}-{0:0}, at: vprintk_emit+0x2ca/0x470 kernel/printk/printk.c:2023
 
-1> Partly revert commit da5e7c87827e8
+but task is already holding lock:
+ffff8880119c9158 (&port->lock){-.-.}-{2:2}, at: pty_write+0xf4/0x1f0 drivers/tty/pty.c:120
 
-   For avoiding kernel crash, this make sense for us.  We only
-   concerned whether there has any non-system inode access before dlm
-   init.  The answer is NO.  And all journal replay/recovery handling
-   happen after dlm & journal init done.  So this method is not graceful
-   but workable.
+which lock already depends on the new lock.
 
-2> Add osb->journal check in free inode routine (eg ocfs2_clear_inode)
+the existing dependency chain (in reverse order) is:
 
-   The fix code is special for mounting phase, but it will continue
-   working after mounting stage.  In another word, this method adds
-   useless code in normal inode free flow.
+-> #2 (&port->lock){-.-.}-{2:2}:
+       __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+       _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
+       tty_port_tty_get drivers/tty/tty_port.c:288 [inline]          		<-- lock(&port->lock);
+       tty_port_default_wakeup+0x1d/0xb0 drivers/tty/tty_port.c:47
+       serial8250_tx_chars+0x530/0xa80 drivers/tty/serial/8250/8250_port.c:1767
+       serial8250_handle_irq.part.0+0x31f/0x3d0 drivers/tty/serial/8250/8250_port.c:1854
+       serial8250_handle_irq drivers/tty/serial/8250/8250_port.c:1827 [inline] 	<-- lock(&port_lock_key);
+       serial8250_default_handle_irq+0xb2/0x220 drivers/tty/serial/8250/8250_port.c:1870
+       serial8250_interrupt+0xfd/0x200 drivers/tty/serial/8250/8250_core.c:126
+       __handle_irq_event_percpu+0x109/0xa50 kernel/irq/handle.c:156
+       [...]
 
-3> Do directly free inode in mounting phase
+-> #1 (&port_lock_key){-.-.}-{2:2}:
+       __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+       _raw_spin_lock_irqsave+0x35/0x50 kernel/locking/spinlock.c:159
+       serial8250_console_write+0x184/0xa40 drivers/tty/serial/8250/8250_port.c:3198
+										<-- lock(&port_lock_key);
+       call_console_drivers kernel/printk/printk.c:1819 [inline]
+       console_unlock+0x8cb/0xd00 kernel/printk/printk.c:2504
+       vprintk_emit+0x1b5/0x470 kernel/printk/printk.c:2024			<-- lock(console_owner);
+       vprintk_func+0x8d/0x250 kernel/printk/printk_safe.c:394
+       printk+0xba/0xed kernel/printk/printk.c:2084
+       register_console+0x8b3/0xc10 kernel/printk/printk.c:2829
+       univ8250_console_init+0x3a/0x46 drivers/tty/serial/8250/8250_core.c:681
+       console_init+0x49d/0x6d3 kernel/printk/printk.c:2915
+       start_kernel+0x5e9/0x879 init/main.c:713
+       secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
 
-   This method is brutal/complex and may introduce unsafe code,
-   currently maintainer didn't like.
+-> #0 (console_owner){....}-{0:0}:
+       [...]
+       lock_acquire+0x127/0x340 kernel/locking/lockdep.c:4734
+       console_trylock_spinning kernel/printk/printk.c:1773 [inline]		<-- lock(console_owner);
+       vprintk_emit+0x307/0x470 kernel/printk/printk.c:2023
+       vprintk_func+0x8d/0x250 kernel/printk/printk_safe.c:394
+       printk+0xba/0xed kernel/printk/printk.c:2084
+       fail_dump lib/fault-inject.c:45 [inline]
+       should_fail+0x67b/0x7c0 lib/fault-inject.c:144
+       __should_failslab+0x152/0x1c0 mm/failslab.c:33
+       should_failslab+0x5/0x10 mm/slab_common.c:1224
+       slab_pre_alloc_hook mm/slab.h:468 [inline]
+       slab_alloc_node mm/slub.c:2723 [inline]
+       slab_alloc mm/slub.c:2807 [inline]
+       __kmalloc+0x72/0x300 mm/slub.c:3871
+       kmalloc include/linux/slab.h:582 [inline]
+       tty_buffer_alloc+0x23f/0x2a0 drivers/tty/tty_buffer.c:175
+       __tty_buffer_request_room+0x156/0x2a0 drivers/tty/tty_buffer.c:273
+       tty_insert_flip_string_fixed_flag+0x93/0x250 drivers/tty/tty_buffer.c:318
+       tty_insert_flip_string include/linux/tty_flip.h:37 [inline]
+       pty_write+0x126/0x1f0 drivers/tty/pty.c:122				<-- lock(&port->lock);
+       n_tty_write+0xa7a/0xfc0 drivers/tty/n_tty.c:2356
+       do_tty_write drivers/tty/tty_io.c:961 [inline]
+       tty_write+0x512/0x930 drivers/tty/tty_io.c:1045
+       __vfs_write+0x76/0x100 fs/read_write.c:494
+       [...]
 
-At last, we chose method <1> and did partly reverted job.  We reverted
-journal init codes, and kept cleanup codes flow.
+other info that might help us debug this:
 
-Link: https://lkml.kernel.org/r/20220424130952.2436-1-heming.zhao@suse.com
-Link: https://lkml.kernel.org/r/20220424130952.2436-2-heming.zhao@suse.com
-Fixes: da5e7c87827e8 ("ocfs2: cleanup journal init and shutdown")
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+Chain exists of:
+  console_owner --> &port_lock_key --> &port->lock
+
+Link: https://lkml.kernel.org/r/20220511061951.1114-2-zhengqi.arch@bytedance.com
+Link: https://lkml.kernel.org/r/20220510113809.80626-2-zhengqi.arch@bytedance.com
+Fixes: b6da31b2c07c ("tty: Fix data race in tty_insert_flip_string_fixed_flag")
+Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/inode.c   |  4 ++--
- fs/ocfs2/journal.c | 33 +++++++++++++++++++++++----------
- fs/ocfs2/journal.h |  2 ++
- fs/ocfs2/super.c   | 15 +++++++++++++++
- 4 files changed, 42 insertions(+), 12 deletions(-)
+ drivers/tty/tty_buffer.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/inode.c b/fs/ocfs2/inode.c
-index 5739dc301569..bb116c39b581 100644
---- a/fs/ocfs2/inode.c
-+++ b/fs/ocfs2/inode.c
-@@ -125,6 +125,7 @@ struct inode *ocfs2_iget(struct ocfs2_super *osb, u64 blkno, unsigned flags,
- 	struct inode *inode = NULL;
- 	struct super_block *sb = osb->sb;
- 	struct ocfs2_find_inode_args args;
-+	journal_t *journal = osb->journal->j_journal;
- 
- 	trace_ocfs2_iget_begin((unsigned long long)blkno, flags,
- 			       sysfile_type);
-@@ -171,11 +172,10 @@ struct inode *ocfs2_iget(struct ocfs2_super *osb, u64 blkno, unsigned flags,
- 	 * part of the transaction - the inode could have been reclaimed and
- 	 * now it is reread from disk.
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index 6c7e65b1d9a1..6127f84b92b1 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -174,7 +174,8 @@ static struct tty_buffer *tty_buffer_alloc(struct tty_port *port, size_t size)
  	 */
--	if (osb->journal) {
-+	if (journal) {
- 		transaction_t *transaction;
- 		tid_t tid;
- 		struct ocfs2_inode_info *oi = OCFS2_I(inode);
--		journal_t *journal = osb->journal->j_journal;
+ 	if (atomic_read(&port->buf.mem_used) > port->buf.mem_limit)
+ 		return NULL;
+-	p = kmalloc(sizeof(struct tty_buffer) + 2 * size, GFP_ATOMIC);
++	p = kmalloc(sizeof(struct tty_buffer) + 2 * size,
++		    GFP_ATOMIC | __GFP_NOWARN);
+ 	if (p == NULL)
+ 		return NULL;
  
- 		read_lock(&journal->j_state_lock);
- 		if (journal->j_running_transaction)
-diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
-index 1887a2708709..fa87d89cf754 100644
---- a/fs/ocfs2/journal.c
-+++ b/fs/ocfs2/journal.c
-@@ -810,22 +810,20 @@ void ocfs2_set_journal_params(struct ocfs2_super *osb)
- 	write_unlock(&journal->j_state_lock);
- }
- 
--int ocfs2_journal_init(struct ocfs2_super *osb, int *dirty)
-+/*
-+ * alloc & initialize skeleton for journal structure.
-+ * ocfs2_journal_init() will make fs have journal ability.
-+ */
-+int ocfs2_journal_alloc(struct ocfs2_super *osb)
- {
--	int status = -1;
--	struct inode *inode = NULL; /* the journal inode */
--	journal_t *j_journal = NULL;
--	struct ocfs2_journal *journal = NULL;
--	struct ocfs2_dinode *di = NULL;
--	struct buffer_head *bh = NULL;
--	int inode_lock = 0;
-+	int status = 0;
-+	struct ocfs2_journal *journal;
- 
--	/* initialize our journal structure */
- 	journal = kzalloc(sizeof(struct ocfs2_journal), GFP_KERNEL);
- 	if (!journal) {
- 		mlog(ML_ERROR, "unable to alloc journal\n");
- 		status = -ENOMEM;
--		goto done;
-+		goto bail;
- 	}
- 	osb->journal = journal;
- 	journal->j_osb = osb;
-@@ -839,6 +837,21 @@ int ocfs2_journal_init(struct ocfs2_super *osb, int *dirty)
- 	INIT_WORK(&journal->j_recovery_work, ocfs2_complete_recovery);
- 	journal->j_state = OCFS2_JOURNAL_FREE;
- 
-+bail:
-+	return status;
-+}
-+
-+int ocfs2_journal_init(struct ocfs2_super *osb, int *dirty)
-+{
-+	int status = -1;
-+	struct inode *inode = NULL; /* the journal inode */
-+	journal_t *j_journal = NULL;
-+	struct ocfs2_journal *journal = osb->journal;
-+	struct ocfs2_dinode *di = NULL;
-+	struct buffer_head *bh = NULL;
-+	int inode_lock = 0;
-+
-+	BUG_ON(!journal);
- 	/* already have the inode for our journal */
- 	inode = ocfs2_get_system_file_inode(osb, JOURNAL_SYSTEM_INODE,
- 					    osb->slot_num);
-diff --git a/fs/ocfs2/journal.h b/fs/ocfs2/journal.h
-index 8dcb2f2cadbc..969d0aa28718 100644
---- a/fs/ocfs2/journal.h
-+++ b/fs/ocfs2/journal.h
-@@ -154,6 +154,7 @@ int ocfs2_compute_replay_slots(struct ocfs2_super *osb);
-  *  Journal Control:
-  *  Initialize, Load, Shutdown, Wipe a journal.
-  *
-+ *  ocfs2_journal_alloc    - Initialize skeleton for journal structure.
-  *  ocfs2_journal_init     - Initialize journal structures in the OSB.
-  *  ocfs2_journal_load     - Load the given journal off disk. Replay it if
-  *                          there's transactions still in there.
-@@ -167,6 +168,7 @@ int ocfs2_compute_replay_slots(struct ocfs2_super *osb);
-  *  ocfs2_start_checkpoint - Kick the commit thread to do a checkpoint.
-  */
- void   ocfs2_set_journal_params(struct ocfs2_super *osb);
-+int    ocfs2_journal_alloc(struct ocfs2_super *osb);
- int    ocfs2_journal_init(struct ocfs2_super *osb, int *dirty);
- void   ocfs2_journal_shutdown(struct ocfs2_super *osb);
- int    ocfs2_journal_wipe(struct ocfs2_journal *journal,
-diff --git a/fs/ocfs2/super.c b/fs/ocfs2/super.c
-index 477cdf94122e..311433c69a3f 100644
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -2195,6 +2195,15 @@ static int ocfs2_initialize_super(struct super_block *sb,
- 
- 	get_random_bytes(&osb->s_next_generation, sizeof(u32));
- 
-+	/*
-+	 * FIXME
-+	 * This should be done in ocfs2_journal_init(), but any inode
-+	 * writes back operation will cause the filesystem to crash.
-+	 */
-+	status = ocfs2_journal_alloc(osb);
-+	if (status < 0)
-+		goto bail;
-+
- 	INIT_WORK(&osb->dquot_drop_work, ocfs2_drop_dquot_refs);
- 	init_llist_head(&osb->dquot_drop_list);
- 
-@@ -2483,6 +2492,12 @@ static void ocfs2_delete_osb(struct ocfs2_super *osb)
- 
- 	kfree(osb->osb_orphan_wipes);
- 	kfree(osb->slot_recovery_generations);
-+	/* FIXME
-+	 * This belongs in journal shutdown, but because we have to
-+	 * allocate osb->journal at the middle of ocfs2_initialize_super(),
-+	 * we free it here.
-+	 */
-+	kfree(osb->journal);
- 	kfree(osb->local_alloc_copy);
- 	kfree(osb->uuid_str);
- 	kfree(osb->vol_label);
 -- 
 2.35.1
 
