@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE17541532
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6257D540CE7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355765AbiFGU3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:29:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
+        id S1353203AbiFGSmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376745AbiFGU2F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5F61D8725;
-        Tue,  7 Jun 2022 11:33:08 -0700 (PDT)
+        with ESMTP id S1353465AbiFGSlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:41:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21651862BB;
+        Tue,  7 Jun 2022 10:58:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C048FB82188;
-        Tue,  7 Jun 2022 18:33:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A56DC385A5;
-        Tue,  7 Jun 2022 18:33:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E00617A7;
+        Tue,  7 Jun 2022 17:58:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EACDC385A5;
+        Tue,  7 Jun 2022 17:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626785;
-        bh=1ASL6fBMDAmWBj3axiWH/dhSFOu0lxh5MMkutiN/P/U=;
+        s=korg; t=1654624722;
+        bh=x0W6N9VmPJ+8e2PWz/8GEgmYtClvv+lyTohLYHBGjKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LG6vKHC9madL4yc1I1VGOSmfATbds4WLvb+FvhfTsiriloRJoR4TgMtLIOO8Q7Dzs
-         QV5n+ybtfyoN1N6B9FgYGpuTLYXDcxAj4apmsWKnjK7pqqVDypnY54Cdf+jnT8EUmc
-         frXQso0Lyq3rrekE525CIwRC8g8xBrzGjRvU1bEE=
+        b=pPfLk3/r/hYt7SEERLNTFFQghOkiOawAzSibKNKbeVRwvKjOuAcrq+DkOJ3gaTUj5
+         QDYzBML60zfNRVoxg+/HEcpweG9cuhuDNQ2y0F8GVJgb60rdsuz7e9JOFqlrVlnVOX
+         RtS81C/eXY6WScuYn93z9JYdAgiBGVh06v6o/1cQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Krzysztof Kensicki <krzysztof.kensicki@intel.com>,
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 502/772] nvdimm: Allow overwrite in the presence of disabled dimms
+Subject: [PATCH 5.15 429/667] nvdimm: Fix firmware activation deadlock scenarios
 Date:   Tue,  7 Jun 2022 19:01:34 +0200
-Message-Id: <20220607165003.772483109@linuxfoundation.org>
+Message-Id: <20220607164947.593329154@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,46 +56,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit bb7bf697fed58eae9d3445944e457ab0de4da54f ]
+[ Upstream commit e6829d1bd3c4b58296ee9e412f7ed4d6cb390192 ]
 
-It is not clear why the original implementation of overwrite support
-required the dimm driver to be active before overwrite could proceed. In
-fact that can lead to cases where the kernel retains an invalid cached
-copy of the labels from before the overwrite. Unfortunately the kernel
-has not only allowed that case, but enforced it.
+Lockdep reports the following deadlock scenarios for CXL root device
+power-management, device_prepare(), operations, and device_shutdown()
+operations for 'nd_region' devices:
 
-Going forward, allow for overwrite to happen while the label area is
-offline, and follow-on with updates to 'ndctl sanitize-dimm --overwrite'
-to trigger the label area invalidation by default.
+ Chain exists of:
+   &nvdimm_region_key --> &nvdimm_bus->reconfig_mutex --> system_transition_mutex
 
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Reported-by: Krzysztof Kensicki <krzysztof.kensicki@intel.com>
-Fixes: 7d988097c546 ("acpi/nfit, libnvdimm/security: Add security DSM overwrite support")
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(system_transition_mutex);
+                                lock(&nvdimm_bus->reconfig_mutex);
+                                lock(system_transition_mutex);
+   lock(&nvdimm_region_key);
+
+ Chain exists of:
+   &cxl_nvdimm_bridge_key --> acpi_scan_lock --> &cxl_root_key
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(&cxl_root_key);
+                                lock(acpi_scan_lock);
+                                lock(&cxl_root_key);
+   lock(&cxl_nvdimm_bridge_key);
+
+These stem from holding nvdimm_bus_lock() over hibernate_quiet_exec()
+which walks the entire system device topology taking device_lock() along
+the way. The nvdimm_bus_lock() is protecting against unregistration,
+multiple simultaneous ops callers, and preventing activate_show() from
+racing activate_store(). For the first 2, the lock is redundant.
+Unregistration already flushes all ops users, and sysfs already prevents
+multiple threads to be active in an ops handler at the same time. For
+the last userspace should already be waiting for its last
+activate_store() to complete, and does not need activate_show() to flush
+the write side, so this lock usage can be deleted in these attributes.
+
+Fixes: 48001ea50d17 ("PM, libnvdimm: Add runtime firmware activation support")
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Link: https://lore.kernel.org/r/165074883800.4116052.10737040861825806582.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/security.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/nvdimm/core.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/nvdimm/security.c b/drivers/nvdimm/security.c
-index 4b80150e4afa..b5aa55c61461 100644
---- a/drivers/nvdimm/security.c
-+++ b/drivers/nvdimm/security.c
-@@ -379,11 +379,6 @@ static int security_overwrite(struct nvdimm *nvdimm, unsigned int keyid)
- 			|| !nvdimm->sec.flags)
+diff --git a/drivers/nvdimm/core.c b/drivers/nvdimm/core.c
+index 7de592d7eff4..47625fe4276e 100644
+--- a/drivers/nvdimm/core.c
++++ b/drivers/nvdimm/core.c
+@@ -399,9 +399,7 @@ static ssize_t capability_show(struct device *dev,
+ 	if (!nd_desc->fw_ops)
  		return -EOPNOTSUPP;
  
--	if (dev->driver == NULL) {
--		dev_dbg(dev, "Unable to overwrite while DIMM active.\n");
--		return -EINVAL;
--	}
+-	nvdimm_bus_lock(dev);
+ 	cap = nd_desc->fw_ops->capability(nd_desc);
+-	nvdimm_bus_unlock(dev);
+ 
+ 	switch (cap) {
+ 	case NVDIMM_FWA_CAP_QUIESCE:
+@@ -426,10 +424,8 @@ static ssize_t activate_show(struct device *dev,
+ 	if (!nd_desc->fw_ops)
+ 		return -EOPNOTSUPP;
+ 
+-	nvdimm_bus_lock(dev);
+ 	cap = nd_desc->fw_ops->capability(nd_desc);
+ 	state = nd_desc->fw_ops->activate_state(nd_desc);
+-	nvdimm_bus_unlock(dev);
+ 
+ 	if (cap < NVDIMM_FWA_CAP_QUIESCE)
+ 		return -EOPNOTSUPP;
+@@ -474,7 +470,6 @@ static ssize_t activate_store(struct device *dev,
+ 	else
+ 		return -EINVAL;
+ 
+-	nvdimm_bus_lock(dev);
+ 	state = nd_desc->fw_ops->activate_state(nd_desc);
+ 
+ 	switch (state) {
+@@ -492,7 +487,6 @@ static ssize_t activate_store(struct device *dev,
+ 	default:
+ 		rc = -ENXIO;
+ 	}
+-	nvdimm_bus_unlock(dev);
+ 
+ 	if (rc == 0)
+ 		rc = len;
+@@ -515,10 +509,7 @@ static umode_t nvdimm_bus_firmware_visible(struct kobject *kobj, struct attribut
+ 	if (!nd_desc->fw_ops)
+ 		return 0;
+ 
+-	nvdimm_bus_lock(dev);
+ 	cap = nd_desc->fw_ops->capability(nd_desc);
+-	nvdimm_bus_unlock(dev);
 -
- 	rc = check_security_state(nvdimm);
- 	if (rc)
- 		return rc;
+ 	if (cap < NVDIMM_FWA_CAP_QUIESCE)
+ 		return 0;
+ 
 -- 
 2.35.1
 
