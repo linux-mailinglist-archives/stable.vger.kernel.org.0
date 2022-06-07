@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE773541DA1
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A098154079F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380193AbiFGWRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38266 "EHLO
+        id S242549AbiFGRtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:49:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384750AbiFGWQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:16:10 -0400
+        with ESMTP id S1348255AbiFGRri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:47:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B151B261441;
-        Tue,  7 Jun 2022 12:20:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B860B113F83;
+        Tue,  7 Jun 2022 10:36:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4957B6192F;
-        Tue,  7 Jun 2022 19:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58099C385A2;
-        Tue,  7 Jun 2022 19:19:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F7D4615D1;
+        Tue,  7 Jun 2022 17:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64349C34119;
+        Tue,  7 Jun 2022 17:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629596;
-        bh=54fPIN8G1JovSP05z2k3xNR+dvWsXyhzfXkHCXyejmo=;
+        s=korg; t=1654623417;
+        bh=95w245+rAbzusPIKxyCVLzeu80X2NeC7vNGLyQhSNrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TD8MMqKfW5xaOLbMEHbwXi0l7zz6s1TvDIhTBCjOuwixgtKiXvIcJpSUQ7dpGn8KH
-         yx33ZGxwZmOKuxVnL9PGaQvjptR134IqiqQrgX5TtlgA/qGqDduh8fv2Ems4QjsWtm
-         cZMtSjfTJDKbMPFDF55LlTdFowSMHvdPrfqTHLE4=
+        b=PERQK6lg5U4pwBFmwpo9Zgf/CJLD+iNT+2Qhz7f7K8g+BbpXYZwXq/STKCK80VXnr
+         I3zBLnVVSVdkTpHXUA6Hg2Oz5cTaURy7SEV+auQ/rauJUZOaRT9l3bP6a3Pv4zId7u
+         wBkq5vf1Xz78PcW+2IJtgW//z//IR97L9PThiBwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.18 747/879] ACPI: property: Release subnode properties with data nodes
-Date:   Tue,  7 Jun 2022 19:04:25 +0200
-Message-Id: <20220607165024.537888675@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>,
+        Philippe Cornu <philippe.cornu@foss.st.com>
+Subject: [PATCH 5.10 409/452] stm: ltdc: fix two incorrect NULL checks on list iterator
+Date:   Tue,  7 Jun 2022 19:04:26 +0200
+Message-Id: <20220607164920.747335606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 3bd561e1572ee02a50cd1a5be339abf1a5b78d56 upstream.
+commit 2e6c86be0e57079d1fb6c7c7e5423db096d0548a upstream.
 
-struct acpi_device_properties describes one source of properties present
-on either struct acpi_device or struct acpi_data_node. When properties are
-parsed, both are populated but when released, only those properties that
-are associated with the device node are freed.
+The two bugs are here:
+	if (encoder) {
+	if (bridge && bridge->timings)
 
-Fix this by also releasing memory of the data node properties.
+The list iterator value 'encoder/bridge' will *always* be set and
+non-NULL by drm_for_each_encoder()/list_for_each_entry(), so it is
+incorrect to assume that the iterator value will be NULL if the
+list is empty or no element is found.
 
-Fixes: 5f5e4890d57a ("ACPI / property: Allow multiple property compatible _DSD entries")
-Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+To fix the bug, use a new variable '*_iter' as the list iterator,
+while use the old variable 'encoder/bridge' as a dedicated pointer
+to point to the found element.
+
+Cc: stable@vger.kernel.org
+Fixes: 99e360442f223 ("drm/stm: Fix bus_flags handling")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Acked-by: Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>
+Signed-off-by: Philippe Cornu <philippe.cornu@foss.st.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327055355.3808-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/property.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/stm/ltdc.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/acpi/property.c
-+++ b/drivers/acpi/property.c
-@@ -433,6 +433,16 @@ void acpi_init_properties(struct acpi_de
- 		acpi_extract_apple_properties(adev);
- }
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -527,8 +527,8 @@ static void ltdc_crtc_mode_set_nofb(stru
+ 	struct drm_device *ddev = crtc->dev;
+ 	struct drm_connector_list_iter iter;
+ 	struct drm_connector *connector = NULL;
+-	struct drm_encoder *encoder = NULL;
+-	struct drm_bridge *bridge = NULL;
++	struct drm_encoder *encoder = NULL, *en_iter;
++	struct drm_bridge *bridge = NULL, *br_iter;
+ 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
+ 	struct videomode vm;
+ 	u32 hsync, vsync, accum_hbp, accum_vbp, accum_act_w, accum_act_h;
+@@ -538,15 +538,19 @@ static void ltdc_crtc_mode_set_nofb(stru
+ 	int ret;
  
-+static void acpi_free_device_properties(struct list_head *list)
-+{
-+	struct acpi_device_properties *props, *tmp;
-+
-+	list_for_each_entry_safe(props, tmp, list, list) {
-+		list_del(&props->list);
-+		kfree(props);
-+	}
-+}
-+
- static void acpi_destroy_nondev_subnodes(struct list_head *list)
- {
- 	struct acpi_data_node *dn, *next;
-@@ -445,22 +455,18 @@ static void acpi_destroy_nondev_subnodes
- 		wait_for_completion(&dn->kobj_done);
- 		list_del(&dn->sibling);
- 		ACPI_FREE((void *)dn->data.pointer);
-+		acpi_free_device_properties(&dn->data.properties);
- 		kfree(dn);
- 	}
- }
+ 	/* get encoder from crtc */
+-	drm_for_each_encoder(encoder, ddev)
+-		if (encoder->crtc == crtc)
++	drm_for_each_encoder(en_iter, ddev)
++		if (en_iter->crtc == crtc) {
++			encoder = en_iter;
+ 			break;
++		}
  
- void acpi_free_properties(struct acpi_device *adev)
- {
--	struct acpi_device_properties *props, *tmp;
--
- 	acpi_destroy_nondev_subnodes(&adev->data.subnodes);
- 	ACPI_FREE((void *)adev->data.pointer);
- 	adev->data.of_compatible = NULL;
- 	adev->data.pointer = NULL;
--	list_for_each_entry_safe(props, tmp, &adev->data.properties, list) {
--		list_del(&props->list);
--		kfree(props);
--	}
-+	acpi_free_device_properties(&adev->data.properties);
- }
+ 	if (encoder) {
+ 		/* get bridge from encoder */
+-		list_for_each_entry(bridge, &encoder->bridge_chain, chain_node)
+-			if (bridge->encoder == encoder)
++		list_for_each_entry(br_iter, &encoder->bridge_chain, chain_node)
++			if (br_iter->encoder == encoder) {
++				bridge = br_iter;
+ 				break;
++			}
  
- /**
+ 		/* Get the connector from encoder */
+ 		drm_connector_list_iter_begin(ddev, &iter);
 
 
