@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6476D5406FA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 232DD541D17
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347245AbiFGRlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33354 "EHLO
+        id S1383727AbiFGWIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348042AbiFGRkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:31 -0400
+        with ESMTP id S1356690AbiFGWGy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CDB25DA4E;
-        Tue,  7 Jun 2022 10:33:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDAF7252C2C;
+        Tue,  7 Jun 2022 12:15:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B3A0B80B66;
-        Tue,  7 Jun 2022 17:32:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEAADC385A5;
-        Tue,  7 Jun 2022 17:32:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C908B822C0;
+        Tue,  7 Jun 2022 19:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC007C385A2;
+        Tue,  7 Jun 2022 19:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623172;
-        bh=gre4uAHrsKDi39ok3MaazrrARM/PvoktjsklLRrW6s8=;
+        s=korg; t=1654629348;
+        bh=AFmrO0annGer79QB+xtRaRH2XRcecd0xN8/ccZeQdG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmaytr4BBrPiDGDlW0ak3XNBNgZQFj8M5tGGtf9264O7RDsDUFo1oh2lnZNRRB8ww
-         FgqQeVxRj0KBECuq4Pv0OOEzqBKbiUAtoGABcsmRPAns3S5B4fTTgdQF3igyhZ7/sg
-         VyQxMA2XlmI1kHFh74KGHnFTwXCOpNwX1EzfHsJw=
+        b=M3f+YylxH7DsLQfDyLdr6NuiB+JNxafZeeXSLfGcgJWSmvCeqFDY1nLPv6hya/H8v
+         H92ISD/OgU79NkuFFLpWXGGZ75B8ZNHPf2T2ZYEAgeKJdZJha3OutP6GutouT0E4PF
+         wNez1j8GMf6w9rPyrKR1sBxluOC2nqHawcUr/pzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 320/452] iommu/mediatek: Add list_del in mtk_iommu_remove
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 659/879] f2fs: fix to do sanity check on inline_dots inode
 Date:   Tue,  7 Jun 2022 19:02:57 +0200
-Message-Id: <20220607164918.092690377@linuxfoundation.org>
+Message-Id: <20220607165021.975926404@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit ee55f75e4bcade81d253163641b63bef3e76cac4 ]
+[ Upstream commit 12662d19467b391b5b509ac5e9ab4f583c6dde16 ]
 
-Lack the list_del in the mtk_iommu_remove, and remove
-bus_set_iommu(*, NULL) since there may be several iommu HWs.
-we can not bus_set_iommu null when one iommu driver unbind.
+As Wenqing reported in bugzilla:
 
-This could be a fix for mt2712 which support 2 M4U HW and list them.
+https://bugzilla.kernel.org/show_bug.cgi?id=215765
 
-Fixes: 7c3a2ec02806 ("iommu/mediatek: Merge 2 M4U HWs into one iommu domain")
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20220503071427.2285-6-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+It will cause a kernel panic with steps:
+- mkdir mnt
+- mount tmp40.img mnt
+- ls mnt
+
+folio_mark_dirty+0x33/0x50
+f2fs_add_regular_entry+0x541/0xad0 [f2fs]
+f2fs_add_dentry+0x6c/0xb0 [f2fs]
+f2fs_do_add_link+0x182/0x230 [f2fs]
+__recover_dot_dentries+0x2d6/0x470 [f2fs]
+f2fs_lookup+0x5af/0x6a0 [f2fs]
+__lookup_slow+0xac/0x200
+lookup_slow+0x45/0x70
+walk_component+0x16c/0x250
+path_lookupat+0x8b/0x1f0
+filename_lookup+0xef/0x250
+user_path_at_empty+0x46/0x70
+vfs_statx+0x98/0x190
+__do_sys_newlstat+0x41/0x90
+__x64_sys_newlstat+0x1a/0x30
+do_syscall_64+0x37/0xb0
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is for special file: e.g. character, block, fifo or
+socket file, f2fs doesn't assign address space operations pointer array
+for mapping->a_ops field, so, in a fuzzed image, if inline_dots flag was
+tagged in special file, during lookup(), when f2fs runs into
+__recover_dot_dentries(), it will cause NULL pointer access once
+f2fs_add_regular_entry() calls a_ops->set_dirty_page().
+
+Fixes: 510022a85839 ("f2fs: add F2FS_INLINE_DOTS to recover missing dot dentries")
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/f2fs/namei.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 19387d2bc4b4..051815c9d2bb 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -768,8 +768,7 @@ static int mtk_iommu_remove(struct platform_device *pdev)
- 	iommu_device_sysfs_remove(&data->iommu);
- 	iommu_device_unregister(&data->iommu);
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 5ed79b29999f..fffafd2aa438 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -461,6 +461,13 @@ static int __recover_dot_dentries(struct inode *dir, nid_t pino)
+ 		return 0;
+ 	}
  
--	if (iommu_present(&platform_bus_type))
--		bus_set_iommu(&platform_bus_type, NULL);
-+	list_del(&data->list);
- 
- 	clk_disable_unprepare(data->bclk);
- 	devm_free_irq(&pdev->dev, data->irq, data);
++	if (!S_ISDIR(dir->i_mode)) {
++		f2fs_err(sbi, "inconsistent inode status, skip recovering inline_dots inode (ino:%lu, i_mode:%u, pino:%u)",
++			  dir->i_ino, dir->i_mode, pino);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return -ENOTDIR;
++	}
++
+ 	err = f2fs_dquot_initialize(dir);
+ 	if (err)
+ 		return err;
 -- 
 2.35.1
 
