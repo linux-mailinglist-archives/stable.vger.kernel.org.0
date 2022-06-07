@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9AC541D0D
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 102155415EA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383693AbiFGWHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37550 "EHLO
+        id S1376306AbiFGUnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383774AbiFGWGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:21 -0400
+        with ESMTP id S1376925AbiFGUks (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:40:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E1C187C04;
-        Tue,  7 Jun 2022 12:17:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B91D181448;
+        Tue,  7 Jun 2022 11:38:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87F97B8237B;
-        Tue,  7 Jun 2022 19:17:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F32EDC385A2;
-        Tue,  7 Jun 2022 19:17:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA0A9B8237D;
+        Tue,  7 Jun 2022 18:38:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21C19C385A5;
+        Tue,  7 Jun 2022 18:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629447;
-        bh=1ccXHXOLc5bkJrMUGd4dBgKunxzafld5r3Mry26Bbio=;
+        s=korg; t=1654627105;
+        bh=tXA80zgeHvd3RQs/l+A4Go4Qc+Cp8g/84RUiCzl4Tm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIq8Pt1R86TwpdAbB0GJSm5h1biTrSZ/9UQaRoImR4vAUhiezB3BskOpeq3nDqAz3
-         UTvEd9r3T/M2xpiIqz1VMyhpXbQVvq0cFmH/Im7szLVQDzHKu+qQlDKA07SimdlfMk
-         yvektF9SykHNAwshFz53q2aZXrAQGIeQtOQpNQAU=
+        b=M2ePbAFikCTbREk3K2VUn6FV85CuxtXCL3qr7Bg4gArePmMHBv3UVS+6qoQg0g1V9
+         s6Dnu7vSpvmic/uvCd3930Jh4PDjs27JgNd0C3tFW455pWkNZVDe1lqHTwLSw0sjGe
+         VeUGuefckSDCYihOzPCiTgpLqyUijX0VVmqtGgso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 694/879] RISC-V: Fix the XIP build
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.17 620/772] wifi: mac80211: fix use-after-free in chanctx code
 Date:   Tue,  7 Jun 2022 19:03:32 +0200
-Message-Id: <20220607165022.991461845@linuxfoundation.org>
+Message-Id: <20220607165007.206061402@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit d9e418d0ca1c464fe361468b772d4aa870d54e63 ]
+commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
 
-A handful of functions unused functions were enabled during XIP builds,
-which themselves didn't build correctly.  This just disables the
-functions entirely.
+In ieee80211_vif_use_reserved_context(), when we have an
+old context and the new context's replace_state is set to
+IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
+in ieee80211_vif_use_reserved_reassign(). Therefore, we
+cannot check the old_ctx anymore, so we should set it to
+NULL after this point.
 
-Fixes: e8a62cc26ddf ("riscv: Implement sv48 support")
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20220420184056.7886-5-palmer@rivosinc.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, since the new_ctx replace state is clearly not
+IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
+anything else in this function and can just return to
+avoid accessing the freed old_ctx.
+
+Cc: stable@vger.kernel.org
+Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/mm/init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/chan.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 05ed641a1134..39e2e1d0e94f 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -677,7 +677,7 @@ static __init pgprot_t pgprot_from_va(uintptr_t va)
- }
- #endif /* CONFIG_STRICT_KERNEL_RWX */
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -1746,12 +1746,9 @@ int ieee80211_vif_use_reserved_context(s
  
--#ifdef CONFIG_64BIT
-+#if defined(CONFIG_64BIT) && !defined(CONFIG_XIP_KERNEL)
- static void __init disable_pgtable_l5(void)
- {
- 	pgtable_l5_enabled = false;
--- 
-2.35.1
-
+ 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
+ 		if (old_ctx)
+-			err = ieee80211_vif_use_reserved_reassign(sdata);
+-		else
+-			err = ieee80211_vif_use_reserved_assign(sdata);
++			return ieee80211_vif_use_reserved_reassign(sdata);
+ 
+-		if (err)
+-			return err;
++		return ieee80211_vif_use_reserved_assign(sdata);
+ 	}
+ 
+ 	/*
 
 
