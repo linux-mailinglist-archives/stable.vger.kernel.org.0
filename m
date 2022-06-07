@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1862A5405F8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92149540C3B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347016AbiFGRck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44884 "EHLO
+        id S1352029AbiFGSed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:34:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347088AbiFGRaE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B24FF589;
-        Tue,  7 Jun 2022 10:25:37 -0700 (PDT)
+        with ESMTP id S1352019AbiFGSdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F622DF3;
+        Tue,  7 Jun 2022 10:57:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 712F9B81F38;
-        Tue,  7 Jun 2022 17:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFB8C34115;
-        Tue,  7 Jun 2022 17:25:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C591617A8;
+        Tue,  7 Jun 2022 17:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D29DC385A5;
+        Tue,  7 Jun 2022 17:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622735;
-        bh=4en+cC/nYj++7MgCIJDMIe5jSsByg+LEvsp7KKofpjw=;
+        s=korg; t=1654624632;
+        bh=bV924xHDvYXj0TBQhpB/6GrV/r97XENKruel7CiVDTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFBA9eCaUP6+UQRBCqUHwn+xfBC82ia1J6JinOyEExCME4Q5KHnDQQAMMMT2aKWwf
-         bx6PbZpv0WT+M2n7IFkNTYLG+5kPUTs0vRiC3+dJdNgUdrXY/Lr7BwMeeN2hKQzkkg
-         JzgC2Uahux8WQuhWB3IkQv6ZJHt1MR1h3mJLMk6Y=
+        b=F4nB+Lk02Rg2uFQ105fEPKZTwtCnyuO12XnUm8us2sgTQiNyECfLMBdXkIqEQO7yc
+         D0nJFPgXiKYEwDSVVKNJ/eybB5WEZcsq9AQTORVwz22nb/tXk7w9SmslSUB6nTvLVw
+         4KcdunZUDkIomqmz/JMgix5x7hlpmfqc1Qd0iyFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 165/452] selftests/resctrl: Fix null pointer dereference on open failed
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 357/667] bfq: Relax waker detection for shared queues
 Date:   Tue,  7 Jun 2022 19:00:22 +0200
-Message-Id: <20220607164913.480453834@linuxfoundation.org>
+Message-Id: <20220607164945.462356134@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit c7b607fa9325ccc94982774c505176677117689c ]
+[ Upstream commit f950667356ce90a41b446b726d4595a10cb65415 ]
 
-Currently if opening /dev/null fails to open then file pointer fp
-is null and further access to fp via fprintf will cause a null
-pointer dereference. Fix this by returning a negative error value
-when a null fp is detected.
+Currently we look for waker only if current queue has no requests. This
+makes sense for bfq queues with a single process however for shared
+queues when there is a larger number of processes the condition that
+queue has no requests is difficult to meet because often at least one
+process has some request in flight although all the others are waiting
+for the waker to do the work and this harms throughput. Relax the "no
+queued request for bfq queue" condition to "the current task has no
+queued requests yet". For this, we also need to start tracking number of
+requests in flight for each task.
 
-Detected using cppcheck static analysis:
-tools/testing/selftests/resctrl/fill_buf.c:124:6: note: Assuming
-that condition '!fp' is not redundant
- if (!fp)
-     ^
-tools/testing/selftests/resctrl/fill_buf.c:126:10: note: Null
-pointer dereference
- fprintf(fp, "Sum: %d ", ret);
+This patch (together with the following one) restores the performance
+for dbench with 128 clients that regressed with commit c65e6fd460b4
+("bfq: Do not let waker requests skip proper accounting") because
+this commit makes requests of wakers properly enter BFQ queues and thus
+these queues become ineligible for the old waker detection logic.
+Dbench results:
 
-Fixes: a2561b12fe39 ("selftests/resctrl: Add built in benchmark")
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+         Vanilla 5.18-rc3        5.18-rc3 + revert      5.18-rc3 patched
+Mean     1237.36 (   0.00%)      950.16 *  23.21%*      988.35 *  20.12%*
+
+Numbers are time to complete workload so lower is better.
+
+Fixes: c65e6fd460b4 ("bfq: Do not let waker requests skip proper accounting")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220519105235.31397-1-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/fill_buf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c | 5 +++--
+ block/bfq-iosched.h | 1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/resctrl/fill_buf.c b/tools/testing/selftests/resctrl/fill_buf.c
-index 51e5cf22632f..56ccbeae0638 100644
---- a/tools/testing/selftests/resctrl/fill_buf.c
-+++ b/tools/testing/selftests/resctrl/fill_buf.c
-@@ -121,8 +121,10 @@ static int fill_cache_read(unsigned char *start_ptr, unsigned char *end_ptr,
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 63d2d66dece5..a2aefb4a1e2e 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2022,7 +2022,6 @@ static void bfq_check_waker(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (!bfqd->last_completed_rq_bfqq ||
+ 	    bfqd->last_completed_rq_bfqq == bfqq ||
+ 	    bfq_bfqq_has_short_ttime(bfqq) ||
+-	    bfqq->dispatched > 0 ||
+ 	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
+ 	    bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
+ 		return;
+@@ -2084,7 +2083,7 @@ static void bfq_add_request(struct request *rq)
+ 	bfqq->queued[rq_is_sync(rq)]++;
+ 	bfqd->queued++;
  
- 	/* Consume read result so that reading memory is not optimized out. */
- 	fp = fopen("/dev/null", "w");
--	if (!fp)
-+	if (!fp) {
- 		perror("Unable to write to /dev/null");
-+		return -1;
-+	}
- 	fprintf(fp, "Sum: %d ", ret);
- 	fclose(fp);
+-	if (RB_EMPTY_ROOT(&bfqq->sort_list) && bfq_bfqq_sync(bfqq)) {
++	if (bfq_bfqq_sync(bfqq) && RQ_BIC(rq)->requests <= 1) {
+ 		bfq_check_waker(bfqd, bfqq, now_ns);
  
+ 		/*
+@@ -6422,6 +6421,7 @@ static void bfq_finish_requeue_request(struct request *rq)
+ 		bfq_completed_request(bfqq, bfqd);
+ 	}
+ 	bfq_finish_requeue_request_body(bfqq);
++	RQ_BIC(rq)->requests--;
+ 	spin_unlock_irqrestore(&bfqd->lock, flags);
+ 
+ 	/*
+@@ -6643,6 +6643,7 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
+ 
+ 	bfqq->allocated++;
+ 	bfqq->ref++;
++	bic->requests++;
+ 	bfq_log_bfqq(bfqd, bfqq, "get_request %p: bfqq %p, %d",
+ 		     rq, bfqq, bfqq->ref);
+ 
+diff --git a/block/bfq-iosched.h b/block/bfq-iosched.h
+index a73488eec8a4..9dc87d3c40c3 100644
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -466,6 +466,7 @@ struct bfq_io_cq {
+ 	struct bfq_queue *stable_merge_bfqq;
+ 
+ 	bool stably_merged;	/* non splittable if true */
++	unsigned int requests;	/* Number of requests this process has in flight */
+ };
+ 
+ /**
 -- 
 2.35.1
 
