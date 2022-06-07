@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 430565408D5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4903541994
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349287AbiFGSC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:02:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
+        id S1378007AbiFGVWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349914AbiFGSAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7268D12DBF2;
-        Tue,  7 Jun 2022 10:42:31 -0700 (PDT)
+        with ESMTP id S1380616AbiFGVQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274A321E320;
+        Tue,  7 Jun 2022 11:55:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01F6DB81F38;
-        Tue,  7 Jun 2022 17:42:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63A07C385A5;
-        Tue,  7 Jun 2022 17:42:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B63CDB8220B;
+        Tue,  7 Jun 2022 18:55:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20042C385A2;
+        Tue,  7 Jun 2022 18:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623736;
-        bh=z4wDMbAV2RS1G7aP/5ULZccvzCp/6WBnP3rMRzqLcME=;
+        s=korg; t=1654628135;
+        bh=etlSzNB3grrboXbbp7K/HPtPiQ3/vS9tQOuqaVtCEwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myN/mnAEGpdareJ5gU8HXbLF7iGte/wjelPZ8vANZ06f4ezCd5AwwyiETY3fz6mFd
-         c/TtRoXgVA3Tvd3pHoMVJThcqRBZVBFmYwyiNKPJnuWwE0bYxTZD25IvVCm6y0HKpw
-         wGkQvjKmi3ye7PezXs+ltufftSjSRqW7v9SNXBCI=
+        b=j9p03+Txtx5dYwz4YRWmVLTumSRQPf8r16ZTj4WkYIJWC0Zb9FwsgbOEJcX8A1+8C
+         LJo3oSxdapE0PM79lPtTc8azCPlPNd0nNpqCb2Aw0imkneib6yrotRTkU0tr0j26Fq
+         YSMMMm2qAx5znGYCXeitvI7USMXcQjY8PrqBeFuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 072/667] ASoC: rsnd: care return value from rsnd_node_fixed_index()
+Subject: [PATCH 5.18 219/879] crypto: qat - fix off-by-one error in PFVF debug print
 Date:   Tue,  7 Jun 2022 18:55:37 +0200
-Message-Id: <20220607164936.977537803@linuxfoundation.org>
+Message-Id: <20220607165009.211537519@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,209 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Marco Chiappero <marco.chiappero@intel.com>
 
-[ Upstream commit d09a7db431c65aaa8303eb456439d1831ca2e6b4 ]
+[ Upstream commit dd3d081b7ea6754913222ed0313fcf644edcc7e6 ]
 
-Renesas Sound is very complex, and thus it needs to use
-rsnd_node_fixed_index() to know enabled pin index.
+PFVF Block Message requests for CRC use 0-based values to indicate
+amounts, which have to be remapped to 1-based values on the receiving
+side.
 
-It returns error if strange pin was selected,
-but some codes didn't check it.
+This patch fixes one debug print which was however using the wire value.
 
-This patch 1) indicates error message, 2) check return
-value.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87pmlbgn5t.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/core.c | 15 ++++++++++-----
- sound/soc/sh/rcar/dma.c  |  9 ++++++++-
- sound/soc/sh/rcar/rsnd.h |  2 +-
- sound/soc/sh/rcar/src.c  |  7 ++++++-
- sound/soc/sh/rcar/ssi.c  | 14 ++++++++++++--
- sound/soc/sh/rcar/ssiu.c |  7 ++++++-
- 6 files changed, 43 insertions(+), 11 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
-index 6a8fe0da7670..af8ef2a27d34 100644
---- a/sound/soc/sh/rcar/core.c
-+++ b/sound/soc/sh/rcar/core.c
-@@ -1159,6 +1159,7 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 		struct device_node *capture)
- {
- 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct device_node *np;
- 	int i;
+diff --git a/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c b/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
+index 588352de1ef0..d17318d3f63a 100644
+--- a/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
++++ b/drivers/crypto/qat/qat_common/adf_pfvf_pf_proto.c
+@@ -154,7 +154,7 @@ static struct pfvf_message handle_blkmsg_req(struct adf_accel_vf_info *vf_info,
+ 	if (FIELD_GET(ADF_VF2PF_BLOCK_CRC_REQ_MASK, req.data)) {
+ 		dev_dbg(&GET_DEV(vf_info->accel_dev),
+ 			"BlockMsg of type %d for CRC over %d bytes received from VF%d\n",
+-			blk_type, blk_byte, vf_info->vf_nr);
++			blk_type, blk_byte + 1, vf_info->vf_nr);
  
-@@ -1169,7 +1170,11 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 	for_each_child_of_node(node, np) {
- 		struct rsnd_mod *mod;
- 
--		i = rsnd_node_fixed_index(np, name, i);
-+		i = rsnd_node_fixed_index(dev, np, name, i);
-+		if (i < 0) {
-+			of_node_put(np);
-+			break;
-+		}
- 
- 		mod = mod_get(priv, i);
- 
-@@ -1183,7 +1188,7 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 	of_node_put(node);
- }
- 
--int rsnd_node_fixed_index(struct device_node *node, char *name, int idx)
-+int rsnd_node_fixed_index(struct device *dev, struct device_node *node, char *name, int idx)
- {
- 	char node_name[16];
- 
-@@ -1210,6 +1215,8 @@ int rsnd_node_fixed_index(struct device_node *node, char *name, int idx)
- 			return idx;
- 	}
- 
-+	dev_err(dev, "strange node numbering (%s)",
-+		of_node_full_name(node));
- 	return -EINVAL;
- }
- 
-@@ -1221,10 +1228,8 @@ int rsnd_node_count(struct rsnd_priv *priv, struct device_node *node, char *name
- 
- 	i = 0;
- 	for_each_child_of_node(node, np) {
--		i = rsnd_node_fixed_index(np, name, i);
-+		i = rsnd_node_fixed_index(dev, np, name, i);
- 		if (i < 0) {
--			dev_err(dev, "strange node numbering (%s)",
--				of_node_full_name(node));
- 			of_node_put(np);
- 			return 0;
- 		}
-diff --git a/sound/soc/sh/rcar/dma.c b/sound/soc/sh/rcar/dma.c
-index 03e0d4eca781..463ab237d7bd 100644
---- a/sound/soc/sh/rcar/dma.c
-+++ b/sound/soc/sh/rcar/dma.c
-@@ -240,12 +240,19 @@ static int rsnd_dmaen_start(struct rsnd_mod *mod,
- struct dma_chan *rsnd_dma_request_channel(struct device_node *of_node, char *name,
- 					  struct rsnd_mod *mod, char *x)
- {
-+	struct rsnd_priv *priv = rsnd_mod_to_priv(mod);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct dma_chan *chan = NULL;
- 	struct device_node *np;
- 	int i = 0;
- 
- 	for_each_child_of_node(of_node, np) {
--		i = rsnd_node_fixed_index(np, name, i);
-+		i = rsnd_node_fixed_index(dev, np, name, i);
-+		if (i < 0) {
-+			chan = NULL;
-+			of_node_put(np);
-+			break;
-+		}
- 
- 		if (i == rsnd_mod_id_raw(mod) && (!chan))
- 			chan = of_dma_request_slave_channel(np, x);
-diff --git a/sound/soc/sh/rcar/rsnd.h b/sound/soc/sh/rcar/rsnd.h
-index 6580bab0e229..d9cd190d7e19 100644
---- a/sound/soc/sh/rcar/rsnd.h
-+++ b/sound/soc/sh/rcar/rsnd.h
-@@ -460,7 +460,7 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 		struct device_node *playback,
- 		struct device_node *capture);
- int rsnd_node_count(struct rsnd_priv *priv, struct device_node *node, char *name);
--int rsnd_node_fixed_index(struct device_node *node, char *name, int idx);
-+int rsnd_node_fixed_index(struct device *dev, struct device_node *node, char *name, int idx);
- 
- int rsnd_channel_normalization(int chan);
- #define rsnd_runtime_channel_original(io) \
-diff --git a/sound/soc/sh/rcar/src.c b/sound/soc/sh/rcar/src.c
-index 42a100c6303d..0ea84ae57c6a 100644
---- a/sound/soc/sh/rcar/src.c
-+++ b/sound/soc/sh/rcar/src.c
-@@ -676,7 +676,12 @@ int rsnd_src_probe(struct rsnd_priv *priv)
- 		if (!of_device_is_available(np))
- 			goto skip;
- 
--		i = rsnd_node_fixed_index(np, SRC_NAME, i);
-+		i = rsnd_node_fixed_index(dev, np, SRC_NAME, i);
-+		if (i < 0) {
-+			ret = -EINVAL;
-+			of_node_put(np);
-+			goto rsnd_src_probe_done;
-+		}
- 
- 		src = rsnd_src_get(priv, i);
- 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 87e606f688d3..43c5e27dc5c8 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -1105,6 +1105,7 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
- 			    struct device_node *capture)
- {
- 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct device_node *node;
- 	struct device_node *np;
- 	int i;
-@@ -1117,7 +1118,11 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
- 	for_each_child_of_node(node, np) {
- 		struct rsnd_mod *mod;
- 
--		i = rsnd_node_fixed_index(np, SSI_NAME, i);
-+		i = rsnd_node_fixed_index(dev, np, SSI_NAME, i);
-+		if (i < 0) {
-+			of_node_put(np);
-+			break;
-+		}
- 
- 		mod = rsnd_ssi_mod_get(priv, i);
- 
-@@ -1182,7 +1187,12 @@ int rsnd_ssi_probe(struct rsnd_priv *priv)
- 		if (!of_device_is_available(np))
- 			goto skip;
- 
--		i = rsnd_node_fixed_index(np, SSI_NAME, i);
-+		i = rsnd_node_fixed_index(dev, np, SSI_NAME, i);
-+		if (i < 0) {
-+			ret = -EINVAL;
-+			of_node_put(np);
-+			goto rsnd_ssi_probe_done;
-+		}
- 
- 		ssi = rsnd_ssi_get(priv, i);
- 
-diff --git a/sound/soc/sh/rcar/ssiu.c b/sound/soc/sh/rcar/ssiu.c
-index 138f95dd9f4a..4b8a63e336c7 100644
---- a/sound/soc/sh/rcar/ssiu.c
-+++ b/sound/soc/sh/rcar/ssiu.c
-@@ -462,6 +462,7 @@ void rsnd_parse_connect_ssiu(struct rsnd_dai *rdai,
- 			     struct device_node *capture)
- {
- 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct device_node *node = rsnd_ssiu_of_node(priv);
- 	struct rsnd_dai_stream *io_p = &rdai->playback;
- 	struct rsnd_dai_stream *io_c = &rdai->capture;
-@@ -474,7 +475,11 @@ void rsnd_parse_connect_ssiu(struct rsnd_dai *rdai,
- 		for_each_child_of_node(node, np) {
- 			struct rsnd_mod *mod;
- 
--			i = rsnd_node_fixed_index(np, SSIU_NAME, i);
-+			i = rsnd_node_fixed_index(dev, np, SSIU_NAME, i);
-+			if (i < 0) {
-+				of_node_put(np);
-+				break;
-+			}
- 
- 			mod = rsnd_ssiu_mod_get(priv, i);
- 
+ 		if (!adf_pf2vf_blkmsg_get_data(vf_info, blk_type, blk_byte,
+ 					       byte_max, &resp_data,
 -- 
 2.35.1
 
