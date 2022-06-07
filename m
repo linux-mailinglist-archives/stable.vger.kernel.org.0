@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2201540644
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317E5541C9E
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347127AbiFGRda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40338 "EHLO
+        id S1382663AbiFGWCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348176AbiFGRbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879A911E48D;
-        Tue,  7 Jun 2022 10:29:43 -0700 (PDT)
+        with ESMTP id S1382463AbiFGWCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:02:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35C924F793;
+        Tue,  7 Jun 2022 12:14:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1B0EB80B66;
-        Tue,  7 Jun 2022 17:29:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 563F8C385A5;
-        Tue,  7 Jun 2022 17:29:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 096CF61923;
+        Tue,  7 Jun 2022 19:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 158B9C385A2;
+        Tue,  7 Jun 2022 19:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622980;
-        bh=jAvgEEXR85e8NpvEaZfg8QBI9lEAwiM9PqabNo9ydrk=;
+        s=korg; t=1654629277;
+        bh=1ASL6fBMDAmWBj3axiWH/dhSFOu0lxh5MMkutiN/P/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=no4gzsrqGIRFoN4IOsBtThgx4QMat0Tw+4hFjX9Zv/ekLFm0Q0B0BZ/dMnySsUI0k
-         22mVOb4n2pU/tf0MvtiGI2WsIlQJmWnGca//TuBuZFs7nBRyYO86y1LZPMJg1SaKxt
-         eWpd2nGhLpbe0yS0dxeL492RemuHQXIBVKwuG0rs=
+        b=Jk21CeqihnFCBNCHO39k6kFO6FiYMpjofrmFqFiG+MEApGpUtcb57u6PUaKWgw04+
+         6+56AeqooZte/1/noyqIaNVFseJzBppyHg6nkpF9HIB0sN6yMQaMwtXakLNc04S3rc
+         wexkiUQNn38XT841WTqCWinS2It4yvmNgmA/PEGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Krzysztof Kensicki <krzysztof.kensicki@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 253/452] rxrpc: Dont let ack.previousPacket regress
+Subject: [PATCH 5.18 592/879] nvdimm: Allow overwrite in the presence of disabled dimms
 Date:   Tue,  7 Jun 2022 19:01:50 +0200
-Message-Id: <20220607164916.097506482@linuxfoundation.org>
+Message-Id: <20220607165020.036905415@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit 81524b6312535897707f2942695da1d359a5e56b ]
+[ Upstream commit bb7bf697fed58eae9d3445944e457ab0de4da54f ]
 
-The previousPacket field in the rx ACK packet should never go backwards -
-it's now the highest DATA sequence number received, not the last on
-received (it used to be used for out of sequence detection).
+It is not clear why the original implementation of overwrite support
+required the dimm driver to be active before overwrite could proceed. In
+fact that can lead to cases where the kernel retains an invalid cached
+copy of the labels from before the overwrite. Unfortunately the kernel
+has not only allowed that case, but enforced it.
 
-Fixes: 248f219cb8bc ("rxrpc: Rewrite the data and ack handling code")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Going forward, allow for overwrite to happen while the label area is
+offline, and follow-on with updates to 'ndctl sanitize-dimm --overwrite'
+to trigger the label area invalidation by default.
+
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Reported-by: Krzysztof Kensicki <krzysztof.kensicki@intel.com>
+Fixes: 7d988097c546 ("acpi/nfit, libnvdimm/security: Add security DSM overwrite support")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/ar-internal.h | 4 ++--
- net/rxrpc/input.c       | 4 +++-
- net/rxrpc/output.c      | 2 +-
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/nvdimm/security.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 2fc93467780d..ed88552c237c 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -662,7 +662,7 @@ struct rxrpc_call {
- 	/* Receive-phase ACK management (ACKs we send). */
- 	u8			ackr_reason;	/* reason to ACK */
- 	rxrpc_serial_t		ackr_serial;	/* serial of packet being ACK'd */
--	rxrpc_seq_t		ackr_prev_seq;	/* previous sequence number received */
-+	rxrpc_seq_t		ackr_highest_seq; /* Higest sequence number received */
- 	rxrpc_seq_t		ackr_consumed;	/* Highest packet shown consumed */
- 	rxrpc_seq_t		ackr_seen;	/* Highest packet shown seen */
+diff --git a/drivers/nvdimm/security.c b/drivers/nvdimm/security.c
+index 4b80150e4afa..b5aa55c61461 100644
+--- a/drivers/nvdimm/security.c
++++ b/drivers/nvdimm/security.c
+@@ -379,11 +379,6 @@ static int security_overwrite(struct nvdimm *nvdimm, unsigned int keyid)
+ 			|| !nvdimm->sec.flags)
+ 		return -EOPNOTSUPP;
  
-@@ -677,7 +677,7 @@ struct rxrpc_call {
- 	/* Transmission-phase ACK management (ACKs we've received). */
- 	ktime_t			acks_latest_ts;	/* Timestamp of latest ACK received */
- 	rxrpc_seq_t		acks_first_seq;	/* first sequence number received */
--	rxrpc_seq_t		acks_prev_seq;	/* previous sequence number received */
-+	rxrpc_seq_t		acks_prev_seq;	/* Highest previousPacket received */
- 	rxrpc_seq_t		acks_lowest_nak; /* Lowest NACK in the buffer (or ==tx_hard_ack) */
- 	rxrpc_seq_t		acks_lost_top;	/* tx_top at the time lost-ack ping sent */
- 	rxrpc_serial_t		acks_lost_ping;	/* Serial number of probe ACK */
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index f11673cda217..2e61545ad8ca 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -453,7 +453,6 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- 	    !rxrpc_receiving_reply(call))
- 		goto unlock;
- 
--	call->ackr_prev_seq = seq0;
- 	hard_ack = READ_ONCE(call->rx_hard_ack);
- 
- 	nr_subpackets = sp->nr_subpackets;
-@@ -534,6 +533,9 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- 			ack_serial = serial;
- 		}
- 
-+		if (after(seq0, call->ackr_highest_seq))
-+			call->ackr_highest_seq = seq0;
-+
- 		/* Queue the packet.  We use a couple of memory barriers here as need
- 		 * to make sure that rx_top is perceived to be set after the buffer
- 		 * pointer and that the buffer pointer is set after the annotation and
-diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
-index a45c83f22236..46aae9b7006f 100644
---- a/net/rxrpc/output.c
-+++ b/net/rxrpc/output.c
-@@ -89,7 +89,7 @@ static size_t rxrpc_fill_out_ack(struct rxrpc_connection *conn,
- 	pkt->ack.bufferSpace	= htons(8);
- 	pkt->ack.maxSkew	= htons(0);
- 	pkt->ack.firstPacket	= htonl(hard_ack + 1);
--	pkt->ack.previousPacket	= htonl(call->ackr_prev_seq);
-+	pkt->ack.previousPacket	= htonl(call->ackr_highest_seq);
- 	pkt->ack.serial		= htonl(serial);
- 	pkt->ack.reason		= reason;
- 	pkt->ack.nAcks		= top - hard_ack;
+-	if (dev->driver == NULL) {
+-		dev_dbg(dev, "Unable to overwrite while DIMM active.\n");
+-		return -EINVAL;
+-	}
+-
+ 	rc = check_security_state(nvdimm);
+ 	if (rc)
+ 		return rc;
 -- 
 2.35.1
 
