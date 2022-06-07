@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D26365404EF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ECF6541A7B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242019AbiFGRUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:20:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43524 "EHLO
+        id S1379910AbiFGVd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:33:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345962AbiFGRUH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:07 -0400
+        with ESMTP id S1380549AbiFGVa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5510910656F;
-        Tue,  7 Jun 2022 10:19:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70111153538;
+        Tue,  7 Jun 2022 12:03:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E760C618D6;
-        Tue,  7 Jun 2022 17:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08573C385A5;
-        Tue,  7 Jun 2022 17:19:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 066F461807;
+        Tue,  7 Jun 2022 19:03:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14976C385A2;
+        Tue,  7 Jun 2022 19:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622397;
-        bh=IditYZuL5cO1NhdK+/B1QlSFhu7Q8kTz3Xx9VY+eUhI=;
+        s=korg; t=1654628583;
+        bh=aB0jQ82KR7b5RA+Hf2rVDim5Fk3zehrz+vsYPysga2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l16KIWedlQFw9adpJHGloAXrwvyxtvogW5sOHMACzYf4pxVEJgq2Iro0VGo4HcpAu
-         QuTz3s4PYI0fauYEswl1KlMt4/nHuK7315Tv178LOc1tyyXWBq6iwwzui7m8uHA58n
-         1x7F+jz1dGJMYKrSD0RolP/5ciqGgBxsFAHrtPmk=
+        b=zuHdK78MtXtM8IjSwtEwMaVZB4UtwUx/D/061ettZnA8VkCcw7OWLYTl0EnDH3ezb
+         AT86XGOb6soyiOllO7BvuVVoTG7B83QL0koHzMd/lP+P/Jf/oVuJZf6iAWM4aW6CGd
+         ZbEFbuCX3gR5QDGBRtstJcdwNEXpnMs7roLAHc2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/452] media: venus: hfi: avoid null dereference in deinit
+Subject: [PATCH 5.18 383/879] perf tools: Use Python devtools for version autodetection rather than runtime
 Date:   Tue,  7 Jun 2022 18:58:21 +0200
-Message-Id: <20220607164909.861501084@linuxfoundation.org>
+Message-Id: <20220607165013.984148451@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +58,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 86594f6af867b5165d2ba7b5a71fae3a5961e56c ]
+[ Upstream commit 630af16eee495f583db5202c3613d1b191f10694 ]
 
-If venus_probe fails at pm_runtime_put_sync the error handling first
-calls hfi_destroy and afterwards hfi_core_deinit. As hfi_destroy sets
-core->ops to NULL, hfi_core_deinit cannot call the core_deinit function
-anymore.
+This fixes the issue where the build will fail if only the Python2
+runtime is installed but the Python3 devtools are installed. Currently
+the workaround is 'make PYTHON=python3'.
 
-Avoid this null pointer derefence by skipping the call when necessary.
+Fix it by autodetecting Python based on whether python[x]-config exists
+rather than just python[x] because both are needed for the build. Then
+-config is stripped to find the Python runtime.
 
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Testing
+=======
+
+ * Auto detect links with Python3 when the v3 devtools are installed
+   and only Python 2 runtime is installed
+ * Auto detect links with Python2 when both devtools are installed
+ * Sensible warning is printed if no Python devtools are installed
+ * 'make PYTHON=x' still automatically sets PYTHON_CONFIG=x-config
+ * 'make PYTHON=x' fails if x-config doesn't exist
+ * 'make PYTHON=python3' overrides Python2 devtools
+ * 'make PYTHON=python2' overrides Python3 devtools
+ * 'make PYTHON_CONFIG=x-config' works
+ * 'make PYTHON=x PYTHON_CONFIG=x' works
+ * 'make PYTHON=missing' reports an error
+ * 'make PYTHON_CONFIG=missing' reports an error
+
+Fixes: 79373082fa9de8be ("perf python: Autodetect python3 binary")
+Signed-off-by: James Clark <james.clark@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20220309194313.3350126-2-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/hfi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/Makefile.config | 39 ++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/hfi.c b/drivers/media/platform/qcom/venus/hfi.c
-index a59022adb14c..966b4d9b57a9 100644
---- a/drivers/media/platform/qcom/venus/hfi.c
-+++ b/drivers/media/platform/qcom/venus/hfi.c
-@@ -104,6 +104,9 @@ int hfi_core_deinit(struct venus_core *core, bool blocking)
- 		mutex_lock(&core->lock);
- 	}
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 1bd64e7404b9..c38423807d01 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -239,18 +239,33 @@ ifdef PARSER_DEBUG
+ endif
  
-+	if (!core->ops)
-+		goto unlock;
+ # Try different combinations to accommodate systems that only have
+-# python[2][-config] in weird combinations but always preferring
+-# python2 and python2-config as per pep-0394. If python2 or python
+-# aren't found, then python3 is used.
+-PYTHON_AUTO := python
+-PYTHON_AUTO := $(if $(call get-executable,python3),python3,$(PYTHON_AUTO))
+-PYTHON_AUTO := $(if $(call get-executable,python),python,$(PYTHON_AUTO))
+-PYTHON_AUTO := $(if $(call get-executable,python2),python2,$(PYTHON_AUTO))
+-override PYTHON := $(call get-executable-or-default,PYTHON,$(PYTHON_AUTO))
+-PYTHON_AUTO_CONFIG := \
+-  $(if $(call get-executable,$(PYTHON)-config),$(PYTHON)-config,python-config)
+-override PYTHON_CONFIG := \
+-  $(call get-executable-or-default,PYTHON_CONFIG,$(PYTHON_AUTO_CONFIG))
++# python[2][3]-config in weird combinations in the following order of
++# priority from lowest to highest:
++#   * python3-config
++#   * python-config
++#   * python2-config as per pep-0394.
++#   * $(PYTHON)-config (If PYTHON is user supplied but PYTHON_CONFIG isn't)
++#
++PYTHON_AUTO := python-config
++PYTHON_AUTO := $(if $(call get-executable,python3-config),python3-config,$(PYTHON_AUTO))
++PYTHON_AUTO := $(if $(call get-executable,python-config),python-config,$(PYTHON_AUTO))
++PYTHON_AUTO := $(if $(call get-executable,python2-config),python2-config,$(PYTHON_AUTO))
 +
- 	ret = core->ops->core_deinit(core);
++# If PYTHON is defined but PYTHON_CONFIG isn't, then take $(PYTHON)-config as if it was the user
++# supplied value for PYTHON_CONFIG. Because it's "user supplied", error out if it doesn't exist.
++ifdef PYTHON
++  ifndef PYTHON_CONFIG
++    PYTHON_CONFIG_AUTO := $(call get-executable,$(PYTHON)-config)
++    PYTHON_CONFIG := $(if $(PYTHON_CONFIG_AUTO),$(PYTHON_CONFIG_AUTO),\
++                          $(call $(error $(PYTHON)-config not found)))
++  endif
++endif
++
++# Select either auto detected python and python-config or use user supplied values if they are
++# defined. get-executable-or-default fails with an error if the first argument is supplied but
++# doesn't exist.
++override PYTHON_CONFIG := $(call get-executable-or-default,PYTHON_CONFIG,$(PYTHON_AUTO))
++override PYTHON := $(call get-executable-or-default,PYTHON,$(subst -config,,$(PYTHON_AUTO)))
  
- 	if (!ret)
+ grep-libs  = $(filter -l%,$(1))
+ strip-libs  = $(filter-out -l%,$(1))
 -- 
 2.35.1
 
