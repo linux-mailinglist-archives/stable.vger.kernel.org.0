@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2835405D4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B1E541C0C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346628AbiFGRcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39736 "EHLO
+        id S1382767AbiFGV4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347866AbiFGRbU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012E410A63F;
-        Tue,  7 Jun 2022 10:28:38 -0700 (PDT)
+        with ESMTP id S1383090AbiFGVwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8CC12D171;
+        Tue,  7 Jun 2022 12:10:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92B1A60906;
-        Tue,  7 Jun 2022 17:28:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A18F5C385A5;
-        Tue,  7 Jun 2022 17:28:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9725617D0;
+        Tue,  7 Jun 2022 19:10:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB139C385A2;
+        Tue,  7 Jun 2022 19:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622917;
-        bh=b9T2ytWkws7EL7G3oLxeMYXBSBUH+aLsHZbV06loISc=;
+        s=korg; t=1654629028;
+        bh=Sx075wmH+fciBWDGdjmX1WC/G/5JWSZbDGAN7DCYbrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3M+Vsai+sZefGe8rxImIalKZltYxanheDUAEIK4KW9H+ti76lJD4LJ66Atv8HM6F
-         9G8gaRPWfit5zAGfPPfsydx5yz69v0HwdP8mGU/q/OCCBEeWV5fmNbfP1S7fvefmj8
-         OTXFQQ6lZjE3B4tmXXvX+LboRqNFpCh05Il+UL7Y=
+        b=rKZ28lghH+7pcadtaNzVOSGKkcoPK9Rsebq0aeQOVaJnoi1ucUlGoQZD8S15h5q0u
+         JcC4rEFAB4rK5tJI7SIoUPlMqOR9Gyktdpv3JNpATHkPUGrWjWs/DyqA5s0kUDgsyk
+         KRKQaqLejIHlwaEZ9HMYFuaTgycTmncjp5MdacH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 202/452] ASoC: fsl: Fix refcount leak in imx_sgtl5000_probe
+Subject: [PATCH 5.18 541/879] arm64: defconfig: reenable SM_DISPCC_8250
 Date:   Tue,  7 Jun 2022 19:00:59 +0200
-Message-Id: <20220607164914.583496888@linuxfoundation.org>
+Message-Id: <20220607165018.575018970@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 41cd312dfe980af869c3503b4d38e62ed20dd3b7 ]
+[ Upstream commit e77817b4953dcf59a83bfab18ca5af80d9231d72 ]
 
-of_find_i2c_device_by_node() takes a reference,
-In error paths, we should call put_device() to drop
-the reference to aviod refount leak.
+CONFIG_SM_DISPCC_8250 is not enabled by default, but it is still
+necessary for the Qualcomm RB5 board. Reenable it (as it was enabled
+before the commit dde8cd786e37 ("arm64: defconfig: rebuild default
+configuration")).
 
-Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20220511065803.3957-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Fixes: dde8cd786e37 ("arm64: defconfig: rebuild default configuration")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220404215913.1497172-1-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-sgtl5000.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ arch/arm64/configs/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-index f45cb4bbb6c4..5997bb5acb73 100644
---- a/sound/soc/fsl/imx-sgtl5000.c
-+++ b/sound/soc/fsl/imx-sgtl5000.c
-@@ -120,19 +120,19 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		ret = -ENOMEM;
--		goto fail;
-+		goto put_device;
- 	}
- 
- 	comp = devm_kzalloc(&pdev->dev, 3 * sizeof(*comp), GFP_KERNEL);
- 	if (!comp) {
- 		ret = -ENOMEM;
--		goto fail;
-+		goto put_device;
- 	}
- 
- 	data->codec_clk = clk_get(&codec_dev->dev, NULL);
- 	if (IS_ERR(data->codec_clk)) {
- 		ret = PTR_ERR(data->codec_clk);
--		goto fail;
-+		goto put_device;
- 	}
- 
- 	data->clk_frequency = clk_get_rate(data->codec_clk);
-@@ -158,10 +158,10 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	data->card.dev = &pdev->dev;
- 	ret = snd_soc_of_parse_card_name(&data->card, "model");
- 	if (ret)
--		goto fail;
-+		goto put_device;
- 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
- 	if (ret)
--		goto fail;
-+		goto put_device;
- 	data->card.num_links = 1;
- 	data->card.owner = THIS_MODULE;
- 	data->card.dai_link = &data->dai;
-@@ -176,7 +176,7 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 		if (ret != -EPROBE_DEFER)
- 			dev_err(&pdev->dev, "snd_soc_register_card failed (%d)\n",
- 				ret);
--		goto fail;
-+		goto put_device;
- 	}
- 
- 	of_node_put(ssi_np);
-@@ -184,6 +184,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+put_device:
-+	put_device(&codec_dev->dev);
- fail:
- 	if (data && !IS_ERR(data->codec_clk))
- 		clk_put(data->codec_clk);
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 50aa3d75ab4f..f30af6e1fe40 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -1029,6 +1029,7 @@ CONFIG_SM_GCC_8350=y
+ CONFIG_SM_GCC_8450=y
+ CONFIG_SM_GPUCC_8150=y
+ CONFIG_SM_GPUCC_8250=y
++CONFIG_SM_DISPCC_8250=y
+ CONFIG_QCOM_HFPLL=y
+ CONFIG_CLK_GFM_LPASS_SM8250=m
+ CONFIG_CLK_RCAR_USB2_CLOCK_SEL=y
 -- 
 2.35.1
 
