@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5A0541549
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B19C540611
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344409AbiFGUe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
+        id S1347150AbiFGRdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376998AbiFGU2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C00821DA0A1;
-        Tue,  7 Jun 2022 11:33:40 -0700 (PDT)
+        with ESMTP id S1347608AbiFGRax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CCD610173A;
+        Tue,  7 Jun 2022 10:27:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D5FB61504;
-        Tue,  7 Jun 2022 18:33:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82768C385A2;
-        Tue,  7 Jun 2022 18:33:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B0A06137B;
+        Tue,  7 Jun 2022 17:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9B7C34119;
+        Tue,  7 Jun 2022 17:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626818;
-        bh=BLFFKabw1uBbk566mu6bjmsWa8miu+GSa++UAqziYfI=;
+        s=korg; t=1654622860;
+        bh=VQNA4yHBmdMMVoQvvLliaYr67nNPoMKd062v5H5NFWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikXBmIteCrNZwoV0ujt9VUkdksODmrHJYLVHgBMUdnE4a3xyoNA5LdHf7aJR8xlm4
-         YwtgabbcpyJ3RI7vdOFAjmi9IuT1tnw/Ml29tvrYNFdh40T6JYgfGLbExxEpccGSXN
-         fuJOhQC8u06NmldNrzcXxXfiV6Rurm3xnfes1alg=
+        b=PKoVqTO3uEtlsrJrq+sukYh2Q7dpyJ0ExaQzrca49ns2UI2x9uBMRTVl2CTWTFmGr
+         F8HRwX2cTxtl2Cl92EnMRjtUxGuHt34q9YB/I3JDMkXs2CMpaazAQPYXmJC48QLasc
+         Ti/DKW+TpNawA/SqXoqKA1uC9GbuM0XXEU7SLx4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 474/772] dt-bindings: soc: qcom: smd-rpm: Fix missing MSM8936 compatible
-Date:   Tue,  7 Jun 2022 19:01:06 +0200
-Message-Id: <20220607165002.962714652@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 210/452] media: exynos4-is: Fix PM disable depth imbalance in fimc_is_probe
+Date:   Tue,  7 Jun 2022 19:01:07 +0200
+Message-Id: <20220607164914.820739773@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit e930244918092d44b60a7b538cf60d737010ceef ]
+[ Upstream commit 5c0db68ce0faeb000c3540d095eb272d671a6e03 ]
 
-Add compatible msm8936. msm8936 covers both msm8936 and msm8939.
-The relevant driver already has the compat string but, we haven't
-documented it.
+If probe fails then we need to call pm_runtime_disable() to balance
+out the previous pm_runtime_enable() call.
 
-Fixes: d6e52482f5ab ("drivers: soc: Add MSM8936 SMD RPM compatible")
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220418231857.3061053-1-bryan.odonoghue@linaro.org
+Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/soc/qcom/qcom,smd-rpm.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/exynos4-is/fimc-is.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,smd-rpm.yaml b/Documentation/devicetree/bindings/soc/qcom/qcom,smd-rpm.yaml
-index b32457c2fc0b..3361218e278f 100644
---- a/Documentation/devicetree/bindings/soc/qcom/qcom,smd-rpm.yaml
-+++ b/Documentation/devicetree/bindings/soc/qcom/qcom,smd-rpm.yaml
-@@ -34,6 +34,7 @@ properties:
-       - qcom,rpm-ipq6018
-       - qcom,rpm-msm8226
-       - qcom,rpm-msm8916
-+      - qcom,rpm-msm8936
-       - qcom,rpm-msm8953
-       - qcom,rpm-msm8974
-       - qcom,rpm-msm8976
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index d26fa5967d82..d4b31b3c9282 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -830,7 +830,7 @@ static int fimc_is_probe(struct platform_device *pdev)
+ 
+ 	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+-		goto err_irq;
++		goto err_pm_disable;
+ 
+ 	vb2_dma_contig_set_max_seg_size(dev, DMA_BIT_MASK(32));
+ 
+@@ -864,6 +864,8 @@ static int fimc_is_probe(struct platform_device *pdev)
+ 	pm_runtime_put_noidle(dev);
+ 	if (!pm_runtime_enabled(dev))
+ 		fimc_is_runtime_suspend(dev);
++err_pm_disable:
++	pm_runtime_disable(dev);
+ err_irq:
+ 	free_irq(is->irq, is);
+ err_clk:
 -- 
 2.35.1
 
