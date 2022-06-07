@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C8E540A8C
+	by mail.lfdr.de (Postfix) with ESMTP id 7425E540A8B
 	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230106AbiFGSWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
+        id S1349370AbiFGSWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352664AbiFGSRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00F4813B2CE;
-        Tue,  7 Jun 2022 10:52:29 -0700 (PDT)
+        with ESMTP id S1352687AbiFGSR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF3A13B8E1;
+        Tue,  7 Jun 2022 10:52:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67AB2B82373;
-        Tue,  7 Jun 2022 17:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF5EFC34115;
-        Tue,  7 Jun 2022 17:52:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D6FF6170B;
+        Tue,  7 Jun 2022 17:52:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90CABC34119;
+        Tue,  7 Jun 2022 17:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624348;
-        bh=/AeziWqD0UgPgL+eWiFNYnEEuboJIxNJ/rnLkFTpcdU=;
+        s=k20201202; t=1654624349;
+        bh=sAkOyYAdlcm/cEjKk2Eg7D9Ue+girWWWfYJDPt8GC8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMgItK4jWHjWX8FqrdCSa8u5V1wfPehfvMw55p/AUowkvYlBjixodQDhiKrFXPb/8
-         t0I3oZQFspnjAmFZ19NOHG9xsKm0H5B7vc+okFkoVJ4VGqdxIpSuQ6ui5XuCpQXN4t
-         rPcfCfzzanIgG5EDnPNOcBwF5VmrCKqW+JzSprnVN0qVDYZwVEeO0DhB7QEFjnsyZA
-         uEC6ywVXl3KGdjjlR+EvKXIFoQTPW8K4AFIMtXGAfb/GZRy4PpowIFM83305LL61l9
-         5HZhSgyBQvOu6BrY+uxmT/gSG/+/H9wPblI96SYCULkoX5izqcEma3K72sVL1ACdnN
-         rfX5blKtW7F/g==
+        b=M9+EHjHMYHETD7EtIufbmi7eru40/QZs/3+KqAme6/ebuhD4HLoAgPr3CIhZykOIW
+         Y8p8GhseZSFH6OgDB/3aX9/VSB4dE54y0aasWF9RblwbYvf6q5ZRYi+vYEV8A7O7+T
+         u+bP3txnPV5qU86W+eANWs5q48Pa6ahV6J7ojf/F+N8TT4X6GKSKZ1uVZfPjSsKP5k
+         AIjscjc4PIbkmePG8paSrG362TeEF+3lkAoFO426I+/vUwMt4+dVWfD9n39B0/dOcx
+         uk6/X56lUpgzk/B7r89MDmSGSE0utEOgmBCsWGOuGlCJQG9PqCOo89XHIvwYxU5z4x
+         coUez3Tp5HFyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Hou Tao <houtao1@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+Cc:     Yu Kuai <yukuai3@huawei.com>, Josef Bacik <josef@toxicpanda.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 5.18 57/68] nbd: fix race between nbd_alloc_config() and module removal
-Date:   Tue,  7 Jun 2022 13:48:23 -0400
-Message-Id: <20220607174846.477972-57-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 58/68] nbd: fix io hung while disconnecting device
+Date:   Tue,  7 Jun 2022 13:48:24 -0400
+Message-Id: <20220607174846.477972-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -59,120 +58,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit c55b2b983b0fa012942c3eb16384b2b722caa810 ]
+[ Upstream commit 09dadb5985023e27d4740ebd17e6fea4640110e5 ]
 
-When nbd module is being removing, nbd_alloc_config() may be
-called concurrently by nbd_genl_connect(), although try_module_get()
-will return false, but nbd_alloc_config() doesn't handle it.
+In our tests, "qemu-nbd" triggers a io hung:
 
-The race may lead to the leak of nbd_config and its related
-resources (e.g, recv_workq) and oops in nbd_read_stat() due
-to the unload of nbd module as shown below:
+INFO: task qemu-nbd:11445 blocked for more than 368 seconds.
+      Not tainted 5.18.0-rc3-next-20220422-00003-g2176915513ca #884
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:qemu-nbd        state:D stack:    0 pid:11445 ppid:     1 flags:0x00000000
+Call Trace:
+ <TASK>
+ __schedule+0x480/0x1050
+ ? _raw_spin_lock_irqsave+0x3e/0xb0
+ schedule+0x9c/0x1b0
+ blk_mq_freeze_queue_wait+0x9d/0xf0
+ ? ipi_rseq+0x70/0x70
+ blk_mq_freeze_queue+0x2b/0x40
+ nbd_add_socket+0x6b/0x270 [nbd]
+ nbd_ioctl+0x383/0x510 [nbd]
+ blkdev_ioctl+0x18e/0x3e0
+ __x64_sys_ioctl+0xac/0x120
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fd8ff706577
+RSP: 002b:00007fd8fcdfebf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000040000000 RCX: 00007fd8ff706577
+RDX: 000000000000000d RSI: 000000000000ab00 RDI: 000000000000000f
+RBP: 000000000000000f R08: 000000000000fbe8 R09: 000055fe497c62b0
+R10: 00000002aff20000 R11: 0000000000000246 R12: 000000000000006d
+R13: 0000000000000000 R14: 00007ffe82dc5e70 R15: 00007fd8fcdff9c0
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000040
-  Oops: 0000 [#1] SMP PTI
-  CPU: 5 PID: 13840 Comm: kworker/u17:33 Not tainted 5.14.0+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-  Workqueue: knbd16-recv recv_work [nbd]
-  RIP: 0010:nbd_read_stat.cold+0x130/0x1a4 [nbd]
-  Call Trace:
-   recv_work+0x3b/0xb0 [nbd]
-   process_one_work+0x1ed/0x390
-   worker_thread+0x4a/0x3d0
-   kthread+0x12a/0x150
-   ret_from_fork+0x22/0x30
+"qemu-ndb -d" will call ioctl 'NBD_DISCONNECT' first, however, following
+message was found:
 
-Fixing it by checking the return value of try_module_get()
-in nbd_alloc_config(). As nbd_alloc_config() may return ERR_PTR(-ENODEV),
-assign nbd->config only when nbd_alloc_config() succeeds to ensure
-the value of nbd->config is binary (valid or NULL).
+block nbd0: Send disconnect failed -32
 
-Also adding a debug message to check the reference counter
-of nbd_config during module removal.
+Which indicate that something is wrong with the server. Then,
+"qemu-nbd -d" will call ioctl 'NBD_CLEAR_SOCK', however ioctl can't clear
+requests after commit 2516ab1543fd("nbd: only clear the queue on device
+teardown"). And in the meantime, request can't complete through timeout
+because nbd_xmit_timeout() will always return 'BLK_EH_RESET_TIMER', which
+means such request will never be completed in this situation.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
+Now that the flag 'NBD_CMD_INFLIGHT' can make sure requests won't
+complete multiple times, switch back to call nbd_clear_sock() in
+nbd_clear_sock_ioctl(), so that inflight requests can be cleared.
+
 Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-3-yukuai3@huawei.com
+Link: https://lore.kernel.org/r/20220521073749.3146892-5-yukuai3@huawei.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/block/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 9dc27f9e9ddc..f26cdb51812b 100644
+index f26cdb51812b..4a163bccd592 100644
 --- a/drivers/block/nbd.c
 +++ b/drivers/block/nbd.c
-@@ -1519,15 +1519,20 @@ static struct nbd_config *nbd_alloc_config(void)
+@@ -1420,7 +1420,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
+ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
+ 				 struct block_device *bdev)
  {
- 	struct nbd_config *config;
- 
-+	if (!try_module_get(THIS_MODULE))
-+		return ERR_PTR(-ENODEV);
-+
- 	config = kzalloc(sizeof(struct nbd_config), GFP_NOFS);
--	if (!config)
--		return NULL;
-+	if (!config) {
-+		module_put(THIS_MODULE);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
- 	atomic_set(&config->recv_threads, 0);
- 	init_waitqueue_head(&config->recv_wq);
- 	init_waitqueue_head(&config->conn_wait);
- 	config->blksize_bits = NBD_DEF_BLKSIZE_BITS;
- 	atomic_set(&config->live_connections, 0);
--	try_module_get(THIS_MODULE);
- 	return config;
- }
- 
-@@ -1554,12 +1559,13 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
--		config = nbd->config = nbd_alloc_config();
--		if (!config) {
--			ret = -ENOMEM;
-+		config = nbd_alloc_config();
-+		if (IS_ERR(config)) {
-+			ret = PTR_ERR(config);
- 			mutex_unlock(&nbd->config_lock);
- 			goto out;
- 		}
-+		nbd->config = config;
- 		refcount_set(&nbd->config_refs, 1);
- 		refcount_inc(&nbd->refs);
- 		mutex_unlock(&nbd->config_lock);
-@@ -1966,13 +1972,14 @@ static int nbd_genl_connect(struct sk_buff *skb, struct genl_info *info)
- 		nbd_put(nbd);
- 		return -EINVAL;
- 	}
--	config = nbd->config = nbd_alloc_config();
--	if (!nbd->config) {
-+	config = nbd_alloc_config();
-+	if (IS_ERR(config)) {
- 		mutex_unlock(&nbd->config_lock);
- 		nbd_put(nbd);
- 		printk(KERN_ERR "nbd: couldn't allocate config\n");
--		return -ENOMEM;
-+		return PTR_ERR(config);
- 	}
-+	nbd->config = config;
- 	refcount_set(&nbd->config_refs, 1);
- 	set_bit(NBD_RT_BOUND, &config->runtime_flags);
- 
-@@ -2544,6 +2551,9 @@ static void __exit nbd_cleanup(void)
- 	while (!list_empty(&del_list)) {
- 		nbd = list_first_entry(&del_list, struct nbd_device, list);
- 		list_del_init(&nbd->list);
-+		if (refcount_read(&nbd->config_refs))
-+			printk(KERN_ERR "nbd: possibly leaking nbd_config (ref %d)\n",
-+					refcount_read(&nbd->config_refs));
- 		if (refcount_read(&nbd->refs) != 1)
- 			printk(KERN_ERR "nbd: possibly leaking a device\n");
- 		nbd_put(nbd);
+-	sock_shutdown(nbd);
++	nbd_clear_sock(nbd);
+ 	__invalidate_device(bdev, true);
+ 	nbd_bdev_reset(bdev);
+ 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
 -- 
 2.35.1
 
