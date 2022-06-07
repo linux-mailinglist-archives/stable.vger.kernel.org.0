@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9155419E8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0E95419E0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378244AbiFGV1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:27:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39308 "EHLO
+        id S1377916AbiFGVYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378639AbiFGVX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:56 -0400
+        with ESMTP id S1378074AbiFGVX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0292227374;
-        Tue,  7 Jun 2022 12:00:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E36227344;
+        Tue,  7 Jun 2022 12:00:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C52DFB8239A;
-        Tue,  7 Jun 2022 19:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 349C6C385A5;
-        Tue,  7 Jun 2022 19:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79A43B8239C;
+        Tue,  7 Jun 2022 19:00:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEEAC34115;
+        Tue,  7 Jun 2022 19:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628437;
-        bh=ebJ6XbULYIuzkx/sQhTnfexOueAaNi58VR+qf5B58co=;
+        s=korg; t=1654628440;
+        bh=JqfzZlWXzIpjCYyfXxBmymB6QuLGjqABK8mina/XokU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DK8xEOItIrOjp/bI1zcz/DVH0gSskJDvbWzVMgoDlqLgHEM4jmvCZeB/b04l+jS7E
-         LZcYJzxMEWoKxp2QeM4JtY+zXye1yHGWp7XD4hyEeGsEOBAme3Z1sdPl1+TGvMGTJ1
-         Giq93AURoDWEWVN/nK5E0Yc4z+ruymo1zbpMz/Co=
+        b=AesRTMkgv46lsnI/iYND7Lu3AwlhGvOGU7Ou6IpBo9Y/Luz/NgQafU/jYOmGGBHM5
+         ZwaCJwJQ9fNL9qtGZWsRP5kqAeIUw32OEixeN+/HygeghxZIGzQpknqmDKQVrG1NhO
+         DV4L3P83LOVhbPU8TfhcMbluTBS8Ro/p/UwfG9jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Zhiqiang Lin <zhiqiang.lin@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 289/879] drm/vc4: hvs: Fix frame count register readout
-Date:   Tue,  7 Jun 2022 18:56:47 +0200
-Message-Id: <20220607165011.236020211@linuxfoundation.org>
+Subject: [PATCH 5.18 290/879] drm/mediatek: Fix mtk_cec_mask()
+Date:   Tue,  7 Jun 2022 18:56:48 +0200
+Message-Id: <20220607165011.265035809@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,130 +59,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit b51cd7ad143d2eb31a6df81c2183128920e47c2b ]
+[ Upstream commit 2c5d69b0a141e1e98febe3111e6f4fd8420493a5 ]
 
-In order to get the field currently being output, the driver has been
-using the display FIFO frame count in the HVS, reading a 6-bit field at
-the offset 12 in the DISPSTATx register.
+In current implementation, mtk_cec_mask() writes val into target register
+and ignores the mask. After talking to our hdmi experts, mtk_cec_mask()
+should read a register, clean only mask bits, and update (val | mask) bits
+to the register.
 
-While that field is indeed at that location for the FIFO 1 and 2, the
-one for the FIFO0 is actually in the DISPSTAT1 register, at the offset
-18.
-
-Fixes: e538092cb15c ("drm/vc4: Enable precise vblank timestamping for interlaced modes.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://lore.kernel.org/r/20220331143744.777652-3-maxime@cerno.tech
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220315232301.2434-1-miles.chen@mediatek.com/
+Fixes: 8f83f26891e1 ("drm/mediatek: Add HDMI support")
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Zhiqiang Lin <zhiqiang.lin@mediatek.com>
+Cc: CK Hu <ck.hu@mediatek.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c |  2 +-
- drivers/gpu/drm/vc4/vc4_drv.h  |  1 +
- drivers/gpu/drm/vc4/vc4_hvs.c  | 23 +++++++++++++++++++++++
- drivers/gpu/drm/vc4/vc4_regs.h | 12 ++++++++++--
- 4 files changed, 35 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_cec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 783890e8d43a..477b3c5ad089 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -123,7 +123,7 @@ static bool vc4_crtc_get_scanout_position(struct drm_crtc *crtc,
- 		*vpos /= 2;
+diff --git a/drivers/gpu/drm/mediatek/mtk_cec.c b/drivers/gpu/drm/mediatek/mtk_cec.c
+index e9cef5c0c8f7..cdfa648910b2 100644
+--- a/drivers/gpu/drm/mediatek/mtk_cec.c
++++ b/drivers/gpu/drm/mediatek/mtk_cec.c
+@@ -85,7 +85,7 @@ static void mtk_cec_mask(struct mtk_cec *cec, unsigned int offset,
+ 	u32 tmp = readl(cec->regs + offset) & ~mask;
  
- 		/* Use hpos to correct for field offset in interlaced mode. */
--		if (VC4_GET_FIELD(val, SCALER_DISPSTATX_FRAME_COUNT) % 2)
-+		if (vc4_hvs_get_fifo_frame_count(dev, vc4_crtc_state->assigned_channel) % 2)
- 			*hpos += mode->crtc_htotal / 2;
- 	}
- 
-diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
-index 4329e09d357c..801da3e8ebdb 100644
---- a/drivers/gpu/drm/vc4/vc4_drv.h
-+++ b/drivers/gpu/drm/vc4/vc4_drv.h
-@@ -935,6 +935,7 @@ void vc4_irq_reset(struct drm_device *dev);
- extern struct platform_driver vc4_hvs_driver;
- void vc4_hvs_stop_channel(struct drm_device *dev, unsigned int output);
- int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output);
-+u8 vc4_hvs_get_fifo_frame_count(struct drm_device *dev, unsigned int fifo);
- int vc4_hvs_atomic_check(struct drm_crtc *crtc, struct drm_atomic_state *state);
- void vc4_hvs_atomic_begin(struct drm_crtc *crtc, struct drm_atomic_state *state);
- void vc4_hvs_atomic_enable(struct drm_crtc *crtc, struct drm_atomic_state *state);
-diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
-index 604933e20e6a..c8cae10500b9 100644
---- a/drivers/gpu/drm/vc4/vc4_hvs.c
-+++ b/drivers/gpu/drm/vc4/vc4_hvs.c
-@@ -197,6 +197,29 @@ static void vc4_hvs_update_gamma_lut(struct drm_crtc *crtc)
- 	vc4_hvs_lut_load(crtc);
+ 	tmp |= val & mask;
+-	writel(val, cec->regs + offset);
++	writel(tmp, cec->regs + offset);
  }
  
-+u8 vc4_hvs_get_fifo_frame_count(struct drm_device *dev, unsigned int fifo)
-+{
-+	struct vc4_dev *vc4 = to_vc4_dev(dev);
-+	u8 field = 0;
-+
-+	switch (fifo) {
-+	case 0:
-+		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT1),
-+				      SCALER_DISPSTAT1_FRCNT0);
-+		break;
-+	case 1:
-+		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT1),
-+				      SCALER_DISPSTAT1_FRCNT1);
-+		break;
-+	case 2:
-+		field = VC4_GET_FIELD(HVS_READ(SCALER_DISPSTAT2),
-+				      SCALER_DISPSTAT2_FRCNT2);
-+		break;
-+	}
-+
-+	return field;
-+}
-+
- int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output)
- {
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
-diff --git a/drivers/gpu/drm/vc4/vc4_regs.h b/drivers/gpu/drm/vc4/vc4_regs.h
-index 33410718089e..bae8c9cd6f7c 100644
---- a/drivers/gpu/drm/vc4/vc4_regs.h
-+++ b/drivers/gpu/drm/vc4/vc4_regs.h
-@@ -379,8 +379,6 @@
- # define SCALER_DISPSTATX_MODE_EOF		3
- # define SCALER_DISPSTATX_FULL			BIT(29)
- # define SCALER_DISPSTATX_EMPTY			BIT(28)
--# define SCALER_DISPSTATX_FRAME_COUNT_MASK	VC4_MASK(17, 12)
--# define SCALER_DISPSTATX_FRAME_COUNT_SHIFT	12
- # define SCALER_DISPSTATX_LINE_MASK		VC4_MASK(11, 0)
- # define SCALER_DISPSTATX_LINE_SHIFT		0
- 
-@@ -403,9 +401,15 @@
- 						 (x) * (SCALER_DISPBKGND1 - \
- 							SCALER_DISPBKGND0))
- #define SCALER_DISPSTAT1                        0x00000058
-+# define SCALER_DISPSTAT1_FRCNT0_MASK		VC4_MASK(23, 18)
-+# define SCALER_DISPSTAT1_FRCNT0_SHIFT		18
-+# define SCALER_DISPSTAT1_FRCNT1_MASK		VC4_MASK(17, 12)
-+# define SCALER_DISPSTAT1_FRCNT1_SHIFT		12
-+
- #define SCALER_DISPSTATX(x)			(SCALER_DISPSTAT0 +        \
- 						 (x) * (SCALER_DISPSTAT1 - \
- 							SCALER_DISPSTAT0))
-+
- #define SCALER_DISPBASE1                        0x0000005c
- #define SCALER_DISPBASEX(x)			(SCALER_DISPBASE0 +        \
- 						 (x) * (SCALER_DISPBASE1 - \
-@@ -415,7 +419,11 @@
- 						 (x) * (SCALER_DISPCTRL1 - \
- 							SCALER_DISPCTRL0))
- #define SCALER_DISPBKGND2                       0x00000064
-+
- #define SCALER_DISPSTAT2                        0x00000068
-+# define SCALER_DISPSTAT2_FRCNT2_MASK		VC4_MASK(17, 12)
-+# define SCALER_DISPSTAT2_FRCNT2_SHIFT		12
-+
- #define SCALER_DISPBASE2                        0x0000006c
- #define SCALER_DISPALPHA2                       0x00000070
- #define SCALER_GAMADDR                          0x00000078
+ void mtk_cec_set_hpd_event(struct device *dev,
 -- 
 2.35.1
 
