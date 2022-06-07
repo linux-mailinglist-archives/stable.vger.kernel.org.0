@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA5D5410D6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4428541897
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355474AbiFGT3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53360 "EHLO
+        id S1379652AbiFGVNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356904AbiFGT2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:21 -0400
+        with ESMTP id S1379994AbiFGVLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52AFF1A29FE;
-        Tue,  7 Jun 2022 11:11:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80EF7217345;
+        Tue,  7 Jun 2022 11:52:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05EA861927;
-        Tue,  7 Jun 2022 18:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13FCEC34115;
-        Tue,  7 Jun 2022 18:11:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BCF961579;
+        Tue,  7 Jun 2022 18:52:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF06C385A2;
+        Tue,  7 Jun 2022 18:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625499;
-        bh=4JWxKeMCzS1I9F8T8lOqSs2eeTmYuFxzWuEf3D1lwX4=;
+        s=korg; t=1654627967;
+        bh=Dz8ai7iKPglweNQzZKbSzXedFDeTrb0db8t40QK1R4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viJLPULvug5khyyEPvb0q63Q35yTa3aIcH04CYyYJA6om/r7Yb/YzVlMQifdmonQL
-         8cgR41YZxOScvtyS129QKo8huGEcMGxb35iDqRVGtX3vzGvUK3m6v0k1oS668xhcVv
-         S9bGMCEPOEUCbTYklTyKJ/nwyznMAxe2ssqv1b1k=
+        b=rWyzZg+JzzhZiElCl3VS/dv4gDALHBPkAUW/q7jiaS+jFj7snTLzDwyaip44CzfWn
+         2YqeXRvRG+hWqTVHpEAnlXtoWi8hMifSLKRhWJ1V0+0JXp2SyOoNF3KX0iXHZRAkhV
+         7acVgui8b6kM8K2UP/ruTdGQgm+mWa/6I+XugYtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Michael=20Niew=C3=B6hner?= <linux@mniewoehner.de>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.17 033/772] platform/x86: intel-hid: fix _DSM function index handling
+        Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 107/879] mmc: jz4740: Apply DMA engine limits to maximum segment size
 Date:   Tue,  7 Jun 2022 18:53:45 +0200
-Message-Id: <20220607164949.999122441@linuxfoundation.org>
+Message-Id: <20220607165005.800346734@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Niewöhner <linux@mniewoehner.de>
+From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 
-commit 1620c80bba53af8c547bab34a1d3bc58319fe608 upstream.
+[ Upstream commit afadb04f1d6e74b18a253403f5274cde5e3fd7bd ]
 
-intel_hid_dsm_fn_mask is a bit mask containing one bit for each function
-index. Fix the function index check in intel_hid_evaluate_method
-accordingly, which was missed in commit 97ab4516205e ("platform/x86:
-intel-hid: fix _DSM function index handling").
+Do what is done in other DMA-enabled MMC host drivers (cf. host/mmci.c) and
+limit the maximum segment size based on the DMA engine's capabilities. This
+is needed to avoid warnings like the following with CONFIG_DMA_API_DEBUG=y.
 
-Fixes: 97ab4516205e ("platform/x86: intel-hid: fix _DSM function index handling")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Niewöhner <linux@mniewoehner.de>
-Link: https://lore.kernel.org/r/66f813f5bcc724a0f6dd5adefe6a9728dbe509e3.camel@mniewoehner.de
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 21 at kernel/dma/debug.c:1162 debug_dma_map_sg+0x2f4/0x39c
+DMA-API: jz4780-dma 13420000.dma-controller: mapping sg segment longer than device claims to support [len=98304] [max=65536]
+CPU: 0 PID: 21 Comm: kworker/0:1H Not tainted 5.18.0-rc1 #19
+Workqueue: kblockd blk_mq_run_work_fn
+Stack : 81575aec 00000004 80620000 80620000 80620000 805e7358 00000009 801537ac
+        814c832c 806276e3 806e34b4 80620000 81575aec 00000001 81575ab8 09291444
+        00000000 00000000 805e7358 81575958 ffffffea 8157596c 00000000 636f6c62
+        6220646b 80387a70 0000000f 6d5f6b6c 80620000 00000000 81575ba4 00000009
+        805e170c 80896640 00000001 00010000 00000000 00000000 00006098 806e0000
+        ...
+Call Trace:
+[<80107670>] show_stack+0x84/0x120
+[<80528cd8>] __warn+0xb8/0xec
+[<80528d78>] warn_slowpath_fmt+0x6c/0xb8
+[<8016f1d4>] debug_dma_map_sg+0x2f4/0x39c
+[<80169d4c>] __dma_map_sg_attrs+0xf0/0x118
+[<8016a27c>] dma_map_sg_attrs+0x14/0x28
+[<804f66b4>] jz4740_mmc_prepare_dma_data+0x74/0xa4
+[<804f6714>] jz4740_mmc_pre_request+0x30/0x54
+[<804f4ff4>] mmc_blk_mq_issue_rq+0x6e0/0x7bc
+[<804f5590>] mmc_mq_queue_rq+0x220/0x2d4
+[<8038b2c0>] blk_mq_dispatch_rq_list+0x480/0x664
+[<80391040>] blk_mq_do_dispatch_sched+0x2dc/0x370
+[<80391468>] __blk_mq_sched_dispatch_requests+0xec/0x164
+[<80391540>] blk_mq_sched_dispatch_requests+0x44/0x94
+[<80387900>] __blk_mq_run_hw_queue+0xb0/0xcc
+[<80134c14>] process_one_work+0x1b8/0x264
+[<80134ff8>] worker_thread+0x2ec/0x3b8
+[<8013b13c>] kthread+0x104/0x10c
+[<80101dcc>] ret_from_kernel_thread+0x14/0x1c
+
+---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
+Link: https://lore.kernel.org/r/20220411153753.50443-1-aidanmacdonald.0x0@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/hid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/jz4740_mmc.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/drivers/platform/x86/intel/hid.c
-+++ b/drivers/platform/x86/intel/hid.c
-@@ -238,7 +238,7 @@ static bool intel_hid_evaluate_method(ac
+diff --git a/drivers/mmc/host/jz4740_mmc.c b/drivers/mmc/host/jz4740_mmc.c
+index 7ab1b38a7be5..b1d563b2ed1b 100644
+--- a/drivers/mmc/host/jz4740_mmc.c
++++ b/drivers/mmc/host/jz4740_mmc.c
+@@ -247,6 +247,26 @@ static int jz4740_mmc_acquire_dma_channels(struct jz4740_mmc_host *host)
+ 		return PTR_ERR(host->dma_rx);
+ 	}
  
- 	method_name = (char *)intel_hid_dsm_fn_to_method[fn_index];
++	/*
++	 * Limit the maximum segment size in any SG entry according to
++	 * the parameters of the DMA engine device.
++	 */
++	if (host->dma_tx) {
++		struct device *dev = host->dma_tx->device->dev;
++		unsigned int max_seg_size = dma_get_max_seg_size(dev);
++
++		if (max_seg_size < host->mmc->max_seg_size)
++			host->mmc->max_seg_size = max_seg_size;
++	}
++
++	if (host->dma_rx) {
++		struct device *dev = host->dma_rx->device->dev;
++		unsigned int max_seg_size = dma_get_max_seg_size(dev);
++
++		if (max_seg_size < host->mmc->max_seg_size)
++			host->mmc->max_seg_size = max_seg_size;
++	}
++
+ 	return 0;
+ }
  
--	if (!(intel_hid_dsm_fn_mask & fn_index))
-+	if (!(intel_hid_dsm_fn_mask & BIT(fn_index)))
- 		goto skip_dsm_eval;
- 
- 	obj = acpi_evaluate_dsm_typed(handle, &intel_dsm_guid,
+-- 
+2.35.1
+
 
 
