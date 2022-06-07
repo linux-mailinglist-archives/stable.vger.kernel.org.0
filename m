@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 894B65410E6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28DF541824
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355495AbiFGTaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:30:07 -0400
+        id S1378848AbiFGVJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:09:24 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355184AbiFGT2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA9F1A29F4;
-        Tue,  7 Jun 2022 11:11:43 -0700 (PDT)
+        with ESMTP id S1378969AbiFGVIC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:08:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFBC212CBE;
+        Tue,  7 Jun 2022 11:50:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE528617B3;
-        Tue,  7 Jun 2022 18:11:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC175C36B0A;
-        Tue,  7 Jun 2022 18:11:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81D00B82018;
+        Tue,  7 Jun 2022 18:50:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0423C385A5;
+        Tue,  7 Jun 2022 18:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625502;
-        bh=rRV2k8vNBsoHJtHe2nbd9LCfa5WbT4u7QV6hB3lAa2M=;
+        s=korg; t=1654627852;
+        bh=4Ka0zqH5BPXKlynHTbbm9h1V2CMI319SCy/R6j+8HWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0xEF8+xKnDXeUcLdtxEJVm4q4Ftytmzz/Hi0yKgdlqjxgWtCx9UmMF1V6jtKIP+Z
-         +A3huGa1QrMOrXf/eBTzphw9deqVLj/PetH9s8DMmLKp2NvknCggiNqqcS/UEcclFx
-         92BoDAzFULASFLAkgP9ey53iG3/t9S3L6olcnShE=
+        b=zXrWOx3yXpuCpFb4wwKbHEHRevCsW72Bf2uMq6wwKFxp4o3TPlNGbsb/m8KWFxX5A
+         o2XBcmLqacBwxVte5O09eyvrDBi1+XOnFdWecwc1rqV50J8ZPr0cWEQlcYh1t3omdh
+         LkEoier+KGwRZWIneZtUtYIdJjR2sPcn09nP8ftk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 042/772] btrfs: add "0x" prefix for unsupported optional features
-Date:   Tue,  7 Jun 2022 18:53:54 +0200
-Message-Id: <20220607164950.266139465@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 117/879] drm/amd/pm: fix the compile warning
+Date:   Tue,  7 Jun 2022 18:53:55 +0200
+Message-Id: <20220607165006.097552034@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit d5321a0fa8bc49f11bea0b470800962c17d92d8f upstream.
+[ Upstream commit 555238d92ac32dbad2d77ad2bafc48d17391990c ]
 
-The following error message lack the "0x" obviously:
+Fix the compile warning below:
+drivers/gpu/drm/amd/amdgpu/../pm/legacy-dpm/kv_dpm.c:1641
+kv_get_acp_boot_level() warn: always true condition '(table->entries[i]->clk >= 0) => (0-u32max >= 0)'
 
-  cannot mount because of unsupported optional features (4000)
-
-Add the prefix to make it less confusing. This can happen on older
-kernels that try to mount a filesystem with newer features so it makes
-sense to backport to older trees.
-
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+CC: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/legacy-dpm/kv_dpm.c | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3522,7 +3522,7 @@ int __cold open_ctree(struct super_block
- 		~BTRFS_FEATURE_INCOMPAT_SUPP;
- 	if (features) {
- 		btrfs_err(fs_info,
--		    "cannot mount because of unsupported optional features (%llx)",
-+		    "cannot mount because of unsupported optional features (0x%llx)",
- 		    features);
- 		err = -EINVAL;
- 		goto fail_alloc;
-@@ -3560,7 +3560,7 @@ int __cold open_ctree(struct super_block
- 		~BTRFS_FEATURE_COMPAT_RO_SUPP;
- 	if (!sb_rdonly(sb) && features) {
- 		btrfs_err(fs_info,
--	"cannot mount read-write because of unsupported optional features (%llx)",
-+	"cannot mount read-write because of unsupported optional features (0x%llx)",
- 		       features);
- 		err = -EINVAL;
- 		goto fail_alloc;
+diff --git a/drivers/gpu/drm/amd/pm/legacy-dpm/kv_dpm.c b/drivers/gpu/drm/amd/pm/legacy-dpm/kv_dpm.c
+index 8b23cc9f098a..8fd0782a2b20 100644
+--- a/drivers/gpu/drm/amd/pm/legacy-dpm/kv_dpm.c
++++ b/drivers/gpu/drm/amd/pm/legacy-dpm/kv_dpm.c
+@@ -1623,19 +1623,7 @@ static int kv_update_samu_dpm(struct amdgpu_device *adev, bool gate)
+ 
+ static u8 kv_get_acp_boot_level(struct amdgpu_device *adev)
+ {
+-	u8 i;
+-	struct amdgpu_clock_voltage_dependency_table *table =
+-		&adev->pm.dpm.dyn_state.acp_clock_voltage_dependency_table;
+-
+-	for (i = 0; i < table->count; i++) {
+-		if (table->entries[i].clk >= 0) /* XXX */
+-			break;
+-	}
+-
+-	if (i >= table->count)
+-		i = table->count - 1;
+-
+-	return i;
++	return 0;
+ }
+ 
+ static void kv_update_acp_boot_level(struct amdgpu_device *adev)
+-- 
+2.35.1
+
 
 
