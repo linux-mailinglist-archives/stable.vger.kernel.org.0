@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F518541412
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C40F541B19
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359149AbiFGUMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
+        id S1378146AbiFGVmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359211AbiFGUJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE0D63C6;
-        Tue,  7 Jun 2022 11:27:12 -0700 (PDT)
+        with ESMTP id S1381294AbiFGVk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA96C4D9C1;
+        Tue,  7 Jun 2022 12:06:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B6EC61295;
-        Tue,  7 Jun 2022 18:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89342C385A2;
-        Tue,  7 Jun 2022 18:27:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4762661846;
+        Tue,  7 Jun 2022 19:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59699C385A2;
+        Tue,  7 Jun 2022 19:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626431;
-        bh=6YrCI+l0IOC3AVhc9noSBQK9oVvDSAmwD3NpB6TjHo8=;
+        s=korg; t=1654628774;
+        bh=MKXYq3zsco4CGUkzrvPtgdSTX73quzIXig0cbYbwW5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqnGfeauNEWw8V+XBq1wu7BBkyzyTYqfyKpnKonKKK8I5bfl+qtgl7zyuBVypayyX
-         vCj3QuBUNGhh79BbU/8ErGLzTFf2KbXE/boV0zuAjBWQbniyu+j1s+LDVZCmcQTaeq
-         AqgRlPWF7XZjyJaajZMn+zMfCYsqAAapai8KNxSg=
+        b=0tmLOyydIDuxI+rNhweGGmQh5DzuJ+oZFpnrgkCuoO7ASO3upOe+f8spEYZgsY1eP
+         DrjcTxoP9P/zffViHaRGWK9FfC/omvjaLAPnyByF0A8Vzo6xfpWkhiLQjGrFvQERuW
+         arYH5mhhZOHaxG/GnaXyshSKSHP63UU+PeFFQJCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hugues Fruchet <hugues.fruchet@foss.st.com>,
+        stable@vger.kernel.org,
+        Benjamin Gaignard <benjamin.gaignard@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 375/772] media: st-delta: Fix PM disable depth imbalance in delta_probe
-Date:   Tue,  7 Jun 2022 18:59:27 +0200
-Message-Id: <20220607165000.065584725@linuxfoundation.org>
+Subject: [PATCH 5.18 450/879] media: hantro: HEVC: Fix tile info buffer value computation
+Date:   Tue,  7 Jun 2022 18:59:28 +0200
+Message-Id: <20220607165015.930440638@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
 
-[ Upstream commit 94e3dba710fe0afc772172305444250023fc2d30 ]
+[ Upstream commit d7f4149df818463c1d7094b35db6ebd79f46c7bd ]
 
-The pm_runtime_enable will decrease power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable().
+Use pps->column_width_minus1[j] + 1 as value for the tile info buffer
+instead of pps->column_width_minus1[j + 1].
+The patch fixes DBLK_E_VIXS_2, DBLK_F_VIXS_2, DBLK_G_VIXS_2,
+SAO_B_MediaTek_5, TILES_A_Cisco_2 and TILES_B_Cisco_1 tests in fluster.
 
-Fixes: f386509e4959 ("[media] st-delta: STiH4xx multi-format video decoder v4l2 driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Hugues Fruchet <hugues.fruchet@foss.st.com>
+Fixes: cb5dd5a0fa51 ("media: hantro: Introduce G2/HEVC decoder")
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/delta/delta-v4l2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/staging/media/hantro/hantro_g2_hevc_dec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sti/delta/delta-v4l2.c b/drivers/media/platform/sti/delta/delta-v4l2.c
-index c887a31ebb54..420ad4d8df5d 100644
---- a/drivers/media/platform/sti/delta/delta-v4l2.c
-+++ b/drivers/media/platform/sti/delta/delta-v4l2.c
-@@ -1859,7 +1859,7 @@ static int delta_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(delta->dev, "%s failed to initialize firmware ipc channel\n",
- 			DELTA_PREFIX);
--		goto err;
-+		goto err_pm_disable;
- 	}
- 
- 	/* register all available decoders */
-@@ -1873,7 +1873,7 @@ static int delta_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(delta->dev, "%s failed to register V4L2 device\n",
- 			DELTA_PREFIX);
--		goto err;
-+		goto err_pm_disable;
- 	}
- 
- 	delta->work_queue = create_workqueue(DELTA_NAME);
-@@ -1898,6 +1898,8 @@ static int delta_probe(struct platform_device *pdev)
- 	destroy_workqueue(delta->work_queue);
- err_v4l2:
- 	v4l2_device_unregister(&delta->v4l2_dev);
-+err_pm_disable:
-+	pm_runtime_disable(dev);
- err:
- 	return ret;
- }
+diff --git a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
+index 2e7eec0372cd..5f3178bac9c8 100644
+--- a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
++++ b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
+@@ -60,7 +60,7 @@ static void prepare_tile_info_buffer(struct hantro_ctx *ctx)
+ 					no_chroma = 1;
+ 				for (j = 0, tmp_w = 0; j < num_tile_cols - 1; j++) {
+ 					tmp_w += pps->column_width_minus1[j] + 1;
+-					*p++ = pps->column_width_minus1[j + 1];
++					*p++ = pps->column_width_minus1[j] + 1;
+ 					*p++ = h;
+ 					if (i == 0 && h == 1 && ctb_size == 16)
+ 						no_chroma = 1;
 -- 
 2.35.1
 
