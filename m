@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30DAE54189D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1F854087B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379440AbiFGVMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43896 "EHLO
+        id S1348471AbiFGR6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:58:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380291AbiFGVLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1885821913C;
-        Tue,  7 Jun 2022 11:53:52 -0700 (PDT)
+        with ESMTP id S1348298AbiFGR6A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCF7854FB0;
+        Tue,  7 Jun 2022 10:40:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BE2E616C2;
-        Tue,  7 Jun 2022 18:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A6AC385A2;
-        Tue,  7 Jun 2022 18:53:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B19EB80B66;
+        Tue,  7 Jun 2022 17:40:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2939C34115;
+        Tue,  7 Jun 2022 17:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628031;
-        bh=j8BlhbMW32GkhbU+NCT33qF/jy4hbgqTlQH7X9esMYA=;
+        s=korg; t=1654623657;
+        bh=sN1Kk7yA6tgJ56jtZ7RfRBdgp59iuwFaAZOanZaTchg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xXLzIq3MFpWYDnerzzpLpJonZA6BVupZ1CQM1egOx+4PBK88mr3tkdcAc6fetmVU
-         g5URghORgCrQj7iUBrG/TzBH274MHvAPYCXR/q10mked2iYupwt84WXCGyIQojfGWf
-         0Y6+bw9Wv3fDyAVk66ksA0iYot7drogZFXK3tuJs=
+        b=r0dvhWKXHchjzZjywaknfwV5KmsFe+d8f77eAuo1ecgK1Yt+/DBuRuMvbkPRXQ7cy
+         dNgRPKFom6NXtcYUK4IGx6AxzhQRUFWAV0Hqgv7+DiDSHj8jUuBCISbSl5nUdIpSRs
+         E/rkKwGHW0KT34Z2UNThwC6mupoWucD8nOVsQ+z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 154/879] ipmi:ssif: Check for NULL msg when handling events and messages
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 007/667] riscv: Fix irq_work when SMP is disabled
 Date:   Tue,  7 Jun 2022 18:54:32 +0200
-Message-Id: <20220607165007.176324279@linuxfoundation.org>
+Message-Id: <20220607164935.002231686@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 7602b957e2404e5f98d9a40b68f1fd27f0028712 ]
+commit 2273272823db6f67d57761df8116ae32e7f05bed upstream.
 
-Even though it's not possible to get into the SSIF_GETTING_MESSAGES and
-SSIF_GETTING_EVENTS states without a valid message in the msg field,
-it's probably best to be defensive here and check and print a log, since
-that means something else went wrong.
+irq_work is triggered via an IPI, but the IPI infrastructure is not
+included in uniprocessor kernels. As a result, irq_work never runs.
+Fall back to the tick-based irq_work implementation on uniprocessor
+configurations.
 
-Also add a default clause to that switch statement to release the lock
-and print a log, in case the state variable gets messed up somehow.
-
-Reported-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 298447928bb1 ("riscv: Support irq_work via self IPIs")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20220430030025.58405-1-samuel@sholland.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/riscv/include/asm/irq_work.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index f199cc194844..64c73ea9c915 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -814,6 +814,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		break;
+--- a/arch/riscv/include/asm/irq_work.h
++++ b/arch/riscv/include/asm/irq_work.h
+@@ -4,7 +4,7 @@
  
- 	case SSIF_GETTING_EVENTS:
-+		if (!msg) {
-+			/* Should never happen, but just in case. */
-+			dev_warn(&ssif_info->client->dev,
-+				 "No message set while getting events\n");
-+			ipmi_ssif_unlock_cond(ssif_info, flags);
-+			break;
-+		}
-+
- 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
- 			/* Error getting event, probably done. */
- 			msg->done(msg);
-@@ -838,6 +846,14 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		break;
- 
- 	case SSIF_GETTING_MESSAGES:
-+		if (!msg) {
-+			/* Should never happen, but just in case. */
-+			dev_warn(&ssif_info->client->dev,
-+				 "No message set while getting messages\n");
-+			ipmi_ssif_unlock_cond(ssif_info, flags);
-+			break;
-+		}
-+
- 		if ((result < 0) || (len < 3) || (msg->rsp[2] != 0)) {
- 			/* Error getting event, probably done. */
- 			msg->done(msg);
-@@ -861,6 +877,13 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 			deliver_recv_msg(ssif_info, msg);
- 		}
- 		break;
-+
-+	default:
-+		/* Should never happen, but just in case. */
-+		dev_warn(&ssif_info->client->dev,
-+			 "Invalid state in message done handling: %d\n",
-+			 ssif_info->ssif_state);
-+		ipmi_ssif_unlock_cond(ssif_info, flags);
- 	}
- 
- 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
--- 
-2.35.1
-
+ static inline bool arch_irq_work_has_interrupt(void)
+ {
+-	return true;
++	return IS_ENABLED(CONFIG_SMP);
+ }
+ extern void arch_irq_work_raise(void);
+ #endif /* _ASM_RISCV_IRQ_WORK_H */
 
 
