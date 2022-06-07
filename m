@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A28E541CF8
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A96540DAF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382900AbiFGWHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37866 "EHLO
+        id S1353683AbiFGStl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:49:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383628AbiFGWGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:03 -0400
+        with ESMTP id S1354468AbiFGSrD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE10252250;
-        Tue,  7 Jun 2022 12:16:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49791612B2;
+        Tue,  7 Jun 2022 11:01:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB1066192F;
-        Tue,  7 Jun 2022 19:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB45C385A2;
-        Tue,  7 Jun 2022 19:16:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFFA4617B4;
+        Tue,  7 Jun 2022 18:01:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC830C34115;
+        Tue,  7 Jun 2022 18:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629397;
-        bh=tazOg8lDBHAt44SjNphIS3nMFqSOChOxMUoVB9NE4xk=;
+        s=korg; t=1654624884;
+        bh=M+wO0gucsAXwhXB5py56e2MHX9Zk2IutE7e7PbRevos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ezbr9FxIkRQyQriUyD0TqCkW4yeOj1ETQbgQqc15z/YL1fJsfavA2lXGtL3g9Dz7P
-         RnjxvOxqTHawWlRqFqpBv4jLnK9MLKvv1PtkvKRPqnHojZphKModkbbvXa0X5T+s2q
-         WFE3WqKAsV0ni1fxIbGdUCvrRiUOj4V3JRB/h43Y=
+        b=oSZCX1MXeSu17YmK6iNt9mbqoxMzGR6WUGFgMIYrQeRZUth9AOZuzAbNqqsc4uZqg
+         XKF8PbcXXJgN8KIGJNIarRhts3a3aK1pwIOlN9muSGQQ9oN0+PSWVGurmO+YfiOhIn
+         +HAzrnPeqixccYPZatxvaVeyXIA/t/IwDGlK+FI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Zhi Li <lizhi01@loongson.cn>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 636/879] perf stat: Always keep perf metrics topdown events in a group
+Subject: [PATCH 5.15 489/667] MIPS: Loongson: Use hwmon_device_register_with_groups() to register hwmon
 Date:   Tue,  7 Jun 2022 19:02:34 +0200
-Message-Id: <20220607165021.309914947@linuxfoundation.org>
+Message-Id: <20220607164949.367784512@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,140 +55,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit e8f4f794d7047dd36f090f44f12cd645fba204d2 ]
+[ Upstream commit abae018a03821be2b65c01ebe2bef06fd7d85a4c ]
 
-If any member in a group has a different cpu mask than the other
-members, the current perf stat disables group. when the perf metrics
-topdown events are part of the group, the below <not supported> error
-will be triggered.
+Calling hwmon_device_register_with_info() with NULL dev and/or chip
+information parameters is an ABI abuse and not a real conversion to
+the new API. Also, the code creates sysfs attributes _after_ creating
+the hwmon device, which is racy and unsupported to start with. On top
+of that, the removal code tries to remove the name attribute which is
+owned by the hwmon core.
 
-  $ perf stat -e "{slots,topdown-retiring,uncore_imc_free_running_0/dclk/}" -a sleep 1
-  WARNING: grouped events cpus do not match, disabling group:
-    anon group { slots, topdown-retiring, uncore_imc_free_running_0/dclk/ }
+Use hwmon_device_register_with_groups() to register the hwmon device
+instead.
 
-   Performance counter stats for 'system wide':
+In the future, the hwmon subsystem will reject calls to
+hwmon_device_register_with_info with NULL dev or chip/info parameters.
+Without this patch, the hwmon device will fail to register.
 
-         141,465,174      slots
-     <not supported>      topdown-retiring
-       1,605,330,334      uncore_imc_free_running_0/dclk/
-
-The perf metrics topdown events must always be grouped with a slots
-event as leader.
-
-Factor out evsel__remove_from_group() to only remove the regular events
-from the group.
-
-Remove evsel__must_be_in_group(), since no one use it anymore.
-
-With the patch, the topdown events aren't broken from the group for the
-splitting.
-
-  $ perf stat -e "{slots,topdown-retiring,uncore_imc_free_running_0/dclk/}" -a sleep 1
-  WARNING: grouped events cpus do not match, disabling group:
-    anon group { slots, topdown-retiring, uncore_imc_free_running_0/dclk/ }
-
-   Performance counter stats for 'system wide':
-
-         346,110,588      slots
-         124,608,256      topdown-retiring
-       1,606,869,976      uncore_imc_free_running_0/dclk/
-
-         1.003877592 seconds time elapsed
-
-Fixes: a9a1790247bdcf3b ("perf stat: Ensure group is defined on top of the same cpu mask")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Link: https://lore.kernel.org/r/20220518143900.1493980-3-kan.liang@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: f59dc5119192 ("MIPS: Loongson: Fix boot warning about hwmon_device_register()")
+Cc: Zhi Li <lizhi01@loongson.cn>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c |  7 ++-----
- tools/perf/util/evlist.c  |  6 +-----
- tools/perf/util/evsel.c   | 13 +++++++++++--
- tools/perf/util/evsel.h   |  2 +-
- 4 files changed, 15 insertions(+), 13 deletions(-)
+ drivers/platform/mips/cpu_hwmon.c | 127 ++++++++++--------------------
+ 1 file changed, 41 insertions(+), 86 deletions(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index a96f106dc93a..f058e8cddfa8 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -271,11 +271,8 @@ static void evlist__check_cpu_maps(struct evlist *evlist)
- 			pr_warning("     %s: %s\n", evsel->name, buf);
- 		}
+diff --git a/drivers/platform/mips/cpu_hwmon.c b/drivers/platform/mips/cpu_hwmon.c
+index 386389ffec41..d8c5f9195f85 100644
+--- a/drivers/platform/mips/cpu_hwmon.c
++++ b/drivers/platform/mips/cpu_hwmon.c
+@@ -55,55 +55,6 @@ int loongson3_cpu_temp(int cpu)
+ static int nr_packages;
+ static struct device *cpu_hwmon_dev;
  
--		for_each_group_evsel(pos, leader) {
--			evsel__set_leader(pos, pos);
--			pos->core.nr_members = 0;
--		}
--		evsel->core.leader->nr_members = 0;
-+		for_each_group_evsel(pos, leader)
-+			evsel__remove_from_group(pos, leader);
- 	}
- }
- 
-diff --git a/tools/perf/util/evlist.c b/tools/perf/util/evlist.c
-index 4804b52f2946..3084ec7e9325 100644
---- a/tools/perf/util/evlist.c
-+++ b/tools/perf/util/evlist.c
-@@ -1795,11 +1795,7 @@ struct evsel *evlist__reset_weak_group(struct evlist *evsel_list, struct evsel *
- 			 * them. Some events, like Intel topdown, require being
- 			 * in a group and so keep these in the group.
- 			 */
--			if (!evsel__must_be_in_group(c2) && c2 != leader) {
--				evsel__set_leader(c2, c2);
--				c2->core.nr_members = 0;
--				leader->core.nr_members--;
--			}
-+			evsel__remove_from_group(c2, leader);
- 
- 			/*
- 			 * Set this for all former members of the group
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index b98882cbb286..deb428ee5e50 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -3083,7 +3083,16 @@ bool __weak arch_evsel__must_be_in_group(const struct evsel *evsel __maybe_unuse
- 	return false;
- }
- 
--bool evsel__must_be_in_group(const struct evsel *evsel)
-+/*
-+ * Remove an event from a given group (leader).
-+ * Some events, e.g., perf metrics Topdown events,
-+ * must always be grouped. Ignore the events.
-+ */
-+void evsel__remove_from_group(struct evsel *evsel, struct evsel *leader)
+-static SENSOR_DEVICE_ATTR(name, 0444, NULL, NULL, 0);
+-
+-static struct attribute *cpu_hwmon_attributes[] = {
+-	&sensor_dev_attr_name.dev_attr.attr,
+-	NULL
+-};
+-
+-/* Hwmon device attribute group */
+-static struct attribute_group cpu_hwmon_attribute_group = {
+-	.attrs = cpu_hwmon_attributes,
+-};
+-
+-static ssize_t get_cpu_temp(struct device *dev,
+-			struct device_attribute *attr, char *buf);
+-static ssize_t cpu_temp_label(struct device *dev,
+-			struct device_attribute *attr, char *buf);
+-
+-static SENSOR_DEVICE_ATTR(temp1_input, 0444, get_cpu_temp, NULL, 1);
+-static SENSOR_DEVICE_ATTR(temp1_label, 0444, cpu_temp_label, NULL, 1);
+-static SENSOR_DEVICE_ATTR(temp2_input, 0444, get_cpu_temp, NULL, 2);
+-static SENSOR_DEVICE_ATTR(temp2_label, 0444, cpu_temp_label, NULL, 2);
+-static SENSOR_DEVICE_ATTR(temp3_input, 0444, get_cpu_temp, NULL, 3);
+-static SENSOR_DEVICE_ATTR(temp3_label, 0444, cpu_temp_label, NULL, 3);
+-static SENSOR_DEVICE_ATTR(temp4_input, 0444, get_cpu_temp, NULL, 4);
+-static SENSOR_DEVICE_ATTR(temp4_label, 0444, cpu_temp_label, NULL, 4);
+-
+-static const struct attribute *hwmon_cputemp[4][3] = {
+-	{
+-		&sensor_dev_attr_temp1_input.dev_attr.attr,
+-		&sensor_dev_attr_temp1_label.dev_attr.attr,
+-		NULL
+-	},
+-	{
+-		&sensor_dev_attr_temp2_input.dev_attr.attr,
+-		&sensor_dev_attr_temp2_label.dev_attr.attr,
+-		NULL
+-	},
+-	{
+-		&sensor_dev_attr_temp3_input.dev_attr.attr,
+-		&sensor_dev_attr_temp3_label.dev_attr.attr,
+-		NULL
+-	},
+-	{
+-		&sensor_dev_attr_temp4_input.dev_attr.attr,
+-		&sensor_dev_attr_temp4_label.dev_attr.attr,
+-		NULL
+-	}
+-};
+-
+ static ssize_t cpu_temp_label(struct device *dev,
+ 			struct device_attribute *attr, char *buf)
  {
--	return arch_evsel__must_be_in_group(evsel);
-+	if (!arch_evsel__must_be_in_group(evsel) && evsel != leader) {
-+		evsel__set_leader(evsel, evsel);
-+		evsel->core.nr_members = 0;
-+		leader->core.nr_members--;
-+	}
+@@ -121,24 +72,47 @@ static ssize_t get_cpu_temp(struct device *dev,
+ 	return sprintf(buf, "%d\n", value);
  }
-diff --git a/tools/perf/util/evsel.h b/tools/perf/util/evsel.h
-index a36172ed4cf6..47f65f8e7c74 100644
---- a/tools/perf/util/evsel.h
-+++ b/tools/perf/util/evsel.h
-@@ -483,7 +483,7 @@ bool evsel__has_leader(struct evsel *evsel, struct evsel *leader);
- bool evsel__is_leader(struct evsel *evsel);
- void evsel__set_leader(struct evsel *evsel, struct evsel *leader);
- int evsel__source_count(const struct evsel *evsel);
--bool evsel__must_be_in_group(const struct evsel *evsel);
-+void evsel__remove_from_group(struct evsel *evsel, struct evsel *leader);
  
- bool arch_evsel__must_be_in_group(const struct evsel *evsel);
+-static int create_sysfs_cputemp_files(struct kobject *kobj)
+-{
+-	int i, ret = 0;
+-
+-	for (i = 0; i < nr_packages; i++)
+-		ret = sysfs_create_files(kobj, hwmon_cputemp[i]);
++static SENSOR_DEVICE_ATTR(temp1_input, 0444, get_cpu_temp, NULL, 1);
++static SENSOR_DEVICE_ATTR(temp1_label, 0444, cpu_temp_label, NULL, 1);
++static SENSOR_DEVICE_ATTR(temp2_input, 0444, get_cpu_temp, NULL, 2);
++static SENSOR_DEVICE_ATTR(temp2_label, 0444, cpu_temp_label, NULL, 2);
++static SENSOR_DEVICE_ATTR(temp3_input, 0444, get_cpu_temp, NULL, 3);
++static SENSOR_DEVICE_ATTR(temp3_label, 0444, cpu_temp_label, NULL, 3);
++static SENSOR_DEVICE_ATTR(temp4_input, 0444, get_cpu_temp, NULL, 4);
++static SENSOR_DEVICE_ATTR(temp4_label, 0444, cpu_temp_label, NULL, 4);
+ 
+-	return ret;
+-}
++static struct attribute *cpu_hwmon_attributes[] = {
++	&sensor_dev_attr_temp1_input.dev_attr.attr,
++	&sensor_dev_attr_temp1_label.dev_attr.attr,
++	&sensor_dev_attr_temp2_input.dev_attr.attr,
++	&sensor_dev_attr_temp2_label.dev_attr.attr,
++	&sensor_dev_attr_temp3_input.dev_attr.attr,
++	&sensor_dev_attr_temp3_label.dev_attr.attr,
++	&sensor_dev_attr_temp4_input.dev_attr.attr,
++	&sensor_dev_attr_temp4_label.dev_attr.attr,
++	NULL
++};
+ 
+-static void remove_sysfs_cputemp_files(struct kobject *kobj)
++static umode_t cpu_hwmon_is_visible(struct kobject *kobj,
++				    struct attribute *attr, int i)
+ {
+-	int i;
++	int id = i / 2;
+ 
+-	for (i = 0; i < nr_packages; i++)
+-		sysfs_remove_files(kobj, hwmon_cputemp[i]);
++	if (id < nr_packages)
++		return attr->mode;
++	return 0;
+ }
+ 
++static struct attribute_group cpu_hwmon_group = {
++	.attrs = cpu_hwmon_attributes,
++	.is_visible = cpu_hwmon_is_visible,
++};
++
++static const struct attribute_group *cpu_hwmon_groups[] = {
++	&cpu_hwmon_group,
++	NULL
++};
++
+ #define CPU_THERMAL_THRESHOLD 90000
+ static struct delayed_work thermal_work;
+ 
+@@ -159,50 +133,31 @@ static void do_thermal_timer(struct work_struct *work)
+ 
+ static int __init loongson_hwmon_init(void)
+ {
+-	int ret;
+-
+ 	pr_info("Loongson Hwmon Enter...\n");
+ 
+ 	if (cpu_has_csr())
+ 		csr_temp_enable = csr_readl(LOONGSON_CSR_FEATURES) &
+ 				  LOONGSON_CSRF_TEMP;
+ 
+-	cpu_hwmon_dev = hwmon_device_register_with_info(NULL, "cpu_hwmon", NULL, NULL, NULL);
+-	if (IS_ERR(cpu_hwmon_dev)) {
+-		ret = PTR_ERR(cpu_hwmon_dev);
+-		pr_err("hwmon_device_register fail!\n");
+-		goto fail_hwmon_device_register;
+-	}
+-
+ 	nr_packages = loongson_sysconf.nr_cpus /
+ 		loongson_sysconf.cores_per_package;
+ 
+-	ret = create_sysfs_cputemp_files(&cpu_hwmon_dev->kobj);
+-	if (ret) {
+-		pr_err("fail to create cpu temperature interface!\n");
+-		goto fail_create_sysfs_cputemp_files;
++	cpu_hwmon_dev = hwmon_device_register_with_groups(NULL, "cpu_hwmon",
++							  NULL, cpu_hwmon_groups);
++	if (IS_ERR(cpu_hwmon_dev)) {
++		pr_err("hwmon_device_register fail!\n");
++		return PTR_ERR(cpu_hwmon_dev);
+ 	}
+ 
+ 	INIT_DEFERRABLE_WORK(&thermal_work, do_thermal_timer);
+ 	schedule_delayed_work(&thermal_work, msecs_to_jiffies(20000));
+ 
+-	return ret;
+-
+-fail_create_sysfs_cputemp_files:
+-	sysfs_remove_group(&cpu_hwmon_dev->kobj,
+-				&cpu_hwmon_attribute_group);
+-	hwmon_device_unregister(cpu_hwmon_dev);
+-
+-fail_hwmon_device_register:
+-	return ret;
++	return 0;
+ }
+ 
+ static void __exit loongson_hwmon_exit(void)
+ {
+ 	cancel_delayed_work_sync(&thermal_work);
+-	remove_sysfs_cputemp_files(&cpu_hwmon_dev->kobj);
+-	sysfs_remove_group(&cpu_hwmon_dev->kobj,
+-				&cpu_hwmon_attribute_group);
+ 	hwmon_device_unregister(cpu_hwmon_dev);
+ }
  
 -- 
 2.35.1
