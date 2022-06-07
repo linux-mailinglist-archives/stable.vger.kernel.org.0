@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0286E541239
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE3A254087F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357201AbiFGTom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55178 "EHLO
+        id S1348503AbiFGR7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:59:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357976AbiFGTmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561A6237E5;
-        Tue,  7 Jun 2022 11:17:40 -0700 (PDT)
+        with ESMTP id S1349184AbiFGR6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E1EA7E01;
+        Tue,  7 Jun 2022 10:41:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 284B7CE244F;
-        Tue,  7 Jun 2022 18:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EAC0C385A5;
-        Tue,  7 Jun 2022 18:17:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BC40B822C0;
+        Tue,  7 Jun 2022 17:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A710C385A5;
+        Tue,  7 Jun 2022 17:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625857;
-        bh=63KEk9VLTggDHYa7uCWhw1ThCahBRf68liu0x9+Y4Q8=;
+        s=korg; t=1654623687;
+        bh=zrO+I81q/bOufw7+PNCwLxw9CKtniX3Y5piTVB+tuCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+GMxdkbz3GpjzryiT3HlD6chHB4lXcKUXLBVIR/9OLN71hFqMpbnx0lXvlO0/zyx
-         pKKTQ8VrrlDfUG1S95Q+tDEt9qrnztxdrPgKnZPbTt2o0OIvznTIOREMzZUc8VXQLH
-         1bneB3FmizpRtPLW0vtRCVYgU6kA7U57d9bGiDoA=
+        b=ozzIPt8vzIBnsvnmnHF1+eLzmymAK1o4JG01w89ctZsJ2t17rbN/rB8zogveZ1D0F
+         +cF6kNe5WhL9oz3Ehcy+SyR8GrAPd8xhrDBI6M1Gu1AD7OpE5EB1+B1s/TOfcESHzO
+         KZOZ9+VH/5Gdpep+1W/PkpPlj+ODqqQRijgRurdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        eberhard.stoll@kontron.de, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 129/772] spi: stm32-qspi: Fix wait_cmd timeout in APM mode
+Subject: [PATCH 5.15 056/667] mac80211: minstrel_ht: fix where rate stats are stored (fixes debugfs output)
 Date:   Tue,  7 Jun 2022 18:55:21 +0200
-Message-Id: <20220607164952.845897605@linuxfoundation.org>
+Message-Id: <20220607164936.493337697@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard@foss.st.com>
+From: Peter Seiderer <ps.report@gmx.net>
 
-[ Upstream commit d83d89ea68b4726700fa87b22db075e4217e691c ]
+[ Upstream commit 5c6dd7bd569b54c0d2904125d7366aa93f077f67 ]
 
-In APM mode, TCF and TEF flags are not set. To avoid timeout in
-stm32_qspi_wait_cmd(), don't check if TCF/TEF are set.
+Using an ath9k card the debugfs output of minstrel_ht looks like the following
+(note the zero values for the first four rates sum-of success/attempts):
 
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Reported-by: eberhard.stoll@kontron.de
-Link: https://lore.kernel.org/r/20220511074644.558874-2-patrice.chotard@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+             best    ____________rate__________    ____statistics___    _____last____    ______sum-of________
+mode guard #  rate   [name   idx airtime  max_tp]  [avg(tp) avg(prob)]  [retry|suc|att]  [#success | #attempts]
+OFDM       1    DP     6.0M  272    1640     5.2       3.1      53.8       3     0 0             0   0
+OFDM       1   C       9.0M  273    1104     7.7       4.6      53.8       4     0 0             0   0
+OFDM       1  B       12.0M  274     836    10.0       6.0      53.8       4     0 0             0   0
+OFDM       1 A    S   18.0M  275     568    14.3       8.5      53.8       5     0 0             0   0
+OFDM       1      S   24.0M  276     436    18.1       0.0       0.0       5     0 1            80   1778
+OFDM       1          36.0M  277     300    24.9       0.0       0.0       0     0 1             0   107
+OFDM       1      S   48.0M  278     236    30.4       0.0       0.0       0     0 0             0   75
+OFDM       1          54.0M  279     212    33.0       0.0       0.0       0     0 0             0   72
+
+Total packet count::    ideal 16582      lookaround 885
+Average # of aggregated frames per A-MPDU: 1.0
+
+Debugging showed that the rate statistics for the first four rates where
+stored in the MINSTREL_CCK_GROUP instead of the MINSTREL_OFDM_GROUP because
+in minstrel_ht_get_stats() the supported check was not honoured as done in
+various other places, e.g net/mac80211/rc80211_minstrel_ht_debugfs.c:
+
+ 74                 if (!(mi->supported[i] & BIT(j)))
+ 75                         continue;
+
+With the patch applied the output looks good:
+
+              best    ____________rate__________    ____statistics___    _____last____    ______sum-of________
+mode guard #  rate   [name   idx airtime  max_tp]  [avg(tp) avg(prob)]  [retry|suc|att]  [#success | #attempts]
+OFDM       1    D      6.0M  272    1640     5.2       5.2     100.0       3     0 0             1   1
+OFDM       1   C       9.0M  273    1104     7.7       7.7     100.0       4     0 0            38   38
+OFDM       1  B       12.0M  274     836    10.0       9.9      89.5       4     2 2           372   395
+OFDM       1 A   P    18.0M  275     568    14.3      14.3      97.2       5    52 53         6956   7181
+OFDM       1      S   24.0M  276     436    18.1       0.0       0.0       0     0 1             6   163
+OFDM       1          36.0M  277     300    24.9       0.0       0.0       0     0 1             0   35
+OFDM       1      S   48.0M  278     236    30.4       0.0       0.0       0     0 0             0   38
+OFDM       1      S   54.0M  279     212    33.0       0.0       0.0       0     0 0             0   38
+
+Total packet count::    ideal 7097      lookaround 287
+Average # of aggregated frames per A-MPDU: 1.0
+
+Signed-off-by: Peter Seiderer <ps.report@gmx.net>
+Link: https://lore.kernel.org/r/20220404165414.1036-1-ps.report@gmx.net
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32-qspi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mac80211/rc80211_minstrel_ht.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
-index ffdc55f87e82..dd38cb8ffbc2 100644
---- a/drivers/spi/spi-stm32-qspi.c
-+++ b/drivers/spi/spi-stm32-qspi.c
-@@ -308,7 +308,8 @@ static int stm32_qspi_wait_cmd(struct stm32_qspi *qspi,
- 	if (!op->data.nbytes)
- 		goto wait_nobusy;
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 72b44d4c42d0..90238170dec3 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -364,6 +364,9 @@ minstrel_ht_get_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi,
  
--	if (readl_relaxed(qspi->io_base + QSPI_SR) & SR_TCF)
-+	if ((readl_relaxed(qspi->io_base + QSPI_SR) & SR_TCF) ||
-+	    qspi->fmode == CCR_FMODE_APM)
- 		goto out;
+ 	group = MINSTREL_CCK_GROUP;
+ 	for (idx = 0; idx < ARRAY_SIZE(mp->cck_rates); idx++) {
++		if (!(mi->supported[group] & BIT(idx)))
++			continue;
++
+ 		if (rate->idx != mp->cck_rates[idx])
+ 			continue;
  
- 	reinit_completion(&qspi->data_completion);
 -- 
 2.35.1
 
