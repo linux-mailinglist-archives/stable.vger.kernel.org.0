@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1214954193A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12BED540923
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378065AbiFGVTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:19:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
+        id S1350103AbiFGSFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:05:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381065AbiFGVRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5749A22075C;
-        Tue,  7 Jun 2022 11:58:18 -0700 (PDT)
+        with ESMTP id S1351695AbiFGSCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15B510657A;
+        Tue,  7 Jun 2022 10:45:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 782F5CE2479;
-        Tue,  7 Jun 2022 18:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B58CC3411F;
-        Tue,  7 Jun 2022 18:58:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6475761650;
+        Tue,  7 Jun 2022 17:45:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F18C385A5;
+        Tue,  7 Jun 2022 17:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628294;
-        bh=rSJoFAKAbJN9A028sj1eftbBDbtZOd33TOl4AR9bRpk=;
+        s=korg; t=1654623909;
+        bh=fgjiF2tH/XKhEaHyonsRjSyYtP/Y4zUuLwBps6AfGtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSAG9sMAWahLC2C8PttzqXXzpOd3VJ5Aev2KO4QDVeO3Hg06eTA3Upuik7FlzMhX6
-         sW2slUMeBeFMPMmHTsOUc+9YwXxWT8AVtNQbSGrCkjlB2TJwCBt65Jjok8jYSGIg4Z
-         CC8Zzz7njXq2ndjQ+mDyCrp5XiyN7EgD4svH08/c=
+        b=riQaj7MwHdDnENMZ+8ycuEus+dQNsqWCNkdU7TYGFsVqCHqr3oAzTReyUcab/pMDz
+         PDowyVO/TqtutG5mxSAuSX7oBzLP/D49SEE32f5LMVLmDekNnxIlUXdt6DASGZJ3HC
+         VZ/P4y2Ol4A9FnBOuhdkmKk6XIf5Kt9xt4bmg0nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Marek Vasut <marex@denx.de>,
-        Jagan Teki <jagan@amarulasolutions.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 276/879] drm: bridge: icn6211: Fix HFP_HSW_HBP_HI and HFP_MIN handling
+Subject: [PATCH 5.15 129/667] net: phy: micrel: Allow probing without .driver_data
 Date:   Tue,  7 Jun 2022 18:56:34 +0200
-Message-Id: <20220607165010.860355224@linuxfoundation.org>
+Message-Id: <20220607164938.694405984@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,92 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit c0ff7a649d62105a9308cc3ac36e52a4669d9cb4 ]
+[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
 
-The HFP_HSW_HBP_HI register must be programmed with 2 LSbits of each
-Horizontal Front Porch/Sync/Back Porch. Currently the driver programs
-this register to 0, which breaks displays with either value above 255.
+Currently, if the .probe element is present in the phy_driver structure
+and the .driver_data is not, a NULL pointer dereference happens.
 
-The HFP_MIN register must be set to the same value as HFP_LI, otherwise
-there is visible image distortion, usually in the form of missing lines
-at the bottom of the panel.
+Allow passing .probe without .driver_data by inserting NULL checks
+for priv->type.
 
-Fix this by correctly programming the HFP_HSW_HBP_HI and HFP_MIN registers.
-
-Acked-by: Maxime Ripard <maxime@cerno.tech>
-Fixes: ce517f18944e3 ("drm: bridge: Add Chipone ICN6211 MIPI-DSI to RGB bridge")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: Robert Foss <robert.foss@linaro.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-To: dri-devel@lists.freedesktop.org
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220331150509.9838-3-marex@denx.de
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/chipone-icn6211.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/net/phy/micrel.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/chipone-icn6211.c b/drivers/gpu/drm/bridge/chipone-icn6211.c
-index 376e0f80da5c..c871a90c0b8f 100644
---- a/drivers/gpu/drm/bridge/chipone-icn6211.c
-+++ b/drivers/gpu/drm/bridge/chipone-icn6211.c
-@@ -35,6 +35,9 @@
- #define HSYNC_LI		0x24
- #define HBP_LI			0x25
- #define HFP_HSW_HBP_HI		0x26
-+#define HFP_HSW_HBP_HI_HFP(n)		(((n) & 0x300) >> 4)
-+#define HFP_HSW_HBP_HI_HS(n)		(((n) & 0x300) >> 6)
-+#define HFP_HSW_HBP_HI_HBP(n)		(((n) & 0x300) >> 8)
- #define VFP			0x27
- #define VSYNC			0x28
- #define VBP			0x29
-@@ -163,6 +166,7 @@ static void chipone_atomic_enable(struct drm_bridge *bridge,
- {
- 	struct chipone *icn = bridge_to_chipone(bridge);
- 	struct drm_display_mode *mode = &icn->mode;
-+	u16 hfp, hbp, hsync;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 64d829ed9887..05a8985d7107 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -335,7 +335,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
+ 		}
+ 	}
  
- 	ICN6211_DSI(icn, MIPI_CFG_PW, MIPI_CFG_PW_CONFIG_DSI);
+-	if (priv->led_mode >= 0)
++	if (priv->type && priv->led_mode >= 0)
+ 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
  
-@@ -178,13 +182,18 @@ static void chipone_atomic_enable(struct drm_bridge *bridge,
- 		    ((mode->hdisplay >> 8) & 0xf) |
- 		    (((mode->vdisplay >> 8) & 0xf) << 4));
+ 	return 0;
+@@ -351,10 +351,10 @@ static int kszphy_config_init(struct phy_device *phydev)
  
--	ICN6211_DSI(icn, HFP_LI, mode->hsync_start - mode->hdisplay);
-+	hfp = mode->hsync_start - mode->hdisplay;
-+	hsync = mode->hsync_end - mode->hsync_start;
-+	hbp = mode->htotal - mode->hsync_end;
+ 	type = priv->type;
  
--	ICN6211_DSI(icn, HSYNC_LI, mode->hsync_end - mode->hsync_start);
--
--	ICN6211_DSI(icn, HBP_LI, mode->htotal - mode->hsync_end);
--
--	ICN6211_DSI(icn, HFP_HSW_HBP_HI, 0x00);
-+	ICN6211_DSI(icn, HFP_LI, hfp & 0xff);
-+	ICN6211_DSI(icn, HSYNC_LI, hsync & 0xff);
-+	ICN6211_DSI(icn, HBP_LI, hbp & 0xff);
-+	/* Top two bits of Horizontal Front porch/Sync/Back porch */
-+	ICN6211_DSI(icn, HFP_HSW_HBP_HI,
-+		    HFP_HSW_HBP_HI_HFP(hfp) |
-+		    HFP_HSW_HBP_HI_HS(hsync) |
-+		    HFP_HSW_HBP_HI_HBP(hbp));
+-	if (type->has_broadcast_disable)
++	if (type && type->has_broadcast_disable)
+ 		kszphy_broadcast_disable(phydev);
  
- 	ICN6211_DSI(icn, VFP, mode->vsync_start - mode->vdisplay);
+-	if (type->has_nand_tree_disable)
++	if (type && type->has_nand_tree_disable)
+ 		kszphy_nand_tree_disable(phydev);
  
-@@ -194,7 +203,7 @@ static void chipone_atomic_enable(struct drm_bridge *bridge,
+ 	return kszphy_config_reset(phydev);
+@@ -1328,7 +1328,7 @@ static int kszphy_probe(struct phy_device *phydev)
  
- 	/* dsi specific sequence */
- 	ICN6211_DSI(icn, SYNC_EVENT_DLY, 0x80);
--	ICN6211_DSI(icn, HFP_MIN, 0x28);
-+	ICN6211_DSI(icn, HFP_MIN, hfp & 0xff);
- 	ICN6211_DSI(icn, MIPI_PD_CK_LANE, 0xa0);
- 	ICN6211_DSI(icn, PLL_CTRL(12), 0xff);
- 	ICN6211_DSI(icn, BIST_POL, BIST_POL_DE_POL);
+ 	priv->type = type;
+ 
+-	if (type->led_mode_reg) {
++	if (type && type->led_mode_reg) {
+ 		ret = of_property_read_u32(np, "micrel,led-mode",
+ 				&priv->led_mode);
+ 		if (ret)
+@@ -1349,7 +1349,8 @@ static int kszphy_probe(struct phy_device *phydev)
+ 		unsigned long rate = clk_get_rate(clk);
+ 		bool rmii_ref_clk_sel_25_mhz;
+ 
+-		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
++		if (type)
++			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
+ 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
+ 				"micrel,rmii-reference-clock-select-25-mhz");
+ 
 -- 
 2.35.1
 
