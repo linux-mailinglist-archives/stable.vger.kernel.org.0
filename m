@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27FF1541CC4
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1843540E56
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:54:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378736AbiFGWEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:04:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40386 "EHLO
+        id S1353510AbiFGSyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382809AbiFGWD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:03:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1CA195792;
-        Tue,  7 Jun 2022 12:14:57 -0700 (PDT)
+        with ESMTP id S1354505AbiFGSrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C964E7892C;
+        Tue,  7 Jun 2022 11:01:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCF36192C;
-        Tue,  7 Jun 2022 19:14:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E621C385A2;
-        Tue,  7 Jun 2022 19:14:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86F9FB82340;
+        Tue,  7 Jun 2022 18:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFC1C385A5;
+        Tue,  7 Jun 2022 18:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629293;
-        bh=W+FTR3kkajvWd2nZMl638Zr2vjMDmiXlj6AHR6X5zLQ=;
+        s=korg; t=1654624895;
+        bh=bz52bsbaM6Hv1aMArof1Cr4y5A+L8T1VCZm51MIedRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYmZZLxNCP+vJALt1oCgoRSwVPNPOL9L5eBEqPuAZoiBh5YQNFhCUbjFvelwTbRZB
-         PcsUp1GyG5iI9PYseSSAN8XJeFQrHOgRTFfGSl3388P3Ma9sVzBIrfe5Pms5zCqua0
-         5DqMGrSfiZDCFOMtdvgHjiphT78LCntdyUwHVOQY=
+        b=gkPm6bQA1bVCpM59FgJDsC4BsWcUEo1xZtsuFL7THN+ydj5xZWWDZRBOognq3Y/I+
+         8gs9Y0mp2qm7sMOwo62kaKVKVkCbpFe77Sg3WU7CmI11a2PJDnXCKpEyNE8QiAn4LD
+         cvb4+ZIsdIRCzlHdF7xSerpvhedzZgxht2KFrWG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Russell Currey <ruscur@russell.cc>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 640/879] powerpc/powernv: Get STF barrier requirements from device-tree
+Subject: [PATCH 5.15 493/667] NFS: Do not report EINTR/ERESTARTSYS as mapping errors
 Date:   Tue,  7 Jun 2022 19:02:38 +0200
-Message-Id: <20220607165021.423783578@linuxfoundation.org>
+Message-Id: <20220607164949.485255350@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell Currey <ruscur@russell.cc>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit d2a3c131981d4498571908df95c3c9393a00adf5 ]
+[ Upstream commit cea9ba7239dcc84175041174304c6cdeae3226e5 ]
 
-The device-tree property no-need-store-drain-on-priv-state-switch is
-equivalent to H_CPU_BEHAV_NO_STF_BARRIER from the
-H_CPU_GET_CHARACTERISTICS hcall on pseries.
+If the attempt to flush data was interrupted due to a local signal, then
+just requeue the writes back for I/O.
 
-Since commit 84ed26fd00c5 ("powerpc/security: Add a security feature for
-STF barrier") powernv systems with this device-tree property have been
-enabling the STF barrier when they have no need for it.  This patch
-fixes this by clearing the STF barrier feature on those systems.
-
-Fixes: 84ed26fd00c5 ("powerpc/security: Add a security feature for STF barrier")
-Reported-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Russell Currey <ruscur@russell.cc>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220404101536.104794-2-ruscur@russell.cc
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/setup.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/write.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/powernv/setup.c b/arch/powerpc/platforms/powernv/setup.c
-index 378f7e5f18d2..824c3ad7a0fa 100644
---- a/arch/powerpc/platforms/powernv/setup.c
-+++ b/arch/powerpc/platforms/powernv/setup.c
-@@ -102,6 +102,9 @@ static void __init init_fw_feat_flags(struct device_node *np)
- 
- 	if (fw_feature_is("enabled", "no-need-l1d-flush-kernel-on-user-access", np))
- 		security_ftr_clear(SEC_FTR_L1D_FLUSH_UACCESS);
-+
-+	if (fw_feature_is("enabled", "no-need-store-drain-on-priv-state-switch", np))
-+		security_ftr_clear(SEC_FTR_STF_BARRIER);
- }
- 
- static void __init pnv_setup_security_mitigations(void)
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index d21b25511499..daaa4f56b074 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1419,7 +1419,7 @@ static void nfs_async_write_error(struct list_head *head, int error)
+ 	while (!list_empty(head)) {
+ 		req = nfs_list_entry(head->next);
+ 		nfs_list_remove_request(req);
+-		if (nfs_error_is_fatal(error))
++		if (nfs_error_is_fatal_on_server(error))
+ 			nfs_write_error(req, error);
+ 		else
+ 			nfs_redirty_request(req);
 -- 
 2.35.1
 
