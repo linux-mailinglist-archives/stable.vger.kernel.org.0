@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C73CF540639
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F282F540C99
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231676AbiFGRdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
+        id S1350645AbiFGSh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347750AbiFGRbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:02 -0400
+        with ESMTP id S1353084AbiFGSgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:36:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A2D11B696;
-        Tue,  7 Jun 2022 10:28:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF7213393F;
+        Tue,  7 Jun 2022 10:57:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7282FB82285;
-        Tue,  7 Jun 2022 17:28:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC875C385A5;
-        Tue,  7 Jun 2022 17:28:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5934EB80B66;
+        Tue,  7 Jun 2022 17:57:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD22C385A5;
+        Tue,  7 Jun 2022 17:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622894;
-        bh=oO4LYSgGxXdMf4Wf1lkUNBzkU4g7sGH0x1F5PBK5a5k=;
+        s=korg; t=1654624676;
+        bh=VqWfpwdOOyupoMZnyZZL5JiohEcrHs2ahwGV56umNiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4TCu+7uki6VKRtfZCLgVtc54lAuqkPnrKPkpC7NUaL/feb9497PfWkKG6LRnpbUu
-         osWmBFGsPaP+UmmNfBJMDzC2eL9ZXsPCZkrFE6mL06OVIfItPsUD9et8+Twik4yfjr
-         7wCbQEQ3RpOmgJuKaXip4cRr8nirCbF0LRSQD3tU=
+        b=GfCyVD41ahZPr+QGSKj1I+ODjCnIYb5NFZMe/Tis9BeA2A90C3OaLyUqyAlqX51ib
+         aHw6ixj017ltgSUQBEa51n+TMHMeX66qL1LIbi/0PcoUEna8EhOlu0SYnLBqXcuq+O
+         qYbmrnsIu9QTjWYRW4Z4aBwGqZHxr1Ooxa2IjTA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 221/452] Bluetooth: use hdev lock for accept_list and reject_list in conn req
+Subject: [PATCH 5.15 413/667] gpiolib: of: Introduce hook for missing gpio-ranges
 Date:   Tue,  7 Jun 2022 19:01:18 +0200
-Message-Id: <20220607164915.147931627@linuxfoundation.org>
+Message-Id: <20220607164947.126929253@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit fb048cae51bacdfbbda2954af3c213fdb1d484f4 ]
+[ Upstream commit 3550bba25d5587a701e6edf20e20984d2ee72c78 ]
 
-All accesses (both reads and modifications) to
-hdev->{accept,reject}_list are protected by hdev lock,
-except the ones in hci_conn_request_evt. This can cause a race
-condition in the form of a list corruption.
-The solution is to protect these lists in hci_conn_request_evt as well.
+Since commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
+the device tree nodes of GPIO controller need the gpio-ranges property to
+handle gpio-hogs. Unfortunately it's impossible to guarantee that every new
+kernel is shipped with an updated device tree binary.
 
-I was unable to find the exact commit that introduced the issue for the
-reject list, I was only able to find it for the accept list.
+In order to provide backward compatibility with those older DTB, we need a
+callback within of_gpiochip_add_pin_range() so the relevant platform driver
+can handle this case.
 
-Fixes: a55bd29d5227 ("Bluetooth: Add white list lookup for incoming connection requests")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Link: https://lore.kernel.org/r/20220409095129.45786-2-stefan.wahren@i2se.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/gpio/gpiolib-of.c   |  5 +++++
+ include/linux/gpio/driver.h | 12 ++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index f75869835e3e..954b29605c94 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2709,10 +2709,12 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 		return;
- 	}
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index a5b34c248767..66e434f59f60 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -933,6 +933,11 @@ static int of_gpiochip_add_pin_range(struct gpio_chip *chip)
+ 	if (!np)
+ 		return 0;
  
-+	hci_dev_lock(hdev);
++	if (!of_property_read_bool(np, "gpio-ranges") &&
++	    chip->of_gpio_ranges_fallback) {
++		return chip->of_gpio_ranges_fallback(chip, np);
++	}
 +
- 	if (hci_bdaddr_list_lookup(&hdev->reject_list, &ev->bdaddr,
- 				   BDADDR_BREDR)) {
- 		hci_reject_conn(hdev, &ev->bdaddr);
--		return;
-+		goto unlock;
- 	}
+ 	group_names = of_find_property(np, group_names_propname, NULL);
  
- 	/* Require HCI_CONNECTABLE or an accept list entry to accept the
-@@ -2724,13 +2726,11 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	    !hci_bdaddr_list_lookup_with_flags(&hdev->accept_list, &ev->bdaddr,
- 					       BDADDR_BREDR)) {
- 		hci_reject_conn(hdev, &ev->bdaddr);
--		return;
-+		goto unlock;
- 	}
- 
- 	/* Connection accepted */
- 
--	hci_dev_lock(hdev);
--
- 	ie = hci_inquiry_cache_lookup(hdev, &ev->bdaddr);
- 	if (ie)
- 		memcpy(ie->data.dev_class, ev->dev_class, 3);
-@@ -2742,8 +2742,7 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 				    HCI_ROLE_SLAVE);
- 		if (!conn) {
- 			bt_dev_err(hdev, "no memory for new connection");
--			hci_dev_unlock(hdev);
--			return;
-+			goto unlock;
- 		}
- 	}
- 
-@@ -2783,6 +2782,10 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 		conn->state = BT_CONNECT2;
- 		hci_connect_cfm(conn, 0);
- 	}
+ 	for (;; index++) {
+diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
+index e3c29d2e6826..ad479db8f0aa 100644
+--- a/include/linux/gpio/driver.h
++++ b/include/linux/gpio/driver.h
+@@ -481,6 +481,18 @@ struct gpio_chip {
+ 	 */
+ 	int (*of_xlate)(struct gpio_chip *gc,
+ 			const struct of_phandle_args *gpiospec, u32 *flags);
 +
-+	return;
-+unlock:
-+	hci_dev_unlock(hdev);
- }
++	/**
++	 * @of_gpio_ranges_fallback:
++	 *
++	 * Optional hook for the case that no gpio-ranges property is defined
++	 * within the device tree node "np" (usually DT before introduction
++	 * of gpio-ranges). So this callback is helpful to provide the
++	 * necessary backward compatibility for the pin ranges.
++	 */
++	int (*of_gpio_ranges_fallback)(struct gpio_chip *gc,
++				       struct device_node *np);
++
+ #endif /* CONFIG_OF_GPIO */
+ };
  
- static u8 hci_to_mgmt_reason(u8 err)
 -- 
 2.35.1
 
