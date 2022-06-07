@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4678C54060F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2957F540C7B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346524AbiFGReF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40766 "EHLO
+        id S1345987AbiFGShE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347548AbiFGRau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B8267D06;
-        Tue,  7 Jun 2022 10:27:22 -0700 (PDT)
+        with ESMTP id S1351817AbiFGScv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:32:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CE7317EC26;
+        Tue,  7 Jun 2022 10:57:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E10066143F;
-        Tue,  7 Jun 2022 17:27:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB632C385A5;
-        Tue,  7 Jun 2022 17:27:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AECD7B81F38;
+        Tue,  7 Jun 2022 17:57:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA50C385A5;
+        Tue,  7 Jun 2022 17:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622841;
-        bh=IMgI6uceHhFh8lhaGYlZSulYoA0Q5CINB5VcpWKhQfI=;
+        s=korg; t=1654624621;
+        bh=InK2P2719+ucxNiXUq5akHXves7w4RjNdOe6zfMyDME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+AEd0CdWn5gLh/fIR1o3jT6auX8V8IviNnJ7EJp3YAfyy7CTXGZ1XZVCXQkp5nnk
-         EZKIWj9gkCBEolPeF+I5vlZULJu2IoLCN9E/CfuibFsP/zwqm8jhycOTXMyLqhslb3
-         sp/0qw+9pYpevpmBi26+VDaf2q5opONN+NQOPL/s=
+        b=t5wXBdGSPHVHbTQqZjKtfA8TCLrM1mecyXrOyQpbZw19Rxk3+xGqpAf9I4KYntziQ
+         XOMKgIsVdtnFGSBYWTOCuL0kknIAM4XdmyECY/hvOgvO/4GMPlDwFyI9ov0hsjSBX1
+         W4ie76GnACO8n5AyTGrQXR7LlMae4SL1uJ3lmiKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 161/452] of: overlay: do not break notify on NOTIFY_{OK|STOP}
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 353/667] thermal/drivers/bcm2711: Dont clamp temperature at zero
 Date:   Tue,  7 Jun 2022 19:00:18 +0200
-Message-Id: <20220607164913.359447378@linuxfoundation.org>
+Message-Id: <20220607164945.345319640@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 5f756a2eaa4436d7d3dc1e040147f5e992ae34b5 ]
+[ Upstream commit 106e0121e243de4da7d634338089a68a8da2abe9 ]
 
-We should not break overlay notifications on NOTIFY_{OK|STOP}
-otherwise we might break on the first fragment. We should only stop
-notifications if a *real* errno is returned by one of the listeners.
+The thermal sensor on BCM2711 is capable of negative temperatures, so don't
+clamp the measurements at zero. Since this was the only use for variable t,
+drop it.
 
-Fixes: a1d19bd4cf1fe ("of: overlay: pr_err from return NOTIFY_OK to overlay apply/remove")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220420130205.89435-1-nuno.sa@analog.com
+This change based on a patch by Dom Cobley, who also tested the fix.
+
+Fixes: 59b781352dc4 ("thermal: Add BCM2711 thermal driver")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220412195423.104511-1-stefan.wahren@i2se.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/overlay.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/thermal/broadcom/bcm2711_thermal.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 43a77d720008..c8a0c0e9dec1 100644
---- a/drivers/of/overlay.c
-+++ b/drivers/of/overlay.c
-@@ -170,9 +170,7 @@ static int overlay_notify(struct overlay_changeset *ovcs,
+diff --git a/drivers/thermal/broadcom/bcm2711_thermal.c b/drivers/thermal/broadcom/bcm2711_thermal.c
+index 1ec57d9ecf53..e9bef5c3414b 100644
+--- a/drivers/thermal/broadcom/bcm2711_thermal.c
++++ b/drivers/thermal/broadcom/bcm2711_thermal.c
+@@ -38,7 +38,6 @@ static int bcm2711_get_temp(void *data, int *temp)
+ 	int offset = thermal_zone_get_offset(priv->thermal);
+ 	u32 val;
+ 	int ret;
+-	long t;
  
- 		ret = blocking_notifier_call_chain(&overlay_notify_chain,
- 						   action, &nd);
--		if (ret == NOTIFY_OK || ret == NOTIFY_STOP)
--			return 0;
--		if (ret) {
-+		if (notifier_to_errno(ret)) {
- 			ret = notifier_to_errno(ret);
- 			pr_err("overlay changeset %s notifier error %d, target: %pOF\n",
- 			       of_overlay_action_name[action], ret, nd.target);
+ 	ret = regmap_read(priv->regmap, AVS_RO_TEMP_STATUS, &val);
+ 	if (ret)
+@@ -50,9 +49,7 @@ static int bcm2711_get_temp(void *data, int *temp)
+ 	val &= AVS_RO_TEMP_STATUS_DATA_MSK;
+ 
+ 	/* Convert a HW code to a temperature reading (millidegree celsius) */
+-	t = slope * val + offset;
+-
+-	*temp = t < 0 ? 0 : t;
++	*temp = slope * val + offset;
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
