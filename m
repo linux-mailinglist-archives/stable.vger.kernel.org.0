@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F772540A4E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7CD540538
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350077AbiFGSTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:19:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42266 "EHLO
+        id S1345872AbiFGRXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352170AbiFGSQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC95410FEA;
-        Tue,  7 Jun 2022 10:50:53 -0700 (PDT)
+        with ESMTP id S1346064AbiFGRVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:46 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A95106A7A;
+        Tue,  7 Jun 2022 10:21:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 683D36146F;
-        Tue,  7 Jun 2022 17:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B7BC385A5;
-        Tue,  7 Jun 2022 17:50:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BF7FFCE2016;
+        Tue,  7 Jun 2022 17:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCDC5C34115;
+        Tue,  7 Jun 2022 17:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624252;
-        bh=V0A15KGNTP79nevGVL19IAPwtWI6OsU/xrSJL/2kwQ0=;
+        s=korg; t=1654622467;
+        bh=eSwQJ4MdzEqPLyRF0dMCA29MT+ipw7FAuQyfMB7EKTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zA4KCtZ3oclvb45t2CRsdfVnvuBQE/SQiliijRPD2aZlijXV6vJT6acCL/9aW7sKi
-         jhufbaIGBMqnwQl7g4WcrKgt3njOQP+hNN+ONa4Si2BFwRqQfxBSWZp1wqzLuFjVF2
-         thPnUJ6YuNaAYQFS/i1DhR/BkERf/SrOOd4TTxNg=
+        b=FpqyKCl62BJ94ATCEAQEL68gChWQwJPIuWn22OZjQENrh3vf46RFqDajdOLyoEmi8
+         d/KVoz4ZJ3Q9Zx8JQI+RJf5qgtJ3R1BVqnewj4LXODdh7Rrf8zZxU2aSj1ysLEPHrK
+         KBkgB0Nk6sNr3lGrfVT7csPENHPIu03OyUK08KCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Tsung Hsieh <chentsung@chromium.org>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Michael Walle <michael@walle.cc>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 258/667] mtd: spi-nor: core: Check written SR value in spi_nor_write_16bit_sr_and_check()
-Date:   Tue,  7 Jun 2022 18:58:43 +0200
-Message-Id: <20220607164942.520598329@linuxfoundation.org>
+Subject: [PATCH 5.10 067/452] ASoC: tscs454: Add endianness flag in snd_soc_component_driver
+Date:   Tue,  7 Jun 2022 18:58:44 +0200
+Message-Id: <20220607164910.547376974@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Tsung Hsieh <chentsung@chromium.org>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 70dd83d737d8900b2d98db6dc6b928c596334d37 ]
+[ Upstream commit ff69ec96b87dccb3a29edef8cec5d4fefbbc2055 ]
 
-Read back Status Register 1 to ensure that the written byte match the
-received value and return -EIO if read back test failed.
+The endianness flag is used on the CODEC side to specify an
+ambivalence to endian, typically because it is lost over the hardware
+link. This device receives audio over an I2S DAI and as such should
+have endianness applied.
 
-Without this patch, spi_nor_write_16bit_sr_and_check() only check the
-second half of the 16bit. It causes errors like spi_nor_sr_unlock()
-return success incorrectly when spi_nor_write_16bit_sr_and_check()
-doesn't write SR successfully.
+A fixup is also required to use the width directly rather than relying
+on the format in hw_params, now both little and big endian would be
+supported. It is worth noting this changes the behaviour of S24_LE to
+use a word length of 24 rather than 32. This would appear to be a
+correction since the fact S24_LE is stored as 32 bits should not be
+presented over the bus.
 
-Fixes: 39d1e3340c73 ("mtd: spi-nor: Fix clearing of QE bit on lock()/unlock()")
-Signed-off-by: Chen-Tsung Hsieh <chentsung@chromium.org>
-Signed-off-by: Pratyush Yadav <p.yadav@ti.com>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Pratyush Yadav <p.yadav@ti.com>
-Link: https://lore.kernel.org/r/20220126073227.3401275-1-chentsung@chromium.org
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220504170905.332415-26-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/core.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/codecs/tscs454.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index cc08bd707378..90f39aabc1ff 100644
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -1007,6 +1007,15 @@ static int spi_nor_write_16bit_sr_and_check(struct spi_nor *nor, u8 sr1)
- 	if (ret)
- 		return ret;
+diff --git a/sound/soc/codecs/tscs454.c b/sound/soc/codecs/tscs454.c
+index d0af16b4db2f..a6f339bb4771 100644
+--- a/sound/soc/codecs/tscs454.c
++++ b/sound/soc/codecs/tscs454.c
+@@ -3115,18 +3115,17 @@ static int set_aif_sample_format(struct snd_soc_component *component,
+ 	unsigned int width;
+ 	int ret;
  
-+	ret = spi_nor_read_sr(nor, sr_cr);
-+	if (ret)
-+		return ret;
-+
-+	if (sr1 != sr_cr[0]) {
-+		dev_dbg(nor->dev, "SR: Read back test failed\n");
-+		return -EIO;
-+	}
-+
- 	if (nor->flags & SNOR_F_NO_READ_CR)
- 		return 0;
+-	switch (format) {
+-	case SNDRV_PCM_FORMAT_S16_LE:
++	switch (snd_pcm_format_width(format)) {
++	case 16:
+ 		width = FV_WL_16;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S20_3LE:
++	case 20:
+ 		width = FV_WL_20;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S24_3LE:
++	case 24:
+ 		width = FV_WL_24;
+ 		break;
+-	case SNDRV_PCM_FORMAT_S24_LE:
+-	case SNDRV_PCM_FORMAT_S32_LE:
++	case 32:
+ 		width = FV_WL_32;
+ 		break;
+ 	default:
+@@ -3321,6 +3320,7 @@ static const struct snd_soc_component_driver soc_component_dev_tscs454 = {
+ 	.num_dapm_routes = ARRAY_SIZE(tscs454_intercon),
+ 	.controls =	tscs454_snd_controls,
+ 	.num_controls = ARRAY_SIZE(tscs454_snd_controls),
++	.endianness = 1,
+ };
  
+ #define TSCS454_RATES SNDRV_PCM_RATE_8000_96000
 -- 
 2.35.1
 
