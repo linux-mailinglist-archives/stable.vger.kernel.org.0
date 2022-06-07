@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 155F254121B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64C2E54087E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356980AbiFGToC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
+        id S1348111AbiFGR7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:59:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357681AbiFGTmP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FCD21B6FC6;
-        Tue,  7 Jun 2022 11:15:48 -0700 (PDT)
+        with ESMTP id S1349210AbiFGR6t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA93299818;
+        Tue,  7 Jun 2022 10:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A27B66062B;
-        Tue,  7 Jun 2022 18:15:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3010C385A2;
-        Tue,  7 Jun 2022 18:15:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77FF661673;
+        Tue,  7 Jun 2022 17:41:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DA0FC385A5;
+        Tue,  7 Jun 2022 17:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625747;
-        bh=7Cf6JB2q1A9OGemJDYVSx1pjXiSzVu0Yuw1kwfazgNM=;
+        s=korg; t=1654623692;
+        bh=+e7jOA+nZdM0ztWhPDDfDZIxRWdZM8KO7MGg41thVdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ltwN3Ayl/nhCQ7/eiN0PcMpDFKtrpvA0Uqfv03GNmmU4sa5fnwzKRduXRDyW6A9/E
-         WcruH8OFlVz15oOVh5gT1GjyCJGvzafRArrvXeadu6RxvG/3LMM19W+ARDAmj7oUmy
-         ZYe/qjfKOC1o1377TxdrdQ8wt+D0HmmEt08WkdeM=
+        b=haRTBNF34HIlVzHtV9FNHPPrWwSw+oWiWvNUmLJTD6mkirZlQmtCWGn1hMUWuqwGh
+         TuLG7HnFn43sR7NaTEYnFQD3Udq2R/UH2NTYIqRjL4lvnrPgFV60UKFpYQD0XVXiZv
+         iQEcyvrTaXOTkechoN8wUALkvV1t+2K7/SprHYes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 130/772] dma-debug: change allocation mode from GFP_NOWAIT to GFP_ATIOMIC
-Date:   Tue,  7 Jun 2022 18:55:22 +0200
-Message-Id: <20220607164952.874867105@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Yang <Eric.Yang2@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Saaem Rizvi <syerizvi@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 058/667] drm/amd/display: Disabling Z10 on DCN31
+Date:   Tue,  7 Jun 2022 18:55:23 +0200
+Message-Id: <20220607164936.552199313@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Saaem Rizvi <syerizvi@amd.com>
 
-[ Upstream commit 84bc4f1dbbbb5f8aa68706a96711dccb28b518e5 ]
+[ Upstream commit 5d5af34072c8b11f60960c3bea57ff9de5877791 ]
 
-We observed the error "cacheline tracking ENOMEM, dma-debug disabled"
-during a light system load (copying some files). The reason for this error
-is that the dma_active_cacheline radix tree uses GFP_NOWAIT allocation -
-so it can't access the emergency memory reserves and it fails as soon as
-anybody reaches the watermark.
+[WHY]
+Z10 is should not be enabled by default on DCN31.
 
-This patch changes GFP_NOWAIT to GFP_ATOMIC, so that it can access the
-emergency memory reserves.
+[HOW]
+Using DC debug flags to disable Z10 by default on DCN31.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Saaem Rizvi <syerizvi@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index f8ff598596b8..ac740630c79c 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -448,7 +448,7 @@ void debug_dma_dump_mappings(struct device *dev)
-  * other hand, consumes a single dma_debug_entry, but inserts 'nents'
-  * entries into the tree.
-  */
--static RADIX_TREE(dma_active_cacheline, GFP_NOWAIT);
-+static RADIX_TREE(dma_active_cacheline, GFP_ATOMIC);
- static DEFINE_SPINLOCK(radix_lock);
- #define ACTIVE_CACHELINE_MAX_OVERLAP ((1 << RADIX_TREE_MAX_TAGS) - 1)
- #define CACHELINE_PER_PAGE_SHIFT (PAGE_SHIFT - L1_CACHE_SHIFT)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+index a5ef9d5e7685..310ced5058c4 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+@@ -957,6 +957,7 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 			.optc = false,
+ 		}
+ 	},
++	.disable_z10 = true,
+ 	.optimize_edp_link_rate = true,
+ 	.enable_sw_cntl_psr = true,
+ };
 -- 
 2.35.1
 
