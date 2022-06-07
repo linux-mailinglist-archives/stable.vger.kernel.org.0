@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00354541466
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F0B5405BB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358286AbiFGURv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:17:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60932 "EHLO
+        id S1346491AbiFGR3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:29:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359867AbiFGUQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72121CC5FE;
-        Tue,  7 Jun 2022 11:28:49 -0700 (PDT)
+        with ESMTP id S1346526AbiFGR3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2949310D915;
+        Tue,  7 Jun 2022 10:24:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 843B8B82340;
-        Tue,  7 Jun 2022 18:28:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E543BC385A5;
-        Tue,  7 Jun 2022 18:28:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B57FC60DE2;
+        Tue,  7 Jun 2022 17:24:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE4CC385A5;
+        Tue,  7 Jun 2022 17:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626526;
-        bh=8u13nwC0KRxpH1h7yubblY7q75GV9x6q2Kt9AaWhl6Y=;
+        s=korg; t=1654622681;
+        bh=DgrERhmiPRNQUiFMyWldud2/MZurlP6RAhmt8cL/kkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhRVoUAHW3XMRWQwcQWuXjnYAme9jgCkf0o9ME/wLIEBLw2sdV2lk8XORyP3ysb2L
-         4SOuv/KnRDkZHLGWxkAUaPcneox/lbkJYo9JpVNgZB9XAc9NyhcEf8UewPCF+WLM5y
-         mJTWh4ASYDpvfMMizR8eANK3HKPng8PZ04KqNxt4=
+        b=CkP5sEAxqdqe9xARuEPRD0dUTdPyaHaS6u0sszurTJeY2Vq9UzsP5Zkr+FqN9xcoM
+         ApIL35sGIrbeyuHZoqCx2x7huRMuTnJxXnTRsOh0GTPEE/yECsFvbqoKr0+T9bqveg
+         iNNcI61Q5mqUb80EIzF/lvjDaWuf8IYfi6cnO+oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Lukas Czerner <lczerner@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 410/772] ext4: reject the commit option on ext2 filesystems
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 145/452] target: remove an incorrect unmap zeroes data deduction
 Date:   Tue,  7 Jun 2022 19:00:02 +0200
-Message-Id: <20220607165001.087835245@linuxfoundation.org>
+Message-Id: <20220607164912.881571689@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit cb8435dc8ba33bcafa41cf2aa253794320a3b8df ]
+[ Upstream commit 179d8609d8424529e95021df939ed7b0b82b37f1 ]
 
-The 'commit' option is only applicable for ext3 and ext4 filesystems,
-and has never been accepted by the ext2 filesystem driver, so the ext4
-driver shouldn't allow it on ext2 filesystems.
+For block devices, the SCSI target drivers implements UNMAP as calls to
+blkdev_issue_discard, which does not guarantee zeroing just because
+Write Zeroes is supported.
 
-This fixes a failure in xfstest ext4/053.
+Note that this does not affect the file backed path which uses
+fallocate to punch holes.
 
-Fixes: 8dc0aa8cf0f7 ("ext4: check incompatible mount options while mounting ext2/3")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Link: https://lore.kernel.org/r/20220510183232.172615-1-ebiggers@kernel.org
+Fixes: 2237498f0b5c ("target/iblock: Convert WRITE_SAME to blkdev_issue_zeroout")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220415045258.199825-2-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/target/target_core_device.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index fe30f483c59f..32e5e76049c1 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1913,6 +1913,7 @@ static const struct mount_opts {
- 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
- 	{Opt_warn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_SET},
- 	{Opt_nowarn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_CLEAR},
-+	{Opt_commit, 0, MOPT_NO_EXT2},
- 	{Opt_nojournal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
- 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
- 	{Opt_journal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
+diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
+index 109f019d2148..1eded5c4ebda 100644
+--- a/drivers/target/target_core_device.c
++++ b/drivers/target/target_core_device.c
+@@ -831,7 +831,6 @@ bool target_configure_unmap_from_queue(struct se_dev_attrib *attrib,
+ 	attrib->unmap_granularity = q->limits.discard_granularity / block_size;
+ 	attrib->unmap_granularity_alignment = q->limits.discard_alignment /
+ 								block_size;
+-	attrib->unmap_zeroes_data = !!(q->limits.max_write_zeroes_sectors);
+ 	return true;
+ }
+ EXPORT_SYMBOL(target_configure_unmap_from_queue);
 -- 
 2.35.1
 
