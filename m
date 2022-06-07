@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A87D5406FE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0815541D00
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347359AbiFGRlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55198 "EHLO
+        id S1378801AbiFGWH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348411AbiFGRkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:49 -0400
+        with ESMTP id S1383641AbiFGWGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50846B018;
-        Tue,  7 Jun 2022 10:34:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7716019595B;
+        Tue,  7 Jun 2022 12:16:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7748A614AE;
-        Tue,  7 Jun 2022 17:33:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C77C34115;
-        Tue,  7 Jun 2022 17:33:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04F86618EC;
+        Tue,  7 Jun 2022 19:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1505DC385A2;
+        Tue,  7 Jun 2022 19:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623191;
-        bh=1GMGT98+przndzzSNbR0Qqjc8joCQ0M2vp1ljX+83FI=;
+        s=korg; t=1654629408;
+        bh=BUUyuJwqsmQ8ppwNkzVju8FLysHPnnjZRg/0W7ctp2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxnsPTjEbggi8muUX4gOad4VrvL5NrS7mb+rq3NdtZgV/6qSV+iTj17UhUPdXQJBz
-         RWdneC33pk8dhpD+9X9cNWzVNZEOljckGmes9IBjW2gLugwRhw7LxxiraIJC+uHtOJ
-         S9snLH/3jhSsBxH+l2yjvgDHNfQ5kVYxmWHlkkuQ=
+        b=rn9/RqC8NPobfc98cJ811h3yVaUeCELZhnTfRZzWTdFcfJX3KXJeFgclZ4BCkw5dh
+         x84YajPMFrDE9GcBQsXeudYHz3qBY1ENWTnvrm0ob8WaUwnZ33xlA9WQ5gsNs8j3YQ
+         kQy/lwr0fOnz03MhE4eGV5ucED6jDFcludvhlDII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Mel Gorman <mel@csn.ul.ie>,
-        Minchan Kim <minchan.kim@gmail.com>,
-        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Eric Badger <ebadger@purestorage.com>,
+        Kuppuswamy Sathyanarayanan 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Ashok Raj <ashok.raj@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 291/452] drivers/base/node.c: fix compaction sysfs file leak
+Subject: [PATCH 5.18 630/879] PCI/AER: Clear MULTI_ERR_COR/UNCOR_RCV bits
 Date:   Tue,  7 Jun 2022 19:02:28 +0200
-Message-Id: <20220607164917.222200219@linuxfoundation.org>
+Message-Id: <20220607165021.136028307@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,42 +57,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 
-[ Upstream commit da63dc84befaa9e6079a0bc363ff0eaa975f9073 ]
+[ Upstream commit 203926da2bff8e172200a2f11c758987af112d4a ]
 
-Compaction sysfs file is created via compaction_register_node in
-register_node.  But we forgot to remove it in unregister_node.  Thus
-compaction sysfs file is leaked.  Using compaction_unregister_node to fix
-this issue.
+When a Root Port or Root Complex Event Collector receives an error Message
+e.g., ERR_COR, it sets PCI_ERR_ROOT_COR_RCV in the Root Error Status
+register and logs the Requester ID in the Error Source Identification
+register.  If it receives a second ERR_COR Message before software clears
+PCI_ERR_ROOT_COR_RCV, hardware sets PCI_ERR_ROOT_MULTI_COR_RCV and the
+Requester ID is lost.
 
-Link: https://lkml.kernel.org/r/20220401070905.43679-1-linmiaohe@huawei.com
-Fixes: ed4a6d7f0676 ("mm: compaction: add /sys trigger for per-node memory compaction")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Mel Gorman <mel@csn.ul.ie>
-Cc: Minchan Kim <minchan.kim@gmail.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+In the following scenario, PCI_ERR_ROOT_MULTI_COR_RCV was never cleared:
+
+  - hardware receives ERR_COR message
+  - hardware sets PCI_ERR_ROOT_COR_RCV
+  - aer_irq() entered
+  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
+  - aer_irq(): now status == PCI_ERR_ROOT_COR_RCV
+  - hardware receives second ERR_COR message
+  - hardware sets PCI_ERR_ROOT_MULTI_COR_RCV
+  - aer_irq(): pci_write_config_dword(PCI_ERR_ROOT_STATUS, status)
+  - PCI_ERR_ROOT_COR_RCV is cleared; PCI_ERR_ROOT_MULTI_COR_RCV is set
+  - aer_irq() entered again
+  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
+  - aer_irq(): now status == PCI_ERR_ROOT_MULTI_COR_RCV
+  - aer_irq() exits because PCI_ERR_ROOT_COR_RCV not set
+  - PCI_ERR_ROOT_MULTI_COR_RCV is still set
+
+The same problem occurred with ERR_NONFATAL/ERR_FATAL Messages and
+PCI_ERR_ROOT_UNCOR_RCV and PCI_ERR_ROOT_MULTI_UNCOR_RCV.
+
+Fix the problem by queueing an AER event and clearing the Root Error Status
+bits when any of these bits are set:
+
+  PCI_ERR_ROOT_COR_RCV
+  PCI_ERR_ROOT_UNCOR_RCV
+  PCI_ERR_ROOT_MULTI_COR_RCV
+  PCI_ERR_ROOT_MULTI_UNCOR_RCV
+
+See the bugzilla link for details from Eric about how to reproduce this
+problem.
+
+[bhelgaas: commit log, move repro details to bugzilla]
+Fixes: e167bfcaa4cd ("PCI: aerdrv: remove magical ROOT_ERR_STATUS_MASKS")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215992
+Link: https://lore.kernel.org/r/20220418150237.1021519-1-sathyanarayanan.kuppuswamy@linux.intel.com
+Reported-by: Eric Badger <ebadger@purestorage.com>
+Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/node.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/pcie/aer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/node.c b/drivers/base/node.c
-index 21965de8538b..5f745c906c33 100644
---- a/drivers/base/node.c
-+++ b/drivers/base/node.c
-@@ -655,6 +655,7 @@ static int register_node(struct node *node, int num)
-  */
- void unregister_node(struct node *node)
- {
-+	compaction_unregister_node(node);
- 	hugetlb_unregister_node(node);		/* no-op, if memoryless node */
- 	node_remove_accesses(node);
- 	node_remove_caches(node);
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index 9fa1f97e5b27..7952e5efd6cf 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -101,6 +101,11 @@ struct aer_stats {
+ #define ERR_COR_ID(d)			(d & 0xffff)
+ #define ERR_UNCOR_ID(d)			(d >> 16)
+ 
++#define AER_ERR_STATUS_MASK		(PCI_ERR_ROOT_UNCOR_RCV |	\
++					PCI_ERR_ROOT_COR_RCV |		\
++					PCI_ERR_ROOT_MULTI_COR_RCV |	\
++					PCI_ERR_ROOT_MULTI_UNCOR_RCV)
++
+ static int pcie_aer_disable;
+ static pci_ers_result_t aer_root_reset(struct pci_dev *dev);
+ 
+@@ -1196,7 +1201,7 @@ static irqreturn_t aer_irq(int irq, void *context)
+ 	struct aer_err_source e_src = {};
+ 
+ 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_STATUS, &e_src.status);
+-	if (!(e_src.status & (PCI_ERR_ROOT_UNCOR_RCV|PCI_ERR_ROOT_COR_RCV)))
++	if (!(e_src.status & AER_ERR_STATUS_MASK))
+ 		return IRQ_NONE;
+ 
+ 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_ERR_SRC, &e_src.id);
 -- 
 2.35.1
 
