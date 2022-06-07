@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0AF540E97
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 838755406FD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354170AbiFGSzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58476 "EHLO
+        id S1347297AbiFGRlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354666AbiFGSvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:51:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D7713B2D6;
-        Tue,  7 Jun 2022 11:03:25 -0700 (PDT)
+        with ESMTP id S1348559AbiFGRlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1819912088B;
+        Tue,  7 Jun 2022 10:34:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98702B82366;
-        Tue,  7 Jun 2022 18:03:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF29C385A5;
-        Tue,  7 Jun 2022 18:03:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C8CC61480;
+        Tue,  7 Jun 2022 17:33:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A653C3411C;
+        Tue,  7 Jun 2022 17:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624997;
-        bh=WbZvmYTKoIqanZUhSU0oIidvHFsRIJhdonrohRLhaeE=;
+        s=korg; t=1654623216;
+        bh=eaLkmUmdG/Xo6u8ERxj5u85vYOJwe/jt0YfOMpJMybE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xngsSYDfe22jPug7aOWhYsx9gmh8EzJ7xmEJJ73V7glTbUbU63kW6fjXANpNKD5CU
-         3nmGjDmQieHc3ZyUvhDz+iJjE/HFIYXGFx/tjzVUJn+EhWHSLXjBdd0qtZqoUNzx0+
-         hNs9hIxs4IkKuNYzX/rftiku9e1If4Q8XrAvuJ24=
+        b=PIdPsHeo84U7AX8Reh5ISGZuQe//Gr34jaNvh9T7RmTk+dEKINoXY2G9oxo3t+Tqw
+         jq7eVrOxXNCIXP4oxLmBf6b5HxNapkk+/5DDCwWiblw+k8qMC6nwH62gE0RF8dmj46
+         FC+gXSHNN6vjJX38MrVWqi70zow2mvGepEWYxLeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Zhangfei Gao <zhangfei.gao@linaro.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 488/667] iommu/arm-smmu-v3-sva: Fix mm use-after-free
+        stable@vger.kernel.org, Igor Zhbanov <izh1979@gmail.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 296/452] powerpc/idle: Fix return value of __setup() handler
 Date:   Tue,  7 Jun 2022 19:02:33 +0200
-Message-Id: <20220607164949.337738699@linuxfoundation.org>
+Message-Id: <20220607164917.376665570@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit cbd23144f7662b00bcde32a938c4a4057e476d68 ]
+[ Upstream commit b793a01000122d2bd133ba451a76cc135b5e162c ]
 
-We currently call arm64_mm_context_put() without holding a reference to
-the mm, which can result in use-after-free. Call mmgrab()/mmdrop() to
-ensure the mm only gets freed after we unpinned the ASID.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
 
-Fixes: 32784a9562fb ("iommu/arm-smmu-v3: Implement iommu_sva_bind/unbind()")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Tested-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-Link: https://lore.kernel.org/r/20220426130444.300556-1-jean-philippe@linaro.org
-Signed-off-by: Will Deacon <will@kernel.org>
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) argument or environment
+strings.
+
+Also, error return codes don't mean anything to obsolete_checksetup() --
+only non-zero (usually 1) or zero. So return 1 from powersave_off().
+
+Fixes: 302eca184fb8 ("[POWERPC] cell: use ppc_md->power_save instead of cbe_idle_loop")
+Reported-by: Igor Zhbanov <izh1979@gmail.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220502192925.19954-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/idle.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-index f763c1430d15..e2e80eb2840c 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-@@ -6,6 +6,7 @@
- #include <linux/mm.h>
- #include <linux/mmu_context.h>
- #include <linux/mmu_notifier.h>
-+#include <linux/sched/mm.h>
- #include <linux/slab.h>
- 
- #include "arm-smmu-v3.h"
-@@ -96,9 +97,14 @@ static struct arm_smmu_ctx_desc *arm_smmu_alloc_shared_cd(struct mm_struct *mm)
- 	struct arm_smmu_ctx_desc *cd;
- 	struct arm_smmu_ctx_desc *ret = NULL;
- 
-+	/* Don't free the mm until we release the ASID */
-+	mmgrab(mm);
-+
- 	asid = arm64_mm_context_get(mm);
--	if (!asid)
--		return ERR_PTR(-ESRCH);
-+	if (!asid) {
-+		err = -ESRCH;
-+		goto out_drop_mm;
-+	}
- 
- 	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
- 	if (!cd) {
-@@ -165,6 +171,8 @@ static struct arm_smmu_ctx_desc *arm_smmu_alloc_shared_cd(struct mm_struct *mm)
- 	kfree(cd);
- out_put_context:
- 	arm64_mm_context_put(mm);
-+out_drop_mm:
-+	mmdrop(mm);
- 	return err < 0 ? ERR_PTR(err) : ret;
+diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
+index 1f835539fda4..f0271daa8f6a 100644
+--- a/arch/powerpc/kernel/idle.c
++++ b/arch/powerpc/kernel/idle.c
+@@ -37,7 +37,7 @@ static int __init powersave_off(char *arg)
+ {
+ 	ppc_md.power_save = NULL;
+ 	cpuidle_disable = IDLE_POWERSAVE_OFF;
+-	return 0;
++	return 1;
  }
+ __setup("powersave=off", powersave_off);
  
-@@ -173,6 +181,7 @@ static void arm_smmu_free_shared_cd(struct arm_smmu_ctx_desc *cd)
- 	if (arm_smmu_free_asid(cd)) {
- 		/* Unpin ASID */
- 		arm64_mm_context_put(cd->mm);
-+		mmdrop(cd->mm);
- 		kfree(cd);
- 	}
- }
 -- 
 2.35.1
 
