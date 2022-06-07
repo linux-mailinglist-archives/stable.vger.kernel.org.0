@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA11A541977
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F8D5412D5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378275AbiFGVWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55136 "EHLO
+        id S1354040AbiFGTya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378410AbiFGVTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:19:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DCC224D04;
-        Tue,  7 Jun 2022 11:59:38 -0700 (PDT)
+        with ESMTP id S1358455AbiFGTwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3271313B2C2;
+        Tue,  7 Jun 2022 11:20:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3BE561787;
-        Tue,  7 Jun 2022 18:59:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2056C385A2;
-        Tue,  7 Jun 2022 18:59:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B877560DDA;
+        Tue,  7 Jun 2022 18:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3513C385A2;
+        Tue,  7 Jun 2022 18:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628377;
-        bh=NLXJC2Os2ZFAlOQSsSpisO6mc7cXoVRqnXwEzHTGVf8=;
+        s=korg; t=1654626033;
+        bh=g43Q8Fe4f7W0fpxHqctx7ITSHwKZuRrzitHywoPcmfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCJqGKuoMT9m+/3Jgg/qK/gBn66jBpPByrwCFh/IIbVmZ4qGlOXXzXhYTyOqaXwNP
-         IhCMCerkXONuZ7XApKZzfK9OFf/GZ++i2XcHzVbwnVXzo3qyVkQ48vhsI/hHGjbn8j
-         jTXfOvTzgUOwyCd42YDtIJRSPOIZ75srxEiPYbyk=
+        b=w/uS9yhIgois0zZhVRGTuaI6675m3gDeLcqkzRJSyNb4K3NpSfjyX6UxnTvzB0wmJ
+         CiWoSaJ9FmzXqHbv0my+jbgftbYWnmMTl82Pu2YZRT4BnpK1ObrjWUnVucHmlnvXXx
+         wekuyaU2VbaFTx7t6eky08BbUk1Ler96PzCMK80Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Paolo Abeni <pabeni@redhat.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 307/879] net: dsa: mt7530: 1G can also support 1000BASE-X link mode
+Subject: [PATCH 5.17 233/772] drm/edid: fix invalid EDID extension block filtering
 Date:   Tue,  7 Jun 2022 18:57:05 +0200
-Message-Id: <20220607165011.759684294@linuxfoundation.org>
+Message-Id: <20220607164955.898357456@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,67 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit 66f862563ed68717dfd84e808ca12705ed275ced ]
+[ Upstream commit 3aefc722ff52076407203b6af9713de567993adf ]
 
-When using an external PHY connected using RGMII to mt7531 port 5, the
-PHY can be used to used support 1000BASE-X connections. Moreover, if
-1000BASE-T is supported, then we should allow 1000BASE-X as well, since
-which are supported is a property of the PHY.
+The invalid EDID block filtering uses the number of valid EDID
+extensions instead of all EDID extensions for looping the extensions in
+the copy. This is fine, by coincidence, if all the invalid blocks are at
+the end of the EDID. However, it's completely broken if there are
+invalid extensions in the middle; the invalid blocks are included and
+valid blocks are excluded.
 
-Therefore, it makes no sense to exclude this from the linkmodes when
-1000BASE-T is supported.
+Fix it by modifying the base block after, not before, the copy.
 
-Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
-Tested-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 14544d0937bf ("drm/edid: Only print the bad edid when aborting")
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220330170426.349248-1-jani.nikula@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index fe3cb26f4287..831ccbecb0c2 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -2540,13 +2540,7 @@ static void mt7531_sgmii_validate(struct mt7530_priv *priv, int port,
- 	/* Port5 supports ethier RGMII or SGMII.
- 	 * Port6 supports SGMII only.
- 	 */
--	switch (port) {
--	case 5:
--		if (mt7531_is_rgmii_port(priv, port))
--			break;
--		fallthrough;
--	case 6:
--		phylink_set(supported, 1000baseX_Full);
-+	if (port == 6) {
- 		phylink_set(supported, 2500baseX_Full);
- 		phylink_set(supported, 2500baseT_Full);
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index 83e5c115e754..502ef71dac68 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -2029,9 +2029,6 @@ struct edid *drm_do_get_edid(struct drm_connector *connector,
+ 
+ 		connector_bad_edid(connector, edid, edid[0x7e] + 1);
+ 
+-		edid[EDID_LENGTH-1] += edid[0x7e] - valid_extensions;
+-		edid[0x7e] = valid_extensions;
+-
+ 		new = kmalloc_array(valid_extensions + 1, EDID_LENGTH,
+ 				    GFP_KERNEL);
+ 		if (!new)
+@@ -2048,6 +2045,9 @@ struct edid *drm_do_get_edid(struct drm_connector *connector,
+ 			base += EDID_LENGTH;
+ 		}
+ 
++		new[EDID_LENGTH - 1] += new[0x7e] - valid_extensions;
++		new[0x7e] = valid_extensions;
++
+ 		kfree(edid);
+ 		edid = new;
  	}
-@@ -2914,8 +2908,6 @@ static void
- mt7530_mac_port_validate(struct dsa_switch *ds, int port,
- 			 unsigned long *supported)
- {
--	if (port == 5)
--		phylink_set(supported, 1000baseX_Full);
- }
- 
- static void mt7531_mac_port_validate(struct dsa_switch *ds, int port,
-@@ -2952,8 +2944,10 @@ mt753x_phylink_validate(struct dsa_switch *ds, int port,
- 	}
- 
- 	/* This switch only supports 1G full-duplex. */
--	if (state->interface != PHY_INTERFACE_MODE_MII)
-+	if (state->interface != PHY_INTERFACE_MODE_MII) {
- 		phylink_set(mask, 1000baseT_Full);
-+		phylink_set(mask, 1000baseX_Full);
-+	}
- 
- 	priv->info->mac_port_validate(ds, port, mask);
- 
 -- 
 2.35.1
 
