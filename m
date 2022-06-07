@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4574541D0C
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D15FC540EE4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383684AbiFGWHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        id S1352403AbiFGS6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:58:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383692AbiFGWGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C3525225A;
-        Tue,  7 Jun 2022 12:17:03 -0700 (PDT)
+        with ESMTP id S1353329AbiFGSx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8224D60C;
+        Tue,  7 Jun 2022 11:03:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2731761931;
-        Tue,  7 Jun 2022 19:17:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC60DC385A2;
-        Tue,  7 Jun 2022 19:17:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B36E6B81F38;
+        Tue,  7 Jun 2022 18:03:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265D1C34115;
+        Tue,  7 Jun 2022 18:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629422;
-        bh=ohP/jfSBL/ExsqgGs2Zkp69wvFadcqfktgMHUYKIiCM=;
+        s=korg; t=1654625022;
+        bh=m8YR4hs10GdxwJtjOEPjX1uSm/XaYofzI1chRuCRg+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqdgGuu2TlQY9720tfQC+SnkqohPRixSxft0amQ2aLaA23zaeqY6WwlCfDIRcm3ul
-         qUWRRS2MZ/dYfw6OEUQAB1U8i9T/VI/MO2u3WOU8thGBRtxd4ic8cwdaijeAeAD0T9
-         JVGnynBvAEmxKdct+IGCOPpMjWlCIC6xY/TZmCWM=
+        b=B+ilj6fKLIJfuI4TMHYp/Q49ovLeKk5RN5Riq67iEI1emyXG/ImnBUtV1FFipshdH
+         gilE7bG4vZD19mOVJfHBQSiCE/kSoCHJgrNw1+qeMmjQmFnSaN28xFid91f7ebN23b
+         ag25snWzMYxnyF8zny03RtjjScEm6nJmSjcerLQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 686/879] dmaengine: stm32-mdma: fix chan initialization in stm32_mdma_irq_handler()
+        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 539/667] bfq: Make sure bfqg for which we are queueing requests is online
 Date:   Tue,  7 Jun 2022 19:03:24 +0200
-Message-Id: <20220607165022.757319089@linuxfoundation.org>
+Message-Id: <20220607164950.866371326@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit da3b8ddb464bd49b6248d00ca888ad751c9e44fd ]
+commit 075a53b78b815301f8d3dd1ee2cd99554e34f0dd upstream.
 
-The parameter to pass back to the handler function when irq has been
-requested is a struct stm32_mdma_device pointer, not a struct
-stm32_mdma_chan pointer.
-Even if chan is reinit later in the function, remove this wrong
-initialization.
+Bios queued into BFQ IO scheduler can be associated with a cgroup that
+was already offlined. This may then cause insertion of this bfq_group
+into a service tree. But this bfq_group will get freed as soon as last
+bio associated with it is completed leading to use after free issues for
+service tree users. Fix the problem by making sure we always operate on
+online bfq_group. If the bfq_group associated with the bio is not
+online, we pick the first online parent.
 
-Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20220504155322.121431-3-amelie.delaunay@foss.st.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-9-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/stm32-mdma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/bfq-cgroup.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
-index 1e6bc22ddae9..f8c8b9d76aad 100644
---- a/drivers/dma/stm32-mdma.c
-+++ b/drivers/dma/stm32-mdma.c
-@@ -1316,7 +1316,7 @@ static void stm32_mdma_xfer_end(struct stm32_mdma_chan *chan)
- static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -610,10 +610,19 @@ static void bfq_link_bfqg(struct bfq_dat
+ struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
  {
- 	struct stm32_mdma_device *dmadev = devid;
--	struct stm32_mdma_chan *chan = devid;
-+	struct stm32_mdma_chan *chan;
- 	u32 reg, id, ccr, ien, status;
+ 	struct blkcg_gq *blkg = bio->bi_blkg;
++	struct bfq_group *bfqg;
  
- 	/* Find out which channel generates the interrupt */
--- 
-2.35.1
-
+-	if (!blkg)
+-		return bfqd->root_group;
+-	return blkg_to_bfqg(blkg);
++	while (blkg) {
++		bfqg = blkg_to_bfqg(blkg);
++		if (bfqg->online) {
++			bio_associate_blkg_from_css(bio, &blkg->blkcg->css);
++			return bfqg;
++		}
++		blkg = blkg->parent;
++	}
++	bio_associate_blkg_from_css(bio,
++				&bfqg_to_blkg(bfqd->root_group)->blkcg->css);
++	return bfqd->root_group;
+ }
+ 
+ /**
 
 
