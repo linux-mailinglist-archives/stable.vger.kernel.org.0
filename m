@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 779D4541DD6
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 641095416B6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382864AbiFGWWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49882 "EHLO
+        id S1377547AbiFGUyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385139AbiFGWVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9C9265611;
-        Tue,  7 Jun 2022 12:21:02 -0700 (PDT)
+        with ESMTP id S1378340AbiFGUvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95C83200416;
+        Tue,  7 Jun 2022 11:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3857B60906;
-        Tue,  7 Jun 2022 19:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4076AC3411F;
-        Tue,  7 Jun 2022 19:21:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AE5CB82182;
+        Tue,  7 Jun 2022 18:42:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8D5EC385A2;
+        Tue,  7 Jun 2022 18:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629660;
-        bh=lTwTaY+2If4wDUZGmjDJdw8w1OKq1JDGNaMxwCIgRvQ=;
+        s=korg; t=1654627320;
+        bh=gwsCLnpdtl5EqrI1mDL9MaBHP18ix+IuBL3vlzTQSzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKizC3a0ReYfNbug4rbMpRqoYUGEalMZD+mrB0u9cOWIGy5vmqqhgWSZQcqWkteuZ
-         A4WB0vpvGNd/JkVKzsqZFMH7fMtYieL0FoC2hgzqFfCpzJ1rzk9gvs8B4c3LjnAZMM
-         Mn+754jBvphEtyhpp8IgDl36Br8zWudbX71lOKUY=
+        b=IlqABoyWm73vu5VV4n1lpyZGe+2tVVNcJ6auwrOOZ2u1YqH4de4nDBpq4vEFkt6Vl
+         sezMmTc2/B2ekwk/1nx3lPjEvy1G6rdLIzjRH6VVLzqwBNmBrjl66qc2iMWFD0QdX2
+         hiCT0f23dNjv6r+Hg8Jp21qNqZibL90Uv+um5RXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.18 772/879] selftests/landlock: Add clang-format exceptions
+        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.17 698/772] mtd: cfi_cmdset_0002: Move and rename chip_check/chip_ready/chip_good_for_write
 Date:   Tue,  7 Jun 2022 19:04:50 +0200
-Message-Id: <20220607165025.269381194@linuxfoundation.org>
+Message-Id: <20220607165009.618197592@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,213 +54,269 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Tokunori Ikegami <ikegami.t@gmail.com>
 
-commit 4598d9abf4215e1e371a35683350d50122793c80 upstream.
+commit 083084df578a8bdb18334f69e7b32d690aaa3247 upstream.
 
-In preparation to a following commit, add clang-format on and
-clang-format off stanzas around constant definitions and the TEST_F_FORK
-macro.  This enables to keep aligned values, which is much more readable
-than packed definitions.
+This is a preparation patch for the S29GL064N buffer writes fix. There
+is no functional change.
 
-Add other clang-format exceptions for FIXTURE() and
-FIXTURE_VARIANT_ADD() declarations to force space before open brace,
-which is reported by checkpatch.pl .
-
-Link: https://lore.kernel.org/r/20220506160513.523257-4-mic@digikod.net
+Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-2-ikegami.t@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/common.h      |    2 ++
- tools/testing/selftests/landlock/fs_test.c     |   23 +++++++++++++++++------
- tools/testing/selftests/landlock/ptrace_test.c |   20 +++++++++++++++++++-
- 3 files changed, 38 insertions(+), 7 deletions(-)
+ drivers/mtd/chips/cfi_cmdset_0002.c |   95 ++++++++++++------------------------
+ 1 file changed, 32 insertions(+), 63 deletions(-)
 
---- a/tools/testing/selftests/landlock/common.h
-+++ b/tools/testing/selftests/landlock/common.h
-@@ -25,6 +25,7 @@
-  * this to be possible, we must not call abort() but instead exit smoothly
-  * (hence the step print).
-  */
-+/* clang-format off */
- #define TEST_F_FORK(fixture_name, test_name) \
- 	static void fixture_name##_##test_name##_child( \
- 		struct __test_metadata *_metadata, \
-@@ -71,6 +72,7 @@
- 		FIXTURE_DATA(fixture_name) __attribute__((unused)) *self, \
- 		const FIXTURE_VARIANT(fixture_name) \
- 			__attribute__((unused)) *variant)
-+/* clang-format on */
- 
- #ifndef landlock_create_ruleset
- static inline int landlock_create_ruleset(
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -221,8 +221,9 @@ static void remove_layout1(struct __test
- 	EXPECT_EQ(0, remove_path(dir_s3d2));
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -802,21 +802,25 @@ static struct mtd_info *cfi_amdstd_setup
  }
  
--FIXTURE(layout1) {
--};
-+/* clang-format off */
-+FIXTURE(layout1) {};
-+/* clang-format on */
- 
- FIXTURE_SETUP(layout1)
+ /*
+- * Return true if the chip is ready.
++ * Return true if the chip is ready and has the correct value.
+  *
+  * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
+  * non-suspended sector) and is indicated by no toggle bits toggling.
+  *
++ * Error are indicated by toggling bits or bits held with the wrong value,
++ * or with bits toggling.
++ *
+  * Note that anything more complicated than checking if no bits are toggling
+  * (including checking DQ5 for an error status) is tricky to get working
+  * correctly and is therefore not done	(particularly with interleaved chips
+  * as each chip must be checked independently of the others).
+  */
+ static int __xipram chip_ready(struct map_info *map, struct flchip *chip,
+-			       unsigned long addr)
++			       unsigned long addr, map_word *expected)
  {
-@@ -376,6 +377,8 @@ TEST_F_FORK(layout1, inval)
- 	ASSERT_EQ(0, close(ruleset_fd));
+ 	struct cfi_private *cfi = map->fldrv_priv;
+ 	map_word d, t;
++	int ret;
+ 
+ 	if (cfi_use_status_reg(cfi)) {
+ 		map_word ready = CMD(CFI_SR_DRB);
+@@ -826,57 +830,20 @@ static int __xipram chip_ready(struct ma
+ 		 */
+ 		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
+ 				 cfi->device_type, NULL);
+-		d = map_read(map, addr);
++		t = map_read(map, addr);
+ 
+-		return map_word_andequal(map, d, ready, ready);
++		return map_word_andequal(map, t, ready, ready);
+ 	}
+ 
+ 	d = map_read(map, addr);
+ 	t = map_read(map, addr);
+ 
+-	return map_word_equal(map, d, t);
+-}
+-
+-/*
+- * Return true if the chip is ready and has the correct value.
+- *
+- * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
+- * non-suspended sector) and it is indicated by no bits toggling.
+- *
+- * Error are indicated by toggling bits or bits held with the wrong value,
+- * or with bits toggling.
+- *
+- * Note that anything more complicated than checking if no bits are toggling
+- * (including checking DQ5 for an error status) is tricky to get working
+- * correctly and is therefore not done	(particularly with interleaved chips
+- * as each chip must be checked independently of the others).
+- *
+- */
+-static int __xipram chip_good(struct map_info *map, struct flchip *chip,
+-			      unsigned long addr, map_word expected)
+-{
+-	struct cfi_private *cfi = map->fldrv_priv;
+-	map_word oldd, curd;
+-
+-	if (cfi_use_status_reg(cfi)) {
+-		map_word ready = CMD(CFI_SR_DRB);
+-
+-		/*
+-		 * For chips that support status register, check device
+-		 * ready bit
+-		 */
+-		cfi_send_gen_cmd(0x70, cfi->addr_unlock1, chip->start, map, cfi,
+-				 cfi->device_type, NULL);
+-		curd = map_read(map, addr);
+-
+-		return map_word_andequal(map, curd, ready, ready);
+-	}
++	ret = map_word_equal(map, d, t);
+ 
+-	oldd = map_read(map, addr);
+-	curd = map_read(map, addr);
++	if (!ret || !expected)
++		return ret;
+ 
+-	return	map_word_equal(map, oldd, curd) &&
+-		map_word_equal(map, curd, expected);
++	return map_word_equal(map, t, *expected);
  }
  
-+/* clang-format off */
-+
- #define ACCESS_FILE ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
-@@ -396,6 +399,8 @@ TEST_F_FORK(layout1, inval)
- 	LANDLOCK_ACCESS_FS_MAKE_BLOCK | \
- 	ACCESS_LAST)
+ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
+@@ -893,7 +860,7 @@ static int get_chip(struct map_info *map
  
-+/* clang-format on */
-+
- TEST_F_FORK(layout1, file_access_rights)
- {
- 	__u64 access;
-@@ -452,6 +457,8 @@ struct rule {
- 	__u64 access;
- };
+ 	case FL_STATUS:
+ 		for (;;) {
+-			if (chip_ready(map, chip, adr))
++			if (chip_ready(map, chip, adr, NULL))
+ 				break;
  
-+/* clang-format off */
-+
- #define ACCESS_RO ( \
- 	LANDLOCK_ACCESS_FS_READ_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_DIR)
-@@ -460,6 +467,8 @@ struct rule {
- 	ACCESS_RO | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE)
+ 			if (time_after(jiffies, timeo)) {
+@@ -932,7 +899,7 @@ static int get_chip(struct map_info *map
+ 		chip->state = FL_ERASE_SUSPENDING;
+ 		chip->erase_suspended = 1;
+ 		for (;;) {
+-			if (chip_ready(map, chip, adr))
++			if (chip_ready(map, chip, adr, NULL))
+ 				break;
  
-+/* clang-format on */
-+
- static int create_ruleset(struct __test_metadata *const _metadata,
- 		const __u64 handled_access_fs, const struct rule rules[])
- {
-@@ -2070,8 +2079,9 @@ TEST_F_FORK(layout1, proc_pipe)
- 	ASSERT_EQ(0, close(pipe_fds[1]));
- }
+ 			if (time_after(jiffies, timeo)) {
+@@ -1463,7 +1430,7 @@ static int do_otp_lock(struct map_info *
+ 	/* wait for chip to become ready */
+ 	timeo = jiffies + msecs_to_jiffies(2);
+ 	for (;;) {
+-		if (chip_ready(map, chip, adr))
++		if (chip_ready(map, chip, adr, NULL))
+ 			break;
  
--FIXTURE(layout1_bind) {
--};
-+/* clang-format off */
-+FIXTURE(layout1_bind) {};
-+/* clang-format on */
+ 		if (time_after(jiffies, timeo)) {
+@@ -1695,11 +1662,11 @@ static int __xipram do_write_oneword_onc
+ 		}
  
- FIXTURE_SETUP(layout1_bind)
- {
-@@ -2411,8 +2421,9 @@ static const char (*merge_sub_files[])[]
-  *         └── work
-  */
+ 		/*
+-		 * We check "time_after" and "!chip_good" before checking
+-		 * "chip_good" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_ready" before checking
++		 * "chip_ready" to avoid the failure due to scheduling.
+ 		 */
+ 		if (time_after(jiffies, timeo) &&
+-		    !chip_good(map, chip, adr, datum)) {
++		    !chip_ready(map, chip, adr, &datum)) {
+ 			xip_enable(map, chip, adr);
+ 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+ 			xip_disable(map, chip, adr);
+@@ -1707,7 +1674,7 @@ static int __xipram do_write_oneword_onc
+ 			break;
+ 		}
  
--FIXTURE(layout2_overlay) {
--};
-+/* clang-format off */
-+FIXTURE(layout2_overlay) {};
-+/* clang-format on */
+-		if (chip_good(map, chip, adr, datum)) {
++		if (chip_ready(map, chip, adr, &datum)) {
+ 			if (cfi_check_err_status(map, chip, adr))
+ 				ret = -EIO;
+ 			break;
+@@ -1975,18 +1942,18 @@ static int __xipram do_write_buffer_wait
+ 		}
  
- FIXTURE_SETUP(layout2_overlay)
- {
---- a/tools/testing/selftests/landlock/ptrace_test.c
-+++ b/tools/testing/selftests/landlock/ptrace_test.c
-@@ -59,7 +59,9 @@ static int test_ptrace_read(const pid_t
- 	return 0;
- }
+ 		/*
+-		 * We check "time_after" and "!chip_good" before checking
+-		 * "chip_good" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_ready" before checking
++		 * "chip_ready" to avoid the failure due to scheduling.
+ 		 */
+ 		if (time_after(jiffies, timeo) &&
+-		    !chip_good(map, chip, adr, datum)) {
++		    !chip_ready(map, chip, adr, &datum)) {
+ 			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
+ 			       __func__, adr);
+ 			ret = -EIO;
+ 			break;
+ 		}
  
--FIXTURE(hierarchy) { };
-+/* clang-format off */
-+FIXTURE(hierarchy) {};
-+/* clang-format on */
+-		if (chip_good(map, chip, adr, datum)) {
++		if (chip_ready(map, chip, adr, &datum)) {
+ 			if (cfi_check_err_status(map, chip, adr))
+ 				ret = -EIO;
+ 			break;
+@@ -2195,7 +2162,7 @@ static int cfi_amdstd_panic_wait(struct
+ 	 * If the driver thinks the chip is idle, and no toggle bits
+ 	 * are changing, then the chip is actually idle for sure.
+ 	 */
+-	if (chip->state == FL_READY && chip_ready(map, chip, adr))
++	if (chip->state == FL_READY && chip_ready(map, chip, adr, NULL))
+ 		return 0;
  
- FIXTURE_VARIANT(hierarchy) {
- 	const bool domain_both;
-@@ -83,7 +85,9 @@ FIXTURE_VARIANT(hierarchy) {
-  *       \              P2 -> P1 : allow
-  *        'P2
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = false,
- 	.domain_child = false,
-@@ -98,7 +102,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
-  *        |  P2  |
-  *        '------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = false,
- 	.domain_child = true,
-@@ -112,7 +118,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
-  *            '
-  *            P2
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = true,
- 	.domain_child = false,
-@@ -127,7 +135,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
-  *         |  P2  |
-  *         '------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = true,
- 	.domain_child = true,
-@@ -142,7 +152,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
-  * |         P2  |
-  * '-------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = false,
- 	.domain_child = false,
-@@ -158,7 +170,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_sib
-  * |        '------' |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = false,
- 	.domain_child = true,
-@@ -174,7 +188,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
-  * |             P2  |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = true,
- 	.domain_child = false,
-@@ -192,7 +208,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
-  * |        '------' |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_forked_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = true,
- 	.domain_child = true,
+ 	/*
+@@ -2212,7 +2179,7 @@ static int cfi_amdstd_panic_wait(struct
+ 
+ 		/* wait for the chip to become ready */
+ 		for (i = 0; i < jiffies_to_usecs(timeo); i++) {
+-			if (chip_ready(map, chip, adr))
++			if (chip_ready(map, chip, adr, NULL))
+ 				return 0;
+ 
+ 			udelay(1);
+@@ -2276,13 +2243,13 @@ retry:
+ 	map_write(map, datum, adr);
+ 
+ 	for (i = 0; i < jiffies_to_usecs(uWriteTimeout); i++) {
+-		if (chip_ready(map, chip, adr))
++		if (chip_ready(map, chip, adr, NULL))
+ 			break;
+ 
+ 		udelay(1);
+ 	}
+ 
+-	if (!chip_good(map, chip, adr, datum) ||
++	if (!chip_ready(map, chip, adr, &datum) ||
+ 	    cfi_check_err_status(map, chip, adr)) {
+ 		/* reset on all failures. */
+ 		map_write(map, CMD(0xF0), chip->start);
+@@ -2424,6 +2391,7 @@ static int __xipram do_erase_chip(struct
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	int ret;
+ 	int retry_cnt = 0;
++	map_word datum = map_word_ff(map);
+ 
+ 	adr = cfi->addr_unlock1;
+ 
+@@ -2478,7 +2446,7 @@ static int __xipram do_erase_chip(struct
+ 			chip->erase_suspended = 0;
+ 		}
+ 
+-		if (chip_good(map, chip, adr, map_word_ff(map))) {
++		if (chip_ready(map, chip, adr, &datum)) {
+ 			if (cfi_check_err_status(map, chip, adr))
+ 				ret = -EIO;
+ 			break;
+@@ -2523,6 +2491,7 @@ static int __xipram do_erase_oneblock(st
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	int ret;
+ 	int retry_cnt = 0;
++	map_word datum = map_word_ff(map);
+ 
+ 	adr += chip->start;
+ 
+@@ -2577,7 +2546,7 @@ static int __xipram do_erase_oneblock(st
+ 			chip->erase_suspended = 0;
+ 		}
+ 
+-		if (chip_good(map, chip, adr, map_word_ff(map))) {
++		if (chip_ready(map, chip, adr, &datum)) {
+ 			if (cfi_check_err_status(map, chip, adr))
+ 				ret = -EIO;
+ 			break;
+@@ -2771,7 +2740,7 @@ static int __maybe_unused do_ppb_xxlock(
+ 	 */
+ 	timeo = jiffies + msecs_to_jiffies(2000);	/* 2s max (un)locking */
+ 	for (;;) {
+-		if (chip_ready(map, chip, adr))
++		if (chip_ready(map, chip, adr, NULL))
+ 			break;
+ 
+ 		if (time_after(jiffies, timeo)) {
 
 
