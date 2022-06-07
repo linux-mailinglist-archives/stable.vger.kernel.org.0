@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E71E5417ED
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D595417F3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378587AbiFGVHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50220 "EHLO
+        id S1377669AbiFGVHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:07:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379842AbiFGVGa (ORCPT
+        with ESMTP id S1379841AbiFGVGa (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97AE3211AB2;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCEF4211AB3;
         Tue,  7 Jun 2022 11:50:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A6F16176D;
-        Tue,  7 Jun 2022 18:50:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9135AC385A2;
-        Tue,  7 Jun 2022 18:50:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0343061777;
+        Tue,  7 Jun 2022 18:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10219C385A2;
+        Tue,  7 Jun 2022 18:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627819;
-        bh=MoPv6OhQx7EiRN060osT8VM3jcVMoppKxNbkWMOY8cI=;
+        s=korg; t=1654627824;
+        bh=dnVq8A+QaRcFBuWkdXsDnNqK0ZQ2F6cv/bJXs+evh2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wyg3jEV5kVEdbhqLgwaquNYfchqfXC7a8uKuqtTlB0V8uGO6f6GP/RQlYi6868iL8
-         h0KGmTWQzOuNTR4nwSfzHMI1Gk4k4umnXNoVfb2ZzjevAOm4c7Ij3CEuHjQHx38QF3
-         XZV5p0i2T5YnKNIQ7RsNt0G0ZVKwRPpOxtdfxPYI=
+        b=S/HSI+I1TTmPGI7RFwuQj00kTe0GX8TEwKk428x3cFOf/kL+3S2uzDHO/xNoGpt0I
+         fJ2TKxNIG5+eoHQA+PpSyuTdf09Se2+oHSXUPIQ/QpMVXOcHzNAm/hzKgcvhseV4AP
+         CAirht/cVRug5i2C9g/I0H4sfTgnJuhq9f4Lok74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vikash Garodia <quic_vgarodia@quicinc.com>,
-        Fritz Koenig <frkoenig@chromium.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 103/879] media: venus: do not queue internal buffers from previous sequence
-Date:   Tue,  7 Jun 2022 18:53:41 +0200
-Message-Id: <20220607165005.685049958@linuxfoundation.org>
+Subject: [PATCH 5.18 104/879] media: pci: cx23885: Fix the error handling in cx23885_initdev()
+Date:   Tue,  7 Jun 2022 18:53:42 +0200
+Message-Id: <20220607165005.713750327@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -56,89 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vikash Garodia <quic_vgarodia@quicinc.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 73664f107c0fafb59cd91e576b81c986adb74610 ]
+[ Upstream commit e8123311cf06d7dae71e8c5fe78e0510d20cd30b ]
 
-During reconfig (DRC) event from firmware, it is not guaranteed that
-all the DPB(internal) buffers would be released by the firmware. Some
-buffers might be released gradually while processing frames from the
-new sequence. These buffers now stay idle in the dpblist.
-In subsequent call to queue the DPBs to firmware, these idle buffers
-should not be queued. The fix identifies those buffers and free them.
+When the driver fails to call the dma_set_mask(), the driver will get
+the following splat:
 
-Signed-off-by: Vikash Garodia <quic_vgarodia@quicinc.com>
-Tested-by: Fritz Koenig <frkoenig@chromium.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+[   55.853884] BUG: KASAN: use-after-free in __process_removed_driver+0x3c/0x240
+[   55.854486] Read of size 8 at addr ffff88810de60408 by task modprobe/590
+[   55.856822] Call Trace:
+[   55.860327]  __process_removed_driver+0x3c/0x240
+[   55.861347]  bus_for_each_dev+0x102/0x160
+[   55.861681]  i2c_del_driver+0x2f/0x50
+
+This is because the driver has initialized the i2c related resources
+in cx23885_dev_setup() but not released them in error handling, fix this
+bug by modifying the error path that jumps after failing to call the
+dma_set_mask().
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/helpers.c | 34 +++++++++++++++------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+ drivers/media/pci/cx23885/cx23885-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/helpers.c b/drivers/media/platform/qcom/venus/helpers.c
-index 0bca95d01650..fa01edd54c03 100644
---- a/drivers/media/platform/qcom/venus/helpers.c
-+++ b/drivers/media/platform/qcom/venus/helpers.c
-@@ -90,12 +90,28 @@ bool venus_helper_check_codec(struct venus_inst *inst, u32 v4l2_pixfmt)
- }
- EXPORT_SYMBOL_GPL(venus_helper_check_codec);
- 
-+static void free_dpb_buf(struct venus_inst *inst, struct intbuf *buf)
-+{
-+	ida_free(&inst->dpb_ids, buf->dpb_out_tag);
-+
-+	list_del_init(&buf->list);
-+	dma_free_attrs(inst->core->dev, buf->size, buf->va, buf->da,
-+		       buf->attrs);
-+	kfree(buf);
-+}
-+
- int venus_helper_queue_dpb_bufs(struct venus_inst *inst)
- {
--	struct intbuf *buf;
-+	struct intbuf *buf, *next;
-+	unsigned int dpb_size = 0;
- 	int ret = 0;
- 
--	list_for_each_entry(buf, &inst->dpbbufs, list) {
-+	if (inst->dpb_buftype == HFI_BUFFER_OUTPUT)
-+		dpb_size = inst->output_buf_size;
-+	else if (inst->dpb_buftype == HFI_BUFFER_OUTPUT2)
-+		dpb_size = inst->output2_buf_size;
-+
-+	list_for_each_entry_safe(buf, next, &inst->dpbbufs, list) {
- 		struct hfi_frame_data fdata;
- 
- 		memset(&fdata, 0, sizeof(fdata));
-@@ -106,6 +122,12 @@ int venus_helper_queue_dpb_bufs(struct venus_inst *inst)
- 		if (buf->owned_by == FIRMWARE)
- 			continue;
- 
-+		/* free buffer from previous sequence which was released later */
-+		if (dpb_size > buf->size) {
-+			free_dpb_buf(inst, buf);
-+			continue;
-+		}
-+
- 		fdata.clnt_data = buf->dpb_out_tag;
- 
- 		ret = hfi_session_process_buf(inst, &fdata);
-@@ -127,13 +149,7 @@ int venus_helper_free_dpb_bufs(struct venus_inst *inst)
- 	list_for_each_entry_safe(buf, n, &inst->dpbbufs, list) {
- 		if (buf->owned_by == FIRMWARE)
- 			continue;
--
--		ida_free(&inst->dpb_ids, buf->dpb_out_tag);
--
--		list_del_init(&buf->list);
--		dma_free_attrs(inst->core->dev, buf->size, buf->va, buf->da,
--			       buf->attrs);
--		kfree(buf);
-+		free_dpb_buf(inst, buf);
+diff --git a/drivers/media/pci/cx23885/cx23885-core.c b/drivers/media/pci/cx23885/cx23885-core.c
+index f8f2ff3b00c3..a07b18f2034e 100644
+--- a/drivers/media/pci/cx23885/cx23885-core.c
++++ b/drivers/media/pci/cx23885/cx23885-core.c
+@@ -2165,7 +2165,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
+ 	err = dma_set_mask(&pci_dev->dev, 0xffffffff);
+ 	if (err) {
+ 		pr_err("%s/0: Oops: no 32bit PCI DMA ???\n", dev->name);
+-		goto fail_ctrl;
++		goto fail_dma_set_mask;
  	}
  
- 	if (list_empty(&inst->dpbbufs))
+ 	err = request_irq(pci_dev->irq, cx23885_irq,
+@@ -2173,7 +2173,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
+ 	if (err < 0) {
+ 		pr_err("%s: can't get IRQ %d\n",
+ 		       dev->name, pci_dev->irq);
+-		goto fail_irq;
++		goto fail_dma_set_mask;
+ 	}
+ 
+ 	switch (dev->board) {
+@@ -2195,7 +2195,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
+ 
+ 	return 0;
+ 
+-fail_irq:
++fail_dma_set_mask:
+ 	cx23885_dev_unregister(dev);
+ fail_ctrl:
+ 	v4l2_ctrl_handler_free(hdl);
 -- 
 2.35.1
 
