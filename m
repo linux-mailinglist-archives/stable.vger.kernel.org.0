@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55472541931
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4477541233
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377740AbiFGVT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
+        id S1357187AbiFGToh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380715AbiFGVQt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:49 -0400
+        with ESMTP id S1357962AbiFGTmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D561521F9C5;
-        Tue,  7 Jun 2022 11:56:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E904B240;
+        Tue,  7 Jun 2022 11:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67C28B8220B;
-        Tue,  7 Jun 2022 18:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C76CAC385A2;
-        Tue,  7 Jun 2022 18:56:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8D3AB8237D;
+        Tue,  7 Jun 2022 18:17:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 180F5C34115;
+        Tue,  7 Jun 2022 18:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628194;
-        bh=s4KO1UgUY/B996K+l2DBDtuWNiu3YWMyS23OqCyZMqk=;
+        s=korg; t=1654625846;
+        bh=fSFadVBx+9nhp9Vuit9XM8ZMa1aU8wtySBYdLPNXlHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dChu9tR9YvUg0HCi9mBz1PQnZyV4ubTVx9AqJRbaTtxUDVSnLsvQyUM8Mmgz20UoV
-         96r6Fq8xNZRKCCdbDs5ljk8QUt8Mme8rqz476eL1IOgzbA+t7ON51CqsbCR4Q8kOdU
-         g6mc4rSn7R2QePEF9cVYIPTpXFMVAt2ulUFgbId4=
+        b=uJ9E9ZVnCeBSIb6hCdExtOtVS5iC5/yDZfGtbfPvK4TKB2mCuAcLUBa1c84hr9+Zz
+         uD545kmlws2NOt0enIwdPGhpjhB1KTeqCVdV5FTUcnvTFKLs+7KE9SV+EfhFDOEeb3
+         N3C+UzT5LBV2mxsJ2wiyMSJqPdGvmS4E4RoT3brg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 199/879] rxrpc: Return an error to sendmsg if call failed
+Subject: [PATCH 5.17 125/772] net: remove two BUG() from skb_checksum_help()
 Date:   Tue,  7 Jun 2022 18:55:17 +0200
-Message-Id: <20220607165008.621633343@linuxfoundation.org>
+Message-Id: <20220607164952.729252642@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 4ba68c5192554876bd8c3afd904e3064d2915341 ]
+[ Upstream commit d7ea0d9df2a6265b2b180d17ebc64b38105968fc ]
 
-If at the end of rxrpc sendmsg() or rxrpc_kernel_send_data() the call that
-was being given data was aborted remotely or otherwise failed, return an
-error rather than returning the amount of data buffered for transmission.
+I have a syzbot report that managed to get a crash in skb_checksum_help()
 
-The call (presumably) did not complete, so there's not much point
-continuing with it.  AF_RXRPC considers it "complete" and so will be
-unwilling to do anything else with it - and won't send a notification for
-it, deeming the return from sendmsg sufficient.
+If syzbot can trigger these BUG(), it makes sense to replace
+them with more friendly WARN_ON_ONCE() since skb_checksum_help()
+can instead return an error code.
 
-Not returning an error causes afs to incorrectly handle a StoreData
-operation that gets interrupted by a change of address due to NAT
-reconfiguration.
+Note that syzbot will still crash there, until real bug is fixed.
 
-This doesn't normally affect most operations since their request parameters
-tend to fit into a single UDP packet and afs_make_call() returns before the
-server responds; StoreData is different as it involves transmission of a
-lot of data.
-
-This can be triggered on a client by doing something like:
-
-	dd if=/dev/zero of=/afs/example.com/foo bs=1M count=512
-
-at one prompt, and then changing the network address at another prompt,
-e.g.:
-
-	ifconfig enp6s0 inet 192.168.6.2 && route add 192.168.6.1 dev enp6s0
-
-Tracing packets on an Auristor fileserver looks something like:
-
-192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
-192.168.6.3 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(64538) (64538)
-192.168.6.1 -> 192.168.6.3  RX 107 ACK Idle  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-<ARP exchange for 192.168.6.2>
-192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
-192.168.6.2 -> 192.168.6.1  AFS (RX) 1482 FS Request: Unknown(0) (0)
-192.168.6.1 -> 192.168.6.2  RX 107 ACK Exceeds Window  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 0  Call: 4  Source Port: 7000  Destination Port: 7001
-192.168.6.1 -> 192.168.6.2  RX 74 ABORT  Seq: 29321  Call: 4  Source Port: 7000  Destination Port: 7001
-
-The Auristor fileserver logs code -453 (RXGEN_SS_UNMARSHAL), but the abort
-code received by kafs is -5 (RX_PROTOCOL_ERROR) as the rx layer sees the
-condition and generates an abort first and the unmarshal error is a
-consequence of that at the application layer.
-
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lists.infradead.org/pipermail/linux-afs/2021-December/004810.html # v1
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sendmsg.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/core/dev.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
-index af8ad6c30b9f..1d38e279e2ef 100644
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -444,6 +444,12 @@ static int rxrpc_send_data(struct rxrpc_sock *rx,
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 5f1ac4812277..f2ce184d7223 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3156,11 +3156,15 @@ int skb_checksum_help(struct sk_buff *skb)
+ 	}
  
- success:
- 	ret = copied;
-+	if (READ_ONCE(call->state) == RXRPC_CALL_COMPLETE) {
-+		read_lock_bh(&call->state_lock);
-+		if (call->error < 0)
-+			ret = call->error;
-+		read_unlock_bh(&call->state_lock);
-+	}
- out:
- 	call->tx_pending = skb;
- 	_leave(" = %d", ret);
+ 	offset = skb_checksum_start_offset(skb);
+-	BUG_ON(offset >= skb_headlen(skb));
++	ret = -EINVAL;
++	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
++		goto out;
++
+ 	csum = skb_checksum(skb, offset, skb->len - offset, 0);
+ 
+ 	offset += skb->csum_offset;
+-	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
++	if (WARN_ON_ONCE(offset + sizeof(__sum16) > skb_headlen(skb)))
++		goto out;
+ 
+ 	ret = skb_ensure_writable(skb, offset + sizeof(__sum16));
+ 	if (ret)
 -- 
 2.35.1
 
