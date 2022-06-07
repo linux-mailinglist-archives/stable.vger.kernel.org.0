@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B272F541B8E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:49:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AAF540667
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382032AbiFGVtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:49:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
+        id S1347333AbiFGRez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381444AbiFGVsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:48:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF40239099;
-        Tue,  7 Jun 2022 12:08:12 -0700 (PDT)
+        with ESMTP id S1346851AbiFGR3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C427911991A;
+        Tue,  7 Jun 2022 10:25:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66965617DA;
-        Tue,  7 Jun 2022 19:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 777DAC385A2;
-        Tue,  7 Jun 2022 19:08:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79CF9B8220B;
+        Tue,  7 Jun 2022 17:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1EE5C385A5;
+        Tue,  7 Jun 2022 17:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628890;
-        bh=7gLmPXzMhNy7D2VimkqVQcs4oFEM8KSRbDToOpCrFlw=;
+        s=korg; t=1654622706;
+        bh=nlbDq5Qtba23p9Q/PwoqIirCVA439fgQBmugmYl66yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6LAoqZy4UdzmE6fa9NbIkk/cQ1oBrhk2023b8W6wn44m/JhzGOCoVMi8bnwIQv2M
-         SncGcolC8XnX68/t1qRKCp1LuJm1lznpXO5cLccFPhPSceaYC122ZJdHdDIWsu1qPu
-         Zi/JFMMbjd/KNL5gOKSizLCAbGyXyrAf8FweiuGE=
+        b=iVixPQchs/9ACJpZlfS69pswCDhUbevBY6tD1vWJP7SDbnsHBZzRvLtEY4/hS+X/J
+         JeFvKZBdF9ItHSlOX4uPzsN8T+4ps6hWzMFCgobHYXQlOapje1b9g2Ghbmsy+gZEYv
+         s1auFR6DceUmZHSgpYXYPrKSeIDTkNE80lz3Min0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 492/879] thermal/drivers/broadcom: Fix potential NULL dereference in sr_thermal_probe
+Subject: [PATCH 5.10 153/452] spi: img-spfi: Fix pm_runtime_get_sync() error checking
 Date:   Tue,  7 Jun 2022 19:00:10 +0200
-Message-Id: <20220607165017.152295215@linuxfoundation.org>
+Message-Id: <20220607164913.118230890@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +56,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit e20d136ec7d6f309989c447638365840d3424c8e ]
+[ Upstream commit cc470d55343056d6b2a5c32e10e0aad06f324078 ]
 
-platform_get_resource() may return NULL, add proper check to
-avoid potential NULL dereferencing.
+If the device is already in a runtime PM enabled state
+pm_runtime_get_sync() will return 1, so a test for negative
+value should be used to check for errors.
 
-Fixes: 250e211057c72 ("thermal: broadcom: Add Stingray thermal driver")
+Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
 Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220425092929.90412-1-zhengyongjun3@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20220422062641.10486-1-zhengyongjun3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/broadcom/sr-thermal.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi-img-spfi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/broadcom/sr-thermal.c b/drivers/thermal/broadcom/sr-thermal.c
-index 475ce2900771..85ab9edd580c 100644
---- a/drivers/thermal/broadcom/sr-thermal.c
-+++ b/drivers/thermal/broadcom/sr-thermal.c
-@@ -60,6 +60,9 @@ static int sr_thermal_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index 5f05d519fbbd..71376b6df89d 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -731,7 +731,7 @@ static int img_spfi_resume(struct device *dev)
+ 	int ret;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -ENOENT;
-+
- 	sr_thermal->regs = (void __iomem *)devm_memremap(&pdev->dev, res->start,
- 							 resource_size(res),
- 							 MEMREMAP_WB);
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret) {
++	if (ret < 0) {
+ 		pm_runtime_put_noidle(dev);
+ 		return ret;
+ 	}
 -- 
 2.35.1
 
