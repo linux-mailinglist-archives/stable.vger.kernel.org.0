@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8163540943
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 641EE541276
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349015AbiFGSGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55830 "EHLO
+        id S1357114AbiFGTq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351090AbiFGSBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF79A12DBF9;
-        Tue,  7 Jun 2022 10:43:58 -0700 (PDT)
+        with ESMTP id S1356761AbiFGTn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:43:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5E155481;
+        Tue,  7 Jun 2022 11:18:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 657B7616A1;
-        Tue,  7 Jun 2022 17:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A199C34115;
-        Tue,  7 Jun 2022 17:43:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 052D2B82368;
+        Tue,  7 Jun 2022 18:18:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6681AC385A2;
+        Tue,  7 Jun 2022 18:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623837;
-        bh=7rf3wff4WcrLDRT3DeHISJlEfMduB3IFzlJexm4+A7w=;
+        s=korg; t=1654625895;
+        bh=y+ZCPCbodZGnjXfv4nC2fCqOJ8w4vtn6X4gFvwYmG9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YntV0EggwPTipjRI/fTgwIOK3cAEv7G9ud3C1gFpVFLsqFUIKAHv2HS0qGeQn3OFy
-         yEL84XGRlaAAsHQT1p9fzvF7cgCLDWAqb4P8XBEa9UVGdva5Z8MaDPH6PkDH/YIdZA
-         ylsnzPPgjQtWrQs+RGXPv+XNwBq3/VD0zvjwKG7k=
+        b=jI8g1nxPHMJR90pw435ixAUCvkVI5ZkfBZ3s34ykLO5XM9Itt+W1pt0199VpTsnLx
+         ZERZ8cARq41Eoxt9/cKzaAOY6M2YSenYrC2QGr3GHWFx8je7MBvMIZmLfEZJwlqzP3
+         oqj1xXASa7TDUmg+Sq3MwYl3+0VhXyuddyRHSbuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/667] ACPI: PM: Block ASUS B1400CEAE from suspend to idle by default
+Subject: [PATCH 5.17 183/772] PCI/ASPM: Make Intel DG2 L1 acceptable latency unlimited
 Date:   Tue,  7 Jun 2022 18:56:15 +0200
-Message-Id: <20220607164938.120317067@linuxfoundation.org>
+Message-Id: <20220607164954.430656674@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +56,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit d52848620de00cde4a3a5df908e231b8c8868250 ]
+[ Upstream commit 03038d84ace72678a9944524508f218a00377dc0 ]
 
-ASUS B1400CEAE fails to resume from suspend to idle by default.  This was
-bisected back to commit df4f9bc4fb9c ("nvme-pci: add support for ACPI
-StorageD3Enable property") but this is a red herring to the problem.
+Intel DG2 discrete graphics PCIe endpoints advertise L1 acceptable exit
+latency to be < 1us even though they can actually tolerate unlimited exit
+latencies just fine. Quirk the L1 acceptable exit latency for these
+endpoints to be unlimited so ASPM L1 can be enabled.
 
-Before this commit the system wasn't getting into deepest sleep state.
-Presumably this commit is allowing entry into deepest sleep state as
-advertised by firmware, but there are some other problems related to
-the wakeup.
-
-As it is confirmed the system works properly with S3, set the default for
-this system to S3.
-
-Reported-by: Jian-Hong Pan <jhp@endlessos.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215742
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Tested-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[bhelgaas: use FIELD_GET/FIELD_PREP, wordsmith comment & commit log]
+Link: https://lore.kernel.org/r/20220405093810.76613-1-mika.westerberg@linux.intel.com
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/pci/quirks.c | 47 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 7ae09e4b4592..07515139141e 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -374,6 +374,18 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "20GGA00L00"),
- 		},
- 	},
-+	/*
-+	 * ASUS B1400CEAE hangs on resume from suspend (see
-+	 * https://bugzilla.kernel.org/show_bug.cgi?id=215742).
-+	 */
-+	{
-+	.callback = init_default_s3,
-+	.ident = "ASUS B1400CEAE",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "ASUS EXPERTBOOK B1400CEAE"),
-+		},
-+	},
- 	{},
- };
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index da829274fc66..41aeaa235132 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -12,6 +12,7 @@
+  * file, where their drivers can use them.
+  */
  
++#include <linux/bitfield.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/export.h>
+@@ -5895,3 +5896,49 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1533, rom_bar_overlap_defect);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1536, rom_bar_overlap_defect);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1537, rom_bar_overlap_defect);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1538, rom_bar_overlap_defect);
++
++#ifdef CONFIG_PCIEASPM
++/*
++ * Several Intel DG2 graphics devices advertise that they can only tolerate
++ * 1us latency when transitioning from L1 to L0, which may prevent ASPM L1
++ * from being enabled.  But in fact these devices can tolerate unlimited
++ * latency.  Override their Device Capabilities value to allow ASPM L1 to
++ * be enabled.
++ */
++static void aspm_l1_acceptable_latency(struct pci_dev *dev)
++{
++	u32 l1_lat = FIELD_GET(PCI_EXP_DEVCAP_L1, dev->devcap);
++
++	if (l1_lat < 7) {
++		dev->devcap |= FIELD_PREP(PCI_EXP_DEVCAP_L1, 7);
++		pci_info(dev, "ASPM: overriding L1 acceptable latency from %#x to 0x7\n",
++			 l1_lat);
++	}
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f80, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f81, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f82, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f83, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f84, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f85, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f86, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f87, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x4f88, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x5690, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x5691, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x5692, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x5693, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x5694, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x5695, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a0, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a1, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a2, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a3, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a4, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a5, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56a6, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56b0, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56b1, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56c0, aspm_l1_acceptable_latency);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x56c1, aspm_l1_acceptable_latency);
++#endif
 -- 
 2.35.1
 
