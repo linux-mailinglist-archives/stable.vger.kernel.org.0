@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D78EF540DC5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C088540EAC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354025AbiFGSuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:50:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
+        id S1354205AbiFGSzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:55:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354399AbiFGSq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F5231525;
-        Tue,  7 Jun 2022 11:01:04 -0700 (PDT)
+        with ESMTP id S1354674AbiFGSvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:51:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76414131F27;
+        Tue,  7 Jun 2022 11:03:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA7BBB82182;
-        Tue,  7 Jun 2022 18:01:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F4DC34115;
-        Tue,  7 Jun 2022 18:01:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C85D0618DF;
+        Tue,  7 Jun 2022 18:03:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE815C34119;
+        Tue,  7 Jun 2022 18:03:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624861;
-        bh=qnJP0T1+bmEA74l/tgyI47/F2KVHUGm3HiAnzF8iaI0=;
+        s=korg; t=1654625000;
+        bh=NHy+/XP++RdtIbgYs+G1uHXuHfuMlEz0C85FJRuWTQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/IYkSfjl4npnTWCci2oMpjeisycSum5mpoCs3pLsuThVXFt4rQVyVYcHA/1bCYJC
-         KTIZX63gmQvYp98hhp+LURYeaKZh3pBwEK3dArhStU1Ax1MZPANRpW+9rTdRJLHihL
-         AfuMHiBYXuXsefSmDKo3V3fay1xaluuOsNpkZFSs=
+        b=Dm0E22r8w0ayOEtzwH8XNW2x9L29IwwqYr5gz60E09qfxm43PlMahhmqUn5dm7PbS
+         TpHQBTM/hpRfWPzzKgeLSgVCts3Wvj5oRQ7vzIAoXQ8fSqlB1/+cZNIEKI3IMXqhZ5
+         JF+DVIosser91bX4U5FRc3m5OHV7CmHqWmfSyNAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 478/667] f2fs: fix to do sanity check on inline_dots inode
-Date:   Tue,  7 Jun 2022 19:02:23 +0200
-Message-Id: <20220607164949.037518863@linuxfoundation.org>
+Subject: [PATCH 5.15 479/667] f2fs: fix dereference of stale list iterator after loop body
+Date:   Tue,  7 Jun 2022 19:02:24 +0200
+Message-Id: <20220607164949.066965400@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -54,71 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-[ Upstream commit 12662d19467b391b5b509ac5e9ab4f583c6dde16 ]
+[ Upstream commit 2aaf51dd39afb6d01d13f1e6fe20b684733b37d5 ]
 
-As Wenqing reported in bugzilla:
+The list iterator variable will be a bogus pointer if no break was hit.
+Dereferencing it (cur->page in this case) could load an out-of-bounds/undefined
+value making it unsafe to use that in the comparision to determine if the
+specific element was found.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215765
+Since 'cur->page' *can* be out-ouf-bounds it cannot be guaranteed that
+by chance (or intention of an attacker) it matches the value of 'page'
+even though the correct element was not found.
 
-It will cause a kernel panic with steps:
-- mkdir mnt
-- mount tmp40.img mnt
-- ls mnt
+This is fixed by using a separate list iterator variable for the loop
+and only setting the original variable if a suitable element was found.
+Then determing if the element was found is simply checking if the
+variable is set.
 
-folio_mark_dirty+0x33/0x50
-f2fs_add_regular_entry+0x541/0xad0 [f2fs]
-f2fs_add_dentry+0x6c/0xb0 [f2fs]
-f2fs_do_add_link+0x182/0x230 [f2fs]
-__recover_dot_dentries+0x2d6/0x470 [f2fs]
-f2fs_lookup+0x5af/0x6a0 [f2fs]
-__lookup_slow+0xac/0x200
-lookup_slow+0x45/0x70
-walk_component+0x16c/0x250
-path_lookupat+0x8b/0x1f0
-filename_lookup+0xef/0x250
-user_path_at_empty+0x46/0x70
-vfs_statx+0x98/0x190
-__do_sys_newlstat+0x41/0x90
-__x64_sys_newlstat+0x1a/0x30
-do_syscall_64+0x37/0xb0
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is for special file: e.g. character, block, fifo or
-socket file, f2fs doesn't assign address space operations pointer array
-for mapping->a_ops field, so, in a fuzzed image, if inline_dots flag was
-tagged in special file, during lookup(), when f2fs runs into
-__recover_dot_dentries(), it will cause NULL pointer access once
-f2fs_add_regular_entry() calls a_ops->set_dirty_page().
-
-Fixes: 510022a85839 ("f2fs: add F2FS_INLINE_DOTS to recover missing dot dentries")
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Fixes: 8c242db9b8c0 ("f2fs: fix stale ATOMIC_WRITTEN_PAGE private pointer")
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/f2fs/segment.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index a728a0af9ce0..e4b25ef871b3 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -460,6 +460,13 @@ static int __recover_dot_dentries(struct inode *dir, nid_t pino)
- 		return 0;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 338a57360bb8..61ef640ee256 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -356,16 +356,19 @@ void f2fs_drop_inmem_page(struct inode *inode, struct page *page)
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct list_head *head = &fi->inmem_pages;
+ 	struct inmem_pages *cur = NULL;
++	struct inmem_pages *tmp;
+ 
+ 	f2fs_bug_on(sbi, !page_private_atomic(page));
+ 
+ 	mutex_lock(&fi->inmem_lock);
+-	list_for_each_entry(cur, head, list) {
+-		if (cur->page == page)
++	list_for_each_entry(tmp, head, list) {
++		if (tmp->page == page) {
++			cur = tmp;
+ 			break;
++		}
  	}
  
-+	if (!S_ISDIR(dir->i_mode)) {
-+		f2fs_err(sbi, "inconsistent inode status, skip recovering inline_dots inode (ino:%lu, i_mode:%u, pino:%u)",
-+			  dir->i_ino, dir->i_mode, pino);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return -ENOTDIR;
-+	}
-+
- 	err = f2fs_dquot_initialize(dir);
- 	if (err)
- 		return err;
+-	f2fs_bug_on(sbi, list_empty(head) || cur->page != page);
++	f2fs_bug_on(sbi, !cur);
+ 	list_del(&cur->list);
+ 	mutex_unlock(&fi->inmem_lock);
+ 
 -- 
 2.35.1
 
