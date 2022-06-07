@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3DB5419DF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3405412E0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378083AbiFGVYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:24:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59562 "EHLO
+        id S1354044AbiFGTyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378986AbiFGVXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED11B226CC0;
-        Tue,  7 Jun 2022 12:00:26 -0700 (PDT)
+        with ESMTP id S1358597AbiFGTwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC9D62F3AD;
+        Tue,  7 Jun 2022 11:21:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2632B8220B;
-        Tue,  7 Jun 2022 19:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45CBFC34115;
-        Tue,  7 Jun 2022 19:00:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4007460DB7;
+        Tue,  7 Jun 2022 18:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E678C385A2;
+        Tue,  7 Jun 2022 18:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628423;
-        bh=55Pv1a69GS27xPvOkd44SD6amUA6Uqaakr6UPNTMQzQ=;
+        s=korg; t=1654626079;
+        bh=Fip7iQDSr+SZ/arPL1+2akkIFJzGJcippf1XA2GNJk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1Eza19EULQPx1M1N6ES7ZDCePfDHyRWWanY63kBK0vNC6wveLOWdi50NCt42uffd
-         LIE7n8CiVl5XYl/vOx2nVp7eVfiuJt8AGR+OZwbfnbdROQHlKCdfzIFf1TrcoDAo/h
-         wRxc1qGYIkr1nKwT46gi8Mz+RB/OpfAXoUSfHKrE=
+        b=kMr97/m4GKc90SLQaQ7TeGSEXlDrRmHyDuocfFsU5hgM98i7crrzHdAT6ygCBR49q
+         qBmLbgggdBa/LMy9FOP6BM58xo0VH6ujLjvdc3mYsir8WMNkHCgXFFTWKnGAwK4MD9
+         336+qFjk4+KOqFY/MUGrBku01nF7JhWbIiNjbzjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 322/879] bpf: Move rcu lock management out of BPF_PROG_RUN routines
+Subject: [PATCH 5.17 248/772] drm/vc4: hvs: Reset muxes at probe time
 Date:   Tue,  7 Jun 2022 18:57:20 +0200
-Message-Id: <20220607165012.199818110@linuxfoundation.org>
+Message-Id: <20220607164956.335636084@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,439 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 055eb95533273bc334794dbc598400d10800528f ]
+[ Upstream commit 8514e6b1f40319e31ac4aa3fbf606796786366c9 ]
 
-Commit 7d08c2c91171 ("bpf: Refactor BPF_PROG_RUN_ARRAY family of macros
-into functions") switched a bunch of BPF_PROG_RUN macros to inline
-routines. This changed the semantic a bit. Due to arguments expansion
-of macros, it used to be:
+By default, the HVS driver will force the HVS output 3 to be muxed to
+the HVS channel 2. However, the Transposer can only be assigned to the
+HVS channel 2, so whenever we try to use the writeback connector, we'll
+mux its associated output (Output 2) to the channel 2.
 
-	rcu_read_lock();
-	array = rcu_dereference(cgrp->bpf.effective[atype]);
-	...
+This leads to both the output 2 and 3 feeding from the same channel,
+which is explicitly discouraged in the documentation.
 
-Now, with with inline routines, we have:
-	array_rcu = rcu_dereference(cgrp->bpf.effective[atype]);
-	/* array_rcu can be kfree'd here */
-	rcu_read_lock();
-	array = rcu_dereference(array_rcu);
+In order to avoid this, let's reset all the output muxes to their reset
+value.
 
-I'm assuming in practice rcu subsystem isn't fast enough to trigger
-this but let's use rcu API properly.
-
-Also, rename to lower caps to not confuse with macros. Additionally,
-drop and expand BPF_PROG_CGROUP_INET_EGRESS_RUN_ARRAY.
-
-See [1] for more context.
-
-  [1] https://lore.kernel.org/bpf/CAKH8qBs60fOinFdxiiQikK_q0EcVxGvNTQoWvHLEUGbgcj1UYg@mail.gmail.com/T/#u
-
-v2
-- keep rcu locks inside by passing cgroup_bpf
-
-Fixes: 7d08c2c91171 ("bpf: Refactor BPF_PROG_RUN_ARRAY family of macros into functions")
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220414161233.170780-1-sdf@google.com
+Fixes: 87ebcd42fb7b ("drm/vc4: crtc: Assign output to channel automatically")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20220328153659.2382206-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/bpf-lirc.c |   8 ++-
- include/linux/bpf.h         | 115 ++-------------------------------
- kernel/bpf/cgroup.c         | 124 +++++++++++++++++++++++++++++++-----
- kernel/trace/bpf_trace.c    |   5 +-
- 4 files changed, 124 insertions(+), 128 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hvs.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/rc/bpf-lirc.c b/drivers/media/rc/bpf-lirc.c
-index 3eff08d7b8e5..fe17c7f98e81 100644
---- a/drivers/media/rc/bpf-lirc.c
-+++ b/drivers/media/rc/bpf-lirc.c
-@@ -216,8 +216,12 @@ void lirc_bpf_run(struct rc_dev *rcdev, u32 sample)
+diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
+index c8cae10500b9..9d88bfb50c9b 100644
+--- a/drivers/gpu/drm/vc4/vc4_hvs.c
++++ b/drivers/gpu/drm/vc4/vc4_hvs.c
+@@ -605,6 +605,7 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
+ 	struct vc4_hvs *hvs = NULL;
+ 	int ret;
+ 	u32 dispctrl;
++	u32 reg;
  
- 	raw->bpf_sample = sample;
+ 	hvs = devm_kzalloc(&pdev->dev, sizeof(*hvs), GFP_KERNEL);
+ 	if (!hvs)
+@@ -676,6 +677,26 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
  
--	if (raw->progs)
--		BPF_PROG_RUN_ARRAY(raw->progs, &raw->bpf_sample, bpf_prog_run);
-+	if (raw->progs) {
-+		rcu_read_lock();
-+		bpf_prog_run_array(rcu_dereference(raw->progs),
-+				   &raw->bpf_sample, bpf_prog_run);
-+		rcu_read_unlock();
-+	}
- }
+ 	vc4->hvs = hvs;
  
- /*
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index f084b251fce7..67efaa38c33f 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1221,7 +1221,7 @@ u64 bpf_event_output(struct bpf_map *map, u64 flags, void *meta, u64 meta_size,
- /* an array of programs to be executed under rcu_lock.
-  *
-  * Typical usage:
-- * ret = BPF_PROG_RUN_ARRAY(&bpf_prog_array, ctx, bpf_prog_run);
-+ * ret = bpf_prog_run_array(rcu_dereference(&bpf_prog_array), ctx, bpf_prog_run);
-  *
-  * the structure returned by bpf_prog_array_alloc() should be populated
-  * with program pointers and the last pointer must be NULL.
-@@ -1315,83 +1315,22 @@ static inline void bpf_reset_run_ctx(struct bpf_run_ctx *old_ctx)
- 
- typedef u32 (*bpf_prog_run_fn)(const struct bpf_prog *prog, const void *ctx);
- 
--static __always_inline int
--BPF_PROG_RUN_ARRAY_CG_FLAGS(const struct bpf_prog_array __rcu *array_rcu,
--			    const void *ctx, bpf_prog_run_fn run_prog,
--			    int retval, u32 *ret_flags)
--{
--	const struct bpf_prog_array_item *item;
--	const struct bpf_prog *prog;
--	const struct bpf_prog_array *array;
--	struct bpf_run_ctx *old_run_ctx;
--	struct bpf_cg_run_ctx run_ctx;
--	u32 func_ret;
--
--	run_ctx.retval = retval;
--	migrate_disable();
--	rcu_read_lock();
--	array = rcu_dereference(array_rcu);
--	item = &array->items[0];
--	old_run_ctx = bpf_set_run_ctx(&run_ctx.run_ctx);
--	while ((prog = READ_ONCE(item->prog))) {
--		run_ctx.prog_item = item;
--		func_ret = run_prog(prog, ctx);
--		if (!(func_ret & 1) && !IS_ERR_VALUE((long)run_ctx.retval))
--			run_ctx.retval = -EPERM;
--		*(ret_flags) |= (func_ret >> 1);
--		item++;
--	}
--	bpf_reset_run_ctx(old_run_ctx);
--	rcu_read_unlock();
--	migrate_enable();
--	return run_ctx.retval;
--}
--
--static __always_inline int
--BPF_PROG_RUN_ARRAY_CG(const struct bpf_prog_array __rcu *array_rcu,
--		      const void *ctx, bpf_prog_run_fn run_prog,
--		      int retval)
--{
--	const struct bpf_prog_array_item *item;
--	const struct bpf_prog *prog;
--	const struct bpf_prog_array *array;
--	struct bpf_run_ctx *old_run_ctx;
--	struct bpf_cg_run_ctx run_ctx;
--
--	run_ctx.retval = retval;
--	migrate_disable();
--	rcu_read_lock();
--	array = rcu_dereference(array_rcu);
--	item = &array->items[0];
--	old_run_ctx = bpf_set_run_ctx(&run_ctx.run_ctx);
--	while ((prog = READ_ONCE(item->prog))) {
--		run_ctx.prog_item = item;
--		if (!run_prog(prog, ctx) && !IS_ERR_VALUE((long)run_ctx.retval))
--			run_ctx.retval = -EPERM;
--		item++;
--	}
--	bpf_reset_run_ctx(old_run_ctx);
--	rcu_read_unlock();
--	migrate_enable();
--	return run_ctx.retval;
--}
--
- static __always_inline u32
--BPF_PROG_RUN_ARRAY(const struct bpf_prog_array __rcu *array_rcu,
-+bpf_prog_run_array(const struct bpf_prog_array *array,
- 		   const void *ctx, bpf_prog_run_fn run_prog)
- {
- 	const struct bpf_prog_array_item *item;
- 	const struct bpf_prog *prog;
--	const struct bpf_prog_array *array;
- 	struct bpf_run_ctx *old_run_ctx;
- 	struct bpf_trace_run_ctx run_ctx;
- 	u32 ret = 1;
- 
--	migrate_disable();
--	rcu_read_lock();
--	array = rcu_dereference(array_rcu);
-+	RCU_LOCKDEP_WARN(!rcu_read_lock_held(), "no rcu lock held");
++	reg = HVS_READ(SCALER_DISPECTRL);
++	reg &= ~SCALER_DISPECTRL_DSP2_MUX_MASK;
++	HVS_WRITE(SCALER_DISPECTRL,
++		  reg | VC4_SET_FIELD(0, SCALER_DISPECTRL_DSP2_MUX));
 +
- 	if (unlikely(!array))
--		goto out;
-+		return ret;
++	reg = HVS_READ(SCALER_DISPCTRL);
++	reg &= ~SCALER_DISPCTRL_DSP3_MUX_MASK;
++	HVS_WRITE(SCALER_DISPCTRL,
++		  reg | VC4_SET_FIELD(3, SCALER_DISPCTRL_DSP3_MUX));
 +
-+	migrate_disable();
- 	old_run_ctx = bpf_set_run_ctx(&run_ctx.run_ctx);
- 	item = &array->items[0];
- 	while ((prog = READ_ONCE(item->prog))) {
-@@ -1400,50 +1339,10 @@ BPF_PROG_RUN_ARRAY(const struct bpf_prog_array __rcu *array_rcu,
- 		item++;
- 	}
- 	bpf_reset_run_ctx(old_run_ctx);
--out:
--	rcu_read_unlock();
- 	migrate_enable();
- 	return ret;
- }
- 
--/* To be used by __cgroup_bpf_run_filter_skb for EGRESS BPF progs
-- * so BPF programs can request cwr for TCP packets.
-- *
-- * Current cgroup skb programs can only return 0 or 1 (0 to drop the
-- * packet. This macro changes the behavior so the low order bit
-- * indicates whether the packet should be dropped (0) or not (1)
-- * and the next bit is a congestion notification bit. This could be
-- * used by TCP to call tcp_enter_cwr()
-- *
-- * Hence, new allowed return values of CGROUP EGRESS BPF programs are:
-- *   0: drop packet
-- *   1: keep packet
-- *   2: drop packet and cn
-- *   3: keep packet and cn
-- *
-- * This macro then converts it to one of the NET_XMIT or an error
-- * code that is then interpreted as drop packet (and no cn):
-- *   0: NET_XMIT_SUCCESS  skb should be transmitted
-- *   1: NET_XMIT_DROP     skb should be dropped and cn
-- *   2: NET_XMIT_CN       skb should be transmitted and cn
-- *   3: -err              skb should be dropped
-- */
--#define BPF_PROG_CGROUP_INET_EGRESS_RUN_ARRAY(array, ctx, func)		\
--	({						\
--		u32 _flags = 0;				\
--		bool _cn;				\
--		u32 _ret;				\
--		_ret = BPF_PROG_RUN_ARRAY_CG_FLAGS(array, ctx, func, 0, &_flags); \
--		_cn = _flags & BPF_RET_SET_CN;		\
--		if (_ret && !IS_ERR_VALUE((long)_ret))	\
--			_ret = -EFAULT;			\
--		if (!_ret)				\
--			_ret = (_cn ? NET_XMIT_CN : NET_XMIT_SUCCESS);	\
--		else					\
--			_ret = (_cn ? NET_XMIT_DROP : _ret);		\
--		_ret;					\
--	})
--
- #ifdef CONFIG_BPF_SYSCALL
- DECLARE_PER_CPU(int, bpf_prog_active);
- extern struct mutex bpf_stats_enabled_mutex;
-diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
-index 128028efda64..0cb6211fcb58 100644
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -22,6 +22,72 @@
- DEFINE_STATIC_KEY_ARRAY_FALSE(cgroup_bpf_enabled_key, MAX_CGROUP_BPF_ATTACH_TYPE);
- EXPORT_SYMBOL(cgroup_bpf_enabled_key);
- 
-+/* __always_inline is necessary to prevent indirect call through run_prog
-+ * function pointer.
-+ */
-+static __always_inline int
-+bpf_prog_run_array_cg_flags(const struct cgroup_bpf *cgrp,
-+			    enum cgroup_bpf_attach_type atype,
-+			    const void *ctx, bpf_prog_run_fn run_prog,
-+			    int retval, u32 *ret_flags)
-+{
-+	const struct bpf_prog_array_item *item;
-+	const struct bpf_prog *prog;
-+	const struct bpf_prog_array *array;
-+	struct bpf_run_ctx *old_run_ctx;
-+	struct bpf_cg_run_ctx run_ctx;
-+	u32 func_ret;
++	reg = HVS_READ(SCALER_DISPEOLN);
++	reg &= ~SCALER_DISPEOLN_DSP4_MUX_MASK;
++	HVS_WRITE(SCALER_DISPEOLN,
++		  reg | VC4_SET_FIELD(3, SCALER_DISPEOLN_DSP4_MUX));
 +
-+	run_ctx.retval = retval;
-+	migrate_disable();
-+	rcu_read_lock();
-+	array = rcu_dereference(cgrp->effective[atype]);
-+	item = &array->items[0];
-+	old_run_ctx = bpf_set_run_ctx(&run_ctx.run_ctx);
-+	while ((prog = READ_ONCE(item->prog))) {
-+		run_ctx.prog_item = item;
-+		func_ret = run_prog(prog, ctx);
-+		if (!(func_ret & 1) && !IS_ERR_VALUE((long)run_ctx.retval))
-+			run_ctx.retval = -EPERM;
-+		*(ret_flags) |= (func_ret >> 1);
-+		item++;
-+	}
-+	bpf_reset_run_ctx(old_run_ctx);
-+	rcu_read_unlock();
-+	migrate_enable();
-+	return run_ctx.retval;
-+}
++	reg = HVS_READ(SCALER_DISPDITHER);
++	reg &= ~SCALER_DISPDITHER_DSP5_MUX_MASK;
++	HVS_WRITE(SCALER_DISPDITHER,
++		  reg | VC4_SET_FIELD(3, SCALER_DISPDITHER_DSP5_MUX));
 +
-+static __always_inline int
-+bpf_prog_run_array_cg(const struct cgroup_bpf *cgrp,
-+		      enum cgroup_bpf_attach_type atype,
-+		      const void *ctx, bpf_prog_run_fn run_prog,
-+		      int retval)
-+{
-+	const struct bpf_prog_array_item *item;
-+	const struct bpf_prog *prog;
-+	const struct bpf_prog_array *array;
-+	struct bpf_run_ctx *old_run_ctx;
-+	struct bpf_cg_run_ctx run_ctx;
-+
-+	run_ctx.retval = retval;
-+	migrate_disable();
-+	rcu_read_lock();
-+	array = rcu_dereference(cgrp->effective[atype]);
-+	item = &array->items[0];
-+	old_run_ctx = bpf_set_run_ctx(&run_ctx.run_ctx);
-+	while ((prog = READ_ONCE(item->prog))) {
-+		run_ctx.prog_item = item;
-+		if (!run_prog(prog, ctx) && !IS_ERR_VALUE((long)run_ctx.retval))
-+			run_ctx.retval = -EPERM;
-+		item++;
-+	}
-+	bpf_reset_run_ctx(old_run_ctx);
-+	rcu_read_unlock();
-+	migrate_enable();
-+	return run_ctx.retval;
-+}
-+
- void cgroup_bpf_offline(struct cgroup *cgrp)
- {
- 	cgroup_get(cgrp);
-@@ -1075,11 +1141,38 @@ int __cgroup_bpf_run_filter_skb(struct sock *sk,
- 	bpf_compute_and_save_data_end(skb, &saved_data_end);
+ 	dispctrl = HVS_READ(SCALER_DISPCTRL);
  
- 	if (atype == CGROUP_INET_EGRESS) {
--		ret = BPF_PROG_CGROUP_INET_EGRESS_RUN_ARRAY(
--			cgrp->bpf.effective[atype], skb, __bpf_prog_run_save_cb);
-+		u32 flags = 0;
-+		bool cn;
-+
-+		ret = bpf_prog_run_array_cg_flags(
-+			&cgrp->bpf, atype,
-+			skb, __bpf_prog_run_save_cb, 0, &flags);
-+
-+		/* Return values of CGROUP EGRESS BPF programs are:
-+		 *   0: drop packet
-+		 *   1: keep packet
-+		 *   2: drop packet and cn
-+		 *   3: keep packet and cn
-+		 *
-+		 * The returned value is then converted to one of the NET_XMIT
-+		 * or an error code that is then interpreted as drop packet
-+		 * (and no cn):
-+		 *   0: NET_XMIT_SUCCESS  skb should be transmitted
-+		 *   1: NET_XMIT_DROP     skb should be dropped and cn
-+		 *   2: NET_XMIT_CN       skb should be transmitted and cn
-+		 *   3: -err              skb should be dropped
-+		 */
-+
-+		cn = flags & BPF_RET_SET_CN;
-+		if (ret && !IS_ERR_VALUE((long)ret))
-+			ret = -EFAULT;
-+		if (!ret)
-+			ret = (cn ? NET_XMIT_CN : NET_XMIT_SUCCESS);
-+		else
-+			ret = (cn ? NET_XMIT_DROP : ret);
- 	} else {
--		ret = BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[atype], skb,
--					    __bpf_prog_run_save_cb, 0);
-+		ret = bpf_prog_run_array_cg(&cgrp->bpf, atype,
-+					    skb, __bpf_prog_run_save_cb, 0);
- 		if (ret && !IS_ERR_VALUE((long)ret))
- 			ret = -EFAULT;
- 	}
-@@ -1109,8 +1202,7 @@ int __cgroup_bpf_run_filter_sk(struct sock *sk,
- {
- 	struct cgroup *cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
+ 	dispctrl |= SCALER_DISPCTRL_ENABLE;
+@@ -683,10 +704,6 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
+ 		    SCALER_DISPCTRL_DISPEIRQ(1) |
+ 		    SCALER_DISPCTRL_DISPEIRQ(2);
  
--	return BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[atype], sk,
--				     bpf_prog_run, 0);
-+	return bpf_prog_run_array_cg(&cgrp->bpf, atype, sk, bpf_prog_run, 0);
- }
- EXPORT_SYMBOL(__cgroup_bpf_run_filter_sk);
+-	/* Set DSP3 (PV1) to use HVS channel 2, which would otherwise
+-	 * be unused.
+-	 */
+-	dispctrl &= ~SCALER_DISPCTRL_DSP3_MUX_MASK;
+ 	dispctrl &= ~(SCALER_DISPCTRL_DMAEIRQ |
+ 		      SCALER_DISPCTRL_SLVWREIRQ |
+ 		      SCALER_DISPCTRL_SLVRDEIRQ |
+@@ -700,7 +717,6 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
+ 		      SCALER_DISPCTRL_DSPEISLUR(1) |
+ 		      SCALER_DISPCTRL_DSPEISLUR(2) |
+ 		      SCALER_DISPCTRL_SCLEIRQ);
+-	dispctrl |= VC4_SET_FIELD(2, SCALER_DISPCTRL_DSP3_MUX);
  
-@@ -1155,8 +1247,8 @@ int __cgroup_bpf_run_filter_sock_addr(struct sock *sk,
- 	}
+ 	HVS_WRITE(SCALER_DISPCTRL, dispctrl);
  
- 	cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
--	return BPF_PROG_RUN_ARRAY_CG_FLAGS(cgrp->bpf.effective[atype], &ctx,
--					   bpf_prog_run, 0, flags);
-+	return bpf_prog_run_array_cg_flags(&cgrp->bpf, atype,
-+					   &ctx, bpf_prog_run, 0, flags);
- }
- EXPORT_SYMBOL(__cgroup_bpf_run_filter_sock_addr);
- 
-@@ -1182,8 +1274,8 @@ int __cgroup_bpf_run_filter_sock_ops(struct sock *sk,
- {
- 	struct cgroup *cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
- 
--	return BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[atype], sock_ops,
--				     bpf_prog_run, 0);
-+	return bpf_prog_run_array_cg(&cgrp->bpf, atype, sock_ops, bpf_prog_run,
-+				     0);
- }
- EXPORT_SYMBOL(__cgroup_bpf_run_filter_sock_ops);
- 
-@@ -1200,8 +1292,7 @@ int __cgroup_bpf_check_dev_permission(short dev_type, u32 major, u32 minor,
- 
- 	rcu_read_lock();
- 	cgrp = task_dfl_cgroup(current);
--	ret = BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[atype], &ctx,
--				    bpf_prog_run, 0);
-+	ret = bpf_prog_run_array_cg(&cgrp->bpf, atype, &ctx, bpf_prog_run, 0);
- 	rcu_read_unlock();
- 
- 	return ret;
-@@ -1366,8 +1457,7 @@ int __cgroup_bpf_run_filter_sysctl(struct ctl_table_header *head,
- 
- 	rcu_read_lock();
- 	cgrp = task_dfl_cgroup(current);
--	ret = BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[atype], &ctx,
--				    bpf_prog_run, 0);
-+	ret = bpf_prog_run_array_cg(&cgrp->bpf, atype, &ctx, bpf_prog_run, 0);
- 	rcu_read_unlock();
- 
- 	kfree(ctx.cur_val);
-@@ -1459,7 +1549,7 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
- 	}
- 
- 	lock_sock(sk);
--	ret = BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[CGROUP_SETSOCKOPT],
-+	ret = bpf_prog_run_array_cg(&cgrp->bpf, CGROUP_SETSOCKOPT,
- 				    &ctx, bpf_prog_run, 0);
- 	release_sock(sk);
- 
-@@ -1559,7 +1649,7 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
- 	}
- 
- 	lock_sock(sk);
--	ret = BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[CGROUP_GETSOCKOPT],
-+	ret = bpf_prog_run_array_cg(&cgrp->bpf, CGROUP_GETSOCKOPT,
- 				    &ctx, bpf_prog_run, retval);
- 	release_sock(sk);
- 
-@@ -1608,7 +1698,7 @@ int __cgroup_bpf_run_filter_getsockopt_kern(struct sock *sk, int level,
- 	 * be called if that data shouldn't be "exported".
- 	 */
- 
--	ret = BPF_PROG_RUN_ARRAY_CG(cgrp->bpf.effective[CGROUP_GETSOCKOPT],
-+	ret = bpf_prog_run_array_cg(&cgrp->bpf, CGROUP_GETSOCKOPT,
- 				    &ctx, bpf_prog_run, retval);
- 	if (ret < 0)
- 		return ret;
-diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index d8553f46caa2..6b58fc6813df 100644
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -129,7 +129,10 @@ unsigned int trace_call_bpf(struct trace_event_call *call, void *ctx)
- 	 * out of events when it was updated in between this and the
- 	 * rcu_dereference() which is accepted risk.
- 	 */
--	ret = BPF_PROG_RUN_ARRAY(call->prog_array, ctx, bpf_prog_run);
-+	rcu_read_lock();
-+	ret = bpf_prog_run_array(rcu_dereference(call->prog_array),
-+				 ctx, bpf_prog_run);
-+	rcu_read_unlock();
- 
-  out:
- 	__this_cpu_dec(bpf_prog_active);
 -- 
 2.35.1
 
