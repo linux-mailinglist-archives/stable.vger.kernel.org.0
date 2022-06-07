@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E96540703
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E865415B8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347525AbiFGRlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49524 "EHLO
+        id S1359528AbiFGUjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348581AbiFGRlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5311208A7;
-        Tue,  7 Jun 2022 10:34:24 -0700 (PDT)
+        with ESMTP id S1376900AbiFGUhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:37:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89F81ECD76;
+        Tue,  7 Jun 2022 11:38:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F11F9614BC;
-        Tue,  7 Jun 2022 17:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BEB7C385A5;
-        Tue,  7 Jun 2022 17:34:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 645BCB8233E;
+        Tue,  7 Jun 2022 18:38:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B699BC385A2;
+        Tue,  7 Jun 2022 18:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623241;
-        bh=1vjbRoK32tlsSZxIdo7suU7AvWFNx1IyAovN/+eLCAI=;
+        s=korg; t=1654627083;
+        bh=ibFWBZNYf96bTV+pa3KOvrMz/s+3mgQ+XsQOvLGXtoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alL+KHl5r3qeK7GWg0eRgvyRCTQqQI+SWQ8foYCaYjJ9U/Z43xsg0EsQcAPHErQHt
-         xppV6AxYgxul3ks0WJeAFfOKpUCkTCDMFOMF63avDiDKMisMMdk3cyOgVEMtfwkhSA
-         3gOeImZioa9CMnPYv99hBNc5zKKnU5dxanasohSY=
+        b=oRbrHRzasMwz/pW7a3n8f4I5Xhs6ywfuTVCOxgxRRxdAHjaGHLpdRpPjfftjtVfA/
+         MLlQVh+ZSbSgJ4YTrZa/Q74RSg3PSYCTkifcYyhhYn3ij6uFy6pEVwMJQC/nwbbC/1
+         151+41M7TvHu1oUxkHl/p72rfzz5MnPPpKijiH6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
         Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 347/452] f2fs: fix deadloop in foreground GC
+Subject: [PATCH 5.17 612/772] f2fs: fix deadloop in foreground GC
 Date:   Tue,  7 Jun 2022 19:03:24 +0200
-Message-Id: <20220607164918.897424084@linuxfoundation.org>
+Message-Id: <20220607165006.973302774@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -88,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/f2fs/segment.h
 +++ b/fs/f2fs/segment.h
-@@ -573,11 +573,10 @@ static inline int reserved_sections(stru
+@@ -572,11 +572,10 @@ static inline int reserved_sections(stru
  	return GET_SEC_FROM_SEG(sbi, reserved_segments(sbi));
  }
  
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	unsigned int segno, left_blocks;
  	int i;
  
-@@ -603,19 +602,28 @@ static inline bool has_curseg_enough_spa
+@@ -602,19 +601,28 @@ static inline bool has_curseg_enough_spa
  static inline bool has_not_enough_free_secs(struct f2fs_sb_info *sbi,
  					int freed, int needed)
  {
