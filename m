@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A62854051F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78AC6541A7D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345959AbiFGRVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45504 "EHLO
+        id S1349657AbiFGVde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345969AbiFGRVH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:07 -0400
+        with ESMTP id S1378970AbiFGV34 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:29:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE61106576;
-        Tue,  7 Jun 2022 10:20:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE574152BB6;
+        Tue,  7 Jun 2022 12:02:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DBC2B822B1;
-        Tue,  7 Jun 2022 17:20:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5739C385A5;
-        Tue,  7 Jun 2022 17:20:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50459B822C0;
+        Tue,  7 Jun 2022 19:02:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E156C385A2;
+        Tue,  7 Jun 2022 19:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622456;
-        bh=nQbb+Dvg94Bd3lpBOt9d1emxz4LV6Rz434ipGpczzEo=;
+        s=korg; t=1654628548;
+        bh=AJpDc4CRCDEYezNwJ7xnI6htH0qAKgCFMdxiiCckPkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rkkyvm29uZTTabTIvoEJm94KGK0csw90DLnldaxelpsByxfZzkHJN3ccY85bzHtuw
-         ePkXuSgel5nkAYlo8vVDnF4ebQG2Yu/xmG5hxErJce2HIXhPq9XCoLUAWlx47yPzOy
-         RkgzOw7PLnizRL5BGDEwvqcbXDqbK0GE2uAS65QE=
+        b=elqTAPCSlFN6DiJ6Rflr2a3O6hSW2WsCBc7H1EHGhyt7vtsT3v0XfvJlzpGHs23RS
+         6JtUEJ7/d9GjOIc5Gvm4exEk7khaRsXLJMlSNiowyvJl+6P4nPWhWFtb90gc1tzeb9
+         exqzKVaoT+s2JZToDkHD33lyeFLAGRn+Ps02KDBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/452] b43legacy: Fix assigning negative value to unsigned variable
+        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 367/879] perf tools: Add missing headers needed by util/data.h
 Date:   Tue,  7 Jun 2022 18:58:05 +0200
-Message-Id: <20220607164909.385718707@linuxfoundation.org>
+Message-Id: <20220607165013.523342552@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +61,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-[ Upstream commit 3f6b867559b3d43a7ce1b4799b755e812fc0d503 ]
+[ Upstream commit 4d27cf1d9de5becfa4d1efb2ea54dba1b9fc962a ]
 
-fix warning reported by smatch:
-drivers/net/wireless/broadcom/b43legacy/phy.c:1181 b43legacy_phy_lo_b_measure()
-warn: assigning (-772) to unsigned variable 'fval'
+'struct perf_data' in util/data.h uses the "u64" data type, which is
+defined in "linux/types.h".
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648203433-8736-1-git-send-email-baihaowen@meizu.com
+If we only include util/data.h, the following compilation error occurs:
+
+  util/data.h:38:3: error: unknown type name ‘u64’
+     u64    version;
+     ^~~
+
+Solution: include "linux/types.h." to add the needed type definitions.
+
+Fixes: 258031c017c353e8 ("perf header: Add DIR_FORMAT feature to describe directory data")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220429090539.212448-1-yangjihong1@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43legacy/phy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/data.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/broadcom/b43legacy/phy.c b/drivers/net/wireless/broadcom/b43legacy/phy.c
-index 05404fbd1e70..c1395e622759 100644
---- a/drivers/net/wireless/broadcom/b43legacy/phy.c
-+++ b/drivers/net/wireless/broadcom/b43legacy/phy.c
-@@ -1123,7 +1123,7 @@ void b43legacy_phy_lo_b_measure(struct b43legacy_wldev *dev)
- 	struct b43legacy_phy *phy = &dev->phy;
- 	u16 regstack[12] = { 0 };
- 	u16 mls;
--	u16 fval;
-+	s16 fval;
- 	int i;
- 	int j;
+diff --git a/tools/perf/util/data.h b/tools/perf/util/data.h
+index c9de82af5584..1402d9657ef2 100644
+--- a/tools/perf/util/data.h
++++ b/tools/perf/util/data.h
+@@ -4,6 +4,7 @@
  
+ #include <stdio.h>
+ #include <stdbool.h>
++#include <linux/types.h>
+ 
+ enum perf_data_mode {
+ 	PERF_DATA_MODE_WRITE,
 -- 
 2.35.1
 
