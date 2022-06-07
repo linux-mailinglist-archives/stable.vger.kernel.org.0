@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A615540B09
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7A89541409
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238299AbiFGSWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43794 "EHLO
+        id S1356023AbiFGUMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349728AbiFGSSY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:18:24 -0400
+        with ESMTP id S1359150AbiFGUJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45EBAEAD02;
-        Tue,  7 Jun 2022 10:53:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666F7ED7B3;
+        Tue,  7 Jun 2022 11:26:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDDAEB8236A;
-        Tue,  7 Jun 2022 17:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F7EC385A5;
-        Tue,  7 Jun 2022 17:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23960B82340;
+        Tue,  7 Jun 2022 18:26:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 791ACC385A2;
+        Tue,  7 Jun 2022 18:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624385;
-        bh=PygfPU/z7XNVtfQxiD1wD6JRJ9E8aEGCYg1AFsbUJJk=;
+        s=korg; t=1654626379;
+        bh=AJaiys9ckCie9lZEC/QRZHz/ZvZSHdU8XpgmwbTxEus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvwQiYZpknz65ic+J/Sgs2SzHKzJjyY2Er2U/v5Hl/cpf3B8Tyi3pSnyDzGMT65Lh
-         oMMU0hGec5av3iCDnvvVK2zus9WAB5A82ynJmPnXyiuwx6p+EZU6ILffMaazD+Bk37
-         JDmBGVYbOYk6LAiurD7H38pxxO4ABCBB8yyo9mJU=
+        b=uFOkiXZWLqyliuvHCwOLjVjXo9hiPBnAj9lgQDjNAUZnH5hJJyN6Lsdhli6XPWey1
+         ae+fAMWpnMe0KxHy+TIUFr0A3znhsQXR9E5SGPP6ZyAS+WMYj9QgXtgH5m4H3YVOm/
+         +BOxHz8Qv+UIJNMGZw09rooemINjsobnqDIyIKdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Jessica Zhang <quic_jesszhan@quicinc.com>,
+        Rob Clark <robdclark@gmail.com>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 267/667] drm/msm/dp: fix error check return value of irq_of_parse_and_map()
+Subject: [PATCH 5.17 340/772] drm/msm/mdp5: Return error code in mdp5_pipe_release when deadlock is detected
 Date:   Tue,  7 Jun 2022 18:58:52 +0200
-Message-Id: <20220607164942.795571067@linuxfoundation.org>
+Message-Id: <20220607164959.042879376@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Jessica Zhang <quic_jesszhan@quicinc.com>
 
-[ Upstream commit e92d0d93f86699b7b25c7906613fdc374d66c8ca ]
+[ Upstream commit d59be579fa932c46b908f37509f319cbd4ca9a68 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+mdp5_get_global_state runs the risk of hitting a -EDEADLK when acquiring
+the modeset lock, but currently mdp5_pipe_release doesn't check for if
+an error is returned. Because of this, there is a possibility of
+mdp5_pipe_release hitting a NULL dereference error.
 
-Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+To avoid this, let's have mdp5_pipe_release check if
+mdp5_get_global_state returns an error and propogate that error.
+
+Changes since v1:
+- Separated declaration and initialization of *new_state to avoid
+  compiler warning
+- Fixed some spelling mistakes in commit message
+
+Changes since v2:
+- Return 0 in case where hwpipe is NULL as this is considered normal
+  behavior
+- Added 2nd patch in series to fix a similar NULL dereference issue in
+  mdp5_mixer_release
+
+Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
+Fixes: 7907a0d77cb4 ("drm/msm/mdp5: Use the new private_obj state")
+Reviewed-by: Rob Clark <robdclark@gmail.com>
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483176/
-Link: https://lore.kernel.org/r/20220424032418.3173632-1-lv.ruyi@zte.com.cn
+Patchwork: https://patchwork.freedesktop.org/patch/485179/
+Link: https://lore.kernel.org/r/20220505214051.155-1-quic_jesszhan@quicinc.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c  | 15 +++++++++++----
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h  |  2 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 20 ++++++++++++++++----
+ 3 files changed, 28 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 5648c1eb5fa8..00e7d9db6199 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -1216,10 +1216,9 @@ int dp_display_request_irq(struct msm_dp *dp_display)
- 	dp = container_of(dp_display, struct dp_display_private, dp_display);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
+index ba6695963aa6..a4f5cb90f3e8 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
+@@ -119,18 +119,23 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 	return 0;
+ }
  
- 	dp->irq = irq_of_parse_and_map(dp->pdev->dev.of_node, 0);
--	if (dp->irq < 0) {
--		rc = dp->irq;
--		DRM_ERROR("failed to get irq: %d\n", rc);
--		return rc;
-+	if (!dp->irq) {
-+		DRM_ERROR("failed to get irq\n");
+-void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
++int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
+ {
+ 	struct msm_drm_private *priv = s->dev->dev_private;
+ 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
+ 	struct mdp5_global_state *state = mdp5_get_global_state(s);
+-	struct mdp5_hw_pipe_state *new_state = &state->hwpipe;
++	struct mdp5_hw_pipe_state *new_state;
+ 
+ 	if (!hwpipe)
+-		return;
++		return 0;
++
++	if (IS_ERR(state))
++		return PTR_ERR(state);
++
++	new_state = &state->hwpipe;
+ 
+ 	if (WARN_ON(!new_state->hwpipe_to_plane[hwpipe->idx]))
+-		return;
 +		return -EINVAL;
+ 
+ 	DBG("%s: release from plane %s", hwpipe->name,
+ 		new_state->hwpipe_to_plane[hwpipe->idx]->name);
+@@ -141,6 +146,8 @@ void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
  	}
  
- 	rc = devm_request_irq(&dp->pdev->dev, dp->irq,
+ 	new_state->hwpipe_to_plane[hwpipe->idx] = NULL;
++
++	return 0;
+ }
+ 
+ void mdp5_pipe_destroy(struct mdp5_hw_pipe *hwpipe)
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
+index 9b26d0761bd4..cca67938cab2 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
+@@ -37,7 +37,7 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 		     uint32_t caps, uint32_t blkcfg,
+ 		     struct mdp5_hw_pipe **hwpipe,
+ 		     struct mdp5_hw_pipe **r_hwpipe);
+-void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
++int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
+ 
+ struct mdp5_hw_pipe *mdp5_pipe_init(enum mdp5_pipe pipe,
+ 		uint32_t reg_offset, uint32_t caps);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+index 50e854207c70..c0d947bce9e9 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+@@ -297,12 +297,24 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
+ 				mdp5_state->r_hwpipe = NULL;
+ 
+ 
+-			mdp5_pipe_release(state->state, old_hwpipe);
+-			mdp5_pipe_release(state->state, old_right_hwpipe);
++			ret = mdp5_pipe_release(state->state, old_hwpipe);
++			if (ret)
++				return ret;
++
++			ret = mdp5_pipe_release(state->state, old_right_hwpipe);
++			if (ret)
++				return ret;
++
+ 		}
+ 	} else {
+-		mdp5_pipe_release(state->state, mdp5_state->hwpipe);
+-		mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
++		ret = mdp5_pipe_release(state->state, mdp5_state->hwpipe);
++		if (ret)
++			return ret;
++
++		ret = mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
++		if (ret)
++			return ret;
++
+ 		mdp5_state->hwpipe = mdp5_state->r_hwpipe = NULL;
+ 	}
+ 
 -- 
 2.35.1
 
