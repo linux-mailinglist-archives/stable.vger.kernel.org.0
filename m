@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E98BF5407C6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533355416E5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243276AbiFGRwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41888 "EHLO
+        id S1358864AbiFGU43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:56:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348771AbiFGRuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A2D27B33;
-        Tue,  7 Jun 2022 10:37:18 -0700 (PDT)
+        with ESMTP id S1377974AbiFGUvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619AA18486A;
+        Tue,  7 Jun 2022 11:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B64B7B822B0;
-        Tue,  7 Jun 2022 17:37:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 223E5C385A5;
-        Tue,  7 Jun 2022 17:36:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7C5615CE;
+        Tue,  7 Jun 2022 18:41:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC05DC385A2;
+        Tue,  7 Jun 2022 18:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623420;
-        bh=MNGbb0y6lx7BzfYUSDabvaF+OEPYHabK0nbEfAzr7mo=;
+        s=korg; t=1654627265;
+        bh=6nJBrccheWnM5ciNkIqxjkMTEOgsOFsh5eV64RSSDek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CurHsecYPHOcQ78EmVlJw/MypGXYRjkD9jP/QriSYSjrFXlUm0UCTuZRs2nz5MN99
-         ee5TlLelwxveL8N0pspqshluKnKRyQqdOiOVxOCE6wWcOm5ZFeBaJ5YTrLost2d4hb
-         dvf3G+ibPxqg2/hP7Tuu9BJiJurc5AKGtQlnEu/w=
+        b=Y93O+ebF5WkEfF7EezaG7DpwWj9ee1trbBc0mt2cg2EhjVCH8IN8YB9qfhdbWYwSK
+         S9Q6Yt0wWDP1pWhF+4uvCMLi8oQ7TpDy7G78ZRCPtKqsaRBECZz4GPilzvn9n3pZOa
+         K5r/7DxZ5IlU7Sft1Cvs3/a5fhQ5i7eBPmx7gG80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 410/452] bcache: improve multithreaded bch_btree_check()
-Date:   Tue,  7 Jun 2022 19:04:27 +0200
-Message-Id: <20220607164920.776574889@linuxfoundation.org>
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.17 676/772] selftests/landlock: Make tests build with old libc
+Date:   Tue,  7 Jun 2022 19:04:28 +0200
+Message-Id: <20220607165008.978316216@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,155 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 622536443b6731ec82c563aae7807165adbe9178 upstream.
+commit 87129ef13603ae46c82bcd09eed948acf0506dbb upstream.
 
-Commit 8e7102273f59 ("bcache: make bch_btree_check() to be
-multithreaded") makes bch_btree_check() to be much faster when checking
-all btree nodes during cache device registration. But it isn't in ideal
-shap yet, still can be improved.
+Replace SYS_<syscall> with __NR_<syscall>.  Using the __NR_<syscall>
+notation, provided by UAPI, is useful to build tests on systems without
+the SYS_<syscall> definitions.
 
-This patch does the following thing to improve current parallel btree
-nodes check by multiple threads in bch_btree_check(),
-- Add read lock to root node while checking all the btree nodes with
-  multiple threads. Although currently it is not mandatory but it is
-  good to have a read lock in code logic.
-- Remove local variable 'char name[32]', and generate kernel thread name
-  string directly when calling kthread_run().
-- Allocate local variable "struct btree_check_state check_state" on the
-  stack and avoid unnecessary dynamic memory allocation for it.
-- Reduce BCH_BTR_CHKTHREAD_MAX from 64 to 12 which is enough indeed.
-- Increase check_state->started to count created kernel thread after it
-  succeeds to create.
-- When wait for all checking kernel threads to finish, use wait_event()
-  to replace wait_event_interruptible().
+Replace SYS_pivot_root with __NR_pivot_root, and SYS_move_mount with
+__NR_move_mount.
 
-With this change, the code is more clear, and some potential error
-conditions are avoided.
+Define renameat2() and RENAME_EXCHANGE if they are unknown to old build
+systems.
 
-Fixes: 8e7102273f59 ("bcache: make bch_btree_check() to be multithreaded")
-Signed-off-by: Coly Li <colyli@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-3-mic@digikod.net
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220524102336.10684-2-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/btree.c |   58 ++++++++++++++++++++--------------------------
- drivers/md/bcache/btree.h |    2 -
- 2 files changed, 27 insertions(+), 33 deletions(-)
+ tools/testing/selftests/landlock/fs_test.c |   23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2006,8 +2006,7 @@ int bch_btree_check(struct cache_set *c)
- 	int i;
- 	struct bkey *k = NULL;
- 	struct btree_iter iter;
--	struct btree_check_state *check_state;
--	char name[32];
-+	struct btree_check_state check_state;
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -22,6 +22,19 @@
  
- 	/* check and mark root node keys */
- 	for_each_key_filter(&c->root->keys, k, &iter, bch_ptr_invalid)
-@@ -2018,63 +2017,58 @@ int bch_btree_check(struct cache_set *c)
- 	if (c->root->level == 0)
- 		return 0;
+ #include "common.h"
  
--	check_state = kzalloc(sizeof(struct btree_check_state), GFP_KERNEL);
--	if (!check_state)
--		return -ENOMEM;
--
--	check_state->c = c;
--	check_state->total_threads = bch_btree_chkthread_nr();
--	check_state->key_idx = 0;
--	spin_lock_init(&check_state->idx_lock);
--	atomic_set(&check_state->started, 0);
--	atomic_set(&check_state->enough, 0);
--	init_waitqueue_head(&check_state->wait);
-+	check_state.c = c;
-+	check_state.total_threads = bch_btree_chkthread_nr();
-+	check_state.key_idx = 0;
-+	spin_lock_init(&check_state.idx_lock);
-+	atomic_set(&check_state.started, 0);
-+	atomic_set(&check_state.enough, 0);
-+	init_waitqueue_head(&check_state.wait);
++#ifndef renameat2
++int renameat2(int olddirfd, const char *oldpath, int newdirfd,
++	      const char *newpath, unsigned int flags)
++{
++	return syscall(__NR_renameat2, olddirfd, oldpath, newdirfd, newpath,
++		       flags);
++}
++#endif
++
++#ifndef RENAME_EXCHANGE
++#define RENAME_EXCHANGE (1 << 1)
++#endif
++
+ #define TMP_DIR "tmp"
+ #define BINARY_PATH "./true"
  
-+	rw_lock(0, c->root, c->root->level);
- 	/*
- 	 * Run multiple threads to check btree nodes in parallel,
--	 * if check_state->enough is non-zero, it means current
-+	 * if check_state.enough is non-zero, it means current
- 	 * running check threads are enough, unncessary to create
- 	 * more.
- 	 */
--	for (i = 0; i < check_state->total_threads; i++) {
--		/* fetch latest check_state->enough earlier */
-+	for (i = 0; i < check_state.total_threads; i++) {
-+		/* fetch latest check_state.enough earlier */
- 		smp_mb__before_atomic();
--		if (atomic_read(&check_state->enough))
-+		if (atomic_read(&check_state.enough))
- 			break;
+@@ -1279,7 +1292,7 @@ TEST_F_FORK(layout1, rule_inside_mount_n
+ 	int ruleset_fd;
  
--		check_state->infos[i].result = 0;
--		check_state->infos[i].state = check_state;
--		snprintf(name, sizeof(name), "bch_btrchk[%u]", i);
--		atomic_inc(&check_state->started);
-+		check_state.infos[i].result = 0;
-+		check_state.infos[i].state = &check_state;
- 
--		check_state->infos[i].thread =
-+		check_state.infos[i].thread =
- 			kthread_run(bch_btree_check_thread,
--				    &check_state->infos[i],
--				    name);
--		if (IS_ERR(check_state->infos[i].thread)) {
-+				    &check_state.infos[i],
-+				    "bch_btrchk[%d]", i);
-+		if (IS_ERR(check_state.infos[i].thread)) {
- 			pr_err("fails to run thread bch_btrchk[%d]\n", i);
- 			for (--i; i >= 0; i--)
--				kthread_stop(check_state->infos[i].thread);
-+				kthread_stop(check_state.infos[i].thread);
- 			ret = -ENOMEM;
- 			goto out;
- 		}
-+		atomic_inc(&check_state.started);
- 	}
- 
- 	/*
- 	 * Must wait for all threads to stop.
- 	 */
--	wait_event_interruptible(check_state->wait,
--				 atomic_read(&check_state->started) == 0);
-+	wait_event(check_state.wait, atomic_read(&check_state.started) == 0);
- 
--	for (i = 0; i < check_state->total_threads; i++) {
--		if (check_state->infos[i].result) {
--			ret = check_state->infos[i].result;
-+	for (i = 0; i < check_state.total_threads; i++) {
-+		if (check_state.infos[i].result) {
-+			ret = check_state.infos[i].result;
- 			goto out;
- 		}
- 	}
- 
- out:
--	kfree(check_state);
-+	rw_unlock(0, c->root);
- 	return ret;
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+-	ASSERT_EQ(0, syscall(SYS_pivot_root, dir_s3d2, dir_s3d3))
++	ASSERT_EQ(0, syscall(__NR_pivot_root, dir_s3d2, dir_s3d3))
+ 	{
+ 		TH_LOG("Failed to pivot root: %s", strerror(errno));
+ 	};
+@@ -1313,7 +1326,7 @@ TEST_F_FORK(layout1, mount_and_pivot)
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+ 	ASSERT_EQ(-1, mount(NULL, dir_s3d2, NULL, MS_RDONLY, NULL));
+ 	ASSERT_EQ(EPERM, errno);
+-	ASSERT_EQ(-1, syscall(SYS_pivot_root, dir_s3d2, dir_s3d3));
++	ASSERT_EQ(-1, syscall(__NR_pivot_root, dir_s3d2, dir_s3d3));
+ 	ASSERT_EQ(EPERM, errno);
+ 	clear_cap(_metadata, CAP_SYS_ADMIN);
  }
+@@ -1332,13 +1345,13 @@ TEST_F_FORK(layout1, move_mount)
+ 	ASSERT_LE(0, ruleset_fd);
  
---- a/drivers/md/bcache/btree.h
-+++ b/drivers/md/bcache/btree.h
-@@ -226,7 +226,7 @@ struct btree_check_info {
- 	int				result;
- };
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+-	ASSERT_EQ(0, syscall(SYS_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
++	ASSERT_EQ(0, syscall(__NR_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
+ 			     dir_s1d2, 0))
+ 	{
+ 		TH_LOG("Failed to move mount: %s", strerror(errno));
+ 	}
  
--#define BCH_BTR_CHKTHREAD_MAX	64
-+#define BCH_BTR_CHKTHREAD_MAX	12
- struct btree_check_state {
- 	struct cache_set		*c;
- 	int				total_threads;
+-	ASSERT_EQ(0, syscall(SYS_move_mount, AT_FDCWD, dir_s1d2, AT_FDCWD,
++	ASSERT_EQ(0, syscall(__NR_move_mount, AT_FDCWD, dir_s1d2, AT_FDCWD,
+ 			     dir_s3d2, 0));
+ 	clear_cap(_metadata, CAP_SYS_ADMIN);
+ 
+@@ -1346,7 +1359,7 @@ TEST_F_FORK(layout1, move_mount)
+ 	ASSERT_EQ(0, close(ruleset_fd));
+ 
+ 	set_cap(_metadata, CAP_SYS_ADMIN);
+-	ASSERT_EQ(-1, syscall(SYS_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
++	ASSERT_EQ(-1, syscall(__NR_move_mount, AT_FDCWD, dir_s3d2, AT_FDCWD,
+ 			      dir_s1d2, 0));
+ 	ASSERT_EQ(EPERM, errno);
+ 	clear_cap(_metadata, CAP_SYS_ADMIN);
 
 
