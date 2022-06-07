@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3ED5417D5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCFB75410CB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358022AbiFGVGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
+        id S1355324AbiFGT3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378993AbiFGVEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:04:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 800C0703D1;
-        Tue,  7 Jun 2022 11:49:04 -0700 (PDT)
+        with ESMTP id S1356877AbiFGT2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97B441A1975;
+        Tue,  7 Jun 2022 11:11:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63E9A612F2;
-        Tue,  7 Jun 2022 18:49:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 697D5C385A2;
-        Tue,  7 Jun 2022 18:49:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E0D5B81F38;
+        Tue,  7 Jun 2022 18:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB86CC385A5;
+        Tue,  7 Jun 2022 18:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627743;
-        bh=8n4OgktZlvppTMNUSoL4V5FRUeTebTWR5ynJTOiyTVk=;
+        s=korg; t=1654625480;
+        bh=lIQbYf0TkVPgHqacQsbXEfI+WghXsnVMfGGAywaL/M8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aa1vBW9hbSbaoU3mCjIITOledednbXshrn8pH85VolWwWoq3tBM51PE2XZZ6JL8bL
-         S5MV9yMVHbqXKX0PljFBL/8IY9dmW4UZvMSnBhc6DdA8GlvsUx8AtBrIvhAloU7FOs
-         YEVH1TTcK0IniqgNcY/JEl8aRgjIuWha9dSduIW4=
+        b=vTv+cVP4SQk3UwOceUvSrpHBJv28su45Ro69n9wgTUDI1icMm4dLm7cMIJOlHNEul
+         0n4M9ieEbhA7nkxCQ16POop7cmWdStF43h+cV8O/8FC4OsCzjBkljsQWnN09TgPjHo
+         TFDZuB4C1gV3yAvaXRfVmjVC7NoBTFX81Oo54XA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 078/879] rcu-tasks: Handle sparse cpu_possible_mask in rcu_tasks_invoke_cbs()
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.17 004/772] parisc/stifb: Keep track of hardware path of graphics card
 Date:   Tue,  7 Jun 2022 18:53:16 +0200
-Message-Id: <20220607165004.954494734@linuxfoundation.org>
+Message-Id: <20220607164949.122823724@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +52,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit ab2756ea6b74987849b44ad0e33c3cfec159033b ]
+commit b046f984814af7985f444150ec28716d42d00d9a upstream.
 
-If the cpu_possible_mask is sparse (for example, if bits are set only for
-CPUs 0, 4, 8, ...), then rcu_tasks_invoke_cbs() will access per-CPU data
-for a CPU not in cpu_possible_mask.  It makes these accesses while doing
-a workqueue-based binary search for non-empty callback lists.  Although
-this search must pass through CPUs not represented in cpu_possible_mask,
-it has no need to check the callback list for such CPUs.
+Keep the pa_path (hardware path) of the graphics card in sti_struct and use
+this info to give more useful info which card is currently being used.
 
-This commit therefore changes the rcu_tasks_invoke_cbs() function's
-binary search so as to only check callback lists for CPUs present in
-cpu_possible_mask.
-
-Reported-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org   # v5.10+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tasks.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/console/sticon.c  |    5 ++++-
+ drivers/video/console/sticore.c |   15 +++++++--------
+ drivers/video/fbdev/sticore.h   |    3 +++
+ 3 files changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index b43320b149d2..00ff0896fb00 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -460,7 +460,7 @@ static void rcu_tasks_invoke_cbs(struct rcu_tasks *rtp, struct rcu_tasks_percpu
- 		}
- 	}
+--- a/drivers/video/console/sticon.c
++++ b/drivers/video/console/sticon.c
+@@ -46,6 +46,7 @@
+ #include <linux/slab.h>
+ #include <linux/font.h>
+ #include <linux/crc32.h>
++#include <linux/fb.h>
  
--	if (rcu_segcblist_empty(&rtpcp->cblist))
-+	if (rcu_segcblist_empty(&rtpcp->cblist) || !cpu_possible(cpu))
- 		return;
- 	raw_spin_lock_irqsave_rcu_node(rtpcp, flags);
- 	rcu_segcblist_advance(&rtpcp->cblist, rcu_seq_current(&rtp->tasks_gp_seq));
--- 
-2.35.1
-
+ #include <asm/io.h>
+ 
+@@ -392,7 +393,9 @@ static int __init sticonsole_init(void)
+     for (i = 0; i < MAX_NR_CONSOLES; i++)
+ 	font_data[i] = STI_DEF_FONT;
+ 
+-    pr_info("sticon: Initializing STI text console.\n");
++    pr_info("sticon: Initializing STI text console on %s at [%s]\n",
++	sticon_sti->sti_data->inq_outptr.dev_name,
++	sticon_sti->pa_path);
+     console_lock();
+     err = do_take_over_console(&sti_con, 0, MAX_NR_CONSOLES - 1,
+ 		PAGE0->mem_cons.cl_class != CL_DUPLEX);
+--- a/drivers/video/console/sticore.c
++++ b/drivers/video/console/sticore.c
+@@ -34,7 +34,7 @@
+ 
+ #include "../fbdev/sticore.h"
+ 
+-#define STI_DRIVERVERSION "Version 0.9b"
++#define STI_DRIVERVERSION "Version 0.9c"
+ 
+ static struct sti_struct *default_sti __read_mostly;
+ 
+@@ -503,7 +503,7 @@ sti_select_fbfont(struct sti_cooked_rom
+ 	if (!fbfont)
+ 		return NULL;
+ 
+-	pr_info("STI selected %ux%u framebuffer font %s for sticon\n",
++	pr_info("    using %ux%u framebuffer font %s\n",
+ 			fbfont->width, fbfont->height, fbfont->name);
+ 			
+ 	bpc = ((fbfont->width+7)/8) * fbfont->height; 
+@@ -947,6 +947,7 @@ out_err:
+ 
+ static void sticore_check_for_default_sti(struct sti_struct *sti, char *path)
+ {
++	pr_info("    located at [%s]\n", sti->pa_path);
+ 	if (strcmp (path, default_sti_path) == 0)
+ 		default_sti = sti;
+ }
+@@ -958,7 +959,6 @@ static void sticore_check_for_default_st
+  */
+ static int __init sticore_pa_init(struct parisc_device *dev)
+ {
+-	char pa_path[21];
+ 	struct sti_struct *sti = NULL;
+ 	int hpa = dev->hpa.start;
+ 
+@@ -971,8 +971,8 @@ static int __init sticore_pa_init(struct
+ 	if (!sti)
+ 		return 1;
+ 
+-	print_pa_hwpath(dev, pa_path);
+-	sticore_check_for_default_sti(sti, pa_path);
++	print_pa_hwpath(dev, sti->pa_path);
++	sticore_check_for_default_sti(sti, sti->pa_path);
+ 	return 0;
+ }
+ 
+@@ -1008,9 +1008,8 @@ static int sticore_pci_init(struct pci_d
+ 
+ 	sti = sti_try_rom_generic(rom_base, fb_base, pd);
+ 	if (sti) {
+-		char pa_path[30];
+-		print_pci_hwpath(pd, pa_path);
+-		sticore_check_for_default_sti(sti, pa_path);
++		print_pci_hwpath(pd, sti->pa_path);
++		sticore_check_for_default_sti(sti, sti->pa_path);
+ 	}
+ 	
+ 	if (!sti) {
+--- a/drivers/video/fbdev/sticore.h
++++ b/drivers/video/fbdev/sticore.h
+@@ -370,6 +370,9 @@ struct sti_struct {
+ 
+ 	/* pointer to all internal data */
+ 	struct sti_all_data *sti_data;
++
++	/* pa_path of this device */
++	char pa_path[24];
+ };
+ 
+ 
 
 
