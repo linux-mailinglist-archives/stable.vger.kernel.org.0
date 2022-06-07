@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C17F54169A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB158541DA5
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351598AbiFGUxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:53:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51638 "EHLO
+        id S1384134AbiFGWSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377829AbiFGUu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA4A1FD28C;
-        Tue,  7 Jun 2022 11:40:46 -0700 (PDT)
+        with ESMTP id S1384812AbiFGWQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:16:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA5D2612AC;
+        Tue,  7 Jun 2022 12:20:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D8DA61295;
-        Tue,  7 Jun 2022 18:40:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D5AC385A2;
-        Tue,  7 Jun 2022 18:40:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB16AB823CE;
+        Tue,  7 Jun 2022 19:19:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15F69C385A2;
+        Tue,  7 Jun 2022 19:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627245;
-        bh=lTwTaY+2If4wDUZGmjDJdw8w1OKq1JDGNaMxwCIgRvQ=;
+        s=korg; t=1654629585;
+        bh=bMeP3TdBU0MLzEVLX4M4aq30+vz2kCbplZYoeO4zO3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7SCAuEzQQxD2nB+ZiIlzbw6gZnX9VqnfC6joDfWLpIi4Lo0hYeJO3AxDdw0FmC8a
-         /7BO69x+vn7ox4Dkyik2xsuzZkawtfi1LNc60FvQenivLqrchaJIixXs0gXp9icpK0
-         tWXNwFQUJQmuTVW6X3xiVh2mVMaKNKt5I6fFsL4k=
+        b=FxhCY1JcV4KZWHPODFqLyQ3PUahy1g5Ga0ktak1pp7b+E2qsDWI1PhIQ/bh8za0lZ
+         9P6+pBtKDwup5dFcEt7JKQk2uiBFNZI8K4Lxw4WirMkTpmJet4P0M6hFXmgG+v1TdJ
+         yW3GI7ApjQ9RlEaWV6knj9Y3aJG+bn5mvQlb+qwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.17 670/772] selftests/landlock: Add clang-format exceptions
+        stable@vger.kernel.org, stable@kernel.org,
+        Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.18 744/879] ext4: fix bug_on in __es_tree_search
 Date:   Tue,  7 Jun 2022 19:04:22 +0200
-Message-Id: <20220607165008.802832400@linuxfoundation.org>
+Message-Id: <20220607165024.453392918@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,213 +55,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 4598d9abf4215e1e371a35683350d50122793c80 upstream.
+commit d36f6ed761b53933b0b4126486c10d3da7751e7f upstream.
 
-In preparation to a following commit, add clang-format on and
-clang-format off stanzas around constant definitions and the TEST_F_FORK
-macro.  This enables to keep aligned values, which is much more readable
-than packed definitions.
+Hulk Robot reported a BUG_ON:
+==================================================================
+kernel BUG at fs/ext4/extents_status.c:199!
+[...]
+RIP: 0010:ext4_es_end fs/ext4/extents_status.c:199 [inline]
+RIP: 0010:__es_tree_search+0x1e0/0x260 fs/ext4/extents_status.c:217
+[...]
+Call Trace:
+ ext4_es_cache_extent+0x109/0x340 fs/ext4/extents_status.c:766
+ ext4_cache_extents+0x239/0x2e0 fs/ext4/extents.c:561
+ ext4_find_extent+0x6b7/0xa20 fs/ext4/extents.c:964
+ ext4_ext_map_blocks+0x16b/0x4b70 fs/ext4/extents.c:4384
+ ext4_map_blocks+0xe26/0x19f0 fs/ext4/inode.c:567
+ ext4_getblk+0x320/0x4c0 fs/ext4/inode.c:980
+ ext4_bread+0x2d/0x170 fs/ext4/inode.c:1031
+ ext4_quota_read+0x248/0x320 fs/ext4/super.c:6257
+ v2_read_header+0x78/0x110 fs/quota/quota_v2.c:63
+ v2_check_quota_file+0x76/0x230 fs/quota/quota_v2.c:82
+ vfs_load_quota_inode+0x5d1/0x1530 fs/quota/dquot.c:2368
+ dquot_enable+0x28a/0x330 fs/quota/dquot.c:2490
+ ext4_quota_enable fs/ext4/super.c:6137 [inline]
+ ext4_enable_quotas+0x5d7/0x960 fs/ext4/super.c:6163
+ ext4_fill_super+0xa7c9/0xdc00 fs/ext4/super.c:4754
+ mount_bdev+0x2e9/0x3b0 fs/super.c:1158
+ mount_fs+0x4b/0x1e4 fs/super.c:1261
+[...]
+==================================================================
 
-Add other clang-format exceptions for FIXTURE() and
-FIXTURE_VARIANT_ADD() declarations to force space before open brace,
-which is reported by checkpatch.pl .
+Above issue may happen as follows:
+-------------------------------------
+ext4_fill_super
+ ext4_enable_quotas
+  ext4_quota_enable
+   ext4_iget
+    __ext4_iget
+     ext4_ext_check_inode
+      ext4_ext_check
+       __ext4_ext_check
+        ext4_valid_extent_entries
+         Check for overlapping extents does't take effect
+   dquot_enable
+    vfs_load_quota_inode
+     v2_check_quota_file
+      v2_read_header
+       ext4_quota_read
+        ext4_bread
+         ext4_getblk
+          ext4_map_blocks
+           ext4_ext_map_blocks
+            ext4_find_extent
+             ext4_cache_extents
+              ext4_es_cache_extent
+               ext4_es_cache_extent
+                __es_tree_search
+                 ext4_es_end
+                  BUG_ON(es->es_lblk + es->es_len < es->es_lblk)
 
-Link: https://lore.kernel.org/r/20220506160513.523257-4-mic@digikod.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+The error ext4 extents is as follows:
+0af3 0300 0400 0000 00000000    extent_header
+00000000 0100 0000 12000000     extent1
+00000000 0100 0000 18000000     extent2
+02000000 0400 0000 14000000     extent3
+
+In the ext4_valid_extent_entries function,
+if prev is 0, no error is returned even if lblock<=prev.
+This was intended to skip the check on the first extent, but
+in the error image above, prev=0+1-1=0 when checking the second extent,
+so even though lblock<=prev, the function does not return an error.
+As a result, bug_ON occurs in __es_tree_search and the system panics.
+
+To solve this problem, we only need to check that:
+1. The lblock of the first extent is not less than 0.
+2. The lblock of the next extent  is not less than
+   the next block of the previous extent.
+The same applies to extent_idx.
+
+Cc: stable@kernel.org
+Fixes: 5946d089379a ("ext4: check for overlapping extents in ext4_valid_extent_entries()")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220518120816.1541863-1-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/common.h      |    2 ++
- tools/testing/selftests/landlock/fs_test.c     |   23 +++++++++++++++++------
- tools/testing/selftests/landlock/ptrace_test.c |   20 +++++++++++++++++++-
- 3 files changed, 38 insertions(+), 7 deletions(-)
+ fs/ext4/extents.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/tools/testing/selftests/landlock/common.h
-+++ b/tools/testing/selftests/landlock/common.h
-@@ -25,6 +25,7 @@
-  * this to be possible, we must not call abort() but instead exit smoothly
-  * (hence the step print).
-  */
-+/* clang-format off */
- #define TEST_F_FORK(fixture_name, test_name) \
- 	static void fixture_name##_##test_name##_child( \
- 		struct __test_metadata *_metadata, \
-@@ -71,6 +72,7 @@
- 		FIXTURE_DATA(fixture_name) __attribute__((unused)) *self, \
- 		const FIXTURE_VARIANT(fixture_name) \
- 			__attribute__((unused)) *variant)
-+/* clang-format on */
- 
- #ifndef landlock_create_ruleset
- static inline int landlock_create_ruleset(
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -221,8 +221,9 @@ static void remove_layout1(struct __test
- 	EXPECT_EQ(0, remove_path(dir_s3d2));
- }
- 
--FIXTURE(layout1) {
--};
-+/* clang-format off */
-+FIXTURE(layout1) {};
-+/* clang-format on */
- 
- FIXTURE_SETUP(layout1)
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -372,7 +372,7 @@ static int ext4_valid_extent_entries(str
  {
-@@ -376,6 +377,8 @@ TEST_F_FORK(layout1, inval)
- 	ASSERT_EQ(0, close(ruleset_fd));
- }
+ 	unsigned short entries;
+ 	ext4_lblk_t lblock = 0;
+-	ext4_lblk_t prev = 0;
++	ext4_lblk_t cur = 0;
  
-+/* clang-format off */
-+
- #define ACCESS_FILE ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
-@@ -396,6 +399,8 @@ TEST_F_FORK(layout1, inval)
- 	LANDLOCK_ACCESS_FS_MAKE_BLOCK | \
- 	ACCESS_LAST)
+ 	if (eh->eh_entries == 0)
+ 		return 1;
+@@ -396,11 +396,11 @@ static int ext4_valid_extent_entries(str
  
-+/* clang-format on */
-+
- TEST_F_FORK(layout1, file_access_rights)
- {
- 	__u64 access;
-@@ -452,6 +457,8 @@ struct rule {
- 	__u64 access;
- };
+ 			/* Check for overlapping extents */
+ 			lblock = le32_to_cpu(ext->ee_block);
+-			if ((lblock <= prev) && prev) {
++			if (lblock < cur) {
+ 				*pblk = ext4_ext_pblock(ext);
+ 				return 0;
+ 			}
+-			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
++			cur = lblock + ext4_ext_get_actual_len(ext);
+ 			ext++;
+ 			entries--;
+ 		}
+@@ -420,13 +420,13 @@ static int ext4_valid_extent_entries(str
  
-+/* clang-format off */
-+
- #define ACCESS_RO ( \
- 	LANDLOCK_ACCESS_FS_READ_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_DIR)
-@@ -460,6 +467,8 @@ struct rule {
- 	ACCESS_RO | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE)
- 
-+/* clang-format on */
-+
- static int create_ruleset(struct __test_metadata *const _metadata,
- 		const __u64 handled_access_fs, const struct rule rules[])
- {
-@@ -2070,8 +2079,9 @@ TEST_F_FORK(layout1, proc_pipe)
- 	ASSERT_EQ(0, close(pipe_fds[1]));
- }
- 
--FIXTURE(layout1_bind) {
--};
-+/* clang-format off */
-+FIXTURE(layout1_bind) {};
-+/* clang-format on */
- 
- FIXTURE_SETUP(layout1_bind)
- {
-@@ -2411,8 +2421,9 @@ static const char (*merge_sub_files[])[]
-  *         └── work
-  */
- 
--FIXTURE(layout2_overlay) {
--};
-+/* clang-format off */
-+FIXTURE(layout2_overlay) {};
-+/* clang-format on */
- 
- FIXTURE_SETUP(layout2_overlay)
- {
---- a/tools/testing/selftests/landlock/ptrace_test.c
-+++ b/tools/testing/selftests/landlock/ptrace_test.c
-@@ -59,7 +59,9 @@ static int test_ptrace_read(const pid_t
- 	return 0;
- }
- 
--FIXTURE(hierarchy) { };
-+/* clang-format off */
-+FIXTURE(hierarchy) {};
-+/* clang-format on */
- 
- FIXTURE_VARIANT(hierarchy) {
- 	const bool domain_both;
-@@ -83,7 +85,9 @@ FIXTURE_VARIANT(hierarchy) {
-  *       \              P2 -> P1 : allow
-  *        'P2
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_without_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = false,
- 	.domain_child = false,
-@@ -98,7 +102,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
-  *        |  P2  |
-  *        '------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_with_one_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = false,
- 	.domain_child = true,
-@@ -112,7 +118,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
-  *            '
-  *            P2
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_parent_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = true,
- 	.domain_child = false,
-@@ -127,7 +135,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
-  *         |  P2  |
-  *         '------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_sibling_domain) {
-+	/* clang-format on */
- 	.domain_both = false,
- 	.domain_parent = true,
- 	.domain_child = true,
-@@ -142,7 +152,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
-  * |         P2  |
-  * '-------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_sibling_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = false,
- 	.domain_child = false,
-@@ -158,7 +170,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_sib
-  * |        '------' |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, allow_with_nested_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = false,
- 	.domain_child = true,
-@@ -174,7 +188,9 @@ FIXTURE_VARIANT_ADD(hierarchy, allow_wit
-  * |             P2  |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_nested_and_parent_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = true,
- 	.domain_child = false,
-@@ -192,7 +208,9 @@ FIXTURE_VARIANT_ADD(hierarchy, deny_with
-  * |        '------' |
-  * '-----------------'
-  */
-+/* clang-format off */
- FIXTURE_VARIANT_ADD(hierarchy, deny_with_forked_domain) {
-+	/* clang-format on */
- 	.domain_both = true,
- 	.domain_parent = true,
- 	.domain_child = true,
+ 			/* Check for overlapping index extents */
+ 			lblock = le32_to_cpu(ext_idx->ei_block);
+-			if ((lblock <= prev) && prev) {
++			if (lblock < cur) {
+ 				*pblk = ext4_idx_pblock(ext_idx);
+ 				return 0;
+ 			}
+ 			ext_idx++;
+ 			entries--;
+-			prev = lblock;
++			cur = lblock + 1;
+ 		}
+ 	}
+ 	return 1;
 
 
