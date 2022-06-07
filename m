@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C22705412C1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0BE5408F6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356258AbiFGTyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
+        id S1349213AbiFGSEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358011AbiFGTv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:51:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53938AE72;
-        Tue,  7 Jun 2022 11:19:46 -0700 (PDT)
+        with ESMTP id S1351807AbiFGSCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3298A131296;
+        Tue,  7 Jun 2022 10:45:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9396E60920;
-        Tue,  7 Jun 2022 18:19:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A182EC385A2;
-        Tue,  7 Jun 2022 18:19:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D60F1B80B66;
+        Tue,  7 Jun 2022 17:45:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23634C385A5;
+        Tue,  7 Jun 2022 17:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625986;
-        bh=y5FpsC0QGeen2RQowSl2Y0D8H3xk4G0Akqg3acr5AMs=;
+        s=korg; t=1654623932;
+        bh=Y3ci4aj1bWHDsYuaG5QQrbA8DGau5DUCSDNwP7ULckA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkG8LivUtwv6PsCp0tave26p+hj1CqK4vrPeK3KMcHKq2xJCkM7bWzLAG4ltAzCps
-         phfkP8PkTLLALDoS5QuhFGRbOR5gQSLg5LsTdP2y2/6KUebJwPsgF5yM/pcydUlqY8
-         YTV6x2rIvClPxqDGMnffmg5vERJEN52JFuZib7ew=
+        b=bRUHXx8V6u63scCqWZ3pH9+ArKSjlVsgs4bE94TUzsgZsTg52yuQX1gL4MO5ANB5u
+         3dIzN32y1bPxagyz9tWLiF26NSZbtuR3glR6FcrzxOIol10//cdP1z4NdT0/ceQUiS
+         Bq02l4MYJOIsxLWFojxeyYvMpKUE8Z1Z4cfnsBIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Mykola Lysenko <mykolal@fb.com>,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 217/772] powerpc/powernv: fix missing of_node_put in uv_init()
-Date:   Tue,  7 Jun 2022 18:56:49 +0200
-Message-Id: <20220607164955.428436033@linuxfoundation.org>
+Subject: [PATCH 5.15 145/667] selftests/bpf: fix btf_dump/btf_dump due to recent clang change
+Date:   Tue,  7 Jun 2022 18:56:50 +0200
+Message-Id: <20220607164939.168699984@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 3ffa9fd471f57f365bc54fc87824c530422f64a5 ]
+[ Upstream commit 4050764cbaa25760aab40857f723393c07898474 ]
 
-of_find_compatible_node() returns node pointer with refcount incremented,
-use of_node_put() on it when done.
+Latest llvm-project upstream had a change of behavior
+related to qualifiers on function return type ([1]).
+This caused selftests btf_dump/btf_dump failure.
+The following example shows what changed.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220407090043.2491854-1-lv.ruyi@zte.com.cn
+  $ cat t.c
+  typedef const char * const (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
+  struct t {
+    int a;
+    fn_ptr_arr2_t l;
+  };
+  int foo(struct t *arg) {
+    return arg->a;
+  }
+
+Compiled with latest upstream llvm15,
+  $ clang -O2 -g -target bpf -S -emit-llvm t.c
+The related generated debuginfo IR looks like:
+  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
+  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !32)
+  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
+  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
+  !20 = !DISubroutineType(types: !21)
+  !21 = !{!22, null}
+  !22 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !23, size: 64)
+  !23 = !DISubroutineType(types: !24)
+  !24 = !{!25, !28}
+  !25 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !26, size: 64)
+  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
+  !27 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
+You can see two intermediate const qualifier to pointer are dropped in debuginfo IR.
+
+With llvm14, we have following debuginfo IR:
+  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
+  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !34)
+  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
+  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
+  !20 = !DISubroutineType(types: !21)
+  !21 = !{!22, null}
+  !22 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !23)
+  !23 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !24, size: 64)
+  !24 = !DISubroutineType(types: !25)
+  !25 = !{!26, !30}
+  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
+  !27 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !28, size: 64)
+  !28 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !29)
+  !29 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
+All const qualifiers are preserved.
+
+To adapt the selftest to both old and new llvm, this patch removed
+the intermediate const qualifier in const-to-ptr types, to make the
+test succeed again.
+
+  [1] https://reviews.llvm.org/D125919
+
+Reported-by: Mykola Lysenko <mykolal@fb.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/r/20220523152044.3905809-1-yhs@fb.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/ultravisor.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/powernv/ultravisor.c b/arch/powerpc/platforms/powernv/ultravisor.c
-index e4a00ad06f9d..67c8c4b2d8b1 100644
---- a/arch/powerpc/platforms/powernv/ultravisor.c
-+++ b/arch/powerpc/platforms/powernv/ultravisor.c
-@@ -55,6 +55,7 @@ static int __init uv_init(void)
- 		return -ENODEV;
+diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
+index 8aaa24a00322..970598dda732 100644
+--- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
++++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
+@@ -94,7 +94,7 @@ typedef void (* (*signal_t)(int, void (*)(int)))(int);
  
- 	uv_memcons = memcons_init(node, "memcons");
-+	of_node_put(node);
- 	if (!uv_memcons)
- 		return -ENOENT;
+ typedef char * (*fn_ptr_arr1_t[10])(int **);
  
+-typedef char * (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
++typedef char * (* (* const fn_ptr_arr2_t[5])())(char * (*)(int));
+ 
+ struct struct_w_typedefs {
+ 	int_t a;
 -- 
 2.35.1
 
