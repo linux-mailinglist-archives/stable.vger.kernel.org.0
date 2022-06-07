@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B35541B34
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A71954141E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381292AbiFGVmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
+        id S1359448AbiFGUND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381299AbiFGVk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:26 -0400
+        with ESMTP id S1359005AbiFGUJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2FE1C4F3B;
-        Tue,  7 Jun 2022 12:06:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D999C13F1ED;
+        Tue,  7 Jun 2022 11:27:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78674617CC;
-        Tue,  7 Jun 2022 19:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E8FC385A2;
-        Tue,  7 Jun 2022 19:06:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51B4461252;
+        Tue,  7 Jun 2022 18:27:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E1E8C385A2;
+        Tue,  7 Jun 2022 18:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628782;
-        bh=fpu6zjifZacXCfoqg3slzQtn/2nAGxzDEeHjW3aa+ms=;
+        s=korg; t=1654626445;
+        bh=yKK7k0M0r6ya0Q01dbp5puq55CSX9bPhZH3Pqas7Iw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWlQS8s5IIgSxZ90xadqixuOMsVh5FW4ILV50+m1Bf1sg87Qa+WBNhmy/V/V48vYb
-         rH1PkSNaJpGIQAqjWkC5uwBSSdblN93hJMk7s/lVRRzMgMDiaUjTreqz+ppsltAd9k
-         K7A3VgOrwECKYLQNWzXCoqYb5zIc21AdGaH9UodY=
+        b=Ae4j7GZGYYi8ujRS+Cxt6xCUtoxPzPc1D/+pQWY0Ruh7DjD/vnQc9+Gwcw6hnjbn1
+         PMiHK0CzqZQouv87iBKzy6WAyyZkdoJUHokbfe580FQ+vZkklTTsQ2tZVcondZyRBa
+         h649cJvstPI9Rbo0X3w6eu6ryglLKtVtokWZrYCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com,
-        Ying Hsu <yinghsu@chromium.org>,
-        Joseph Hwang <josephsih@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 452/879] Bluetooth: fix dangling sco_conn and use-after-free in sco_sock_timeout
-Date:   Tue,  7 Jun 2022 18:59:30 +0200
-Message-Id: <20220607165015.988982549@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+1a247e36149ffd709a9b@syzkaller.appspotmail.com
+Subject: [PATCH 5.17 379/772] media: pvrusb2: fix array-index-out-of-bounds in pvr2_i2c_core_init
+Date:   Tue,  7 Jun 2022 18:59:31 +0200
+Message-Id: <20220607165000.183848834@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,84 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying Hsu <yinghsu@chromium.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 7aa1e7d15f8a5b65f67bacb100d8fc033b21efa2 ]
+[ Upstream commit 471bec68457aaf981add77b4f590d65dd7da1059 ]
 
-Connecting the same socket twice consecutively in sco_sock_connect()
-could lead to a race condition where two sco_conn objects are created
-but only one is associated with the socket. If the socket is closed
-before the SCO connection is established, the timer associated with the
-dangling sco_conn object won't be canceled. As the sock object is being
-freed, the use-after-free problem happens when the timer callback
-function sco_sock_timeout() accesses the socket. Here's the call trace:
+Syzbot reported that -1 is used as array index. The problem was in
+missing validation check.
 
-dump_stack+0x107/0x163
-? refcount_inc+0x1c/
-print_address_description.constprop.0+0x1c/0x47e
-? refcount_inc+0x1c/0x7b
-kasan_report+0x13a/0x173
-? refcount_inc+0x1c/0x7b
-check_memory_region+0x132/0x139
-refcount_inc+0x1c/0x7b
-sco_sock_timeout+0xb2/0x1ba
-process_one_work+0x739/0xbd1
-? cancel_delayed_work+0x13f/0x13f
-? __raw_spin_lock_init+0xf0/0xf0
-? to_kthread+0x59/0x85
-worker_thread+0x593/0x70e
-kthread+0x346/0x35a
-? drain_workqueue+0x31a/0x31a
-? kthread_bind+0x4b/0x4b
-ret_from_fork+0x1f/0x30
+hdw->unit_number is initialized with -1 and then if init table walk fails
+this value remains unchanged. Since code blindly uses this member for
+array indexing adding sanity check is the easiest fix for that.
 
-Link: https://syzkaller.appspot.com/bug?extid=2bef95d3ab4daa10155b
-Reported-by: syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com
-Fixes: e1dee2c1de2b ("Bluetooth: fix repeated calls to sco_sock_kill")
-Signed-off-by: Ying Hsu <yinghsu@chromium.org>
-Reviewed-by: Joseph Hwang <josephsih@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+hdw->workpoll initialization moved upper to prevent warning in
+__flush_work.
+
+Reported-and-tested-by: syzbot+1a247e36149ffd709a9b@syzkaller.appspotmail.com
+
+Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 2a58c7d88433..1111da4e2f2b 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -574,19 +574,24 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- 	    addr->sa_family != AF_BLUETOOTH)
- 		return -EINVAL;
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index cd7b118d5929..a9666373af6b 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2569,6 +2569,11 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	} while (0);
+ 	mutex_unlock(&pvr2_unit_mtx);
  
--	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND)
--		return -EBADFD;
-+	lock_sock(sk);
-+	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND) {
-+		err = -EBADFD;
-+		goto done;
-+	}
++	INIT_WORK(&hdw->workpoll, pvr2_hdw_worker_poll);
++
++	if (hdw->unit_number == -1)
++		goto fail;
++
+ 	cnt1 = 0;
+ 	cnt2 = scnprintf(hdw->name+cnt1,sizeof(hdw->name)-cnt1,"pvrusb2");
+ 	cnt1 += cnt2;
+@@ -2580,8 +2585,6 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 	if (cnt1 >= sizeof(hdw->name)) cnt1 = sizeof(hdw->name)-1;
+ 	hdw->name[cnt1] = 0;
  
--	if (sk->sk_type != SOCK_SEQPACKET)
--		return -EINVAL;
-+	if (sk->sk_type != SOCK_SEQPACKET) {
-+		err = -EINVAL;
-+		goto done;
-+	}
- 
- 	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
--	if (!hdev)
--		return -EHOSTUNREACH;
-+	if (!hdev) {
-+		err = -EHOSTUNREACH;
-+		goto done;
-+	}
- 	hci_dev_lock(hdev);
- 
--	lock_sock(sk);
+-	INIT_WORK(&hdw->workpoll,pvr2_hdw_worker_poll);
 -
- 	/* Set destination address and psm */
- 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+ 	pvr2_trace(PVR2_TRACE_INIT,"Driver unit number is %d, name is %s",
+ 		   hdw->unit_number,hdw->name);
  
 -- 
 2.35.1
