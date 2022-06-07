@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20D1A540868
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1140B540957
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349025AbiFGR6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
+        id S1345129AbiFGSHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:07:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348940AbiFGR5s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:48 -0400
+        with ESMTP id S1350386AbiFGSA4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26192E09C;
-        Tue,  7 Jun 2022 10:40:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29C5B138B45;
+        Tue,  7 Jun 2022 10:43:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 825D86137B;
-        Tue,  7 Jun 2022 17:40:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA79C385A5;
-        Tue,  7 Jun 2022 17:40:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A31676146F;
+        Tue,  7 Jun 2022 17:43:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A96C3C385A5;
+        Tue,  7 Jun 2022 17:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623645;
-        bh=4SlgomPlrnsgsFOxlEG6cbiBe2aA10hG0NWQqjJmNQE=;
+        s=korg; t=1654623786;
+        bh=rNhPrWpWb5Rkbor0Yta50Ausbw27F01ediVZYvcfL64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEHM4Q7e1EJv0E7E48sCD2z4Vm/Knweitw1jWGFIEWHqZLffOgIuDeNHdtHzaSDEO
-         wkoJ+ziSXDOyV/ijZjew1I8woLGmQxpXG7LWx2+HW13Hn1fyugz10qOhvVVj84CK46
-         SBpfeUYu3By5UZLXGAT07IY1v8giSsS/3GZR8HXc=
+        b=AuOT6hjBulq34d8XYtlZaz4eOcOQqOivd8w7w5gMQKaaix1YAIUJF1jcpoOb3Hscj
+         EKaWVhCfte3C4dnDkjhaQcnxmTVzi3diZbSnB5r5Ot43Eokd8eKVTUSRi1gCIkBVFe
+         qa1Ai3CbnKHueGwPciYicfDaz1xAIcrMygkIfn9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 039/667] btrfs: add "0x" prefix for unsupported optional features
-Date:   Tue,  7 Jun 2022 18:55:04 +0200
-Message-Id: <20220607164935.970108667@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 040/667] btrfs: return correct error number for __extent_writepage_io()
+Date:   Tue,  7 Jun 2022 18:55:05 +0200
+Message-Id: <20220607164936.002584485@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -55,45 +55,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-commit d5321a0fa8bc49f11bea0b470800962c17d92d8f upstream.
+commit 44e5801fada6925d2bba1987c7b59cbcc9d0d592 upstream.
 
-The following error message lack the "0x" obviously:
+[BUG]
+If we hit an error from submit_extent_page() inside
+__extent_writepage_io(), we could still return 0 to the caller, and
+even trigger the warning in btrfs_page_assert_not_dirty().
 
-  cannot mount because of unsupported optional features (4000)
+[CAUSE]
+In __extent_writepage_io(), if we hit an error from
+submit_extent_page(), we will just clean up the range and continue.
 
-Add the prefix to make it less confusing. This can happen on older
-kernels that try to mount a filesystem with newer features so it makes
-sense to backport to older trees.
+This is completely fine for regular PAGE_SIZE == sectorsize, as we can
+only hit one sector in one page, thus after the error we're ensured to
+exit and @ret will be saved.
 
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+But for subpage case, we may have other dirty subpage range in the page,
+and in the next loop, we may succeeded submitting the next range.
+
+In that case, @ret will be overwritten, and we return 0 to the caller,
+while we have hit some error.
+
+[FIX]
+Introduce @has_error and @saved_ret to record the first error we hit, so
+we will never forget what error we hit.
+
+CC: stable@vger.kernel.org # 5.15+
 Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/extent_io.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3370,7 +3370,7 @@ int __cold open_ctree(struct super_block
- 		~BTRFS_FEATURE_INCOMPAT_SUPP;
- 	if (features) {
- 		btrfs_err(fs_info,
--		    "cannot mount because of unsupported optional features (%llx)",
-+		    "cannot mount because of unsupported optional features (0x%llx)",
- 		    features);
- 		err = -EINVAL;
- 		goto fail_alloc;
-@@ -3408,7 +3408,7 @@ int __cold open_ctree(struct super_block
- 		~BTRFS_FEATURE_COMPAT_RO_SUPP;
- 	if (!sb_rdonly(sb) && features) {
- 		btrfs_err(fs_info,
--	"cannot mount read-write because of unsupported optional features (%llx)",
-+	"cannot mount read-write because of unsupported optional features (0x%llx)",
- 		       features);
- 		err = -EINVAL;
- 		goto fail_alloc;
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -3902,10 +3902,12 @@ static noinline_for_stack int __extent_w
+ 	u64 extent_offset;
+ 	u64 block_start;
+ 	struct extent_map *em;
++	int saved_ret = 0;
+ 	int ret = 0;
+ 	int nr = 0;
+ 	u32 opf = REQ_OP_WRITE;
+ 	const unsigned int write_flags = wbc_to_write_flags(wbc);
++	bool has_error = false;
+ 	bool compressed;
+ 
+ 	ret = btrfs_writepage_cow_fixup(page);
+@@ -3956,6 +3958,9 @@ static noinline_for_stack int __extent_w
+ 		if (IS_ERR_OR_NULL(em)) {
+ 			btrfs_page_set_error(fs_info, page, cur, end - cur + 1);
+ 			ret = PTR_ERR_OR_ZERO(em);
++			has_error = true;
++			if (!saved_ret)
++				saved_ret = ret;
+ 			break;
+ 		}
+ 
+@@ -4019,6 +4024,10 @@ static noinline_for_stack int __extent_w
+ 					 end_bio_extent_writepage,
+ 					 0, 0, false);
+ 		if (ret) {
++			has_error = true;
++			if (!saved_ret)
++				saved_ret = ret;
++
+ 			btrfs_page_set_error(fs_info, page, cur, iosize);
+ 			if (PageWriteback(page))
+ 				btrfs_page_clear_writeback(fs_info, page, cur,
+@@ -4032,8 +4041,10 @@ static noinline_for_stack int __extent_w
+ 	 * If we finish without problem, we should not only clear page dirty,
+ 	 * but also empty subpage dirty bits
+ 	 */
+-	if (!ret)
++	if (!has_error)
+ 		btrfs_page_assert_not_dirty(fs_info, page);
++	else
++		ret = saved_ret;
+ 	*nr_ret = nr;
+ 	return ret;
+ }
 
 
