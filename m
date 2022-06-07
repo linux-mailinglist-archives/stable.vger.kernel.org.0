@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0215412A3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 211D2541960
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356302AbiFGTy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49342 "EHLO
+        id S1359352AbiFGVVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358385AbiFGTw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663C2EACDB;
-        Tue,  7 Jun 2022 11:20:17 -0700 (PDT)
+        with ESMTP id S1378026AbiFGVSt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:18:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F71224129;
+        Tue,  7 Jun 2022 11:59:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 037F460DB7;
-        Tue,  7 Jun 2022 18:20:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13408C385A2;
-        Tue,  7 Jun 2022 18:20:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A840AB823A0;
+        Tue,  7 Jun 2022 18:59:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1017CC385A2;
+        Tue,  7 Jun 2022 18:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626016;
-        bh=0or0bOVZvhDFy8k7MzwZE5SMX4NHHdVIR77GgpLle00=;
+        s=korg; t=1654628363;
+        bh=/dbWxOZHy2OewWmHqoNlkYSibashwQ7otUvCVbYc+WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BV5f0ugb65dS8+MCRiTafHW4FX9/Gw0MTASqLIAKdE1fjO7QHJfJZBRmpLNHMj5oE
-         sFdNbfUCQd+VStQV+LS1WuODAyeawHdUey794Cu/Za+gj6vXJtJhCChOGz6CzovXCd
-         CzK9aUL0S3vEkO+EeGSXm1RVE1SDarIN9kHhbgxc=
+        b=rnDmqBTjkWyJ7A05dYm65uV3/YN2F+U2yqroMMltT5DP3RfJ80yDuVkABrrHJyXtR
+         TkrkWp9Nc7soyQOHoqNqzJWa/31GWKKS8SwilGJXwTBe+fZyVyqVFWDvcgY6lAPz0+
+         WHXNuIrrRoDM1+8VVO/2U7G9gxZXWpaQdXPgUcpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Brian Starkey <brian.starkey@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 227/772] drm/omap: fix NULL but dereferenced coccicheck error
-Date:   Tue,  7 Jun 2022 18:56:59 +0200
-Message-Id: <20220607164955.721390952@linuxfoundation.org>
+Subject: [PATCH 5.18 302/879] drm: mali-dp: potential dereference of null pointer
+Date:   Tue,  7 Jun 2022 18:57:00 +0200
+Message-Id: <20220607165011.614906035@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wan Jiabing <wanjiabing@vivo.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 8f2a3970c969d0d8d7289a4c65edcedafc16fd92 ]
+[ Upstream commit 73c3ed7495c67b8fbdc31cf58e6ca8757df31a33 ]
 
-Fix the following coccicheck warning:
-./drivers/gpu/drm/omapdrm/omap_overlay.c:89:22-25: ERROR: r_ovl is NULL
-but dereferenced.
+The return value of kzalloc() needs to be checked.
+To avoid use of null pointer '&state->base' in case of the
+failure of alloc.
 
-Here should be ovl->idx rather than r_ovl->idx.
-
-Fixes: e02b5cc9e898ad ("drm/omap: Add a 'right overlay' to plane state")
-Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220307095612.409090-1-wanjiabing@vivo.com
+Fixes: 99665d072183 ("drm: mali-dp: add malidp_crtc_state struct")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Brian Starkey <brian.starkey@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211214100837.46912-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/omap_overlay.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/arm/malidp_crtc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_overlay.c b/drivers/gpu/drm/omapdrm/omap_overlay.c
-index 10730c9b2752..b0bc9ad2ef73 100644
---- a/drivers/gpu/drm/omapdrm/omap_overlay.c
-+++ b/drivers/gpu/drm/omapdrm/omap_overlay.c
-@@ -86,7 +86,7 @@ int omap_overlay_assign(struct drm_atomic_state *s, struct drm_plane *plane,
- 		r_ovl = omap_plane_find_free_overlay(s->dev, overlay_map,
- 						     caps, fourcc);
- 		if (!r_ovl) {
--			overlay_map[r_ovl->idx] = NULL;
-+			overlay_map[ovl->idx] = NULL;
- 			*overlay = NULL;
- 			return -ENOMEM;
- 		}
+diff --git a/drivers/gpu/drm/arm/malidp_crtc.c b/drivers/gpu/drm/arm/malidp_crtc.c
+index 494075ddbef6..b5928b52e279 100644
+--- a/drivers/gpu/drm/arm/malidp_crtc.c
++++ b/drivers/gpu/drm/arm/malidp_crtc.c
+@@ -487,7 +487,10 @@ static void malidp_crtc_reset(struct drm_crtc *crtc)
+ 	if (crtc->state)
+ 		malidp_crtc_destroy_state(crtc, crtc->state);
+ 
+-	__drm_atomic_helper_crtc_reset(crtc, &state->base);
++	if (state)
++		__drm_atomic_helper_crtc_reset(crtc, &state->base);
++	else
++		__drm_atomic_helper_crtc_reset(crtc, NULL);
+ }
+ 
+ static int malidp_crtc_enable_vblank(struct drm_crtc *crtc)
 -- 
 2.35.1
 
