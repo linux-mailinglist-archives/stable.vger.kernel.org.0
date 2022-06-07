@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEBFC5404A8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFC85409CA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345525AbiFGRSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37172 "EHLO
+        id S240732AbiFGSN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:13:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345529AbiFGRS1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF7C80214;
-        Tue,  7 Jun 2022 10:18:25 -0700 (PDT)
+        with ESMTP id S1350082AbiFGSMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:12:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEC0110985;
+        Tue,  7 Jun 2022 10:48:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97281B822B2;
-        Tue,  7 Jun 2022 17:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9391C385A5;
-        Tue,  7 Jun 2022 17:18:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14A0961789;
+        Tue,  7 Jun 2022 17:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F4B6C3411C;
+        Tue,  7 Jun 2022 17:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622303;
-        bh=tY9ON1yVNcaoBBVnGUFBrSlhdId6c7F/d9pwMXcAGqg=;
+        s=korg; t=1654624101;
+        bh=OfpDucA+meciRfZXXHe2/e6CRQkH5VCUTVwXmkHiZOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uevSWeJRm9QI3IibJDPJ4qQCNX5WhgdVqxgw2a8cJe3NYL27/fPKl2QfUTaFGc3av
-         GNZOgOxZFVHNUMyOS2DmvP5Nc7212NXYEpBbStxz6AEGgJClH44M2PKy/uBBAMiHS6
-         vo/0VGCM8EtzDH/HSWDoSBvxYxOQVShb0iYbQEkc=
+        b=pVASiZUts9IoiTPWq2lQE+cAdS+X360wGBUpzg0pu06d9fQ43lRVHoOI52CkNpLlB
+         a0/xPDSmu9FBmoXRDBEuCrHskRETUTQrvTMrE3/5Srs+QAHDcdPYfDlfV/zyvtliXQ
+         4Vi6gxu4+d/K6oBZIjUh98MQdEnvE+bAmnZy3uWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.10 012/452] usb: core: hcd: Add support for deferring roothub registration
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 204/667] x86/PCI: Fix ALi M1487 (IBC) PIRQ router link value interpretation
 Date:   Tue,  7 Jun 2022 18:57:49 +0200
-Message-Id: <20220607164908.905262023@linuxfoundation.org>
+Message-Id: <20220607164940.917403992@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,122 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit a44623d9279086c89f631201d993aa332f7c9e66 upstream.
+[ Upstream commit 4969e223b109754c2340a26bba9b1cf44f0cba9b ]
 
-It has been observed with certain PCIe USB cards (like Inateck connected
-to AM64 EVM or J7200 EVM) that as soon as the primary roothub is
-registered, port status change is handled even before xHC is running
-leading to cold plug USB devices not detected. For such cases, registering
-both the root hubs along with the second HCD is required. Add support for
-deferring roothub registration in usb_add_hcd(), so that both primary and
-secondary roothubs are registered along with the second HCD.
+Fix an issue with commit 1ce849c75534 ("x86/PCI: Add support for the ALi
+M1487 (IBC) PIRQ router") and correct ALi M1487 (IBC) PIRQ router link
+value (`pirq' cookie) interpretation according to findings in the BIOS.
 
-This patch has been added and reverted earier as it triggered a race
-in usb device enumeration.
-That race is now fixed in 5.16-rc3, and in stable back to 5.4
-commit 6cca13de26ee ("usb: hub: Fix locking issues with address0_mutex")
-commit 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0
-race")
+Credit to Nikolai Zhubr for the detective work as to the bit layout.
 
-CC: stable@vger.kernel.org # 5.4+
-Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Chris Chiu <chris.chiu@canonical.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Link: https://lore.kernel.org/r/20220510091630.16564-2-kishon@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1ce849c75534 ("x86/PCI: Add support for the ALi M1487 (IBC) PIRQ router")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2203310013270.44113@angie.orcam.me.uk
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd.c  |   29 +++++++++++++++++++++++------
- include/linux/usb/hcd.h |    2 ++
- 2 files changed, 25 insertions(+), 6 deletions(-)
+ arch/x86/pci/irq.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -2661,6 +2661,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
+diff --git a/arch/x86/pci/irq.c b/arch/x86/pci/irq.c
+index 97b63e35e152..21c4bc41741f 100644
+--- a/arch/x86/pci/irq.c
++++ b/arch/x86/pci/irq.c
+@@ -253,6 +253,15 @@ static void write_pc_conf_nybble(u8 base, u8 index, u8 val)
+ 	pc_conf_set(reg, x);
+ }
+ 
++/*
++ * FinALi pirq rules are as follows:
++ *
++ * - bit 0 selects between INTx Routing Table Mapping Registers,
++ *
++ * - bit 3 selects the nibble within the INTx Routing Table Mapping Register,
++ *
++ * - bits 7:4 map to bits 3:0 of the PCI INTx Sensitivity Register.
++ */
+ static int pirq_finali_get(struct pci_dev *router, struct pci_dev *dev,
+ 			   int pirq)
  {
- 	int retval;
- 	struct usb_device *rhdev;
-+	struct usb_hcd *shared_hcd;
+@@ -260,11 +269,13 @@ static int pirq_finali_get(struct pci_dev *router, struct pci_dev *dev,
+ 		0, 9, 3, 10, 4, 5, 7, 6, 0, 11, 0, 12, 0, 14, 0, 15
+ 	};
+ 	unsigned long flags;
++	u8 index;
+ 	u8 x;
  
- 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
- 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
-@@ -2817,13 +2818,26 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 		goto err_hcd_driver_start;
- 	}
++	index = (pirq & 1) << 1 | (pirq & 8) >> 3;
+ 	raw_spin_lock_irqsave(&pc_conf_lock, flags);
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, PC_CONF_FINALI_LOCK_KEY);
+-	x = irqmap[read_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, pirq - 1)];
++	x = irqmap[read_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, index)];
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, 0);
+ 	raw_spin_unlock_irqrestore(&pc_conf_lock, flags);
+ 	return x;
+@@ -278,13 +289,15 @@ static int pirq_finali_set(struct pci_dev *router, struct pci_dev *dev,
+ 	};
+ 	u8 val = irqmap[irq];
+ 	unsigned long flags;
++	u8 index;
  
-+	/* starting here, usbcore will pay attention to the shared HCD roothub */
-+	shared_hcd = hcd->shared_hcd;
-+	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
-+		retval = register_root_hub(shared_hcd);
-+		if (retval != 0)
-+			goto err_register_root_hub;
-+
-+		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
-+			usb_hcd_poll_rh_status(shared_hcd);
-+	}
-+
- 	/* starting here, usbcore will pay attention to this root hub */
--	retval = register_root_hub(hcd);
--	if (retval != 0)
--		goto err_register_root_hub;
-+	if (!HCD_DEFER_RH_REGISTER(hcd)) {
-+		retval = register_root_hub(hcd);
-+		if (retval != 0)
-+			goto err_register_root_hub;
+ 	if (!val)
+ 		return 0;
  
--	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
--		usb_hcd_poll_rh_status(hcd);
-+		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
-+			usb_hcd_poll_rh_status(hcd);
-+	}
- 
- 	return retval;
- 
-@@ -2866,6 +2880,7 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
- void usb_remove_hcd(struct usb_hcd *hcd)
++	index = (pirq & 1) << 1 | (pirq & 8) >> 3;
+ 	raw_spin_lock_irqsave(&pc_conf_lock, flags);
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, PC_CONF_FINALI_LOCK_KEY);
+-	write_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, pirq - 1, val);
++	write_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, index, val);
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, 0);
+ 	raw_spin_unlock_irqrestore(&pc_conf_lock, flags);
+ 	return 1;
+@@ -293,7 +306,7 @@ static int pirq_finali_set(struct pci_dev *router, struct pci_dev *dev,
+ static int pirq_finali_lvl(struct pci_dev *router, struct pci_dev *dev,
+ 			   int pirq, int irq)
  {
- 	struct usb_device *rhdev = hcd->self.root_hub;
-+	bool rh_registered;
+-	u8 mask = ~(1u << (pirq - 1));
++	u8 mask = ~((pirq & 0xf0u) >> 4);
+ 	unsigned long flags;
+ 	u8 trig;
  
- 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
- 
-@@ -2876,6 +2891,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 
- 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
- 	spin_lock_irq (&hcd_root_hub_lock);
-+	rh_registered = hcd->rh_registered;
- 	hcd->rh_registered = 0;
- 	spin_unlock_irq (&hcd_root_hub_lock);
- 
-@@ -2885,7 +2901,8 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 	cancel_work_sync(&hcd->died_work);
- 
- 	mutex_lock(&usb_bus_idr_lock);
--	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
-+	if (rh_registered)
-+		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
- 	mutex_unlock(&usb_bus_idr_lock);
- 
- 	/*
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -124,6 +124,7 @@ struct usb_hcd {
- #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
- #define HCD_FLAG_DEAD			6	/* controller has died? */
- #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
-+#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
- 
- 	/* The flags can be tested using these macros; they are likely to
- 	 * be slightly faster than test_bit().
-@@ -134,6 +135,7 @@ struct usb_hcd {
- #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
- #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
- #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
-+#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
- 
- 	/*
- 	 * Specifies if interfaces are authorized by default
+-- 
+2.35.1
+
 
 
