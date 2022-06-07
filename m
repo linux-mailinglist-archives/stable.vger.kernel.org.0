@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CD1540907
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AE7454196C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243133AbiFGSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33186 "EHLO
+        id S1377756AbiFGVWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:22:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351910AbiFGSCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB446131F00;
-        Tue,  7 Jun 2022 10:46:10 -0700 (PDT)
+        with ESMTP id S1378548AbiFGVTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:19:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B1122445F;
+        Tue,  7 Jun 2022 11:59:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 894E8B822CD;
-        Tue,  7 Jun 2022 17:46:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD9AC34115;
-        Tue,  7 Jun 2022 17:46:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 454D0B82391;
+        Tue,  7 Jun 2022 18:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ECD2C385A2;
+        Tue,  7 Jun 2022 18:59:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623968;
-        bh=yoxhDZYgsb+yYlZZwz5ToNqwGqQPdnkh/B9IKDpd3kM=;
+        s=korg; t=1654628368;
+        bh=1vuZle/aJdf8IXFfMGotKYrT8HQrM8syeDFZeWAjPJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLwWjhS/r2bmyvQMcQReR/CYS/705VdtUFkooptRwtnjFGClNE9Ym/QiJbuGFbHB2
-         lqITFBs9rJbal6tHKHeGswi/Xgc75WRRAof92zXGgvsoYTcTT+W9U3jC+Z6rJC6ZoA
-         jCO1k+0Mkt67HPtnVSNvSsyZV6eP+Xw5OD3Dz2Gk=
+        b=rGjXHm6nnejWqetoI2wOM8iylv596oGQCU7tJnaMh/IzIEzfypoE2YjiA3lkj2rMq
+         BcKDqe/cgsWtQpylbfnXTI9Rff3YvNAbspvF1vtr9pMGcUmMC/fadJR75QTJ7YfFbj
+         i3hCxIBitbSC9N9s0bp6mp0oweRySMND9522kP2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Zixuan Fu <r33s3n6@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 157/667] fs: jfs: fix possible NULL pointer dereference in dbFree()
+Subject: [PATCH 5.18 304/879] spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
 Date:   Tue,  7 Jun 2022 18:57:02 +0200
-Message-Id: <20220607164939.524767277@linuxfoundation.org>
+Message-Id: <20220607165011.673443006@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zixuan Fu <r33s3n6@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 0d4837fdb796f99369cf7691d33de1b856bcaf1f ]
+[ Upstream commit 8b1ea69a63eb62f97cef63e6d816b64ed84e8760 ]
 
-In our fault-injection testing, the variable "nblocks" in dbFree() can be
-zero when kmalloc_array() fails in dtSearch(). In this case, the variable
- "mp" in dbFree() would be NULL and then it is dereferenced in
-"write_metapage(mp)".
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-The failure log is listed as follows:
-
-[   13.824137] BUG: kernel NULL pointer dereference, address: 0000000000000020
-...
-[   13.827416] RIP: 0010:dbFree+0x5f7/0x910 [jfs]
-[   13.834341] Call Trace:
-[   13.834540]  <TASK>
-[   13.834713]  txFreeMap+0x7b4/0xb10 [jfs]
-[   13.835038]  txUpdateMap+0x311/0x650 [jfs]
-[   13.835375]  jfs_lazycommit+0x5f2/0xc70 [jfs]
-[   13.835726]  ? sched_dynamic_update+0x1b0/0x1b0
-[   13.836092]  kthread+0x3c2/0x4a0
-[   13.836355]  ? txLockFree+0x160/0x160 [jfs]
-[   13.836763]  ? kthread_unuse_mm+0x160/0x160
-[   13.837106]  ret_from_fork+0x1f/0x30
-[   13.837402]  </TASK>
-...
-
-This patch adds a NULL check of "mp" before "write_metapage(mp)" is called.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220411111034.24447-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-ti-qspi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index d8502f4989d9..e75f31b81d63 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -385,7 +385,8 @@ int dbFree(struct inode *ip, s64 blkno, s64 nblocks)
+diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
+index e06aafe169e0..081da1fd3fd7 100644
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -448,6 +448,7 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
+ 	enum dma_ctrl_flags flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+ 	struct dma_async_tx_descriptor *tx;
+ 	int ret;
++	unsigned long time_left;
+ 
+ 	tx = dmaengine_prep_dma_memcpy(chan, dma_dst, dma_src, len, flags);
+ 	if (!tx) {
+@@ -467,9 +468,9 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
  	}
  
- 	/* write the last buffer. */
--	write_metapage(mp);
-+	if (mp)
-+		write_metapage(mp);
- 
- 	IREAD_UNLOCK(ipbmap);
- 
+ 	dma_async_issue_pending(chan);
+-	ret = wait_for_completion_timeout(&qspi->transfer_complete,
++	time_left = wait_for_completion_timeout(&qspi->transfer_complete,
+ 					  msecs_to_jiffies(len));
+-	if (ret <= 0) {
++	if (time_left == 0) {
+ 		dmaengine_terminate_sync(chan);
+ 		dev_err(qspi->dev, "DMA wait_for_completion_timeout\n");
+ 		return -ETIMEDOUT;
 -- 
 2.35.1
 
