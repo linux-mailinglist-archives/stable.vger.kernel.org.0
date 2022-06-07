@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3958F5417E9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A54B5410B0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350563AbiFGVGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:06:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
+        id S1354306AbiFGT2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:28:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378724AbiFGVBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:47 -0400
+        with ESMTP id S1356517AbiFGT1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:27:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0DC20E6E0;
-        Tue,  7 Jun 2022 11:45:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FE681A04B8;
+        Tue,  7 Jun 2022 11:10:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A52361295;
-        Tue,  7 Jun 2022 18:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 758EEC385A2;
-        Tue,  7 Jun 2022 18:45:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 237D3617B3;
+        Tue,  7 Jun 2022 18:10:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F44C385A2;
+        Tue,  7 Jun 2022 18:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627529;
-        bh=v9GulALvy4HeZE827ZxtExdyhVtIrBFdZq9NnG5OvXc=;
+        s=korg; t=1654625402;
+        bh=rEXuqKaQFolUhzZoisORWwah/+wIF+yL/H+ScGQFSQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kGGdgxZS0v4X3v5HFQE0wV0ueRT6Ztt5um3SOJhPFIS/uElLsqFpo6QCcNPZ6oOsA
-         jqwRRC6fBeLcPY4Xs9eZcLBPCneLoZbnbhl2dsSUagvX2fw/o6MocWSYzIf9AhujR/
-         LiiUBNzS/y6xwd6ANCCGyyuN+l7zlVLQnY9Jnrp8=
+        b=lOwUeXWYuUYoj7z3kJ78Kyau+zmdDCwQyPS3+cznPbRvJXnbdVy8i7ZD+dQ/c6gF9
+         FZpElr1cV8npUDYvCqIhaQ/cq5YxjyNVZaj6Urezw9TCIMbYPMx9WVNKivx18aadmV
+         tux15qTCMdrY4ie6/MNESZZMoeZNlfmiJnU3zhtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikhil Kshirsagar <nkshirsagar@gmail.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 736/772] bcache: avoid journal no-space deadlock by reserving 1 journal bucket
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.15 663/667] exportfs: support idmapped mounts
 Date:   Tue,  7 Jun 2022 19:05:28 +0200
-Message-Id: <20220607165010.725828463@linuxfoundation.org>
+Message-Id: <20220607164954.527968070@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,145 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Christian Brauner <brauner@kernel.org>
 
-commit 32feee36c30ea06e38ccb8ae6e5c44c6eec790a6 upstream.
+commit 3a761d72fa62eec8913e45d29375344f61706541 upstream.
 
-The journal no-space deadlock was reported time to time. Such deadlock
-can happen in the following situation.
+Make the two locations where exportfs helpers check permission to lookup
+a given inode idmapped mount aware by switching it to the lookup_one()
+helper. This is a bugfix for the open_by_handle_at() system call which
+doesn't take idmapped mounts into account currently. It's not tied to a
+specific commit so we'll just Cc stable.
 
-When all journal buckets are fully filled by active jset with heavy
-write I/O load, the cache set registration (after a reboot) will load
-all active jsets and inserting them into the btree again (which is
-called journal replay). If a journaled bkey is inserted into a btree
-node and results btree node split, new journal request might be
-triggered. For example, the btree grows one more level after the node
-split, then the root node record in cache device super block will be
-upgrade by bch_journal_meta() from bch_btree_set_root(). But there is no
-space in journal buckets, the journal replay has to wait for new journal
-bucket to be reclaimed after at least one journal bucket replayed. This
-is one example that how the journal no-space deadlock happens.
+In addition this is required to support idmapped base layers in overlay.
+The overlay filesystem uses exportfs to encode and decode file handles
+for its index=on mount option and when nfs_export=on.
 
-The solution to avoid the deadlock is to reserve 1 journal bucket in
-run time, and only permit the reserved journal bucket to be used during
-cache set registration procedure for things like journal replay. Then
-the journal space will never be fully filled, there is no chance for
-journal no-space deadlock to happen anymore.
-
-This patch adds a new member "bool do_reserve" in struct journal, it is
-inititalized to 0 (false) when struct journal is allocated, and set to
-1 (true) by bch_journal_space_reserve() when all initialization done in
-run_cache_set(). In the run time when journal_reclaim() tries to
-allocate a new journal bucket, free_journal_buckets() is called to check
-whether there are enough free journal buckets to use. If there is only
-1 free journal bucket and journal->do_reserve is 1 (true), the last
-bucket is reserved and free_journal_buckets() will return 0 to indicate
-no free journal bucket. Then journal_reclaim() will give up, and try
-next time to see whetheer there is free journal bucket to allocate. By
-this method, there is always 1 jouranl bucket reserved in run time.
-
-During the cache set registration, journal->do_reserve is 0 (false), so
-the reserved journal bucket can be used to avoid the no-space deadlock.
-
-Reported-by: Nikhil Kshirsagar <nkshirsagar@gmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220524102336.10684-5-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-fsdevel@vger.kernel.org>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/journal.c |   31 ++++++++++++++++++++++++++-----
- drivers/md/bcache/journal.h |    2 ++
- drivers/md/bcache/super.c   |    1 +
- 3 files changed, 29 insertions(+), 5 deletions(-)
+ fs/exportfs/expfs.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -407,6 +407,11 @@ err:
- 	return ret;
- }
+--- a/fs/exportfs/expfs.c
++++ b/fs/exportfs/expfs.c
+@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(stru
+ 	if (err)
+ 		goto out_err;
+ 	dprintk("%s: found name: %s\n", __func__, nbuf);
+-	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
++	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
+ 	if (IS_ERR(tmp)) {
+ 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
+ 		err = PTR_ERR(tmp);
+@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *
+ 		}
  
-+void bch_journal_space_reserve(struct journal *j)
-+{
-+	j->do_reserve = true;
-+}
-+
- /* Journalling */
- 
- static void btree_flush_write(struct cache_set *c)
-@@ -625,12 +630,30 @@ static void do_journal_discard(struct ca
- 	}
- }
- 
-+static unsigned int free_journal_buckets(struct cache_set *c)
-+{
-+	struct journal *j = &c->journal;
-+	struct cache *ca = c->cache;
-+	struct journal_device *ja = &c->cache->journal;
-+	unsigned int n;
-+
-+	/* In case njournal_buckets is not power of 2 */
-+	if (ja->cur_idx >= ja->discard_idx)
-+		n = ca->sb.njournal_buckets +  ja->discard_idx - ja->cur_idx;
-+	else
-+		n = ja->discard_idx - ja->cur_idx;
-+
-+	if (n > (1 + j->do_reserve))
-+		return n - (1 + j->do_reserve);
-+
-+	return 0;
-+}
-+
- static void journal_reclaim(struct cache_set *c)
- {
- 	struct bkey *k = &c->journal.key;
- 	struct cache *ca = c->cache;
- 	uint64_t last_seq;
--	unsigned int next;
- 	struct journal_device *ja = &ca->journal;
- 	atomic_t p __maybe_unused;
- 
-@@ -653,12 +676,10 @@ static void journal_reclaim(struct cache
- 	if (c->journal.blocks_free)
- 		goto out;
- 
--	next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
--	/* No space available on this device */
--	if (next == ja->discard_idx)
-+	if (!free_journal_buckets(c))
- 		goto out;
- 
--	ja->cur_idx = next;
-+	ja->cur_idx = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
- 	k->ptr[0] = MAKE_PTR(0,
- 			     bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
- 			     ca->sb.nr_this_dev);
---- a/drivers/md/bcache/journal.h
-+++ b/drivers/md/bcache/journal.h
-@@ -105,6 +105,7 @@ struct journal {
- 	spinlock_t		lock;
- 	spinlock_t		flush_write_lock;
- 	bool			btree_flushing;
-+	bool			do_reserve;
- 	/* used when waiting because the journal was full */
- 	struct closure_waitlist	wait;
- 	struct closure		io;
-@@ -182,5 +183,6 @@ int bch_journal_replay(struct cache_set
- 
- void bch_journal_free(struct cache_set *c);
- int bch_journal_alloc(struct cache_set *c);
-+void bch_journal_space_reserve(struct journal *j);
- 
- #endif /* _BCACHE_JOURNAL_H */
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -2131,6 +2131,7 @@ static int run_cache_set(struct cache_se
- 
- 	flash_devs_run(c);
- 
-+	bch_journal_space_reserve(&c->journal);
- 	set_bit(CACHE_SET_RUNNING, &c->flags);
- 	return 0;
- err:
+ 		inode_lock(target_dir->d_inode);
+-		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
++		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
++				     target_dir, strlen(nbuf));
+ 		if (!IS_ERR(nresult)) {
+ 			if (unlikely(nresult->d_inode != result->d_inode)) {
+ 				dput(nresult);
 
 
