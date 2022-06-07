@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BAE25404B3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBDED541A05
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345588AbiFGRSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
+        id S1354642AbiFGV2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:28:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345597AbiFGRSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319601053C9;
-        Tue,  7 Jun 2022 10:18:40 -0700 (PDT)
+        with ESMTP id S1348606AbiFGV1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:27:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6476922873A;
+        Tue,  7 Jun 2022 12:01:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D92C1B822AF;
-        Tue,  7 Jun 2022 17:18:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44630C34115;
-        Tue,  7 Jun 2022 17:18:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B41EB617F5;
+        Tue,  7 Jun 2022 19:01:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A86C36B0A;
+        Tue,  7 Jun 2022 19:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622317;
-        bh=KZaq+5wpG3X41Uo87q90vm1FixZ/eyT9ZhY/vkIndL0=;
+        s=korg; t=1654628515;
+        bh=iO2P/nvW0rLUabYC+vymgQADo7tKPff85CdUNlAwSeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhLQ1mma/DiACBb6QZvmjlLlFdcBrLIeLdPUpozVRMM8/8lqgMPv1JKXmg+U3FDaC
-         RQ4EGsWXkkJKpTjwsXlVEBY84PnrOf/K9lCwKGKWZ2WX16RtoiWeEmNU2ymnh/BkR4
-         ZYxaFaHKyUAzvREH03IVBhI0/Bb+NGSxolQiAAiM=
+        b=v04DR4A2gJuvk7VEvoRQSyKcuhSJkK4OkcWSMdRCN1NJtgoxgKIWH9nYNMDiK67In
+         t2aZEetbRxNRDOx2cEjqOGBtVYJZ4T2lAuEprF5OP6FJ2QN4dt7Zq2WcOU4d+P446g
+         trRBN8fhvtz6UxqDkh+vdCahGvDBMGwW2hjEhv78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
-        Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 017/452] x86/MCE/AMD: Fix memory leak when threshold_create_bank() fails
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 356/879] scsi: ufs: qcom: Fix ufs_qcom_resume()
 Date:   Tue,  7 Jun 2022 18:57:54 +0200
-Message-Id: <20220607164909.055097234@linuxfoundation.org>
+Message-Id: <20220607165013.196950844@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,100 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit e5f28623ceb103e13fc3d7bd45edf9818b227fd0 upstream.
+[ Upstream commit bee40dc167da159ea5b939c074e1da258610a3d6 ]
 
-In mce_threshold_create_device(), if threshold_create_bank() fails, the
-previously allocated threshold banks array @bp will be leaked because
-the call to mce_threshold_remove_device() will not free it.
+Clearing hba->is_sys_suspended if ufs_qcom_resume() succeeds is wrong. That
+variable must only be cleared if all actions involved in a resume succeed.
+Hence remove the statement that clears hba->is_sys_suspended from
+ufs_qcom_resume().
 
-This happens because mce_threshold_remove_device() fetches the pointer
-through the threshold_banks per-CPU variable but bp is written there
-only after the bank creation is successful, and not before, when
-threshold_create_bank() fails.
-
-Add a helper which unwinds all the bank creation work previously done
-and pass into it the previously allocated threshold banks array for
-freeing.
-
-  [ bp: Massage. ]
-
-Fixes: 6458de97fc15 ("x86/mce/amd: Straighten CPU hotplug path")
-Co-developed-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
-Signed-off-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
-Co-developed-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220329104705.65256-3-ammarfaizi2@gnuweeb.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220419225811.4127248-23-bvanassche@acm.org
+Fixes: 81c0fc51b7a7 ("ufs-qcom: add support for Qualcomm Technologies Inc platforms")
+Tested-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/amd.c |   32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
+ drivers/scsi/ufs/ufs-qcom.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/mce/amd.c
-+++ b/arch/x86/kernel/cpu/mce/amd.c
-@@ -1457,10 +1457,23 @@ out_free:
- 	kfree(bank);
- }
- 
-+static void __threshold_remove_device(struct threshold_bank **bp)
-+{
-+	unsigned int bank, numbanks = this_cpu_read(mce_num_banks);
-+
-+	for (bank = 0; bank < numbanks; bank++) {
-+		if (!bp[bank])
-+			continue;
-+
-+		threshold_remove_bank(bp[bank]);
-+		bp[bank] = NULL;
-+	}
-+	kfree(bp);
-+}
-+
- int mce_threshold_remove_device(unsigned int cpu)
- {
- 	struct threshold_bank **bp = this_cpu_read(threshold_banks);
--	unsigned int bank, numbanks = this_cpu_read(mce_num_banks);
- 
- 	if (!bp)
- 		return 0;
-@@ -1471,13 +1484,7 @@ int mce_threshold_remove_device(unsigned
- 	 */
- 	this_cpu_write(threshold_banks, NULL);
- 
--	for (bank = 0; bank < numbanks; bank++) {
--		if (bp[bank]) {
--			threshold_remove_bank(bp[bank]);
--			bp[bank] = NULL;
--		}
--	}
--	kfree(bp);
-+	__threshold_remove_device(bp);
- 	return 0;
- }
- 
-@@ -1514,15 +1521,14 @@ int mce_threshold_create_device(unsigned
- 		if (!(this_cpu_read(bank_map) & (1 << bank)))
- 			continue;
- 		err = threshold_create_bank(bp, cpu, bank);
--		if (err)
--			goto out_err;
-+		if (err) {
-+			__threshold_remove_device(bp);
-+			return err;
-+		}
+diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
+index 586c0e567ff9..e61083d01f6e 100644
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -641,12 +641,7 @@ static int ufs_qcom_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
+ 			return err;
  	}
- 	this_cpu_write(threshold_banks, bp);
  
- 	if (thresholding_irq_en)
- 		mce_threshold_vector = amd_threshold_interrupt;
- 	return 0;
--out_err:
--	mce_threshold_remove_device(cpu);
--	return err;
+-	err = ufs_qcom_ice_resume(host);
+-	if (err)
+-		return err;
+-
+-	hba->is_sys_suspended = false;
+-	return 0;
++	return ufs_qcom_ice_resume(host);
  }
+ 
+ static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
+-- 
+2.35.1
+
 
 
