@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 401FC541997
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 642B75408A4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377849AbiFGVXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54790 "EHLO
+        id S1347687AbiFGSCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380501AbiFGVQX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB3A21D3FC;
-        Tue,  7 Jun 2022 11:55:16 -0700 (PDT)
+        with ESMTP id S1349480AbiFGSAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DAD122B51;
+        Tue,  7 Jun 2022 10:41:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4234B8220B;
-        Tue,  7 Jun 2022 18:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225A5C385A2;
-        Tue,  7 Jun 2022 18:55:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A103614BC;
+        Tue,  7 Jun 2022 17:41:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95490C385A5;
+        Tue,  7 Jun 2022 17:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628113;
-        bh=VfEohdirGWqMYKm8EJN/0nGqKpK6fovf6VVJ591kVQs=;
+        s=korg; t=1654623715;
+        bh=RBHz7ZF803gdhje7BfbRLZ/t4QWWO44yiiVcusiMfKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aB52yzu+c5p93sS2LvYSx5wHoVnDFK9Yt5HM4miQwKm7PHbnnMKW0y9kWsmHJAKf2
-         n4PAXMvcEZ52T7HswnZLf/uVV9PDdvFW/Qyyn02tbmcVI0otZFbEzGr7ZFtj8qmPAR
-         LDvcrXt6JNzRfBx1gsW1FsEHFDAUsSYsSThlOuvo=
+        b=yxEQrOxUP1Vju20GiBPtJBX8yjFhRFpBpFtvtUWT7h9KiU+qcZpXx3mcqHqLagZ9U
+         SJGtWAW+EqOrersEodDVtBa95t9poVTpIu9B4B+Vjf+UN2VIEXaVeZiRYe0MKfpsBb
+         SOLB7NqEbuftJK46YP1JqyrU+j1TM26zZa7IeA9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 212/879] ARM: dts: socfpga: align interrupt controller node name with dtschema
+Subject: [PATCH 5.15 065/667] tools/power turbostat: fix ICX DRAM power numbers
 Date:   Tue,  7 Jun 2022 18:55:30 +0200
-Message-Id: <20220607165009.007728091@linuxfoundation.org>
+Message-Id: <20220607164936.767738764@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit c9bdd50d2019f78bf4c1f6a79254c27771901023 ]
+[ Upstream commit 6397b6418935773a34b533b3348b03f4ce3d7050 ]
 
-Fixes dtbs_check warnings like:
+ICX (and its duplicates) require special hard-coded DRAM RAPL units,
+rather than using the generic RAPL energy units.
 
-  $nodename:0: 'intc@fffed000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20220317115705.450427-2-krzysztof.kozlowski@canonical.com
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/socfpga.dtsi         | 2 +-
- arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ tools/power/x86/turbostat/turbostat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
-index 7c1d6423d7f8..b8c5dd7860cb 100644
---- a/arch/arm/boot/dts/socfpga.dtsi
-+++ b/arch/arm/boot/dts/socfpga.dtsi
-@@ -46,7 +46,7 @@
- 		      <0xff113000 0x1000>;
- 	};
- 
--	intc: intc@fffed000 {
-+	intc: interrupt-controller@fffed000 {
- 		compatible = "arm,cortex-a9-gic";
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index 3ba431dfa8c9..f1e50d2e623a 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -38,7 +38,7 @@
- 		      <0xff113000 0x1000>;
- 	};
- 
--	intc: intc@ffffd000 {
-+	intc: interrupt-controller@ffffd000 {
- 		compatible = "arm,cortex-a9-gic";
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 47d3ba895d6d..4f176bbf29f4 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4376,6 +4376,7 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
+ 	case INTEL_FAM6_BROADWELL_X:	/* BDX */
+ 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
+ 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
++	case INTEL_FAM6_ICELAKE_X:	/* ICX */
+ 		return (rapl_dram_energy_units = 15.3 / 1000000);
+ 	default:
+ 		return (rapl_energy_units);
 -- 
 2.35.1
 
