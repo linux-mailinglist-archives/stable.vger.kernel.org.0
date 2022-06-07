@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D06625423EC
+	by mail.lfdr.de (Postfix) with ESMTP id D5C785423ED
 	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347733AbiFHC35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 22:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
+        id S1348706AbiFHCrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 22:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446950AbiFHC1A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:27:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D205A26854B;
-        Tue,  7 Jun 2022 12:21:42 -0700 (PDT)
+        with ESMTP id S1447787AbiFHCoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:44:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB23D26855B;
+        Tue,  7 Jun 2022 12:21:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11129B823CE;
-        Tue,  7 Jun 2022 19:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74987C385A2;
-        Tue,  7 Jun 2022 19:21:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4359B60A54;
+        Tue,  7 Jun 2022 19:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C633C385A2;
+        Tue,  7 Jun 2022 19:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629699;
-        bh=g87Y1uGDdJzNQpe0rlFlHuESKO6QUlZYQPzLsH/O1Cs=;
+        s=korg; t=1654629702;
+        bh=5eZbs3RUyx8krHHab6EXWvD9mRyJfw/nCvHv1W7UiA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ka7IYyRz7MVa30lWw0I7REM7JoJ39KKTl2vPrtUxs4uRopPesDdKdDqSa3zWcH/Mc
-         Tzlp3nuYuMfdT/U2RjEk80diSLWz3PRfjYFG/QKnFAosjw3OXDBjrxkCUol8aEbKZk
-         XKNKCvVowuA/QdQjL8FPB4B+boJEfGDpALO7OYfk=
+        b=FnixDBPe+KhUQBj054s3qDlfByDfVFkS8nBjri+a5tY70AgOV7Zv6lGjYKBXMq04u
+         PV+PS+3iytTHvxXYC0Xxo786zU/CNem8Re7Y7gDa4ObRhJ4FDb7MV8N/zeb5fzoR6R
+         HpbhXFUAMbL0r8VRrD4THUhyFHJTsa6dIrqZsPKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.18 785/879] landlock: Change landlock_restrict_self(2) check ordering
-Date:   Tue,  7 Jun 2022 19:05:03 +0200
-Message-Id: <20220607165025.654737496@linuxfoundation.org>
+Subject: [PATCH 5.18 786/879] selftests/landlock: Test landlock_create_ruleset(2) argument check ordering
+Date:   Tue,  7 Jun 2022 19:05:04 +0200
+Message-Id: <20220607165025.682786588@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,110 +55,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mickaël Salaün <mic@digikod.net>
 
-commit eba39ca4b155c54adf471a69e91799cc1727873f upstream.
+commit 6533d0c3a86ee1cc74ff37ac92ca597deb87015c upstream.
 
-According to the Landlock goal to be a security feature available to
-unprivileges processes, it makes more sense to first check for
-no_new_privs before checking anything else (i.e. syscall arguments).
+Add inval_create_ruleset_arguments, extension of
+inval_create_ruleset_flags, to also check error ordering for
+landlock_create_ruleset(2).
 
-Merge inval_fd_enforce and unpriv_enforce_without_no_new_privs tests
-into the new restrict_self_checks_ordering.  This is similar to the
-previous commit checking other syscalls.
+This is similar to the previous commit checking landlock_add_rule(2).
 
-Link: https://lore.kernel.org/r/20220506160820.524344-10-mic@digikod.net
+Test coverage for security/landlock is 94.4% of 504 lines accorging to
+gcc/gcov-11.
+
+Link: https://lore.kernel.org/r/20220506160820.524344-11-mic@digikod.net
 Cc: stable@vger.kernel.org
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/landlock/syscalls.c                 |    8 ++--
- tools/testing/selftests/landlock/base_test.c |   47 +++++++++++++++++++++------
- 2 files changed, 41 insertions(+), 14 deletions(-)
+ tools/testing/selftests/landlock/base_test.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/security/landlock/syscalls.c
-+++ b/security/landlock/syscalls.c
-@@ -405,10 +405,6 @@ SYSCALL_DEFINE2(landlock_restrict_self,
- 	if (!landlock_initialized)
- 		return -EOPNOTSUPP;
- 
--	/* No flag for now. */
--	if (flags)
--		return -EINVAL;
--
- 	/*
- 	 * Similar checks as for seccomp(2), except that an -EPERM may be
- 	 * returned.
-@@ -417,6 +413,10 @@ SYSCALL_DEFINE2(landlock_restrict_self,
- 	    !ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
- 		return -EPERM;
- 
-+	/* No flag for now. */
-+	if (flags)
-+		return -EINVAL;
-+
- 	/* Gets and checks the ruleset. */
- 	ruleset = get_ruleset_from_fd(ruleset_fd, FMODE_CAN_READ);
- 	if (IS_ERR(ruleset))
 --- a/tools/testing/selftests/landlock/base_test.c
 +++ b/tools/testing/selftests/landlock/base_test.c
-@@ -168,22 +168,49 @@ TEST(add_rule_checks_ordering)
- 	ASSERT_EQ(0, close(ruleset_fd));
+@@ -97,14 +97,17 @@ TEST(abi_version)
+ 	ASSERT_EQ(EINVAL, errno);
  }
  
--TEST(inval_fd_enforce)
-+/* Tests ordering of syscall argument and permission checks. */
-+TEST(restrict_self_checks_ordering)
+-TEST(inval_create_ruleset_flags)
++/* Tests ordering of syscall argument checks. */
++TEST(create_ruleset_checks_ordering)
  {
-+	const struct landlock_ruleset_attr ruleset_attr = {
-+		.handled_access_fs = LANDLOCK_ACCESS_FS_EXECUTE,
-+	};
-+	struct landlock_path_beneath_attr path_beneath_attr = {
-+		.allowed_access = LANDLOCK_ACCESS_FS_EXECUTE,
-+		.parent_fd = -1,
-+	};
-+	const int ruleset_fd =
-+		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-+
-+	ASSERT_LE(0, ruleset_fd);
-+	path_beneath_attr.parent_fd =
-+		open("/tmp", O_PATH | O_NOFOLLOW | O_DIRECTORY | O_CLOEXEC);
-+	ASSERT_LE(0, path_beneath_attr.parent_fd);
-+	ASSERT_EQ(0, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-+				       &path_beneath_attr, 0));
-+	ASSERT_EQ(0, close(path_beneath_attr.parent_fd));
-+
-+	/* Checks unprivileged enforcement without no_new_privs. */
-+	drop_caps(_metadata);
-+	ASSERT_EQ(-1, landlock_restrict_self(-1, -1));
-+	ASSERT_EQ(EPERM, errno);
-+	ASSERT_EQ(-1, landlock_restrict_self(-1, 0));
-+	ASSERT_EQ(EPERM, errno);
-+	ASSERT_EQ(-1, landlock_restrict_self(ruleset_fd, 0));
-+	ASSERT_EQ(EPERM, errno);
-+
- 	ASSERT_EQ(0, prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0));
+ 	const int last_flag = LANDLOCK_CREATE_RULESET_VERSION;
+ 	const int invalid_flag = last_flag << 1;
++	int ruleset_fd;
+ 	const struct landlock_ruleset_attr ruleset_attr = {
+ 		.handled_access_fs = LANDLOCK_ACCESS_FS_READ_FILE,
+ 	};
  
-+	/* Checks invalid flags. */
-+	ASSERT_EQ(-1, landlock_restrict_self(-1, -1));
++	/* Checks priority for invalid flags. */
+ 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 0, invalid_flag));
+ 	ASSERT_EQ(EINVAL, errno);
+ 
+@@ -119,6 +122,22 @@ TEST(inval_create_ruleset_flags)
+ 		  landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr),
+ 					  invalid_flag));
+ 	ASSERT_EQ(EINVAL, errno);
++
++	/* Checks too big ruleset_attr size. */
++	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, -1, 0));
++	ASSERT_EQ(E2BIG, errno);
++
++	/* Checks too small ruleset_attr size. */
++	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 0, 0));
++	ASSERT_EQ(EINVAL, errno);
++	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 1, 0));
 +	ASSERT_EQ(EINVAL, errno);
 +
-+	/* Checks invalid ruleset FD. */
- 	ASSERT_EQ(-1, landlock_restrict_self(-1, 0));
- 	ASSERT_EQ(EBADF, errno);
--}
--
--TEST(unpriv_enforce_without_no_new_privs)
--{
--	int err;
- 
--	drop_caps(_metadata);
--	err = landlock_restrict_self(-1, 0);
--	ASSERT_EQ(EPERM, errno);
--	ASSERT_EQ(err, -1);
 +	/* Checks valid call. */
-+	ASSERT_EQ(0, landlock_restrict_self(ruleset_fd, 0));
++	ruleset_fd =
++		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
++	ASSERT_LE(0, ruleset_fd);
 +	ASSERT_EQ(0, close(ruleset_fd));
  }
  
- TEST(ruleset_fd_io)
+ /* Tests ordering of syscall argument checks. */
 
 
