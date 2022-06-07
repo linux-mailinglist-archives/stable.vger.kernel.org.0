@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F52E540886
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D05CE541925
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349232AbiFGR7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:59:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39646 "EHLO
+        id S1378350AbiFGVTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:19:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348900AbiFGR6S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83DCA6620F;
-        Tue,  7 Jun 2022 10:41:17 -0700 (PDT)
+        with ESMTP id S1380718AbiFGVQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F67821F9CC;
+        Tue,  7 Jun 2022 11:56:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA37661529;
-        Tue,  7 Jun 2022 17:41:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 057D4C385A5;
-        Tue,  7 Jun 2022 17:41:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A4AC9CE2475;
+        Tue,  7 Jun 2022 18:56:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF99C385A2;
+        Tue,  7 Jun 2022 18:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623676;
-        bh=LPSSCwqGaNrNkqp/n9QTqw04SGRP8OwOqgtrF6QVz+k=;
+        s=korg; t=1654628197;
+        bh=UEtTKC+segok9K/ynO7AyNzCmnn7J3j6y8rLTN8HqF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IeW29NSGp7+qZhaWuJb16kLKTVLANS4jmbK5hsyA7q0VDCIXNaS4xxzosWKQwbNM9
-         /l7aktagnwOzQGUUOCB5OFcf1KcxEM/uj0l3VHghqtf0BRuannacM9OSeAn3FCXlPQ
-         0V1aSY/AcZQDQeSfaY7T8cI6IlRKsVA9OadrxsGY=
+        b=Pk/PxLu2Mn+tGF6e8h5QjD1zy/7vR5ffTYPl77ZimMuSd39TrC4wpnPHVbB9aPgUY
+         c6LxQpPyPOGyUtkKHnt9U0cjlSlNu5UT2/WJOa/+N/MB5k7/huR1xsbHMLEShI13JM
+         N/vLNPC4+mlg4JJd2UVrLVPI6Sj7i3+DCyR053zA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jeffrey Altman <jaltman@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/667] ipv6: fix locking issues with loops over idev->addr_list
-Date:   Tue,  7 Jun 2022 18:55:17 +0200
-Message-Id: <20220607164936.369585786@linuxfoundation.org>
+Subject: [PATCH 5.18 200/879] rxrpc, afs: Fix selection of abort codes
+Date:   Tue,  7 Jun 2022 18:55:18 +0200
+Message-Id: <20220607165008.650924569@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,147 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 51454ea42c1ab4e0c2828bb0d4d53957976980de ]
+[ Upstream commit de696c4784f0706884458893c5a6c39b3a3ff65c ]
 
-idev->addr_list needs to be protected by idev->lock. However, it is not
-always possible to do so while iterating and performing actions on
-inet6_ifaddr instances. For example, multiple functions (like
-addrconf_{join,leave}_anycast) eventually call down to other functions
-that acquire the idev->lock. The current code temporarily unlocked the
-idev->lock during the loops, which can cause race conditions. Moving the
-locks up is also not an appropriate solution as the ordering of lock
-acquisition will be inconsistent with for example mc_lock.
+The RX_USER_ABORT code should really only be used to indicate that the user
+of the rxrpc service (ie. userspace) implicitly caused a call to be aborted
+- for instance if the AF_RXRPC socket is closed whilst the call was in
+progress.  (The user may also explicitly abort a call and specify the abort
+code to use).
 
-This solution adds an additional field to inet6_ifaddr that is used
-to temporarily add the instances to a temporary list while holding
-idev->lock. The temporary list can then be traversed without holding
-idev->lock. This change was done in two places. In addrconf_ifdown, the
-list_for_each_entry_safe variant of the list loop is also no longer
-necessary as there is no deletion within that specific loop.
+Change some of the points of generation to use other abort codes instead:
 
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/20220403231523.45843-1-dossche.niels@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ (1) Abort the call with RXGEN_SS_UNMARSHAL or RXGEN_CC_UNMARSHAL if we see
+     ENOMEM and EFAULT during received data delivery and abort with
+     RX_CALL_DEAD in the default case.
+
+ (2) Abort with RXGEN_SS_MARSHAL if we get ENOMEM whilst trying to send a
+     reply.
+
+ (3) Abort with RX_CALL_DEAD if we stop hearing from the peer if we had
+     heard from the peer and abort with RX_CALL_TIMEOUT if we hadn't.
+
+ (4) Abort with RX_CALL_DEAD if we try to disconnect a call that's not
+     completed successfully or been aborted.
+
+Reported-by: Jeffrey Altman <jaltman@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/if_inet6.h |  8 ++++++++
- net/ipv6/addrconf.c    | 30 ++++++++++++++++++++++++------
- 2 files changed, 32 insertions(+), 6 deletions(-)
+ fs/afs/rxrpc.c          | 8 +++++---
+ net/rxrpc/call_event.c  | 4 ++--
+ net/rxrpc/conn_object.c | 2 +-
+ 3 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/if_inet6.h b/include/net/if_inet6.h
-index 653e7d0f65cb..8ec0878a90a7 100644
---- a/include/net/if_inet6.h
-+++ b/include/net/if_inet6.h
-@@ -64,6 +64,14 @@ struct inet6_ifaddr {
- 
- 	struct hlist_node	addr_lst;
- 	struct list_head	if_list;
-+	/*
-+	 * Used to safely traverse idev->addr_list in process context
-+	 * if the idev->lock needed to protect idev->addr_list cannot be held.
-+	 * In that case, add the items to this list temporarily and iterate
-+	 * without holding idev->lock.
-+	 * See addrconf_ifdown and dev_forward_change.
-+	 */
-+	struct list_head	if_list_aux;
- 
- 	struct list_head	tmp_list;
- 	struct inet6_ifaddr	*ifpub;
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 3a8838b79bb6..1ba5ff21412c 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -798,6 +798,7 @@ static void dev_forward_change(struct inet6_dev *idev)
- {
- 	struct net_device *dev;
- 	struct inet6_ifaddr *ifa;
-+	LIST_HEAD(tmp_addr_list);
- 
- 	if (!idev)
- 		return;
-@@ -816,14 +817,24 @@ static void dev_forward_change(struct inet6_dev *idev)
+diff --git a/fs/afs/rxrpc.c b/fs/afs/rxrpc.c
+index 23a1a92d64bb..a5434f3e57c6 100644
+--- a/fs/afs/rxrpc.c
++++ b/fs/afs/rxrpc.c
+@@ -537,6 +537,8 @@ static void afs_deliver_to_call(struct afs_call *call)
+ 		case -ENODATA:
+ 		case -EBADMSG:
+ 		case -EMSGSIZE:
++		case -ENOMEM:
++		case -EFAULT:
+ 			abort_code = RXGEN_CC_UNMARSHAL;
+ 			if (state != AFS_CALL_CL_AWAIT_REPLY)
+ 				abort_code = RXGEN_SS_UNMARSHAL;
+@@ -544,7 +546,7 @@ static void afs_deliver_to_call(struct afs_call *call)
+ 						abort_code, ret, "KUM");
+ 			goto local_abort;
+ 		default:
+-			abort_code = RX_USER_ABORT;
++			abort_code = RX_CALL_DEAD;
+ 			rxrpc_kernel_abort_call(call->net->socket, call->rxcall,
+ 						abort_code, ret, "KER");
+ 			goto local_abort;
+@@ -836,7 +838,7 @@ void afs_send_empty_reply(struct afs_call *call)
+ 	case -ENOMEM:
+ 		_debug("oom");
+ 		rxrpc_kernel_abort_call(net->socket, call->rxcall,
+-					RX_USER_ABORT, -ENOMEM, "KOO");
++					RXGEN_SS_MARSHAL, -ENOMEM, "KOO");
+ 		fallthrough;
+ 	default:
+ 		_leave(" [error]");
+@@ -878,7 +880,7 @@ void afs_send_simple_reply(struct afs_call *call, const void *buf, size_t len)
+ 	if (n == -ENOMEM) {
+ 		_debug("oom");
+ 		rxrpc_kernel_abort_call(net->socket, call->rxcall,
+-					RX_USER_ABORT, -ENOMEM, "KOO");
++					RXGEN_SS_MARSHAL, -ENOMEM, "KOO");
+ 	}
+ 	_leave(" [error]");
+ }
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index 22e05de5d1ca..e426f6831aab 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -377,9 +377,9 @@ void rxrpc_process_call(struct work_struct *work)
+ 		if (test_bit(RXRPC_CALL_RX_HEARD, &call->flags) &&
+ 		    (int)call->conn->hi_serial - (int)call->rx_serial > 0) {
+ 			trace_rxrpc_call_reset(call);
+-			rxrpc_abort_call("EXP", call, 0, RX_USER_ABORT, -ECONNRESET);
++			rxrpc_abort_call("EXP", call, 0, RX_CALL_DEAD, -ECONNRESET);
+ 		} else {
+-			rxrpc_abort_call("EXP", call, 0, RX_USER_ABORT, -ETIME);
++			rxrpc_abort_call("EXP", call, 0, RX_CALL_TIMEOUT, -ETIME);
  		}
- 	}
- 
-+	read_lock_bh(&idev->lock);
- 	list_for_each_entry(ifa, &idev->addr_list, if_list) {
- 		if (ifa->flags&IFA_F_TENTATIVE)
- 			continue;
-+		list_add_tail(&ifa->if_list_aux, &tmp_addr_list);
-+	}
-+	read_unlock_bh(&idev->lock);
-+
-+	while (!list_empty(&tmp_addr_list)) {
-+		ifa = list_first_entry(&tmp_addr_list,
-+				       struct inet6_ifaddr, if_list_aux);
-+		list_del(&ifa->if_list_aux);
- 		if (idev->cnf.forwarding)
- 			addrconf_join_anycast(ifa);
- 		else
- 			addrconf_leave_anycast(ifa);
- 	}
-+
- 	inet6_netconf_notify_devconf(dev_net(dev), RTM_NEWNETCONF,
- 				     NETCONFA_FORWARDING,
- 				     dev->ifindex, &idev->cnf);
-@@ -3728,7 +3739,8 @@ static int addrconf_ifdown(struct net_device *dev, bool unregister)
- 	unsigned long event = unregister ? NETDEV_UNREGISTER : NETDEV_DOWN;
- 	struct net *net = dev_net(dev);
- 	struct inet6_dev *idev;
--	struct inet6_ifaddr *ifa, *tmp;
-+	struct inet6_ifaddr *ifa;
-+	LIST_HEAD(tmp_addr_list);
- 	bool keep_addr = false;
- 	bool was_ready;
- 	int state, i;
-@@ -3820,16 +3832,23 @@ static int addrconf_ifdown(struct net_device *dev, bool unregister)
- 		write_lock_bh(&idev->lock);
- 	}
- 
--	list_for_each_entry_safe(ifa, tmp, &idev->addr_list, if_list) {
-+	list_for_each_entry(ifa, &idev->addr_list, if_list)
-+		list_add_tail(&ifa->if_list_aux, &tmp_addr_list);
-+	write_unlock_bh(&idev->lock);
-+
-+	while (!list_empty(&tmp_addr_list)) {
- 		struct fib6_info *rt = NULL;
- 		bool keep;
- 
-+		ifa = list_first_entry(&tmp_addr_list,
-+				       struct inet6_ifaddr, if_list_aux);
-+		list_del(&ifa->if_list_aux);
-+
- 		addrconf_del_dad_work(ifa);
- 
- 		keep = keep_addr && (ifa->flags & IFA_F_PERMANENT) &&
- 			!addr_is_local(&ifa->addr);
- 
--		write_unlock_bh(&idev->lock);
- 		spin_lock_bh(&ifa->lock);
- 
- 		if (keep) {
-@@ -3860,15 +3879,14 @@ static int addrconf_ifdown(struct net_device *dev, bool unregister)
- 			addrconf_leave_solict(ifa->idev, &ifa->addr);
+ 		set_bit(RXRPC_CALL_EV_ABORT, &call->events);
+ 		goto recheck_state;
+diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
+index b2159dbf5412..660cd9b1a465 100644
+--- a/net/rxrpc/conn_object.c
++++ b/net/rxrpc/conn_object.c
+@@ -183,7 +183,7 @@ void __rxrpc_disconnect_call(struct rxrpc_connection *conn,
+ 			chan->last_type = RXRPC_PACKET_TYPE_ABORT;
+ 			break;
+ 		default:
+-			chan->last_abort = RX_USER_ABORT;
++			chan->last_abort = RX_CALL_DEAD;
+ 			chan->last_type = RXRPC_PACKET_TYPE_ABORT;
+ 			break;
  		}
- 
--		write_lock_bh(&idev->lock);
- 		if (!keep) {
-+			write_lock_bh(&idev->lock);
- 			list_del_rcu(&ifa->if_list);
-+			write_unlock_bh(&idev->lock);
- 			in6_ifa_put(ifa);
- 		}
- 	}
- 
--	write_unlock_bh(&idev->lock);
--
- 	/* Step 5: Discard anycast and multicast list */
- 	if (unregister) {
- 		ipv6_ac_destroy_dev(idev);
 -- 
 2.35.1
 
