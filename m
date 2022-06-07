@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5AB54063F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE52C541C50
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347000AbiFGReK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44998 "EHLO
+        id S1382339AbiFGV63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:58:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348130AbiFGRbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DFA11157EE;
-        Tue,  7 Jun 2022 10:29:29 -0700 (PDT)
+        with ESMTP id S1383311AbiFGVxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB237243B82;
+        Tue,  7 Jun 2022 12:11:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10814B822B0;
-        Tue,  7 Jun 2022 17:29:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 700B7C385A5;
-        Tue,  7 Jun 2022 17:29:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7D3DB8220B;
+        Tue,  7 Jun 2022 19:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A855C385A2;
+        Tue,  7 Jun 2022 19:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622966;
-        bh=vf/HxcC0bSo+zVL8D7b6Ki/cdRioCqznL6rtX/zg63w=;
+        s=korg; t=1654629080;
+        bh=/jRDmFSFPhC1E2+WCUaB7eecRJmaXUV3udXOeKe+JVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qn3Ww/GRAKsgvv4dqhWg90/O7WJcbtj2Qn9vLmzSn8hyaKkfqGaAAnBJosXvHLJ0o
-         1YPw7n767ihZyJ4YDWom1snAnkI2pUMfclIsedOUHltuRwTRV9D7SM5q8dHCGKRd/I
-         iqPD9pjVq85pB9pISkz+I5tFzYQ/mUK6fzvkE5uY=
+        b=Q93KIY4NXiwjra4Lkv1FK5NeSb6gayuZ35XxSQW86QAnsmLoBvlQGqxsde1jS4RIT
+         4+NmTl2jMqGO3rUREjmTOW4B9gcDnR+HcauPceQpP/kz3UQbwnM6e0Pq/z7o49VQ4P
+         aycDHxeBlrMncZQw+vUBdt9a5XiC8FUhqgQwNluY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 206/452] ASoC: samsung: Fix refcount leak in aries_audio_probe
+        stable@vger.kernel.org, Jianrong Zhang <zhangjianrong5@huawei.com>,
+        Jiantao Zhang <water.zhangjiantao@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 545/879] PCI: dwc: Fix setting error return on MSI DMA mapping failure
 Date:   Tue,  7 Jun 2022 19:01:03 +0200
-Message-Id: <20220607164914.703324084@linuxfoundation.org>
+Message-Id: <20220607165018.687969949@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiantao Zhang <water.zhangjiantao@huawei.com>
 
-[ Upstream commit bf4a9b2467b775717d0e9034ad916888e19713a3 ]
+[ Upstream commit 88557685cd72cf0db686a4ebff3fad4365cb6071 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-If extcon_find_edev_by_node() fails, it doesn't call of_node_put()
-Calling of_node_put() after extcon_find_edev_by_node() to fix this.
+When dma_mapping_error() returns error because of no enough memory,
+but dw_pcie_host_init() returns success, which will mislead the callers.
 
-Fixes: 7a3a7671fa6c ("ASoC: samsung: Add driver for Aries boards")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220512043828.496-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/30170911-0e2f-98ce-9266-70465b9073e5@huawei.com
+Fixes: 07940c369a6b ("PCI: dwc: Fix MSI page leakage in suspend/resume")
+Signed-off-by: Jianrong Zhang <zhangjianrong5@huawei.com>
+Signed-off-by: Jiantao Zhang <water.zhangjiantao@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/aries_wm8994.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-designware-host.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/samsung/aries_wm8994.c b/sound/soc/samsung/aries_wm8994.c
-index 709336bbcc2f..18458192aff1 100644
---- a/sound/soc/samsung/aries_wm8994.c
-+++ b/sound/soc/samsung/aries_wm8994.c
-@@ -585,10 +585,10 @@ static int aries_audio_probe(struct platform_device *pdev)
- 
- 	extcon_np = of_parse_phandle(np, "extcon", 0);
- 	priv->usb_extcon = extcon_find_edev_by_node(extcon_np);
-+	of_node_put(extcon_np);
- 	if (IS_ERR(priv->usb_extcon))
- 		return dev_err_probe(dev, PTR_ERR(priv->usb_extcon),
- 				     "Failed to get extcon device");
--	of_node_put(extcon_np);
- 
- 	priv->adc = devm_iio_channel_get(dev, "headset-detect");
- 	if (IS_ERR(priv->adc))
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index 2fa86f32d964..9979302532b7 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -396,7 +396,8 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 						      sizeof(pp->msi_msg),
+ 						      DMA_FROM_DEVICE,
+ 						      DMA_ATTR_SKIP_CPU_SYNC);
+-			if (dma_mapping_error(pci->dev, pp->msi_data)) {
++			ret = dma_mapping_error(pci->dev, pp->msi_data);
++			if (ret) {
+ 				dev_err(pci->dev, "Failed to map MSI data\n");
+ 				pp->msi_data = 0;
+ 				goto err_free_msi;
 -- 
 2.35.1
 
