@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E4E541DA0
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305355407CB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351159AbiFGWR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
+        id S236645AbiFGRwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384265AbiFGWO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:14:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21A725F406;
-        Tue,  7 Jun 2022 12:19:44 -0700 (PDT)
+        with ESMTP id S1349037AbiFGRu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFCA1139AE4;
+        Tue,  7 Jun 2022 10:37:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB646194C;
-        Tue,  7 Jun 2022 19:19:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849E4C385A2;
-        Tue,  7 Jun 2022 19:19:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94FBA61529;
+        Tue,  7 Jun 2022 17:37:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F02C385A5;
+        Tue,  7 Jun 2022 17:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629562;
-        bh=yNqqrwcWOyAH/kGSkz7R0fA0Xe+z0OmTr3r1WJlJDIs=;
+        s=korg; t=1654623448;
+        bh=MLkY1OvX2VTXtWkd4B2hKU9SxPB0F0RJYdX5ADWhvgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hq7YNUXEd/5e7OVD2AcVU8ck8RAHRbOfkq+l1L9e0ihmbqVFh8XHZP99seawFQPzj
-         weuO/oHn9Q4ZEkQoPq0Icw8J3xVsASzoG1ICBHeJsJQkQf6A+OZEMRFxe7RdxcSTfl
-         70VjnkMK+FuY3x+Pg0qhTTpJux+VArfJosIj159Q=
+        b=XMVsQ/u6i8Rn/k4yYXeOySuJ4G29v9mVVFZ4KtISPfvbQYX6MWfFwazRmGPQhZrN/
+         TK0SuJSaF0H+I0n0SCOO+1XLaiq647zxANGVe/KJPdKE59tS/p0M5S20J6LOVu54Ic
+         0DZu7U7oDKOYx/WEl8lPp5GV4pVdy7oZBjWx8p1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.18 719/879] wifi: mac80211: fix use-after-free in chanctx code
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.10 380/452] drm/nouveau/clk: Fix an incorrect NULL check on list iterator
 Date:   Tue,  7 Jun 2022 19:03:57 +0200
-Message-Id: <20220607165023.723872092@linuxfoundation.org>
+Message-Id: <20220607164919.889007817@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
+commit 1c3b2a27def609473ed13b1cd668cb10deab49b4 upstream.
 
-In ieee80211_vif_use_reserved_context(), when we have an
-old context and the new context's replace_state is set to
-IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
-in ieee80211_vif_use_reserved_reassign(). Therefore, we
-cannot check the old_ctx anymore, so we should set it to
-NULL after this point.
+The bug is here:
+	if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+		return cstate;
 
-However, since the new_ctx replace state is clearly not
-IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
-anything else in this function and can just return to
-avoid accessing the freed old_ctx.
+The list iterator value 'cstate' will *always* be set and non-NULL
+by list_for_each_entry_from_reverse(), so it is incorrect to assume
+that the iterator value will be unchanged if the list is empty or no
+element is found (In fact, it will be a bogus pointer to an invalid
+structure object containing the HEAD). Also it missed a NULL check
+at callsite and may lead to invalid memory access after that.
+
+To fix this bug, just return 'encoder' when found, otherwise return
+NULL. And add the NULL check.
 
 Cc: stable@vger.kernel.org
-Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
+Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in nvkm_cstate_prog")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327075824.11806-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/chan.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/chan.c
-+++ b/net/mac80211/chan.c
-@@ -1749,12 +1749,9 @@ int ieee80211_vif_use_reserved_context(s
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+@@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *c
  
- 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
- 		if (old_ctx)
--			err = ieee80211_vif_use_reserved_reassign(sdata);
--		else
--			err = ieee80211_vif_use_reserved_assign(sdata);
-+			return ieee80211_vif_use_reserved_reassign(sdata);
- 
--		if (err)
--			return err;
-+		return ieee80211_vif_use_reserved_assign(sdata);
+ 	list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
+ 		if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+-			break;
++			return cstate;
  	}
  
- 	/*
+-	return cstate;
++	return NULL;
+ }
+ 
+ static struct nvkm_cstate *
+@@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, s
+ 	if (!list_empty(&pstate->list)) {
+ 		cstate = nvkm_cstate_get(clk, pstate, cstatei);
+ 		cstate = nvkm_cstate_find_best(clk, pstate, cstate);
++		if (!cstate)
++			return -EINVAL;
+ 	} else {
+ 		cstate = &pstate->base;
+ 	}
 
 
