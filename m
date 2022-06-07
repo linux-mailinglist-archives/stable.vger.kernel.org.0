@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B36DC540709
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B52E541CD8
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233760AbiFGRlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35918 "EHLO
+        id S1379082AbiFGWGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347312AbiFGRjC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:39:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5545736147;
-        Tue,  7 Jun 2022 10:33:27 -0700 (PDT)
+        with ESMTP id S1382591AbiFGWEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACA8195911;
+        Tue,  7 Jun 2022 12:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1654B822AD;
-        Tue,  7 Jun 2022 17:33:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04C4EC385A5;
-        Tue,  7 Jun 2022 17:33:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 275EA61846;
+        Tue,  7 Jun 2022 19:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE2AC385A2;
+        Tue,  7 Jun 2022 19:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623183;
-        bh=HWrh3eNyUWp0UeZbAh0SxbRayZHDbgIJWamQdjsz8cM=;
+        s=korg; t=1654629364;
+        bh=XWpk6V/154R5tELQENQl5ceIwIAimCa0bLUYtlrSCjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlhWFEMhwJAlon2Y+v99nHH9QiPqvVgP0twIeMvnyTnBJ2JvWQ0WlFtZsPQDzPtP9
-         StXVa6iLK78DsE44HF8R6RLHx2IGeuOGTm4qJoIw0PdGDZeFF8hUZc6179/9ooBXQb
-         ArptaftaCorV9D+VQuk8HgU6bUmYTikWZcDY0XUo=
+        b=Ede9HT0Kg5kHnwAkf7R7a100f5SsZM+3hQhMvkcn2NJ+pFhH0eEcq/NgcdmPSYaZz
+         GsaDEIrQVhF4XXkvsEtY5rYv0/fIFoDJgkQt9LllU4Mz9TcLOQQWsVjpvGx+xWyyyH
+         HV2FU78HiowTeTbokQXtSHf7oXhWuHuD8UGt0PSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 324/452] cpufreq: mediatek: Unregister platform device on exit
-Date:   Tue,  7 Jun 2022 19:03:01 +0200
-Message-Id: <20220607164918.215272229@linuxfoundation.org>
+        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 664/879] iommu/mediatek: Fix 2 HW sharing pgtable issue
+Date:   Tue,  7 Jun 2022 19:03:02 +0200
+Message-Id: <20220607165022.119559056@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rex-BC Chen <rex-bc.chen@mediatek.com>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit f126fbadce92b92c3a7be41e4abc1fbae93ae2ef ]
+[ Upstream commit 645b87c190c959e9bb4f216b8c4add4ee880451a ]
 
-We register the platform device when driver inits. However, we do not
-unregister it when driver exits.
+In the commit 4f956c97d26b ("iommu/mediatek: Move domain_finalise into
+attach_device"), I overlooked the sharing pgtable case.
+After that commit, the "data" in the mtk_iommu_domain_finalise always is
+the data of the current IOMMU HW. Fix this for the sharing pgtable case.
 
-To resolve this, we declare the platform data to be a global static
-variable and rename it to be "cpufreq_pdev". With this global variable,
-we can do platform_device_unregister() when driver exits.
+Only affect mt2712 which is the only SoC that share pgtable currently.
 
-Fixes: 501c574f4e3a ("cpufreq: mediatek: Add support of cpufreq to MT2701/MT7623 SoC")
-Signed-off-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-[ Viresh: Commit log and Subject ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 4f956c97d26b ("iommu/mediatek: Move domain_finalise into attach_device")
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/20220503071427.2285-5-yong.wu@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/mediatek-cpufreq.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/iommu/mtk_iommu.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/mediatek-cpufreq.c b/drivers/cpufreq/mediatek-cpufreq.c
-index 07ba238a0e0e..82f6592bbadb 100644
---- a/drivers/cpufreq/mediatek-cpufreq.c
-+++ b/drivers/cpufreq/mediatek-cpufreq.c
-@@ -44,6 +44,8 @@ struct mtk_cpu_dvfs_info {
- 	bool need_voltage_tracking;
- };
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 6fd75a60abd6..95c82b8bcc35 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -446,7 +446,7 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
+ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 				   struct device *dev)
+ {
+-	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
++	struct mtk_iommu_data *data = dev_iommu_priv_get(dev), *frstdata;
+ 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+ 	struct device *m4udev = data->dev;
+ 	int ret, domid;
+@@ -456,7 +456,10 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 		return domid;
  
-+static struct platform_device *cpufreq_pdev;
+ 	if (!dom->data) {
+-		if (mtk_iommu_domain_finalise(dom, data, domid))
++		/* Data is in the frstdata in sharing pgtable case. */
++		frstdata = mtk_iommu_get_m4u_data();
 +
- static LIST_HEAD(dvfs_info_list);
- 
- static struct mtk_cpu_dvfs_info *mtk_cpu_dvfs_info_lookup(int cpu)
-@@ -546,7 +548,6 @@ static int __init mtk_cpufreq_driver_init(void)
- {
- 	struct device_node *np;
- 	const struct of_device_id *match;
--	struct platform_device *pdev;
- 	int err;
- 
- 	np = of_find_node_by_path("/");
-@@ -570,11 +571,11 @@ static int __init mtk_cpufreq_driver_init(void)
- 	 * and the device registration codes are put here to handle defer
- 	 * probing.
- 	 */
--	pdev = platform_device_register_simple("mtk-cpufreq", -1, NULL, 0);
--	if (IS_ERR(pdev)) {
-+	cpufreq_pdev = platform_device_register_simple("mtk-cpufreq", -1, NULL, 0);
-+	if (IS_ERR(cpufreq_pdev)) {
- 		pr_err("failed to register mtk-cpufreq platform device\n");
- 		platform_driver_unregister(&mtk_cpufreq_platdrv);
--		return PTR_ERR(pdev);
-+		return PTR_ERR(cpufreq_pdev);
++		if (mtk_iommu_domain_finalise(dom, frstdata, domid))
+ 			return -ENODEV;
+ 		dom->data = data;
  	}
- 
- 	return 0;
-@@ -583,6 +584,7 @@ module_init(mtk_cpufreq_driver_init)
- 
- static void __exit mtk_cpufreq_driver_exit(void)
- {
-+	platform_device_unregister(cpufreq_pdev);
- 	platform_driver_unregister(&mtk_cpufreq_platdrv);
- }
- module_exit(mtk_cpufreq_driver_exit)
 -- 
 2.35.1
 
