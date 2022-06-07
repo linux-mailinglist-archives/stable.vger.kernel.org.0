@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB8E54140D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E6CC540A63
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359190AbiFGUMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58170 "EHLO
+        id S1351715AbiFGSUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359195AbiFGUJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:38 -0400
+        with ESMTP id S1352738AbiFGSR3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:29 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4E114385B;
-        Tue,  7 Jun 2022 11:26:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3939513C377;
+        Tue,  7 Jun 2022 10:52:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2E0A2CE2451;
-        Tue,  7 Jun 2022 18:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A639C385A2;
-        Tue,  7 Jun 2022 18:26:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0A8A1CE2422;
+        Tue,  7 Jun 2022 17:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23B0CC3411F;
+        Tue,  7 Jun 2022 17:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626415;
-        bh=0bo0HpIdec6Q2HW1VvnqdH82NSSLOTfGiJXwD0+ptA4=;
+        s=korg; t=1654624354;
+        bh=h52zxNpYYU8WCZXmj5zjTKIXV+j+MQqMSEZmLGWkZrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2sd1sG6Hrua7qdWsy1xt6c/lKr4kvWkVFoDahBelKbp6bkwMtqqVYqkbIK+Xpu5a
-         mM/9y4BComYWan6Cm3qYvfwetpDuhQ/LIoO8fEHMtPK5BHm/6L0rmmwwjQqEjKZRpM
-         VmAWUNCBuZEx785k1xdc68bnQwXVAAIvQgyNGb0E=
+        b=fo4vxwNs1yUNoyvu5Abv+WYv7fAs4QPF13RowMmpLrRuIUgkdq5RHeecskITBHYC+
+         XKLHcjRJDpY/0miaTlZ8Yg7nFkX4OCLwj5UAfXgf6CP7+P7kQuPmHzt99w2lA2fuN8
+         KdKgddgy64TGzh8oEE5CFYZ0z2LHRutEzMdaTMn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 369/772] mt76: mt7915: do not pass data pointer to mt7915_mcu_muru_debug_set
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 296/667] spi: spi-fsl-qspi: check return value after calling platform_get_resource_byname()
 Date:   Tue,  7 Jun 2022 18:59:21 +0200
-Message-Id: <20220607164959.889533988@linuxfoundation.org>
+Message-Id: <20220607164943.656664107@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit badb6ffaa1439fce30fc6ef10571dcf45a622b44 ]
+[ Upstream commit a2b331ac11e1cac56f5b7d367e9f3c5796deaaed ]
 
-Fix typo in mt7915_muru_debug_set routine and pass muru_debug value to
-mt7915_mcu_muru_debug_set() instead of data pointer.
+It will cause null-ptr-deref if platform_get_resource_byname() returns NULL,
+we need check the return value.
 
-Fixes: 1966a5078f2d ("mt76: mt7915: add mu-mimo and ofdma debugfs knobs")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 858e26a515c2 ("spi: spi-fsl-qspi: Reduce devm_ioremap size to 4 times AHB buffer size")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220505093954.1285615-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-fsl-qspi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-index e96d1c31dd36..2ff054187dac 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-@@ -87,7 +87,7 @@ mt7915_muru_debug_set(void *data, u64 val)
- 	struct mt7915_dev *dev = data;
+diff --git a/drivers/spi/spi-fsl-qspi.c b/drivers/spi/spi-fsl-qspi.c
+index 9851551ebbe0..46ae46a944c5 100644
+--- a/drivers/spi/spi-fsl-qspi.c
++++ b/drivers/spi/spi-fsl-qspi.c
+@@ -876,6 +876,10 @@ static int fsl_qspi_probe(struct platform_device *pdev)
  
- 	dev->muru_debug = val;
--	mt7915_mcu_muru_debug_set(dev, data);
-+	mt7915_mcu_muru_debug_set(dev, dev->muru_debug);
- 
- 	return 0;
- }
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
+ 					"QuadSPI-memory");
++	if (!res) {
++		ret = -EINVAL;
++		goto err_put_ctrl;
++	}
+ 	q->memmap_phy = res->start;
+ 	/* Since there are 4 cs, map size required is 4 times ahb_buf_size */
+ 	q->ahb_addr = devm_ioremap(dev, q->memmap_phy,
 -- 
 2.35.1
 
