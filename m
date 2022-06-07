@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0033B541E08
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E6054077B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354564AbiFGWXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49740 "EHLO
+        id S1348270AbiFGRrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:47:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385115AbiFGWVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563C7265607;
-        Tue,  7 Jun 2022 12:21:01 -0700 (PDT)
+        with ESMTP id S1348954AbiFGRqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049181105EE;
+        Tue,  7 Jun 2022 10:35:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 219C8CE24B5;
-        Tue,  7 Jun 2022 19:20:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17184C385A2;
-        Tue,  7 Jun 2022 19:20:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FB6F614BC;
+        Tue,  7 Jun 2022 17:35:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF8BC385A5;
+        Tue,  7 Jun 2022 17:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629649;
-        bh=o6j1igLMNLxBnF8TPbs7l3iBQRwCDPWNKbDNPRs6GJk=;
+        s=korg; t=1654623351;
+        bh=bKlWbeBmeJ+xtmrRHH25c9S3MEZTNqbUI60PVSnqpF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYv1BLU7WWAt1a4ypWuSxtfi3gCwKHcJmSTIsXxmcB4ttPB6POlYVMaYBPe2cNiCP
-         8ShpVGWm/1XmLA4xDQlsID2CnayYbzdtKsgj+nM1u5/QsMiy4bZ7KG4oOl2/ZZqI7F
-         QddNur6H4Iia7LMC2IZeyNEO++L0SPc/Ny2RU/w8=
+        b=r6kvU3S0T9kMVimguhfvog01sxjS9++KB48ZchLOsOYmYFL7hB1DRP8Vu6Ucxzrgn
+         8WEmz6SLSqOfRkpryMOjZNuaDNx/2MBIpFywF0fmbQdtzytl+BIjYufCzS0SSgDnPa
+         SmYLxfod6aTaBSCA8fL5T3L1yigjMc1a1280IFKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Garg <gargaditya08@live.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.18 726/879] efi: Do not import certificates from UEFI Secure Boot for T2 Macs
+        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 387/452] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
 Date:   Tue,  7 Jun 2022 19:04:04 +0200
-Message-Id: <20220607165023.928954292@linuxfoundation.org>
+Message-Id: <20220607164920.097586044@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,133 +54,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Tokunori Ikegami <ikegami.t@gmail.com>
 
-commit 155ca952c7ca19aa32ecfb7373a32bbc2e1ec6eb upstream.
+commit 0a8e98305f63deaf0a799d5cf5532cc83af035d1 upstream.
 
-On Apple T2 Macs, when Linux attempts to read the db and dbx efi variables
-at early boot to load UEFI Secure Boot certificates, a page fault occurs
-in Apple firmware code and EFI runtime services are disabled with the
-following logs:
+Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
+check correct value") buffered writes fail on S29GL064N. This is
+because, on S29GL064N, reads return 0xFF at the end of DQ polling for
+write completion, where as, chip_good() check expects actual data
+written to the last location to be returned post DQ polling completion.
+Fix is to revert to using chip_good() for S29GL064N which only checks
+for DQ lines to settle down to determine write completion.
 
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffb1edc0068000
-WARNING: CPU: 3 PID: 104 at arch/x86/platform/efi/quirks.c:735 efi_crash_gracefully_on_page_fault+0x50/0xf0
-(Removed some logs from here)
-Call Trace:
- <TASK>
- page_fault_oops+0x4f/0x2c0
- ? search_bpf_extables+0x6b/0x80
- ? search_module_extables+0x50/0x80
- ? search_exception_tables+0x5b/0x60
- kernelmode_fixup_or_oops+0x9e/0x110
- __bad_area_nosemaphore+0x155/0x190
- bad_area_nosemaphore+0x16/0x20
- do_kern_addr_fault+0x8c/0xa0
- exc_page_fault+0xd8/0x180
- asm_exc_page_fault+0x1e/0x30
-(Removed some logs from here)
- ? __efi_call+0x28/0x30
- ? switch_mm+0x20/0x30
- ? efi_call_rts+0x19a/0x8e0
- ? process_one_work+0x222/0x3f0
- ? worker_thread+0x4a/0x3d0
- ? kthread+0x17a/0x1a0
- ? process_one_work+0x3f0/0x3f0
- ? set_kthread_struct+0x40/0x40
- ? ret_from_fork+0x22/0x30
- </TASK>
----[ end trace 1f82023595a5927f ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get mokx list
-integrity: Couldn't get size: 0x80000000
-
-So we avoid reading these UEFI variables and thus prevent the crash.
-
+Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
 Cc: stable@vger.kernel.org
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/platform_certs/keyring_handler.h |    8 ++++
- security/integrity/platform_certs/load_uefi.c       |   33 ++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+ drivers/mtd/chips/cfi_cmdset_0002.c |   42 +++++++++++++++++++++++++++++-------
+ include/linux/mtd/cfi.h             |    1 
+ 2 files changed, 35 insertions(+), 8 deletions(-)
 
---- a/security/integrity/platform_certs/keyring_handler.h
-+++ b/security/integrity/platform_certs/keyring_handler.h
-@@ -35,3 +35,11 @@ efi_element_handler_t get_handler_for_mo
- efi_element_handler_t get_handler_for_dbx(const efi_guid_t *sig_type);
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -59,6 +59,10 @@
+ #define CFI_SR_WBASB		BIT(3)
+ #define CFI_SR_SLSB		BIT(1)
  
- #endif
-+
-+#ifndef UEFI_QUIRK_SKIP_CERT
-+#define UEFI_QUIRK_SKIP_CERT(vendor, product) \
-+		 .matches = { \
-+			DMI_MATCH(DMI_BOARD_VENDOR, vendor), \
-+			DMI_MATCH(DMI_PRODUCT_NAME, product), \
-+		},
-+#endif
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -3,6 +3,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/cred.h>
-+#include <linux/dmi.h>
- #include <linux/err.h>
- #include <linux/efi.h>
- #include <linux/slab.h>
-@@ -13,6 +14,31 @@
- #include "keyring_handler.h"
- 
- /*
-+ * On T2 Macs reading the db and dbx efi variables to load UEFI Secure Boot
-+ * certificates causes occurrence of a page fault in Apple's firmware and
-+ * a crash disabling EFI runtime services. The following quirk skips reading
-+ * these variables.
-+ */
-+static const struct dmi_system_id uefi_skip_cert[] = {
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,3") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,4") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,3") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,4") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
-+	{ }
++enum cfi_quirks {
++	CFI_QUIRK_DQ_TRUE_DATA = BIT(0),
 +};
 +
-+/*
-  * Look to see if a UEFI variable called MokIgnoreDB exists and return true if
-  * it does.
-  *
-@@ -138,6 +164,13 @@ static int __init load_uefi_certs(void)
- 	unsigned long dbsize = 0, dbxsize = 0, mokxsize = 0;
- 	efi_status_t status;
- 	int rc = 0;
-+	const struct dmi_system_id *dmi_id;
-+
-+	dmi_id = dmi_first_match(uefi_skip_cert);
-+	if (dmi_id) {
-+		pr_err("Reading UEFI Secure Boot Certs is not supported on T2 Macs.\n");
-+		return false;
-+	}
+ static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
+ static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
+ #if !FORCE_WORD_WRITE
+@@ -432,6 +436,15 @@ static void fixup_s29ns512p_sectors(stru
+ 		mtd->name);
+ }
  
- 	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE))
- 		return false;
++static void fixup_quirks(struct mtd_info *mtd)
++{
++	struct map_info *map = mtd->priv;
++	struct cfi_private *cfi = map->fldrv_priv;
++
++	if (cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01)
++		cfi->quirks |= CFI_QUIRK_DQ_TRUE_DATA;
++}
++
+ /* Used to fix CFI-Tables of chips without Extended Query Tables */
+ static struct cfi_fixup cfi_nopri_fixup_table[] = {
+ 	{ CFI_MFR_SST, 0x234a, fixup_sst39vf }, /* SST39VF1602 */
+@@ -470,6 +483,7 @@ static struct cfi_fixup cfi_fixup_table[
+ #if !FORCE_WORD_WRITE
+ 	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
+ #endif
++	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_quirks },
+ 	{ 0, 0, NULL }
+ };
+ static struct cfi_fixup jedec_fixup_table[] = {
+@@ -842,6 +856,18 @@ static int __xipram chip_ready(struct ma
+ 	return map_word_equal(map, t, *expected);
+ }
+ 
++static int __xipram chip_good(struct map_info *map, struct flchip *chip,
++			      unsigned long addr, map_word *expected)
++{
++	struct cfi_private *cfi = map->fldrv_priv;
++	map_word *datum = expected;
++
++	if (cfi->quirks & CFI_QUIRK_DQ_TRUE_DATA)
++		datum = NULL;
++
++	return chip_ready(map, chip, addr, datum);
++}
++
+ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -1657,11 +1683,11 @@ static int __xipram do_write_oneword_onc
+ 		}
+ 
+ 		/*
+-		 * We check "time_after" and "!chip_ready" before checking
+-		 * "chip_ready" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
+ 		 */
+ 		if (time_after(jiffies, timeo) &&
+-		    !chip_ready(map, chip, adr, &datum)) {
++		    !chip_good(map, chip, adr, &datum)) {
+ 			xip_enable(map, chip, adr);
+ 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+ 			xip_disable(map, chip, adr);
+@@ -1669,7 +1695,7 @@ static int __xipram do_write_oneword_onc
+ 			break;
+ 		}
+ 
+-		if (chip_ready(map, chip, adr, &datum)) {
++		if (chip_good(map, chip, adr, &datum)) {
+ 			if (cfi_check_err_status(map, chip, adr))
+ 				ret = -EIO;
+ 			break;
+@@ -1937,18 +1963,18 @@ static int __xipram do_write_buffer_wait
+ 		}
+ 
+ 		/*
+-		 * We check "time_after" and "!chip_ready" before checking
+-		 * "chip_ready" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_good" before checking
++		 * "chip_good" to avoid the failure due to scheduling.
+ 		 */
+ 		if (time_after(jiffies, timeo) &&
+-		    !chip_ready(map, chip, adr, &datum)) {
++		    !chip_good(map, chip, adr, &datum)) {
+ 			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
+ 			       __func__, adr);
+ 			ret = -EIO;
+ 			break;
+ 		}
+ 
+-		if (chip_ready(map, chip, adr, &datum)) {
++		if (chip_good(map, chip, adr, &datum)) {
+ 			if (cfi_check_err_status(map, chip, adr))
+ 				ret = -EIO;
+ 			break;
+--- a/include/linux/mtd/cfi.h
++++ b/include/linux/mtd/cfi.h
+@@ -286,6 +286,7 @@ struct cfi_private {
+ 	map_word sector_erase_cmd;
+ 	unsigned long chipshift; /* Because they're of the same type */
+ 	const char *im_name;	 /* inter_module name for cmdset_setup */
++	unsigned long quirks;
+ 	struct flchip chips[];  /* per-chip data structure for each chip */
+ };
+ 
 
 
