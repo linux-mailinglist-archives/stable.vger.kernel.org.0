@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F25540646
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715A7541C66
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347243AbiFGReT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40440 "EHLO
+        id S1382585AbiFGV7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347422AbiFGRan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 734D8110AE8;
-        Tue,  7 Jun 2022 10:26:45 -0700 (PDT)
+        with ESMTP id S1382820AbiFGVv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2202223EFA1;
+        Tue,  7 Jun 2022 12:09:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 885A660C7C;
-        Tue,  7 Jun 2022 17:26:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98958C385A5;
-        Tue,  7 Jun 2022 17:26:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1C77617D0;
+        Tue,  7 Jun 2022 19:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9805C385A2;
+        Tue,  7 Jun 2022 19:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622805;
-        bh=h48r241w+vaBYnlM+pKVZCCbDXNuCsJBWn8C/+MdRBg=;
+        s=korg; t=1654628984;
+        bh=DnFAkqsw38ueMjMLEGksplQdPl/DtdAFVCmpTN10CRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGndlIJLJMVMqWC9jHNHB4XwSBv2wXV7n6tAP2R5cMuVWEU/AtV//QJtVQmpaAllg
-         z+UazqVGKwlYMblDmpar0OZsXkpiY/kkcpB5sfdgJtFFQ30/OKGk6lT1jHJGakK5b+
-         qifKSYppMpRHz3YCUaq4bVnsI60zD6w6Ong0iPC8=
+        b=QXVu2wUIPZwk/bAFcysM9qaXxv/evR1FIxOt6+dna//KqEqyoECuWu+HODiutgssr
+         bbaCcFJMV062UIlnYFPwXsshrxEqZ1U/VfYaOShGzHkMYgZf4z89Rq+tM9xpn3FE1A
+         2xfOzKma9G5noi+WTjC4HMbcHfJ0QUWvxtO/VIdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/452] x86/mm: Cleanup the control_va_addr_alignment() __setup handler
+        stable@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 527/879] net/smc: postpone sk_refcnt increment in connect()
 Date:   Tue,  7 Jun 2022 19:00:45 +0200
-Message-Id: <20220607164914.162624879@linuxfoundation.org>
+Message-Id: <20220607165018.171731326@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: liuyacan <liuyacan@corp.netease.com>
 
-[ Upstream commit 1ef64b1e89e6d4018da46e08ffc32779a31160c7 ]
+[ Upstream commit 75c1edf23b95a9c66923d9269d8e86e4dbde151f ]
 
-Clean up control_va_addr_alignment():
+Same trigger condition as commit 86434744. When setsockopt runs
+in parallel to a connect(), and switch the socket into fallback
+mode. Then the sk_refcnt is incremented in smc_connect(), but
+its state stay in SMC_INIT (NOT SMC_ACTIVE). This cause the
+corresponding sk_refcnt decrement in __smc_release() will not be
+performed.
 
-a. Make '=' required instead of optional (as documented).
-b. Print a warning if an invalid option value is used.
-c. Return 1 from the __setup handler when an invalid option value is
-   used. This prevents the kernel from polluting init's (limited)
-   environment space with the entire string.
-
-Fixes: dfb09f9b7ab0 ("x86, amd: Avoid cache aliasing penalties on AMD family 15h")
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220315001045.7680-1-rdunlap@infradead.org
+Fixes: 86434744fedf ("net/smc: add fallback check to connect()")
+Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sys_x86_64.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ net/smc/af_smc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/sys_x86_64.c b/arch/x86/kernel/sys_x86_64.c
-index 504fa5425bce..3fd1c81eb5e3 100644
---- a/arch/x86/kernel/sys_x86_64.c
-+++ b/arch/x86/kernel/sys_x86_64.c
-@@ -68,9 +68,6 @@ static int __init control_va_addr_alignment(char *str)
- 	if (*str == 0)
- 		return 1;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index fce16b9d6e1a..45a24d24210f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1564,9 +1564,9 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 	if (rc && rc != -EINPROGRESS)
+ 		goto out;
  
--	if (*str == '=')
--		str++;
--
- 	if (!strcmp(str, "32"))
- 		va_align.flags = ALIGN_VA_32;
- 	else if (!strcmp(str, "64"))
-@@ -80,11 +77,11 @@ static int __init control_va_addr_alignment(char *str)
- 	else if (!strcmp(str, "on"))
- 		va_align.flags = ALIGN_VA_32 | ALIGN_VA_64;
- 	else
--		return 0;
-+		pr_warn("invalid option value: 'align_va_addr=%s'\n", str);
- 
- 	return 1;
- }
--__setup("align_va_addr", control_va_addr_alignment);
-+__setup("align_va_addr=", control_va_addr_alignment);
- 
- SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
- 		unsigned long, prot, unsigned long, flags,
+-	sock_hold(&smc->sk); /* sock put in passive closing */
+ 	if (smc->use_fallback)
+ 		goto out;
++	sock_hold(&smc->sk); /* sock put in passive closing */
+ 	if (flags & O_NONBLOCK) {
+ 		if (queue_work(smc_hs_wq, &smc->connect_work))
+ 			smc->connect_nonblock = 1;
 -- 
 2.35.1
 
