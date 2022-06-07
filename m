@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 929AF541922
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA06B5408B3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377194AbiFGVSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44716 "EHLO
+        id S1348560AbiFGSCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380568AbiFGVQd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D84C21E0FE;
-        Tue,  7 Jun 2022 11:55:31 -0700 (PDT)
+        with ESMTP id S1349782AbiFGSA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D74314A24C;
+        Tue,  7 Jun 2022 10:42:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5AAE61277;
-        Tue,  7 Jun 2022 18:55:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B51D9C385A2;
-        Tue,  7 Jun 2022 18:55:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC026165E;
+        Tue,  7 Jun 2022 17:42:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB884C385A5;
+        Tue,  7 Jun 2022 17:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628130;
-        bh=3a8gxMHCDSeL/R2EhuktrXzbJmCqXw0BGoZqVqZ6DYA=;
+        s=korg; t=1654623731;
+        bh=w+Mx4L1UD8ofc/ecEwIzqvOnTw6oXAnw/UDczpyP7ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oegktrVK5Y4LfJzz0SbUz90C0JidfMpupKbVuBM6gDrq1g8JSmQSy5yUf2xLsTmrL
-         /Wtjk3dpDKoStGSTufdwbRYNiAIh9+wZkW/h4a6pndh26ld7hR27FfS1znLCD3zZ4j
-         OBmqkNAMHNAMSk7IrPOM39qkHEW31PXrxVnDlBZg=
+        b=LB1AfhfZt83Xc8++b4CXk2JzwYnvtPk+dGvEyYrcWejOd0dmPYc1oV/+wbJ3yqxFp
+         HltzlIGlS1Kg4Y3MFuCB22HxBXeCvFt/Hz0W94zHwMvnh4uu2Oxw/L033rphdApfEa
+         fzKyYKIUT/Cgm2LgdbX9dbc+e2seVgnJyWwodQa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 217/879] PM / devfreq: rk3399_dmc: Disable edev on remove()
+Subject: [PATCH 5.15 070/667] drm/amd/pm: fix double free in si_parse_power_table()
 Date:   Tue,  7 Jun 2022 18:55:35 +0200
-Message-Id: <20220607165009.153322455@linuxfoundation.org>
+Message-Id: <20220607164936.918289311@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 2fccf9e6050e0e3b8b4cd275d41daf7f7fa22804 ]
+[ Upstream commit f3fa2becf2fc25b6ac7cf8d8b1a2e4a86b3b72bd ]
 
-Otherwise we hit an unablanced enable-count when unbinding the DFI
-device:
+In function si_parse_power_table(), array adev->pm.dpm.ps and its member
+is allocated. If the allocation of each member fails, the array itself
+is freed and returned with an error code. However, the array is later
+freed again in si_dpm_fini() function which is called when the function
+returns an error.
 
-[ 1279.659119] ------------[ cut here ]------------
-[ 1279.659179] WARNING: CPU: 2 PID: 5638 at drivers/devfreq/devfreq-event.c:360 devfreq_event_remove_edev+0x84/0x8c
-...
-[ 1279.659352] Hardware name: Google Kevin (DT)
-[ 1279.659363] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
-[ 1279.659371] pc : devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659380] lr : devm_devfreq_event_release+0x1c/0x28
-...
-[ 1279.659571] Call trace:
-[ 1279.659582]  devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659590]  devm_devfreq_event_release+0x1c/0x28
-[ 1279.659602]  release_nodes+0x1cc/0x244
-[ 1279.659611]  devres_release_all+0x44/0x60
-[ 1279.659621]  device_release_driver_internal+0x11c/0x1ac
-[ 1279.659629]  device_driver_detach+0x20/0x2c
-[ 1279.659641]  unbind_store+0x7c/0xb0
-[ 1279.659650]  drv_attr_store+0x2c/0x40
-[ 1279.659663]  sysfs_kf_write+0x44/0x58
-[ 1279.659672]  kernfs_fop_write_iter+0xf4/0x190
-[ 1279.659684]  vfs_write+0x2b0/0x2e4
-[ 1279.659693]  ksys_write+0x80/0xec
-[ 1279.659701]  __arm64_sys_write+0x24/0x30
-[ 1279.659714]  el0_svc_common+0xf0/0x1d8
-[ 1279.659724]  do_el0_svc_compat+0x28/0x3c
-[ 1279.659738]  el0_svc_compat+0x10/0x1c
-[ 1279.659746]  el0_sync_compat_handler+0xa8/0xcc
-[ 1279.659758]  el0_sync_compat+0x188/0x1c0
-[ 1279.659768] ---[ end trace cec200e5094155b4 ]---
+This leads to potential double free of the array adev->pm.dpm.ps, as
+well as leak of its array members, since the members are not freed in
+the allocation function and the array is not nulled when freed.
+In addition adev->pm.dpm.num_ps, which keeps track of the allocated
+array member, is not updated until the member allocation is
+successfully finished, this could also lead to either use after free,
+or uninitialized variable access in si_dpm_fini().
 
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fix this by postponing the free of the array until si_dpm_fini() and
+increment adev->pm.dpm.num_ps everytime the array member is allocated.
+
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/rk3399_dmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/pm/powerplay/si_dpm.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
-index 293857ebfd75..538e8dc74f40 100644
---- a/drivers/devfreq/rk3399_dmc.c
-+++ b/drivers/devfreq/rk3399_dmc.c
-@@ -477,6 +477,8 @@ static int rk3399_dmcfreq_remove(struct platform_device *pdev)
- {
- 	struct rk3399_dmcfreq *dmcfreq = dev_get_drvdata(&pdev->dev);
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c b/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
+index 81f82aa05ec2..66fc63f1f1c1 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/si_dpm.c
+@@ -7247,17 +7247,15 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 	if (!adev->pm.dpm.ps)
+ 		return -ENOMEM;
+ 	power_state_offset = (u8 *)state_array->states;
+-	for (i = 0; i < state_array->ucNumEntries; i++) {
++	for (adev->pm.dpm.num_ps = 0, i = 0; i < state_array->ucNumEntries; i++) {
+ 		u8 *idx;
+ 		power_state = (union pplib_power_state *)power_state_offset;
+ 		non_clock_array_index = power_state->v2.nonClockInfoIndex;
+ 		non_clock_info = (struct _ATOM_PPLIB_NONCLOCK_INFO *)
+ 			&non_clock_info_array->nonClockInfo[non_clock_array_index];
+ 		ps = kzalloc(sizeof(struct  si_ps), GFP_KERNEL);
+-		if (ps == NULL) {
+-			kfree(adev->pm.dpm.ps);
++		if (ps == NULL)
+ 			return -ENOMEM;
+-		}
+ 		adev->pm.dpm.ps[i].ps_priv = ps;
+ 		si_parse_pplib_non_clock_info(adev, &adev->pm.dpm.ps[i],
+ 					      non_clock_info,
+@@ -7279,8 +7277,8 @@ static int si_parse_power_table(struct amdgpu_device *adev)
+ 			k++;
+ 		}
+ 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
++		adev->pm.dpm.num_ps++;
+ 	}
+-	adev->pm.dpm.num_ps = state_array->ucNumEntries;
  
-+	devfreq_event_disable_edev(dmcfreq->edev);
-+
- 	/*
- 	 * Before remove the opp table we need to unregister the opp notifier.
- 	 */
+ 	/* fill in the vce power states */
+ 	for (i = 0; i < adev->pm.dpm.num_of_vce_states; i++) {
 -- 
 2.35.1
 
