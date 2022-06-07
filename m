@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A300541EA3
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63056541E9D
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349765AbiFGWcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35340 "EHLO
+        id S1381818AbiFGWcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385170AbiFGWbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 962AE278522;
-        Tue,  7 Jun 2022 12:24:28 -0700 (PDT)
+        with ESMTP id S1385479AbiFGWbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E1527935A;
+        Tue,  7 Jun 2022 12:24:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CFB1B823DA;
-        Tue,  7 Jun 2022 19:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2E3C34115;
-        Tue,  7 Jun 2022 19:24:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E50D3B823D0;
+        Tue,  7 Jun 2022 19:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C49C385A5;
+        Tue,  7 Jun 2022 19:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629865;
-        bh=bEMjmt/fs8kRVG7tWEi/Vb+6ioSU5XDC+V8l26sZGkg=;
+        s=korg; t=1654629879;
+        bh=M/NcB8WX6Wqp97huGdzefR0XgbpT9OSioDVVk20zTLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxrZoiS96TNEGyb7Kq+lI6cVKgPnRSfAaj1IzrQ+013heaceRwb4QeRfLF7ehEkSm
-         ZbzhBp162X5Mxo+wbXINN0E8PZ+nTx5uKNSB7T7EIg75+hUyRv8so/2mQJQKcz7BZz
-         UBxXtMOW7SiFtMyENg8QCrVvzKCTI/95dWHIQEjk=
+        b=1EoONYz1InAWVdFCJKaW10+PmiQ6H/ngSn3pczAOpxBCgYySqBLaFybotLfvdR8/R
+         xnKjMOndDOdNzrJmelTJGPf+RTO04Eq9VhkrrxK2K6OIhhrzFrjNjZZzQ14F7zKkFj
+         P0vQB/rRtQ0IKsfPUh24/YN9naf3C7R5RzAbxL7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.18 808/879] mmc: core: Allows to override the timeout value for ioctl() path
-Date:   Tue,  7 Jun 2022 19:05:26 +0200
-Message-Id: <20220607165026.310241617@linuxfoundation.org>
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH 5.18 809/879] csky: patch_text: Fixup last cpu should be master
+Date:   Tue,  7 Jun 2022 19:05:27 +0200
+Message-Id: <20220607165026.339144983@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -55,44 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 23e09be254f95a5b75cd87f91a4014f3b46dda3f upstream.
+commit 8c4d16471e2babe9bdfe41d6ef724526629696cb upstream.
 
-Occasionally, user-land applications initiate longer timeout values for certain commands
-through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
-in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
-userspace application. This patch allows custom timeout values to override this default
-timeout values on the ioctl path.
+These patch_text implementations are using stop_machine_cpuslocked
+infrastructure with atomic cpu_count. The original idea: When the
+master CPU patch_text, the others should wait for it. But current
+implementation is using the first CPU as master, which couldn't
+guarantee the remaining CPUs are waiting. This patch changes the
+last CPU as the master to solve the potential risk.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220423221623.1074556-3-huobean@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 33e53ae1ce41 ("csky: Add kprobes supported")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/csky/kernel/probes/kprobes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mm
+--- a/arch/csky/kernel/probes/kprobes.c
++++ b/arch/csky/kernel/probes/kprobes.c
+@@ -30,7 +30,7 @@ static int __kprobes patch_text_cb(void
+ 	struct csky_insn_patch *param = priv;
+ 	unsigned int addr = (unsigned int)param->addr;
  
- 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
- 		/*
--		 * Ensure RPMB/R1B command has completed by polling CMD13
--		 * "Send Status".
-+		 * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
-+		 * allow to override the default timeout value if a custom timeout is specified.
- 		 */
--		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
--					MMC_BUSY_IO);
-+		err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
-+					false, MMC_BUSY_IO);
- 	}
- 
- 	return err;
+-	if (atomic_inc_return(&param->cpu_count) == 1) {
++	if (atomic_inc_return(&param->cpu_count) == num_online_cpus()) {
+ 		*(u16 *) addr = cpu_to_le16(param->opcode);
+ 		dcache_wb_range(addr, addr + 2);
+ 		atomic_inc(&param->cpu_count);
 
 
