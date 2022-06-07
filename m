@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E083540EFA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9AC541D0D
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353215AbiFGS6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:58:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41088 "EHLO
+        id S1383693AbiFGWHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354722AbiFGS4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:56:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA82814CA20;
-        Tue,  7 Jun 2022 11:04:08 -0700 (PDT)
+        with ESMTP id S1383774AbiFGWGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E1C187C04;
+        Tue,  7 Jun 2022 12:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B09406183C;
-        Tue,  7 Jun 2022 18:04:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C026EC385A5;
-        Tue,  7 Jun 2022 18:04:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87F97B8237B;
+        Tue,  7 Jun 2022 19:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F32EDC385A2;
+        Tue,  7 Jun 2022 19:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625047;
-        bh=jk3GPX/z1hEDFjC03/RcNKJq/h0HQGSSLN8X7A3cII8=;
+        s=korg; t=1654629447;
+        bh=1ccXHXOLc5bkJrMUGd4dBgKunxzafld5r3Mry26Bbio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLecwzocdie/lKTjJKWaoJiQu2kAefLxCY8pSCs6l2EJVBbd9n/dj0ShkWXHYjf/P
-         Quq9FnyeT1OHwn+y37O3NshUHHIt/zCzqdhDcATLVbl7xfUoE+wg/WCgOAGV/wMh4S
-         vuxb8c9D60ARDyPSaxYujMswGITBYYgC9iWVKvpk=
+        b=rIq8Pt1R86TwpdAbB0GJSm5h1biTrSZ/9UQaRoImR4vAUhiezB3BskOpeq3nDqAz3
+         UTvEd9r3T/M2xpiIqz1VMyhpXbQVvq0cFmH/Im7szLVQDzHKu+qQlDKA07SimdlfMk
+         yvektF9SykHNAwshFz53q2aZXrAQGIeQtOQpNQAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 547/667] ext4: verify dir block before splitting it
+        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 694/879] RISC-V: Fix the XIP build
 Date:   Tue,  7 Jun 2022 19:03:32 +0200
-Message-Id: <20220607164951.106046109@linuxfoundation.org>
+Message-Id: <20220607165022.991461845@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-commit 46c116b920ebec58031f0a78c5ea9599b0d2a371 upstream.
+[ Upstream commit d9e418d0ca1c464fe361468b772d4aa870d54e63 ]
 
-Before splitting a directory block verify its directory entries are sane
-so that the splitting code does not access memory it should not.
+A handful of functions unused functions were enabled during XIP builds,
+which themselves didn't build correctly.  This just disables the
+functions entirely.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220518093332.13986-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e8a62cc26ddf ("riscv: Implement sv48 support")
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20220420184056.7886-5-palmer@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |   32 +++++++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ arch/riscv/mm/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -277,9 +277,9 @@ static struct dx_frame *dx_probe(struct
- 				 struct dx_hash_info *hinfo,
- 				 struct dx_frame *frame);
- static void dx_release(struct dx_frame *frames);
--static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
--		       unsigned blocksize, struct dx_hash_info *hinfo,
--		       struct dx_map_entry map[]);
-+static int dx_make_map(struct inode *dir, struct buffer_head *bh,
-+		       struct dx_hash_info *hinfo,
-+		       struct dx_map_entry *map_tail);
- static void dx_sort_map(struct dx_map_entry *map, unsigned count);
- static struct ext4_dir_entry_2 *dx_move_dirents(struct inode *dir, char *from,
- 					char *to, struct dx_map_entry *offsets,
-@@ -1249,15 +1249,23 @@ static inline int search_dirblock(struct
-  * Create map of hash values, offsets, and sizes, stored at end of block.
-  * Returns number of entries mapped.
-  */
--static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
--		       unsigned blocksize, struct dx_hash_info *hinfo,
-+static int dx_make_map(struct inode *dir, struct buffer_head *bh,
-+		       struct dx_hash_info *hinfo,
- 		       struct dx_map_entry *map_tail)
- {
- 	int count = 0;
--	char *base = (char *) de;
-+	struct ext4_dir_entry_2 *de = (struct ext4_dir_entry_2 *)bh->b_data;
-+	unsigned int buflen = bh->b_size;
-+	char *base = bh->b_data;
- 	struct dx_hash_info h = *hinfo;
- 
--	while ((char *) de < base + blocksize) {
-+	if (ext4_has_metadata_csum(dir->i_sb))
-+		buflen -= sizeof(struct ext4_dir_entry_tail);
-+
-+	while ((char *) de < base + buflen) {
-+		if (ext4_check_dir_entry(dir, NULL, de, bh, base, buflen,
-+					 ((char *)de) - base))
-+			return -EFSCORRUPTED;
- 		if (de->name_len && de->inode) {
- 			if (ext4_hash_in_dirent(dir))
- 				h.hash = EXT4_DIRENT_HASH(de);
-@@ -1270,8 +1278,7 @@ static int dx_make_map(struct inode *dir
- 			count++;
- 			cond_resched();
- 		}
--		/* XXX: do we need to check rec_len == 0 case? -Chris */
--		de = ext4_next_entry(de, blocksize);
-+		de = ext4_next_entry(de, dir->i_sb->s_blocksize);
- 	}
- 	return count;
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 05ed641a1134..39e2e1d0e94f 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -677,7 +677,7 @@ static __init pgprot_t pgprot_from_va(uintptr_t va)
  }
-@@ -1943,8 +1950,11 @@ static struct ext4_dir_entry_2 *do_split
+ #endif /* CONFIG_STRICT_KERNEL_RWX */
  
- 	/* create map in the end of data2 block */
- 	map = (struct dx_map_entry *) (data2 + blocksize);
--	count = dx_make_map(dir, (struct ext4_dir_entry_2 *) data1,
--			     blocksize, hinfo, map);
-+	count = dx_make_map(dir, *bh, hinfo, map);
-+	if (count < 0) {
-+		err = count;
-+		goto journal_error;
-+	}
- 	map -= count;
- 	dx_sort_map(map, count);
- 	/* Ensure that neither split block is over half full */
+-#ifdef CONFIG_64BIT
++#if defined(CONFIG_64BIT) && !defined(CONFIG_XIP_KERNEL)
+ static void __init disable_pgtable_l5(void)
+ {
+ 	pgtable_l5_enabled = false;
+-- 
+2.35.1
+
 
 
