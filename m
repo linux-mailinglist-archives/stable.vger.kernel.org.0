@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F265419FD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43DA65404A7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378692AbiFGV1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:27:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46280 "EHLO
+        id S1345518AbiFGRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:18:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379112AbiFGVZM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321F9150B65;
-        Tue,  7 Jun 2022 12:01:38 -0700 (PDT)
+        with ESMTP id S1345517AbiFGRSW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45473104C96;
+        Tue,  7 Jun 2022 10:18:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E61C6B822C0;
-        Tue,  7 Jun 2022 19:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF2FC385A2;
-        Tue,  7 Jun 2022 19:01:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D68B0618CF;
+        Tue,  7 Jun 2022 17:18:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E44F0C34115;
+        Tue,  7 Jun 2022 17:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628495;
-        bh=IaTamhIYb9RPqj4QayKEjkj2X3Nr3GfNwleznlAfHOU=;
+        s=korg; t=1654622300;
+        bh=quySYJtomJ+ruxzvdbbgP8BcCD9LVEd0iWQJMe7v50s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3FMPub7KeXaFYC6uFHK1uR7JgJBjhaBeJW/2WyuOYzcnXkc0+T4FNJN8FJv9eE99
-         Dm75Ys71h8XHmYqvxqnCoDK1tGvzh6cbT2ay7cE6ygygVt9uE+WQtXzP7UsTINK5J9
-         1PlUD4RyeQrpbB9fJpvlIfyrur8+GHWUIhTguMVY=
+        b=y755U4w0ekXmuxuiWgXTRZNrCxnJ9X1i8CeBX9hwKYhbVhVsbIZXI+H/8lDhppveo
+         ib5olTDb11dgfKsxk9Ha+hqAE/nF7d07qK3bT+2AsrF3ZPLwPUAH6W6gku9wlPOmUq
+         Lma93u7KJV3n85ll+XAFwAYrAblhyRb8Y5sKAekA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 350/879] spi: rockchip: fix missing error on unsupported SPI_CS_HIGH
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Albert Wang <albertccwang@google.com>
+Subject: [PATCH 5.10 011/452] usb: dwc3: gadget: Move null pinter check to proper place
 Date:   Tue,  7 Jun 2022 18:57:48 +0200
-Message-Id: <20220607165013.020291908@linuxfoundation.org>
+Message-Id: <20220607164908.873134406@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+From: Albert Wang <albertccwang@google.com>
 
-[ Upstream commit d5d933f09ac326aebad85bfb787cc786ad477711 ]
+commit 3c5880745b4439ac64eccdb040e37fc1cc4c5406 upstream.
 
-The hardware (except for the ROCKCHIP_SPI_VER2_TYPE2 version) does not
-support active-high native chip selects. However if such a CS is configured
-the core does not error as it normally should, because the
-'ctlr->use_gpio_descriptors = true' line in rockchip_spi_probe() makes the
-core set SPI_CS_HIGH in ctlr->mode_bits.
+When dwc3_gadget_ep_cleanup_completed_requests() called to
+dwc3_gadget_giveback() where the dwc3 lock is released, other thread is
+able to execute. In this situation, usb_ep_disable() gets the chance to
+clear endpoint descriptor pointer which leds to the null pointer
+dereference problem. So needs to move the null pointer check to a proper
+place.
 
-In such a case the spi-rockchip driver operates normally but produces an
-active-low chip select signal without notice.
+Example call stack:
 
-There is no provision in the current core code to handle this
-situation. Fix by adding a check in the ctlr->setup function (similarly to
-what spi-atmel.c does).
+Thread#1:
+dwc3_thread_interrupt()
+  spin_lock
+  -> dwc3_process_event_buf()
+   -> dwc3_process_event_entry()
+    -> dwc3_endpoint_interrupt()
+     -> dwc3_gadget_endpoint_trbs_complete()
+      -> dwc3_gadget_ep_cleanup_completed_requests()
+       ...
+       -> dwc3_giveback()
+          spin_unlock
+          Thread#2 executes
 
-This cannot be done reading the SPI_CS_HIGH but in ctlr->mode_bits because
-that bit gets always set by the core for master mode (see above).
+Thread#2:
+configfs_composite_disconnect()
+  -> __composite_disconnect()
+   -> ffs_func_disable()
+    -> ffs_func_set_alt()
+     -> ffs_func_eps_disable()
+      -> usb_ep_disable()
+         wait for dwc3 spin_lock
+         Thread#1 released lock
+         clear endpoint.desc
 
-Fixes: eb1262e3cc8b ("spi: spi-rockchip: use num-cs property and ctlr->enable_gpiods")
-Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Link: https://lore.kernel.org/r/20220421213251.1077899-1-luca.ceresoli@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26288448120b ("usb: dwc3: gadget: Fix null pointer exception")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Albert Wang <albertccwang@google.com>
+Link: https://lore.kernel.org/r/20220518061315.3359198-1-albertccwang@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-rockchip.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/dwc3/gadget.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index cdc16eecaf6b..a08215eb9e14 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -196,6 +196,8 @@ struct rockchip_spi {
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2960,14 +2960,14 @@ static bool dwc3_gadget_endpoint_trbs_co
+ 	struct dwc3		*dwc = dep->dwc;
+ 	bool			no_started_trb = true;
  
- 	bool slave_abort;
- 	bool cs_inactive; /* spi slave tansmition stop when cs inactive */
-+	bool cs_high_supported; /* native CS supports active-high polarity */
+-	if (!dep->endpoint.desc)
+-		return no_started_trb;
+-
+ 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+ 
+ 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
+ 		goto out;
+ 
++	if (!dep->endpoint.desc)
++		return no_started_trb;
 +
- 	struct spi_transfer *xfer; /* Store xfer temporarily */
- };
- 
-@@ -719,6 +721,11 @@ static int rockchip_spi_setup(struct spi_device *spi)
- 	struct rockchip_spi *rs = spi_controller_get_devdata(spi->controller);
- 	u32 cr0;
- 
-+	if (!spi->cs_gpiod && (spi->mode & SPI_CS_HIGH) && !rs->cs_high_supported) {
-+		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
-+		return -EINVAL;
-+	}
-+
- 	pm_runtime_get_sync(rs->dev);
- 
- 	cr0 = readl_relaxed(rs->regs + ROCKCHIP_SPI_CTRLR0);
-@@ -899,6 +906,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
- 
- 	switch (readl_relaxed(rs->regs + ROCKCHIP_SPI_VERSION)) {
- 	case ROCKCHIP_SPI_VER2_TYPE2:
-+		rs->cs_high_supported = true;
- 		ctlr->mode_bits |= SPI_CS_HIGH;
- 		if (ctlr->can_dma && slave_mode)
- 			rs->cs_inactive = true;
--- 
-2.35.1
-
+ 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
+ 		list_empty(&dep->started_list) &&
+ 		(list_empty(&dep->pending_list) || status == -EXDEV))
 
 
