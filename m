@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE275412AA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8847154094D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356195AbiFGTxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:53:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39190 "EHLO
+        id S233789AbiFGSHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357514AbiFGTu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:50:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35AFA7E1E5;
-        Tue,  7 Jun 2022 11:19:33 -0700 (PDT)
+        with ESMTP id S1350645AbiFGSBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF4A14B2C5;
+        Tue,  7 Jun 2022 10:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD0E360A21;
-        Tue,  7 Jun 2022 18:19:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE772C385A5;
-        Tue,  7 Jun 2022 18:19:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C04BB822B0;
+        Tue,  7 Jun 2022 17:43:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D8E9C385A5;
+        Tue,  7 Jun 2022 17:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625972;
-        bh=1FGITE9cSQ7P/XRgO9DxDaKqCo/fkaKYnIe8TByOLMk=;
+        s=korg; t=1654623802;
+        bh=hNsuAn+9pufZEh6kmLrx7j6VD2duSU6sqeBA0OR8Qe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzEWSo8tqmzDXLAym5m9K5cxvPN1TW5IKSF7U+O3imdY92n094kCIsatTFbCLIfzA
-         f9EauPLMWYojKALeMq+jGKv3VyvjldM+SPPckbO4911JTX7TXl8ohrac54t3StAA2i
-         3bbZjdMR8MS/V/WHxuimAgL8sPeRssdviFRKBCwY=
+        b=0+FXpu/l1hho5sC+XGSsUdKJFxJez9RGLnPsyNOxomwv/4sW1aCk1GMdSghfGhI/b
+         CnuBLn5JX3IoPPMTR4bur/KZenrsXA7cMYje8ZeZ9VTEk1DiD1ruTvBpurjtfkGV/p
+         +5VFgTAONnZUgd5IP68o2sQHozfGZaTrre9zmZsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alice Wong <shiwei.wong@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 170/772] net: ipa: ignore endianness if there is no header
-Date:   Tue,  7 Jun 2022 18:56:02 +0200
-Message-Id: <20220607164954.049841462@linuxfoundation.org>
+Subject: [PATCH 5.15 098/667] drm/amdgpu/ucode: Remove firmware load type check in amdgpu_ucode_free_bo
+Date:   Tue,  7 Jun 2022 18:56:03 +0200
+Message-Id: <20220607164937.760913486@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Alice Wong <shiwei.wong@amd.com>
 
-[ Upstream commit 332ef7c814bdd60f08d0d9013d0e1104798b2d23 ]
+[ Upstream commit ab0cd4a9ae5b4679b714d8dbfedc0901fecdce9f ]
 
-If we program an RX endpoint to have no header (header length is 0),
-header-related endpoint configuration values are meaningless and are
-ignored.
+When psp_hw_init failed, it will set the load_type to AMDGPU_FW_LOAD_DIRECT.
+During amdgpu_device_ip_fini, amdgpu_ucode_free_bo checks that load_type is
+AMDGPU_FW_LOAD_DIRECT and skips deallocating fw_buf causing memory leak.
+Remove load_type check in amdgpu_ucode_free_bo.
 
-The only case we support that defines a header is QMAP endpoints.
-In ipa_endpoint_init_hdr_ext() we set the endianness mask value
-unconditionally, but it should not be done if there is no header
-(meaning it is not configured for QMAP).
-
-Set the endianness conditionally, and rearrange the logic in that
-function slightly to avoid testing the qmap flag twice.
-
-Delete an incorrect comment in ipa_endpoint_init_aggr().
-
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alice Wong <shiwei.wong@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_endpoint.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
-index dde55ccae9d7..b421bb1cc23d 100644
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -571,19 +571,23 @@ static void ipa_endpoint_init_hdr_ext(struct ipa_endpoint *endpoint)
- 	struct ipa *ipa = endpoint->ipa;
- 	u32 val = 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+index abd8469380e5..0ed0736d515a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+@@ -723,8 +723,7 @@ int amdgpu_ucode_create_bo(struct amdgpu_device *adev)
  
--	val |= HDR_ENDIANNESS_FMASK;		/* big endian */
--
--	/* A QMAP header contains a 6 bit pad field at offset 0.  The RMNet
--	 * driver assumes this field is meaningful in packets it receives,
--	 * and assumes the header's payload length includes that padding.
--	 * The RMNet driver does *not* pad packets it sends, however, so
--	 * the pad field (although 0) should be ignored.
--	 */
--	if (endpoint->data->qmap && !endpoint->toward_ipa) {
--		val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
--		/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
--		val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
--		/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
-+	if (endpoint->data->qmap) {
-+		/* We have a header, so we must specify its endianness */
-+		val |= HDR_ENDIANNESS_FMASK;	/* big endian */
-+
-+		/* A QMAP header contains a 6 bit pad field at offset 0.
-+		 * The RMNet driver assumes this field is meaningful in
-+		 * packets it receives, and assumes the header's payload
-+		 * length includes that padding.  The RMNet driver does
-+		 * *not* pad packets it sends, however, so the pad field
-+		 * (although 0) should be ignored.
-+		 */
-+		if (!endpoint->toward_ipa) {
-+			val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
-+			/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
-+			val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
-+			/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
-+		}
- 	}
- 
- 	/* HDR_PAYLOAD_LEN_INC_PADDING is 0 */
-@@ -741,8 +745,6 @@ static void ipa_endpoint_init_aggr(struct ipa_endpoint *endpoint)
- 
- 			close_eof = endpoint->data->rx.aggr_close_eof;
- 			val |= aggr_sw_eof_active_encoded(version, close_eof);
--
--			/* AGGR_HARD_BYTE_LIMIT_ENABLE is 0 */
- 		} else {
- 			val |= u32_encode_bits(IPA_ENABLE_DEAGGR,
- 					       AGGR_EN_FMASK);
+ void amdgpu_ucode_free_bo(struct amdgpu_device *adev)
+ {
+-	if (adev->firmware.load_type != AMDGPU_FW_LOAD_DIRECT)
+-		amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
++	amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
+ 		&adev->firmware.fw_buf_mc,
+ 		&adev->firmware.fw_buf_ptr);
+ }
 -- 
 2.35.1
 
