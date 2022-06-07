@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3C6540AE7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:24:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93E52541A73
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344297AbiFGSY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:24:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
+        id S1379826AbiFGVdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:33:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352213AbiFGSQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A06101929F;
-        Tue,  7 Jun 2022 10:51:07 -0700 (PDT)
+        with ESMTP id S1381011AbiFGVbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:31:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95AAB22C49F;
+        Tue,  7 Jun 2022 12:03:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 344B5616A3;
-        Tue,  7 Jun 2022 17:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42178C385A5;
-        Tue,  7 Jun 2022 17:51:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ACBD617F7;
+        Tue,  7 Jun 2022 19:03:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D0D2C385A5;
+        Tue,  7 Jun 2022 19:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624266;
-        bh=RR3aylxj9NPe3mDlcntd+PKS/4WJpELSeq1aLFk8eHE=;
+        s=korg; t=1654628628;
+        bh=Kacrr2MuoitFijxvKKIMt/koonpQyVamPq3KJQ9FeW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cH9o+ZojewPfKK0Bk2QLfFwmvHxHxQYfm6p4XJZugG0Qo9CSl5XHr4mI/soMOW9rx
-         DGDiQTSu/os4Dbv4p7pNF8xj0DaFN2TxUBhGCoLFWZc/f9Yh21VuQYR+5Z2cLnOLOJ
-         4cR3FpD0NBbXOrvbaPw8B4+mgto4wgWhYEXyTSp8=
+        b=FoQV51+gJa87mUwINY2UfCpI4P56iEegz0CNXDeQcXGs5GDd/4cpNG30ZO1IRDaKU
+         igAu5LCuVov3gbWm+wvtjiSiJfjtzBKJqEgJR20380mS6wUgdezVYXYn6DePkPF4PB
+         rVNfUlYYCGLKIQBvAfEKwTo7e5RFlxrhLOzt76V0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Adam Ward <Adam.Ward.Opensource@diasemi.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 224/667] regulator: da9121: Fix uninit-value in da9121_assign_chip_model()
+Subject: [PATCH 5.18 371/879] drm/msm/dp: reset DP controller before transmit phy test pattern
 Date:   Tue,  7 Jun 2022 18:58:09 +0200
-Message-Id: <20220607164941.510173474@linuxfoundation.org>
+Message-Id: <20220607165013.641051369@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit bab76514aca36bc513224525d5598da676938218 ]
+[ Upstream commit 581d69981159b00f0443d171a4b900089f34ccfe ]
 
-KASAN report slab-out-of-bounds in __regmap_init as follows:
+DP controller state can not switch from video ready state to
+transmit phy pattern state at run time. DP mainlink has to be
+teared down followed by reset controller to default state to have
+DP controller switch to transmit phy test pattern state and start
+generate specified phy test pattern to sinker once main link setup
+again.
 
-BUG: KASAN: slab-out-of-bounds in __regmap_init drivers/base/regmap/regmap.c:841
-Read of size 1 at addr ffff88803678cdf1 by task xrun/9137
+Changes in v2:
+-- correct Fixes's commit id
 
-CPU: 0 PID: 9137 Comm: xrun Tainted: G        W         5.18.0-rc2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x15a lib/dump_stack.c:88
- print_report.cold+0xcd/0x69b mm/kasan/report.c:313
- kasan_report+0x8e/0xc0 mm/kasan/report.c:491
- __regmap_init+0x4540/0x4ba0 drivers/base/regmap/regmap.c:841
- __devm_regmap_init+0x7a/0x100 drivers/base/regmap/regmap.c:1266
- __devm_regmap_init_i2c+0x65/0x80 drivers/base/regmap/regmap-i2c.c:394
- da9121_i2c_probe+0x386/0x6d1 drivers/regulator/da9121-regulator.c:1039
- i2c_device_probe+0x959/0xac0 drivers/i2c/i2c-core-base.c:563
-
-This happend when da9121 device is probe by da9121_i2c_id, but with
-invalid dts. Thus, chip->subvariant_id is set to -EINVAL, and later
-da9121_assign_chip_model() will access 'regmap' without init it.
-
-Fix it by return -EINVAL from da9121_assign_chip_model() if
-'chip->subvariant_id' is invalid.
-
-Fixes: f3fbd5566f6a ("regulator: da9121: Add device variants")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Adam Ward <Adam.Ward.Opensource@diasemi.com>
-Link: https://lore.kernel.org/r/20220421090335.1876149-1-weiyongjun1@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 52352fe2f866 ("drm/msm/dp: use dp_ctrl_off_link_stream during PHY compliance test run")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/483563/
+Link: https://lore.kernel.org/r/1650995939-28467-2-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/da9121-regulator.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/da9121-regulator.c b/drivers/regulator/da9121-regulator.c
-index 0a4fd449c27d..3315994d7e31 100644
---- a/drivers/regulator/da9121-regulator.c
-+++ b/drivers/regulator/da9121-regulator.c
-@@ -936,6 +936,8 @@ static int da9121_assign_chip_model(struct i2c_client *i2c,
- 		chip->variant_id = DA9121_TYPE_DA9220_DA9132;
- 		regmap = &da9121_2ch_regmap_config;
- 		break;
-+	default:
-+		return -EINVAL;
- 	}
- 
- 	/* Set these up for of_regulator_match call which may want .of_map_modes */
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index 53568567e05b..193cc1a597ff 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1532,7 +1532,7 @@ static int dp_ctrl_process_phy_test_request(struct dp_ctrl_private *ctrl)
+ 	 * running. Add the global reset just before disabling the
+ 	 * link clocks and core clocks.
+ 	 */
+-	ret = dp_ctrl_off_link_stream(&ctrl->dp_ctrl);
++	ret = dp_ctrl_off(&ctrl->dp_ctrl);
+ 	if (ret) {
+ 		DRM_ERROR("failed to disable DP controller\n");
+ 		return ret;
 -- 
 2.35.1
 
