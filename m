@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1717F541BFC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74111540672
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382360AbiFGVzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
+        id S1347400AbiFGRfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384241AbiFGVyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84135E753;
-        Tue,  7 Jun 2022 12:13:14 -0700 (PDT)
+        with ESMTP id S1347108AbiFGRd0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:33:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 009EBFF589;
+        Tue,  7 Jun 2022 10:30:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2864E61912;
-        Tue,  7 Jun 2022 19:13:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E198C385A2;
-        Tue,  7 Jun 2022 19:13:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0530AB822B1;
+        Tue,  7 Jun 2022 17:30:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57649C385A5;
+        Tue,  7 Jun 2022 17:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629191;
-        bh=q2WfSuGehAysC4oWHH5FcLye7l4l9jfwd2iIF05nmrM=;
+        s=korg; t=1654623013;
+        bh=cpjPFx3YXi+7fDXbtxcOmua1TOAOV77x3Tp9AjUhaRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u32Iv/40ppYd+gkCBaEWohdB/Z4HzZMPCQWxK85F3hYlGcDyCtTofmmGCIInQN+tc
-         ROyyn64mNfGM5Cr4ALb+MuPRROwbIArp7//1QXKn7NIPCf165ydLle6jQndPDUiZiZ
-         u/ienbUh4kxTc5OH9G3wQ2VjWIemuvNNySEUVyyA=
+        b=mEGHg7PWlMq2PMiRnYrH7/NfvsSPRfzMBMSEmxdRieFXnjZ6N1KUie+bxV4RdPT+x
+         TdzIwrYpzZ1LD4NpkKnYtYKXj5/UgJQ236rzyB/gn6fhFsjWeFs4luTzeuEypda4wD
+         7a3xnIMmGjcGkOdgtWx5FfA+O/SuV0+tIQC2rPjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 603/879] powerpc/8xx: export cpm_setbrg for modules
+Subject: [PATCH 5.10 264/452] PCI: rockchip: Fix find_first_zero_bit() limit
 Date:   Tue,  7 Jun 2022 19:02:01 +0200
-Message-Id: <20220607165020.354626616@linuxfoundation.org>
+Message-Id: <20220607164916.419843850@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 22f8e625ebabd7ed3185b82b44b4f12fc0402113 ]
+[ Upstream commit 096950e230b8d83645c7cf408b9f399f58c08b96 ]
 
-Fix missing export for a loadable module build:
+The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
 
-ERROR: modpost: "cpm_setbrg" [drivers/tty/serial/cpm_uart/cpm_uart.ko] undefined!
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-[chleroy: Changed Fixes: tag]
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210122010819.30986-1-rdunlap@infradead.org
+Link: https://lore.kernel.org/r/20220315065944.GB13572@kili
+Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/8xx/cpm1.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/pcie-rockchip-ep.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/8xx/cpm1.c b/arch/powerpc/platforms/8xx/cpm1.c
-index c58b6f1c40e3..3ef5e9fd3a9b 100644
---- a/arch/powerpc/platforms/8xx/cpm1.c
-+++ b/arch/powerpc/platforms/8xx/cpm1.c
-@@ -280,6 +280,7 @@ cpm_setbrg(uint brg, uint rate)
- 		out_be32(bp, (((BRG_UART_CLK_DIV16 / rate) - 1) << 1) |
- 			      CPM_BRG_EN | CPM_BRG_DIV16);
- }
-+EXPORT_SYMBOL(cpm_setbrg);
+diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
+index 7631dc3961c1..379cde59988c 100644
+--- a/drivers/pci/controller/pcie-rockchip-ep.c
++++ b/drivers/pci/controller/pcie-rockchip-ep.c
+@@ -264,8 +264,7 @@ static int rockchip_pcie_ep_map_addr(struct pci_epc *epc, u8 fn,
+ 	struct rockchip_pcie *pcie = &ep->rockchip;
+ 	u32 r;
  
- struct cpm_ioport16 {
- 	__be16 dir, par, odr_sor, dat, intr;
+-	r = find_first_zero_bit(&ep->ob_region_map,
+-				sizeof(ep->ob_region_map) * BITS_PER_LONG);
++	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
+ 	/*
+ 	 * Region 0 is reserved for configuration space and shouldn't
+ 	 * be used elsewhere per TRM, so leave it out.
 -- 
 2.35.1
 
