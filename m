@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B97E5410DD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31ADD5417E2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355409AbiFGT3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
+        id S1378489AbiFGVGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:06:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356731AbiFGT2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2BE31A15D9;
-        Tue,  7 Jun 2022 11:10:37 -0700 (PDT)
+        with ESMTP id S1379550AbiFGVGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A5801F5743;
+        Tue,  7 Jun 2022 11:49:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 700E8B81F38;
-        Tue,  7 Jun 2022 18:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D70EDC385A2;
-        Tue,  7 Jun 2022 18:10:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A383B81FE1;
+        Tue,  7 Jun 2022 18:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0434C385A2;
+        Tue,  7 Jun 2022 18:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625436;
-        bh=EGBFhl10/WxhjBf9f/lkCn81vM2bqbXJhwMAVy/nUBA=;
+        s=korg; t=1654627788;
+        bh=NZOjF323UZNafxUxjZt3FD7HpP5qouR5J6a9gRbV+4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6Qa7//huze+ciata6jbZxuix4zQdcldJwtjpCVQEBfPJqA9b+fK2sFeVhtmQr565
-         8ImaP6jVqfFx73Bl5Xx8W4QPrsM0o1f24DUomjmyTRgEOh+M07Jp2YuAojAoglNR1u
-         N4CPSEDCLuZSY3/4fiSaHisISnTp5LqgRIhIoPrw=
+        b=PjTC3V0nyUhmHdOcfgMSoR0dJmGpbP1L9UspIckf7X7DwwvmXvT/7VdJ9+KtoSt+R
+         MfMc3hMyUgCiVrox7hzz+vLFMftQgRL2sFAdokT/dau9RMrwf6o1hacI6u2VEjHpW/
+         9RWxyZZHObvVRw/+yw2gWrJU0iI1taQ0qSE9n3c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.17 019/772] usb: core: hcd: Add support for deferring roothub registration
+        stable@vger.kernel.org, Maulik Shah <quic_mkshah@quicinc.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 093/879] cpuidle: PSCI: Improve support for suspend-to-RAM for PSCI OSI mode
 Date:   Tue,  7 Jun 2022 18:53:31 +0200
-Message-Id: <20220607164949.575807255@linuxfoundation.org>
+Message-Id: <20220607165005.391570201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,122 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit a44623d9279086c89f631201d993aa332f7c9e66 upstream.
+[ Upstream commit 171b66e2e2e9d80b93c8cff799e6175074b22297 ]
 
-It has been observed with certain PCIe USB cards (like Inateck connected
-to AM64 EVM or J7200 EVM) that as soon as the primary roothub is
-registered, port status change is handled even before xHC is running
-leading to cold plug USB devices not detected. For such cases, registering
-both the root hubs along with the second HCD is required. Add support for
-deferring roothub registration in usb_add_hcd(), so that both primary and
-secondary roothubs are registered along with the second HCD.
+When PSCI OSI mode is supported the syscore flag is set for the CPU devices
+that becomes attached to their PM domains (genpds). In the suspend-to-idle
+case, we call dev_pm_genpd_suspend|resume() to allow genpd to properly
+manage the power-off/on operations (pick an idlestate and manage the on/off
+notifications).
 
-This patch has been added and reverted earier as it triggered a race
-in usb device enumeration.
-That race is now fixed in 5.16-rc3, and in stable back to 5.4
-commit 6cca13de26ee ("usb: hub: Fix locking issues with address0_mutex")
-commit 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0
-race")
+For suspend-to-ram, dev_pm_genpd_suspend|resume() is currently not being
+called, which causes a problem that the genpd on/off notifiers do not get
+sent as expected. This prevents the platform-specific operations from being
+executed, typically needed just before/after the boot CPU is being turned
+off/on.
 
-CC: stable@vger.kernel.org # 5.4+
-Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Tested-by: Chris Chiu <chris.chiu@canonical.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Link: https://lore.kernel.org/r/20220510091630.16564-2-kishon@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To deal with this problem, let's register a syscore ops for cpuidle-psci
+when PSCI OSI mode is being used and call dev_pm_genpd_suspend|resume()
+from them. In this way, genpd regains control of the PM domain topology and
+then sends the on/off notifications when it's appropriate.
+
+Reported-by: Maulik Shah <quic_mkshah@quicinc.com>
+Suggested-by: Maulik Shah <quic_mkshah@quicinc.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Tested-by: Maulik Shah <quic_mkshah@quicinc.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd.c  |   29 +++++++++++++++++++++++------
- include/linux/usb/hcd.h |    2 ++
- 2 files changed, 25 insertions(+), 6 deletions(-)
+ drivers/cpuidle/cpuidle-psci.c | 46 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -2816,6 +2816,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
- {
- 	int retval;
- 	struct usb_device *rhdev;
-+	struct usb_hcd *shared_hcd;
+diff --git a/drivers/cpuidle/cpuidle-psci.c b/drivers/cpuidle/cpuidle-psci.c
+index b51b5df08450..540105ca0781 100644
+--- a/drivers/cpuidle/cpuidle-psci.c
++++ b/drivers/cpuidle/cpuidle-psci.c
+@@ -23,6 +23,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
++#include <linux/syscore_ops.h>
  
- 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
- 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
-@@ -2976,13 +2977,26 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 		goto err_hcd_driver_start;
- 	}
+ #include <asm/cpuidle.h>
  
-+	/* starting here, usbcore will pay attention to the shared HCD roothub */
-+	shared_hcd = hcd->shared_hcd;
-+	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
-+		retval = register_root_hub(shared_hcd);
-+		if (retval != 0)
-+			goto err_register_root_hub;
+@@ -131,6 +132,49 @@ static int psci_idle_cpuhp_down(unsigned int cpu)
+ 	return 0;
+ }
+ 
++static void psci_idle_syscore_switch(bool suspend)
++{
++	bool cleared = false;
++	struct device *dev;
++	int cpu;
 +
-+		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
-+			usb_hcd_poll_rh_status(shared_hcd);
-+	}
++	for_each_possible_cpu(cpu) {
++		dev = per_cpu_ptr(&psci_cpuidle_data, cpu)->dev;
 +
- 	/* starting here, usbcore will pay attention to this root hub */
--	retval = register_root_hub(hcd);
--	if (retval != 0)
--		goto err_register_root_hub;
-+	if (!HCD_DEFER_RH_REGISTER(hcd)) {
-+		retval = register_root_hub(hcd);
-+		if (retval != 0)
-+			goto err_register_root_hub;
- 
--	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
--		usb_hcd_poll_rh_status(hcd);
-+		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
-+			usb_hcd_poll_rh_status(hcd);
++		if (dev && suspend) {
++			dev_pm_genpd_suspend(dev);
++		} else if (dev) {
++			dev_pm_genpd_resume(dev);
++
++			/* Account for userspace having offlined a CPU. */
++			if (pm_runtime_status_suspended(dev))
++				pm_runtime_set_active(dev);
++
++			/* Clear domain state to re-start fresh. */
++			if (!cleared) {
++				psci_set_domain_state(0);
++				cleared = true;
++			}
++		}
 +	}
- 
- 	return retval;
- 
-@@ -3020,6 +3034,7 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
- void usb_remove_hcd(struct usb_hcd *hcd)
++}
++
++static int psci_idle_syscore_suspend(void)
++{
++	psci_idle_syscore_switch(true);
++	return 0;
++}
++
++static void psci_idle_syscore_resume(void)
++{
++	psci_idle_syscore_switch(false);
++}
++
++static struct syscore_ops psci_idle_syscore_ops = {
++	.suspend = psci_idle_syscore_suspend,
++	.resume = psci_idle_syscore_resume,
++};
++
+ static void psci_idle_init_cpuhp(void)
  {
- 	struct usb_device *rhdev = hcd->self.root_hub;
-+	bool rh_registered;
+ 	int err;
+@@ -138,6 +182,8 @@ static void psci_idle_init_cpuhp(void)
+ 	if (!psci_cpuidle_use_cpuhp)
+ 		return;
  
- 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
- 
-@@ -3030,6 +3045,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 
- 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
- 	spin_lock_irq (&hcd_root_hub_lock);
-+	rh_registered = hcd->rh_registered;
- 	hcd->rh_registered = 0;
- 	spin_unlock_irq (&hcd_root_hub_lock);
- 
-@@ -3039,7 +3055,8 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 	cancel_work_sync(&hcd->died_work);
- 
- 	mutex_lock(&usb_bus_idr_lock);
--	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
-+	if (rh_registered)
-+		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
- 	mutex_unlock(&usb_bus_idr_lock);
- 
- 	/*
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -124,6 +124,7 @@ struct usb_hcd {
- #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
- #define HCD_FLAG_DEAD			6	/* controller has died? */
- #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
-+#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
- 
- 	/* The flags can be tested using these macros; they are likely to
- 	 * be slightly faster than test_bit().
-@@ -134,6 +135,7 @@ struct usb_hcd {
- #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
- #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
- #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
-+#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
- 
- 	/*
- 	 * Specifies if interfaces are authorized by default
++	register_syscore_ops(&psci_idle_syscore_ops);
++
+ 	err = cpuhp_setup_state_nocalls(CPUHP_AP_CPU_PM_STARTING,
+ 					"cpuidle/psci:online",
+ 					psci_idle_cpuhp_up,
+-- 
+2.35.1
+
 
 
