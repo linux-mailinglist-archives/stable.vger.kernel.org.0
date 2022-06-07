@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FAD54181B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 716295410D9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378781AbiFGVHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
+        id S1355397AbiFGT3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379703AbiFGVGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD3F52109D6;
-        Tue,  7 Jun 2022 11:50:09 -0700 (PDT)
+        with ESMTP id S1356794AbiFGT2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7F01A194C;
+        Tue,  7 Jun 2022 11:10:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED681B81FE1;
-        Tue,  7 Jun 2022 18:49:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 610DEC385A2;
-        Tue,  7 Jun 2022 18:49:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0E2661903;
+        Tue,  7 Jun 2022 18:10:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE9BC385A2;
+        Tue,  7 Jun 2022 18:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627796;
-        bh=Sn2E5T7+eZANOZsUBkk4ShXP8E0TUT3ruFCM8ktCFR0=;
+        s=korg; t=1654625447;
+        bh=0wUPtvcxsDb/X2qUcKd/zlt/iXNEj20UtsVY8xySO5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYMn5ibTP6E5H8TS4asnICu2Yj7fngka75HK44yy2mj4sJHVQGayy+uD/cjS9ZZbv
-         GjmUPzzA63XgRnrVkGmZapuNJtaatKkRwEKrh7uhWah1wHxFq/j5VP292D+5r1vLOm
-         KvhEdfPOiUpObbgw3svBL0y/bXSK7I7KKk7xEhY4=
+        b=SGXzilW8yIk41KA1DHZE+kcOJ/qR1TrR+80DU74l2LzjbAwGxoBmGyu99H5w7+y6x
+         gEMlUsRWEEki1jeZrCIUEi0nU3sq3e621I+bLnBOojsPUj5cDwlRMBM2ObNcsVwhuH
+         alCRRoHoLNEw4MxMqDTFdwYabasA/Hp8cMX+iIFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 095/879] drm/amd/pm: fix double free in si_parse_power_table()
-Date:   Tue,  7 Jun 2022 18:53:33 +0200
-Message-Id: <20220607165005.450407171@linuxfoundation.org>
+        stable@vger.kernel.org, Ganapathi Kamath <hgkamath@hotmail.com>,
+        Kari Argillander <kari.argillander@gmail.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Subject: [PATCH 5.17 022/772] fs/ntfs3: Keep preallocated only if option prealloc enabled
+Date:   Tue,  7 Jun 2022 18:53:34 +0200
+Message-Id: <20220607164949.667015775@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 
-[ Upstream commit f3fa2becf2fc25b6ac7cf8d8b1a2e4a86b3b72bd ]
+commit e95113ed4d428219e3395044e29f5713fc446720 upstream.
 
-In function si_parse_power_table(), array adev->pm.dpm.ps and its member
-is allocated. If the allocation of each member fails, the array itself
-is freed and returned with an error code. However, the array is later
-freed again in si_dpm_fini() function which is called when the function
-returns an error.
+If size of file was reduced, we still kept allocated blocks.
+This commit makes ntfs3 work as other fs like btrfs.
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214719
+Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
 
-This leads to potential double free of the array adev->pm.dpm.ps, as
-well as leak of its array members, since the members are not freed in
-the allocation function and the array is not nulled when freed.
-In addition adev->pm.dpm.num_ps, which keeps track of the allocated
-array member, is not updated until the member allocation is
-successfully finished, this could also lead to either use after free,
-or uninitialized variable access in si_dpm_fini().
-
-Fix this by postponing the free of the array until si_dpm_fini() and
-increment adev->pm.dpm.num_ps everytime the array member is allocated.
-
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Ganapathi Kamath <hgkamath@hotmail.com>
+Tested-by: Ganapathi Kamath <hgkamath@hotmail.com>
+Reviewed-by: Kari Argillander <kari.argillander@gmail.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ fs/ntfs3/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c b/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c
-index 633dab14f51c..49c398ec0aaf 100644
---- a/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c
-+++ b/drivers/gpu/drm/amd/pm/legacy-dpm/si_dpm.c
-@@ -7297,17 +7297,15 @@ static int si_parse_power_table(struct amdgpu_device *adev)
- 	if (!adev->pm.dpm.ps)
- 		return -ENOMEM;
- 	power_state_offset = (u8 *)state_array->states;
--	for (i = 0; i < state_array->ucNumEntries; i++) {
-+	for (adev->pm.dpm.num_ps = 0, i = 0; i < state_array->ucNumEntries; i++) {
- 		u8 *idx;
- 		power_state = (union pplib_power_state *)power_state_offset;
- 		non_clock_array_index = power_state->v2.nonClockInfoIndex;
- 		non_clock_info = (struct _ATOM_PPLIB_NONCLOCK_INFO *)
- 			&non_clock_info_array->nonClockInfo[non_clock_array_index];
- 		ps = kzalloc(sizeof(struct  si_ps), GFP_KERNEL);
--		if (ps == NULL) {
--			kfree(adev->pm.dpm.ps);
-+		if (ps == NULL)
- 			return -ENOMEM;
--		}
- 		adev->pm.dpm.ps[i].ps_priv = ps;
- 		si_parse_pplib_non_clock_info(adev, &adev->pm.dpm.ps[i],
- 					      non_clock_info,
-@@ -7329,8 +7327,8 @@ static int si_parse_power_table(struct amdgpu_device *adev)
- 			k++;
- 		}
- 		power_state_offset += 2 + power_state->v2.ucNumDPMLevels;
-+		adev->pm.dpm.num_ps++;
- 	}
--	adev->pm.dpm.num_ps = state_array->ucNumEntries;
+--- a/fs/ntfs3/file.c
++++ b/fs/ntfs3/file.c
+@@ -495,7 +495,7 @@ static int ntfs_truncate(struct inode *i
  
- 	/* fill in the vce power states */
- 	for (i = 0; i < adev->pm.dpm.num_of_vce_states; i++) {
--- 
-2.35.1
-
+ 	down_write(&ni->file.run_lock);
+ 	err = attr_set_size(ni, ATTR_DATA, NULL, 0, &ni->file.run, new_size,
+-			    &new_valid, true, NULL);
++			    &new_valid, ni->mi.sbi->options->prealloc, NULL);
+ 	up_write(&ni->file.run_lock);
+ 
+ 	if (new_valid < ni->i_valid)
 
 
