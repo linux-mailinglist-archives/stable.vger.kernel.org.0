@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2343C540620
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A63540BD2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245004AbiFGReQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44836 "EHLO
+        id S1351145AbiFGSb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347234AbiFGRaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C03B107882;
-        Tue,  7 Jun 2022 10:26:04 -0700 (PDT)
+        with ESMTP id S1351511AbiFGS3c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89221796CC;
+        Tue,  7 Jun 2022 10:55:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9961D60BC6;
-        Tue,  7 Jun 2022 17:26:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACB5FC385A5;
-        Tue,  7 Jun 2022 17:26:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32E5BB82368;
+        Tue,  7 Jun 2022 17:55:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F31C341C0;
+        Tue,  7 Jun 2022 17:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622763;
-        bh=8ASGapjXqKHLEWJeVOcYtfN2sabWwM7SrPsc7jmLhkk=;
+        s=korg; t=1654624518;
+        bh=Ps4fG3qa7GIYVC/RhRtGNOmc/orT3B9dbi0BNH4mr/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRA/ML3Gcwwxjnesmy/bv0esVaglXOb4MrC8lMW8N0pu4B8ZRKIyGDbULkFwNvto9
-         7T7sxuBJLpwDxfvfLY2pqLHPbyGstzgXHSHN9XTd4LLcyLugimVAM0Cy3NmJZZdC5o
-         bFMq+lvourjfg2uHEqZbuPp6zmwmMaJ+9D62/eD0=
+        b=R/Ck8vKfV3eJMjkld1oEYAHTZvPOnl5Lm2QYQAh0greGaL6CH3sCFeYRlNUu7IFsz
+         NDtetodq2NNDzmd8mMXowplvKUEv0eO/gZ95SAD42qRqNhxGjYCZVBhjNaZEwILTtZ
+         BB3aM8qiWGlzUsqNo7nvMWUXbXrLrzviOMgYVOXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Christoph Fritz <chf.fritz@googlemail.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 157/452] drm/panel: simple: Add missing bus flags for Innolux G070Y2-L01
+Subject: [PATCH 5.15 349/667] drm/msm: dont free the IRQ if it was not requested
 Date:   Tue,  7 Jun 2022 19:00:14 +0200
-Message-Id: <20220607164913.238144606@linuxfoundation.org>
+Message-Id: <20220607164945.225297117@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,39 +57,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0f73a559f916b618c0c05186bd644c90cc9e9695 ]
+[ Upstream commit 577e2a9dfc8fba7938aaf75db63fae7e328cc3cb ]
 
-The DE signal is active high on this display, fill in the missing bus_flags.
-This aligns panel_desc with its display_timing .
+As msm_drm_uninit() is called from the msm_drm_init() error path,
+additional care should be necessary as not to call the free_irq() for
+the IRQ that was not requested before (because an error occured earlier
+than the request_irq() call).
 
-Fixes: a5d2ade627dca ("drm/panel: simple: Add support for Innolux G070Y2-L01")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220406093627.18011-1-marex@denx.de
+This fixed the issue reported with the following backtrace:
+
+[    8.571329] Trying to free already-free IRQ 187
+[    8.571339] WARNING: CPU: 0 PID: 76 at kernel/irq/manage.c:1895 free_irq+0x1e0/0x35c
+[    8.588746] Modules linked in: pmic_glink pdr_interface fastrpc qrtr_smd snd_soc_hdmi_codec msm fsa4480 gpu_sched drm_dp_aux_bus qrtr i2c_qcom_geni crct10dif_ce qcom_stats qcom_q6v5_pas drm_display_helper gpi qcom_pil_info drm_kms_helper qcom_q6v5 qcom_sysmon qcom_common qcom_glink_smem qcom_rng mdt_loader qmi_helpers phy_qcom_qmp ufs_qcom typec qnoc_sm8350 socinfo rmtfs_mem fuse drm ipv6
+[    8.624154] CPU: 0 PID: 76 Comm: kworker/u16:2 Not tainted 5.18.0-rc5-next-20220506-00033-g6cee8cab6089-dirty #419
+[    8.624161] Hardware name: Qualcomm Technologies, Inc. SM8350 HDK (DT)
+[    8.641496] Workqueue: events_unbound deferred_probe_work_func
+[    8.647510] pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    8.654681] pc : free_irq+0x1e0/0x35c
+[    8.658454] lr : free_irq+0x1e0/0x35c
+[    8.662228] sp : ffff800008ab3950
+[    8.665642] x29: ffff800008ab3950 x28: 0000000000000000 x27: ffff16350f56a700
+[    8.672994] x26: ffff1635025df080 x25: ffff16350251badc x24: ffff16350251bb90
+[    8.680343] x23: 0000000000000000 x22: 00000000000000bb x21: ffff16350e8f9800
+[    8.687690] x20: ffff16350251ba00 x19: ffff16350cbd5880 x18: ffffffffffffffff
+[    8.695039] x17: 0000000000000000 x16: ffffa2dd12179434 x15: ffffa2dd1431d02d
+[    8.702391] x14: 0000000000000000 x13: ffffa2dd1431d028 x12: 662d79646165726c
+[    8.709740] x11: ffffa2dd13fd2438 x10: 000000000000000a x9 : 00000000000000bb
+[    8.717111] x8 : ffffa2dd13fd23f0 x7 : ffff800008ab3750 x6 : 00000000fffff202
+[    8.724487] x5 : ffff16377e870a18 x4 : 00000000fffff202 x3 : ffff735a6ae1b000
+[    8.731851] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff1635015f8000
+[    8.739217] Call trace:
+[    8.741755]  free_irq+0x1e0/0x35c
+[    8.745198]  msm_drm_uninit.isra.0+0x14c/0x294 [msm]
+[    8.750548]  msm_drm_bind+0x28c/0x5d0 [msm]
+[    8.755081]  try_to_bring_up_aggregate_device+0x164/0x1d0
+[    8.760657]  __component_add+0xa0/0x170
+[    8.764626]  component_add+0x14/0x20
+[    8.768337]  dp_display_probe+0x2a4/0x464 [msm]
+[    8.773242]  platform_probe+0x68/0xe0
+[    8.777043]  really_probe.part.0+0x9c/0x28c
+[    8.781368]  __driver_probe_device+0x98/0x144
+[    8.785871]  driver_probe_device+0x40/0x140
+[    8.790191]  __device_attach_driver+0xb4/0x120
+[    8.794788]  bus_for_each_drv+0x78/0xd0
+[    8.798751]  __device_attach+0xdc/0x184
+[    8.802713]  device_initial_probe+0x14/0x20
+[    8.807031]  bus_probe_device+0x9c/0xa4
+[    8.810991]  deferred_probe_work_func+0x88/0xc0
+[    8.815667]  process_one_work+0x1d0/0x320
+[    8.819809]  worker_thread+0x14c/0x444
+[    8.823688]  kthread+0x10c/0x110
+[    8.827036]  ret_from_fork+0x10/0x20
+
+Reported-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: f026e431cf86 ("drm/msm: Convert to Linux IRQ interfaces")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/485422/
+Link: https://lore.kernel.org/r/20220507010021.1667700-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_drv.c | 7 ++++++-
+ drivers/gpu/drm/msm/msm_kms.h | 1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 959dcbd8a29c..18850439a2ab 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2144,6 +2144,7 @@ static const struct panel_desc innolux_g070y2_l01 = {
- 		.unprepare = 800,
- 	},
- 	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
-+	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
- 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
- };
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 28524ea8601f..9712582886aa 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -237,6 +237,8 @@ static int msm_irq_postinstall(struct drm_device *dev)
  
+ static int msm_irq_install(struct drm_device *dev, unsigned int irq)
+ {
++	struct msm_drm_private *priv = dev->dev_private;
++	struct msm_kms *kms = priv->kms;
+ 	int ret;
+ 
+ 	if (irq == IRQ_NOTCONNECTED)
+@@ -248,6 +250,8 @@ static int msm_irq_install(struct drm_device *dev, unsigned int irq)
+ 	if (ret)
+ 		return ret;
+ 
++	kms->irq_requested = true;
++
+ 	ret = msm_irq_postinstall(dev);
+ 	if (ret) {
+ 		free_irq(irq, dev);
+@@ -263,7 +267,8 @@ static void msm_irq_uninstall(struct drm_device *dev)
+ 	struct msm_kms *kms = priv->kms;
+ 
+ 	kms->funcs->irq_uninstall(kms);
+-	free_irq(kms->irq, dev);
++	if (kms->irq_requested)
++		free_irq(kms->irq, dev);
+ }
+ 
+ struct msm_vblank_work {
+diff --git a/drivers/gpu/drm/msm/msm_kms.h b/drivers/gpu/drm/msm/msm_kms.h
+index de2bc3467bb5..afa30e2ba1f1 100644
+--- a/drivers/gpu/drm/msm/msm_kms.h
++++ b/drivers/gpu/drm/msm/msm_kms.h
+@@ -149,6 +149,7 @@ struct msm_kms {
+ 
+ 	/* irq number to be passed on to msm_irq_install */
+ 	int irq;
++	bool irq_requested;
+ 
+ 	/* mapper-id used to request GEM buffer mapped for scanout: */
+ 	struct msm_gem_address_space *aspace;
 -- 
 2.35.1
 
