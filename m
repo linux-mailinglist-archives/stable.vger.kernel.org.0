@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02393541AC4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB31E540551
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359517AbiFGViA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40900 "EHLO
+        id S1344407AbiFGRYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376372AbiFGVgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:36:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5416F140877;
-        Tue,  7 Jun 2022 12:04:59 -0700 (PDT)
+        with ESMTP id S1346319AbiFGRXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:23:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90BF1053CB;
+        Tue,  7 Jun 2022 10:21:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EF36617CC;
-        Tue,  7 Jun 2022 19:04:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997CBC385A2;
-        Tue,  7 Jun 2022 19:04:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36440609FA;
+        Tue,  7 Jun 2022 17:21:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40008C385A5;
+        Tue,  7 Jun 2022 17:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628698;
-        bh=IBJFk8m+ISBuPo0dyzuyqrLXv+zS3d6XfsnD/v3iwUM=;
+        s=korg; t=1654622508;
+        bh=GcjfrhzQCxc1EVuTfPY07sfSOpXv/e8b2AKb9LNl33w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVT5/6HrtxO12yIi/sKG00wseSj2T+QpYdWvHtw5qLrUKj9kAb95G84g0hGG/JN9y
-         NF/hgDf2wNgnwypfF3Z8cmRjzYIjdMcjppvnxMedmZdCOBUQzEpZ70rBNLphS0tCZN
-         w4JMwH2+u4Qx+/y9dPY7knHtbZlKMMJElVtHr9JE=
+        b=MWzZKruDZE0p9Y/9c/mFXWrQEIiifQWqMFwHXV2E17W8IaOqCA570j7Yv/6Gdf8PW
+         HiBVzRajLdo23vpk1OEnIvHOeQl87ZlA5n6q3ZDmiGU+8izjsxBwxWzUvETDMPE5MO
+         VVNWiduYr5IhdsyOPUfLFkzB6qUywbLAobpocrdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 424/879] block: Fix the bio.bi_opf comment
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 085/452] net: phy: micrel: Allow probing without .driver_data
 Date:   Tue,  7 Jun 2022 18:59:02 +0200
-Message-Id: <20220607165015.173018807@linuxfoundation.org>
+Message-Id: <20220607164911.087406554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 5d2ae14276e698c76fa0c8ce870103f343b38263 ]
+[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
 
-Commit ef295ecf090d modified the Linux kernel such that the bottom bits
-of the bi_opf member contain the operation instead of the topmost bits.
-That commit did not update the comment next to bi_opf. Hence this patch.
+Currently, if the .probe element is present in the phy_driver structure
+and the .driver_data is not, a NULL pointer dereference happens.
 
->From commit ef295ecf090d:
--#define bio_op(bio)    ((bio)->bi_opf >> BIO_OP_SHIFT)
-+#define bio_op(bio)    ((bio)->bi_opf & REQ_OP_MASK)
+Allow passing .probe without .driver_data by inserting NULL checks
+for priv->type.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Fixes: ef295ecf090d ("block: better op and flags encoding")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220511235152.1082246-1-bvanassche@acm.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/blk_types.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/phy/micrel.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index 1973ef9bd40f..4fa359c2c01f 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -246,9 +246,8 @@ typedef unsigned int blk_qc_t;
- struct bio {
- 	struct bio		*bi_next;	/* request queue link */
- 	struct block_device	*bi_bdev;
--	unsigned int		bi_opf;		/* bottom bits req flags,
--						 * top bits REQ_OP. Use
--						 * accessors.
-+	unsigned int		bi_opf;		/* bottom bits REQ_OP, top bits
-+						 * req_flags.
- 						 */
- 	unsigned short		bi_flags;	/* BIO_* below */
- 	unsigned short		bi_ioprio;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 92e94ac94a34..bbbe198f83e8 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -283,7 +283,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
+ 		}
+ 	}
+ 
+-	if (priv->led_mode >= 0)
++	if (priv->type && priv->led_mode >= 0)
+ 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
+ 
+ 	return 0;
+@@ -299,10 +299,10 @@ static int kszphy_config_init(struct phy_device *phydev)
+ 
+ 	type = priv->type;
+ 
+-	if (type->has_broadcast_disable)
++	if (type && type->has_broadcast_disable)
+ 		kszphy_broadcast_disable(phydev);
+ 
+-	if (type->has_nand_tree_disable)
++	if (type && type->has_nand_tree_disable)
+ 		kszphy_nand_tree_disable(phydev);
+ 
+ 	return kszphy_config_reset(phydev);
+@@ -1112,7 +1112,7 @@ static int kszphy_probe(struct phy_device *phydev)
+ 
+ 	priv->type = type;
+ 
+-	if (type->led_mode_reg) {
++	if (type && type->led_mode_reg) {
+ 		ret = of_property_read_u32(np, "micrel,led-mode",
+ 				&priv->led_mode);
+ 		if (ret)
+@@ -1133,7 +1133,8 @@ static int kszphy_probe(struct phy_device *phydev)
+ 		unsigned long rate = clk_get_rate(clk);
+ 		bool rmii_ref_clk_sel_25_mhz;
+ 
+-		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
++		if (type)
++			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
+ 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
+ 				"micrel,rmii-reference-clock-select-25-mhz");
+ 
 -- 
 2.35.1
 
