@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E692541909
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB9454125E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376424AbiFGVSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54912 "EHLO
+        id S1356043AbiFGTri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380884AbiFGVRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC2114CA11;
-        Tue,  7 Jun 2022 11:58:01 -0700 (PDT)
+        with ESMTP id S1357390AbiFGTq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:46:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E7069B6F;
+        Tue,  7 Jun 2022 11:18:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EE08B82391;
-        Tue,  7 Jun 2022 18:57:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7161C36AFF;
-        Tue,  7 Jun 2022 18:57:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E53F60C7F;
+        Tue,  7 Jun 2022 18:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98434C385A2;
+        Tue,  7 Jun 2022 18:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628278;
-        bh=TXdYIlv8GMbuy2kPzeKAPO0DMYcaGZuJN0ZRyUD6OrQ=;
+        s=korg; t=1654625934;
+        bh=FsnhM5PT/E5Fpk+dkdwL4mlsa9gXKVZzJ8yZXv4wNXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jp+DuAfGuwW/HhNQSD2l1V24hRiWqAQdEH0ecNroun20UofwnJDFweLPlJYz30CKb
-         9x6mFErSOWXbzDYF/6NKCdZbOz+29QgZhaylR8QkXXLV2nprLLGu8NYeCcYxgNTCKG
-         AjuA4tJEcmZ48ER2FAEaY2uO+ZlboKQZSe1abDls=
+        b=g7ahHlGSxsmoxn1pF1P+w4PeNNpHmEL5wS2iR1yKaizso5xHEo1u3/rKA5RITYJIi
+         3rnuYhPqoC+0m6XZZo0V8IHxYlr1RDc2MW6eUX2Pnp+6D3xQl+APoziOCLMeZKu2PJ
+         /cbKnKiOBtEiJwDUqKficrkOJhUzxajKjbqEWQuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 270/879] drm/bridge: it6505: Fix build error
+Subject: [PATCH 5.17 196/772] ALSA: usb-audio: Add quirk bits for enabling/disabling generic implicit fb
 Date:   Tue,  7 Jun 2022 18:56:28 +0200
-Message-Id: <20220607165010.687320222@linuxfoundation.org>
+Message-Id: <20220607164954.809603410@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 3dd4834a6efe4eb3c086526e1870bb768776d86a ]
+[ Upstream commit 0f1f7a6661394fe4a53db254c346d6aa2dd64397 ]
 
-If DRM_ITE_IT6505 is y but DRM_DP_HELPER is m, building failed:
+For making easier to test, add the new quirk_flags bits 17 and 18 to
+enable and disable the generic implicit feedback mode.  The bit 17 is
+equivalent with implicit_fb=1 option, applying the generic implicit
+feedback sync mode.  OTOH, the bit 18 disables the implicit fb mode
+forcibly.
 
-drivers/gpu/drm/bridge/ite-it6505.o: In function `it6505_i2c_remove':
-ite-it6505.c:(.text+0x35c): undefined reference to `drm_dp_aux_unregister'
-drivers/gpu/drm/bridge/ite-it6505.o: In function `it6505_dpcd_read':
-ite-it6505.c:(.text+0x420): undefined reference to `drm_dp_dpcd_read'
-drivers/gpu/drm/bridge/ite-it6505.o: In function `it6505_get_dpcd':
-ite-it6505.c:(.text+0x4a4): undefined reference to `drm_dp_dpcd_read'
-drivers/gpu/drm/bridge/ite-it6505.o: In function `it6505_dpcd_write':
-ite-it6505.c:(.text+0x52c): undefined reference to `drm_dp_dpcd_write'
-
-Select DRM_DP_HELPER for DRM_ITE_IT6505 to fix this.
-
-Fixes: b5c84a9edcd4 ("drm/bridge: add it6505 driver")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220317094724.25972-1-yuehaibing@huawei.com
+Link: https://lore.kernel.org/r/20220421064101.12456-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/sound/alsa-configuration.rst | 4 +++-
+ sound/usb/implicit.c                       | 5 ++++-
+ sound/usb/usbaudio.h                       | 6 ++++++
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index 2145b08f9534..becd9867f3a0 100644
---- a/drivers/gpu/drm/bridge/Kconfig
-+++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -77,6 +77,7 @@ config DRM_DISPLAY_CONNECTOR
- config DRM_ITE_IT6505
-         tristate "ITE IT6505 DisplayPort bridge"
-         depends on OF
-+	select DRM_DP_HELPER
-         select DRM_KMS_HELPER
-         select DRM_DP_HELPER
-         select EXTCON
+diff --git a/Documentation/sound/alsa-configuration.rst b/Documentation/sound/alsa-configuration.rst
+index 34888d4fc4a8..21ab5e6f7062 100644
+--- a/Documentation/sound/alsa-configuration.rst
++++ b/Documentation/sound/alsa-configuration.rst
+@@ -2246,7 +2246,7 @@ implicit_fb
+     Apply the generic implicit feedback sync mode.  When this is set
+     and the playback stream sync mode is ASYNC, the driver tries to
+     tie an adjacent ASYNC capture stream as the implicit feedback
+-    source.
++    source.  This is equivalent with quirk_flags bit 17.
+ use_vmalloc
+     Use vmalloc() for allocations of the PCM buffers (default: yes).
+     For architectures with non-coherent memory like ARM or MIPS, the
+@@ -2288,6 +2288,8 @@ quirk_flags
+         * bit 14: Ignore errors for mixer access
+         * bit 15: Support generic DSD raw U32_BE format
+         * bit 16: Set up the interface at first like UAC1
++        * bit 17: Apply the generic implicit feedback sync mode
++        * bit 18: Don't apply implicit feedback sync mode
+ 
+ This module supports multiple devices, autoprobe and hotplugging.
+ 
+diff --git a/sound/usb/implicit.c b/sound/usb/implicit.c
+index 2d444ec74202..1fd087128538 100644
+--- a/sound/usb/implicit.c
++++ b/sound/usb/implicit.c
+@@ -350,7 +350,8 @@ static int audioformat_implicit_fb_quirk(struct snd_usb_audio *chip,
+ 	}
+ 
+ 	/* Try the generic implicit fb if available */
+-	if (chip->generic_implicit_fb)
++	if (chip->generic_implicit_fb ||
++	    (chip->quirk_flags & QUIRK_FLAG_GENERIC_IMPLICIT_FB))
+ 		return add_generic_implicit_fb(chip, fmt, alts);
+ 
+ 	/* No quirk */
+@@ -387,6 +388,8 @@ int snd_usb_parse_implicit_fb_quirk(struct snd_usb_audio *chip,
+ 				    struct audioformat *fmt,
+ 				    struct usb_host_interface *alts)
+ {
++	if (chip->quirk_flags & QUIRK_FLAG_SKIP_IMPLICIT_FB)
++		return 0;
+ 	if (fmt->endpoint & USB_DIR_IN)
+ 		return audioformat_capture_quirk(chip, fmt, alts);
+ 	else
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index b8359a0aa008..044cd7ab27cb 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -164,6 +164,10 @@ extern bool snd_usb_skip_validation;
+  *  Support generic DSD raw U32_BE format
+  * QUIRK_FLAG_SET_IFACE_FIRST:
+  *  Set up the interface at first like UAC1
++ * QUIRK_FLAG_GENERIC_IMPLICIT_FB
++ *  Apply the generic implicit feedback sync mode (same as implicit_fb=1 option)
++ * QUIRK_FLAG_SKIP_IMPLICIT_FB
++ *  Don't apply implicit feedback sync mode
+  */
+ 
+ #define QUIRK_FLAG_GET_SAMPLE_RATE	(1U << 0)
+@@ -183,5 +187,7 @@ extern bool snd_usb_skip_validation;
+ #define QUIRK_FLAG_IGNORE_CTL_ERROR	(1U << 14)
+ #define QUIRK_FLAG_DSD_RAW		(1U << 15)
+ #define QUIRK_FLAG_SET_IFACE_FIRST	(1U << 16)
++#define QUIRK_FLAG_GENERIC_IMPLICIT_FB	(1U << 17)
++#define QUIRK_FLAG_SKIP_IMPLICIT_FB	(1U << 18)
+ 
+ #endif /* __USBAUDIO_H */
 -- 
 2.35.1
 
