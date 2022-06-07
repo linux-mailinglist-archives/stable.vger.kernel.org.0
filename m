@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5A3D540E39
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3EB541CF0
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352893AbiFGSxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:53:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58034 "EHLO
+        id S1382624AbiFGWHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353908AbiFGSss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:48:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E665587;
-        Tue,  7 Jun 2022 11:03:11 -0700 (PDT)
+        with ESMTP id S1382914AbiFGWEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA081957A3;
+        Tue,  7 Jun 2022 12:15:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D83AB82343;
-        Tue,  7 Jun 2022 18:03:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 980CCC34115;
-        Tue,  7 Jun 2022 18:03:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78065618DF;
+        Tue,  7 Jun 2022 19:15:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83820C385A5;
+        Tue,  7 Jun 2022 19:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624989;
-        bh=P0JhZEhnX0JrfUblM9gr7pRAlhvGRIoAzFxWTDmIUCM=;
+        s=korg; t=1654629320;
+        bh=hY1OGFaYOAjKahsc3EgeshxdB0vb5pnbnAM/vdL5NOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxvWUSuX5tn6J6mNmhRoFhp1CfDAEezRR4tOK72QhrJ8XRfSYfBrXbovfJ3Az6ziz
-         BKGeEMeSE3b3Lp6XuL5gxZyNsqG7OY5+57NbFTN1c5yyaLM0cSuMs8ZZKjn6Swa88C
-         y+m4/YafI2vWvNH+uRQw046+vGvzyjjXEZW8l8P0=
+        b=Zr+DgC+Iw2sgb8b1bzzUr2ujT3M+0L6H+jID69NkWNRAjq3SYDIyvW8DFKBhsE0G4
+         5a8QdnCEJJEvgV6NdZPRvKpDJaSmSt9kwg4On6z/VqAsEExW799mKquy8uPQPQpxIA
+         3ysxd40lfYUYs66N21q6tHUVg1ueMKdkAaFQxwH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 485/667] i2c: at91: use dma safe buffers
+        stable@vger.kernel.org,
+        Daire McNamara <daire.mcnamara@microchip.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 632/879] PCI: microchip: Fix potential race in interrupt handling
 Date:   Tue,  7 Jun 2022 19:02:30 +0200
-Message-Id: <20220607164949.248469337@linuxfoundation.org>
+Message-Id: <20220607165021.192548460@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Daire McNamara <daire.mcnamara@microchip.com>
 
-[ Upstream commit 03fbb903c8bf7e53e101e8d9a7b261264317c411 ]
+[ Upstream commit 7013654af694f6e1a2e699a6450ea50d309dd0e5 ]
 
-The supplied buffer might be on the stack and we get the following error
-message:
-[    3.312058] at91_i2c e0070600.i2c: rejecting DMA map of vmalloc memory
+Clear the MSI bit in ISTATUS_LOCAL register after reading it, but
+before reading and handling individual MSI bits from the ISTATUS_MSI
+register. This avoids a potential race where new MSI bits may be set
+on the ISTATUS_MSI register after it was read and be missed when the
+MSI bit in the ISTATUS_LOCAL register is cleared.
 
-Use i2c_{get,put}_dma_safe_msg_buf() to get a DMA-able memory region if
-necessary.
+ISTATUS_LOCAL is a read/write/clear register; the register's bits
+are set when the corresponding interrupt source is activated. Each
+source is independent and thus multiple sources may be active
+simultaneously. The processor can monitor and clear status
+bits. If one or more ISTATUS_LOCAL interrupt sources are active,
+the RootPort issues an interrupt towards the processor (on
+the AXI domain). Bit 28 of this register reports an MSI has been
+received by the RootPort.
 
-Fixes: 60937b2cdbf9 ("i2c: at91: add dma support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+ISTATUS_MSI is a read/write/clear register. Bits 31-0 are asserted
+when an MSI with message number 31-0 is received by the RootPort.
+The processor must monitor and clear these bits.
+
+Effectively, Bit 28 of ISTATUS_LOCAL informs the processor that
+an MSI has arrived at the RootPort and ISTATUS_MSI informs the
+processor which MSI (in the range 0 - 31) needs handling.
+
+Reported by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/linux-pci/20220127202000.GA126335@bhelgaas/
+
+Link: https://lore.kernel.org/r/20220517141622.145581-1-daire.mcnamara@microchip.com
+Fixes: 6f15a9c9f941 ("PCI: microchip: Add Microchip PolarFire PCIe controller driver")
+Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-at91-master.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/pci/controller/pcie-microchip-host.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index b0eae94909f4..5eca3b3bb609 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -656,6 +656,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	unsigned int_addr_flag = 0;
- 	struct i2c_msg *m_start = msg;
- 	bool is_read;
-+	u8 *dma_buf;
+diff --git a/drivers/pci/controller/pcie-microchip-host.c b/drivers/pci/controller/pcie-microchip-host.c
+index 8175abed0f05..2c52a8cef726 100644
+--- a/drivers/pci/controller/pcie-microchip-host.c
++++ b/drivers/pci/controller/pcie-microchip-host.c
+@@ -419,6 +419,7 @@ static void mc_handle_msi(struct irq_desc *desc)
  
- 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+ 	status = readl_relaxed(bridge_base_addr + ISTATUS_LOCAL);
+ 	if (status & PM_MSI_INT_MSI_MASK) {
++		writel_relaxed(status & PM_MSI_INT_MSI_MASK, bridge_base_addr + ISTATUS_LOCAL);
+ 		status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
+ 		for_each_set_bit(bit, &status, msi->num_vectors) {
+ 			ret = generic_handle_domain_irq(msi->dev_domain, bit);
+@@ -437,13 +438,8 @@ static void mc_msi_bottom_irq_ack(struct irq_data *data)
+ 	void __iomem *bridge_base_addr =
+ 		port->axi_base_addr + MC_PCIE_BRIDGE_ADDR;
+ 	u32 bitpos = data->hwirq;
+-	unsigned long status;
  
-@@ -703,7 +704,17 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	dev->msg = m_start;
- 	dev->recv_len_abort = false;
+ 	writel_relaxed(BIT(bitpos), bridge_base_addr + ISTATUS_MSI);
+-	status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
+-	if (!status)
+-		writel_relaxed(BIT(PM_MSI_INT_MSI_SHIFT),
+-			       bridge_base_addr + ISTATUS_LOCAL);
+ }
  
-+	if (dev->use_dma) {
-+		dma_buf = i2c_get_dma_safe_msg_buf(m_start, 1);
-+		if (!dma_buf) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
-+		dev->buf = dma_buf;
-+	}
-+
- 	ret = at91_do_twi_transfer(dev);
-+	i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
- 
- 	ret = (ret < 0) ? ret : num;
- out:
+ static void mc_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
 -- 
 2.35.1
 
