@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9498A540706
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5A3D540E39
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347631AbiFGRlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
+        id S1352893AbiFGSxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:53:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348560AbiFGRlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B3B120890;
-        Tue,  7 Jun 2022 10:34:22 -0700 (PDT)
+        with ESMTP id S1353908AbiFGSss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:48:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E665587;
+        Tue,  7 Jun 2022 11:03:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5226961543;
-        Tue,  7 Jun 2022 17:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58D1CC385A5;
-        Tue,  7 Jun 2022 17:33:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D83AB82343;
+        Tue,  7 Jun 2022 18:03:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 980CCC34115;
+        Tue,  7 Jun 2022 18:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623208;
-        bh=5nof6Jt2ksDAMb5Ln0YlWKqlrv9Jw3OM28OWQlEtXTE=;
+        s=korg; t=1654624989;
+        bh=P0JhZEhnX0JrfUblM9gr7pRAlhvGRIoAzFxWTDmIUCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVk8bJNpXyKctqTipWE1xcDgv2VeVQ5Bva0UonvtcbZFOecFvQLwSfIckBcH2blnk
-         tKr7Nto7LH99/3GdklCpJ/WVs98sOKuVdh905/i6bmnZFN66p+T6oXEtx/e35SBs2e
-         GHoy+hohh0eFQ+/Yy/xczjSoGg1+UMnptH50WkQo=
+        b=BxvWUSuX5tn6J6mNmhRoFhp1CfDAEezRR4tOK72QhrJ8XRfSYfBrXbovfJ3Az6ziz
+         BKGeEMeSE3b3Lp6XuL5gxZyNsqG7OY5+57NbFTN1c5yyaLM0cSuMs8ZZKjn6Swa88C
+         y+m4/YafI2vWvNH+uRQw046+vGvzyjjXEZW8l8P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Scott Cheloha <cheloha@linux.vnet.ibm.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 293/452] drivers/base/memory: fix an unlikely reference counting issue in __add_memory_block()
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 485/667] i2c: at91: use dma safe buffers
 Date:   Tue,  7 Jun 2022 19:02:30 +0200
-Message-Id: <20220607164917.284771638@linuxfoundation.org>
+Message-Id: <20220607164949.248469337@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,50 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit f47f758cff59c68015d6b9b9c077110df7c2c828 ]
+[ Upstream commit 03fbb903c8bf7e53e101e8d9a7b261264317c411 ]
 
-__add_memory_block() calls both put_device() and device_unregister() when
-storing the memory block into the xarray.  This is incorrect because
-xarray doesn't take an additional reference and device_unregister()
-already calls put_device().
+The supplied buffer might be on the stack and we get the following error
+message:
+[    3.312058] at91_i2c e0070600.i2c: rejecting DMA map of vmalloc memory
 
-Triggering the issue looks really unlikely and its only effect should be
-to log a spurious warning about a ref counted issue.
+Use i2c_{get,put}_dma_safe_msg_buf() to get a DMA-able memory region if
+necessary.
 
-Link: https://lkml.kernel.org/r/d44c63d78affe844f020dc02ad6af29abc448fc4.1650611702.git.christophe.jaillet@wanadoo.fr
-Fixes: 4fb6eabf1037 ("drivers/base/memory.c: cache memory blocks in xarray to accelerate lookup")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Scott Cheloha <cheloha@linux.vnet.ibm.com>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 60937b2cdbf9 ("i2c: at91: add dma support")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/memory.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-at91-master.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index de058d15b33e..49eb14271f28 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -560,10 +560,9 @@ int register_memory(struct memory_block *memory)
- 	}
- 	ret = xa_err(xa_store(&memory_blocks, memory->dev.id, memory,
- 			      GFP_KERNEL));
--	if (ret) {
--		put_device(&memory->dev);
-+	if (ret)
- 		device_unregister(&memory->dev);
--	}
-+
- 	return ret;
- }
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index b0eae94909f4..5eca3b3bb609 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -656,6 +656,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	unsigned int_addr_flag = 0;
+ 	struct i2c_msg *m_start = msg;
+ 	bool is_read;
++	u8 *dma_buf;
  
+ 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+ 
+@@ -703,7 +704,17 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	dev->msg = m_start;
+ 	dev->recv_len_abort = false;
+ 
++	if (dev->use_dma) {
++		dma_buf = i2c_get_dma_safe_msg_buf(m_start, 1);
++		if (!dma_buf) {
++			ret = -ENOMEM;
++			goto out;
++		}
++		dev->buf = dma_buf;
++	}
++
+ 	ret = at91_do_twi_transfer(dev);
++	i2c_put_dma_safe_msg_buf(dma_buf, m_start, !ret);
+ 
+ 	ret = (ret < 0) ? ret : num;
+ out:
 -- 
 2.35.1
 
