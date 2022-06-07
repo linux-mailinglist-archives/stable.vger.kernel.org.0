@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8B6541479
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA535405D7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358741AbiFGUSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37234 "EHLO
+        id S1346859AbiFGRcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376580AbiFGUQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FD3C1737FE;
-        Tue,  7 Jun 2022 11:29:32 -0700 (PDT)
+        with ESMTP id S1347404AbiFGRan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317BC1109BA;
+        Tue,  7 Jun 2022 10:26:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78ABBB82340;
-        Tue,  7 Jun 2022 18:29:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0644C385A5;
-        Tue,  7 Jun 2022 18:29:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 71310CE21CD;
+        Tue,  7 Jun 2022 17:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FDDC385A5;
+        Tue,  7 Jun 2022 17:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626568;
-        bh=67f+pJyqDPpIlqJNnInLUFS6+P7eNqKYGVkAXursKgc=;
+        s=korg; t=1654622793;
+        bh=uD3kUOkQq+jybqex1hsntI82/ulhgLwlE89synK6EKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpZj6nxE/k1SQuzRCjkMinzQmaNxCpbqyDXYPyyR0wozjdfZrFe9Bm0mz29CFZbHW
-         3x1fRBEvtFbqyFjPT/0Qt9KnMqsgorFmK9gux+hgwZNCp/mUSKjR47VlNy64vZgIBm
-         YNBV4iUUqkbVOGlmgYm/aRldhtvV6Eic1F0yNZoQ=
+        b=DPhpahdBratiuYK3akUEUGixozf9Zcb0sTGcYXloVu/hgPbyzY0C6cD9p7paYL/BP
+         oS8m78/gFSC9kJ4TRj8/OFt6Yf1wHH8QyzI08BnqZnRoKLi6ZgmsHANrobeLG9xxB/
+         2AfQSAU7kneuKlckHKAepfm+Z3BvYbdK9a/dLZkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 423/772] bfq: Allow current waker to defend against a tentative one
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 158/452] ALSA: pcm: Check for null pointer of pointer substream before dereferencing it
 Date:   Tue,  7 Jun 2022 19:00:15 +0200
-Message-Id: <20220607165001.469079205@linuxfoundation.org>
+Message-Id: <20220607164913.268195102@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit c5ac56bb6110e42e79d3106866658376b2e48ab9 ]
+[ Upstream commit 011b559be832194f992f73d6c0d5485f5925a10b ]
 
-The code in bfq_check_waker() ignores wake up events from the current
-waker. This makes it more likely we select a new tentative waker
-although the current one is generating more wake up events. Treat
-current waker the same way as any other process and allow it to reset
-the waker detection logic.
+Pointer substream is being dereferenced on the assignment of pointer card
+before substream is being null checked with the macro PCM_RUNTIME_CHECK.
+Although PCM_RUNTIME_CHECK calls BUG_ON, it still is useful to perform the
+the pointer check before card is assigned.
 
-Fixes: 71217df39dc6 ("block, bfq: make waker-queue detection more robust")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220519105235.31397-2-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: d4cfb30fce03 ("ALSA: pcm: Set per-card upper limit of PCM buffer allocations")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Link: https://lore.kernel.org/r/20220424205945.1372247-1-colin.i.king@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/core/pcm_memory.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 047368c23984..31f430d9023d 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2133,8 +2133,7 @@ static void bfq_check_waker(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (!bfqd->last_completed_rq_bfqq ||
- 	    bfqd->last_completed_rq_bfqq == bfqq ||
- 	    bfq_bfqq_has_short_ttime(bfqq) ||
--	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
--	    bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
-+	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC)
- 		return;
+diff --git a/sound/core/pcm_memory.c b/sound/core/pcm_memory.c
+index a9a0d74f3165..191883842a35 100644
+--- a/sound/core/pcm_memory.c
++++ b/sound/core/pcm_memory.c
+@@ -434,7 +434,6 @@ EXPORT_SYMBOL(snd_pcm_lib_malloc_pages);
+  */
+ int snd_pcm_lib_free_pages(struct snd_pcm_substream *substream)
+ {
+-	struct snd_card *card = substream->pcm->card;
+ 	struct snd_pcm_runtime *runtime;
  
- 	/*
+ 	if (PCM_RUNTIME_CHECK(substream))
+@@ -443,6 +442,8 @@ int snd_pcm_lib_free_pages(struct snd_pcm_substream *substream)
+ 	if (runtime->dma_area == NULL)
+ 		return 0;
+ 	if (runtime->dma_buffer_p != &substream->dma_buffer) {
++		struct snd_card *card = substream->pcm->card;
++
+ 		/* it's a newly allocated buffer.  release it now. */
+ 		do_free_pages(card, runtime->dma_buffer_p);
+ 		kfree(runtime->dma_buffer_p);
 -- 
 2.35.1
 
