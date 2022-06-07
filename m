@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ACDE541B77
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00354541466
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378626AbiFGVrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:47:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53860 "EHLO
+        id S1358286AbiFGURv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382083AbiFGVqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:46:24 -0400
+        with ESMTP id S1359867AbiFGUQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B88235B11;
-        Tue,  7 Jun 2022 12:07:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72121CC5FE;
+        Tue,  7 Jun 2022 11:28:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B5A0B8220B;
-        Tue,  7 Jun 2022 19:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B84F1C385A2;
-        Tue,  7 Jun 2022 19:07:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 843B8B82340;
+        Tue,  7 Jun 2022 18:28:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E543BC385A5;
+        Tue,  7 Jun 2022 18:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628866;
-        bh=4C1h2APh3CwOXJj7ov7hB5hxZUv1g2wu/xSwijirYak=;
+        s=korg; t=1654626526;
+        bh=8u13nwC0KRxpH1h7yubblY7q75GV9x6q2Kt9AaWhl6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z9k6rp69SAxoOwZfc0HyW4I89gxWfFQmo5PQ9/5UcXGgiwBoFEt8Zj+aTLR5CkfWU
-         vHEGto887FzEZRfsJRTOsIcrKnFQI2EBAtBzE3g4fhs+XygLE/WxszcJ9f3MP3BYd2
-         /QxHXEVD7UCl5tG50pKNxq/t5mRFKIjnC1Ok7fVs=
+        b=GhRVoUAHW3XMRWQwcQWuXjnYAme9jgCkf0o9ME/wLIEBLw2sdV2lk8XORyP3ysb2L
+         4SOuv/KnRDkZHLGWxkAUaPcneox/lbkJYo9JpVNgZB9XAc9NyhcEf8UewPCF+WLM5y
+         mJTWh4ASYDpvfMMizR8eANK3HKPng8PZ04KqNxt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Lukas Czerner <lczerner@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 484/879] drm/msm/a6xx: Fix refcount leak in a6xx_gpu_init
+Subject: [PATCH 5.17 410/772] ext4: reject the commit option on ext2 filesystems
 Date:   Tue,  7 Jun 2022 19:00:02 +0200
-Message-Id: <20220607165016.922249286@linuxfoundation.org>
+Message-Id: <20220607165001.087835245@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit c56de483093d7ad0782327f95dda7da97bc4c315 ]
+[ Upstream commit cb8435dc8ba33bcafa41cf2aa253794320a3b8df ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
+The 'commit' option is only applicable for ext3 and ext4 filesystems,
+and has never been accepted by the ext2 filesystem driver, so the ext4
+driver shouldn't allow it on ext2 filesystems.
 
-a6xx_gmu_init() passes the node to of_find_device_by_node()
-and of_dma_configure(), of_find_device_by_node() will takes its
-reference, of_dma_configure() doesn't need the node after usage.
+This fixes a failure in xfstest ext4/053.
 
-Add missing of_node_put() to avoid refcount leak.
-
-Fixes: 4b565ca5a2cb ("drm/msm: Add A6XX device support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Link: https://lore.kernel.org/r/20220512121955.56937-1-linmq006@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 8dc0aa8cf0f7 ("ext4: check incompatible mount options while mounting ext2/3")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://lore.kernel.org/r/20220510183232.172615-1-ebiggers@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 1 +
+ fs/ext4/super.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index ccc4fcf7a630..a8f6d73197b1 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1919,6 +1919,7 @@ struct msm_gpu *a6xx_gpu_init(struct drm_device *dev)
- 	BUG_ON(!node);
- 
- 	ret = a6xx_gmu_init(a6xx_gpu, node);
-+	of_node_put(node);
- 	if (ret) {
- 		a6xx_destroy(&(a6xx_gpu->base.base));
- 		return ERR_PTR(ret);
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index fe30f483c59f..32e5e76049c1 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1913,6 +1913,7 @@ static const struct mount_opts {
+ 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
+ 	{Opt_warn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_SET},
+ 	{Opt_nowarn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_CLEAR},
++	{Opt_commit, 0, MOPT_NO_EXT2},
+ 	{Opt_nojournal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
+ 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
+ 	{Opt_journal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
 -- 
 2.35.1
 
