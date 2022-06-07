@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1CBA5412DD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 046055419A1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357071AbiFGTyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49632 "EHLO
+        id S1377295AbiFGVXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358591AbiFGTwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC2E2E0AA;
-        Tue,  7 Jun 2022 11:21:19 -0700 (PDT)
+        with ESMTP id S1378772AbiFGVWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:22:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19B4224D26;
+        Tue,  7 Jun 2022 12:00:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 349EEB8237B;
-        Tue,  7 Jun 2022 18:21:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87036C385A5;
-        Tue,  7 Jun 2022 18:21:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E10B361787;
+        Tue,  7 Jun 2022 19:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4A5C385A2;
+        Tue,  7 Jun 2022 19:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626076;
-        bh=JqfzZlWXzIpjCYyfXxBmymB6QuLGjqABK8mina/XokU=;
+        s=korg; t=1654628418;
+        bh=7QQ5grX8R7fbK834V+H9zWsoK0HdlbCrvTqdcW37FDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0R55+PfRgkO+554T4A1A6ODRz3mwmR71h14X+AImiwm4iG/YoTJeAU8bbtn4I1GVH
-         9b1l7iguIoNT8j1m7KIgo3IxnN0fA3trY5bgKroksnzuufgxy3tlT5s8c7rnfvQZcO
-         V+nUxBL712NBEDx5L2hIO05bUEzTsQnFnOLhuUEI=
+        b=OPXrNe2uz9oVcyC4eEIVZocbvjCK3U3q7yEktjK+YRbF+n2pDm6FB6BH1jGc2UyWz
+         CISLrdvimDh0BWdHlXK7zLL29Aif+D+rkBF3YVEYmJHz1pSuqr/aDB81X47Z2c3bE0
+         tPTMEOBBFlC29+C8jtM+G5zu9/OKt8LkUtYLZ1bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Zhiqiang Lin <zhiqiang.lin@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 247/772] drm/mediatek: Fix mtk_cec_mask()
+        stable@vger.kernel.org, Sinan Kaya <okaya@kernel.org>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 321/879] EDAC/dmc520: Dont print an error for each unconfigured interrupt line
 Date:   Tue,  7 Jun 2022 18:57:19 +0200
-Message-Id: <20220607164956.306078210@linuxfoundation.org>
+Message-Id: <20220607165012.171240640@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,43 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit 2c5d69b0a141e1e98febe3111e6f4fd8420493a5 ]
+[ Upstream commit ad2df24732e8956a45a00894d2163c4ee8fb0e1f ]
 
-In current implementation, mtk_cec_mask() writes val into target register
-and ignores the mask. After talking to our hdmi experts, mtk_cec_mask()
-should read a register, clean only mask bits, and update (val | mask) bits
-to the register.
+The dmc520 driver requires that at least one interrupt line, out of the
+ten possible, is configured. The driver prints an error and returns
+-EINVAL from its .probe function if there are no interrupt lines
+configured.
 
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220315232301.2434-1-miles.chen@mediatek.com/
-Fixes: 8f83f26891e1 ("drm/mediatek: Add HDMI support")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Zhiqiang Lin <zhiqiang.lin@mediatek.com>
-Cc: CK Hu <ck.hu@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Don't print a KERN_ERR level message for each interrupt line that's
+unconfigured as that can confuse users into thinking that there is an
+error condition.
+
+Before this change, the following KERN_ERR level messages would be
+reported if only dram_ecc_errc and dram_ecc_errd were configured in the
+device tree:
+
+  dmc520 68000000.dmc: IRQ ram_ecc_errc not found
+  dmc520 68000000.dmc: IRQ ram_ecc_errd not found
+  dmc520 68000000.dmc: IRQ failed_access not found
+  dmc520 68000000.dmc: IRQ failed_prog not found
+  dmc520 68000000.dmc: IRQ link_err not
+  dmc520 68000000.dmc: IRQ temperature_event not found
+  dmc520 68000000.dmc: IRQ arch_fsm not found
+  dmc520 68000000.dmc: IRQ phy_request not found
+
+Fixes: 1088750d7839 ("EDAC: Add EDAC driver for DMC520")
+Reported-by: Sinan Kaya <okaya@kernel.org>
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220111163800.22362-1-tyhicks@linux.microsoft.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_cec.c | 2 +-
+ drivers/edac/dmc520_edac.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_cec.c b/drivers/gpu/drm/mediatek/mtk_cec.c
-index e9cef5c0c8f7..cdfa648910b2 100644
---- a/drivers/gpu/drm/mediatek/mtk_cec.c
-+++ b/drivers/gpu/drm/mediatek/mtk_cec.c
-@@ -85,7 +85,7 @@ static void mtk_cec_mask(struct mtk_cec *cec, unsigned int offset,
- 	u32 tmp = readl(cec->regs + offset) & ~mask;
+diff --git a/drivers/edac/dmc520_edac.c b/drivers/edac/dmc520_edac.c
+index b8a7d9594afd..1fa5ca57e9ec 100644
+--- a/drivers/edac/dmc520_edac.c
++++ b/drivers/edac/dmc520_edac.c
+@@ -489,7 +489,7 @@ static int dmc520_edac_probe(struct platform_device *pdev)
+ 	dev = &pdev->dev;
  
- 	tmp |= val & mask;
--	writel(val, cec->regs + offset);
-+	writel(tmp, cec->regs + offset);
- }
- 
- void mtk_cec_set_hpd_event(struct device *dev,
+ 	for (idx = 0; idx < NUMBER_OF_IRQS; idx++) {
+-		irq = platform_get_irq_byname(pdev, dmc520_irq_configs[idx].name);
++		irq = platform_get_irq_byname_optional(pdev, dmc520_irq_configs[idx].name);
+ 		irqs[idx] = irq;
+ 		masks[idx] = dmc520_irq_configs[idx].mask;
+ 		if (irq >= 0) {
 -- 
 2.35.1
 
