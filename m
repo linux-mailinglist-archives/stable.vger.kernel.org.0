@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E899854169F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB4C8541E01
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377346AbiFGUx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:53:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51914 "EHLO
+        id S1381440AbiFGWVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:21:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378030AbiFGUvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4371FDEB0;
-        Tue,  7 Jun 2022 11:41:22 -0700 (PDT)
+        with ESMTP id S1381770AbiFGWSk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:18:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE35C2629C6;
+        Tue,  7 Jun 2022 12:20:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89C9F60AD9;
-        Tue,  7 Jun 2022 18:41:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 942C2C385A2;
-        Tue,  7 Jun 2022 18:41:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0834B82182;
+        Tue,  7 Jun 2022 19:20:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4CBC385A2;
+        Tue,  7 Jun 2022 19:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627282;
-        bh=J9tuh9jTQAWUyz1dSmwcnH33w65DBg81WLoe1PgnrLs=;
+        s=korg; t=1654629621;
+        bh=qbauNjF61MCv+D9NJt4OXenPxXHOClS2n7guB7XxnK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ze5mxB+oluwbS1QQMdzArPAQOd95J4UwN/iRRRoEKSh4Boi7KkG0AMn7FDSw/eaHr
-         5DsYpkUO/gcWVyjnx8MH35dsTUtTkwlwDJP6OhcIcQuxP3SaWxE5pV2J4zI2T1HS2q
-         DoF8rwrHzypZWJLqZvMUcAt09cZfFvREIyP+xEt8=
+        b=WVTdz6GNZDwismMNVSVJCMwenkQF4auIMjFA7gotlSZZD/RvnSBWTaj0g+chnUHP1
+         mSjRCos7ufp133/QVksJvC5mTtJ69K5DbwT/FZRkJEHtK1aT9KkNaxaozKKwqHPqlb
+         v4tOYoLAyxDUm+7mGSs9iY50bjPl55XQELo3vOn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.17 682/772] landlock: Change landlock_add_rule(2) argument check ordering
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.18 756/879] PCI: qcom: Fix runtime PM imbalance on probe errors
 Date:   Tue,  7 Jun 2022 19:04:34 +0200
-Message-Id: <20220607165009.153976171@linuxfoundation.org>
+Message-Id: <20220607165024.806157230@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,115 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 589172e5636c4d16c40b90e87543d43defe2d968 upstream.
+commit 87d83b96c8d6c6c2d2096bd0bdba73bcf42b8ef0 upstream.
 
-This makes more sense to first check the ruleset FD and then the rule
-attribute.  It will be useful to factor out code for other rule types.
+Drop the leftover pm_runtime_disable() calls from the late probe error
+paths that would, for example, prevent runtime PM from being reenabled
+after a probe deferral.
 
-Add inval_add_rule_arguments tests, extension of empty_path_beneath_attr
-tests, to also check error ordering for landlock_add_rule(2).
-
-Link: https://lore.kernel.org/r/20220506160820.524344-9-mic@digikod.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Link: https://lore.kernel.org/r/20220401133854.10421-2-johan+linaro@kernel.org
+Fixes: 6e5da6f7d824 ("PCI: qcom: Fix error handling in runtime PM support")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable@vger.kernel.org      # 4.20
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/landlock/syscalls.c                 |   22 ++++++++++-------
- tools/testing/selftests/landlock/base_test.c |   34 +++++++++++++++++++++++++--
- 2 files changed, 45 insertions(+), 11 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/security/landlock/syscalls.c
-+++ b/security/landlock/syscalls.c
-@@ -318,20 +318,24 @@ SYSCALL_DEFINE4(landlock_add_rule, const
- 	if (flags)
- 		return -EINVAL;
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1621,17 +1621,14 @@ static int qcom_pcie_probe(struct platfo
+ 	pp->ops = &qcom_pcie_dw_ops;
  
--	if (rule_type != LANDLOCK_RULE_PATH_BENEATH)
--		return -EINVAL;
--
--	/* Copies raw user space buffer, only one type for now. */
--	res = copy_from_user(&path_beneath_attr, rule_attr,
--			     sizeof(path_beneath_attr));
--	if (res)
--		return -EFAULT;
--
- 	/* Gets and checks the ruleset. */
- 	ruleset = get_ruleset_from_fd(ruleset_fd, FMODE_CAN_WRITE);
- 	if (IS_ERR(ruleset))
- 		return PTR_ERR(ruleset);
+ 	ret = phy_init(pcie->phy);
+-	if (ret) {
+-		pm_runtime_disable(&pdev->dev);
++	if (ret)
+ 		goto err_pm_runtime_put;
+-	}
  
-+	if (rule_type != LANDLOCK_RULE_PATH_BENEATH) {
-+		err = -EINVAL;
-+		goto out_put_ruleset;
-+	}
-+
-+	/* Copies raw user space buffer, only one type for now. */
-+	res = copy_from_user(&path_beneath_attr, rule_attr,
-+			     sizeof(path_beneath_attr));
-+	if (res) {
-+		err = -EFAULT;
-+		goto out_put_ruleset;
-+	}
-+
- 	/*
- 	 * Informs about useless rule: empty allowed_access (i.e. deny rules)
- 	 * are ignored in path walks.
---- a/tools/testing/selftests/landlock/base_test.c
-+++ b/tools/testing/selftests/landlock/base_test.c
-@@ -121,20 +121,50 @@ TEST(inval_create_ruleset_flags)
- 	ASSERT_EQ(EINVAL, errno);
- }
+ 	platform_set_drvdata(pdev, pcie);
  
--TEST(empty_path_beneath_attr)
-+/* Tests ordering of syscall argument checks. */
-+TEST(add_rule_checks_ordering)
- {
- 	const struct landlock_ruleset_attr ruleset_attr = {
- 		.handled_access_fs = LANDLOCK_ACCESS_FS_EXECUTE,
- 	};
-+	struct landlock_path_beneath_attr path_beneath_attr = {
-+		.allowed_access = LANDLOCK_ACCESS_FS_EXECUTE,
-+		.parent_fd = -1,
-+	};
- 	const int ruleset_fd =
- 		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
- 
- 	ASSERT_LE(0, ruleset_fd);
- 
--	/* Similar to struct landlock_path_beneath_attr.parent_fd = 0 */
-+	/* Checks invalid flags. */
-+	ASSERT_EQ(-1, landlock_add_rule(-1, 0, NULL, 1));
-+	ASSERT_EQ(EINVAL, errno);
-+
-+	/* Checks invalid ruleset FD. */
-+	ASSERT_EQ(-1, landlock_add_rule(-1, 0, NULL, 0));
-+	ASSERT_EQ(EBADF, errno);
-+
-+	/* Checks invalid rule type. */
-+	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, 0, NULL, 0));
-+	ASSERT_EQ(EINVAL, errno);
-+
-+	/* Checks invalid rule attr. */
- 	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
- 					NULL, 0));
- 	ASSERT_EQ(EFAULT, errno);
-+
-+	/* Checks invalid path_beneath.parent_fd. */
-+	ASSERT_EQ(-1, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-+					&path_beneath_attr, 0));
-+	ASSERT_EQ(EBADF, errno);
-+
-+	/* Checks valid call. */
-+	path_beneath_attr.parent_fd =
-+		open("/tmp", O_PATH | O_NOFOLLOW | O_DIRECTORY | O_CLOEXEC);
-+	ASSERT_LE(0, path_beneath_attr.parent_fd);
-+	ASSERT_EQ(0, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-+				       &path_beneath_attr, 0));
-+	ASSERT_EQ(0, close(path_beneath_attr.parent_fd));
- 	ASSERT_EQ(0, close(ruleset_fd));
- }
+ 	ret = dw_pcie_host_init(pp);
+ 	if (ret) {
+ 		dev_err(dev, "cannot initialize host\n");
+-		pm_runtime_disable(&pdev->dev);
+ 		goto err_pm_runtime_put;
+ 	}
  
 
 
