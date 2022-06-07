@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96DB154187C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C435C5411B3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359199AbiFGVMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41346 "EHLO
+        id S1356671AbiFGTnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380181AbiFGVLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:40 -0400
+        with ESMTP id S1356675AbiFGTjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:39:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABD3E218A86;
-        Tue,  7 Jun 2022 11:53:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB22F5518;
+        Tue,  7 Jun 2022 11:14:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B1AFB82018;
-        Tue,  7 Jun 2022 18:53:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 807E5C385A5;
-        Tue,  7 Jun 2022 18:53:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55ADFB82239;
+        Tue,  7 Jun 2022 18:14:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE33BC385A2;
+        Tue,  7 Jun 2022 18:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628002;
-        bh=ZY+9bOivnNwE6I+fPAkFM/4luhtBKoOnJATkvk/5Qi4=;
+        s=korg; t=1654625662;
+        bh=7ItEnuZgI7sAM+jHg3w+0ZhqPnHL9n74ST6Y6vLO1Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgpHxWMjXGYlaEPKef5OYDzfFk66eShA5ewj8JzNRyOa3N6nosmn3wmNjKO43Rj8v
-         MXzBAMm+DTuhxlrlw7AmlIVuEgCrMhcqPzMPhUDOInh8XbnSzYMt3/ia81N1VE5Zal
-         Dinnehu9kjAKiNJLX/frdMm8+EwEz1piYY3/bRn8=
+        b=ItL0efFyareH0PCcRTJkcXhlod8qYlso44AOCUuHXvMFi43A6+ft7yhCks1hiPBwt
+         j2ghXR+f5locJ3KtpY/xDbhfX65W+reoBib40f4dk89fSnxV17DTehlC6aUH3UOnyl
+         MQcywAGsjx1Tg7bkPZ++LwP0Bm2Gs4DMQ9VtxM6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zijun Hu <quic_zijuhu@quicinc.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 171/879] Bluetooth: btusb: Set HCI_QUIRK_BROKEN_ERR_DATA_REPORTING for QCA
-Date:   Tue,  7 Jun 2022 18:54:49 +0200
-Message-Id: <20220607165007.675903937@linuxfoundation.org>
+Subject: [PATCH 5.17 098/772] scsi: lpfc: Fix resource leak in lpfc_sli4_send_seq_to_ulp()
+Date:   Tue,  7 Jun 2022 18:54:50 +0200
+Message-Id: <20220607164951.936578336@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zijun Hu <quic_zijuhu@quicinc.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 247f226adadfb7be09dd537f177429f4415aef8e ]
+[ Upstream commit 646db1a560f44236b7278b822ca99a1d3b6ea72c ]
 
-Set HCI_QUIRK_BROKEN_ERR_DATA_REPORTING for QCA controllers since
-they answer HCI_OP_READ_DEF_ERR_DATA_REPORTING with error code
-"UNKNOWN HCI COMMAND" as shown below:
+If no handler is found in lpfc_complete_unsol_iocb() to match the rctl of a
+received frame, the frame is dropped and resources are leaked.
 
-[  580.517552] Bluetooth: hci0: unexpected cc 0x0c5a length: 1 < 2
-[  580.517660] Bluetooth: hci0: Opcode 0x c5a failed: -38
+Fix by returning resources when discarding an unhandled frame type.  Update
+lpfc_fc_frame_check() handling of NOP basic link service.
 
-hcitool -i hci0 cmd 0x03 0x5a
-< HCI Command: ogf 0x03, ocf 0x005a, plen 0
-> HCI Event: 0x0e plen 4
-  01 5A 0C 01
-
-btmon log:
-< HCI Command: Read Default Erroneous Data Reporting (0x03|0x005a) plen 0
-> HCI Event: Command Complete (0x0e) plen 4
-      Read Default Erroneous Data Reporting (0x03|0x005a) ncmd 1
-        Status: Unknown HCI Command (0x01)
-
-Signed-off-by: Zijun Hu <quic_zijuhu@quicinc.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20220426181419.9154-1-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_sli.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 06a854a2507e..e48c3ad069bb 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -3339,6 +3339,7 @@ static int btusb_setup_qca(struct hci_dev *hdev)
- 	 * work with the likes of HSP/HFP mSBC.
- 	 */
- 	set_bit(HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN, &hdev->quirks);
-+	set_bit(HCI_QUIRK_BROKEN_ERR_DATA_REPORTING, &hdev->quirks);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index b64c5f157ce9..f5f472991816 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -18466,7 +18466,6 @@ lpfc_fc_frame_check(struct lpfc_hba *phba, struct fc_frame_header *fc_hdr)
+ 	case FC_RCTL_ELS_REP:	/* extended link services reply */
+ 	case FC_RCTL_ELS4_REQ:	/* FC-4 ELS request */
+ 	case FC_RCTL_ELS4_REP:	/* FC-4 ELS reply */
+-	case FC_RCTL_BA_NOP:  	/* basic link service NOP */
+ 	case FC_RCTL_BA_ABTS: 	/* basic link service abort */
+ 	case FC_RCTL_BA_RMC: 	/* remove connection */
+ 	case FC_RCTL_BA_ACC:	/* basic accept */
+@@ -18487,6 +18486,7 @@ lpfc_fc_frame_check(struct lpfc_hba *phba, struct fc_frame_header *fc_hdr)
+ 		fc_vft_hdr = (struct fc_vft_header *)fc_hdr;
+ 		fc_hdr = &((struct fc_frame_header *)fc_vft_hdr)[1];
+ 		return lpfc_fc_frame_check(phba, fc_hdr);
++	case FC_RCTL_BA_NOP:	/* basic link service NOP */
+ 	default:
+ 		goto drop;
+ 	}
+@@ -19299,12 +19299,14 @@ lpfc_sli4_send_seq_to_ulp(struct lpfc_vport *vport,
+ 	if (!lpfc_complete_unsol_iocb(phba,
+ 				      phba->sli4_hba.els_wq->pring,
+ 				      iocbq, fc_hdr->fh_r_ctl,
+-				      fc_hdr->fh_type))
++				      fc_hdr->fh_type)) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+ 				"2540 Ring %d handler: unexpected Rctl "
+ 				"x%x Type x%x received\n",
+ 				LPFC_ELS_RING,
+ 				fc_hdr->fh_r_ctl, fc_hdr->fh_type);
++		lpfc_in_buf_free(phba, &seq_dmabuf->dbuf);
++	}
  
- 	return 0;
- }
+ 	/* Free iocb created in lpfc_prep_seq */
+ 	list_for_each_entry_safe(curr_iocb, next_iocb,
 -- 
 2.35.1
 
