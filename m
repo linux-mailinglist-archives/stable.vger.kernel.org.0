@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D15FC540EE4
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A16854070D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352403AbiFGS6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
+        id S243156AbiFGRl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:41:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353329AbiFGSx6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8224D60C;
-        Tue,  7 Jun 2022 11:03:45 -0700 (PDT)
+        with ESMTP id S1348638AbiFGRlN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39638122B7B;
+        Tue,  7 Jun 2022 10:34:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B36E6B81F38;
-        Tue,  7 Jun 2022 18:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265D1C34115;
-        Tue,  7 Jun 2022 18:03:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB9FE61582;
+        Tue,  7 Jun 2022 17:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C369AC385A5;
+        Tue,  7 Jun 2022 17:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625022;
-        bh=m8YR4hs10GdxwJtjOEPjX1uSm/XaYofzI1chRuCRg+0=;
+        s=korg; t=1654623244;
+        bh=8MtkBhfFoEzjUtG7SMEOmQNgxmCT6+7cEhuUCQAMNt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+ilj6fKLIJfuI4TMHYp/Q49ovLeKk5RN5Riq67iEI1emyXG/ImnBUtV1FFipshdH
-         gilE7bG4vZD19mOVJfHBQSiCE/kSoCHJgrNw1+qeMmjQmFnSaN28xFid91f7ebN23b
-         ag25snWzMYxnyF8zny03RtjjScEm6nJmSjcerLQM=
+        b=V2rUhfupnTmu1zgstzpuJv6eCf5u7byNBF/XLf5ewI6qSq7qaOqUmI53qT6h23GI4
+         jd6PMsxVef1/4LkFuaI9kQo1iW+nagiHe/I6WEpXmDLpKGfgH/MjF8Rej4Yfc9Ed51
+         D3cOSe+ydjfP3hvqPMG1egCbDAovsE7UOTwpQbIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 539/667] bfq: Make sure bfqg for which we are queueing requests is online
-Date:   Tue,  7 Jun 2022 19:03:24 +0200
-Message-Id: <20220607164950.866371326@linuxfoundation.org>
+        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 348/452] f2fs: dont need inode lock for system hidden quota
+Date:   Tue,  7 Jun 2022 19:03:25 +0200
+Message-Id: <20220607164918.928442901@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 075a53b78b815301f8d3dd1ee2cd99554e34f0dd upstream.
+commit 6213f5d4d23c50d393a31dc8e351e63a1fd10dbe upstream.
 
-Bios queued into BFQ IO scheduler can be associated with a cgroup that
-was already offlined. This may then cause insertion of this bfq_group
-into a service tree. But this bfq_group will get freed as soon as last
-bio associated with it is completed leading to use after free issues for
-service tree users. Fix the problem by making sure we always operate on
-online bfq_group. If the bfq_group associated with the bio is not
-online, we pick the first online parent.
+Let's avoid false-alarmed lockdep warning.
 
-CC: stable@vger.kernel.org
-Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-9-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[   58.914674] [T1501146] -> #2 (&sb->s_type->i_mutex_key#20){+.+.}-{3:3}:
+[   58.915975] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.916738] [T1501146] system_server:        f2fs_quota_sync+0x60/0x1a8
+[   58.917563] [T1501146] system_server:        block_operations+0x16c/0x43c
+[   58.918410] [T1501146] system_server:        f2fs_write_checkpoint+0x114/0x318
+[   58.919312] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
+[   58.920214] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.920999] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
+[   58.921862] [T1501146] system_server:        f2fs_sync_file+0x30/0x48
+[   58.922667] [T1501146] system_server:        __arm64_sys_fsync+0x84/0xf8
+[   58.923506] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
+[   58.924604] [T1501146] system_server:        do_el0_svc+0x28/0xa0
+[   58.925366] [T1501146] system_server:        el0_svc+0x24/0x38
+[   58.926094] [T1501146] system_server:        el0_sync_handler+0x88/0xec
+[   58.926920] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
+
+[   58.927681] [T1501146] -> #1 (&sbi->cp_global_sem){+.+.}-{3:3}:
+[   58.928889] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.929650] [T1501146] system_server:        f2fs_write_checkpoint+0xbc/0x318
+[   58.930541] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
+[   58.931443] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.932226] [T1501146] system_server:        sync_filesystem+0xac/0x130
+[   58.933053] [T1501146] system_server:        generic_shutdown_super+0x38/0x150
+[   58.933958] [T1501146] system_server:        kill_block_super+0x24/0x58
+[   58.934791] [T1501146] system_server:        kill_f2fs_super+0xcc/0x124
+[   58.935618] [T1501146] system_server:        deactivate_locked_super+0x90/0x120
+[   58.936529] [T1501146] system_server:        deactivate_super+0x74/0xac
+[   58.937356] [T1501146] system_server:        cleanup_mnt+0x128/0x168
+[   58.938150] [T1501146] system_server:        __cleanup_mnt+0x18/0x28
+[   58.938944] [T1501146] system_server:        task_work_run+0xb8/0x14c
+[   58.939749] [T1501146] system_server:        do_notify_resume+0x114/0x1e8
+[   58.940595] [T1501146] system_server:        work_pending+0xc/0x5f0
+
+[   58.941375] [T1501146] -> #0 (&sbi->gc_lock){+.+.}-{3:3}:
+[   58.942519] [T1501146] system_server:        __lock_acquire+0x1270/0x2868
+[   58.943366] [T1501146] system_server:        lock_acquire+0x114/0x294
+[   58.944169] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.944930] [T1501146] system_server:        f2fs_issue_checkpoint+0x13c/0x21c
+[   58.945831] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.946614] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
+[   58.947472] [T1501146] system_server:        f2fs_ioc_commit_atomic_write+0xc8/0x14c
+[   58.948439] [T1501146] system_server:        __f2fs_ioctl+0x674/0x154c
+[   58.949253] [T1501146] system_server:        f2fs_ioctl+0x54/0x88
+[   58.950018] [T1501146] system_server:        __arm64_sys_ioctl+0xa8/0x110
+[   58.950865] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
+[   58.951965] [T1501146] system_server:        do_el0_svc+0x28/0xa0
+[   58.952727] [T1501146] system_server:        el0_svc+0x24/0x38
+[   58.953454] [T1501146] system_server:        el0_sync_handler+0x88/0xec
+[   58.954279] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-cgroup.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ fs/f2fs/super.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -610,10 +610,19 @@ static void bfq_link_bfqg(struct bfq_dat
- struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
- {
- 	struct blkcg_gq *blkg = bio->bi_blkg;
-+	struct bfq_group *bfqg;
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2292,7 +2292,8 @@ int f2fs_quota_sync(struct super_block *
+ 		if (!sb_has_quota_active(sb, cnt))
+ 			continue;
  
--	if (!blkg)
--		return bfqd->root_group;
--	return blkg_to_bfqg(blkg);
-+	while (blkg) {
-+		bfqg = blkg_to_bfqg(blkg);
-+		if (bfqg->online) {
-+			bio_associate_blkg_from_css(bio, &blkg->blkcg->css);
-+			return bfqg;
-+		}
-+		blkg = blkg->parent;
-+	}
-+	bio_associate_blkg_from_css(bio,
-+				&bfqg_to_blkg(bfqd->root_group)->blkcg->css);
-+	return bfqd->root_group;
- }
+-		inode_lock(dqopt->files[cnt]);
++		if (!f2fs_sb_has_quota_ino(sbi))
++			inode_lock(dqopt->files[cnt]);
  
- /**
+ 		/*
+ 		 * do_quotactl
+@@ -2311,7 +2312,8 @@ int f2fs_quota_sync(struct super_block *
+ 		up_read(&sbi->quota_sem);
+ 		f2fs_unlock_op(sbi);
+ 
+-		inode_unlock(dqopt->files[cnt]);
++		if (!f2fs_sb_has_quota_ino(sbi))
++			inode_unlock(dqopt->files[cnt]);
+ 
+ 		if (ret)
+ 			break;
 
 
