@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F455414D8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6B4540636
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359480AbiFGUWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:22:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
+        id S236019AbiFGRdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359344AbiFGUWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5F2144FFB;
-        Tue,  7 Jun 2022 11:31:30 -0700 (PDT)
+        with ESMTP id S1347726AbiFGRa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B4311AFEB;
+        Tue,  7 Jun 2022 10:28:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFE05B82349;
-        Tue,  7 Jun 2022 18:31:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50087C385A2;
-        Tue,  7 Jun 2022 18:31:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 283C6CE0E13;
+        Tue,  7 Jun 2022 17:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F42C385A5;
+        Tue,  7 Jun 2022 17:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626687;
-        bh=3/Sd1TFgFMuNHHWqfNjOIDCUnuVWqpZeYGhR3MVlMEs=;
+        s=korg; t=1654622885;
+        bh=E8QtK/qtvY0B9iXnVuByMA1wdsq/LdsG42DXw/oRoLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yX6hh1Sqm0rpTrf/VSw1Sf5i60uCFiIhLoModFCLqEmtWFiLxO3nBRC9g9dGlNgFy
-         wUDSSVMy+kXEX0AV0PUQRQ4DqjrUwAwUvHTs1OyvLGRoebk5j1TsSIUA/CkOi/rV9z
-         QuHP1RI55LxA7uhG5ZHQ0hjef8Xj2a/OwBy9lPdM=
+        b=0Iwi3S0+vbZ5ChfLo8KnYHX8nEEbfDOw9ul65PRe+mcarQ1RyWlY0gMhTB2pOWdTW
+         lYaY8BFYEt3D+L5lHE1Q0TSJ5+WU9V8ITghYOkLkgM5p4FsSXk0h17Ie76OiQZYic9
+         QVWbJiJr9tHtPYe+BIo3aIUUVFjWui5WWhB8B2Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenyi Qiang <chenyi.qiang@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 466/772] KVM: nVMX: Clear IDT vectoring on nested VM-Exit for double/triple fault
+Subject: [PATCH 5.10 201/452] ath11k: Dont check arvif->is_started before sending management frames
 Date:   Tue,  7 Jun 2022 19:00:58 +0200
-Message-Id: <20220607165002.730503757@linuxfoundation.org>
+Message-Id: <20220607164914.552880447@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,123 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Baochen Qiang <quic_bqiang@quicinc.com>
 
-[ Upstream commit 9bd1f0efa859b61950d109b32ff8d529cc33a3ad ]
+[ Upstream commit 355333a217541916576351446b5832fec7930566 ]
 
-Clear the IDT vectoring field in vmcs12 on next VM-Exit due to a double
-or triple fault.  Per the SDM, a VM-Exit isn't considered to occur during
-event delivery if the exit is due to an intercepted double fault or a
-triple fault.  Opportunistically move the default clearing (no event
-"pending") into the helper so that it's more obvious that KVM does indeed
-handle this case.
+Commit 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for
+deleted vdev") wants both of below two conditions are true before
+sending management frames:
 
-Note, the double fault case is worded rather wierdly in the SDM:
+1: ar->allocated_vdev_map & (1LL << arvif->vdev_id)
+2: arvif->is_started
 
-  The original event results in a double-fault exception that causes the
-  VM exit directly.
+Actually the second one is not necessary because with the first one
+we can make sure the vdev is present.
 
-Temporarily ignoring injected events, double faults can _only_ occur if
-an exception occurs while attempting to deliver a different exception,
-i.e. there's _always_ an original event.  And for injected double fault,
-while there's no original event, injected events are never subject to
-interception.
+Also use ar->conf_mutex to synchronize vdev delete and mgmt. TX.
 
-Presumably the SDM is calling out that a the vectoring info will be valid
-if a different exit occurs after a double fault, e.g. if a #PF occurs and
-is intercepted while vectoring #DF, then the vectoring info will show the
-double fault.  In other words, the clause can simply be read as:
+This issue is found in case of Passpoint scenario where ath11k
+needs to send action frames before vdev is started.
 
-  The VM exit is caused by a double-fault exception.
+Fix it by removing the second condition.
 
-Fixes: 4704d0befb07 ("KVM: nVMX: Exiting from L2 to L1")
-Cc: Chenyi Qiang <chenyi.qiang@intel.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220407002315.78092-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Fixes: 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for deleted vdev")
+Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220506013614.1580274-3-quic_bqiang@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 32 ++++++++++++++++++++++++++++----
- arch/x86/kvm/vmx/vmcs.h   |  5 +++++
- 2 files changed, 33 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 2992db28c644..d795ac816aec 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3695,12 +3695,34 @@ vmcs12_guest_cr4(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
- }
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index b2928a5cf72e..44282aec069d 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -4008,8 +4008,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 		}
  
- static void vmcs12_save_pending_event(struct kvm_vcpu *vcpu,
--				      struct vmcs12 *vmcs12)
-+				      struct vmcs12 *vmcs12,
-+				      u32 vm_exit_reason, u32 exit_intr_info)
- {
- 	u32 idt_vectoring;
- 	unsigned int nr;
- 
--	if (vcpu->arch.exception.injected) {
-+	/*
-+	 * Per the SDM, VM-Exits due to double and triple faults are never
-+	 * considered to occur during event delivery, even if the double/triple
-+	 * fault is the result of an escalating vectoring issue.
-+	 *
-+	 * Note, the SDM qualifies the double fault behavior with "The original
-+	 * event results in a double-fault exception".  It's unclear why the
-+	 * qualification exists since exits due to double fault can occur only
-+	 * while vectoring a different exception (injected events are never
-+	 * subject to interception), i.e. there's _always_ an original event.
-+	 *
-+	 * The SDM also uses NMI as a confusing example for the "original event
-+	 * causes the VM exit directly" clause.  NMI isn't special in any way,
-+	 * the same rule applies to all events that cause an exit directly.
-+	 * NMI is an odd choice for the example because NMIs can only occur on
-+	 * instruction boundaries, i.e. they _can't_ occur during vectoring.
-+	 */
-+	if ((u16)vm_exit_reason == EXIT_REASON_TRIPLE_FAULT ||
-+	    ((u16)vm_exit_reason == EXIT_REASON_EXCEPTION_NMI &&
-+	     is_double_fault(exit_intr_info))) {
-+		vmcs12->idt_vectoring_info_field = 0;
-+	} else if (vcpu->arch.exception.injected) {
- 		nr = vcpu->arch.exception.nr;
- 		idt_vectoring = nr | VECTORING_INFO_VALID_MASK;
- 
-@@ -3733,6 +3755,8 @@ static void vmcs12_save_pending_event(struct kvm_vcpu *vcpu,
- 			idt_vectoring |= INTR_TYPE_EXT_INTR;
- 
- 		vmcs12->idt_vectoring_info_field = idt_vectoring;
-+	} else {
-+		vmcs12->idt_vectoring_info_field = 0;
+ 		arvif = ath11k_vif_to_arvif(skb_cb->vif);
+-		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
+-		    arvif->is_started) {
++		mutex_lock(&ar->conf_mutex);
++		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id)) {
+ 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
+ 			if (ret) {
+ 				ath11k_warn(ar->ab, "failed to tx mgmt frame, vdev_id %d :%d\n",
+@@ -4025,6 +4025,7 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 				    arvif->is_started);
+ 			ieee80211_free_txskb(ar->hw, skb);
+ 		}
++		mutex_unlock(&ar->conf_mutex);
  	}
  }
  
-@@ -4219,8 +4243,8 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 		 * Transfer the event that L0 or L1 may wanted to inject into
- 		 * L2 to IDT_VECTORING_INFO_FIELD.
- 		 */
--		vmcs12->idt_vectoring_info_field = 0;
--		vmcs12_save_pending_event(vcpu, vmcs12);
-+		vmcs12_save_pending_event(vcpu, vmcs12,
-+					  vm_exit_reason, exit_intr_info);
- 
- 		vmcs12->vm_exit_intr_info = exit_intr_info;
- 		vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
-diff --git a/arch/x86/kvm/vmx/vmcs.h b/arch/x86/kvm/vmx/vmcs.h
-index e325c290a816..2b9d7a7e83f7 100644
---- a/arch/x86/kvm/vmx/vmcs.h
-+++ b/arch/x86/kvm/vmx/vmcs.h
-@@ -104,6 +104,11 @@ static inline bool is_breakpoint(u32 intr_info)
- 	return is_exception_n(intr_info, BP_VECTOR);
- }
- 
-+static inline bool is_double_fault(u32 intr_info)
-+{
-+	return is_exception_n(intr_info, DF_VECTOR);
-+}
-+
- static inline bool is_page_fault(u32 intr_info)
- {
- 	return is_exception_n(intr_info, PF_VECTOR);
 -- 
 2.35.1
 
