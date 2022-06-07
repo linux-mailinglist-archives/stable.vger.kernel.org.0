@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E86540B0C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ED2B5413D5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:07:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245641AbiFGSWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
+        id S1358700AbiFGUHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:07:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353065AbiFGSSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:18:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3F5EFF26;
-        Tue,  7 Jun 2022 10:53:02 -0700 (PDT)
+        with ESMTP id S1359009AbiFGUGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:06:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867251C422C;
+        Tue,  7 Jun 2022 11:25:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB5C617B6;
-        Tue,  7 Jun 2022 17:53:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCDFC341C5;
-        Tue,  7 Jun 2022 17:52:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D84A61252;
+        Tue,  7 Jun 2022 18:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166EAC385A2;
+        Tue,  7 Jun 2022 18:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624380;
-        bh=dXmaH2EhwG7tVhCM0Ug3qBDAZYxI98BBHOl8ZMPOHBs=;
+        s=korg; t=1654626348;
+        bh=JTXtTL8CRrfCDe19p18Ognw/kqadNEEsvEmu7neYdlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsojjUDAWTfPevtk96ARy6rfViO+YKSO1RVjBaN2d3u+Fp6ZMpaEk9VZge3rISEN4
-         e4bTJQJaT7B/ILe1JczP1JBtgsibf0iBQo+5uFy6FCpUVEkdNXliY9mnhqJ4EMnL2K
-         CYZkTX3hxIv90UCbn+Qmh4fLxeLkSpM0R6hs7YvE=
+        b=lAcCyu3e4vgLpvKrTvzVulgQLy5z1md5XQcUl+/oU1lDibays4llMm+Hn7gCtVkh6
+         rLW+Wt5JZR0nlUxe0lt+Gt1g/OEH8KrwAVqnIskBXg3LCvXJwppIVtv2CdeJeehwGn
+         68h7RujOAb9Yn8NeFsd0m1ndAcbDJ2xi9vMOT9Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Polimera <quic_vpolimer@quicinc.com>,
+        stable@vger.kernel.org,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 265/667] drm/msm/disp/dpu1: set vbif hw config to NULL to avoid use after memory free during pm runtime resume
-Date:   Tue,  7 Jun 2022 18:58:50 +0200
-Message-Id: <20220607164942.736571383@linuxfoundation.org>
+Subject: [PATCH 5.17 339/772] drm/msm/dp: fix event thread stuck in wait_event after kthread_stop()
+Date:   Tue,  7 Jun 2022 18:58:51 +0200
+Message-Id: <20220607164959.012708325@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Polimera <quic_vpolimer@quicinc.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit fa5186b279ecf44b14fb435540d2065be91cb1ed ]
+[ Upstream commit 2f9b5b3ae2eb625b75a898212a76f3b8c6d0d2b0 ]
 
-BUG: Unable to handle kernel paging request at virtual address 006b6b6b6b6b6be3
+Event thread supposed to exit from its while loop after kthread_stop().
+However there may has possibility that event thread is pending in the
+middle of wait_event due to condition checking never become true.
+To make sure event thread exit its loop after kthread_stop(), this
+patch OR kthread_should_stop() into wait_event's condition checking
+so that event thread will exit its loop after kernal_stop().
 
-Call trace:
-  dpu_vbif_init_memtypes+0x40/0xb8
-  dpu_runtime_resume+0xcc/0x1c0
-  pm_generic_runtime_resume+0x30/0x44
-  __genpd_runtime_resume+0x68/0x7c
-  genpd_runtime_resume+0x134/0x258
-  __rpm_callback+0x98/0x138
-  rpm_callback+0x30/0x88
-  rpm_resume+0x36c/0x49c
-  __pm_runtime_resume+0x80/0xb0
-  dpu_core_irq_uninstall+0x30/0xb0
-  dpu_irq_uninstall+0x18/0x24
-  msm_drm_uninit+0xd8/0x16c
+Changes in v2:
+--  correct spelling error at commit title
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Vinod Polimera <quic_vpolimer@quicinc.com>
+Changes in v3:
+-- remove unnecessary parenthesis
+-- while(1) to replace while (!kthread_should_stop())
+
+Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 570d3e5d28db ("drm/msm/dp: stop event kernel thread when DP unbind")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483255/
-Link: https://lore.kernel.org/r/1650857213-30075-1-git-send-email-quic_vpolimer@quicinc.com
-[DB: fixed Fixes tag]
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/484576/
+Link: https://lore.kernel.org/r/1651595136-24312-1-git-send-email-quic_khsieh@quicinc.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dp/dp_display.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-index 93d916858d5a..33ce6720dfae 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-@@ -728,8 +728,10 @@ static void _dpu_kms_hw_destroy(struct dpu_kms *dpu_kms)
- 		for (i = 0; i < dpu_kms->catalog->vbif_count; i++) {
- 			u32 vbif_idx = dpu_kms->catalog->vbif[i].id;
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index fb424f8b29e5..2baa1ad54899 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1065,15 +1065,20 @@ static int hpd_event_thread(void *data)
  
--			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx])
-+			if ((vbif_idx < VBIF_MAX) && dpu_kms->hw_vbif[vbif_idx]) {
- 				dpu_hw_vbif_destroy(dpu_kms->hw_vbif[vbif_idx]);
-+				dpu_kms->hw_vbif[vbif_idx] = NULL;
-+			}
+ 	dp_priv = (struct dp_display_private *)data;
+ 
+-	while (!kthread_should_stop()) {
++	while (1) {
+ 		if (timeout_mode) {
+ 			wait_event_timeout(dp_priv->event_q,
+-				(dp_priv->event_pndx == dp_priv->event_gndx),
+-						EVENT_TIMEOUT);
++				(dp_priv->event_pndx == dp_priv->event_gndx) ||
++					kthread_should_stop(), EVENT_TIMEOUT);
+ 		} else {
+ 			wait_event_interruptible(dp_priv->event_q,
+-				(dp_priv->event_pndx != dp_priv->event_gndx));
++				(dp_priv->event_pndx != dp_priv->event_gndx) ||
++					kthread_should_stop());
  		}
- 	}
- 
++
++		if (kthread_should_stop())
++			break;
++
+ 		spin_lock_irqsave(&dp_priv->event_lock, flag);
+ 		todo = &dp_priv->event_list[dp_priv->event_gndx];
+ 		if (todo->delay) {
 -- 
 2.35.1
 
