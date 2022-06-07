@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6ED540ED7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C713D541CF9
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354241AbiFGSz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51108 "EHLO
+        id S1382904AbiFGWHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:07:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353765AbiFGSwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:52:00 -0400
+        with ESMTP id S1383640AbiFGWGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C024314A27F;
-        Tue,  7 Jun 2022 11:03:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F3419597C;
+        Tue,  7 Jun 2022 12:16:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AB21B82374;
-        Tue,  7 Jun 2022 18:03:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01641C341C0;
-        Tue,  7 Jun 2022 18:03:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA9AB8237B;
+        Tue,  7 Jun 2022 19:16:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B94B0C385A5;
+        Tue,  7 Jun 2022 19:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625011;
-        bh=WyFYvzgMPEg0c5Y+7we3M6eOFm8uX0BBTn4HhE+9UY4=;
+        s=korg; t=1654629414;
+        bh=cS/PCrKP+OTSk8TnOzP6IK71ttgEcg004RYgis44HMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRvlGAsX7LvZClpeMCwlNtwLsNx34OLfXop0WexyEE7bYN2q55X84oHPEcA97oLn2
-         qWdM9DBR+Nmf3c1zBkFEewKAwMLHJw24Oq4IUWHoezqhqfSLXYETt3kLRQtRt/fO/r
-         dG6AD0W89QcERT3/UPz7Hgz49fCgrWoDAkU31I2Y=
+        b=UvqfM0MAhL9aVQKa8PMbOOf18PB89oVI2GHPbBAO+2S9/eniga0PkW6nkisfy2zf7
+         anBfLENQFe7iJf2KLPJyZdCyf32y7jm8QZmWcWmaxft+9TgMiBIkVcLuhtnJTCup24
+         wQNyiSB2n9x1MGUnpdPHJphWkWGf3peYAQjFXU7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 535/667] bfq: Drop pointless unlock-lock pair
-Date:   Tue,  7 Jun 2022 19:03:20 +0200
-Message-Id: <20220607164950.747053551@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        Daire Byrne <daire@dneg.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 683/879] NFS: Pass i_size to fscache_unuse_cookie() when a file is released
+Date:   Tue,  7 Jun 2022 19:03:21 +0200
+Message-Id: <20220607165022.670982025@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-commit fc84e1f941b91221092da5b3102ec82da24c5673 upstream.
+[ Upstream commit 9c4a5c75a62e83963083efd4eea5d5bd1583193c ]
 
-In bfq_insert_request() we unlock bfqd->lock only to call
-trace_block_rq_insert() and then lock bfqd->lock again. This is really
-pointless since tracing is disabled if we really care about performance
-and even if the tracepoint is enabled, it is a quick call.
+Pass updated i_size in fscache_unuse_cookie() when called
+from nfs_fscache_release_file(), which ensures the size of
+an fscache object gets written to the cache storage.  Failing
+to do so results in unnessary reads from the NFS server, even
+when the data is cached, due to a cachefiles object coherency
+check failing with a trace similar to the following:
+  cachefiles_coherency: o=0000000e BAD osiz B=afbb3 c=0
 
-CC: stable@vger.kernel.org
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-5-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This problem can be reproduced as follows:
+  #!/bin/bash
+  v=4.2; NFS_SERVER=127.0.0.1
+  set -e; trap cleanup EXIT; rc=1
+  function cleanup {
+          umount /mnt/nfs > /dev/null 2>&1
+          RC_STR="TEST PASS"
+          [ $rc -eq 1 ] && RC_STR="TEST FAIL"
+          echo "$RC_STR on $(uname -r) with NFSv$v and server $NFS_SERVER"
+  }
+  mount -o vers=$v,fsc $NFS_SERVER:/export /mnt/nfs
+  rm -f /mnt/nfs/file1.bin > /dev/null 2>&1
+  dd if=/dev/zero of=/mnt/nfs/file1.bin bs=4096 count=1 > /dev/null 2>&1
+  echo 3 > /proc/sys/vm/drop_caches
+  echo Read file 1st time from NFS server into fscache
+  dd if=/mnt/nfs/file1.bin of=/dev/null > /dev/null 2>&1
+  umount /mnt/nfs && mount -o vers=$v,fsc $NFS_SERVER:/export /mnt/nfs
+  echo 3 > /proc/sys/vm/drop_caches
+  echo Read file 2nd time from fscache
+  dd if=/mnt/nfs/file1.bin of=/dev/null > /dev/null 2>&1
+  echo Check mountstats for NFS read
+  grep -q "READ: 0" /proc/self/mountstats # (1st number) == 0
+  [ $? -eq 0 ] && rc=0
+
+Fixes: a6b5a28eb56c "nfs: Convert to new fscache volume/cookie API"
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Tested-by: Daire Byrne <daire@dneg.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c |    3 ---
- 1 file changed, 3 deletions(-)
+ fs/nfs/fscache.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6012,11 +6012,8 @@ static void bfq_insert_request(struct bl
- 		return;
- 	}
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index f73c09a9cf0a..e861d7bae305 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -231,11 +231,10 @@ void nfs_fscache_release_file(struct inode *inode, struct file *filp)
+ {
+ 	struct nfs_fscache_inode_auxdata auxdata;
+ 	struct fscache_cookie *cookie = nfs_i_fscache(inode);
++	loff_t i_size = i_size_read(inode);
  
--	spin_unlock_irq(&bfqd->lock);
--
- 	trace_block_rq_insert(rq);
+-	if (fscache_cookie_valid(cookie)) {
+-		nfs_fscache_update_auxdata(&auxdata, inode);
+-		fscache_unuse_cookie(cookie, &auxdata, NULL);
+-	}
++	nfs_fscache_update_auxdata(&auxdata, inode);
++	fscache_unuse_cookie(cookie, &auxdata, &i_size);
+ }
  
--	spin_lock_irq(&bfqd->lock);
- 	bfqq = bfq_init_rq(rq);
- 	if (!bfqq || at_head) {
- 		if (at_head)
+ /*
+-- 
+2.35.1
+
 
 
