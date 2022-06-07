@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E12754103C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB3F5416A0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352734AbiFGTVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:21:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39616 "EHLO
+        id S1377352AbiFGUx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:53:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355246AbiFGTUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:20:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B77197F48;
-        Tue,  7 Jun 2022 11:08:31 -0700 (PDT)
+        with ESMTP id S1378057AbiFGUvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178B3F5525;
+        Tue,  7 Jun 2022 11:41:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0DACB81F38;
-        Tue,  7 Jun 2022 18:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBF8C385A5;
-        Tue,  7 Jun 2022 18:08:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64AFD615CE;
+        Tue,  7 Jun 2022 18:41:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FB06C385A2;
+        Tue,  7 Jun 2022 18:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625308;
-        bh=bNxTvQwfvlCQhLBV5XP5eB24HHOeNW7RiIDKe2u+9rk=;
+        s=korg; t=1654627295;
+        bh=6OCOup2jxFyPMio7PTP0EyiHgfEdOVgowN2xRnYuOhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQ67erQetcwU6bsdpzSaNYbS53qOz/idBmJ08NVRHrcqHuv4gVHv+N3zwgmsKRrar
-         i++/dwAOtaWo7LiiVlvpm2SifNwFrbkgCjhpWugapd384OsvpcHtjmRlUVzD/3hy0w
-         LYAZF0XkH3g5x/ymw1Sia1LQF0pEcylT+KBhIppI=
+        b=r7eAjZmdour0Lip8OzSjfmMlchKhmccZ12OU0S1+bXF1koT59T2tG4Y/dgwMAxcks
+         6IWYohrhjFxBV7UMU7lbxtwEMJoyjA+5ZnY1vDCRTbq42q9jx7CyJf1n/muYbal4if
+         7s2w+iPde6FHe7eMPQVvx978wAI5I6qSqX2pVBe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.15 613/667] um: Fix out-of-bounds read in LDT setup
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.17 686/772] landlock: Reduce the maximum number of layers to 16
 Date:   Tue,  7 Jun 2022 19:04:38 +0200
-Message-Id: <20220607164953.058716362@linuxfoundation.org>
+Message-Id: <20220607165009.269728984@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +53,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 2a4a62a14be1947fa945c5c11ebf67326381a568 upstream.
+commit 75c542d6c6cc48720376862d5496d51509160dfd upstream.
 
-syscall_stub_data() expects the data_count parameter to be the number of
-longs, not bytes.
+The maximum number of nested Landlock domains is currently 64.  Because
+of the following fix and to help reduce the stack size, let's reduce it
+to 16.  This seems large enough for a lot of use cases (e.g. sandboxed
+init service, spawning a sandboxed SSH service, in nested sandboxed
+containers).  Reducing the number of nested domains may also help to
+discover misuse of Landlock (e.g. creating a domain per rule).
 
- ==================================================================
- BUG: KASAN: stack-out-of-bounds in syscall_stub_data+0x70/0xe0
- Read of size 128 at addr 000000006411f6f0 by task swapper/1
+Add and use a dedicated layer_mask_t typedef to fit with the number of
+layers.  This might be useful when changing it and to keep it consistent
+with the maximum number of layers.
 
- CPU: 0 PID: 1 Comm: swapper Not tainted 5.18.0+ #18
- Call Trace:
-  show_stack.cold+0x166/0x2a7
-  __dump_stack+0x3a/0x43
-  dump_stack_lvl+0x1f/0x27
-  print_report.cold+0xdb/0xf81
-  kasan_report+0x119/0x1f0
-  kasan_check_range+0x3a3/0x440
-  memcpy+0x52/0x140
-  syscall_stub_data+0x70/0xe0
-  write_ldt_entry+0xac/0x190
-  init_new_ldt+0x515/0x960
-  init_new_context+0x2c4/0x4d0
-  mm_init.constprop.0+0x5ed/0x760
-  mm_alloc+0x118/0x170
-  0x60033f48
-  do_one_initcall+0x1d7/0x860
-  0x60003e7b
-  kernel_init+0x6e/0x3d4
-  new_thread_handler+0x1e7/0x2c0
-
- The buggy address belongs to stack of task swapper/1
-  and is located at offset 64 in frame:
-  init_new_ldt+0x0/0x960
-
- This frame has 2 objects:
-  [32, 40) 'addr'
-  [64, 80) 'desc'
- ==================================================================
-
-Fixes: 858259cf7d1c443c83 ("uml: maintain own LDT entries")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/20220506161102.525323-3-mic@digikod.net
 Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/um/ldt.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ Documentation/userspace-api/landlock.rst   |    4 ++--
+ security/landlock/fs.c                     |   17 +++++++----------
+ security/landlock/limits.h                 |    2 +-
+ security/landlock/ruleset.h                |    4 ++++
+ tools/testing/selftests/landlock/fs_test.c |    2 +-
+ 5 files changed, 15 insertions(+), 14 deletions(-)
 
---- a/arch/x86/um/ldt.c
-+++ b/arch/x86/um/ldt.c
-@@ -23,9 +23,11 @@ static long write_ldt_entry(struct mm_id
+--- a/Documentation/userspace-api/landlock.rst
++++ b/Documentation/userspace-api/landlock.rst
+@@ -267,8 +267,8 @@ restrict such paths with dedicated rules
+ Ruleset layers
+ --------------
+ 
+-There is a limit of 64 layers of stacked rulesets.  This can be an issue for a
+-task willing to enforce a new ruleset in complement to its 64 inherited
++There is a limit of 16 layers of stacked rulesets.  This can be an issue for a
++task willing to enforce a new ruleset in complement to its 16 inherited
+ rulesets.  Once this limit is reached, sys_landlock_restrict_self() returns
+ E2BIG.  It is then strongly suggested to carefully build rulesets once in the
+ life of a thread, especially for applications able to launch other applications
+--- a/security/landlock/fs.c
++++ b/security/landlock/fs.c
+@@ -183,10 +183,10 @@ int landlock_append_fs_rule(struct landl
+ 
+ /* Access-control management */
+ 
+-static inline u64 unmask_layers(const struct landlock_ruleset *const domain,
+-				const struct path *const path,
+-				const access_mask_t access_request,
+-				u64 layer_mask)
++static inline layer_mask_t
++unmask_layers(const struct landlock_ruleset *const domain,
++	      const struct path *const path, const access_mask_t access_request,
++	      layer_mask_t layer_mask)
  {
- 	long res;
- 	void *stub_addr;
+ 	const struct landlock_rule *rule;
+ 	const struct inode *inode;
+@@ -212,11 +212,11 @@ static inline u64 unmask_layers(const st
+ 	 */
+ 	for (i = 0; i < rule->num_layers; i++) {
+ 		const struct landlock_layer *const layer = &rule->layers[i];
+-		const u64 layer_level = BIT_ULL(layer->level - 1);
++		const layer_mask_t layer_bit = BIT_ULL(layer->level - 1);
+ 
+ 		/* Checks that the layer grants access to the full request. */
+ 		if ((layer->access & access_request) == access_request) {
+-			layer_mask &= ~layer_level;
++			layer_mask &= ~layer_bit;
+ 
+ 			if (layer_mask == 0)
+ 				return layer_mask;
+@@ -231,12 +231,9 @@ static int check_access_path(const struc
+ {
+ 	bool allowed = false;
+ 	struct path walker_path;
+-	u64 layer_mask;
++	layer_mask_t layer_mask;
+ 	size_t i;
+ 
+-	/* Make sure all layers can be checked. */
+-	BUILD_BUG_ON(BITS_PER_TYPE(layer_mask) < LANDLOCK_MAX_NUM_LAYERS);
+-
+ 	if (!access_request)
+ 		return 0;
+ 	if (WARN_ON_ONCE(!domain || !path))
+--- a/security/landlock/limits.h
++++ b/security/landlock/limits.h
+@@ -15,7 +15,7 @@
+ 
+ /* clang-format off */
+ 
+-#define LANDLOCK_MAX_NUM_LAYERS		64
++#define LANDLOCK_MAX_NUM_LAYERS		16
+ #define LANDLOCK_MAX_NUM_RULES		U32_MAX
+ 
+ #define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_MAKE_SYM
+--- a/security/landlock/ruleset.h
++++ b/security/landlock/ruleset.h
+@@ -23,6 +23,10 @@ typedef u16 access_mask_t;
+ /* Makes sure all filesystem access rights can be stored. */
+ static_assert(BITS_PER_TYPE(access_mask_t) >= LANDLOCK_NUM_ACCESS_FS);
+ 
++typedef u16 layer_mask_t;
++/* Makes sure all layers can be checked. */
++static_assert(BITS_PER_TYPE(layer_mask_t) >= LANDLOCK_MAX_NUM_LAYERS);
 +
-+	BUILD_BUG_ON(sizeof(*desc) % sizeof(long));
-+
- 	res = syscall_stub_data(mm_idp, (unsigned long *)desc,
--				(sizeof(*desc) + sizeof(long) - 1) &
--				    ~(sizeof(long) - 1),
-+				sizeof(*desc) / sizeof(long),
- 				addr, &stub_addr);
- 	if (!res) {
- 		unsigned long args[] = { func,
+ /**
+  * struct landlock_layer - Access rights for a given layer
+  */
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -1159,7 +1159,7 @@ TEST_F_FORK(layout1, max_layers)
+ 	const int ruleset_fd = create_ruleset(_metadata, ACCESS_RW, rules);
+ 
+ 	ASSERT_LE(0, ruleset_fd);
+-	for (i = 0; i < 64; i++)
++	for (i = 0; i < 16; i++)
+ 		enforce_ruleset(_metadata, ruleset_fd);
+ 
+ 	for (i = 0; i < 2; i++) {
 
 
