@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB1B541748
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E6354177C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377490AbiFGVCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
+        id S1377205AbiFGVD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378474AbiFGVBW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:22 -0400
+        with ESMTP id S1378456AbiFGVBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9CE20E17B;
-        Tue,  7 Jun 2022 11:45:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD6920E16A;
+        Tue,  7 Jun 2022 11:45:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0852261295;
-        Tue,  7 Jun 2022 18:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A3CC385A2;
-        Tue,  7 Jun 2022 18:45:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEB706168E;
+        Tue,  7 Jun 2022 18:45:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE465C385A2;
+        Tue,  7 Jun 2022 18:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627510;
-        bh=/WUznTYi4+ekIcUEKN6koRodGOYPqPC/ciEieSmX2uo=;
+        s=korg; t=1654627513;
+        bh=9JoonTWpoek9ttj4ytgijLTdKPzH4Dk8tLw0vFaebRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+jE6+IOPUGdsL1q84SLM9F/Bw7oye6O7155f78egdleOWO6/0CfYvEszCpj+Vgjh
-         vd2ZLt3fLX1p0pVVuPsDU+l1LY3hpTwHOX7VKMPe2+Mj0GXNZKHbQKK0mTQAcBeGNV
-         U5ZnxFP0QKeb4KC6zShQeX1NXgQLtM12gR155c0g=
+        b=GGmiZiNCtyjvTlWnM3jVGoMOSgEJD7vY9bVpETW0JUX+AX917B2rRiW0OKtKHgDwc
+         DqSOtSZALxhArT2SApewQINKnKpt/uUgFLH0uf1csxo0YTU68aAafMthFzD90YEwXE
+         HWEJ07ogQ7/ZHS7SSxo+wxZUtboNRFXzZ/iJNbzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.17 765/772] ext4: only allow test_dummy_encryption when supported
-Date:   Tue,  7 Jun 2022 19:05:57 +0200
-Message-Id: <20220607165011.565988027@linuxfoundation.org>
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.17 766/772] fs: add two trivial lookup helpers
+Date:   Tue,  7 Jun 2022 19:05:58 +0200
+Message-Id: <20220607165011.594227109@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -54,162 +57,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Christian Brauner <brauner@kernel.org>
 
-commit 5f41fdaea63ddf96d921ab36b2af4a90ccdb5744 upstream.
+commit 00675017e0aeba5305665c52ded4ddce6a4c0231 upstream.
 
-Make the test_dummy_encryption mount option require that the encrypt
-feature flag be already enabled on the filesystem, rather than
-automatically enabling it.  Practically, this means that "-O encrypt"
-will need to be included in MKFS_OPTIONS when running xfstests with the
-test_dummy_encryption mount option.  (ext4/053 also needs an update.)
+Similar to the addition of lookup_one() add a version of
+lookup_one_unlocked() and lookup_one_positive_unlocked() that take
+idmapped mounts into account. This is required to port overlay to
+support idmapped base layers.
 
-Moreover, as long as the preconditions for test_dummy_encryption are
-being tightened anyway, take the opportunity to start rejecting it when
-!CONFIG_FS_ENCRYPTION rather than ignoring it.
-
-The motivation for requiring the encrypt feature flag is that:
-
-- Having the filesystem auto-enable feature flags is problematic, as it
-  bypasses the usual sanity checks.  The specific issue which came up
-  recently is that in kernel versions where ext4 supports casefold but
-  not encrypt+casefold (v5.1 through v5.10), the kernel will happily add
-  the encrypt flag to a filesystem that has the casefold flag, making it
-  unmountable -- but only for subsequent mounts, not the initial one.
-  This confused the casefold support detection in xfstests, causing
-  generic/556 to fail rather than be skipped.
-
-- The xfstests-bld test runners (kvm-xfstests et al.) already use the
-  required mkfs flag, so they will not be affected by this change.  Only
-  users of test_dummy_encryption alone will be affected.  But, this
-  option has always been for testing only, so it should be fine to
-  require that the few users of this option update their test scripts.
-
-- f2fs already requires it (for its equivalent feature flag).
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Link: https://lore.kernel.org/r/20220519204437.61645-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: <linux-fsdevel@vger.kernel.org>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h  |    6 -----
- fs/ext4/super.c |   60 +++++++++++++++++++++++++++++++++++---------------------
- 2 files changed, 38 insertions(+), 28 deletions(-)
+ fs/namei.c            |   70 ++++++++++++++++++++++++++++++++++++++++++--------
+ include/linux/namei.h |    6 ++++
+ 2 files changed, 66 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1438,12 +1438,6 @@ struct ext4_super_block {
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2768,7 +2768,8 @@ struct dentry *lookup_one(struct user_na
+ EXPORT_SYMBOL(lookup_one);
  
- #ifdef __KERNEL__
- 
--#ifdef CONFIG_FS_ENCRYPTION
--#define DUMMY_ENCRYPTION_ENABLED(sbi) ((sbi)->s_dummy_enc_policy.policy != NULL)
--#else
--#define DUMMY_ENCRYPTION_ENABLED(sbi) (0)
--#endif
--
- /* Number of quota types we support */
- #define EXT4_MAXQUOTAS 3
- 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2428,11 +2428,12 @@ static int ext4_parse_param(struct fs_co
- 		ctx->spec |= EXT4_SPEC_DUMMY_ENCRYPTION;
- 		ctx->test_dummy_enc_arg = kmemdup_nul(param->string, param->size,
- 						      GFP_KERNEL);
-+		return 0;
- #else
- 		ext4_msg(NULL, KERN_WARNING,
--			 "Test dummy encryption mount option ignored");
-+			 "test_dummy_encryption option not supported");
-+		return -EINVAL;
- #endif
--		return 0;
- 	case Opt_dax:
- 	case Opt_dax_type:
- #ifdef CONFIG_FS_DAX
-@@ -2789,12 +2790,44 @@ err_jquota_specified:
- #endif
- }
- 
-+static int ext4_check_test_dummy_encryption(const struct fs_context *fc,
-+					    struct super_block *sb)
-+{
-+#ifdef CONFIG_FS_ENCRYPTION
-+	const struct ext4_fs_context *ctx = fc->fs_private;
-+	const struct ext4_sb_info *sbi = EXT4_SB(sb);
-+
-+	if (!(ctx->spec & EXT4_SPEC_DUMMY_ENCRYPTION))
-+		return 0;
-+
-+	if (!ext4_has_feature_encrypt(sb)) {
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "test_dummy_encryption requires encrypt feature");
-+		return -EINVAL;
-+	}
-+	/*
-+	 * This mount option is just for testing, and it's not worthwhile to
-+	 * implement the extra complexity (e.g. RCU protection) that would be
-+	 * needed to allow it to be set or changed during remount.  We do allow
-+	 * it to be specified during remount, but only if there is no change.
-+	 */
-+	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE &&
-+	    !sbi->s_dummy_enc_policy.policy) {
-+		ext4_msg(NULL, KERN_WARNING,
-+			 "Can't set test_dummy_encryption on remount");
-+		return -EINVAL;
-+	}
-+#endif /* CONFIG_FS_ENCRYPTION */
-+	return 0;
-+}
-+
- static int ext4_check_opt_consistency(struct fs_context *fc,
- 				      struct super_block *sb)
+ /**
+- * lookup_one_len_unlocked - filesystem helper to lookup single pathname component
++ * lookup_one_unlocked - filesystem helper to lookup single pathname component
++ * @mnt_userns:	idmapping of the mount the lookup is performed from
+  * @name:	pathname component to lookup
+  * @base:	base directory to lookup from
+  * @len:	maximum length @len should be interpreted to
+@@ -2779,14 +2780,15 @@ EXPORT_SYMBOL(lookup_one);
+  * Unlike lookup_one_len, it should be called without the parent
+  * i_mutex held, and will take the i_mutex itself if necessary.
+  */
+-struct dentry *lookup_one_len_unlocked(const char *name,
+-				       struct dentry *base, int len)
++struct dentry *lookup_one_unlocked(struct user_namespace *mnt_userns,
++				   const char *name, struct dentry *base,
++				   int len)
  {
- 	struct ext4_fs_context *ctx = fc->fs_private;
- 	struct ext4_sb_info *sbi = fc->s_fs_info;
- 	int is_remount = fc->purpose == FS_CONTEXT_FOR_RECONFIGURE;
-+	int err;
+ 	struct qstr this;
+ 	int err;
+ 	struct dentry *ret;
  
- 	if ((ctx->opt_flags & MOPT_NO_EXT2) && IS_EXT2_SB(sb)) {
- 		ext4_msg(NULL, KERN_ERR,
-@@ -2824,20 +2857,9 @@ static int ext4_check_opt_consistency(st
- 				 "for blocksize < PAGE_SIZE");
- 	}
+-	err = lookup_one_common(&init_user_ns, name, base, len, &this);
++	err = lookup_one_common(mnt_userns, name, base, len, &this);
+ 	if (err)
+ 		return ERR_PTR(err);
  
--#ifdef CONFIG_FS_ENCRYPTION
--	/*
--	 * This mount option is just for testing, and it's not worthwhile to
--	 * implement the extra complexity (e.g. RCU protection) that would be
--	 * needed to allow it to be set or changed during remount.  We do allow
--	 * it to be specified during remount, but only if there is no change.
--	 */
--	if ((ctx->spec & EXT4_SPEC_DUMMY_ENCRYPTION) &&
--	    is_remount && !sbi->s_dummy_enc_policy.policy) {
--		ext4_msg(NULL, KERN_WARNING,
--			 "Can't set test_dummy_encryption on remount");
--		return -1;
+@@ -2795,6 +2797,59 @@ struct dentry *lookup_one_len_unlocked(c
+ 		ret = lookup_slow(&this, base, 0);
+ 	return ret;
+ }
++EXPORT_SYMBOL(lookup_one_unlocked);
++
++/**
++ * lookup_one_positive_unlocked - filesystem helper to lookup single
++ *				  pathname component
++ * @mnt_userns:	idmapping of the mount the lookup is performed from
++ * @name:	pathname component to lookup
++ * @base:	base directory to lookup from
++ * @len:	maximum length @len should be interpreted to
++ *
++ * This helper will yield ERR_PTR(-ENOENT) on negatives. The helper returns
++ * known positive or ERR_PTR(). This is what most of the users want.
++ *
++ * Note that pinned negative with unlocked parent _can_ become positive at any
++ * time, so callers of lookup_one_unlocked() need to be very careful; pinned
++ * positives have >d_inode stable, so this one avoids such problems.
++ *
++ * Note that this routine is purely a helper for filesystem usage and should
++ * not be called by generic code.
++ *
++ * The helper should be called without i_mutex held.
++ */
++struct dentry *lookup_one_positive_unlocked(struct user_namespace *mnt_userns,
++					    const char *name,
++					    struct dentry *base, int len)
++{
++	struct dentry *ret = lookup_one_unlocked(mnt_userns, name, base, len);
++
++	if (!IS_ERR(ret) && d_flags_negative(smp_load_acquire(&ret->d_flags))) {
++		dput(ret);
++		ret = ERR_PTR(-ENOENT);
++	}
++	return ret;
++}
++EXPORT_SYMBOL(lookup_one_positive_unlocked);
++
++/**
++ * lookup_one_len_unlocked - filesystem helper to lookup single pathname component
++ * @name:	pathname component to lookup
++ * @base:	base directory to lookup from
++ * @len:	maximum length @len should be interpreted to
++ *
++ * Note that this routine is purely a helper for filesystem usage and should
++ * not be called by generic code.
++ *
++ * Unlike lookup_one_len, it should be called without the parent
++ * i_mutex held, and will take the i_mutex itself if necessary.
++ */
++struct dentry *lookup_one_len_unlocked(const char *name,
++				       struct dentry *base, int len)
++{
++	return lookup_one_unlocked(&init_user_ns, name, base, len);
++}
+ EXPORT_SYMBOL(lookup_one_len_unlocked);
+ 
+ /*
+@@ -2808,12 +2863,7 @@ EXPORT_SYMBOL(lookup_one_len_unlocked);
+ struct dentry *lookup_positive_unlocked(const char *name,
+ 				       struct dentry *base, int len)
+ {
+-	struct dentry *ret = lookup_one_len_unlocked(name, base, len);
+-	if (!IS_ERR(ret) && d_flags_negative(smp_load_acquire(&ret->d_flags))) {
+-		dput(ret);
+-		ret = ERR_PTR(-ENOENT);
 -	}
--#endif
-+	err = ext4_check_test_dummy_encryption(fc, sb);
-+	if (err)
-+		return err;
+-	return ret;
++	return lookup_one_positive_unlocked(&init_user_ns, name, base, len);
+ }
+ EXPORT_SYMBOL(lookup_positive_unlocked);
  
- 	if ((ctx->spec & EXT4_SPEC_DATAJ) && is_remount) {
- 		if (!sbi->s_journal) {
-@@ -5267,12 +5289,6 @@ no_journal:
- 		goto failed_mount_wq;
- 	}
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -69,6 +69,12 @@ extern struct dentry *lookup_one_len(con
+ extern struct dentry *lookup_one_len_unlocked(const char *, struct dentry *, int);
+ extern struct dentry *lookup_positive_unlocked(const char *, struct dentry *, int);
+ struct dentry *lookup_one(struct user_namespace *, const char *, struct dentry *, int);
++struct dentry *lookup_one_unlocked(struct user_namespace *mnt_userns,
++				   const char *name, struct dentry *base,
++				   int len);
++struct dentry *lookup_one_positive_unlocked(struct user_namespace *mnt_userns,
++					    const char *name,
++					    struct dentry *base, int len);
  
--	if (DUMMY_ENCRYPTION_ENABLED(sbi) && !sb_rdonly(sb) &&
--	    !ext4_has_feature_encrypt(sb)) {
--		ext4_set_feature_encrypt(sb);
--		ext4_commit_super(sb);
--	}
--
- 	/*
- 	 * Get the # of file system overhead blocks from the
- 	 * superblock if present.
+ extern int follow_down_one(struct path *);
+ extern int follow_down(struct path *);
 
 
