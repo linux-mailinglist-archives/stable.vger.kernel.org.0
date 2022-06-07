@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1640B5411BF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF2D754191C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354449AbiFGTmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47584 "EHLO
+        id S1378092AbiFGVSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:18:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357585AbiFGTmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9711B5862;
-        Tue,  7 Jun 2022 11:15:26 -0700 (PDT)
+        with ESMTP id S1379858AbiFGVN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:13:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5059821AC59;
+        Tue,  7 Jun 2022 11:54:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16FED6006F;
-        Tue,  7 Jun 2022 18:15:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26EF3C385A2;
-        Tue,  7 Jun 2022 18:15:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93BA2B8239E;
+        Tue,  7 Jun 2022 18:54:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC428C36B0F;
+        Tue,  7 Jun 2022 18:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625725;
-        bh=ZN6hC2vdwKmBY0Swi3pq5qptEuPjZ0EGRv0BuujKnUE=;
+        s=korg; t=1654628069;
+        bh=8gQNAltN6BIULDhgTdmaQHw+k3XtzpJbkUP7TqeHUWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vZB3Z7XGcd8sJvqh3hlbaNzRL2fUcU4rGVEiQeOZ4vU8XN1jQSDMxOrjtJY33Kto
-         xJINfQjK6UHmp7UnfrA8nfKSx71FpiV7HQYWLW4GVWSDlzkRTil/0crjP3OsyptwEV
-         Xgr2g37ngRqb41QkO9pUXk47JiSMctp7R39sUgCc=
+        b=YcIOiwzRj7woc6EZxFIe7MzNnsJCaKNkiz1qej11JpfPXbuFUJdDhFGRZVbSGcf1R
+         xS8ufHYJoUbKjshu8nxuINkpHWVqdfQ/uYt44LFv+Gr4mYFpv15fVoiZ7dm1Uw4vob
+         xGHth16cDxpuz3pn7RH98yD8MgYKdqQnGD2UwPTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 119/772] drm/tegra: gem: Do not try to dereference ERR_PTR()
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        kernel test robot <lkp@intel.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.18 193/879] can: mcp251xfd: silence clangs -Wunaligned-access warning
 Date:   Tue,  7 Jun 2022 18:55:11 +0200
-Message-Id: <20220607164952.554943998@linuxfoundation.org>
+Message-Id: <20220607165008.444219311@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit cb7e1abc2c73633e1eefa168ab2dad6e838899c9 ]
+[ Upstream commit 1a6dd9996699889313327be03981716a8337656b ]
 
-When mapping the DMA-BUF attachment fails, map->sgt will be an ERR_PTR-
-encoded error code and the cleanup code would try to free that memory,
-which obviously would fail.
+clang emits a -Wunaligned-access warning on union
+mcp251xfd_tx_ojb_load_buf.
 
-Zero out that pointer after extracting the error code when this happens
-so that kfree() can do the right thing.
+The reason is that field hw_tx_obj (not declared as packed) is being
+packed right after a 16 bits field inside a packed struct:
 
+| union mcp251xfd_tx_obj_load_buf {
+| 	struct __packed {
+| 		struct mcp251xfd_buf_cmd cmd;
+| 		  /* ^ 16 bits fields */
+| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
+| 		  /* ^ not declared as packed */
+| 	} nocrc;
+| 	struct __packed {
+| 		struct mcp251xfd_buf_cmd_crc cmd;
+| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
+| 		__be16 crc;
+| 	} crc;
+| } ____cacheline_aligned;
+
+Starting from LLVM 14, having an unpacked struct nested in a packed
+struct triggers a warning. c.f. [1].
+
+This is a false positive because the field is always being accessed
+with the relevant put_unaligned_*() function. Adding __packed to the
+structure declaration silences the warning.
+
+[1] https://github.com/llvm/llvm-project/issues/55520
+
+Link: https://lore.kernel.org/all/20220518114357.55452-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/gem.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tegra/gem.c b/drivers/gpu/drm/tegra/gem.c
-index fce0e52973c2..9810b3bdd342 100644
---- a/drivers/gpu/drm/tegra/gem.c
-+++ b/drivers/gpu/drm/tegra/gem.c
-@@ -88,6 +88,7 @@ static struct host1x_bo_mapping *tegra_bo_pin(struct device *dev, struct host1x_
- 		if (IS_ERR(map->sgt)) {
- 			dma_buf_detach(buf, map->attach);
- 			err = PTR_ERR(map->sgt);
-+			map->sgt = NULL;
- 			goto free;
- 		}
- 
+diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
+index 9cb6b5ad8dda..60e56fa4601d 100644
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
+@@ -441,7 +441,7 @@ struct mcp251xfd_hw_tef_obj {
+ /* The tx_obj_raw version is used in spi async, i.e. without
+  * regmap. We have to take care of endianness ourselves.
+  */
+-struct mcp251xfd_hw_tx_obj_raw {
++struct __packed mcp251xfd_hw_tx_obj_raw {
+ 	__le32 id;
+ 	__le32 flags;
+ 	u8 data[sizeof_field(struct canfd_frame, data)];
 -- 
 2.35.1
 
