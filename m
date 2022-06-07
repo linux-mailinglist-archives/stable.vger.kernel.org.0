@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA19F541314
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070415419F2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357814AbiFGTzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50074 "EHLO
+        id S1378428AbiFGV1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358663AbiFGTwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:49 -0400
+        with ESMTP id S1378185AbiFGVYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:24:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4ED750036;
-        Tue,  7 Jun 2022 11:22:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB98B22737C;
+        Tue,  7 Jun 2022 12:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66087B8233E;
-        Tue,  7 Jun 2022 18:21:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50FFC385A2;
-        Tue,  7 Jun 2022 18:21:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56CB1B822C0;
+        Tue,  7 Jun 2022 19:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E4BAC385A2;
+        Tue,  7 Jun 2022 19:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626118;
-        bh=LLYvGfGjXZ9QmB2lx9GE2qO8i4mMoaFQ3OO4wiSra9k=;
+        s=korg; t=1654628462;
+        bh=FVrfP5okOYiFp2PdmF+vwOD3Sro7fum2Xpfuzlzxw18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CV3Yo7TKk53yKOT/Blfo3m0n1goHE70iKWO1rYC1Bm35TgYn0epOr0k36DY6xnLVP
-         S/D+sFVH359/LuQLqpxtTTptDCevv6eoEi6bzrSb3LCboM6nOIIIHdSoYuBk1IXtVk
-         2tJJVj8SMqv0RlFhVC6L7tIo2SYmDOJT1tsKFW/s=
+        b=PHeUAyP46V5CGp7kNUHSJUXO3nFnODjfxBCHFgDPOmvbHpEt1IM35h0F42xx4yYvY
+         2sYNXJimSwvB7i7pmEOVhO+9MauAYK+IlUTfxYwOshi9HvUpH2dWebg7rHWvQ5DoAt
+         fTmVI2iVAMzdBGq73UucotuKQj0D8kulzJ1a5w6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org,
+        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 265/772] efi: Add missing prototype for efi_capsule_setup_info
+Subject: [PATCH 5.18 339/879] media: i2c: max9286: fix kernel oops when removing module
 Date:   Tue,  7 Jun 2022 18:57:37 +0200
-Message-Id: <20220607164956.833192623@linuxfoundation.org>
+Message-Id: <20220607165012.698519167@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +57,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
 
-[ Upstream commit aa480379d8bdb33920d68acfd90f823c8af32578 ]
+[ Upstream commit 365ab7ebc24eebb42b9e020aeb440d51af8960cd ]
 
-Fixes "no previous declaration for 'efi_capsule_setup_info'" warnings
-under W=1.
+When removing the max9286 module we get a kernel oops:
 
-Fixes: 2959c95d510c ("efi/capsule: Add support for Quark security header")
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Link: https://lore.kernel.org/r/c28d3f86-dd72-27d1-e2c2-40971b8da6bd@siemens.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Unable to handle kernel paging request at virtual address 000000aa00000094
+Mem abort info:
+  ESR = 0x96000004
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x04: level 0 translation fault
+Data abort info:
+  ISV = 0, ISS = 0x00000004
+  CM = 0, WnR = 0
+user pgtable: 4k pages, 48-bit VAs, pgdp=0000000880d85000
+[000000aa00000094] pgd=0000000000000000, p4d=0000000000000000
+Internal error: Oops: 96000004 [#1] PREEMPT SMP
+Modules linked in: fsl_jr_uio caam_jr rng_core libdes caamkeyblob_desc caamhash_desc caamalg_desc crypto_engine max9271 authenc crct10dif_ce mxc_jpeg_encdec
+CPU: 2 PID: 713 Comm: rmmod Tainted: G         C        5.15.5-00057-gaebcd29c8ed7-dirty #5
+Hardware name: Freescale i.MX8QXP MEK (DT)
+pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : i2c_mux_del_adapters+0x24/0xf0
+lr : max9286_remove+0x28/0xd0 [max9286]
+sp : ffff800013a9bbf0
+x29: ffff800013a9bbf0 x28: ffff00080b6da940 x27: 0000000000000000
+x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
+x23: ffff000801a5b970 x22: ffff0008048b0890 x21: ffff800009297000
+x20: ffff0008048b0f70 x19: 000000aa00000064 x18: 0000000000000000
+x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+x14: 0000000000000014 x13: 0000000000000000 x12: ffff000802da49e8
+x11: ffff000802051918 x10: ffff000802da4920 x9 : ffff000800030098
+x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : fefefeff6364626d
+x5 : 8080808000000000 x4 : 0000000000000000 x3 : 0000000000000000
+x2 : ffffffffffffffff x1 : ffff00080b6da940 x0 : 0000000000000000
+Call trace:
+ i2c_mux_del_adapters+0x24/0xf0
+ max9286_remove+0x28/0xd0 [max9286]
+ i2c_device_remove+0x40/0x110
+ __device_release_driver+0x188/0x234
+ driver_detach+0xc4/0x150
+ bus_remove_driver+0x60/0xe0
+ driver_unregister+0x34/0x64
+ i2c_del_driver+0x58/0xa0
+ max9286_i2c_driver_exit+0x1c/0x490 [max9286]
+ __arm64_sys_delete_module+0x194/0x260
+ invoke_syscall+0x48/0x114
+ el0_svc_common.constprop.0+0xd4/0xfc
+ do_el0_svc+0x2c/0x94
+ el0_svc+0x28/0x80
+ el0t_64_sync_handler+0xa8/0x130
+ el0t_64_sync+0x1a0/0x1a4
+
+The Oops happens because the I2C client data does not point to
+max9286_priv anymore but to v4l2_subdev. The change happened in
+max9286_init() which calls v4l2_i2c_subdev_init() later on...
+
+Besides fixing the max9286_remove() function, remove the call to
+i2c_set_clientdata() in max9286_probe(), to avoid confusion, and make
+the necessary changes to max9286_init() so that it doesn't have to use
+i2c_get_clientdata() in order to fetch the pointer to priv.
+
+Fixes: 66d8c9d2422d ("media: i2c: Add MAX9286 driver")
+Signed-off-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/efi.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/i2c/max9286.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index ccd4d3f91c98..cc6d2be2ffd5 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -213,6 +213,8 @@ struct capsule_info {
- 	size_t			page_bytes_remain;
- };
+diff --git a/drivers/media/i2c/max9286.c b/drivers/media/i2c/max9286.c
+index d2a4915ed9f7..3684faa72253 100644
+--- a/drivers/media/i2c/max9286.c
++++ b/drivers/media/i2c/max9286.c
+@@ -1147,22 +1147,18 @@ static int max9286_poc_enable(struct max9286_priv *priv, bool enable)
+ 	return ret;
+ }
  
-+int efi_capsule_setup_info(struct capsule_info *cap_info, void *kbuff,
-+                           size_t hdr_bytes);
- int __efi_capsule_setup_info(struct capsule_info *cap_info);
+-static int max9286_init(struct device *dev)
++static int max9286_init(struct max9286_priv *priv)
+ {
+-	struct max9286_priv *priv;
+-	struct i2c_client *client;
++	struct i2c_client *client = priv->client;
+ 	int ret;
  
- /*
+-	client = to_i2c_client(dev);
+-	priv = i2c_get_clientdata(client);
+-
+ 	ret = max9286_poc_enable(priv, true);
+ 	if (ret)
+ 		return ret;
+ 
+ 	ret = max9286_setup(priv);
+ 	if (ret) {
+-		dev_err(dev, "Unable to setup max9286\n");
++		dev_err(&client->dev, "Unable to setup max9286\n");
+ 		goto err_poc_disable;
+ 	}
+ 
+@@ -1172,13 +1168,13 @@ static int max9286_init(struct device *dev)
+ 	 */
+ 	ret = max9286_v4l2_register(priv);
+ 	if (ret) {
+-		dev_err(dev, "Failed to register with V4L2\n");
++		dev_err(&client->dev, "Failed to register with V4L2\n");
+ 		goto err_poc_disable;
+ 	}
+ 
+ 	ret = max9286_i2c_mux_init(priv);
+ 	if (ret) {
+-		dev_err(dev, "Unable to initialize I2C multiplexer\n");
++		dev_err(&client->dev, "Unable to initialize I2C multiplexer\n");
+ 		goto err_v4l2_register;
+ 	}
+ 
+@@ -1333,7 +1329,6 @@ static int max9286_probe(struct i2c_client *client)
+ 	mutex_init(&priv->mutex);
+ 
+ 	priv->client = client;
+-	i2c_set_clientdata(client, priv);
+ 
+ 	priv->gpiod_pwdn = devm_gpiod_get_optional(&client->dev, "enable",
+ 						   GPIOD_OUT_HIGH);
+@@ -1369,7 +1364,7 @@ static int max9286_probe(struct i2c_client *client)
+ 	if (ret)
+ 		goto err_powerdown;
+ 
+-	ret = max9286_init(&client->dev);
++	ret = max9286_init(priv);
+ 	if (ret < 0)
+ 		goto err_cleanup_dt;
+ 
+@@ -1385,7 +1380,7 @@ static int max9286_probe(struct i2c_client *client)
+ 
+ static int max9286_remove(struct i2c_client *client)
+ {
+-	struct max9286_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = sd_to_max9286(i2c_get_clientdata(client));
+ 
+ 	i2c_mux_del_adapters(priv->mux);
+ 
 -- 
 2.35.1
 
