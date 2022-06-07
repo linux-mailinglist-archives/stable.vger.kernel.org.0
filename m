@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D098541463
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E63540B7F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358361AbiFGURn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:17:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
+        id S1350541AbiFGS3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359690AbiFGUP5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:15:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B64C1C865F;
-        Tue,  7 Jun 2022 11:28:35 -0700 (PDT)
+        with ESMTP id S1350271AbiFGSYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:24:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37C4D4A36;
+        Tue,  7 Jun 2022 10:54:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0A60611F3;
-        Tue,  7 Jun 2022 18:28:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE5FAC385A2;
-        Tue,  7 Jun 2022 18:28:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4229617A6;
+        Tue,  7 Jun 2022 17:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF27C34115;
+        Tue,  7 Jun 2022 17:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626515;
-        bh=G4QYV8KfCGN2kJuv0APB3ew8HI83mkxuqGlT4tkQ4ak=;
+        s=korg; t=1654624454;
+        bh=90Pwb1gFolXdYAzqnbg5nWM90mOc6mUXMhJrZxKLkLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNgDtSJLrtJiRtgzWvrp6Z49JpEy6hRkZgOT+Yed9BR3TQFzg+Y/sdfRaCBd8+4dN
-         6Zzxu5dwZFAACpYYxqK1Q3s7wyZQZurGqoi08b+Uc9yy9OXTQWe74N+AzlfTHrOX8/
-         McbR34/NB83gSsl1H83M+f61NjCsTp6I3b99LMgI=
+        b=hU/NKmCpVzup5ITJtopT84WqbP9S/bD8qckb43aysUj6m/ImcEQKDxzJ9n5+JI1Pw
+         rbFblLHY+mCWv7cwQyMXhCb9no1iLRCAT2p3UEBUUbcuqL9TSPvQA1PVjavs+aLjlQ
+         Euorh+uploTu8eoJ2sn1v0nMXwOunJ/9/CfwoAdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 406/772] media: rkvdec: h264: Fix bit depth wrap in pps packet
+Subject: [PATCH 5.15 333/667] m68k: math-emu: Fix dependencies of math emulation support
 Date:   Tue,  7 Jun 2022 18:59:58 +0200
-Message-Id: <20220607165000.972714984@linuxfoundation.org>
+Message-Id: <20220607164944.755056159@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Karlman <jonas@kwiboo.se>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit a074aa4760d1dad0bd565c0f66e7250f5f219ab0 ]
+[ Upstream commit ed6bc6bf0a7d75e80eb1df883c09975ebb74e590 ]
 
-The luma and chroma bit depth fields in the pps packet are 3 bits wide.
-8 is wrongly added to the bit depth values written to these 3 bit fields.
-Because only the 3 LSB are written, the hardware was configured
-correctly.
+If CONFIG_M54xx=y, CONFIG_MMU=y, and CONFIG_M68KFPU_EMU=y:
 
-Correct this by not adding 8 to the luma and chroma bit depth value.
+    {standard input}:272: Error: invalid instruction for this architecture; needs 68000 or higher (68000 [68ec000, 68hc000, 68hc001, 68008, 68302, 68306, 68307, 68322, 68356], 68010, 68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060], cpu32 [68330, 68331, 68332, 68333, 68334, 68336, 68340, 68341, 68349, 68360], fidoa [fido]) -- statement `sub.b %d1,%d3' ignored
+    {standard input}:609: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `bfextu 4(%a1){%d0,#8},%d0' ignored
+    {standard input}:752: Error: operands mismatch -- statement `mulu.l 4(%a0),%d3:%d0' ignored
+    {standard input}:1155: Error: operands mismatch -- statement `divu.l %d0,%d3:%d7' ignored
 
-Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
-Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+The math emulation support code is intended for 68020 and higher, and
+uses several instructions or instruction modes not available on coldfire
+or 68000.
+
+Originally, the dependency of M68KFPU_EMU on MMU was fine, as MMU
+support was only available on 68020 or higher.  But this assumption
+was broken by the introduction of MMU support for M547x and M548x.
+
+Drop the dependency on MMU, as the code should work fine on 68020 and up
+without MMU (which are not yet supported by Linux, though).
+Add dependencies on M68KCLASSIC (to rule out Coldfire) and FPU (kernel
+has some type of floating-point support --- be it hardware or software
+emulated, to rule out anything below 68020).
+
+Fixes: 1f7034b9616e6f14 ("m68k: allow ColdFire 547x and 548x CPUs to be built with MMU enabled")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Greg Ungerer <gerg@linux-m68k.org>
+Link: https://lore.kernel.org/r/18c34695b7c95107f60ccca82a4ff252f3edf477.1652446117.git.geert@linux-m68k.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec-h264.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/m68k/Kconfig.cpu | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
-index f5d8c6cb740b..22b4bf9e9ef4 100644
---- a/drivers/staging/media/rkvdec/rkvdec-h264.c
-+++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
-@@ -662,8 +662,8 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
- 	WRITE_PPS(0xff, PROFILE_IDC);
- 	WRITE_PPS(1, CONSTRAINT_SET3_FLAG);
- 	WRITE_PPS(sps->chroma_format_idc, CHROMA_FORMAT_IDC);
--	WRITE_PPS(sps->bit_depth_luma_minus8 + 8, BIT_DEPTH_LUMA);
--	WRITE_PPS(sps->bit_depth_chroma_minus8 + 8, BIT_DEPTH_CHROMA);
-+	WRITE_PPS(sps->bit_depth_luma_minus8, BIT_DEPTH_LUMA);
-+	WRITE_PPS(sps->bit_depth_chroma_minus8, BIT_DEPTH_CHROMA);
- 	WRITE_PPS(0, QPPRIME_Y_ZERO_TRANSFORM_BYPASS_FLAG);
- 	WRITE_PPS(sps->log2_max_frame_num_minus4, LOG2_MAX_FRAME_NUM_MINUS4);
- 	WRITE_PPS(sps->max_num_ref_frames, MAX_NUM_REF_FRAMES);
+diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
+index 277d61a09463..29558055c71b 100644
+--- a/arch/m68k/Kconfig.cpu
++++ b/arch/m68k/Kconfig.cpu
+@@ -338,7 +338,7 @@ comment "Processor Specific Options"
+ 
+ config M68KFPU_EMU
+ 	bool "Math emulation support"
+-	depends on MMU
++	depends on M68KCLASSIC && FPU
+ 	help
+ 	  At some point in the future, this will cause floating-point math
+ 	  instructions to be emulated by the kernel on machines that lack a
 -- 
 2.35.1
 
