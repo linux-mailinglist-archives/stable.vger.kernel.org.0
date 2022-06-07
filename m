@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB385540B88
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C39D541467
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351445AbiFGS33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49228 "EHLO
+        id S1358449AbiFGURx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352150AbiFGSZf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:25:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CAEEF050;
-        Tue,  7 Jun 2022 10:54:43 -0700 (PDT)
+        with ESMTP id S1376409AbiFGUQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D78C417127C;
+        Tue,  7 Jun 2022 11:29:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 585B6B82376;
-        Tue,  7 Jun 2022 17:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE362C3411C;
-        Tue,  7 Jun 2022 17:54:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 88DCCCE242B;
+        Tue,  7 Jun 2022 18:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FCB1C385A5;
+        Tue,  7 Jun 2022 18:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624482;
-        bh=rFUmO2eCpiuWmXjiSQBqGcHExDGAR+qKjNun3mFwazE=;
+        s=korg; t=1654626542;
+        bh=pME/9UQHe+QAFwlt/SzPbrnSs38uv9TTgrsu9n13kA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CONORWZeviQknHwnB2Bkhg6J21gvPsQ84sKMHqhOMkAjMQi5saEOHvNJlCbC9CJCn
-         +NvkRpm5ESAmhcKq6TAo7dsoVjs/8xhv2wYCUV6kLuqyJMB8Eho+504xMwJuE6SzQ9
-         Hx/ETSLBKjnnQ1YaDFdtdgu8/i2+PVbVQLEaZ+I0=
+        b=ink60jSc8z+7pQRqMyBd/lqcbueR1E0igzZ2nRmKFU+QVXMgpwt6vnSZ2ipb7cuh9
+         IDVOXDb6jdb6lD12dTNF+yQ1WHXOzPoJrmpTsAnLaO5iP72giQf3Sh6ZNCDaouGSMR
+         srFGWSMZ3BuhGN5pKBegDUCuD3+307OOobV3EwTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Sebastian Fricke <sebastian.fricke@collabora.com>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 342/667] media: rkvdec: h264: Fix dpb_valid implementation
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 415/772] selftests/bpf: Add missed ima_setup.sh in Makefile
 Date:   Tue,  7 Jun 2022 19:00:07 +0200
-Message-Id: <20220607164945.018636763@linuxfoundation.org>
+Message-Id: <20220607165001.236067864@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,108 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 7ab889f09dfa70e8097ec1b9186fd228124112cb ]
+[ Upstream commit 70a1b25326dd77e145157ccf1a31c1948032eec4 ]
 
-The ref builder only provided references that are marked as valid in the
-dpb. Thus the current implementation of dpb_valid would always set the
-flag to 1. This is not representing missing frames (this is called
-'non-existing' pictures in the spec). In some context, these non-existing
-pictures still need to occupy a slot in the reference list according to
-the spec.
+When build bpf test and install it to another folder, e.g.
 
-Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+  make -j10 install -C tools/testing/selftests/ TARGETS="bpf" \
+	SKIP_TARGETS="" INSTALL_PATH=/tmp/kselftests
+
+The ima_setup.sh is missed in target folder, which makes test_ima failed.
+
+Fix it by adding ima_setup.sh to TEST_PROGS_EXTENDED.
+
+Fixes: 34b82d3ac105 ("bpf: Add a selftest for bpf_ima_inode_hash")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220516040020.653291-1-liuhangbin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec-h264.c | 33 ++++++++++++++++------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ tools/testing/selftests/bpf/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
-index 951e19231da2..f5d8c6cb740b 100644
---- a/drivers/staging/media/rkvdec/rkvdec-h264.c
-+++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
-@@ -112,6 +112,7 @@ struct rkvdec_h264_run {
- 	const struct v4l2_ctrl_h264_sps *sps;
- 	const struct v4l2_ctrl_h264_pps *pps;
- 	const struct v4l2_ctrl_h264_scaling_matrix *scaling_matrix;
-+	int ref_buf_idx[V4L2_H264_NUM_DPB_ENTRIES];
- };
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index dbd95de87e88..eb2da63fa39b 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -75,7 +75,7 @@ TEST_PROGS := test_kmod.sh \
+ 	test_xsk.sh
  
- struct rkvdec_h264_ctx {
-@@ -725,6 +726,26 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
- 	}
- }
+ TEST_PROGS_EXTENDED := with_addr.sh \
+-	with_tunnels.sh \
++	with_tunnels.sh ima_setup.sh \
+ 	test_xdp_vlan.sh test_bpftool.py
  
-+static void lookup_ref_buf_idx(struct rkvdec_ctx *ctx,
-+			       struct rkvdec_h264_run *run)
-+{
-+	const struct v4l2_ctrl_h264_decode_params *dec_params = run->decode_params;
-+	u32 i;
-+
-+	for (i = 0; i < ARRAY_SIZE(dec_params->dpb); i++) {
-+		struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
-+		const struct v4l2_h264_dpb_entry *dpb = run->decode_params->dpb;
-+		struct vb2_queue *cap_q = &m2m_ctx->cap_q_ctx.q;
-+		int buf_idx = -1;
-+
-+		if (dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE)
-+			buf_idx = vb2_find_timestamp(cap_q,
-+						     dpb[i].reference_ts, 0);
-+
-+		run->ref_buf_idx[i] = buf_idx;
-+	}
-+}
-+
- static void assemble_hw_rps(struct rkvdec_ctx *ctx,
- 			    struct rkvdec_h264_run *run)
- {
-@@ -762,7 +783,7 @@ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
- 
- 	for (j = 0; j < RKVDEC_NUM_REFLIST; j++) {
- 		for (i = 0; i < h264_ctx->reflists.num_valid; i++) {
--			u8 dpb_valid = 0;
-+			bool dpb_valid = run->ref_buf_idx[i] >= 0;
- 			u8 idx = 0;
- 
- 			switch (j) {
-@@ -779,8 +800,6 @@ static void assemble_hw_rps(struct rkvdec_ctx *ctx,
- 
- 			if (idx >= ARRAY_SIZE(dec_params->dpb))
- 				continue;
--			dpb_valid = !!(dpb[idx].flags &
--				       V4L2_H264_DPB_ENTRY_FLAG_ACTIVE);
- 
- 			set_ps_field(hw_rps, DPB_INFO(i, j),
- 				     idx | dpb_valid << 4);
-@@ -859,13 +878,8 @@ get_ref_buf(struct rkvdec_ctx *ctx, struct rkvdec_h264_run *run,
- 	    unsigned int dpb_idx)
- {
- 	struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
--	const struct v4l2_h264_dpb_entry *dpb = run->decode_params->dpb;
- 	struct vb2_queue *cap_q = &m2m_ctx->cap_q_ctx.q;
--	int buf_idx = -1;
--
--	if (dpb[dpb_idx].flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE)
--		buf_idx = vb2_find_timestamp(cap_q,
--					     dpb[dpb_idx].reference_ts, 0);
-+	int buf_idx = run->ref_buf_idx[dpb_idx];
- 
- 	/*
- 	 * If a DPB entry is unused or invalid, address of current destination
-@@ -1102,6 +1116,7 @@ static int rkvdec_h264_run(struct rkvdec_ctx *ctx)
- 
- 	assemble_hw_scaling_list(ctx, &run);
- 	assemble_hw_pps(ctx, &run);
-+	lookup_ref_buf_idx(ctx, &run);
- 	assemble_hw_rps(ctx, &run);
- 	config_registers(ctx, &run);
- 
+ # Compile but not part of 'make run_tests'
 -- 
 2.35.1
 
