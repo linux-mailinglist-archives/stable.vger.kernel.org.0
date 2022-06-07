@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91401541553
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9EFA54066F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378246AbiFGUfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:35:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59714 "EHLO
+        id S1347377AbiFGRfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:35:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359370AbiFGU2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544201DE2CA;
-        Tue,  7 Jun 2022 11:34:06 -0700 (PDT)
+        with ESMTP id S1346978AbiFGRcW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:32:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4817154194;
+        Tue,  7 Jun 2022 10:30:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8487B8237C;
-        Tue,  7 Jun 2022 18:34:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20044C385A2;
-        Tue,  7 Jun 2022 18:34:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6817F614AE;
+        Tue,  7 Jun 2022 17:30:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EC12C385A5;
+        Tue,  7 Jun 2022 17:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626843;
-        bh=KuBggibQ2kdcdl6AKmQWBZtOYCkJvlXn2LcbUtvG/BE=;
+        s=korg; t=1654622999;
+        bh=liNhd+rQWFOn1syJrUOicb3uykE30jaLc4TMIIZdHug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUsuFfp/go0V79BqtXeQsYLj5NRzE89AHtELw8Jr3VKpVv60zoXT/cCXN8kswHYxk
-         nDFShr12XCjcwNl4YUqpZeLX6LJJ09S6n17PLOd5NJREvZiTz2gpW3MHX5z+5UwZPe
-         MSpIWg9bwsi2wGhwNzqPGYx8gUVJZLt5UtQBZf1Q=
+        b=jHsCIo0jLjcy5HRCpDANLggp9clsCLHJjTMpBT+cs+E6Zm4rLR1cJr3raMn6X0i6N
+         QDW53pYYJ14QFW1DnlXVnYhV9SCF/LlM8xFYy9Ld/L3s1v4VCdrrhW6648iwuEMPht
+         8BYDmvcglNJCMFOyh193qwTvH+I/q1wkG0gXB6zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 525/772] PCI: imx6: Fix PERST# start-up sequence
+Subject: [PATCH 5.10 260/452] ARM: dts: suniv: F1C100: fix watchdog compatible
 Date:   Tue,  7 Jun 2022 19:01:57 +0200
-Message-Id: <20220607165004.444815841@linuxfoundation.org>
+Message-Id: <20220607164916.302389302@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,96 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit a6809941c1f17f455db2cf4ca19c6d8c8746ec25 ]
+[ Upstream commit 01a850ee61cbf0ab77dcbf26bb133fec2dd640d6 ]
 
-According to the PCIe standard the PERST# signal (reset-gpio in
-fsl,imx* compatible dts) should be kept asserted for at least 100 usec
-before the PCIe refclock is stable, should be kept asserted for at
-least 100 msec after the power rails are stable and the host should wait
-at least 100 msec after it is de-asserted before accessing the
-configuration space of any attached device.
+The F1C100 series of SoCs actually have their watchdog IP being
+compatible with the newer Allwinner generation, not the older one.
 
->From PCIe CEM r2.0, sec 2.6.2
+The currently described sun4i-a10-wdt actually does not work, neither
+the watchdog functionality (just never fires), nor the reset part
+(reboot hangs).
 
-  T-PVPERL: Power stable to PERST# inactive - 100 msec
-  T-PERST-CLK: REFCLK stable before PERST# inactive - 100 usec.
+Replace the compatible string with the one used by the newer generation.
+Verified to work with both the watchdog and reboot functionality on a
+LicheePi Nano.
 
->From PCIe r5.0, sec 6.6.1
+Also add the missing interrupt line and clock source, to make it binding
+compliant.
 
-  With a Downstream Port that does not support Link speeds greater than
-  5.0 GT/s, software must wait a minimum of 100 ms before sending a
-  Configuration Request to the device immediately below that Port.
-
-Failure to do so could prevent PCIe devices to be working correctly,
-and this was experienced with real devices.
-
-Move reset assert to imx6_pcie_assert_core_reset(), this way we ensure
-that PERST# is asserted before enabling any clock, move de-assert to the
-end of imx6_pcie_deassert_core_reset() after the clock is enabled and
-deemed stable and add a new delay of 100 msec just afterward.
-
-Link: https://lore.kernel.org/all/20220211152550.286821-1-francesco.dolcini@toradex.com
-Link: https://lore.kernel.org/r/20220404081509.94356-1-francesco.dolcini@toradex.com
-Fixes: bb38919ec56e ("PCI: imx6: Add support for i.MX6 PCIe controller")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Richard Zhu <hongxing.zhu@nxp.com>
+Fixes: 4ba16d17efdd ("ARM: dts: suniv: add initial DTSI file for F1C100s")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220317162349.739636-4-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-imx6.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/suniv-f1c100s.dtsi | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
-index 343fe1429e3c..ce3a36d1f2fa 100644
---- a/drivers/pci/controller/dwc/pci-imx6.c
-+++ b/drivers/pci/controller/dwc/pci-imx6.c
-@@ -408,6 +408,11 @@ static void imx6_pcie_assert_core_reset(struct imx6_pcie *imx6_pcie)
- 			dev_err(dev, "failed to disable vpcie regulator: %d\n",
- 				ret);
- 	}
-+
-+	/* Some boards don't have PCIe reset GPIO. */
-+	if (gpio_is_valid(imx6_pcie->reset_gpio))
-+		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
-+					imx6_pcie->gpio_active_high);
- }
+diff --git a/arch/arm/boot/dts/suniv-f1c100s.dtsi b/arch/arm/boot/dts/suniv-f1c100s.dtsi
+index 6100d3b75f61..def830101448 100644
+--- a/arch/arm/boot/dts/suniv-f1c100s.dtsi
++++ b/arch/arm/boot/dts/suniv-f1c100s.dtsi
+@@ -104,8 +104,10 @@
  
- static unsigned int imx6_pcie_grp_offset(const struct imx6_pcie *imx6_pcie)
-@@ -540,15 +545,6 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
- 	/* allow the clocks to stabilize */
- 	usleep_range(200, 500);
+ 		wdt: watchdog@1c20ca0 {
+ 			compatible = "allwinner,suniv-f1c100s-wdt",
+-				     "allwinner,sun4i-a10-wdt";
++				     "allwinner,sun6i-a31-wdt";
+ 			reg = <0x01c20ca0 0x20>;
++			interrupts = <16>;
++			clocks = <&osc32k>;
+ 		};
  
--	/* Some boards don't have PCIe reset GPIO. */
--	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
--		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
--					imx6_pcie->gpio_active_high);
--		msleep(100);
--		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
--					!imx6_pcie->gpio_active_high);
--	}
--
- 	switch (imx6_pcie->drvdata->variant) {
- 	case IMX8MQ:
- 		reset_control_deassert(imx6_pcie->pciephy_reset);
-@@ -595,6 +591,15 @@ static void imx6_pcie_deassert_core_reset(struct imx6_pcie *imx6_pcie)
- 		break;
- 	}
- 
-+	/* Some boards don't have PCIe reset GPIO. */
-+	if (gpio_is_valid(imx6_pcie->reset_gpio)) {
-+		msleep(100);
-+		gpio_set_value_cansleep(imx6_pcie->reset_gpio,
-+					!imx6_pcie->gpio_active_high);
-+		/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
-+		msleep(100);
-+	}
-+
- 	return;
- 
- err_ref_clk:
+ 		uart0: serial@1c25000 {
 -- 
 2.35.1
 
