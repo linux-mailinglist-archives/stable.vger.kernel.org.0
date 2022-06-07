@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6FC540D9A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CC175406A2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351532AbiFGStJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:49:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
+        id S242617AbiFGRhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:37:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354321AbiFGSqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6B6F1269BF;
-        Tue,  7 Jun 2022 11:00:44 -0700 (PDT)
+        with ESMTP id S1347701AbiFGRfo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D860F5061;
+        Tue,  7 Jun 2022 10:31:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB9BAB8236D;
-        Tue,  7 Jun 2022 18:00:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1F1C385A5;
-        Tue,  7 Jun 2022 18:00:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72A76614AE;
+        Tue,  7 Jun 2022 17:31:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8566FC385A5;
+        Tue,  7 Jun 2022 17:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624842;
-        bh=MU2+vNNvD/C4Et7c0mjGwxnPA8RogRxCydOV6Jl+oY8=;
+        s=korg; t=1654623060;
+        bh=UXT6frlTpLfQse3nCoBzL5EmELwi+AfmgLZ/R0K0RmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9AD7PJkjzXqGmH2uK9kSOgVeDVMoSWNOcomvFnHYFOFyHGZtcIaqp8DcU21INTIj
-         fkQ01XX13SpAzzdRPMK3kYLX/nVkcrAdYuIrkveGi92VIYJtoEh1zETMPEDhZshx94
-         cqtCmNlBwzQ06qzKhkpTDSRPWFtGlejacjk3Dapk=
+        b=yLKvSrbK8aU8JYNiyDT1LdUKQSgwGcq5t5K9YQcDUKYTzP+ykM0yOUDENlSyhdyYR
+         zNJDwx0uFA/wmtGLL6I2i0v7eWNRxojbcKOkCIcIYAgcVQXC4UaJfxGCXCfFRUL7yp
+         h3SkIcQdDPAS5Wy4Hr0csUKWQC7xkwjAIAaOoknM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 472/667] mailbox: forward the hrtimer if not queued and under a lock
+Subject: [PATCH 5.10 280/452] crypto: marvell/cesa - ECB does not IV
 Date:   Tue,  7 Jun 2022 19:02:17 +0200
-Message-Id: <20220607164948.861175541@linuxfoundation.org>
+Message-Id: <20220607164916.893543938@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Ardö <bjorn.ardo@axis.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit bca1a1004615efe141fd78f360ecc48c60bc4ad5 ]
+[ Upstream commit 4ffa1763622ae5752961499588f3f8874315f974 ]
 
-This reverts commit c7dacf5b0f32957b24ef29df1207dc2cd8307743,
-"mailbox: avoid timer start from callback"
+The DES3 ECB has an IV size set but ECB does not need one.
 
-The previous commit was reverted since it lead to a race that
-caused the hrtimer to not be started at all. The check for
-hrtimer_active() in msg_submit() will return true if the
-callback function txdone_hrtimer() is currently running. This
-function could return HRTIMER_NORESTART and then the timer
-will not be restarted, and also msg_submit() will not start
-the timer. This will lead to a message actually being submitted
-but no timer will start to check for its compleation.
-
-The original fix that added checking hrtimer_active() was added to
-avoid a warning with hrtimer_forward. Looking in the kernel
-another solution to avoid this warning is to check hrtimer_is_queued()
-before calling hrtimer_forward_now() instead. This however requires a
-lock so the timer is not started by msg_submit() inbetween this check
-and the hrtimer_forward() call.
-
-Fixes: c7dacf5b0f32 ("mailbox: avoid timer start from callback")
-Signed-off-by: Björn Ardö <bjorn.ardo@axis.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fixes: 4ada483978237 ("crypto: marvell/cesa - add Triple-DES support")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox.c          | 19 +++++++++++++------
- include/linux/mailbox_controller.h |  1 +
- 2 files changed, 14 insertions(+), 6 deletions(-)
+ drivers/crypto/marvell/cesa/cipher.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
-index 3e7d4b20ab34..4229b9b5da98 100644
---- a/drivers/mailbox/mailbox.c
-+++ b/drivers/mailbox/mailbox.c
-@@ -82,11 +82,11 @@ static void msg_submit(struct mbox_chan *chan)
- exit:
- 	spin_unlock_irqrestore(&chan->lock, flags);
- 
--	/* kick start the timer immediately to avoid delays */
- 	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
--		/* but only if not already active */
--		if (!hrtimer_active(&chan->mbox->poll_hrt))
--			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
-+		/* kick start the timer immediately to avoid delays */
-+		spin_lock_irqsave(&chan->mbox->poll_hrt_lock, flags);
-+		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
-+		spin_unlock_irqrestore(&chan->mbox->poll_hrt_lock, flags);
- 	}
- }
- 
-@@ -120,20 +120,26 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
- 		container_of(hrtimer, struct mbox_controller, poll_hrt);
- 	bool txdone, resched = false;
- 	int i;
-+	unsigned long flags;
- 
- 	for (i = 0; i < mbox->num_chans; i++) {
- 		struct mbox_chan *chan = &mbox->chans[i];
- 
- 		if (chan->active_req && chan->cl) {
--			resched = true;
- 			txdone = chan->mbox->ops->last_tx_done(chan);
- 			if (txdone)
- 				tx_tick(chan, 0);
-+			else
-+				resched = true;
- 		}
- 	}
- 
- 	if (resched) {
--		hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
-+		spin_lock_irqsave(&mbox->poll_hrt_lock, flags);
-+		if (!hrtimer_is_queued(hrtimer))
-+			hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
-+		spin_unlock_irqrestore(&mbox->poll_hrt_lock, flags);
-+
- 		return HRTIMER_RESTART;
- 	}
- 	return HRTIMER_NORESTART;
-@@ -500,6 +506,7 @@ int mbox_controller_register(struct mbox_controller *mbox)
- 		hrtimer_init(&mbox->poll_hrt, CLOCK_MONOTONIC,
- 			     HRTIMER_MODE_REL);
- 		mbox->poll_hrt.function = txdone_hrtimer;
-+		spin_lock_init(&mbox->poll_hrt_lock);
- 	}
- 
- 	for (i = 0; i < mbox->num_chans; i++) {
-diff --git a/include/linux/mailbox_controller.h b/include/linux/mailbox_controller.h
-index 36d6ce673503..6fee33cb52f5 100644
---- a/include/linux/mailbox_controller.h
-+++ b/include/linux/mailbox_controller.h
-@@ -83,6 +83,7 @@ struct mbox_controller {
- 				      const struct of_phandle_args *sp);
- 	/* Internal to API */
- 	struct hrtimer poll_hrt;
-+	spinlock_t poll_hrt_lock;
- 	struct list_head node;
- };
- 
+diff --git a/drivers/crypto/marvell/cesa/cipher.c b/drivers/crypto/marvell/cesa/cipher.c
+index b4a6ff9dd6d5..596a8c74e40a 100644
+--- a/drivers/crypto/marvell/cesa/cipher.c
++++ b/drivers/crypto/marvell/cesa/cipher.c
+@@ -614,7 +614,6 @@ struct skcipher_alg mv_cesa_ecb_des3_ede_alg = {
+ 	.decrypt = mv_cesa_ecb_des3_ede_decrypt,
+ 	.min_keysize = DES3_EDE_KEY_SIZE,
+ 	.max_keysize = DES3_EDE_KEY_SIZE,
+-	.ivsize = DES3_EDE_BLOCK_SIZE,
+ 	.base = {
+ 		.cra_name = "ecb(des3_ede)",
+ 		.cra_driver_name = "mv-ecb-des3-ede",
 -- 
 2.35.1
 
