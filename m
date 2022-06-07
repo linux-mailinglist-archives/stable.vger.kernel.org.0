@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5EFF5414DE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E96654060B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359332AbiFGUXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53002 "EHLO
+        id S1346738AbiFGRdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359309AbiFGUWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:55 -0400
+        with ESMTP id S1347691AbiFGRa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AF01D501B;
-        Tue,  7 Jun 2022 11:31:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 935F011A38E;
+        Tue,  7 Jun 2022 10:27:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8AF961504;
-        Tue,  7 Jun 2022 18:31:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DDEC385A5;
-        Tue,  7 Jun 2022 18:31:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2029261281;
+        Tue,  7 Jun 2022 17:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E484C385A5;
+        Tue,  7 Jun 2022 17:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626718;
-        bh=TGEP3+wcP3I5eC612IMnC6aIjznzCHpeaDh26azRWDY=;
+        s=korg; t=1654622874;
+        bh=3EGpx5WO1rhI/zHzn18sxrGudSGKy41hdUFscgUBsxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYbolTvwnuJDjkMJUpyhTO3ZOUwEJ3feo4Y4nK6RgY1cBoS0bzMEpzOfGOLdy5RGT
-         lOof4D9fvu1NARGtdVrtYYgoOAC9BK6cvGvT7jyCBg75w4eyMdNZFkTDDZJatfrPSi
-         VTw666i5O9sXOcCKd/MxbGW2bN20hR5ToVCHBusw=
+        b=oFhtY+7A5MehegX+xM1AU+UcHflqt5fvyubUbwoDzZqYeopMcRADYRd0lESxRE9an
+         QK1Y8BzUJ63p9Vvw8dt+LBhozkQC2k8Zjjk48LJHdfgJ+nIUZ+stLwxBPMdbdxUSaP
+         lxEEsefk8RTSkY4vTX6fM52DeQXj8RUNknQpPYOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com,
+        Ying Hsu <yinghsu@chromium.org>,
+        Joseph Hwang <josephsih@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 480/772] misc: ocxl: fix possible double free in ocxl_file_register_afu
+Subject: [PATCH 5.10 215/452] Bluetooth: fix dangling sco_conn and use-after-free in sco_sock_timeout
 Date:   Tue,  7 Jun 2022 19:01:12 +0200
-Message-Id: <20220607165003.134910284@linuxfoundation.org>
+Message-Id: <20220607164914.968901151@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +57,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Ying Hsu <yinghsu@chromium.org>
 
-[ Upstream commit 950cf957fe34d40d63dfa3bf3968210430b6491e ]
+[ Upstream commit 7aa1e7d15f8a5b65f67bacb100d8fc033b21efa2 ]
 
-info_release() will be called in device_unregister() when info->dev's
-reference count is 0. So there is no need to call ocxl_afu_put() and
-kfree() again.
+Connecting the same socket twice consecutively in sco_sock_connect()
+could lead to a race condition where two sco_conn objects are created
+but only one is associated with the socket. If the socket is closed
+before the SCO connection is established, the timer associated with the
+dangling sco_conn object won't be canceled. As the sock object is being
+freed, the use-after-free problem happens when the timer callback
+function sco_sock_timeout() accesses the socket. Here's the call trace:
 
-Fix this by adding free_minor() and return to err_unregister error path.
+dump_stack+0x107/0x163
+? refcount_inc+0x1c/
+print_address_description.constprop.0+0x1c/0x47e
+? refcount_inc+0x1c/0x7b
+kasan_report+0x13a/0x173
+? refcount_inc+0x1c/0x7b
+check_memory_region+0x132/0x139
+refcount_inc+0x1c/0x7b
+sco_sock_timeout+0xb2/0x1ba
+process_one_work+0x739/0xbd1
+? cancel_delayed_work+0x13f/0x13f
+? __raw_spin_lock_init+0xf0/0xf0
+? to_kthread+0x59/0x85
+worker_thread+0x593/0x70e
+kthread+0x346/0x35a
+? drain_workqueue+0x31a/0x31a
+? kthread_bind+0x4b/0x4b
+ret_from_fork+0x1f/0x30
 
-Fixes: 75ca758adbaf ("ocxl: Create a clear delineation between ocxl backend & frontend")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220418085758.38145-1-hbh25y@gmail.com
+Link: https://syzkaller.appspot.com/bug?extid=2bef95d3ab4daa10155b
+Reported-by: syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com
+Fixes: e1dee2c1de2b ("Bluetooth: fix repeated calls to sco_sock_kill")
+Signed-off-by: Ying Hsu <yinghsu@chromium.org>
+Reviewed-by: Joseph Hwang <josephsih@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ocxl/file.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/sco.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
-index d881f5e40ad9..6777c419a8da 100644
---- a/drivers/misc/ocxl/file.c
-+++ b/drivers/misc/ocxl/file.c
-@@ -556,7 +556,9 @@ int ocxl_file_register_afu(struct ocxl_afu *afu)
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 2f2b8ddc4dd5..df254c7de2dd 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -575,19 +575,24 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
+ 	    addr->sa_family != AF_BLUETOOTH)
+ 		return -EINVAL;
  
- err_unregister:
- 	ocxl_sysfs_unregister_afu(info); // safe to call even if register failed
-+	free_minor(info);
- 	device_unregister(&info->dev);
-+	return rc;
- err_put:
- 	ocxl_afu_put(afu);
- 	free_minor(info);
+-	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND)
+-		return -EBADFD;
++	lock_sock(sk);
++	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND) {
++		err = -EBADFD;
++		goto done;
++	}
+ 
+-	if (sk->sk_type != SOCK_SEQPACKET)
+-		return -EINVAL;
++	if (sk->sk_type != SOCK_SEQPACKET) {
++		err = -EINVAL;
++		goto done;
++	}
+ 
+ 	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
+-	if (!hdev)
+-		return -EHOSTUNREACH;
++	if (!hdev) {
++		err = -EHOSTUNREACH;
++		goto done;
++	}
+ 	hci_dev_lock(hdev);
+ 
+-	lock_sock(sk);
+-
+ 	/* Set destination address and psm */
+ 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+ 
 -- 
 2.35.1
 
