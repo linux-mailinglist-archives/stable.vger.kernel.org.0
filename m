@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD0F541DFB
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715CB5410D8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239526AbiFGWXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42138 "EHLO
+        id S1355478AbiFGT3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357930AbiFGWVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943D226D274;
-        Tue,  7 Jun 2022 12:22:31 -0700 (PDT)
+        with ESMTP id S1356608AbiFGT2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061A01A075D;
+        Tue,  7 Jun 2022 11:10:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C31BC60A21;
-        Tue,  7 Jun 2022 19:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB389C385A2;
-        Tue,  7 Jun 2022 19:22:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0D265CE243C;
+        Tue,  7 Jun 2022 18:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8796C385A2;
+        Tue,  7 Jun 2022 18:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629750;
-        bh=zNeRIJjkEW1zo9LCtloBDr6hePcLyXcetBHHajv3tZI=;
+        s=korg; t=1654625405;
+        bh=CF1OYT/6hu84v23WiJVn6PJJgYfVTJks605qnPgpgcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jT9S7nCIF3Wh7AZBBslurwyJ/z0jeXzawlMYhuZ1/ipg6o3xbp3tOnvTCpA0sils+
-         1g1NRMNg6uJQ6H0FxAvaj2SK+xp0pKDsanBSasG1ESBJJt+ClB2e+r6mz2W67W9Cu+
-         inm9D0hmTVr1/MD5M40Cw70gKvEeD/f2T/v80prs=
+        b=WF+2ops4kowVWe4wCd3Ki165kF08M5/y9N4SCRtP13BJJMQGqGaX0r6JwckMV3Bm8
+         HLHFzIlTAox2csQcVk6q4ZxYLBL6bZalxBQfafloKeuK+VkFmxL2N+OkNd3RadcCwg
+         FV++2KdXy4sE28DhkOZBki1oGBPkv/Amxf68A4vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.18 801/879] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.15 654/667] staging: r8188eu: delete rtw_wx_read/write32()
 Date:   Tue,  7 Jun 2022 19:05:19 +0200
-Message-Id: <20220607165026.108653744@linuxfoundation.org>
+Message-Id: <20220607164954.263835379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,143 +52,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tokunori Ikegami <ikegami.t@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 0a8e98305f63deaf0a799d5cf5532cc83af035d1 upstream.
+commit 4d0cc9e0e53e9946d7b8dc58279c62dfa7a2191b upstream.
 
-Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
-check correct value") buffered writes fail on S29GL064N. This is
-because, on S29GL064N, reads return 0xFF at the end of DQ polling for
-write completion, where as, chip_good() check expects actual data
-written to the last location to be returned post DQ polling completion.
-Fix is to revert to using chip_good() for S29GL064N which only checks
-for DQ lines to settle down to determine write completion.
+These debugging tools let you call:
 
-Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
-Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
+	status = usb_control_msg_recv/send(udev, 0, REALTEK_USB_VENQT_CMD_REQ,
+				      REALTEK_USB_VENQT_READ/WRITE, value,
+				      REALTEK_USB_VENQT_CMD_IDX, io_buf,
+				      size, RTW_USB_CONTROL_MSG_TIMEOUT,
+				      GFP_KERNEL);
+
+with a user controlled "value" in the 0-0xffff range.  It's not a valid
+API.
+
+Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YoXS4OaD1oauPvmj@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c |   42 +++++++++++++++++++++++++++++-------
- include/linux/mtd/cfi.h             |    1 
- 2 files changed, 35 insertions(+), 8 deletions(-)
+ drivers/staging/r8188eu/os_dep/ioctl_linux.c |   97 ---------------------------
+ 1 file changed, 2 insertions(+), 95 deletions(-)
 
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -59,6 +59,10 @@
- #define CFI_SR_WBASB		BIT(3)
- #define CFI_SR_SLSB		BIT(1)
- 
-+enum cfi_quirks {
-+	CFI_QUIRK_DQ_TRUE_DATA = BIT(0),
-+};
-+
- static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
- static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
- #if !FORCE_WORD_WRITE
-@@ -436,6 +440,15 @@ static void fixup_s29ns512p_sectors(stru
- 		mtd->name);
+--- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+@@ -2052,99 +2052,6 @@ static int rtw_wx_get_nick(struct net_de
+ 	return 0;
  }
  
-+static void fixup_quirks(struct mtd_info *mtd)
-+{
-+	struct map_info *map = mtd->priv;
-+	struct cfi_private *cfi = map->fldrv_priv;
-+
-+	if (cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01)
-+		cfi->quirks |= CFI_QUIRK_DQ_TRUE_DATA;
-+}
-+
- /* Used to fix CFI-Tables of chips without Extended Query Tables */
- static struct cfi_fixup cfi_nopri_fixup_table[] = {
- 	{ CFI_MFR_SST, 0x234a, fixup_sst39vf }, /* SST39VF1602 */
-@@ -474,6 +487,7 @@ static struct cfi_fixup cfi_fixup_table[
- #if !FORCE_WORD_WRITE
- 	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
- #endif
-+	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_quirks },
- 	{ 0, 0, NULL }
+-static int rtw_wx_read32(struct net_device *dev,
+-			    struct iw_request_info *info,
+-			    union iwreq_data *wrqu, char *extra)
+-{
+-	struct adapter *padapter;
+-	struct iw_point *p;
+-	u16 len;
+-	u32 addr;
+-	u32 data32;
+-	u32 bytes;
+-	u8 *ptmp;
+-	int ret;
+-
+-	padapter = (struct adapter *)rtw_netdev_priv(dev);
+-	p = &wrqu->data;
+-	len = p->length;
+-	ptmp = kmalloc(len, GFP_KERNEL);
+-	if (!ptmp)
+-		return -ENOMEM;
+-
+-	if (copy_from_user(ptmp, p->pointer, len)) {
+-		kfree(ptmp);
+-		return -EFAULT;
+-	}
+-
+-	bytes = 0;
+-	addr = 0;
+-	sscanf(ptmp, "%d,%x", &bytes, &addr);
+-
+-	switch (bytes) {
+-	case 1:
+-		data32 = rtw_read8(padapter, addr);
+-		sprintf(extra, "0x%02X", data32);
+-		break;
+-	case 2:
+-		data32 = rtw_read16(padapter, addr);
+-		sprintf(extra, "0x%04X", data32);
+-		break;
+-	case 4:
+-		data32 = rtw_read32(padapter, addr);
+-		sprintf(extra, "0x%08X", data32);
+-		break;
+-	default:
+-		DBG_88E(KERN_INFO "%s: usage> read [bytes],[address(hex)]\n", __func__);
+-		ret = -EINVAL;
+-		goto err_free_ptmp;
+-	}
+-	DBG_88E(KERN_INFO "%s: addr = 0x%08X data =%s\n", __func__, addr, extra);
+-
+-	kfree(ptmp);
+-	return 0;
+-
+-err_free_ptmp:
+-	kfree(ptmp);
+-	return ret;
+-}
+-
+-static int rtw_wx_write32(struct net_device *dev,
+-			    struct iw_request_info *info,
+-			    union iwreq_data *wrqu, char *extra)
+-{
+-	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+-
+-	u32 addr;
+-	u32 data32;
+-	u32 bytes;
+-
+-	bytes = 0;
+-	addr = 0;
+-	data32 = 0;
+-	sscanf(extra, "%d,%x,%x", &bytes, &addr, &data32);
+-
+-	switch (bytes) {
+-	case 1:
+-		rtw_write8(padapter, addr, (u8)data32);
+-		DBG_88E(KERN_INFO "%s: addr = 0x%08X data = 0x%02X\n", __func__, addr, (u8)data32);
+-		break;
+-	case 2:
+-		rtw_write16(padapter, addr, (u16)data32);
+-		DBG_88E(KERN_INFO "%s: addr = 0x%08X data = 0x%04X\n", __func__, addr, (u16)data32);
+-		break;
+-	case 4:
+-		rtw_write32(padapter, addr, data32);
+-		DBG_88E(KERN_INFO "%s: addr = 0x%08X data = 0x%08X\n", __func__, addr, data32);
+-		break;
+-	default:
+-		DBG_88E(KERN_INFO "%s: usage> write [bytes],[address(hex)],[data(hex)]\n", __func__);
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ static int rtw_wx_read_rf(struct net_device *dev,
+ 			    struct iw_request_info *info,
+ 			    union iwreq_data *wrqu, char *extra)
+@@ -6579,8 +6486,8 @@ static const struct iw_priv_args rtw_pri
  };
- static struct cfi_fixup jedec_fixup_table[] = {
-@@ -846,6 +860,18 @@ static int __xipram chip_ready(struct ma
- 	return map_word_equal(map, t, *expected);
- }
  
-+static int __xipram chip_good(struct map_info *map, struct flchip *chip,
-+			      unsigned long addr, map_word *expected)
-+{
-+	struct cfi_private *cfi = map->fldrv_priv;
-+	map_word *datum = expected;
-+
-+	if (cfi->quirks & CFI_QUIRK_DQ_TRUE_DATA)
-+		datum = NULL;
-+
-+	return chip_ready(map, chip, addr, datum);
-+}
-+
- static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
- {
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -1662,11 +1688,11 @@ static int __xipram do_write_oneword_onc
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_ready" before checking
--		 * "chip_ready" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
- 		 */
- 		if (time_after(jiffies, timeo) &&
--		    !chip_ready(map, chip, adr, &datum)) {
-+		    !chip_good(map, chip, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-@@ -1674,7 +1700,7 @@ static int __xipram do_write_oneword_onc
- 			break;
- 		}
- 
--		if (chip_ready(map, chip, adr, &datum)) {
-+		if (chip_good(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
-@@ -1942,18 +1968,18 @@ static int __xipram do_write_buffer_wait
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_ready" before checking
--		 * "chip_ready" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
- 		 */
- 		if (time_after(jiffies, timeo) &&
--		    !chip_ready(map, chip, adr, &datum)) {
-+		    !chip_good(map, chip, adr, &datum)) {
- 			pr_err("MTD %s(): software timeout, address:0x%.8lx.\n",
- 			       __func__, adr);
- 			ret = -EIO;
- 			break;
- 		}
- 
--		if (chip_ready(map, chip, adr, &datum)) {
-+		if (chip_good(map, chip, adr, &datum)) {
- 			if (cfi_check_err_status(map, chip, adr))
- 				ret = -EIO;
- 			break;
---- a/include/linux/mtd/cfi.h
-+++ b/include/linux/mtd/cfi.h
-@@ -286,6 +286,7 @@ struct cfi_private {
- 	map_word sector_erase_cmd;
- 	unsigned long chipshift; /* Because they're of the same type */
- 	const char *im_name;	 /* inter_module name for cmdset_setup */
-+	unsigned long quirks;
- 	struct flchip chips[];  /* per-chip data structure for each chip */
- };
+ static iw_handler rtw_private_handler[] = {
+-rtw_wx_write32,				/* 0x00 */
+-rtw_wx_read32,				/* 0x01 */
++	NULL,				/* 0x00 */
++	NULL,				/* 0x01 */
+ rtw_drvext_hdl,				/* 0x02 */
+ rtw_mp_ioctl_hdl,			/* 0x03 */
  
 
 
