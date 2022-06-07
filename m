@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C36B2540AD6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:24:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96926540B4C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236008AbiFGSYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:24:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47044 "EHLO
+        id S243261AbiFGS1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352429AbiFGSVK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:21:10 -0400
+        with ESMTP id S1352478AbiFGSVM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:21:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924372E0AA;
-        Tue,  7 Jun 2022 10:53:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59E833EBD;
+        Tue,  7 Jun 2022 10:53:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D21FF616A3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 233A3617A6;
+        Tue,  7 Jun 2022 17:53:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1264C36AFE;
         Tue,  7 Jun 2022 17:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D244C3411F;
-        Tue,  7 Jun 2022 17:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624430;
-        bh=Z8ey3TR9HSAz7Jk3DAJWQVnOD8FtyqL33tzMAuZs4Lc=;
+        s=k20201202; t=1654624431;
+        bh=jGr8WXM1jdPMD04g4tRJ+Sq3zW2YgJpdz6hJ9tysoig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUVAyMoa+uCOMjwXIQ0knYeIrVOCrydhDZ7A/TNy2uSvtw4h3KnOoAQviUsbfajxx
-         T86v9vI0gHL0pPio/zW86O/Nh+x08XrHNT+y/igzVUmgyaldT/JgsycBA5TuUFtCUa
-         pq9YK0wDq53fZjGC9mQIwuEg5FUeOen67KFwh4JYm5Kkmk9ZA8QKhLGtAEM8edxBXK
-         61Nu7Vr8Vlvn/5JEYfQ8yEpP3o5ezIzeI9bJJaNmiq0h2MzVw/V3Wr287f0Va9I7hC
-         ov0ANvSf4TEwiCNdkT5lVaXF4Xq3DLuzN99gBcKvSSfD+um17RRVpMvtY6XcKW5ITa
-         RLiTwZQK71eNQ==
+        b=Z6RxyhMgWe3KXu4OCXb9MBy1VkR4+tvHfQ3kJmL2t9noNmH5W9luWtTzUcv/8mven
+         ETvjFPhex8jpwkKtIpLDsCytab1huTQmbiwuSgXdnugtYhbp79hHDI70ZJXNH3i3xm
+         aicld636PiQrToTuj/tMSug1GqhxsYvbPa5EP0B1KCQPBvFF3/e28bI1vvO+2qduht
+         bk2+fdpSB+7L6PKMh/dbkSEHnFbNyhMBniGwgH1twmoav2Yrx6ca+1cpEEg8IKkDMS
+         RtGy64EP8QTbdABGbLbezk33m+E6EH+ESRDNQgu4ow0Hdi1ERs3DI6/p3Q6J9ISEFj
+         v2ZlpotvuFniQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, hminas@synopsys.com,
+        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
         linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 18/60] usb: dwc2: gadget: don't reset gadget's driver->bus
-Date:   Tue,  7 Jun 2022 13:52:15 -0400
-Message-Id: <20220607175259.478835-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 19/60] usb: dwc3: host: Stop setting the ACPI companion
+Date:   Tue,  7 Jun 2022 13:52:16 -0400
+Message-Id: <20220607175259.478835-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -57,64 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
+[ Upstream commit 7fd069d65da2e20b1caec3b7bcf9dfbe28c04bb2 ]
 
-UDC driver should not touch gadget's driver internals, especially it
-should not reset driver->bus. This wasn't harmful so far, but since
-commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
-subsystem got it's own bus and messing with ->bus triggers the
-following NULL pointer dereference:
+It is no longer needed. The sysdev pointer is now used when
+assigning the ACPI companions to the xHCI ports and USB
+devices.
 
-dwc2 12480000.hsotg: bound driver g_ether
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-[00000000] *pgd=00000000
-Internal error: Oops: 5 [#1] SMP ARM
-Modules linked in: ...
-CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
-Hardware name: Samsung Exynos (Flattened Device Tree)
-PC is at module_add_driver+0x44/0xe8
-LR is at sysfs_do_create_link_sd+0x84/0xe0
-...
-Process modprobe (pid: 620, stack limit = 0x(ptrval))
-...
- module_add_driver from bus_add_driver+0xf4/0x1e4
- bus_add_driver from driver_register+0x78/0x10c
- driver_register from usb_gadget_register_driver_owner+0x40/0xb4
- usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
- do_one_initcall from do_init_module+0x44/0x1c8
- do_init_module from load_module+0x19b8/0x1b9c
- load_module from sys_finit_module+0xdc/0xfc
- sys_finit_module from ret_fast_syscall+0x0/0x54
-Exception stack(0xf1771fa8 to 0xf1771ff0)
-...
-dwc2 12480000.hsotg: new device is high-speed
----[ end trace 0000000000000000 ]---
+Assigning the ACPI companion here resulted in the
+fwnode->secondary pointer to be replaced also for the parent
+dwc3 device since the primary fwnode (the ACPI companion)
+was shared. That was unintentional and it created potential
+side effects like resource leaks.
 
-Fix this by removing driver->bus entry reset.
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20220428111056.3558-3-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/dwc3/host.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index eee3504397e6..fe2a58c75861 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4544,7 +4544,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
+diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
+index eda871973d6c..f56c30cf151e 100644
+--- a/drivers/usb/dwc3/host.c
++++ b/drivers/usb/dwc3/host.c
+@@ -7,7 +7,6 @@
+  * Authors: Felipe Balbi <balbi@ti.com>,
+  */
  
- 	WARN_ON(hsotg->driver);
+-#include <linux/acpi.h>
+ #include <linux/irq.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -83,7 +82,6 @@ int dwc3_host_init(struct dwc3 *dwc)
+ 	}
  
--	driver->driver.bus = NULL;
- 	hsotg->driver = driver;
- 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
- 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
+ 	xhci->dev.parent	= dwc->dev;
+-	ACPI_COMPANION_SET(&xhci->dev, ACPI_COMPANION(dwc->dev));
+ 
+ 	dwc->xhci = xhci;
+ 
 -- 
 2.35.1
 
