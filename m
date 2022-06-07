@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8F8541CB4
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B037F5406C7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382447AbiFGWDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:03:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
+        id S1347225AbiFGRiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382951AbiFGWA3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:00:29 -0400
+        with ESMTP id S1347758AbiFGRfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A2924E000;
-        Tue,  7 Jun 2022 12:14:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35B6B10A606;
+        Tue,  7 Jun 2022 10:31:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4966B8237B;
-        Tue,  7 Jun 2022 19:14:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46DFFC385A5;
-        Tue,  7 Jun 2022 19:14:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E49F9B82285;
+        Tue,  7 Jun 2022 17:31:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380F7C385A5;
+        Tue,  7 Jun 2022 17:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629255;
-        bh=pi1MZ/7QEmXJOQN0uUmPb5Jkg7rMKRaLhEQEu4gc5yc=;
+        s=korg; t=1654623077;
+        bh=cOVRoMh2dOk7ICQ8DdAnJhhYMLLUDecgkUZ1B1A+j5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UEzmtGEJ/BUaL0h5bGBg5rlMNY4iFGh50V4OIk3X0wVozzWYgnUNGh9HZhiDSCDen
-         TVFVyH0DIyqW9TDcF0lqilEsMXSIKRZo0bbi5UBBpc2M8Ofch5ULD6ceToDSw4pxMp
-         90YV8fsWUlQqzGtGjCgvTsjIDrM2DgnCwOP2Pr78=
+        b=wUyQJr1UAH/pmxgDG4Syjk9wK2Wb48asdzRRDklMg+46Fe6hdCbY/ifzREzHsR93/
+         7YFPZs1Waq4PsChZ1T01OLYaXLkomDwpzSWbikLge/CYlasczZDtIz1v4JNioDTpEv
+         H3nJrjaic8d2iEl0nUP7N3m1wQkhFsYp6tdKS9pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 624/879] ARM: dts: at91: sama7g5: remove interrupt-parent from gic node
+Subject: [PATCH 5.10 285/452] mfd: ipaq-micro: Fix error check return value of platform_get_irq()
 Date:   Tue,  7 Jun 2022 19:02:22 +0200
-Message-Id: <20220607165020.963251298@linuxfoundation.org>
+Message-Id: <20220607164917.043560760@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit b7e86ef7afd128577ff7bb0db0ae82d27d7ed7ad ]
+[ Upstream commit 3b49ae380ce1a3054e0c505dd9a356b82a5b48e8 ]
 
-interrupt-parent is not to be used as a boolean property.
-It is already present in the DT in the proper way it's supposed to be used:
-interrupt-parent = <&gic>;
+platform_get_irq() return negative value on failure, so null check of
+irq is incorrect. Fix it by comparing whether it is less than zero.
 
-This is also reported by dtbs_check:
-arch/arm/boot/dts/at91-sama7g5ek.dtb: interrupt-controller@e8c11000: interrupt-parent: True is not of type 'array'
-	From schema: /.local/lib/python3.8/site-packages/dtschema/schemas/interrupts.yaml
-
-Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220503133127.64320-1-eugen.hristev@microchip.com
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: dcc21cc09e3c ("mfd: Add driver for Atmel Microcontroller on iPaq h3xxx")
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220412085305.2533030-1-lv.ruyi@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sama7g5.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/mfd/ipaq-micro.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sama7g5.dtsi b/arch/arm/boot/dts/sama7g5.dtsi
-index f691c8f08d04..b63263129692 100644
---- a/arch/arm/boot/dts/sama7g5.dtsi
-+++ b/arch/arm/boot/dts/sama7g5.dtsi
-@@ -857,7 +857,6 @@
- 			#interrupt-cells = <3>;
- 			#address-cells = <0>;
- 			interrupt-controller;
--			interrupt-parent;
- 			reg = <0xe8c11000 0x1000>,
- 				<0xe8c12000 0x2000>;
- 		};
+diff --git a/drivers/mfd/ipaq-micro.c b/drivers/mfd/ipaq-micro.c
+index e92eeeb67a98..4cd5ecc72211 100644
+--- a/drivers/mfd/ipaq-micro.c
++++ b/drivers/mfd/ipaq-micro.c
+@@ -403,7 +403,7 @@ static int __init micro_probe(struct platform_device *pdev)
+ 	micro_reset_comm(micro);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq)
++	if (irq < 0)
+ 		return -EINVAL;
+ 	ret = devm_request_irq(&pdev->dev, irq, micro_serial_isr,
+ 			       IRQF_SHARED, "ipaq-micro",
 -- 
 2.35.1
 
