@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9EFA54066F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA08541C2B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347377AbiFGRfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45002 "EHLO
+        id S1377170AbiFGV4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:56:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346978AbiFGRcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:32:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4817154194;
-        Tue,  7 Jun 2022 10:30:14 -0700 (PDT)
+        with ESMTP id S1384123AbiFGVyJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB0C4F8E60;
+        Tue,  7 Jun 2022 12:13:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6817F614AE;
-        Tue,  7 Jun 2022 17:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EC12C385A5;
-        Tue,  7 Jun 2022 17:29:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF2D1B81F6D;
+        Tue,  7 Jun 2022 19:13:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23637C385A2;
+        Tue,  7 Jun 2022 19:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622999;
-        bh=liNhd+rQWFOn1syJrUOicb3uykE30jaLc4TMIIZdHug=;
+        s=korg; t=1654629180;
+        bh=/Tu8r2LfOw0CLxiSZGrql0GLd6ZXzzDncyyTCP0+Lc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHsCIo0jLjcy5HRCpDANLggp9clsCLHJjTMpBT+cs+E6Zm4rLR1cJr3raMn6X0i6N
-         QDW53pYYJ14QFW1DnlXVnYhV9SCF/LlM8xFYy9Ld/L3s1v4VCdrrhW6648iwuEMPht
-         8BYDmvcglNJCMFOyh193qwTvH+I/q1wkG0gXB6zI=
+        b=gHhDvd+7yuFUWMfch2ayVI20zK8G7C5YK1lgGShSHx4ma1nEMBVW+slhuMai6A326
+         JWvCJdDLsrh5Jv4mbmCZQ4GZc7wmG7tQpOBBOFPfZ+8ciAWPJlNoxA5Awr+Lizn0Hm
+         7gIptAl+nQr7qPa/cY0ECM6xH9LyB+2d5ESG/LEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 260/452] ARM: dts: suniv: F1C100: fix watchdog compatible
+Subject: [PATCH 5.18 599/879] firmware: arm_ffa: Remove incorrect assignment of driver_data
 Date:   Tue,  7 Jun 2022 19:01:57 +0200
-Message-Id: <20220607164916.302389302@linuxfoundation.org>
+Message-Id: <20220607165020.238670780@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 01a850ee61cbf0ab77dcbf26bb133fec2dd640d6 ]
+[ Upstream commit 00512d2930b338fdd42bd90bbd1793fe212c2d31 ]
 
-The F1C100 series of SoCs actually have their watchdog IP being
-compatible with the newer Allwinner generation, not the older one.
+The ffa core driver currently assigns its own driver information
+to individual ffa device driver_data which is wrong. Firstly, it leaks
+this core driver information to individual ffa_device and hence to
+ffa_driver. Secondly the ffa_device driver_data is for use by individual
+ffa_driver and not for this core driver managing all those devices.
 
-The currently described sun4i-a10-wdt actually does not work, neither
-the watchdog functionality (just never fires), nor the reset part
-(reboot hangs).
-
-Replace the compatible string with the one used by the newer generation.
-Verified to work with both the watchdog and reboot functionality on a
-LicheePi Nano.
-
-Also add the missing interrupt line and clock source, to make it binding
-compliant.
-
-Fixes: 4ba16d17efdd ("ARM: dts: suniv: add initial DTSI file for F1C100s")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220317162349.739636-4-andre.przywara@arm.com
+Link: https://lore.kernel.org/r/20220429113946.2087145-2-sudeep.holla@arm.com
+Fixes: d0c0bce83122 ("firmware: arm_ffa: Setup in-kernel users of FFA partitions")
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/suniv-f1c100s.dtsi | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/firmware/arm_ffa/driver.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/suniv-f1c100s.dtsi b/arch/arm/boot/dts/suniv-f1c100s.dtsi
-index 6100d3b75f61..def830101448 100644
---- a/arch/arm/boot/dts/suniv-f1c100s.dtsi
-+++ b/arch/arm/boot/dts/suniv-f1c100s.dtsi
-@@ -104,8 +104,10 @@
- 
- 		wdt: watchdog@1c20ca0 {
- 			compatible = "allwinner,suniv-f1c100s-wdt",
--				     "allwinner,sun4i-a10-wdt";
-+				     "allwinner,sun6i-a31-wdt";
- 			reg = <0x01c20ca0 0x20>;
-+			interrupts = <16>;
-+			clocks = <&osc32k>;
- 		};
- 
- 		uart0: serial@1c25000 {
+diff --git a/drivers/firmware/arm_ffa/driver.c b/drivers/firmware/arm_ffa/driver.c
+index 8fa1785afd42..44300dbcc643 100644
+--- a/drivers/firmware/arm_ffa/driver.c
++++ b/drivers/firmware/arm_ffa/driver.c
+@@ -688,8 +688,6 @@ static void ffa_setup_partitions(void)
+ 			       __func__, tpbuf->id);
+ 			continue;
+ 		}
+-
+-		ffa_dev_set_drvdata(ffa_dev, drv_info);
+ 	}
+ 	kfree(pbuf);
+ }
 -- 
 2.35.1
 
