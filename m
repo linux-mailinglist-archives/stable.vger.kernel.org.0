@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFCA8541521
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57878541555
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359568AbiFGU27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:28:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60206 "EHLO
+        id S1378250AbiFGUfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376587AbiFGU1C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:27:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8D71B7832;
-        Tue,  7 Jun 2022 11:32:55 -0700 (PDT)
+        with ESMTP id S1376901AbiFGU2R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C69581D9B5F;
+        Tue,  7 Jun 2022 11:33:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABCE4612EC;
-        Tue,  7 Jun 2022 18:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0DBCC34115;
-        Tue,  7 Jun 2022 18:32:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95E4F612F2;
+        Tue,  7 Jun 2022 18:33:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6ABFC385A2;
+        Tue,  7 Jun 2022 18:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626774;
-        bh=eRb1IsnbktKayJ3HyDwY3GnvB4R+VD34n1nZmYxBRWE=;
+        s=korg; t=1654626805;
+        bh=tXpFV1oq8s2qSwjMPFj5GjP5i35kucSjkrQzFXm++X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJzlMOMRyQrCdSCfVxJhJGimsK1eZPJMRjKs20Khq/bZi7I6Ra4eB+XFOfejIURYR
-         ngWVFX9F4mK+71pKxHgtgk8/WtHnWwb6khxVQPVhfw3cF3chIjya+YTL9IxYy96tKU
-         ojq5oID3umh8ZOsce4WP86OfLeA3RkwZ68NSMk/E=
+        b=c14bZEZssliO7nBl8U1pdQvCrHsKggBaR962NbKgsY10Sgxd2fs1MxIplkzx8boHI
+         AfP0DLTpi/EkGxJXELRTYj4rNVHeDB7iQzC/VyO7iCi+iKfXDrlhJfXdVI9IQNlq6R
+         inD7AQkReu+WLNyB/vqJPQOGyLNO1kC+B8ocl650=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Patrick Delaunay <patrick.delaunay@foss.st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 472/772] can: xilinx_can: mark bit timing constants as const
-Date:   Tue,  7 Jun 2022 19:01:04 +0200
-Message-Id: <20220607165002.904756885@linuxfoundation.org>
+Subject: [PATCH 5.17 473/772] ARM: dts: stm32: Fix PHY post-reset delay on Avenger96
+Date:   Tue,  7 Jun 2022 19:01:05 +0200
+Message-Id: <20220607165002.934367219@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -56,44 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit ae38fda02996d43d9fb09f16e81e0008704dd524 ]
+[ Upstream commit ef2d90708883f4025a801feb0ba8411a7a4387e1 ]
 
-This patch marks the bit timing constants as const.
+Per KSZ9031RNX PHY datasheet FIGURE 7-5: POWER-UP/POWER-DOWN/RESET TIMING
+Note 2: After the de-assertion of reset, wait a minimum of 100 μs before
+starting programming on the MIIM (MDC/MDIO) interface.
 
-Fixes: c223da689324 ("can: xilinx_can: Add support for CANFD FD frames")
-Link: https://lore.kernel.org/all/20220317203119.792552-1-mkl@pengutronix.de
-Cc: Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>
-Cc: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Add 1ms post-reset delay to guarantee this figure.
+
+Fixes: 010ca9fe500bf ("ARM: dts: stm32: Add missing ethernet PHY reset on AV96")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Patrice Chotard <patrice.chotard@foss.st.com>
+Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index 1674b561c9a2..f3b149b60465 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -239,7 +239,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd = {
- };
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
+index 6885948f3024..8eb51d84b698 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
+@@ -141,6 +141,7 @@
+ 		compatible = "snps,dwmac-mdio";
+ 		reset-gpios = <&gpioz 2 GPIO_ACTIVE_LOW>;
+ 		reset-delay-us = <1000>;
++		reset-post-delay-us = <1000>;
  
- /* AXI CANFD Data Bittiming constants as per AXI CANFD 1.0 specs */
--static struct can_bittiming_const xcan_data_bittiming_const_canfd = {
-+static const struct can_bittiming_const xcan_data_bittiming_const_canfd = {
- 	.name = DRIVER_NAME,
- 	.tseg1_min = 1,
- 	.tseg1_max = 16,
-@@ -265,7 +265,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd2 = {
- };
- 
- /* AXI CANFD 2.0 Data Bittiming constants as per AXI CANFD 2.0 spec */
--static struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
-+static const struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
- 	.name = DRIVER_NAME,
- 	.tseg1_min = 1,
- 	.tseg1_max = 32,
+ 		phy0: ethernet-phy@7 {
+ 			reg = <7>;
 -- 
 2.35.1
 
