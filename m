@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 799B1541769
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF83A5417A6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377796AbiFGVDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
+        id S1378913AbiFGVEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:04:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379077AbiFGVCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB87511E484;
-        Tue,  7 Jun 2022 11:46:25 -0700 (PDT)
+        with ESMTP id S1379096AbiFGVCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EF5811CB53;
+        Tue,  7 Jun 2022 11:46:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F2A56156D;
-        Tue,  7 Jun 2022 18:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E332C385A2;
-        Tue,  7 Jun 2022 18:46:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D66F9B81FE1;
+        Tue,  7 Jun 2022 18:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F833C34115;
+        Tue,  7 Jun 2022 18:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627584;
-        bh=rpTWwyjktX7kqYmFTTv2lUiyxlshLEU5YxA/+fpgFro=;
+        s=korg; t=1654627587;
+        bh=zy8e3PUZwgPf/1N8USf86WS+Opn8Dav5ji2fldlGHyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkWOg/lMraIHHhm2xkeM6v3Oi60FnppCqE2S39ObQ676UJCcFLnp9xqJQRkdCS3rk
-         hMh/re2dlbjRkNn21HwiJRzf+94S9QdAPF7wOJENhHWe7dVdWNfloayeig/DpTd3VW
-         00pGKthLpNnUgH/hpBtHEfNSZfTqGeuJWiZmuxpU=
+        b=bSov8fwdoS+YAcBKOFcBe/Y4CJMM1amha8YEQEUYRGi+Frwlvlf9SU1F8fCej9bXq
+         4/oxjZg2ymV1IWhgSq9b/uEnGydN8y4QsP60QZfxA5pQcHAD+HJbbZ8S3uOzuKkZcB
+         Mf5QPJJW8YGUpPSMw7nU01844Wzh7+c1RFnEpOBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.18 003/879] parisc: fix a crash with multicore scheduler
-Date:   Tue,  7 Jun 2022 18:52:01 +0200
-Message-Id: <20220607165002.768275874@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.18 004/879] parisc/stifb: Implement fb_is_primary_device()
+Date:   Tue,  7 Jun 2022 18:52:02 +0200
+Message-Id: <20220607165002.797731259@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -53,107 +52,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 6ba688364856ad083be537f08e86ba97f433d405 upstream.
+commit cf936af790a3ef5f41ff687ec91bfbffee141278 upstream.
 
-With the kernel 5.18, the system will hang on boot if it is compiled with
-CONFIG_SCHED_MC. The last printed message is "Brought up 1 node, 1 CPU".
+Implement fb_is_primary_device() function, so that fbcon detects if this
+framebuffer belongs to the default graphics card which was used to start
+the system.
 
-The crash happens in sd_init
-tl->mask (which is cpu_coregroup_mask) returns an empty mask. This happens
-	because cpu_topology[0].core_sibling is empty.
-Consequently, sd_span is set to an empty mask
-sd_id = cpumask_first(sd_span) sets sd_id == NR_CPUS (because the mask is
-	empty)
-sd->shared = *per_cpu_ptr(sdd->sds, sd_id); sets sd->shared to NULL
-	because sd_id is out of range
-atomic_inc(&sd->shared->ref); crashes without printing anything
-
-We can fix it by calling reset_cpu_topology() from init_cpu_topology() -
-this will initialize the sibling masks on CPUs, so that they're not empty.
-
-This patch also removes the variable "dualcores_found", it is useless,
-because during boot, init_cpu_topology is called before
-store_cpu_topology. Thus, set_sched_topology(parisc_mc_topology) is never
-called. We don't need to call it at all because default_topology in
-kernel/sched/topology.c contains the same items as parisc_mc_topology.
-
-Note that we should not call store_cpu_topology() from init_per_cpu()
-because it is called too early in the kernel initialization process and it
-results in the message "Failure to register CPU0 device". Before this
-patch, store_cpu_topology() would exit immediatelly because
-cpuid_topo->core id was uninitialized and it was 0.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org	# v5.18
 Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org   # v5.10+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/processor.c |  2 --
- arch/parisc/kernel/topology.c  | 16 +---------------
- 2 files changed, 1 insertion(+), 17 deletions(-)
+ arch/parisc/include/asm/fb.h    |    4 ++++
+ drivers/video/console/sticore.c |   17 +++++++++++++++++
+ drivers/video/fbdev/stifb.c     |    4 ++--
+ 3 files changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/arch/parisc/kernel/processor.c b/arch/parisc/kernel/processor.c
-index 26eb568f8b96..dddaaa6e7a82 100644
---- a/arch/parisc/kernel/processor.c
-+++ b/arch/parisc/kernel/processor.c
-@@ -327,8 +327,6 @@ int init_per_cpu(int cpunum)
- 	set_firmware_width();
- 	ret = pdc_coproc_cfg(&coproc_cfg);
- 
--	store_cpu_topology(cpunum);
--
- 	if(ret >= 0 && coproc_cfg.ccr_functional) {
- 		mtctl(coproc_cfg.ccr_functional, 10);  /* 10 == Coprocessor Control Reg */
- 
-diff --git a/arch/parisc/kernel/topology.c b/arch/parisc/kernel/topology.c
-index 9696e3cb6a2a..b9d845e314f8 100644
---- a/arch/parisc/kernel/topology.c
-+++ b/arch/parisc/kernel/topology.c
-@@ -20,8 +20,6 @@
- 
- static DEFINE_PER_CPU(struct cpu, cpu_devices);
- 
--static int dualcores_found;
--
- /*
-  * store_cpu_topology is called at boot when only one cpu is running
-  * and with the mutex cpu_hotplug.lock locked, when several cpus have booted,
-@@ -60,7 +58,6 @@ void store_cpu_topology(unsigned int cpuid)
- 			if (p->cpu_loc) {
- 				cpuid_topo->core_id++;
- 				cpuid_topo->package_id = cpu_topology[cpu].package_id;
--				dualcores_found = 1;
- 				continue;
- 			}
- 		}
-@@ -80,22 +77,11 @@ void store_cpu_topology(unsigned int cpuid)
- 		cpu_topology[cpuid].package_id);
+--- a/arch/parisc/include/asm/fb.h
++++ b/arch/parisc/include/asm/fb.h
+@@ -12,9 +12,13 @@ static inline void fb_pgprotect(struct f
+ 	pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
  }
  
--static struct sched_domain_topology_level parisc_mc_topology[] = {
--#ifdef CONFIG_SCHED_MC
--	{ cpu_coregroup_mask, cpu_core_flags, SD_INIT_NAME(MC) },
--#endif
--
--	{ cpu_cpu_mask, SD_INIT_NAME(DIE) },
--	{ NULL, },
--};
--
- /*
-  * init_cpu_topology is called at boot when only one cpu is running
-  * which prevent simultaneous write access to cpu_topology array
-  */
- void __init init_cpu_topology(void)
++#if defined(CONFIG_STI_CONSOLE) || defined(CONFIG_FB_STI)
++int fb_is_primary_device(struct fb_info *info);
++#else
+ static inline int fb_is_primary_device(struct fb_info *info)
  {
--	/* Set scheduler topology descriptor */
--	if (dualcores_found)
--		set_sched_topology(parisc_mc_topology);
-+	reset_cpu_topology();
+ 	return 0;
  }
--- 
-2.36.1
-
++#endif
+ 
+ #endif /* _ASM_FB_H_ */
+--- a/drivers/video/console/sticore.c
++++ b/drivers/video/console/sticore.c
+@@ -30,6 +30,7 @@
+ #include <asm/pdc.h>
+ #include <asm/cacheflush.h>
+ #include <asm/grfioctl.h>
++#include <asm/fb.h>
+ 
+ #include "../fbdev/sticore.h"
+ 
+@@ -1127,6 +1128,22 @@ int sti_call(const struct sti_struct *st
+ 	return ret;
+ }
+ 
++/* check if given fb_info is the primary device */
++int fb_is_primary_device(struct fb_info *info)
++{
++	struct sti_struct *sti;
++
++	sti = sti_get_rom(0);
++
++	/* if no built-in graphics card found, allow any fb driver as default */
++	if (!sti)
++		return true;
++
++	/* return true if it's the default built-in framebuffer driver */
++	return (sti->info == info);
++}
++EXPORT_SYMBOL(fb_is_primary_device);
++
+ MODULE_AUTHOR("Philipp Rumpf, Helge Deller, Thomas Bogendoerfer");
+ MODULE_DESCRIPTION("Core STI driver for HP's NGLE series graphics cards in HP PARISC machines");
+ MODULE_LICENSE("GPL v2");
+--- a/drivers/video/fbdev/stifb.c
++++ b/drivers/video/fbdev/stifb.c
+@@ -1358,11 +1358,11 @@ static int __init stifb_init_fb(struct s
+ 		goto out_err3;
+ 	}
+ 
++	/* save for primary gfx device detection & unregister_framebuffer() */
++	sti->info = info;
+ 	if (register_framebuffer(&fb->info) < 0)
+ 		goto out_err4;
+ 
+-	sti->info = info; /* save for unregister_framebuffer() */
+-
+ 	fb_info(&fb->info, "%s %dx%d-%d frame buffer device, %s, id: %04x, mmio: 0x%04lx\n",
+ 		fix->id,
+ 		var->xres, 
 
 
