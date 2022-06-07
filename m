@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC7C5404E6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04F2C54131B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345714AbiFGRTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39854 "EHLO
+        id S1358032AbiFGT4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345767AbiFGRTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7153A1053E6;
-        Tue,  7 Jun 2022 10:19:13 -0700 (PDT)
+        with ESMTP id S1358759AbiFGTxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:09 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C895F1B700F;
+        Tue,  7 Jun 2022 11:22:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF6F1617C0;
-        Tue,  7 Jun 2022 17:19:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC2CC34115;
-        Tue,  7 Jun 2022 17:19:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0654FCE2450;
+        Tue,  7 Jun 2022 18:22:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 024B2C385A2;
+        Tue,  7 Jun 2022 18:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622352;
-        bh=LBiJ3+FZSoVrfzq6JdYxgX57MW0j1x0ukRRc5zVpJG0=;
+        s=korg; t=1654626140;
+        bh=JsZE5AxHTbW00VZnJgu/U+JfgGO6KlUPjLQsTZoemWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLokItaS5cTgXvPWvJqOtoyoD6nYxodt8N3OTYxRvh6AApR9G8vjEOOWe2P22sBxG
-         RS9sr1HwWbELs4yjCdZBW/FYRScx3dHEY+WwXiHllXnrXM8oD+OEcne1rJ6G2NJNn8
-         ODkAECRneYanMNDaNrEsLDbUM321rm+8xkB5EViY=
+        b=hWx70DGL4HE3nGhvGM2n4hCPEwnBLlOfyHCK8qSem9+raIV6yCB2PlyOnEQ4JeIFm
+         hU78s4WsevuflCUkH+g0j0yV6GDId3PCgAJ1Y7fl19JPbPjB1j5OGfkBgfyjfhfXWA
+         OH+hNnPN90y/J1cXzdZ/uNSQdpKDVEy3REARBtMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marios Levogiannis <marios.levogiannis@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 007/452] ALSA: hda/realtek - Fix microphone noise on ASUS TUF B550M-PLUS
+        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 272/772] HID: hid-led: fix maximum brightness for Dream Cheeky
 Date:   Tue,  7 Jun 2022 18:57:44 +0200
-Message-Id: <20220607164908.751258638@linuxfoundation.org>
+Message-Id: <20220607164957.041295632@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Levogiannis <marios.levogiannis@gmail.com>
+From: Jonathan Teh <jonathan.teh@outlook.com>
 
-commit 9bfa7b36343c7d84370bc61c9ed774635b05e4eb upstream.
+[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
 
-Set microphone pins 0x18 (rear) and 0x19 (front) to VREF_50 to fix the
-microphone noise on ASUS TUF B550M-PLUS which uses the ALCS1200A codec.
-The initial value was VREF_80.
+Increase maximum brightness for Dream Cheeky to 63. Emperically
+determined based on testing in kernel 4.4 on this device:
 
-The same issue is also present on Windows using both the default Windows
-driver and all tested Realtek drivers before version 6.0.9049.1. Comparing
-Realtek driver 6.0.9049.1 (the first one without the microphone noise) to
-Realtek driver 6.0.9047.1 (the last one with the microphone noise)
-revealed that the fix is the result of setting pins 0x18 and 0x19 to
-VREF_50.
+Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
 
-This fix may also work for other boards that have been reported to have
-the same microphone issue and use the ALC1150 and ALCS1200A codecs, since
-these codecs are similar and the fix in the Realtek driver on Windows is
-common for both. However, it is currently enabled only for ASUS TUF
-B550M-PLUS as this is the only board that could be tested.
-
-Signed-off-by: Marios Levogiannis <marios.levogiannis@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220530074131.12258-1-marios.levogiannis@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
+Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/hid/hid-led.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -1990,6 +1990,7 @@ enum {
- 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
- 	ALC887_FIXUP_ASUS_AUDIO,
- 	ALC887_FIXUP_ASUS_HMIC,
-+	ALCS1200A_FIXUP_MIC_VREF,
- };
- 
- static void alc889_fixup_coef(struct hda_codec *codec,
-@@ -2535,6 +2536,14 @@ static const struct hda_fixup alc882_fix
- 		.chained = true,
- 		.chain_id = ALC887_FIXUP_ASUS_AUDIO,
- 	},
-+	[ALCS1200A_FIXUP_MIC_VREF] = {
-+		.type = HDA_FIXUP_PINCTLS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x18, PIN_VREF50 }, /* rear mic */
-+			{ 0x19, PIN_VREF50 }, /* front mic */
-+			{}
-+		}
-+	},
- };
- 
- static const struct snd_pci_quirk alc882_fixup_tbl[] = {
-@@ -2572,6 +2581,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
- 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
- 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
-+	SND_PCI_QUIRK(0x1043, 0x8797, "ASUS TUF B550M-PLUS", ALCS1200A_FIXUP_MIC_VREF),
- 	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
- 	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
- 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
+diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
+index c2c66ceca132..7d82f8d426bb 100644
+--- a/drivers/hid/hid-led.c
++++ b/drivers/hid/hid-led.c
+@@ -366,7 +366,7 @@ static const struct hidled_config hidled_configs[] = {
+ 		.type = DREAM_CHEEKY,
+ 		.name = "Dream Cheeky Webmail Notifier",
+ 		.short_name = "dream_cheeky",
+-		.max_brightness = 31,
++		.max_brightness = 63,
+ 		.num_leds = 1,
+ 		.report_size = 9,
+ 		.report_type = RAW_REQUEST,
+-- 
+2.35.1
+
 
 
