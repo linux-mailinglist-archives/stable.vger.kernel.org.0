@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 765D35410A8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1575417D2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352559AbiFGT2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
+        id S1355482AbiFGVGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:06:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356885AbiFGT2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FA61A197E;
-        Tue,  7 Jun 2022 11:11:27 -0700 (PDT)
+        with ESMTP id S1379082AbiFGVFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:05:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57056BA557;
+        Tue,  7 Jun 2022 11:49:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA302B81F38;
-        Tue,  7 Jun 2022 18:11:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21F7CC385A2;
-        Tue,  7 Jun 2022 18:11:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A722AB8239A;
+        Tue,  7 Jun 2022 18:49:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00403C385A2;
+        Tue,  7 Jun 2022 18:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625485;
-        bh=5ie3URM6EtSxp++nGH7x9ksdFBVoOhc8kt870ZQ+6KQ=;
+        s=korg; t=1654627749;
+        bh=pBcuqRJyXkrcTTWjrJgll4gSCsKtCBBitGAKZhcs2VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVIUNVqVgjl8ZSpRUey2pkElQI0vdS01ir5o5y6b8T3+/tlKgkuQvKNFUPVYSaFWD
-         mB+PTaPRNAHy60/LGlC6HPSV5lOYi4QJDmLWP0tWXMvONx67dBBssoFkQNZ5mD/Abt
-         ZmgsJQUHXc7WuTPCNRtF3SL7FOw9RDjkzNQtlcow=
+        b=Af3+vOTnVM7B+jXif7uOmzSpueWI/NmEexsugJm2CBXEJ0UoiE8/DR8V462cv8ShI
+         dr9ZHdQXOUqH9O2YWsfbVzSe2v3Q77AZVqYxAGzLR9rZzRU/z6G9LKW1DjKxYlb48g
+         lGybx7E/JDlwuhksMNbe/fcbZ9JL7gjLNL3cf5Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.17 006/772] riscv: Initialize thread pointer before calling C functions
+        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 080/879] sfc: ef10: Fix assigning negative value to unsigned variable
 Date:   Tue,  7 Jun 2022 18:53:18 +0200
-Message-Id: <20220607164949.183951732@linuxfoundation.org>
+Message-Id: <20220607165005.011913913@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+From: Haowen Bai <baihaowen@meizu.com>
 
-commit 35d33c76d68dfacc330a8eb477b51cc647c5a847 upstream.
+[ Upstream commit b8ff3395fbdf3b79a99d0ef410fc34c51044121e ]
 
-Because of the stack canary feature that reads from the current task
-structure the stack canary value, the thread pointer register "tp" must
-be set before calling any C function from head.S: by chance, setup_vm
-and all the functions that it calls does not seem to be part of the
-functions where the canary check is done, but in the following commits,
-some functions will.
+fix warning reported by smatch:
+251 drivers/net/ethernet/sfc/ef10.c:2259 efx_ef10_tx_tso_desc()
+warn: assigning (-208) to unsigned variable 'ip_tot_len'
 
-Fixes: f2c9699f65557a31 ("riscv: Add STACKPROTECTOR supported")
-Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/1649640757-30041-1-git-send-email-baihaowen@meizu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/head.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/sfc/ef10.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/head.S
-+++ b/arch/riscv/kernel/head.S
-@@ -316,6 +316,7 @@ clear_bss_done:
- 	REG_S a0, (a2)
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index f8edb3f1b73a..186cb28c03bd 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -2256,7 +2256,7 @@ int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue, struct sk_buff *skb,
+ 	 * guaranteed to satisfy the second as we only attempt TSO if
+ 	 * inner_network_header <= 208.
+ 	 */
+-	ip_tot_len = -EFX_TSO2_MAX_HDRLEN;
++	ip_tot_len = 0x10000 - EFX_TSO2_MAX_HDRLEN;
+ 	EFX_WARN_ON_ONCE_PARANOID(mss + EFX_TSO2_MAX_HDRLEN +
+ 				  (tcp->doff << 2u) > ip_tot_len);
  
- 	/* Initialize page tables and relocate to virtual addresses */
-+	la tp, init_task
- 	la sp, init_thread_union + THREAD_SIZE
- 	XIP_FIXUP_OFFSET sp
- #ifdef CONFIG_BUILTIN_DTB
+-- 
+2.35.1
+
 
 
