@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F6D541924
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B1C540945
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377903AbiFGVSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:18:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
+        id S1349477AbiFGSHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380637AbiFGVQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:55 -0400
+        with ESMTP id S1350954AbiFGSBc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7986F13E17;
-        Tue,  7 Jun 2022 11:57:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EB112E305;
+        Tue,  7 Jun 2022 10:43:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3306EB822C0;
-        Tue,  7 Jun 2022 18:57:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C877C385A2;
-        Tue,  7 Jun 2022 18:57:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DD22B81F38;
+        Tue,  7 Jun 2022 17:43:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75269C34115;
+        Tue,  7 Jun 2022 17:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628227;
-        bh=MmQJDZApS8UaiRibxxFyjqlEdDr50z7x4JFT5HUt8A4=;
+        s=korg; t=1654623826;
+        bh=sbZJ/EgR/Q6h7bQ8bXYkdHk3sVPiz5d14IrGMh6M1ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJKPKFRGh4gKGnLOoSyMrEr9490zAKPxwDx0ddWOXUIMAYX9iuKcbWqF/PG3lt2oZ
-         2oPVM0+VclbsUWiW+ykgv73AR7AQEdDricyZ8Be+1g9gANZPU9v09Vhcz2nsXydyOS
-         Vsy+F2AZlip1Dc6d4HBepvq+/2z6yh9PIx+a2wTU=
+        b=uxBl5YTtRyZpTy0+TfFJKtuikKv5qcPWUbBNIBv4CmOth+7tSEQqi8waA4jCVeat/
+         bsUP3uYg1icQhqIVud3ILVbUsMPxpghueyX1Ce3/hmtU9lPCwBvdDR4Y0KfdioXhI3
+         j4/IqAAGv3cvXhCXEPUEX0uuwc9Pe94MOpbC6ANU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Ravi Bangoria <ravi.bangoria@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 253/879] drm: fix EDID struct for old ARM OABI format
+Subject: [PATCH 5.15 106/667] perf/amd/ibs: Cascade pmu init functions return value
 Date:   Tue,  7 Jun 2022 18:56:11 +0200
-Message-Id: <20220607165010.194133714@linuxfoundation.org>
+Message-Id: <20220607164938.003027123@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,112 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ravi Bangoria <ravi.bangoria@amd.com>
 
-[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
+[ Upstream commit 39b2ca75eec8a33e2ffdb8aa0c4840ec3e3b472c ]
 
-When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
-will force alignment of all structures and unions to a word boundary
-(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
-option if you're a gcc person), even when the members of said structures
-do not want or need said alignment.
+IBS pmu initialization code ignores return value provided by
+callee functions. Fix it.
 
-This completely messes up the structure alignment of 'struct edid' on
-those targets, because even though all the embedded structures are
-marked with "__attribute__((packed))", the unions that contain them are
-not.
-
-This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
-and size helpers"), but the bug is pre-existing.  That commit just made
-the structure layout problem cause a build failure due to the addition
-of the
-
-        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
-
-sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
-
-This legacy union alignment should probably not be used in the first
-place, but we can fix the layout by adding the packed attribute to the
-union entries even when each member is already packed and it shouldn't
-matter in a sane build environment.
-
-You can see this issue with a trivial test program:
-
-  union {
-	struct {
-		char c[5];
-	};
-	struct {
-		char d;
-		unsigned e;
-	} __attribute__((packed));
-  } a = { "1234" };
-
-where building this with a normal "gcc -S" will result in the expected
-5-byte size of said union:
-
-	.type	a, @object
-	.size	a, 5
-
-but with an ARM compiler and the old ABI:
-
-    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
-
-you get
-
-	.type	a, %object
-	.size	a, 8
-
-instead, because even though each member of the union is packed, the
-union itself still gets aligned.
-
-This was reported by Sudip for the spear3xx_defconfig target.
-
-Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220509044914.1473-2-ravi.bangoria@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/drm/drm_edid.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/events/amd/ibs.c | 37 +++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
-index 144c495b99c4..d6b2aeb34211 100644
---- a/include/drm/drm_edid.h
-+++ b/include/drm/drm_edid.h
-@@ -121,7 +121,7 @@ struct detailed_data_monitor_range {
- 			u8 supported_scalings;
- 			u8 preferred_refresh;
- 		} __attribute__((packed)) cvt;
--	} formula;
-+	} __attribute__((packed)) formula;
- } __attribute__((packed));
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 9739019d4b67..367ca899e6e8 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -759,9 +759,10 @@ static __init int perf_ibs_pmu_init(struct perf_ibs *perf_ibs, char *name)
+ 	return ret;
+ }
  
- struct detailed_data_wpindex {
-@@ -154,7 +154,7 @@ struct detailed_non_pixel {
- 		struct detailed_data_wpindex color;
- 		struct std_timing timings[6];
- 		struct cvt_timing cvt[4];
--	} data;
-+	} __attribute__((packed)) data;
- } __attribute__((packed));
+-static __init void perf_event_ibs_init(void)
++static __init int perf_event_ibs_init(void)
+ {
+ 	struct attribute **attr = ibs_op_format_attrs;
++	int ret;
  
- #define EDID_DETAIL_EST_TIMINGS 0xf7
-@@ -172,7 +172,7 @@ struct detailed_timing {
- 	union {
- 		struct detailed_pixel_timing pixel_data;
- 		struct detailed_non_pixel other_data;
--	} data;
-+	} __attribute__((packed)) data;
- } __attribute__((packed));
+ 	/*
+ 	 * Some chips fail to reset the fetch count when it is written; instead
+@@ -773,7 +774,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
+ 		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
  
- #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
+-	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
++	ret = perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
++	if (ret)
++		return ret;
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
+ 		perf_ibs_op.config_mask |= IBS_OP_CNT_CTL;
+@@ -786,15 +789,35 @@ static __init void perf_event_ibs_init(void)
+ 		perf_ibs_op.cnt_mask    |= IBS_OP_MAX_CNT_EXT_MASK;
+ 	}
+ 
+-	perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
++	ret = perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
++	if (ret)
++		goto err_op;
++
++	ret = register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");
++	if (ret)
++		goto err_nmi;
+ 
+-	register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");
+ 	pr_info("perf: AMD IBS detected (0x%08x)\n", ibs_caps);
++	return 0;
++
++err_nmi:
++	perf_pmu_unregister(&perf_ibs_op.pmu);
++	free_percpu(perf_ibs_op.pcpu);
++	perf_ibs_op.pcpu = NULL;
++err_op:
++	perf_pmu_unregister(&perf_ibs_fetch.pmu);
++	free_percpu(perf_ibs_fetch.pcpu);
++	perf_ibs_fetch.pcpu = NULL;
++
++	return ret;
+ }
+ 
+ #else /* defined(CONFIG_PERF_EVENTS) && defined(CONFIG_CPU_SUP_AMD) */
+ 
+-static __init void perf_event_ibs_init(void) { }
++static __init int perf_event_ibs_init(void)
++{
++	return 0;
++}
+ 
+ #endif
+ 
+@@ -1064,9 +1087,7 @@ static __init int amd_ibs_init(void)
+ 			  x86_pmu_amd_ibs_starting_cpu,
+ 			  x86_pmu_amd_ibs_dying_cpu);
+ 
+-	perf_event_ibs_init();
+-
+-	return 0;
++	return perf_event_ibs_init();
+ }
+ 
+ /* Since we need the pci subsystem to init ibs we can't do this earlier: */
 -- 
 2.35.1
 
