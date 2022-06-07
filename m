@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E226F54145C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F00541B69
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356517AbiFGUR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:17:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37202 "EHLO
+        id S1357083AbiFGVrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:47:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359666AbiFGUP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:15:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4B41C8A3C;
-        Tue,  7 Jun 2022 11:28:32 -0700 (PDT)
+        with ESMTP id S1381861AbiFGVpM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:45:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DC3235137;
+        Tue,  7 Jun 2022 12:07:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7601B8237C;
-        Tue,  7 Jun 2022 18:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3046EC385A2;
-        Tue,  7 Jun 2022 18:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3980A612EC;
+        Tue,  7 Jun 2022 19:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D99C385A2;
+        Tue,  7 Jun 2022 19:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626509;
-        bh=wBHxjob7x0XzPX7Nk91SNo2LE9sqgvauDwTuTzLOtjg=;
+        s=korg; t=1654628849;
+        bh=j4qLntO3VaOtB7btRAveV4YpRZHf6JXJpBSgnbjuGuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/B2umkPePpF9Q0R4EgjDwA1ofSclircTg3a7FWJihu509c4ruFbGgvZn1LeeKaot
-         q+KB7rw5LzAer9IrHcHicquFZ4X6Ci+lEgfaPxtJLqo7PHh4hN93ktRJdD/tBtXk1z
-         c6JZ/WrDjZgLjeD2a6465J/sO9Mv6OTtpn8jzMiw=
+        b=NsLRtBO2RvLGT0cBL7r39fkwo8MZPlkytMHm3U8PDALXwZzeBY+ck5pEfoCSYsepR
+         r5nTRj8/vYHDQXH0veDVHSP480C8s7pOAjuzaoTN3Ipyeg2TrOp6vuHyttTChG3P0y
+         Kdw1/UK5zlEIhFFq8i8H0AL+uVR7i9LUhuf9vhYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Sebastian Fricke <sebastian.fricke@collabora.com>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 404/772] media: rkvdec: Stop overclocking the decoder
+Subject: [PATCH 5.18 478/879] regulator: scmi: Fix refcount leak in scmi_regulator_probe
 Date:   Tue,  7 Jun 2022 18:59:56 +0200
-Message-Id: <20220607165000.914511779@linuxfoundation.org>
+Message-Id: <20220607165016.753275018@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,52 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9998943f6dfc5d5472bfab2e38527fb6ba5e9da7 ]
+[ Upstream commit 68d6c8476fd4f448e70e0ab31ff972838ac41dae ]
 
-While this overclock hack seems to work on some implementations
-(some ChromeBooks, RockPi4) it also causes instability on other
-implementations (notably LibreComputer Renegade, but there were more
-reports in the LibreELEC project, where this has been removed). While
-performance is indeed affected (tested with GStreamer), 4K playback
-still works as long as you don't operate in lock step and keep at
-least 1 frame ahead of time in the decode queue.
+of_find_node_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-After discussion with ChromeOS members, it would seem that their
-implementation indeed used to synchronously decode each frame, so
-this hack was simply compensating for their code being less
-efficient. In my opinion, this hack should not have been included
-upstream.
-
-Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 0fbeae70ee7c ("regulator: add SCMI driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220516074433.32433-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/regulator/scmi-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
-index c0cf3488f970..2df8cf4883e2 100644
---- a/drivers/staging/media/rkvdec/rkvdec.c
-+++ b/drivers/staging/media/rkvdec/rkvdec.c
-@@ -1027,12 +1027,6 @@ static int rkvdec_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
- 
--	/*
--	 * Bump ACLK to max. possible freq. (500 MHz) to improve performance
--	 * When 4k video playback.
--	 */
--	clk_set_rate(rkvdec->clocks[0].clk, 500 * 1000 * 1000);
+diff --git a/drivers/regulator/scmi-regulator.c b/drivers/regulator/scmi-regulator.c
+index 1f02f60ad136..41ae7ac27ff6 100644
+--- a/drivers/regulator/scmi-regulator.c
++++ b/drivers/regulator/scmi-regulator.c
+@@ -352,7 +352,7 @@ static int scmi_regulator_probe(struct scmi_device *sdev)
+ 			return ret;
+ 		}
+ 	}
 -
- 	rkvdec->regs = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(rkvdec->regs))
- 		return PTR_ERR(rkvdec->regs);
++	of_node_put(np);
+ 	/*
+ 	 * Register a regulator for each valid regulator-DT-entry that we
+ 	 * can successfully reach via SCMI and has a valid associated voltage
 -- 
 2.35.1
 
