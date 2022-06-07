@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8DC541A17
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:29:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A417541A41
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378439AbiFGV3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:29:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49046 "EHLO
+        id S1356729AbiFGV3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:29:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378037AbiFGV1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:27:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D66228F58;
-        Tue,  7 Jun 2022 12:02:07 -0700 (PDT)
+        with ESMTP id S1351764AbiFGV1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:27:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB0842409A;
+        Tue,  7 Jun 2022 12:02:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCD1961787;
-        Tue,  7 Jun 2022 19:02:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59FBC385A2;
-        Tue,  7 Jun 2022 19:02:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B4F96179F;
+        Tue,  7 Jun 2022 19:02:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93DFBC385A2;
+        Tue,  7 Jun 2022 19:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628526;
-        bh=YmN4V4yALByetjoXbl5eqlLA/g/d1ZKfNiLnROwqz3k=;
+        s=korg; t=1654628528;
+        bh=woBVtfXMdZ+njOaigONRBmmjkMIp2AjS1uRNQoekDWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTh64IONyhJyhQABu0u5fViMtdx550FSXrU4IeY0V3s3XCpJrFym2SIgUDUi/6rbM
-         xj6E4nBZ8yqRM4QqXuNeM/hGpVA5IW5kwViteKMQCOTP39jvVxld8MXN0bRt8p6YpG
-         nOZ1gFNOa6S7INUsPM829z+Er9yqrx6mAhoCeO9U=
+        b=vYq/3ozXxyAfQTxcy2vkVNXc9BgFrXYeLDC3n0Ap/nzziCmiZg/1dyzQ3DQAYmYnD
+         2oH5GJ6sNPbWAWuL7faRSUG+PJ7bPam4SwHD4Jq8aagguRcHmFcYxDC7aGtlJllBG6
+         tQ8pmcJJnTGLVMKef7D0Qy6g/4FEMDoFgWjqOZKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Chen-Tsung Hsieh <chentsung@chromium.org>,
+        Pratyush Yadav <p.yadav@ti.com>,
+        Michael Walle <michael@walle.cc>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 360/879] libbpf: Fix logic for finding matching program for CO-RE relocation
-Date:   Tue,  7 Jun 2022 18:57:58 +0200
-Message-Id: <20220607165013.313188641@linuxfoundation.org>
+Subject: [PATCH 5.18 361/879] mtd: spi-nor: core: Check written SR value in spi_nor_write_16bit_sr_and_check()
+Date:   Tue,  7 Jun 2022 18:57:59 +0200
+Message-Id: <20220607165013.341649472@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,41 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Chen-Tsung Hsieh <chentsung@chromium.org>
 
-[ Upstream commit 966a7509325395c51c5f6d89e7352b0585e4804b ]
+[ Upstream commit 70dd83d737d8900b2d98db6dc6b928c596334d37 ]
 
-Fix the bug in bpf_object__relocate_core() which can lead to finding
-invalid matching BPF program when processing CO-RE relocation. IF
-matching program is not found, last encountered program will be assumed
-to be correct program and thus error detection won't detect the problem.
+Read back Status Register 1 to ensure that the written byte match the
+received value and return -EIO if read back test failed.
 
-Fixes: 9c82a63cf370 ("libbpf: Fix CO-RE relocs against .text section")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220426004511.2691730-4-andrii@kernel.org
+Without this patch, spi_nor_write_16bit_sr_and_check() only check the
+second half of the 16bit. It causes errors like spi_nor_sr_unlock()
+return success incorrectly when spi_nor_write_16bit_sr_and_check()
+doesn't write SR successfully.
+
+Fixes: 39d1e3340c73 ("mtd: spi-nor: Fix clearing of QE bit on lock()/unlock()")
+Signed-off-by: Chen-Tsung Hsieh <chentsung@chromium.org>
+Signed-off-by: Pratyush Yadav <p.yadav@ti.com>
+Reviewed-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lore.kernel.org/r/20220126073227.3401275-1-chentsung@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mtd/spi-nor/core.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 7af6805a863d..881ea905ca81 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -5646,9 +5646,10 @@ bpf_object__relocate_core(struct bpf_object *obj, const char *targ_btf_path)
- 		 */
- 		prog = NULL;
- 		for (i = 0; i < obj->nr_programs; i++) {
--			prog = &obj->programs[i];
--			if (strcmp(prog->sec_name, sec_name) == 0)
-+			if (strcmp(obj->programs[i].sec_name, sec_name) == 0) {
-+				prog = &obj->programs[i];
- 				break;
-+			}
- 		}
- 		if (!prog) {
- 			pr_warn("sec '%s': failed to find a BPF program\n", sec_name);
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index b4f141ad9c9c..c1630131c734 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -788,6 +788,15 @@ static int spi_nor_write_16bit_sr_and_check(struct spi_nor *nor, u8 sr1)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = spi_nor_read_sr(nor, sr_cr);
++	if (ret)
++		return ret;
++
++	if (sr1 != sr_cr[0]) {
++		dev_dbg(nor->dev, "SR: Read back test failed\n");
++		return -EIO;
++	}
++
+ 	if (nor->flags & SNOR_F_NO_READ_CR)
+ 		return 0;
+ 
 -- 
 2.35.1
 
