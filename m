@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61936541310
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB025419E4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357731AbiFGTzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40542 "EHLO
+        id S1376958AbiFGV1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358618AbiFGTwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3AB31908;
-        Tue,  7 Jun 2022 11:21:31 -0700 (PDT)
+        with ESMTP id S1378632AbiFGVXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF111227365;
+        Tue,  7 Jun 2022 12:00:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C61160DB7;
-        Tue,  7 Jun 2022 18:21:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6C8C385A2;
-        Tue,  7 Jun 2022 18:21:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20356B82391;
+        Tue,  7 Jun 2022 19:00:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B44AC34115;
+        Tue,  7 Jun 2022 19:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626090;
-        bh=LImhD1m0CFwRrcWMz/ZR7U4mvdtc1+1szO7EiyU0VfM=;
+        s=korg; t=1654628431;
+        bh=JQE7vGWsZRjAHjJ8a52Qhw0oT6wu0apJy95muA6U7Wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuR8m5rEQCwKnuhrq6ruM3xJhvcLNk8748y4lIxymUya5XWUfkueb3fs3Fe4oB3CQ
-         NxB1nG25K6ZgpFhU1gYMVxda7jE/Mr/cKiHzNHt1py+mSct65q010k+qSSue57RXUq
-         mIeOldUEEiQYWCff7JFnaOADQ14MKN/B+vSF45AY=
+        b=NGI2R57AAnuOEl7v0TCxl23hmIsizYBJ461oUqosp+GsNrejkO8Uejdzp19i/orNp
+         510RP5euW+4uyxNbRmmmMTqzuo/uD1jksLfSLX0gAEj3ttxdCqUSPTlFUiZwdz0fN/
+         OWWRV8oRwngSOZHN2RLvp8D1Zrbrk1ewmhju5STM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@openvz.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 213/772] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
+Subject: [PATCH 5.18 287/879] drm/mediatek: Fix DPI component detection for MT8192
 Date:   Tue,  7 Jun 2022 18:56:45 +0200
-Message-Id: <20220607164955.310543889@linuxfoundation.org>
+Message-Id: <20220607165011.178129155@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@openvz.org>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
+[ Upstream commit cfab37ff31afcd0f99f3cccbff1f8ffa11e44c00 ]
 
-Fixes following sparse warnings:
+When support for MT8192 was added, the DPI device was not added to the
+list of components to look for. This causes the secondary display
+pipeline to not be able to fully bind, and the DRM driver subsequently
+defers probing.
 
-  CHECK   mm/vmscan.c
-mm/vmscan.c: note: in included file (through
-include/trace/trace_events.h, include/trace/define_trace.h,
-include/trace/events/vmscan.h):
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- cast to restricted isolate_mode_t
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- restricted isolate_mode_t degrades to integer
+Add the DPI device compatible to list of DPI components to fix this.
 
-Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
-Signed-off-by: Vasily Averin <vvs@openvz.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220225032754.140168-1-wenst@chromium.org/
+Fixes: 01365f549c88 ("drm/mediatek: Add support for Mediatek SoC MT8192")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/vmscan.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
-index ca2e9009a651..beb128046089 100644
---- a/include/trace/events/vmscan.h
-+++ b/include/trace/events/vmscan.h
-@@ -297,7 +297,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__field(unsigned long, nr_scanned)
- 		__field(unsigned long, nr_skipped)
- 		__field(unsigned long, nr_taken)
--		__field(isolate_mode_t, isolate_mode)
-+		__field(unsigned int, isolate_mode)
- 		__field(int, lru)
- 	),
- 
-@@ -308,7 +308,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__entry->nr_scanned = nr_scanned;
- 		__entry->nr_skipped = nr_skipped;
- 		__entry->nr_taken = nr_taken;
--		__entry->isolate_mode = isolate_mode;
-+		__entry->isolate_mode = (__force unsigned int)isolate_mode;
- 		__entry->lru = lru;
- 	),
- 
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 247c6ff277ef..b0e4e5d68927 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -509,6 +509,8 @@ static const struct of_device_id mtk_ddp_comp_dt_ids[] = {
+ 	  .data = (void *)MTK_DPI },
+ 	{ .compatible = "mediatek,mt8183-dpi",
+ 	  .data = (void *)MTK_DPI },
++	{ .compatible = "mediatek,mt8192-dpi",
++	  .data = (void *)MTK_DPI },
+ 	{ .compatible = "mediatek,mt2701-dsi",
+ 	  .data = (void *)MTK_DSI },
+ 	{ .compatible = "mediatek,mt8173-dsi",
 -- 
 2.35.1
 
