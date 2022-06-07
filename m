@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8AB5412F0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55492541934
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357375AbiFGTzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
+        id S1378272AbiFGVTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358631AbiFGTwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80B834B9F;
-        Tue,  7 Jun 2022 11:21:42 -0700 (PDT)
+        with ESMTP id S1381173AbiFGVRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC6B221694;
+        Tue,  7 Jun 2022 11:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B9A560DDA;
-        Tue,  7 Jun 2022 18:21:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7654CC385A5;
-        Tue,  7 Jun 2022 18:21:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B96C5617D8;
+        Tue,  7 Jun 2022 18:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8EAFC385A5;
+        Tue,  7 Jun 2022 18:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626101;
-        bh=Q2EBRsgfT+PTS/7GnCfPNIMf+eKY8QMFmv+If5+/aew=;
+        s=korg; t=1654628311;
+        bh=f3DlwVAoNPlUmtCXGtkTVlrQXzolrxMRqKu/66vdRrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IXGz2lWpYDnchshIw2GuWbJn7zq29u8sggbTqgnNQyuuCmblulZD5CubRNCe3XuEd
-         J8OGSS+L0vrseXoHVQ2TnQ5byFvlhlVHZsiPe3TfKQzpUp+YRHRVew/suUrctUCxwU
-         +z/lRMmfOKIWpHGIj1gFaRpsmm5H1N2TiimWAGgI=
+        b=iZxm/MlsYIPC3qqgL6/6LSb5NbAZ8YbwH4zdGU29stnAW7cL+2IIko7oGDHj4z/xl
+         rMjBMKFWZDywAG6DD3AnZX1WFAftk0oY79ozoE6us2IfJNOJCvhhxOYkwe5AwdPAU1
+         p8PQxwBN8gJBnA7SreE1PRlIANd9NJ6a0Zes48YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 207/772] PCI: microchip: Add missing chained_irq_enter()/exit() calls
+Subject: [PATCH 5.18 281/879] ASoC: SOF: ipc3-topology: Set scontrol->priv to NULL after freeing it
 Date:   Tue,  7 Jun 2022 18:56:39 +0200
-Message-Id: <20220607164955.133073038@linuxfoundation.org>
+Message-Id: <20220607165011.004643546@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit 30097efa334a706f9021b9aee6efcddcfa44a78a ]
+[ Upstream commit a403993ce98fb401f696da7c4f374739a7609cff ]
 
-Two of the chained IRQ handlers miss their
-chained_irq_enter()/chained_irq_exit() calls, so add them in to avoid
-potentially lost interrupts.
+Since the scontrol->priv is freed up during load operation it should be set
+to NULL to be safe against double freeing attempt.
 
-Reported by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lore.kernel.org/linux-pci/87h76b8nxc.wl-maz@kernel.org
-Link: https://lore.kernel.org/r/20220511095504.2273799-1-conor.dooley@microchip.com
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: b5cee8feb1d48 ("ASoC: SOF: topology: Make control parsing IPC agnostic")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220331114757.32551-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-microchip-host.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/sof/ipc3-topology.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/pcie-microchip-host.c b/drivers/pci/controller/pcie-microchip-host.c
-index 29d8e81e4181..8175abed0f05 100644
---- a/drivers/pci/controller/pcie-microchip-host.c
-+++ b/drivers/pci/controller/pcie-microchip-host.c
-@@ -406,6 +406,7 @@ static void mc_pcie_enable_msi(struct mc_pcie *port, void __iomem *base)
- static void mc_handle_msi(struct irq_desc *desc)
- {
- 	struct mc_pcie *port = irq_desc_get_handler_data(desc);
-+	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct device *dev = port->dev;
- 	struct mc_msi *msi = &port->msi;
- 	void __iomem *bridge_base_addr =
-@@ -414,6 +415,8 @@ static void mc_handle_msi(struct irq_desc *desc)
- 	u32 bit;
- 	int ret;
+diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
+index af1bbd34213c..cdff48c4195f 100644
+--- a/sound/soc/sof/ipc3-topology.c
++++ b/sound/soc/sof/ipc3-topology.c
+@@ -1605,6 +1605,7 @@ static int sof_ipc3_control_load_bytes(struct snd_sof_dev *sdev, struct snd_sof_
+ 	if (scontrol->priv_size > 0) {
+ 		memcpy(cdata->data, scontrol->priv, scontrol->priv_size);
+ 		kfree(scontrol->priv);
++		scontrol->priv = NULL;
  
-+	chained_irq_enter(chip, desc);
-+
- 	status = readl_relaxed(bridge_base_addr + ISTATUS_LOCAL);
- 	if (status & PM_MSI_INT_MSI_MASK) {
- 		status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
-@@ -424,6 +427,8 @@ static void mc_handle_msi(struct irq_desc *desc)
- 						    bit);
- 		}
- 	}
-+
-+	chained_irq_exit(chip, desc);
- }
- 
- static void mc_msi_bottom_irq_ack(struct irq_data *data)
-@@ -563,6 +568,7 @@ static int mc_allocate_msi_domains(struct mc_pcie *port)
- static void mc_handle_intx(struct irq_desc *desc)
- {
- 	struct mc_pcie *port = irq_desc_get_handler_data(desc);
-+	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct device *dev = port->dev;
- 	void __iomem *bridge_base_addr =
- 		port->axi_base_addr + MC_PCIE_BRIDGE_ADDR;
-@@ -570,6 +576,8 @@ static void mc_handle_intx(struct irq_desc *desc)
- 	u32 bit;
- 	int ret;
- 
-+	chained_irq_enter(chip, desc);
-+
- 	status = readl_relaxed(bridge_base_addr + ISTATUS_LOCAL);
- 	if (status & PM_MSI_INT_INTX_MASK) {
- 		status &= PM_MSI_INT_INTX_MASK;
-@@ -581,6 +589,8 @@ static void mc_handle_intx(struct irq_desc *desc)
- 						    bit);
- 		}
- 	}
-+
-+	chained_irq_exit(chip, desc);
- }
- 
- static void mc_ack_intx_irq(struct irq_data *data)
+ 		if (cdata->data->magic != SOF_ABI_MAGIC) {
+ 			dev_err(sdev->dev, "Wrong ABI magic 0x%08x.\n", cdata->data->magic);
 -- 
 2.35.1
 
