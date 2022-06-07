@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E974D5407EB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312BF5410AD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348580AbiFGRxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:53:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41888 "EHLO
+        id S1353129AbiFGT2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:28:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350071AbiFGRvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5971140414;
-        Tue,  7 Jun 2022 10:39:24 -0700 (PDT)
+        with ESMTP id S1355475AbiFGTZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:25:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFA119C3B7;
+        Tue,  7 Jun 2022 11:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECAB16155F;
-        Tue,  7 Jun 2022 17:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 042A7C385A5;
-        Tue,  7 Jun 2022 17:39:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5B5F617AE;
+        Tue,  7 Jun 2022 18:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28D3C385A2;
+        Tue,  7 Jun 2022 18:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623549;
-        bh=9ai2x4mUpTzJOgbzS743zBxcRco43rTjAJoOH+7BUvw=;
+        s=korg; t=1654625361;
+        bh=BS4LhklgbHD1Ban1mKPw+ahHo/zgwk3EvO5RXlVE5wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BG0ev77rLYes8sxLNdbKrbK2Kl1UHQ2eFNr1EHwnvYU3wIEANiwcdqKhng/R6SOLt
-         pjR7rnDkSbFb9MV8UTXNQxfcHtcQDiq0PzCwTitlFxCrABH8bDaoKHRlqBe5IbphV/
-         /kXnMoA8mXtU5vMBbN6fQk7CY/bGijnNIOr0iXZ4=
+        b=w1QFWHGZNQ2GbtYaBtIj8cXQmMEHHIa1ihmUQMmY0tpEZo/ZEWBaUkGjgc9ROpGOG
+         l0QL/nYwFLrWojmmXg0rzNZQ/FnZBXsGTbPv0LBej0Bc34uublkUWIq5nbrbwMojmv
+         hQjyuj8zdKmYENBC3EYcWAS1210+LgKIfbmX8aDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Mao Jinlong <quic_jinlmao@quicinc.com>
-Subject: [PATCH 5.10 426/452] coresight: core: Fix coresight device probe failure issue
+        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 618/667] iommu/dma: Fix iova map result check bug
 Date:   Tue,  7 Jun 2022 19:04:43 +0200
-Message-Id: <20220607164921.250038870@linuxfoundation.org>
+Message-Id: <20220607164953.205306807@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,122 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Jinlong <quic_jinlmao@quicinc.com>
+From: Yunfei Wang <yf.wang@mediatek.com>
 
-commit 8c1d3f79d9ca48e406b78e90e94cf09a8c076bf2 upstream.
+commit a3884774d731f03d3a3dd4fb70ec2d9341ceb39d upstream.
 
-It is possibe that probe failure issue happens when the device
-and its child_device's probe happens at the same time.
-In coresight_make_links, has_conns_grp is true for parent, but
-has_conns_grp is false for child device as has_conns_grp is set
-to true in coresight_create_conns_sysfs_group. The probe of parent
-device will fail at this condition. Add has_conns_grp check for
-child device before make the links and make the process from
-device_register to connection_create be atomic to avoid this
-probe failure issue.
+The data type of the return value of the iommu_map_sg_atomic
+is ssize_t, but the data type of iova size is size_t,
+e.g. one is int while the other is unsigned int.
 
-Cc: stable@vger.kernel.org
-Suggested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Suggested-by: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Mao Jinlong <quic_jinlmao@quicinc.com>
-Link: https://lore.kernel.org/r/20220309142206.15632-1-quic_jinlmao@quicinc.com
-[ Added Cc stable ]
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+When iommu_map_sg_atomic return value is compared with iova size,
+it will force the signed int to be converted to unsigned int, if
+iova map fails and iommu_map_sg_atomic return error code is less
+than 0, then (ret < iova_len) is false, which will to cause not
+do free iova, and the master can still successfully get the iova
+of map fail, which is not expected.
+
+Therefore, we need to check the return value of iommu_map_sg_atomic
+in two cases according to whether it is less than 0.
+
+Fixes: ad8f36e4b6b1 ("iommu: return full error code from iommu_map_sg[_atomic]()")
+Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+Cc: <stable@vger.kernel.org> # 5.15.*
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Link: https://lore.kernel.org/r/20220507085204.16914-1-yf.wang@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-core.c |   33 ++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ drivers/iommu/dma-iommu.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-core.c
-+++ b/drivers/hwtracing/coresight/coresight-core.c
-@@ -1337,7 +1337,7 @@ static int coresight_fixup_device_conns(
- 			continue;
- 		conn->child_dev =
- 			coresight_find_csdev_by_fwnode(conn->child_fwnode);
--		if (conn->child_dev) {
-+		if (conn->child_dev && conn->child_dev->has_conns_grp) {
- 			ret = coresight_make_links(csdev, conn,
- 						   conn->child_dev);
- 			if (ret)
-@@ -1486,6 +1486,7 @@ struct coresight_device *coresight_regis
- 	int nr_refcnts = 1;
- 	atomic_t *refcnts = NULL;
- 	struct coresight_device *csdev;
-+	bool registered = false;
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -619,6 +619,7 @@ static struct page **__iommu_dma_alloc_n
+ 	unsigned int count, min_size, alloc_sizes = domain->pgsize_bitmap;
+ 	struct page **pages;
+ 	dma_addr_t iova;
++	ssize_t ret;
  
- 	csdev = kzalloc(sizeof(*csdev), GFP_KERNEL);
- 	if (!csdev) {
-@@ -1506,7 +1507,8 @@ struct coresight_device *coresight_regis
- 	refcnts = kcalloc(nr_refcnts, sizeof(*refcnts), GFP_KERNEL);
- 	if (!refcnts) {
- 		ret = -ENOMEM;
--		goto err_free_csdev;
-+		kfree(csdev);
-+		goto err_out;
+ 	if (static_branch_unlikely(&iommu_deferred_attach_enabled) &&
+ 	    iommu_deferred_attach(dev, domain))
+@@ -656,8 +657,8 @@ static struct page **__iommu_dma_alloc_n
+ 			arch_dma_prep_coherent(sg_page(sg), sg->length);
  	}
  
- 	csdev->refcnt = refcnts;
-@@ -1530,6 +1532,13 @@ struct coresight_device *coresight_regis
- 	csdev->dev.fwnode = fwnode_handle_get(dev_fwnode(desc->dev));
- 	dev_set_name(&csdev->dev, "%s", desc->name);
+-	if (iommu_map_sg_atomic(domain, iova, sgt->sgl, sgt->orig_nents, ioprot)
+-			< size)
++	ret = iommu_map_sg_atomic(domain, iova, sgt->sgl, sgt->orig_nents, ioprot);
++	if (ret < 0 || ret < size)
+ 		goto out_free_sg;
  
-+	/*
-+	 * Make sure the device registration and the connection fixup
-+	 * are synchronised, so that we don't see uninitialised devices
-+	 * on the coresight bus while trying to resolve the connections.
-+	 */
-+	mutex_lock(&coresight_mutex);
-+
- 	ret = device_register(&csdev->dev);
- 	if (ret) {
- 		put_device(&csdev->dev);
-@@ -1537,7 +1546,7 @@ struct coresight_device *coresight_regis
- 		 * All resources are free'd explicitly via
- 		 * coresight_device_release(), triggered from put_device().
- 		 */
--		goto err_out;
-+		goto out_unlock;
- 	}
+ 	sgt->sgl->dma_address = iova;
+@@ -1054,7 +1055,7 @@ static int iommu_dma_map_sg(struct devic
+ 	 * implementation - it knows better than we do.
+ 	 */
+ 	ret = iommu_map_sg_atomic(domain, iova, sg, nents, prot);
+-	if (ret < iova_len)
++	if (ret < 0 || ret < iova_len)
+ 		goto out_free_iova;
  
- 	if (csdev->type == CORESIGHT_DEV_TYPE_SINK ||
-@@ -1552,11 +1561,11 @@ struct coresight_device *coresight_regis
- 			 * from put_device(), which is in turn called from
- 			 * function device_unregister().
- 			 */
--			goto err_out;
-+			goto out_unlock;
- 		}
- 	}
--
--	mutex_lock(&coresight_mutex);
-+	/* Device is now registered */
-+	registered = true;
- 
- 	ret = coresight_create_conns_sysfs_group(csdev);
- 	if (!ret)
-@@ -1566,16 +1575,18 @@ struct coresight_device *coresight_regis
- 	if (!ret && cti_assoc_ops && cti_assoc_ops->add)
- 		cti_assoc_ops->add(csdev);
- 
-+out_unlock:
- 	mutex_unlock(&coresight_mutex);
--	if (ret) {
-+	/* Success */
-+	if (!ret)
-+		return csdev;
-+
-+	/* Unregister the device if needed */
-+	if (registered) {
- 		coresight_unregister(csdev);
- 		return ERR_PTR(ret);
- 	}
- 
--	return csdev;
--
--err_free_csdev:
--	kfree(csdev);
- err_out:
- 	/* Cleanup the connection information */
- 	coresight_release_platform_data(NULL, desc->pdata);
+ 	return __finalise_sg(dev, sg, nents, iova);
 
 
