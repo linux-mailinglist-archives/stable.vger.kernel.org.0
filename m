@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A6254170C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66E9541E45
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377012AbiFGU5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:57:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
+        id S1381341AbiFGW2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378241AbiFGUzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D7212B02F;
-        Tue,  7 Jun 2022 11:44:02 -0700 (PDT)
+        with ESMTP id S1385235AbiFGW0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:26:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C40270420;
+        Tue,  7 Jun 2022 12:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 349B561667;
-        Tue,  7 Jun 2022 18:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C4FC385A2;
-        Tue,  7 Jun 2022 18:44:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D503B823CE;
+        Tue,  7 Jun 2022 19:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA7ACC385A5;
+        Tue,  7 Jun 2022 19:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627441;
-        bh=0uxE18e2AfanWQQDQShi5sm63VVmRKaaDhXCasV9Sko=;
+        s=korg; t=1654629783;
+        bh=5W7m88KiTZvHvoWjyOt0GpGQuUxzdpHJkRGENQfNYDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQMVaFOaDtJ12Zp5Nr02VnJhiQHEjbV9QLweD5E9MeTyHsLRm9A/2gnQN1DIEmwdM
-         mV/fmXlYlRqHoOdBR86Xd71Lb8YShrN9HBm8jVUPVSn44zJvTnO3ljHobirQp4cj41
-         yRpnH2NANhgwsJYRPTeD4PV5+B3VB/ePRCC7FyGU=
+        b=zNQtHpAr8KmEAjbZbq5JxN2s6Oe/6N01j7Zie8vBAIcnfonqGlazhhXvgpXtjuGFW
+         OnJAzdm6V2kq6W6I4L4aO3si75HrstoMUpW5uf0C7TF1XqLY7VlbdMzX9tCFGyLU1E
+         IYLouH/v34mL9qJ8cqql7DiByl9pEip1HbF2RWoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.17 742/772] clk: tegra: Add missing reset deassertion
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.18 816/879] um: virtio_uml: Fix broken device handling in time-travel
 Date:   Tue,  7 Jun 2022 19:05:34 +0200
-Message-Id: <20220607165010.897752482@linuxfoundation.org>
+Message-Id: <20220607165026.541253242@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 23a43cc437e747473d5f8f98b4fe189fb5c433b7 upstream.
+commit af9fb41ed315ce95f659f0b10b4d59a71975381d upstream.
 
-Commit 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling
-clocks") removed deassertion of reset lines when enabling peripheral
-clocks. This breaks the initialization of the DFLL driver which relied
-on this behaviour.
+If a device implementation crashes, virtio_uml will mark it
+as dead by calling virtio_break_device() and scheduling the
+work that will remove it.
 
-Fix this problem by adding explicit deassert/assert requests to the
-driver. Tested on Google Pixel C.
+This still seems like the right thing to do, but it's done
+directly while reading the message, and if time-travel is
+used, this is in the time-travel handler, outside of the
+normal Linux machinery. Therefore, we cannot acquire locks
+or do normal "linux-y" things because e.g. lockdep will be
+confused about the context.
 
+Move handling this situation out of the read function and
+into the actual IRQ handler and response handling instead,
+so that in the case of time-travel we don't call it in the
+wrong context.
+
+Chances are the system will still crash immediately, since
+the device implementation crashing may also cause the time-
+travel controller to go down, but at least all of that now
+happens without strange warnings from lockdep.
+
+Fixes: c8177aba37ca ("um: time-travel: rework interrupt handling in ext mode")
 Cc: stable@vger.kernel.org
-Fixes: 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling clocks")
-Signed-off-by: Diogo Ivo <diogo.ivo@tecnico.ulisboa.pt>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/tegra/clk-dfll.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/um/drivers/virtio_uml.c |   33 +++++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
---- a/drivers/clk/tegra/clk-dfll.c
-+++ b/drivers/clk/tegra/clk-dfll.c
-@@ -271,6 +271,7 @@ struct tegra_dfll {
- 	struct clk			*ref_clk;
- 	struct clk			*i2c_clk;
- 	struct clk			*dfll_clk;
-+	struct reset_control		*dfll_rst;
- 	struct reset_control		*dvco_rst;
- 	unsigned long			ref_rate;
- 	unsigned long			i2c_clk_rate;
-@@ -1464,6 +1465,7 @@ static int dfll_init(struct tegra_dfll *
- 		return -EINVAL;
- 	}
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -63,6 +63,7 @@ struct virtio_uml_device {
  
-+	reset_control_deassert(td->dfll_rst);
- 	reset_control_deassert(td->dvco_rst);
+ 	u8 config_changed_irq:1;
+ 	uint64_t vq_irq_vq_map;
++	int recv_rc;
+ };
  
- 	ret = clk_prepare(td->ref_clk);
-@@ -1509,6 +1511,7 @@ di_err1:
- 	clk_unprepare(td->ref_clk);
+ struct virtio_uml_vq_info {
+@@ -148,14 +149,6 @@ static int vhost_user_recv(struct virtio
  
- 	reset_control_assert(td->dvco_rst);
-+	reset_control_assert(td->dfll_rst);
+ 	rc = vhost_user_recv_header(fd, msg);
  
- 	return ret;
+-	if (rc == -ECONNRESET && vu_dev->registered) {
+-		struct virtio_uml_platform_data *pdata;
+-
+-		pdata = vu_dev->pdata;
+-
+-		virtio_break_device(&vu_dev->vdev);
+-		schedule_work(&pdata->conn_broken_wk);
+-	}
+ 	if (rc)
+ 		return rc;
+ 	size = msg->header.size;
+@@ -164,6 +157,21 @@ static int vhost_user_recv(struct virtio
+ 	return full_read(fd, &msg->payload, size, false);
  }
-@@ -1530,6 +1533,7 @@ int tegra_dfll_suspend(struct device *de
- 	}
  
- 	reset_control_assert(td->dvco_rst);
-+	reset_control_assert(td->dfll_rst);
- 
- 	return 0;
- }
-@@ -1548,6 +1552,7 @@ int tegra_dfll_resume(struct device *dev
- {
- 	struct tegra_dfll *td = dev_get_drvdata(dev);
- 
-+	reset_control_deassert(td->dfll_rst);
- 	reset_control_deassert(td->dvco_rst);
- 
- 	pm_runtime_get_sync(td->dev);
-@@ -1951,6 +1956,12 @@ int tegra_dfll_register(struct platform_
- 
- 	td->soc = soc;
- 
-+	td->dfll_rst = devm_reset_control_get_optional(td->dev, "dfll");
-+	if (IS_ERR(td->dfll_rst)) {
-+		dev_err(td->dev, "couldn't get dfll reset\n");
-+		return PTR_ERR(td->dfll_rst);
-+	}
++static void vhost_user_check_reset(struct virtio_uml_device *vu_dev,
++				   int rc)
++{
++	struct virtio_uml_platform_data *pdata = vu_dev->pdata;
 +
- 	td->dvco_rst = devm_reset_control_get(td->dev, "dvco");
- 	if (IS_ERR(td->dvco_rst)) {
- 		dev_err(td->dev, "couldn't get dvco reset\n");
-@@ -2087,6 +2098,7 @@ struct tegra_dfll_soc_data *tegra_dfll_u
- 	clk_unprepare(td->i2c_clk);
++	if (rc != -ECONNRESET)
++		return;
++
++	if (!vu_dev->registered)
++		return;
++
++	virtio_break_device(&vu_dev->vdev);
++	schedule_work(&pdata->conn_broken_wk);
++}
++
+ static int vhost_user_recv_resp(struct virtio_uml_device *vu_dev,
+ 				struct vhost_user_msg *msg,
+ 				size_t max_payload_size)
+@@ -171,8 +179,10 @@ static int vhost_user_recv_resp(struct v
+ 	int rc = vhost_user_recv(vu_dev, vu_dev->sock, msg,
+ 				 max_payload_size, true);
  
- 	reset_control_assert(td->dvco_rst);
-+	reset_control_assert(td->dfll_rst);
+-	if (rc)
++	if (rc) {
++		vhost_user_check_reset(vu_dev, rc);
+ 		return rc;
++	}
  
- 	return td->soc;
- }
+ 	if (msg->header.flags != (VHOST_USER_FLAG_REPLY | VHOST_USER_VERSION))
+ 		return -EPROTO;
+@@ -369,6 +379,7 @@ static irqreturn_t vu_req_read_message(s
+ 				 sizeof(msg.msg.payload) +
+ 				 sizeof(msg.extra_payload));
+ 
++	vu_dev->recv_rc = rc;
+ 	if (rc)
+ 		return IRQ_NONE;
+ 
+@@ -412,7 +423,9 @@ static irqreturn_t vu_req_interrupt(int
+ 	if (!um_irq_timetravel_handler_used())
+ 		ret = vu_req_read_message(vu_dev, NULL);
+ 
+-	if (vu_dev->vq_irq_vq_map) {
++	if (vu_dev->recv_rc) {
++		vhost_user_check_reset(vu_dev, vu_dev->recv_rc);
++	} else if (vu_dev->vq_irq_vq_map) {
+ 		struct virtqueue *vq;
+ 
+ 		virtio_device_for_each_vq((&vu_dev->vdev), vq) {
 
 
