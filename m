@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A47540666
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1817154147D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347336AbiFGRe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39734 "EHLO
+        id S1358774AbiFGUSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:18:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346849AbiFGR3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F089660E9;
-        Tue,  7 Jun 2022 10:25:09 -0700 (PDT)
+        with ESMTP id S1376531AbiFGUQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524051CF150;
+        Tue,  7 Jun 2022 11:29:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8704960906;
-        Tue,  7 Jun 2022 17:25:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A152C385A5;
-        Tue,  7 Jun 2022 17:25:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7980B612F2;
+        Tue,  7 Jun 2022 18:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80146C385A2;
+        Tue,  7 Jun 2022 18:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622709;
-        bh=6WufMX3W+3Mz4YL4KNh5xMOCfFOf8Su4lg0ID/P/nmY=;
+        s=korg; t=1654626553;
+        bh=7gLmPXzMhNy7D2VimkqVQcs4oFEM8KSRbDToOpCrFlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=an7TzVJ9ff5KRKdAKIp5sBd6eeAaO1qZNBh8ySFRnuE6WVhr8jwuspCxqLsum3RaL
-         u4F/xCaIqgAWvRqlpQWtpvomHu382hdaikeNtXUZSJsRmnsnmkSRLxisvaUWZ8/JO+
-         90WKAkmWLY3VOZhUDI9lJqieFC5nCPWBwfv3YotI=
+        b=c51NovJF/cNIhCPpy+IZtGwP3/GjZLTPuBaWWBEEY3oEN9UmjkQM96LkpWmlWMpDS
+         mDYsRgDD6Q5BrhbQvFKAJ2YNzY3R2FNNFzZ9/m9CUlXfvmOAcD+6ZXmE3LQzOwPsVp
+         JL6uW5/Sj7n+idPg0K/lWfeqCudS7ym9IF3a8Dmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 154/452] cpufreq: Fix possible race in cpufreq online error path
+Subject: [PATCH 5.17 419/772] thermal/drivers/broadcom: Fix potential NULL dereference in sr_thermal_probe
 Date:   Tue,  7 Jun 2022 19:00:11 +0200
-Message-Id: <20220607164913.148292956@linuxfoundation.org>
+Message-Id: <20220607165001.352967632@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,89 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit f346e96267cd76175d6c201b40f770c0116a8a04 ]
+[ Upstream commit e20d136ec7d6f309989c447638365840d3424c8e ]
 
-When cpufreq online fails, the policy->cpus mask is not cleared and
-policy->rwsem is released too early, so the driver can be invoked
-via the cpuinfo_cur_freq sysfs attribute while its ->offline() or
-->exit() callbacks are being run.
+platform_get_resource() may return NULL, add proper check to
+avoid potential NULL dereferencing.
 
-Take policy->clk as an example:
-
-static int cpufreq_online(unsigned int cpu)
-{
-  ...
-  // policy->cpus != 0 at this time
-  down_write(&policy->rwsem);
-  ret = cpufreq_add_dev_interface(policy);
-  up_write(&policy->rwsem);
-
-  return 0;
-
-out_destroy_policy:
-	for_each_cpu(j, policy->real_cpus)
-		remove_cpu_dev_symlink(policy, get_cpu_device(j));
-    up_write(&policy->rwsem);
-...
-out_exit_policy:
-  if (cpufreq_driver->exit)
-    cpufreq_driver->exit(policy);
-      clk_put(policy->clk);
-      // policy->clk is a wild pointer
-...
-                                    ^
-                                    |
-                            Another process access
-                            __cpufreq_get
-                              cpufreq_verify_current_freq
-                                cpufreq_generic_get
-                                  // acces wild pointer of policy->clk;
-                                    |
-                                    |
-out_offline_policy:                 |
-  cpufreq_policy_free(policy);      |
-    // deleted here, and will wait for no body reference
-    cpufreq_policy_put_kobj(policy);
-}
-
-Address this by modifying cpufreq_online() to release policy->rwsem
-in the error path after the driver callbacks have run and to clear
-policy->cpus before releasing the semaphore.
-
-Fixes: 7106e02baed4 ("cpufreq: release policy->rwsem on error")
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 250e211057c72 ("thermal: broadcom: Add Stingray thermal driver")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Link: https://lore.kernel.org/r/20220425092929.90412-1-zhengyongjun3@huawei.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/thermal/broadcom/sr-thermal.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 30dafe8fc505..3540ea93b6f1 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1515,8 +1515,6 @@ static int cpufreq_online(unsigned int cpu)
- 	for_each_cpu(j, policy->real_cpus)
- 		remove_cpu_dev_symlink(policy, get_cpu_device(j));
+diff --git a/drivers/thermal/broadcom/sr-thermal.c b/drivers/thermal/broadcom/sr-thermal.c
+index 475ce2900771..85ab9edd580c 100644
+--- a/drivers/thermal/broadcom/sr-thermal.c
++++ b/drivers/thermal/broadcom/sr-thermal.c
+@@ -60,6 +60,9 @@ static int sr_thermal_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
--	up_write(&policy->rwsem);
--
- out_offline_policy:
- 	if (cpufreq_driver->offline)
- 		cpufreq_driver->offline(policy);
-@@ -1525,6 +1523,9 @@ static int cpufreq_online(unsigned int cpu)
- 	if (cpufreq_driver->exit)
- 		cpufreq_driver->exit(policy);
- 
-+	cpumask_clear(policy->cpus);
-+	up_write(&policy->rwsem);
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -ENOENT;
 +
- out_free_policy:
- 	cpufreq_policy_free(policy);
- 	return ret;
+ 	sr_thermal->regs = (void __iomem *)devm_memremap(&pdev->dev, res->start,
+ 							 resource_size(res),
+ 							 MEMREMAP_WB);
 -- 
 2.35.1
 
