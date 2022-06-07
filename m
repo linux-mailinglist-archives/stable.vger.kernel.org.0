@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F282F540C99
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:38:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C625541BDC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350645AbiFGSh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57818 "EHLO
+        id S1378028AbiFGVzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353084AbiFGSgE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:36:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF7213393F;
-        Tue,  7 Jun 2022 10:57:58 -0700 (PDT)
+        with ESMTP id S1383300AbiFGVxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2905FE7;
+        Tue,  7 Jun 2022 12:11:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5934EB80B66;
-        Tue,  7 Jun 2022 17:57:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD22C385A5;
-        Tue,  7 Jun 2022 17:57:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8B43B82182;
+        Tue,  7 Jun 2022 19:11:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08A3EC385A2;
+        Tue,  7 Jun 2022 19:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624676;
-        bh=VqWfpwdOOyupoMZnyZZL5JiohEcrHs2ahwGV56umNiE=;
+        s=korg; t=1654629072;
+        bh=tDwZ+cRCl8rKQM727vQUjg2KyaP+QSUoDKb2AhzgPkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfCyVD41ahZPr+QGSKj1I+ODjCnIYb5NFZMe/Tis9BeA2A90C3OaLyUqyAlqX51ib
-         aHw6ixj017ltgSUQBEa51n+TMHMeX66qL1LIbi/0PcoUEna8EhOlu0SYnLBqXcuq+O
-         qYbmrnsIu9QTjWYRW4Z4aBwGqZHxr1Ooxa2IjTA4=
+        b=LfhsM0NZmIBX3LN2kmi/MDdkK2zSyYTq/ZHHSd1YZdPOtKG8dOTxZtUQkyJae6khM
+         j+D2fWBpeGyDEVmd7dt+QjF7tq3+YJRFtA5iyQPsWaPA6BVYIxDNo9D2KESfwzT7TO
+         oA67VvMlmLk8fOaY3YzoZnM91NkVlKhlmZcsPRbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>,
+        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 413/667] gpiolib: of: Introduce hook for missing gpio-ranges
+Subject: [PATCH 5.18 560/879] can: xilinx_can: mark bit timing constants as const
 Date:   Tue,  7 Jun 2022 19:01:18 +0200
-Message-Id: <20220607164947.126929253@linuxfoundation.org>
+Message-Id: <20220607165019.118305403@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 3550bba25d5587a701e6edf20e20984d2ee72c78 ]
+[ Upstream commit ae38fda02996d43d9fb09f16e81e0008704dd524 ]
 
-Since commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-the device tree nodes of GPIO controller need the gpio-ranges property to
-handle gpio-hogs. Unfortunately it's impossible to guarantee that every new
-kernel is shipped with an updated device tree binary.
+This patch marks the bit timing constants as const.
 
-In order to provide backward compatibility with those older DTB, we need a
-callback within of_gpiochip_add_pin_range() so the relevant platform driver
-can handle this case.
-
-Fixes: 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Link: https://lore.kernel.org/r/20220409095129.45786-2-stefan.wahren@i2se.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c223da689324 ("can: xilinx_can: Add support for CANFD FD frames")
+Link: https://lore.kernel.org/all/20220317203119.792552-1-mkl@pengutronix.de
+Cc: Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>
+Cc: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c   |  5 +++++
- include/linux/gpio/driver.h | 12 ++++++++++++
- 2 files changed, 17 insertions(+)
+ drivers/net/can/xilinx_can.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index a5b34c248767..66e434f59f60 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -933,6 +933,11 @@ static int of_gpiochip_add_pin_range(struct gpio_chip *chip)
- 	if (!np)
- 		return 0;
- 
-+	if (!of_property_read_bool(np, "gpio-ranges") &&
-+	    chip->of_gpio_ranges_fallback) {
-+		return chip->of_gpio_ranges_fallback(chip, np);
-+	}
-+
- 	group_names = of_find_property(np, group_names_propname, NULL);
- 
- 	for (;; index++) {
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index e3c29d2e6826..ad479db8f0aa 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -481,6 +481,18 @@ struct gpio_chip {
- 	 */
- 	int (*of_xlate)(struct gpio_chip *gc,
- 			const struct of_phandle_args *gpiospec, u32 *flags);
-+
-+	/**
-+	 * @of_gpio_ranges_fallback:
-+	 *
-+	 * Optional hook for the case that no gpio-ranges property is defined
-+	 * within the device tree node "np" (usually DT before introduction
-+	 * of gpio-ranges). So this callback is helpful to provide the
-+	 * necessary backward compatibility for the pin ranges.
-+	 */
-+	int (*of_gpio_ranges_fallback)(struct gpio_chip *gc,
-+				       struct device_node *np);
-+
- #endif /* CONFIG_OF_GPIO */
+diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
+index e562c5ab1149..43f0c6a064ba 100644
+--- a/drivers/net/can/xilinx_can.c
++++ b/drivers/net/can/xilinx_can.c
+@@ -239,7 +239,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd = {
  };
  
+ /* AXI CANFD Data Bittiming constants as per AXI CANFD 1.0 specs */
+-static struct can_bittiming_const xcan_data_bittiming_const_canfd = {
++static const struct can_bittiming_const xcan_data_bittiming_const_canfd = {
+ 	.name = DRIVER_NAME,
+ 	.tseg1_min = 1,
+ 	.tseg1_max = 16,
+@@ -265,7 +265,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd2 = {
+ };
+ 
+ /* AXI CANFD 2.0 Data Bittiming constants as per AXI CANFD 2.0 spec */
+-static struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
++static const struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
+ 	.name = DRIVER_NAME,
+ 	.tseg1_min = 1,
+ 	.tseg1_max = 32,
 -- 
 2.35.1
 
