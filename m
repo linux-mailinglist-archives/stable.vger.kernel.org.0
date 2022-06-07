@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BA654159B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A11541C98
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376847AbiFGUhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:37:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
+        id S1382562AbiFGWCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377498AbiFGUd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:28 -0400
+        with ESMTP id S1354515AbiFGWCX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:02:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D75AA1E4B6D;
-        Tue,  7 Jun 2022 11:35:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C183424E1CB;
+        Tue,  7 Jun 2022 12:14:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EA50612EC;
-        Tue,  7 Jun 2022 18:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AEB1C385A2;
-        Tue,  7 Jun 2022 18:35:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58EB061917;
+        Tue,  7 Jun 2022 19:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BCE1C385A2;
+        Tue,  7 Jun 2022 19:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626914;
-        bh=p/mEEgaVRxduYfIb8Rfiqp4KRdQAhjYDhovJPQu9nWc=;
+        s=korg; t=1654629252;
+        bh=ucIaXTRbVB/oL/7bl68xYrtIpt1U6H0UrivdO4ahS1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQc1BnhH/tROXVeZE1zjL4qZ1bflBW007gFBeFO4JHntL+UJIBQaHCgXAmao1E6JN
-         oghKK0kNjK9cCcUr6XxgPzKvm4m9QbEvoW0+btjE5AGVrqfWKIenrgISyEcDpgW93N
-         NT+9GKbJsWUZNcW4nfQoHYlWV6CWmYI5BedQiG1E=
+        b=j8LYjj+I5mrX0ynIRqh8vWCV7awnFk6LGj8CN3j10HcEJUMXwVa8EoeiklpcA7CPB
+         yjNobT6srLlc+BgtsGttNb0lZ0n4DEPyZM/gG+zrJTh/dYh3R0sAG1HLINXinH0VxY
+         si96CXhbgZ9VzKF9hNlfp9BV/SsWKup5HzvYQ588=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 549/772] powerpc/perf: Fix the threshold compare group constraint for power9
+Subject: [PATCH 5.18 623/879] crypto: cryptd - Protect per-CPU resource by disabling BH.
 Date:   Tue,  7 Jun 2022 19:02:21 +0200
-Message-Id: <20220607165005.139776414@linuxfoundation.org>
+Message-Id: <20220607165020.935015007@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit ab0cc6bbf0c812731c703ec757fcc3fc3a457a34 ]
+[ Upstream commit 91e8bcd7b4da182e09ea19a2c73167345fe14c98 ]
 
-Thresh compare bits for a event is used to program thresh compare
-field in Monitor Mode Control Register A (MMCRA: 9-18 bits for power9).
-When scheduling events as a group, all events in that group should
-match value in threshold bits (like thresh compare, thresh control,
-thresh select). Otherwise event open for the sibling events should fail.
-But in the current code, incase thresh compare bits are not valid,
-we are not failing in group_constraint function which can result
-in invalid group schduling.
+The access to cryptd_queue::cpu_queue is synchronized by disabling
+preemption in cryptd_enqueue_request() and disabling BH in
+cryptd_queue_worker(). This implies that access is allowed from BH.
 
-Fix the issue by returning -1 incase event is threshold and threshold
-compare value is not valid.
+If cryptd_enqueue_request() is invoked from preemptible context _and_
+soft interrupt then this can lead to list corruption since
+cryptd_enqueue_request() is not protected against access from
+soft interrupt.
 
-Thresh control bits in the event code is used to program thresh_ctl
-field in Monitor Mode Control Register A (MMCRA: 48-55). In below example,
-the scheduling of group events PM_MRK_INST_CMPL (873534401e0) and
-PM_THRESH_MET (8734340101ec) is expected to fail as both event
-request different thresh control bits and invalid thresh compare value.
+Replace get_cpu() in cryptd_enqueue_request() with local_bh_disable()
+to ensure BH is always disabled.
+Remove preempt_disable() from cryptd_queue_worker() since it is not
+needed because local_bh_disable() ensures synchronisation.
 
-Result before the patch changes:
-
-[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
-
- Performance counter stats for 'sleep 1':
-
-            11,048      r8735340401e0
-             1,967      r8734340101ec
-
-       1.001354036 seconds time elapsed
-
-       0.001421000 seconds user
-       0.000000000 seconds sys
-
-Result after the patch changes:
-
-[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
-Error:
-The sys_perf_event_open() syscall returned with 22 (Invalid argument)
-for event (r8735340401e0).
-/bin/dmesg | grep -i perf may provide additional information.
-
-Fixes: 78a16d9fc1206 ("powerpc/perf: Avoid FAB_*_MATCH checks for power9")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220506061015.43916-2-kjain@linux.ibm.com
+Fixes: 254eff771441 ("crypto: cryptd - Per-CPU thread implementation...")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ crypto/cryptd.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index 8f0ecf99c96e..abc4c5187dbc 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -508,7 +508,8 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp,
- 		if (event_is_threshold(event) && is_thresh_cmp_valid(event)) {
- 			mask  |= CNST_THRESH_MASK;
- 			value |= CNST_THRESH_VAL(event >> EVENT_THRESH_SHIFT);
--		}
-+		} else if (event_is_threshold(event))
-+			return -1;
- 	} else {
- 		/*
- 		 * Special case for PM_MRK_FAB_RSP_MATCH and PM_MRK_FAB_RSP_MATCH_CYC,
+diff --git a/crypto/cryptd.c b/crypto/cryptd.c
+index a1bea0f4baa8..668095eca0fa 100644
+--- a/crypto/cryptd.c
++++ b/crypto/cryptd.c
+@@ -39,6 +39,10 @@ struct cryptd_cpu_queue {
+ };
+ 
+ struct cryptd_queue {
++	/*
++	 * Protected by disabling BH to allow enqueueing from softinterrupt and
++	 * dequeuing from kworker (cryptd_queue_worker()).
++	 */
+ 	struct cryptd_cpu_queue __percpu *cpu_queue;
+ };
+ 
+@@ -125,28 +129,28 @@ static void cryptd_fini_queue(struct cryptd_queue *queue)
+ static int cryptd_enqueue_request(struct cryptd_queue *queue,
+ 				  struct crypto_async_request *request)
+ {
+-	int cpu, err;
++	int err;
+ 	struct cryptd_cpu_queue *cpu_queue;
+ 	refcount_t *refcnt;
+ 
+-	cpu = get_cpu();
++	local_bh_disable();
+ 	cpu_queue = this_cpu_ptr(queue->cpu_queue);
+ 	err = crypto_enqueue_request(&cpu_queue->queue, request);
+ 
+ 	refcnt = crypto_tfm_ctx(request->tfm);
+ 
+ 	if (err == -ENOSPC)
+-		goto out_put_cpu;
++		goto out;
+ 
+-	queue_work_on(cpu, cryptd_wq, &cpu_queue->work);
++	queue_work_on(smp_processor_id(), cryptd_wq, &cpu_queue->work);
+ 
+ 	if (!refcount_read(refcnt))
+-		goto out_put_cpu;
++		goto out;
+ 
+ 	refcount_inc(refcnt);
+ 
+-out_put_cpu:
+-	put_cpu();
++out:
++	local_bh_enable();
+ 
+ 	return err;
+ }
+@@ -162,15 +166,10 @@ static void cryptd_queue_worker(struct work_struct *work)
+ 	cpu_queue = container_of(work, struct cryptd_cpu_queue, work);
+ 	/*
+ 	 * Only handle one request at a time to avoid hogging crypto workqueue.
+-	 * preempt_disable/enable is used to prevent being preempted by
+-	 * cryptd_enqueue_request(). local_bh_disable/enable is used to prevent
+-	 * cryptd_enqueue_request() being accessed from software interrupts.
+ 	 */
+ 	local_bh_disable();
+-	preempt_disable();
+ 	backlog = crypto_get_backlog(&cpu_queue->queue);
+ 	req = crypto_dequeue_request(&cpu_queue->queue);
+-	preempt_enable();
+ 	local_bh_enable();
+ 
+ 	if (!req)
 -- 
 2.35.1
 
