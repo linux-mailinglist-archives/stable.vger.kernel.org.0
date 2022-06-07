@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E975E54156A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8F8541CB4
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356676AbiFGUfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46116 "EHLO
+        id S1382447AbiFGWDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:03:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377532AbiFGUdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F8C1E4BC6;
-        Tue,  7 Jun 2022 11:35:19 -0700 (PDT)
+        with ESMTP id S1382951AbiFGWA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:00:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A2924E000;
+        Tue,  7 Jun 2022 12:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 245F0B8237F;
-        Tue,  7 Jun 2022 18:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 696CBC385A2;
-        Tue,  7 Jun 2022 18:35:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4966B8237B;
+        Tue,  7 Jun 2022 19:14:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46DFFC385A5;
+        Tue,  7 Jun 2022 19:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626917;
-        bh=b2xI1vAuWumL9Pl1KLY/AKMQ4JmYs0MYUQwUJwyOSvA=;
+        s=korg; t=1654629255;
+        bh=pi1MZ/7QEmXJOQN0uUmPb5Jkg7rMKRaLhEQEu4gc5yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuZbk0rQunapQiPmObANEIYzRDct/PzFu/Nsl0ggyUJiDkohxApT/D6Xhuh6e7KaH
-         skZGdM1FKvbxuvbJUblQNcnA8wdSe6SmdcXXB0nPQkXHaDqmbRBwlvDp1hZBoxSy7I
-         YKoQ5WaPaJzBN0uVxUOABiC4q3zCM+U/LQGfbafE=
+        b=UEzmtGEJ/BUaL0h5bGBg5rlMNY4iFGh50V4OIk3X0wVozzWYgnUNGh9HZhiDSCDen
+         TVFVyH0DIyqW9TDcF0lqilEsMXSIKRZo0bbi5UBBpc2M8Ofch5ULD6ceToDSw4pxMp
+         90YV8fsWUlQqzGtGjCgvTsjIDrM2DgnCwOP2Pr78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 550/772] macintosh: via-pmu and via-cuda need RTC_LIB
+Subject: [PATCH 5.18 624/879] ARM: dts: at91: sama7g5: remove interrupt-parent from gic node
 Date:   Tue,  7 Jun 2022 19:02:22 +0200
-Message-Id: <20220607165005.169734795@linuxfoundation.org>
+Message-Id: <20220607165020.963251298@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 9a9c5ff5fff87eb1a43db0d899473554e408fd7b ]
+[ Upstream commit b7e86ef7afd128577ff7bb0db0ae82d27d7ed7ad ]
 
-Fix build when RTC_LIB is not set/enabled.
-Eliminates these build errors:
+interrupt-parent is not to be used as a boolean property.
+It is already present in the DT in the proper way it's supposed to be used:
+interrupt-parent = <&gic>;
 
-m68k-linux-ld: drivers/macintosh/via-pmu.o: in function `pmu_set_rtc_time':
-drivers/macintosh/via-pmu.c:1769: undefined reference to `rtc_tm_to_time64'
-m68k-linux-ld: drivers/macintosh/via-cuda.o: in function `cuda_set_rtc_time':
-drivers/macintosh/via-cuda.c:797: undefined reference to `rtc_tm_to_time64'
+This is also reported by dtbs_check:
+arch/arm/boot/dts/at91-sama7g5ek.dtb: interrupt-controller@e8c11000: interrupt-parent: True is not of type 'array'
+	From schema: /.local/lib/python3.8/site-packages/dtschema/schemas/interrupts.yaml
 
-Fixes: 0792a2c8e0bb ("macintosh: Use common code to access RTC")
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220410161035.592-1-rdunlap@infradead.org
+Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220503133127.64320-1-eugen.hristev@microchip.com
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/sama7g5.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
-index 3942db15a2b8..539a2ed4e13d 100644
---- a/drivers/macintosh/Kconfig
-+++ b/drivers/macintosh/Kconfig
-@@ -44,6 +44,7 @@ config ADB_IOP
- config ADB_CUDA
- 	bool "Support for Cuda/Egret based Macs and PowerMacs"
- 	depends on (ADB || PPC_PMAC) && !PPC_PMAC64
-+	select RTC_LIB
- 	help
- 	  This provides support for Cuda/Egret based Macintosh and
- 	  Power Macintosh systems. This includes most m68k based Macs,
-@@ -57,6 +58,7 @@ config ADB_CUDA
- config ADB_PMU
- 	bool "Support for PMU based PowerMacs and PowerBooks"
- 	depends on PPC_PMAC || MAC
-+	select RTC_LIB
- 	help
- 	  On PowerBooks, iBooks, and recent iMacs and Power Macintoshes, the
- 	  PMU is an embedded microprocessor whose primary function is to
+diff --git a/arch/arm/boot/dts/sama7g5.dtsi b/arch/arm/boot/dts/sama7g5.dtsi
+index f691c8f08d04..b63263129692 100644
+--- a/arch/arm/boot/dts/sama7g5.dtsi
++++ b/arch/arm/boot/dts/sama7g5.dtsi
+@@ -857,7 +857,6 @@
+ 			#interrupt-cells = <3>;
+ 			#address-cells = <0>;
+ 			interrupt-controller;
+-			interrupt-parent;
+ 			reg = <0xe8c11000 0x1000>,
+ 				<0xe8c12000 0x2000>;
+ 		};
 -- 
 2.35.1
 
