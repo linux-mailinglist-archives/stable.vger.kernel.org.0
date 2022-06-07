@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD41F540E42
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD78541CB7
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346181AbiFGSxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:53:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
+        id S1355157AbiFGWEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:04:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354548AbiFGSrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48677B0A7F;
-        Tue,  7 Jun 2022 11:02:02 -0700 (PDT)
+        with ESMTP id S1382547AbiFGWDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:03:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D66D252240;
+        Tue,  7 Jun 2022 12:15:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09060B82340;
-        Tue,  7 Jun 2022 18:02:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 675F2C34115;
-        Tue,  7 Jun 2022 18:01:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED37D61846;
+        Tue,  7 Jun 2022 19:15:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083A8C385A5;
+        Tue,  7 Jun 2022 19:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624919;
-        bh=08kFm+IlvALifWTU+HkGbTHDiCZpfAHh1PZ9EGFB+Jw=;
+        s=korg; t=1654629315;
+        bh=ozUGUxXjZ0SLqJrR+0taUaj3gF28+ijUtxbb/5RCXvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=St08oC1jgxgszO+sVpsVLylywnaZeThOQDGf57RSayCHgKr9VzokjCaiPrT7oODn0
-         JoKURp1tNU4g4urBOQ8r4C8Rii8seaXBvGCQE68HpluCWbDO+8qsS/ZmFKkauKjpzW
-         qqUgt9i0L2FP8L6Tr4+yKGt8vnTl2uQF2a0hG0Io=
+        b=n/uoaSrDoocPVciIBlMya+1GYtVkmTy0cdO21Yruf/wpf8ICqULc2y2s2HoA2MR/L
+         VTEmIMrvC/jjDnU6bBBJxTEIY/azEDDLLyTfkbdgJ/C5YMT+9SqnilVqu+gPQYWXcP
+         ndhPiHeL2YCYnL7RgQg/Gq4RFUxHIx5LMIZI6DqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 501/667] dmaengine: stm32-mdma: remove GISR1 register
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 648/879] gpio: sim: Use correct order for the parameters of devm_kcalloc()
 Date:   Tue,  7 Jun 2022 19:02:46 +0200
-Message-Id: <20220607164949.726740412@linuxfoundation.org>
+Message-Id: <20220607165021.656260726@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9d6a2d92e450926c483e45eaf426080a19219f4e ]
+[ Upstream commit c680c6a814a2269427fad9ac417ab16756bceae9 ]
 
-GISR1 was described in a not up-to-date documentation when the stm32-mdma
-driver has been developed. This register has not been added in reference
-manual of STM32 SoC with MDMA, which have only 32 MDMA channels.
-So remove it from stm32-mdma driver.
+We should have 'n', then 'size', not the opposite.
+This is harmless because the 2 values are just multiplied, but having
+the correct order silence a (unpublished yet) smatch warning.
 
-Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20220504155322.121431-2-amelie.delaunay@foss.st.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: cb8c474e79be ("gpio: sim: new testing module")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/stm32-mdma.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ drivers/gpio/gpio-sim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
-index f17a9ffcd00d..343afb9722ea 100644
---- a/drivers/dma/stm32-mdma.c
-+++ b/drivers/dma/stm32-mdma.c
-@@ -40,7 +40,6 @@
- 					 STM32_MDMA_SHIFT(mask))
+diff --git a/drivers/gpio/gpio-sim.c b/drivers/gpio/gpio-sim.c
+index 41c31b10ae84..98109839102f 100644
+--- a/drivers/gpio/gpio-sim.c
++++ b/drivers/gpio/gpio-sim.c
+@@ -314,8 +314,8 @@ static int gpio_sim_setup_sysfs(struct gpio_sim_chip *chip)
  
- #define STM32_MDMA_GISR0		0x0000 /* MDMA Int Status Reg 1 */
--#define STM32_MDMA_GISR1		0x0004 /* MDMA Int Status Reg 2 */
- 
- /* MDMA Channel x interrupt/status register */
- #define STM32_MDMA_CISR(x)		(0x40 + 0x40 * (x)) /* x = 0..62 */
-@@ -196,7 +195,7 @@
- 
- #define STM32_MDMA_MAX_BUF_LEN		128
- #define STM32_MDMA_MAX_BLOCK_LEN	65536
--#define STM32_MDMA_MAX_CHANNELS		63
-+#define STM32_MDMA_MAX_CHANNELS		32
- #define STM32_MDMA_MAX_REQUESTS		256
- #define STM32_MDMA_MAX_BURST		128
- #define STM32_MDMA_VERY_HIGH_PRIORITY	0x3
-@@ -1350,21 +1349,11 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
- 
- 	/* Find out which channel generates the interrupt */
- 	status = readl_relaxed(dmadev->base + STM32_MDMA_GISR0);
--	if (status) {
--		id = __ffs(status);
--	} else {
--		status = readl_relaxed(dmadev->base + STM32_MDMA_GISR1);
--		if (!status) {
--			dev_dbg(mdma2dev(dmadev), "spurious it\n");
--			return IRQ_NONE;
--		}
--		id = __ffs(status);
--		/*
--		 * As GISR0 provides status for channel id from 0 to 31,
--		 * so GISR1 provides status for channel id from 32 to 62
--		 */
--		id += 32;
-+	if (!status) {
-+		dev_dbg(mdma2dev(dmadev), "spurious it\n");
-+		return IRQ_NONE;
- 	}
-+	id = __ffs(status);
- 
- 	chan = &dmadev->chan[id];
- 	if (!chan) {
+ 	for (i = 0; i < num_lines; i++) {
+ 		attr_group = devm_kzalloc(dev, sizeof(*attr_group), GFP_KERNEL);
+-		attrs = devm_kcalloc(dev, sizeof(*attrs),
+-				     GPIO_SIM_NUM_ATTRS, GFP_KERNEL);
++		attrs = devm_kcalloc(dev, GPIO_SIM_NUM_ATTRS, sizeof(*attrs),
++				     GFP_KERNEL);
+ 		val_attr = devm_kzalloc(dev, sizeof(*val_attr), GFP_KERNEL);
+ 		pull_attr = devm_kzalloc(dev, sizeof(*pull_attr), GFP_KERNEL);
+ 		if (!attr_group || !attrs || !val_attr || !pull_attr)
 -- 
 2.35.1
 
