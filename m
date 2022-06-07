@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBFCA541C04
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 981335414EB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382592AbiFGVz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38150 "EHLO
+        id S1359041AbiFGUXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383122AbiFGVwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EF3C2428CA;
-        Tue,  7 Jun 2022 12:10:33 -0700 (PDT)
+        with ESMTP id S1359354AbiFGUWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDCC314640A;
+        Tue,  7 Jun 2022 11:31:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4611CB82182;
-        Tue,  7 Jun 2022 19:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3AD1C385A5;
-        Tue,  7 Jun 2022 19:10:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A418611B9;
+        Tue,  7 Jun 2022 18:31:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E2B4C385A2;
+        Tue,  7 Jun 2022 18:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629031;
-        bh=qXt8HYzvC389/LYL+hw9trysoaLCoG40Dj9ZAx+tflY=;
+        s=korg; t=1654626693;
+        bh=8yedqsOLfQOkKI3LlACac8hOS/l2lcCrAkfT0hiMeDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMWtfw5BfygyZCU6xY/yA/trrls5N8ENxd2jkX8y0C3NatWW67gyCujUg3QS2yvJH
-         Mzh041MAZip4r101TbTO1DfW3nyY/vYb85v6onysbs7yEROJBocSBAz+hNz1zlIueO
-         Ly8FJvWyqWCC3/idUA1knZyTs6buRC6sMhx21P4s=
+        b=UEsvyaICuOr8LBTatZ8/zu3917bQl8mnM8qt6L986gnO5Heoz1DfQ5/ZQZJ+Z4XB7
+         cTP1gj/dTyS8Mbtn2PpIaEmdF0+ttweco6SQauqB7dMB1HeoHHKUl1rh009tLFRtdz
+         gh/lCeBAKH6i2uyHlXneGQdxIluyY3nxx5PPmWZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 542/879] PCI: cadence: Fix find_first_zero_bit() limit
+Subject: [PATCH 5.17 468/772] crypto: qat - set COMPRESSION capability for DH895XCC
 Date:   Tue,  7 Jun 2022 19:01:00 +0200
-Message-Id: <20220607165018.603099483@linuxfoundation.org>
+Message-Id: <20220607165002.788155706@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 0aa3a0937feeb91a0e4e438c3c063b749b194192 ]
+[ Upstream commit 0eaa51543273fd0f4ba9bea83638f7033436e5eb ]
 
-The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
+The capability detection logic clears bits for the features that are
+disabled in a certain SKU. For example, if the bit associate to
+compression is not present in the LEGFUSE register, the correspondent
+bit is cleared in the capability mask.
+This change adds the compression capability to the mask as this was
+missing in the commit that enhanced the capability detection logic.
 
-Link: https://lore.kernel.org/r/20220315065829.GA13572@kili
-Fixes: 37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: cfe4894eccdc ("crypto: qat - set COMPRESSION capability for QAT GEN2")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pcie-cadence-ep.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-index 4b1c4bc4e003..b8b655d4047e 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-@@ -187,8 +187,7 @@ static int cdns_pcie_ep_map_addr(struct pci_epc *epc, u8 fn, u8 vfn,
- 	struct cdns_pcie *pcie = &ep->pcie;
- 	u32 r;
+diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
+index ff13047772e3..61d5467e0d92 100644
+--- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
++++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
+@@ -59,7 +59,8 @@ static u32 get_accel_cap(struct adf_accel_dev *accel_dev)
+ 	capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
+ 		       ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
+ 		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
+-		       ICP_ACCEL_CAPABILITIES_CIPHER;
++		       ICP_ACCEL_CAPABILITIES_CIPHER |
++		       ICP_ACCEL_CAPABILITIES_COMPRESSION;
  
--	r = find_first_zero_bit(&ep->ob_region_map,
--				sizeof(ep->ob_region_map) * BITS_PER_LONG);
-+	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
- 	if (r >= ep->max_regions - 1) {
- 		dev_err(&epc->dev, "no free outbound region\n");
- 		return -EINVAL;
+ 	/* Read accelerator capabilities mask */
+ 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
 -- 
 2.35.1
 
