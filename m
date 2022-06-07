@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A9754143A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B3854057E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359164AbiFGUNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:13:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58156 "EHLO
+        id S1346174AbiFGR0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:26:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359423AbiFGUNC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:13:02 -0400
+        with ESMTP id S1346974AbiFGRZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 835211C5909;
-        Tue,  7 Jun 2022 11:28:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC19111B80;
+        Tue,  7 Jun 2022 10:23:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B0026131C;
-        Tue,  7 Jun 2022 18:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76FFAC385A2;
-        Tue,  7 Jun 2022 18:28:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15DE560BC6;
+        Tue,  7 Jun 2022 17:23:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F98C385A5;
+        Tue,  7 Jun 2022 17:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626481;
-        bh=XOVI/9oW5NXS5Vsb7ZFIVSTbJFI35LjntRHrPtlpks0=;
+        s=korg; t=1654622633;
+        bh=vfebubb+COFyqqRnxderfn9E5M8pqbYMbPh9j7G7l1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztTk+z2g1pF6QdySUKJSSTQfrMnNVuAE6vV3M+dAfbrmecd4FDPiRIpXbGXWja9nU
-         gGWwk/1o9xGeA7GSkrLm1WbqnSGkt1hxZvOZONdY6PjsZ8BmyRy9GNWGVHSEhQfY34
-         mo4oECW4r0AXdrbk4oB3JWc8TSx5fNwc9QWd5x9A=
+        b=GBO2cKZGiD/9IV+6nzBf5AWPq3hLR43jH2RcSxPI52tJtgkm2FX6+5kKz7sqlAdf3
+         rh2+AxXm8vDnXi83wAfmV83WOMJ5l61AoZ6YhhGEPZtVKJ4WQARbTBbthHNZTtw89K
+         dBYq5elSrcTFUTBs18eKJ3XmTYVQKrVChD/GfXA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 395/772] irqchip/gic-v3: Fix priority mask handling
+Subject: [PATCH 5.10 130/452] drm/ingenic: Reset pixclock rate when parent clock rate changes
 Date:   Tue,  7 Jun 2022 18:59:47 +0200
-Message-Id: <20220607165000.651888653@linuxfoundation.org>
+Message-Id: <20220607164912.433484819@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,324 +54,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 614ab80c96474682157cabb14f8c8602b3422e90 ]
+[ Upstream commit 33700f6f7d9f6b4e1e6df933ef7fd388889c662c ]
 
-When a kernel is built with CONFIG_ARM64_PSEUDO_NMI=y and pseudo-NMIs
-are enabled at runtime, GICv3's gic_handle_irq() can leave DAIF and
-ICC_PMR_EL1 in an unexpected state in some cases, breaking subsequent
-usage of local_irq_enable() and resulting in softirqs being run with
-IRQs erroneously masked (possibly resulting in deadlocks).
+Old Ingenic SoCs can overclock very well, up to +50% of their nominal
+clock rate, whithout requiring overvolting or anything like that, just
+by changing the rate of the main PLL. Unfortunately, all clocks on the
+system are derived from that PLL, and when the PLL rate is updated, so
+is our pixel clock.
 
-This can happen when an IRQ exception is taken from a context where
-regular IRQs were unmasked, and either:
+To counter that issue, we make sure that the panel is in VBLANK before
+the rate change happens, and we will then re-set the pixel clock rate
+afterwards, once the PLL has been changed, to be as close as possible to
+the pixel rate requested by the encoder.
 
-(1) ICC_IAR1_EL1 indicates a special INTID (e.g. as a result of an IRQ
-    being withdrawn since the IRQ exception was taken).
+v2: Add comment about mutex usage
 
-(2) ICC_IAR1_EL1 and ICC_RPR_EL1 indicate an NMI was acknowledged.
-
-When an NMI is taken from a context where regular IRQs were masked,
-there is no problem.
-
-When CONFIG_ARM64_DEBUG_PRIORITY_MASKING=y, this can be detected with
-perf, e.g.
-
-| # ./perf record -a -g -e cycles:k ls -alR / > /dev/null 2>&1
-| ------------[ cut here ]------------
-| WARNING: CPU: 0 PID: 14 at arch/arm64/include/asm/irqflags.h:32 arch_local_irq_enable+0x4c/0x6c
-| Modules linked in:
-| CPU: 0 PID: 14 Comm: ksoftirqd/0 Not tainted 5.18.0-rc5-00004-g876c38e3d20b #12
-| Hardware name: linux,dummy-virt (DT)
-| pstate: 204000c5 (nzCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-| pc : arch_local_irq_enable+0x4c/0x6c
-| lr : __do_softirq+0x110/0x5d8
-| sp : ffff8000080bbbc0
-| pmr_save: 000000f0
-| x29: ffff8000080bbbc0 x28: ffff316ac3a6ca40 x27: 0000000000000000
-| x26: 0000000000000000 x25: ffffa04611c06008 x24: ffffa04611c06008
-| x23: 0000000040400005 x22: 0000000000000200 x21: ffff8000080bbe20
-| x20: ffffa0460fe10320 x19: 0000000000000009 x18: 0000000000000000
-| x17: ffff91252dfa9000 x16: ffff800008004000 x15: 0000000000004000
-| x14: 0000000000000028 x13: ffffa0460fe17578 x12: ffffa0460fed4294
-| x11: ffffa0460fedc168 x10: ffffffffffffff80 x9 : ffffa0460fe10a70
-| x8 : ffffa0460fedc168 x7 : 000000000000b762 x6 : 00000000057c3bdf
-| x5 : ffff8000080bbb18 x4 : 0000000000000000 x3 : 0000000000000001
-| x2 : ffff91252dfa9000 x1 : 0000000000000060 x0 : 00000000000000f0
-| Call trace:
-|  arch_local_irq_enable+0x4c/0x6c
-|  __irq_exit_rcu+0x180/0x1ac
-|  irq_exit_rcu+0x1c/0x44
-|  el1_interrupt+0x4c/0xe4
-|  el1h_64_irq_handler+0x18/0x24
-|  el1h_64_irq+0x74/0x78
-|  smpboot_thread_fn+0x68/0x2c0
-|  kthread+0x124/0x130
-|  ret_from_fork+0x10/0x20
-| irq event stamp: 193241
-| hardirqs last  enabled at (193240): [<ffffa0460fe10a9c>] __do_softirq+0x10c/0x5d8
-| hardirqs last disabled at (193241): [<ffffa0461102ffe4>] el1_dbg+0x24/0x90
-| softirqs last  enabled at (193234): [<ffffa0460fe10e00>] __do_softirq+0x470/0x5d8
-| softirqs last disabled at (193239): [<ffffa0460fea9944>] __irq_exit_rcu+0x180/0x1ac
-| ---[ end trace 0000000000000000 ]---
-
-The necessary manipulation of DAIF and ICC_PMR_EL1 depends on the
-interrupted context, but the structure of gic_handle_irq() makes this
-also depend on whether the GIC reports an IRQ, NMI, or special INTID:
-
-*  When the interrupted context had regular IRQs masked (and hence the
-   interrupt must be an NMI), the entry code performs the NMI
-   entry/exit and gic_handle_irq() should return with DAIF and
-   ICC_PMR_EL1 unchanged.
-
-   This is handled correctly today.
-
-* When the interrupted context had regular IRQs unmasked, the entry code
-  performs IRQ entry/exit, but expects gic_handle_irq() to always update
-  ICC_PMR_EL1 and DAIF.IF to unmask NMIs (but not regular IRQs) prior to
-  returning (which it must do prior to invoking any regular IRQ
-  handler).
-
-  This unbalanced calling convention is necessary because we don't know
-  whether an NMI has been taken until acknowledged by a read from
-  ICC_IAR1_EL1, and so we need to perform the read with NMI masked in
-  case an NMI has been taken (and needs to be handled with NMIs masked).
-
-  Unfortunately, this is not handled consistently:
-
-  - When ICC_IAR1_EL1 reports a special INTID, gic_handle_irq() returns
-    immediately without manipulating ICC_PMR_EL1 and DAIF.
-
-  - When RPR_EL1 indicates an NMI, gic_handle_irq() calls
-    gic_handle_nmi() to invoke the NMI handler, then returns without
-    manipulating ICC_PMR_EL1 and DAIF.
-
-  - For regular IRQs, gic_handle_irq() manipulates ICC_PMR_EL1 and DAIF
-    prior to invoking the IRQ handler.
-
-There were related problems with special INTID handling in the past,
-where if an exception was taken from a context with regular IRQs masked
-and ICC_IAR_EL1 reported a special INTID, gic_handle_irq() would
-erroneously unmask NMIs in NMI context permitted an unexpected nested
-NMI. That case specifically was fixed by commit:
-
-  a97709f563a078e2 ("irqchip/gic-v3: Do not enable irqs when handling spurious interrups")
-
-... but unfortunately that commit added an inverse problem, where if an
-exception was taken from a context with regular IRQs *unmasked* and
-ICC_IAR_EL1 reported a special INTID, gic_handle_irq() would erroneously
-fail to  unmask NMIs (and consequently regular IRQs could not be
-unmasked during softirq processing). Before and after that commit, if an
-NMI was taken from a context with regular IRQs unmasked gic_handle_irq()
-would not unmask NMIs prior to returning, leading to the same problem
-with softirq handling.
-
-This patch fixes this by restructuring gic_handle_irq(), splitting it
-into separate irqson/irqsoff helper functions which consistently perform
-the DAIF + ICC_PMR1_EL1 manipulation based upon the interrupted context,
-regardless of the event indicated by ICC_IAR1_EL1.
-
-The special INTID handling is moved into the low-level IRQ/NMI handler
-invocation helper functions, so that early returns don't prevent the
-required manipulation of DAIF + ICC_PMR_EL1.
-
-Fixes: f32c926651dcd168 ("irqchip/gic-v3: Handle pseudo-NMIs")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220513133038.226182-4-mark.rutland@arm.com
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200926170501.1109197-2-paul@crapouillou.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3.c | 147 +++++++++++++++++++++--------------
- 1 file changed, 89 insertions(+), 58 deletions(-)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 61 ++++++++++++++++++++++-
+ 1 file changed, 60 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index c26f571fba0c..09abc8a4759e 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -673,78 +673,69 @@ static inline void gic_complete_ack(u32 irqnr)
- 	isb();
- }
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index b6bb5fc7d183..e34718cf5c2e 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -10,6 +10,7 @@
+ #include <linux/clk.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+@@ -68,6 +69,21 @@ struct ingenic_drm {
  
--static inline void gic_handle_nmi(u32 irqnr, struct pt_regs *regs)
-+static bool gic_rpr_is_nmi_prio(void)
- {
--	bool irqs_enabled = interrupts_enabled(regs);
--	int err;
-+	if (!gic_supports_nmi())
-+		return false;
- 
--	if (irqs_enabled)
--		nmi_enter();
-+	return unlikely(gic_read_rpr() == GICD_INT_RPR_PRI(GICD_INT_NMI_PRI));
-+}
-+
-+static bool gic_irqnr_is_special(u32 irqnr)
-+{
-+	return irqnr >= 1020 && irqnr <= 1023;
-+}
-+
-+static void __gic_handle_irq(u32 irqnr, struct pt_regs *regs)
-+{
-+	if (gic_irqnr_is_special(irqnr))
-+		return;
- 
- 	gic_complete_ack(irqnr);
- 
--	/*
--	 * Leave the PSR.I bit set to prevent other NMIs to be
--	 * received while handling this one.
--	 * PSR.I will be restored when we ERET to the
--	 * interrupted context.
--	 */
--	err = generic_handle_domain_nmi(gic_data.domain, irqnr);
--	if (err)
-+	if (generic_handle_domain_irq(gic_data.domain, irqnr)) {
-+		WARN_ONCE(true, "Unexpected interrupt (irqnr %u)\n", irqnr);
- 		gic_deactivate_unhandled(irqnr);
--
--	if (irqs_enabled)
--		nmi_exit();
-+	}
- }
- 
--static u32 do_read_iar(struct pt_regs *regs)
-+static void __gic_handle_nmi(u32 irqnr, struct pt_regs *regs)
- {
--	u32 iar;
--
--	if (gic_supports_nmi() && unlikely(!interrupts_enabled(regs))) {
--		u64 pmr;
--
--		/*
--		 * We were in a context with IRQs disabled. However, the
--		 * entry code has set PMR to a value that allows any
--		 * interrupt to be acknowledged, and not just NMIs. This can
--		 * lead to surprising effects if the NMI has been retired in
--		 * the meantime, and that there is an IRQ pending. The IRQ
--		 * would then be taken in NMI context, something that nobody
--		 * wants to debug twice.
--		 *
--		 * Until we sort this, drop PMR again to a level that will
--		 * actually only allow NMIs before reading IAR, and then
--		 * restore it to what it was.
--		 */
--		pmr = gic_read_pmr();
--		gic_pmr_mask_irqs();
--		isb();
-+	if (gic_irqnr_is_special(irqnr))
-+		return;
- 
--		iar = gic_read_iar();
-+	gic_complete_ack(irqnr);
- 
--		gic_write_pmr(pmr);
--	} else {
--		iar = gic_read_iar();
-+	if (generic_handle_domain_nmi(gic_data.domain, irqnr)) {
-+		WARN_ONCE(true, "Unexpected pseudo-NMI (irqnr %u)\n", irqnr);
-+		gic_deactivate_unhandled(irqnr);
- 	}
--
--	return iar;
- }
- 
--static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
-+/*
-+ * An exception has been taken from a context with IRQs enabled, and this could
-+ * be an IRQ or an NMI.
-+ *
-+ * The entry code called us with DAIF.IF set to keep NMIs masked. We must clear
-+ * DAIF.IF (and update ICC_PMR_EL1 to mask regular IRQs) prior to returning,
-+ * after handling any NMI but before handling any IRQ.
-+ *
-+ * The entry code has performed IRQ entry, and if an NMI is detected we must
-+ * perform NMI entry/exit around invoking the handler.
-+ */
-+static void __gic_handle_irq_from_irqson(struct pt_regs *regs)
- {
-+	bool is_nmi;
- 	u32 irqnr;
- 
--	irqnr = do_read_iar(regs);
-+	irqnr = gic_read_iar();
- 
--	/* Check for special IDs first */
--	if ((irqnr >= 1020 && irqnr <= 1023))
--		return;
-+	is_nmi = gic_rpr_is_nmi_prio();
- 
--	if (gic_supports_nmi() &&
--	    unlikely(gic_read_rpr() == GICD_INT_RPR_PRI(GICD_INT_NMI_PRI))) {
--		gic_handle_nmi(irqnr, regs);
--		return;
-+	if (is_nmi) {
-+		nmi_enter();
-+		__gic_handle_nmi(irqnr, regs);
-+		nmi_exit();
- 	}
- 
- 	if (gic_prio_masking_enabled()) {
-@@ -752,12 +743,52 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
- 		gic_arch_enable_irqs();
- 	}
- 
--	gic_complete_ack(irqnr);
-+	if (!is_nmi)
-+		__gic_handle_irq(irqnr, regs);
-+}
- 
--	if (generic_handle_domain_irq(gic_data.domain, irqnr)) {
--		WARN_ONCE(true, "Unexpected interrupt received!\n");
--		gic_deactivate_unhandled(irqnr);
--	}
-+/*
-+ * An exception has been taken from a context with IRQs disabled, which can only
-+ * be an NMI.
-+ *
-+ * The entry code called us with DAIF.IF set to keep NMIs masked. We must leave
-+ * DAIF.IF (and ICC_PMR_EL1) unchanged.
-+ *
-+ * The entry code has performed NMI entry.
-+ */
-+static void __gic_handle_irq_from_irqsoff(struct pt_regs *regs)
-+{
-+	u64 pmr;
-+	u32 irqnr;
+ 	bool panel_is_sharp;
+ 	bool no_vblank;
 +
 +	/*
-+	 * We were in a context with IRQs disabled. However, the
-+	 * entry code has set PMR to a value that allows any
-+	 * interrupt to be acknowledged, and not just NMIs. This can
-+	 * lead to surprising effects if the NMI has been retired in
-+	 * the meantime, and that there is an IRQ pending. The IRQ
-+	 * would then be taken in NMI context, something that nobody
-+	 * wants to debug twice.
-+	 *
-+	 * Until we sort this, drop PMR again to a level that will
-+	 * actually only allow NMIs before reading IAR, and then
-+	 * restore it to what it was.
++	 * clk_mutex is used to synchronize the pixel clock rate update with
++	 * the VBLANK. When the pixel clock's parent clock needs to be updated,
++	 * clock_nb's notifier function will lock the mutex, then wait until the
++	 * next VBLANK. At that point, the parent clock's rate can be updated,
++	 * and the mutex is then unlocked. If an atomic commit happens in the
++	 * meantime, it will lock on the mutex, effectively waiting until the
++	 * clock update process finishes. Finally, the pixel clock's rate will
++	 * be recomputed when the mutex has been released, in the pending atomic
++	 * commit, or a future one.
 +	 */
-+	pmr = gic_read_pmr();
-+	gic_pmr_mask_irqs();
-+	isb();
-+	irqnr = gic_read_iar();
-+	gic_write_pmr(pmr);
-+
-+	__gic_handle_nmi(irqnr, regs);
-+}
-+
-+static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
-+{
-+	if (unlikely(gic_supports_nmi() && !interrupts_enabled(regs)))
-+		__gic_handle_irq_from_irqsoff(regs);
-+	else
-+		__gic_handle_irq_from_irqson(regs);
++	struct mutex clk_mutex;
++	bool update_clk_rate;
++	struct notifier_block clock_nb;
+ };
+ 
+ static const u32 ingenic_drm_primary_formats[] = {
+@@ -111,6 +127,29 @@ static inline struct ingenic_drm *drm_crtc_get_priv(struct drm_crtc *crtc)
+ 	return container_of(crtc, struct ingenic_drm, crtc);
  }
  
- static u32 gic_get_pribits(void)
++static inline struct ingenic_drm *drm_nb_get_priv(struct notifier_block *nb)
++{
++	return container_of(nb, struct ingenic_drm, clock_nb);
++}
++
++static int ingenic_drm_update_pixclk(struct notifier_block *nb,
++				     unsigned long action,
++				     void *data)
++{
++	struct ingenic_drm *priv = drm_nb_get_priv(nb);
++
++	switch (action) {
++	case PRE_RATE_CHANGE:
++		mutex_lock(&priv->clk_mutex);
++		priv->update_clk_rate = true;
++		drm_crtc_wait_one_vblank(&priv->crtc);
++		return NOTIFY_OK;
++	default:
++		mutex_unlock(&priv->clk_mutex);
++		return NOTIFY_OK;
++	}
++}
++
+ static void ingenic_drm_crtc_atomic_enable(struct drm_crtc *crtc,
+ 					   struct drm_crtc_state *state)
+ {
+@@ -276,8 +315,14 @@ static void ingenic_drm_crtc_atomic_flush(struct drm_crtc *crtc,
+ 
+ 	if (drm_atomic_crtc_needs_modeset(state)) {
+ 		ingenic_drm_crtc_update_timings(priv, &state->mode);
++		priv->update_clk_rate = true;
++	}
+ 
++	if (priv->update_clk_rate) {
++		mutex_lock(&priv->clk_mutex);
+ 		clk_set_rate(priv->pix_clk, state->adjusted_mode.clock * 1000);
++		priv->update_clk_rate = false;
++		mutex_unlock(&priv->clk_mutex);
+ 	}
+ 
+ 	if (event) {
+@@ -936,16 +981,28 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 	if (soc_info->has_osd)
+ 		regmap_write(priv->map, JZ_REG_LCD_OSDC, JZ_LCD_OSDC_OSDEN);
+ 
++	mutex_init(&priv->clk_mutex);
++	priv->clock_nb.notifier_call = ingenic_drm_update_pixclk;
++
++	parent_clk = clk_get_parent(priv->pix_clk);
++	ret = clk_notifier_register(parent_clk, &priv->clock_nb);
++	if (ret) {
++		dev_err(dev, "Unable to register clock notifier\n");
++		goto err_devclk_disable;
++	}
++
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to register DRM driver\n");
+-		goto err_devclk_disable;
++		goto err_clk_notifier_unregister;
+ 	}
+ 
+ 	drm_fbdev_generic_setup(drm, 32);
+ 
+ 	return 0;
+ 
++err_clk_notifier_unregister:
++	clk_notifier_unregister(parent_clk, &priv->clock_nb);
+ err_devclk_disable:
+ 	if (priv->lcd_clk)
+ 		clk_disable_unprepare(priv->lcd_clk);
+@@ -967,7 +1024,9 @@ static int compare_of(struct device *dev, void *data)
+ static void ingenic_drm_unbind(struct device *dev)
+ {
+ 	struct ingenic_drm *priv = dev_get_drvdata(dev);
++	struct clk *parent_clk = clk_get_parent(priv->pix_clk);
+ 
++	clk_notifier_unregister(parent_clk, &priv->clock_nb);
+ 	if (priv->lcd_clk)
+ 		clk_disable_unprepare(priv->lcd_clk);
+ 	clk_disable_unprepare(priv->pix_clk);
 -- 
 2.35.1
 
