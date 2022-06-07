@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36528541C59
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0029254155B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239492AbiFGV5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
+        id S1359315AbiFGUfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382341AbiFGVzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:55:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C74224CC82;
-        Tue,  7 Jun 2022 12:13:46 -0700 (PDT)
+        with ESMTP id S1376553AbiFGUbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:31:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C6F1E1745;
+        Tue,  7 Jun 2022 11:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42DBD6191A;
-        Tue,  7 Jun 2022 19:13:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B6BBC385A2;
-        Tue,  7 Jun 2022 19:13:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23CD5B8237B;
+        Tue,  7 Jun 2022 18:34:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E6EEC34115;
+        Tue,  7 Jun 2022 18:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629202;
-        bh=z7AVenX/X9Jsutgao0sLOigp9cSo+2vLYkPsboRwK6k=;
+        s=korg; t=1654626862;
+        bh=ucIaXTRbVB/oL/7bl68xYrtIpt1U6H0UrivdO4ahS1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wf4PPsOeFRzlSfMOqZgRFm1T4j+he0fueEb4CHn6rIr0ZHlpHHPkPN+zwnwnc/grb
-         qCg3zKthwD6Cst9/y5BP1VIBfXpFdUKizmfkae8WtoFlmEUXn1F1/MlpewVKsmLajO
-         bup4WBEMIbbW8ikwlb+IeAyXGoKvBlPod76u80Io=
+        b=cX0eDpnmo9GNCEhU818YTH3+W50I0O8q961MiCLCABqKxoNCIkpD1WKGPowkWyywO
+         ntAPvVVaBAp+dwJ46lVQ3RaJSbQJsLMRGrx2gbpQWOdUq8YRMZLsFVDDxcEpmgi4Sm
+         tWzLiUoKPPqzDdWj00WUAdz9EaR8BkOkyq46iE5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 606/879] pinctrl: renesas: core: Fix possible null-ptr-deref in sh_pfc_map_resources()
+Subject: [PATCH 5.17 532/772] crypto: cryptd - Protect per-CPU resource by disabling BH.
 Date:   Tue,  7 Jun 2022 19:02:04 +0200
-Message-Id: <20220607165020.440730483@linuxfoundation.org>
+Message-Id: <20220607165004.646799415@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 5376e3d904532e657fd7ca1a9b1ff3d351527b90 ]
+[ Upstream commit 91e8bcd7b4da182e09ea19a2c73167345fe14c98 ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+The access to cryptd_queue::cpu_queue is synchronized by disabling
+preemption in cryptd_enqueue_request() and disabling BH in
+cryptd_queue_worker(). This implies that access is allowed from BH.
 
-Fixes: c7977ec4a336 ("pinctrl: sh-pfc: Convert to platform_get_*()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220429082637.1308182-1-yangyingliang@huawei.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+If cryptd_enqueue_request() is invoked from preemptible context _and_
+soft interrupt then this can lead to list corruption since
+cryptd_enqueue_request() is not protected against access from
+soft interrupt.
+
+Replace get_cpu() in cryptd_enqueue_request() with local_bh_disable()
+to ensure BH is always disabled.
+Remove preempt_disable() from cryptd_queue_worker() since it is not
+needed because local_bh_disable() ensures synchronisation.
+
+Fixes: 254eff771441 ("crypto: cryptd - Per-CPU thread implementation...")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/core.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ crypto/cryptd.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/pinctrl/renesas/core.c b/drivers/pinctrl/renesas/core.c
-index d0d4714731c1..3d8bf521c3e7 100644
---- a/drivers/pinctrl/renesas/core.c
-+++ b/drivers/pinctrl/renesas/core.c
-@@ -71,12 +71,11 @@ static int sh_pfc_map_resources(struct sh_pfc *pfc,
+diff --git a/crypto/cryptd.c b/crypto/cryptd.c
+index a1bea0f4baa8..668095eca0fa 100644
+--- a/crypto/cryptd.c
++++ b/crypto/cryptd.c
+@@ -39,6 +39,10 @@ struct cryptd_cpu_queue {
+ };
  
- 	/* Fill them. */
- 	for (i = 0; i < num_windows; i++) {
--		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
--		windows->phys = res->start;
--		windows->size = resource_size(res);
--		windows->virt = devm_ioremap_resource(pfc->dev, res);
-+		windows->virt = devm_platform_get_and_ioremap_resource(pdev, i, &res);
- 		if (IS_ERR(windows->virt))
- 			return -ENOMEM;
-+		windows->phys = res->start;
-+		windows->size = resource_size(res);
- 		windows++;
- 	}
- 	for (i = 0; i < num_irqs; i++)
+ struct cryptd_queue {
++	/*
++	 * Protected by disabling BH to allow enqueueing from softinterrupt and
++	 * dequeuing from kworker (cryptd_queue_worker()).
++	 */
+ 	struct cryptd_cpu_queue __percpu *cpu_queue;
+ };
+ 
+@@ -125,28 +129,28 @@ static void cryptd_fini_queue(struct cryptd_queue *queue)
+ static int cryptd_enqueue_request(struct cryptd_queue *queue,
+ 				  struct crypto_async_request *request)
+ {
+-	int cpu, err;
++	int err;
+ 	struct cryptd_cpu_queue *cpu_queue;
+ 	refcount_t *refcnt;
+ 
+-	cpu = get_cpu();
++	local_bh_disable();
+ 	cpu_queue = this_cpu_ptr(queue->cpu_queue);
+ 	err = crypto_enqueue_request(&cpu_queue->queue, request);
+ 
+ 	refcnt = crypto_tfm_ctx(request->tfm);
+ 
+ 	if (err == -ENOSPC)
+-		goto out_put_cpu;
++		goto out;
+ 
+-	queue_work_on(cpu, cryptd_wq, &cpu_queue->work);
++	queue_work_on(smp_processor_id(), cryptd_wq, &cpu_queue->work);
+ 
+ 	if (!refcount_read(refcnt))
+-		goto out_put_cpu;
++		goto out;
+ 
+ 	refcount_inc(refcnt);
+ 
+-out_put_cpu:
+-	put_cpu();
++out:
++	local_bh_enable();
+ 
+ 	return err;
+ }
+@@ -162,15 +166,10 @@ static void cryptd_queue_worker(struct work_struct *work)
+ 	cpu_queue = container_of(work, struct cryptd_cpu_queue, work);
+ 	/*
+ 	 * Only handle one request at a time to avoid hogging crypto workqueue.
+-	 * preempt_disable/enable is used to prevent being preempted by
+-	 * cryptd_enqueue_request(). local_bh_disable/enable is used to prevent
+-	 * cryptd_enqueue_request() being accessed from software interrupts.
+ 	 */
+ 	local_bh_disable();
+-	preempt_disable();
+ 	backlog = crypto_get_backlog(&cpu_queue->queue);
+ 	req = crypto_dequeue_request(&cpu_queue->queue);
+-	preempt_enable();
+ 	local_bh_enable();
+ 
+ 	if (!req)
 -- 
 2.35.1
 
