@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73838541D21
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55DC65415FC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379546AbiFGWI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:08:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40432 "EHLO
+        id S1376410AbiFGUnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382906AbiFGWHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:07:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2D2254EEA;
-        Tue,  7 Jun 2022 12:18:35 -0700 (PDT)
+        with ESMTP id S1376930AbiFGUks (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:40:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0315C1EE6FA;
+        Tue,  7 Jun 2022 11:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63A17B823CA;
-        Tue,  7 Jun 2022 19:18:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C753AC36B08;
-        Tue,  7 Jun 2022 19:18:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 816D1B8233E;
+        Tue,  7 Jun 2022 18:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2769C385A2;
+        Tue,  7 Jun 2022 18:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629502;
-        bh=rLzYEFQhxQzMthEPxUzfgqVrGddGFJ4QCp/TClNTFx8=;
+        s=korg; t=1654627108;
+        bh=qgIarFfVi30ywsrZa61GfYB3RcK1JjLpu8nUPCGSHOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7mSMTOyUf8ElIK9XEF84LknlmR5aabGHoRGY5xVTH2aFhhfUsj95oYFf2JBha4c6
-         nXlrsLqEcBa8nbGP5EfvDewdBHbs3ddY//Yk5DSNvkDE6xOBgo17nCEVEoUQBgl4/B
-         aA8v/+FjX9y13buzh07/mxHedSlLKidnC22rwvHw=
+        b=eEwliN9hiDgfHoWfJPuQZNdPVDoxuUzbyHcioYj7sxOfPVrNSZJR7z+LxB/+4xyhv
+         FX7UzIfGw2n1uBHqCidtBs6IRxLto933vYBCNHo5eadArCKHEPssVS05wIWIfE6YeO
+         xzKKsUkySDBt22lNKZZmPVsrO37namT9f0JQl60o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Clark Williams <williams@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 677/879] NFS: fsync() should report filesystem errors over EINTR/ERESTARTSYS
+Subject: [PATCH 5.17 603/772] tracing/timerlat: Notify IRQ new max latency only if stop tracing is set
 Date:   Tue,  7 Jun 2022 19:03:15 +0200
-Message-Id: <20220607165022.498883333@linuxfoundation.org>
+Message-Id: <20220607165006.709755739@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-[ Upstream commit 9641d9bc9b75f11f70646f5c6ee9f5f519a1012e ]
+[ Upstream commit aa748949b4e665f473bc5abdc5f66029cb5f5522 ]
 
-If the commit to disk is interrupted, we should still first check for
-filesystem errors so that we can report them in preference to the error
-due to the signal.
+Currently, the notification of a new max latency is sent from
+timerlat's IRQ handler anytime a new max latency is found.
 
-Fixes: 2197e9b06c22 ("NFS: Fix up fsync() when the server rebooted")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+While this behavior is not wrong, the send IPI overhead itself
+will increase the thread latency and that is not the desired
+effect (tracing overhead).
+
+Moreover, the thread will notify a new max latency again because
+the thread latency as it is always higher than the IRQ latency
+that woke it up.
+
+The only case in which it is helpful to notify a new max latency
+from IRQ is when stop tracing (for the IRQ) is set, as in this
+case, the thread will not be dispatched.
+
+Notify a new max latency from the IRQ handler only if stop tracing is
+set for the IRQ handler.
+
+Link: https://lkml.kernel.org/r/2c2d9a56c0886c8402ba320de32856cbbb10c2bb.1652175637.git.bristot@kernel.org
+
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Reported-by: Clark Williams <williams@redhat.com>
+Fixes: a955d7eac177 ("trace: Add timerlat tracer")
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/file.c | 9 +++++----
+ kernel/trace/trace_osnoise.c | 9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index 150b7fa8f0a7..7c380e555224 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -204,15 +204,16 @@ static int
- nfs_file_fsync_commit(struct file *file, int datasync)
- {
- 	struct inode *inode = file_inode(file);
--	int ret;
-+	int ret, ret2;
+diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
+index 5e3c62a08fc0..61c3fff488bf 100644
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -1576,11 +1576,12 @@ static enum hrtimer_restart timerlat_irq(struct hrtimer *timer)
  
- 	dprintk("NFS: fsync file(%pD2) datasync %d\n", file, datasync);
+ 	trace_timerlat_sample(&s);
  
- 	nfs_inc_stats(inode, NFSIOS_VFSFSYNC);
- 	ret = nfs_commit_inode(inode, FLUSH_SYNC);
--	if (ret < 0)
--		return ret;
--	return file_check_and_advance_wb_err(file);
-+	ret2 = file_check_and_advance_wb_err(file);
-+	if (ret2 < 0)
-+		return ret2;
-+	return ret;
- }
+-	notify_new_max_latency(diff);
+-
+-	if (osnoise_data.stop_tracing)
+-		if (time_to_us(diff) >= osnoise_data.stop_tracing)
++	if (osnoise_data.stop_tracing) {
++		if (time_to_us(diff) >= osnoise_data.stop_tracing) {
+ 			osnoise_stop_tracing();
++			notify_new_max_latency(diff);
++		}
++	}
  
- int
+ 	wake_up_process(tlat->kthread);
+ 
 -- 
 2.35.1
 
