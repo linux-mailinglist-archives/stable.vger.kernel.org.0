@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59DB5540A5C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C9B541400
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351577AbiFGSUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42304 "EHLO
+        id S1358975AbiFGUJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:09:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352562AbiFGSRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 080A3138904;
-        Tue,  7 Jun 2022 10:52:20 -0700 (PDT)
+        with ESMTP id S1359101AbiFGUJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CAD1406E5;
+        Tue,  7 Jun 2022 11:26:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50B73B8236A;
-        Tue,  7 Jun 2022 17:52:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B95B5C36AFE;
-        Tue,  7 Jun 2022 17:52:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8875CB81FF8;
+        Tue,  7 Jun 2022 18:26:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97FCC385A2;
+        Tue,  7 Jun 2022 18:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624338;
-        bh=AJaiys9ckCie9lZEC/QRZHz/ZvZSHdU8XpgmwbTxEus=;
+        s=korg; t=1654626396;
+        bh=j2Fb0nAZxAw9pFJAaoO0Fz81oQajZ15NykutXoAzCFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cI8oXOpTM+aW6PQ6HXUOMZ/di0i0rusjoFp2FVwPMpXOJpo+vN12sfvh2r+v+NZQ8
-         ojVg5XClZaQq4S72YWckRR31496MBSmSXTczsXHJzB/sb7oD5gODKDi88f2LNhNDeQ
-         9CjOUEJns0MkMHeWVQ0HTQ2Fqwb3QjNLyJ/wQCig=
+        b=sVvE1B4fo3op8XSDMBILGZsfP7gygaljDv/p1kae+3yGcd6hMiwtK0RvQ1glGo/9q
+         4I4zys36BSkKGKwMAsKtFUAPNiSTb4y5BTIM0SRgKAJ1SbLUEZyHMKR7VntUwBtYQZ
+         EpIGJXtGKODJYj2MxSBtM/fr3MLvR8GThIL2PEDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Jessica Zhang <quic_jesszhan@quicinc.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 290/667] drm/msm/mdp5: Return error code in mdp5_pipe_release when deadlock is detected
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 363/772] block: Fix the bio.bi_opf comment
 Date:   Tue,  7 Jun 2022 18:59:15 +0200
-Message-Id: <20220607164943.476925805@linuxfoundation.org>
+Message-Id: <20220607164959.710463312@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,131 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Zhang <quic_jesszhan@quicinc.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit d59be579fa932c46b908f37509f319cbd4ca9a68 ]
+[ Upstream commit 5d2ae14276e698c76fa0c8ce870103f343b38263 ]
 
-mdp5_get_global_state runs the risk of hitting a -EDEADLK when acquiring
-the modeset lock, but currently mdp5_pipe_release doesn't check for if
-an error is returned. Because of this, there is a possibility of
-mdp5_pipe_release hitting a NULL dereference error.
+Commit ef295ecf090d modified the Linux kernel such that the bottom bits
+of the bi_opf member contain the operation instead of the topmost bits.
+That commit did not update the comment next to bi_opf. Hence this patch.
 
-To avoid this, let's have mdp5_pipe_release check if
-mdp5_get_global_state returns an error and propogate that error.
+>From commit ef295ecf090d:
+-#define bio_op(bio)    ((bio)->bi_opf >> BIO_OP_SHIFT)
++#define bio_op(bio)    ((bio)->bi_opf & REQ_OP_MASK)
 
-Changes since v1:
-- Separated declaration and initialization of *new_state to avoid
-  compiler warning
-- Fixed some spelling mistakes in commit message
-
-Changes since v2:
-- Return 0 in case where hwpipe is NULL as this is considered normal
-  behavior
-- Added 2nd patch in series to fix a similar NULL dereference issue in
-  mdp5_mixer_release
-
-Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Fixes: 7907a0d77cb4 ("drm/msm/mdp5: Use the new private_obj state")
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/485179/
-Link: https://lore.kernel.org/r/20220505214051.155-1-quic_jesszhan@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Fixes: ef295ecf090d ("block: better op and flags encoding")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220511235152.1082246-1-bvanassche@acm.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c  | 15 +++++++++++----
- drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h  |  2 +-
- drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 20 ++++++++++++++++----
- 3 files changed, 28 insertions(+), 9 deletions(-)
+ include/linux/blk_types.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-index ba6695963aa6..a4f5cb90f3e8 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
-@@ -119,18 +119,23 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
- 	return 0;
- }
- 
--void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
-+int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
- {
- 	struct msm_drm_private *priv = s->dev->dev_private;
- 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
- 	struct mdp5_global_state *state = mdp5_get_global_state(s);
--	struct mdp5_hw_pipe_state *new_state = &state->hwpipe;
-+	struct mdp5_hw_pipe_state *new_state;
- 
- 	if (!hwpipe)
--		return;
-+		return 0;
-+
-+	if (IS_ERR(state))
-+		return PTR_ERR(state);
-+
-+	new_state = &state->hwpipe;
- 
- 	if (WARN_ON(!new_state->hwpipe_to_plane[hwpipe->idx]))
--		return;
-+		return -EINVAL;
- 
- 	DBG("%s: release from plane %s", hwpipe->name,
- 		new_state->hwpipe_to_plane[hwpipe->idx]->name);
-@@ -141,6 +146,8 @@ void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
- 	}
- 
- 	new_state->hwpipe_to_plane[hwpipe->idx] = NULL;
-+
-+	return 0;
- }
- 
- void mdp5_pipe_destroy(struct mdp5_hw_pipe *hwpipe)
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
-index 9b26d0761bd4..cca67938cab2 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
-@@ -37,7 +37,7 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
- 		     uint32_t caps, uint32_t blkcfg,
- 		     struct mdp5_hw_pipe **hwpipe,
- 		     struct mdp5_hw_pipe **r_hwpipe);
--void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
-+int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
- 
- struct mdp5_hw_pipe *mdp5_pipe_init(enum mdp5_pipe pipe,
- 		uint32_t reg_offset, uint32_t caps);
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-index 50e854207c70..c0d947bce9e9 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-@@ -297,12 +297,24 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
- 				mdp5_state->r_hwpipe = NULL;
- 
- 
--			mdp5_pipe_release(state->state, old_hwpipe);
--			mdp5_pipe_release(state->state, old_right_hwpipe);
-+			ret = mdp5_pipe_release(state->state, old_hwpipe);
-+			if (ret)
-+				return ret;
-+
-+			ret = mdp5_pipe_release(state->state, old_right_hwpipe);
-+			if (ret)
-+				return ret;
-+
- 		}
- 	} else {
--		mdp5_pipe_release(state->state, mdp5_state->hwpipe);
--		mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
-+		ret = mdp5_pipe_release(state->state, mdp5_state->hwpipe);
-+		if (ret)
-+			return ret;
-+
-+		ret = mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
-+		if (ret)
-+			return ret;
-+
- 		mdp5_state->hwpipe = mdp5_state->r_hwpipe = NULL;
- 	}
- 
+diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+index 86c0f85df8bb..fa6e14b2763f 100644
+--- a/include/linux/blk_types.h
++++ b/include/linux/blk_types.h
+@@ -237,9 +237,8 @@ typedef unsigned int blk_qc_t;
+ struct bio {
+ 	struct bio		*bi_next;	/* request queue link */
+ 	struct block_device	*bi_bdev;
+-	unsigned int		bi_opf;		/* bottom bits req flags,
+-						 * top bits REQ_OP. Use
+-						 * accessors.
++	unsigned int		bi_opf;		/* bottom bits REQ_OP, top bits
++						 * req_flags.
+ 						 */
+ 	unsigned short		bi_flags;	/* BIO_* below */
+ 	unsigned short		bi_ioprio;
 -- 
 2.35.1
 
