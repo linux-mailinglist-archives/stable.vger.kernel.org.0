@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92149540C3B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E70D4541C5F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352029AbiFGSed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
+        id S1349969AbiFGV7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352019AbiFGSdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F622DF3;
-        Tue,  7 Jun 2022 10:57:13 -0700 (PDT)
+        with ESMTP id S1383130AbiFGVwT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0064D2428D2;
+        Tue,  7 Jun 2022 12:10:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C591617A8;
-        Tue,  7 Jun 2022 17:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D29DC385A5;
-        Tue,  7 Jun 2022 17:57:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D431617DA;
+        Tue,  7 Jun 2022 19:10:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE74C385A5;
+        Tue,  7 Jun 2022 19:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624632;
-        bh=bV924xHDvYXj0TBQhpB/6GrV/r97XENKruel7CiVDTk=;
+        s=korg; t=1654629033;
+        bh=sbeesrX8k2qss3TrN1ELNXYZUKhfSZzbV0X6jfu5Hrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4nB+Lk02Rg2uFQ105fEPKZTwtCnyuO12XnUm8us2sgTQiNyECfLMBdXkIqEQO7yc
-         D0nJFPgXiKYEwDSVVKNJ/eybB5WEZcsq9AQTORVwz22nb/tXk7w9SmslSUB6nTvLVw
-         4KcdunZUDkIomqmz/JMgix5x7hlpmfqc1Qd0iyFE=
+        b=elvsiia+UVhsbSTWLVTgvHniBNin2R8691u6L4oz/9bB8MY6Gt9YrCOEWsdFr7fMF
+         yUO80QB0OIcCeDtbld9HSjATIRgx26Fi2uPsRwHEMf9FXVunEY89HQwg9eZQcG3NQh
+         m78tz3c7F9sc7+4OWfaKQh8JpLA9qutEDQYA3MXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 357/667] bfq: Relax waker detection for shared queues
+        stable@vger.kernel.org, Yihang Li <liyihang6@hisilicon.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 504/879] scsi: hisi_sas: Fix rescan after deleting a disk
 Date:   Tue,  7 Jun 2022 19:00:22 +0200
-Message-Id: <20220607164945.462356134@linuxfoundation.org>
+Message-Id: <20220607165017.504815896@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +56,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit f950667356ce90a41b446b726d4595a10cb65415 ]
+[ Upstream commit e9dedc13bb11bc553754abecb322e5e41d1b4fef ]
 
-Currently we look for waker only if current queue has no requests. This
-makes sense for bfq queues with a single process however for shared
-queues when there is a larger number of processes the condition that
-queue has no requests is difficult to meet because often at least one
-process has some request in flight although all the others are waiting
-for the waker to do the work and this harms throughput. Relax the "no
-queued request for bfq queue" condition to "the current task has no
-queued requests yet". For this, we also need to start tracking number of
-requests in flight for each task.
+Removing an ATA device via sysfs means that the device may not be found
+through re-scanning:
 
-This patch (together with the following one) restores the performance
-for dbench with 128 clients that regressed with commit c65e6fd460b4
-("bfq: Do not let waker requests skip proper accounting") because
-this commit makes requests of wakers properly enter BFQ queues and thus
-these queues become ineligible for the old waker detection logic.
-Dbench results:
+root@ubuntu:/home/john# lsscsi
+[0:0:0:0] disk SanDisk LT0200MO P404 /dev/sda
+[0:0:1:0] disk ATA HGST HUS724040AL A8B0 /dev/sdb
+[0:0:8:0] enclosu 12G SAS Expander RevB -
+root@ubuntu:/home/john# echo 1 > /sys/block/sdb/device/delete
+root@ubuntu:/home/john# echo "- - -" > /sys/class/scsi_host/host0/scan
+root@ubuntu:/home/john# lsscsi
+[0:0:0:0] disk SanDisk LT0200MO P404 /dev/sda
+[0:0:8:0] enclosu 12G SAS Expander RevB -
+root@ubuntu:/home/john#
 
-         Vanilla 5.18-rc3        5.18-rc3 + revert      5.18-rc3 patched
-Mean     1237.36 (   0.00%)      950.16 *  23.21%*      988.35 *  20.12%*
+The problem is that the rescan of the device may conflict with the device
+in being re-initialized, as follows:
 
-Numbers are time to complete workload so lower is better.
+ - In the rescan we call hisi_sas_slave_alloc() in store_scan() ->
+   sas_user_scan() -> [__]scsi_scan_target() -> scsi_probe_and_add_lunc()
+   -> scsi_alloc_sdev() -> hisi_sas_slave_alloc() -> hisi_sas_init_device()
+   In hisi_sas_init_device() we issue an IT nexus reset for ATA devices
 
-Fixes: c65e6fd460b4 ("bfq: Do not let waker requests skip proper accounting")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220519105235.31397-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ - That IT nexus causes the remote PHY to go down and this triggers a bcast
+   event
+
+ - In parallel libsas processes the bcast event, finds that the phy is down
+   and marks the device as gone
+
+The hard reset issued in hisi_sas_init_device() is unncessary - as
+described in the code comment - so remove it. Also set dev status as
+HISI_SAS_DEV_NORMAL as the hisi_sas_init_device() call.
+
+Link: https://lore.kernel.org/r/1652354134-171343-4-git-send-email-john.garry@huawei.com
+Fixes: 36c6b7613ef1 ("scsi: hisi_sas: Initialise devices in .slave_alloc callback")
+Tested-by: Yihang Li <liyihang6@hisilicon.com>
+Reviewed-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 5 +++--
- block/bfq-iosched.h | 1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 47 ++++++++++-----------------
+ 1 file changed, 18 insertions(+), 29 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 63d2d66dece5..a2aefb4a1e2e 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2022,7 +2022,6 @@ static void bfq_check_waker(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (!bfqd->last_completed_rq_bfqq ||
- 	    bfqd->last_completed_rq_bfqq == bfqq ||
- 	    bfq_bfqq_has_short_ttime(bfqq) ||
--	    bfqq->dispatched > 0 ||
- 	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
- 	    bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
- 		return;
-@@ -2084,7 +2083,7 @@ static void bfq_add_request(struct request *rq)
- 	bfqq->queued[rq_is_sync(rq)]++;
- 	bfqd->queued++;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 4bda2f6cb352..86cbfab78dfe 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -709,8 +709,6 @@ static int hisi_sas_init_device(struct domain_device *device)
+ 	struct scsi_lun lun;
+ 	int retry = HISI_SAS_DISK_RECOVER_CNT;
+ 	struct hisi_hba *hisi_hba = dev_to_hisi_hba(device);
+-	struct device *dev = hisi_hba->dev;
+-	struct sas_phy *local_phy;
  
--	if (RB_EMPTY_ROOT(&bfqq->sort_list) && bfq_bfqq_sync(bfqq)) {
-+	if (bfq_bfqq_sync(bfqq) && RQ_BIC(rq)->requests <= 1) {
- 		bfq_check_waker(bfqd, bfqq, now_ns);
- 
+ 	switch (device->dev_type) {
+ 	case SAS_END_DEVICE:
+@@ -729,30 +727,18 @@ static int hisi_sas_init_device(struct domain_device *device)
+ 	case SAS_SATA_PM_PORT:
+ 	case SAS_SATA_PENDING:
  		/*
-@@ -6422,6 +6421,7 @@ static void bfq_finish_requeue_request(struct request *rq)
- 		bfq_completed_request(bfqq, bfqd);
- 	}
- 	bfq_finish_requeue_request_body(bfqq);
-+	RQ_BIC(rq)->requests--;
- 	spin_unlock_irqrestore(&bfqd->lock, flags);
+-		 * send HARD RESET to clear previous affiliation of
+-		 * STP target port
++		 * If an expander is swapped when a SATA disk is attached then
++		 * we should issue a hard reset to clear previous affiliation
++		 * of STP target port, see SPL (chapter 6.19.4).
++		 *
++		 * However we don't need to issue a hard reset here for these
++		 * reasons:
++		 * a. When probing the device, libsas/libata already issues a
++		 * hard reset in sas_probe_sata() -> ata_sas_async_probe().
++		 * Note that in hisi_sas_debug_I_T_nexus_reset() we take care
++		 * to issue a hard reset by checking the dev status (== INIT).
++		 * b. When resetting the controller, this is simply unnecessary.
+ 		 */
+-		local_phy = sas_get_local_phy(device);
+-		if (!scsi_is_sas_phy_local(local_phy) &&
+-		    !test_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags)) {
+-			unsigned long deadline = ata_deadline(jiffies, 20000);
+-			struct sata_device *sata_dev = &device->sata_dev;
+-			struct ata_host *ata_host = sata_dev->ata_host;
+-			struct ata_port_operations *ops = ata_host->ops;
+-			struct ata_port *ap = sata_dev->ap;
+-			struct ata_link *link;
+-			unsigned int classes;
+-
+-			ata_for_each_link(link, ap, EDGE)
+-				rc = ops->hardreset(link, &classes,
+-						    deadline);
+-		}
+-		sas_put_local_phy(local_phy);
+-		if (rc) {
+-			dev_warn(dev, "SATA disk hardreset fail: %d\n", rc);
+-			return rc;
+-		}
+-
+ 		while (retry-- > 0) {
+ 			rc = hisi_sas_softreset_ata_disk(device);
+ 			if (!rc)
+@@ -768,15 +754,19 @@ static int hisi_sas_init_device(struct domain_device *device)
  
- 	/*
-@@ -6643,6 +6643,7 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
+ int hisi_sas_slave_alloc(struct scsi_device *sdev)
+ {
+-	struct domain_device *ddev;
++	struct domain_device *ddev = sdev_to_domain_dev(sdev);
++	struct hisi_sas_device *sas_dev = ddev->lldd_dev;
+ 	int rc;
  
- 	bfqq->allocated++;
- 	bfqq->ref++;
-+	bic->requests++;
- 	bfq_log_bfqq(bfqd, bfqq, "get_request %p: bfqq %p, %d",
- 		     rq, bfqq, bfqq->ref);
+ 	rc = sas_slave_alloc(sdev);
+ 	if (rc)
+ 		return rc;
+-	ddev = sdev_to_domain_dev(sdev);
  
-diff --git a/block/bfq-iosched.h b/block/bfq-iosched.h
-index a73488eec8a4..9dc87d3c40c3 100644
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -466,6 +466,7 @@ struct bfq_io_cq {
- 	struct bfq_queue *stable_merge_bfqq;
+-	return hisi_sas_init_device(ddev);
++	rc = hisi_sas_init_device(ddev);
++	if (rc)
++		return rc;
++	sas_dev->dev_status = HISI_SAS_DEV_NORMAL;
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(hisi_sas_slave_alloc);
  
- 	bool stably_merged;	/* non splittable if true */
-+	unsigned int requests;	/* Number of requests this process has in flight */
- };
+@@ -826,7 +816,6 @@ static int hisi_sas_dev_found(struct domain_device *device)
+ 	dev_info(dev, "dev[%d:%x] found\n",
+ 		sas_dev->device_id, sas_dev->dev_type);
  
- /**
+-	sas_dev->dev_status = HISI_SAS_DEV_NORMAL;
+ 	return 0;
+ 
+ err_out:
 -- 
 2.35.1
 
