@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C885B5413B5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9903F540B52
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358532AbiFGUEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:04:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36008 "EHLO
+        id S237836AbiFGS2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358167AbiFGUDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:03:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5843C1C2070;
-        Tue,  7 Jun 2022 11:25:39 -0700 (PDT)
+        with ESMTP id S1352086AbiFGSQx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6DE9133932;
+        Tue,  7 Jun 2022 10:50:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3942EB82383;
-        Tue,  7 Jun 2022 18:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C6C7C385A2;
-        Tue,  7 Jun 2022 18:24:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 46D51CE21CD;
+        Tue,  7 Jun 2022 17:50:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212E1C385A5;
+        Tue,  7 Jun 2022 17:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626278;
-        bh=8zYSFrkihB6yudjGZuS1iNAEdatRTTDmZuCxsSPrQAA=;
+        s=korg; t=1654624222;
+        bh=2R1mQvAJ3EHxKA7Z2wDfWH5G/0RmduuCe6zF8RkqES4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4SBs+94M+JmcosDe5UPtEAn+OtszK69P3Hnlxrb+m8PPMnucomqTLo2qtMie1W9R
-         aI1QIgSVyXAeiUoP9HBU2P4WEn4MGcOpAtIqhCpQuFwfimdLW4YVRkthnnOXTrYff7
-         DTSeb2x1ks7CTro67b0VGi429Xh+iNCiK6rpygcY=
+        b=i9An50rywmhPLOZj7QfmKbYAumG8ZdKsxVSkYxkOSsYw5yr34VdZHBJK5tZ493BNV
+         eMwr6RI/f/iufdue05K1qKpf+6Jw3GmjWf7OqdKvc52qnRnRn0w1nrr1SUmCzEysY1
+         Dt9Z4G2dixHk00RH0jxdoCvrzHrEZj5lc0noiD1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, SeongJae Park <sj@kernel.org>,
+        Yuanchu Xie <yuanchu@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 321/772] drm/msm/hdmi: fix error check return value of irq_of_parse_and_map()
+Subject: [PATCH 5.15 248/667] selftests/damon: add damon to selftests root Makefile
 Date:   Tue,  7 Jun 2022 18:58:33 +0200
-Message-Id: <20220607164958.482269257@linuxfoundation.org>
+Message-Id: <20220607164942.223235036@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Yuanchu Xie <yuanchu@google.com>
 
-[ Upstream commit 03371e4fbdeb7f596cbceacb59e474248b6d95ac ]
+[ Upstream commit 678f0cdc572c5fda940cb038d70eebb8d818adc8 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return a negative value anyhow, so never enter this conditional branch.
+Currently the damon selftests are not built with the rest of the
+selftests. We add damon to the list of targets.
 
-Fixes: f6a8eaca0ea1 ("drm/msm/mdp5: use irqdomains")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483294/
-Link: https://lore.kernel.org/r/20220425091831.3500487-1-lv.ruyi@zte.com.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: b348eb7abd09 ("mm/damon: add user space selftests")
+Reviewed-by: SeongJae Park <sj@kernel.org>
+Signed-off-by: Yuanchu Xie <yuanchu@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index d3fea6ec5246..46a1f74335d8 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -303,9 +303,9 @@ int msm_hdmi_modeset_init(struct hdmi *hdmi,
- 	drm_connector_attach_encoder(hdmi->connector, hdmi->encoder);
- 
- 	hdmi->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
--	if (hdmi->irq < 0) {
--		ret = hdmi->irq;
--		DRM_DEV_ERROR(dev->dev, "failed to get irq: %d\n", ret);
-+	if (!hdmi->irq) {
-+		ret = -EINVAL;
-+		DRM_DEV_ERROR(dev->dev, "failed to get irq\n");
- 		goto fail;
- 	}
- 
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index c852eb40c4f7..14206d1d1efe 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -8,6 +8,7 @@ TARGETS += clone3
+ TARGETS += core
+ TARGETS += cpufreq
+ TARGETS += cpu-hotplug
++TARGETS += damon
+ TARGETS += drivers/dma-buf
+ TARGETS += efivarfs
+ TARGETS += exec
 -- 
 2.35.1
 
