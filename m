@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F22541AC6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFD2540550
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380704AbiFGVh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:37:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36542 "EHLO
+        id S1346159AbiFGRY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:24:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381123AbiFGVgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:36:32 -0400
+        with ESMTP id S1346312AbiFGRXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:23:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0971522FE7A;
-        Tue,  7 Jun 2022 12:04:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA23106576;
+        Tue,  7 Jun 2022 10:21:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5413B8220B;
-        Tue,  7 Jun 2022 19:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0848DC385A2;
-        Tue,  7 Jun 2022 19:04:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E30FB8220B;
+        Tue,  7 Jun 2022 17:21:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FEC7C34115;
+        Tue,  7 Jun 2022 17:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628692;
-        bh=kF4kMchGAIVVerdQTWUJCIU85/BMwDOMfqbIBpFUo7w=;
+        s=korg; t=1654622505;
+        bh=1zEFXMbvXcZkAgqY5Nud7gU+5hyXg2RAGsbNg8AZIwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eiU8clSXklayVr4frDpLwqiY8jckIWoHcIYzNy1YvpErFN/wzk5j+h0BL8dPNiZGP
-         YYYTfNlQ6LfkEZ/9tUKEkW3fov9uwXM42JiX+vAULl5S/RbnOu62rVyOO5ftmTwPOB
-         TcNw87bsDNYfoZlkKtZg2ani0H9Oq9qBhtrvTjWo=
+        b=bcMi6mA5+V9vqmkTTFlzQHu7QCdmavXOYppgjHejKHcQr92bVjwHxr0hjETDZkAey
+         weQyvAEJKeRpJ3tYUDJzeBfpzqa8Phn+MeOeErO53jcRlHNyhn47kO9xVXMcm+sG/g
+         cYcGpaTrDW80VHLSNDLcH1vvQXj5JL8Dy4mTGs5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark ONeill <mao@tumblingdice.co.uk>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 422/879] dma-direct: dont fail on highmem CMA pages in dma_direct_alloc_pages
-Date:   Tue,  7 Jun 2022 18:59:00 +0200
-Message-Id: <20220607165015.114227959@linuxfoundation.org>
+        stable@vger.kernel.org, Xu Jianhai <zero.xu@bytedance.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 084/452] nbd: Fix hung on disconnect request if socket is closed before
+Date:   Tue,  7 Jun 2022 18:59:01 +0200
+Message-Id: <20220607164911.057040992@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 92826e967535db2eb117db227b1191aaf98e4bb3 ]
+[ Upstream commit 491bf8f236fdeec698fa6744993f1ecf3fafd1a5 ]
 
-When dma_direct_alloc_pages encounters a highmem page it just gives up
-currently.  But what we really should do is to try memory using the
-page allocator instead - without this platforms with a global highmem
-CMA pool will fail all dma_alloc_pages allocations.
+When userspace closes the socket before sending a disconnect
+request, the following I/O requests will be blocked in
+wait_for_reconnect() until dead timeout. This will cause the
+following disconnect request also hung on blk_mq_quiesce_queue().
+That means we have no way to disconnect a nbd device if there
+are some I/O requests waiting for reconnecting until dead timeout.
+It's not expected. So let's wake up the thread waiting for
+reconnecting directly when a disconnect request is sent.
 
-Fixes: efa70f2fdc84 ("dma-mapping: add a new dma_alloc_pages API")
-Reported-by: Mark O'Neill <mao@tumblingdice.co.uk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: Xu Jianhai <zero.xu@bytedance.com>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220322080639.142-1-xieyongji@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.c | 27 ++++++++++-----------------
- 1 file changed, 10 insertions(+), 17 deletions(-)
+ drivers/block/nbd.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 9743c6ccce1a..3e7f4aab740e 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -115,7 +115,7 @@ static struct page *dma_direct_alloc_swiotlb(struct device *dev, size_t size)
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 59c452fff835..ecde800ba210 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -880,11 +880,15 @@ static int wait_for_reconnect(struct nbd_device *nbd)
+ 	struct nbd_config *config = nbd->config;
+ 	if (!config->dead_conn_timeout)
+ 		return 0;
+-	if (test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags))
++
++	if (!wait_event_timeout(config->conn_wait,
++				test_bit(NBD_RT_DISCONNECTED,
++					 &config->runtime_flags) ||
++				atomic_read(&config->live_connections) > 0,
++				config->dead_conn_timeout))
+ 		return 0;
+-	return wait_event_timeout(config->conn_wait,
+-				  atomic_read(&config->live_connections) > 0,
+-				  config->dead_conn_timeout) > 0;
++
++	return !test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags);
  }
  
- static struct page *__dma_direct_alloc_pages(struct device *dev, size_t size,
--		gfp_t gfp)
-+		gfp_t gfp, bool allow_highmem)
- {
- 	int node = dev_to_node(dev);
- 	struct page *page = NULL;
-@@ -129,9 +129,12 @@ static struct page *__dma_direct_alloc_pages(struct device *dev, size_t size,
- 	gfp |= dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
- 					   &phys_limit);
- 	page = dma_alloc_contiguous(dev, size, gfp);
--	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
--		dma_free_contiguous(dev, page, size);
--		page = NULL;
-+	if (page) {
-+		if (!dma_coherent_ok(dev, page_to_phys(page), size) ||
-+		    (!allow_highmem && PageHighMem(page))) {
-+			dma_free_contiguous(dev, page, size);
-+			page = NULL;
-+		}
- 	}
- again:
- 	if (!page)
-@@ -189,7 +192,7 @@ static void *dma_direct_alloc_no_mapping(struct device *dev, size_t size,
- {
- 	struct page *page;
- 
--	page = __dma_direct_alloc_pages(dev, size, gfp & ~__GFP_ZERO);
-+	page = __dma_direct_alloc_pages(dev, size, gfp & ~__GFP_ZERO, true);
- 	if (!page)
- 		return NULL;
- 
-@@ -262,7 +265,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 		return dma_direct_alloc_from_pool(dev, size, dma_handle, gfp);
- 
- 	/* we always manually zero the memory once we are done */
--	page = __dma_direct_alloc_pages(dev, size, gfp & ~__GFP_ZERO);
-+	page = __dma_direct_alloc_pages(dev, size, gfp & ~__GFP_ZERO, true);
- 	if (!page)
- 		return NULL;
- 
-@@ -370,19 +373,9 @@ struct page *dma_direct_alloc_pages(struct device *dev, size_t size,
- 	if (force_dma_unencrypted(dev) && dma_direct_use_pool(dev, gfp))
- 		return dma_direct_alloc_from_pool(dev, size, dma_handle, gfp);
- 
--	page = __dma_direct_alloc_pages(dev, size, gfp);
-+	page = __dma_direct_alloc_pages(dev, size, gfp, false);
- 	if (!page)
- 		return NULL;
--	if (PageHighMem(page)) {
--		/*
--		 * Depending on the cma= arguments and per-arch setup
--		 * dma_alloc_contiguous could return highmem pages.
--		 * Without remapping there is no way to return them here,
--		 * so log an error and fail.
--		 */
--		dev_info(dev, "Rejecting highmem page from CMA.\n");
--		goto out_free_pages;
--	}
- 
- 	ret = page_address(page);
- 	if (dma_set_decrypted(dev, ret, size))
+ static int nbd_handle_cmd(struct nbd_cmd *cmd, int index)
+@@ -2029,6 +2033,7 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
+ 	mutex_lock(&nbd->config_lock);
+ 	nbd_disconnect(nbd);
+ 	sock_shutdown(nbd);
++	wake_up(&nbd->config->conn_wait);
+ 	/*
+ 	 * Make sure recv thread has finished, so it does not drop the last
+ 	 * config ref and try to destroy the workqueue from inside the work
 -- 
 2.35.1
 
