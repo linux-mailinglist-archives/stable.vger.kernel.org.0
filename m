@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F4B54130E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490B55419A0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357700AbiFGTzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
+        id S1378270AbiFGVXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:23:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358456AbiFGTwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DACFE13AF08;
-        Tue,  7 Jun 2022 11:20:32 -0700 (PDT)
+        with ESMTP id S1378188AbiFGVWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:22:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D201A15D33E;
+        Tue,  7 Jun 2022 12:00:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8D2B82239;
-        Tue,  7 Jun 2022 18:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E960BC385A2;
-        Tue,  7 Jun 2022 18:20:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1029B823A5;
+        Tue,  7 Jun 2022 18:59:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E71E2C385A2;
+        Tue,  7 Jun 2022 18:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626030;
-        bh=NnXQHT5P4J/X8Kbs05INx5ZZMNbLDhdSV/Bsk9NGxg8=;
+        s=korg; t=1654628374;
+        bh=iCzqAaDlEauDmKFP1NvQj5z/6UrWCL92RGzlJmskS8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVoX7N172QLtBqtFT+KUpeDBzfq6qshNDpxgetj6Gm8SqMs5lG1hbmh3Dg5ztOcq2
-         /j2XLzHqQkgpn8t6/w2SsUXgcm1z0ZsNPC4PBm7n+AtWkwjrh+Bc4XMlG1ECfEQF3i
-         y5f7EcLiGm+TQDV2LG6FVDUcotyztnGH+7PV2eWw=
+        b=d/eMWXYtGJKRePo8EWG8kMfv/8skxSc0Occ93nxEiStwpfGHXhcMkaOo0GnzgWEya
+         PqO0gBNKP1jkfO59bQin892Bp9BJ2VWlTIUA7MPpgioUtD0szCOhEFgL/9xuZCfwYV
+         J6WIcRBWKEFWLyBnaWvBoCe69ms6BzyjEQ7wckZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenli Looi <wlooi@ucalgary.ca>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 232/772] ath9k: fix ar9003_get_eepmisc
+Subject: [PATCH 5.18 306/879] net: ethernet: ti: am65-cpsw: Fix build error without PHYLINK
 Date:   Tue,  7 Jun 2022 18:57:04 +0200
-Message-Id: <20220607164955.868660511@linuxfoundation.org>
+Message-Id: <20220607165011.730721057@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenli Looi <wlooi@ucalgary.ca>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 9aaff3864b603408c02c629957ae8d8ff5d5a4f2 ]
+[ Upstream commit bfa323c659b1016c8e896920ba08cd6914cc3b0c ]
 
-The current implementation is reading the wrong eeprom type.
+If PHYLINK is n, build fails:
 
-Fixes: d8ec2e2a63e8 ("ath9k: Add an eeprom_ops callback for retrieving the eepmisc value")
-Signed-off-by: Wenli Looi <wlooi@ucalgary.ca>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220320233010.123106-5-wlooi@ucalgary.ca
+drivers/net/ethernet/ti/am65-cpsw-ethtool.o: In function `am65_cpsw_set_link_ksettings':
+am65-cpsw-ethtool.c:(.text+0x118): undefined reference to `phylink_ethtool_ksettings_set'
+drivers/net/ethernet/ti/am65-cpsw-ethtool.o: In function `am65_cpsw_get_link_ksettings':
+am65-cpsw-ethtool.c:(.text+0x138): undefined reference to `phylink_ethtool_ksettings_get'
+drivers/net/ethernet/ti/am65-cpsw-ethtool.o: In function `am65_cpsw_set_eee':
+am65-cpsw-ethtool.c:(.text+0x158): undefined reference to `phylink_ethtool_set_eee'
+
+Select PHYLINK for TI_K3_AM65_CPSW_NUSS to fix this.
+
+Fixes: e8609e69470f ("net: ethernet: ti: am65-cpsw: Convert to PHYLINK")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20220409105931.9080-1-yuehaibing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ti/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-index b0a4ca3559fd..abed1effd95c 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
-@@ -5615,7 +5615,7 @@ unsigned int ar9003_get_paprd_scale_factor(struct ath_hw *ah,
- 
- static u8 ar9003_get_eepmisc(struct ath_hw *ah)
- {
--	return ah->eeprom.map4k.baseEepHeader.eepMisc;
-+	return ah->eeprom.ar9300_eep.baseEepHeader.opCapFlags.eepMisc;
- }
- 
- const struct eeprom_ops eep_ar9300_ops = {
+diff --git a/drivers/net/ethernet/ti/Kconfig b/drivers/net/ethernet/ti/Kconfig
+index affcf92cd3aa..fb30bc5d56cb 100644
+--- a/drivers/net/ethernet/ti/Kconfig
++++ b/drivers/net/ethernet/ti/Kconfig
+@@ -94,6 +94,7 @@ config TI_K3_AM65_CPSW_NUSS
+ 	depends on ARCH_K3 && OF && TI_K3_UDMA_GLUE_LAYER
+ 	select NET_DEVLINK
+ 	select TI_DAVINCI_MDIO
++	select PHYLINK
+ 	imply PHY_TI_GMII_SEL
+ 	depends on TI_K3_AM65_CPTS || !TI_K3_AM65_CPTS
+ 	help
 -- 
 2.35.1
 
