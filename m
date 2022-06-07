@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7837D540ECD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 103AB541BD7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354093AbiFGSzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56140 "EHLO
+        id S1377501AbiFGVyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:54:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353543AbiFGSpQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:45:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9D3188E77;
-        Tue,  7 Jun 2022 10:59:14 -0700 (PDT)
+        with ESMTP id S1384246AbiFGVyX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E57C0326EA;
+        Tue,  7 Jun 2022 12:13:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72673618E5;
-        Tue,  7 Jun 2022 17:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8531EC385A5;
-        Tue,  7 Jun 2022 17:59:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED826B823B0;
+        Tue,  7 Jun 2022 19:12:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FEA6C385A2;
+        Tue,  7 Jun 2022 19:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624752;
-        bh=WTNl1PL2fKOimLMNxwZdZt2GoXrs5wg13hceQSKvaHU=;
+        s=korg; t=1654629141;
+        bh=rDlDQ1kJk+V5fYmj8DVwjyOgA8AVr1YX8oQpZfztejg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+di3p/iQfxtJc9h5GbQyh95n6WZVjFYDcFtTStRMWaEjWaOnDxU6CDsIF+hPb6jm
-         48ugFXS8qefQmYSvmdYrUNGgnz/BdB/Ca6vK7DfkbiHnXLMRpHrAIfKznkiIo68FQ8
-         DyBdCf6YqWb2aUTePDpyaurzDjcBuTSI9of/OwAY=
+        b=1uEEnuOoogP4hS7ZuBpkeErxy55podvWYxv9sAukNvcrZhpBI+0KH+1MXPraok4dQ
+         gX0Hq0AyyuqJxrmBrT51fjU2lB1sj3VZjUJcDmdOreymWMWbRIRop936K6t/Ykh6Vl
+         w0S8zAlBfFxIRhSY38ay07QNRy8I+5AHdIInSwgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 400/667] crypto: qat - set CIPHER capability for DH895XCC
+Subject: [PATCH 5.18 547/879] arm64: dts: qcom: sc7280: Fix sar1_irq_odl node name
 Date:   Tue,  7 Jun 2022 19:01:05 +0200
-Message-Id: <20220607164946.741330794@linuxfoundation.org>
+Message-Id: <20220607165018.745138518@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 6a23804cb8bcb85c6998bf193d94d4036db26f51 ]
+[ Upstream commit f31c834d3976652753f39eb319170c8c4ac3ce55 ]
 
-Set the CIPHER capability for QAT DH895XCC devices if the hardware supports
-it. This is done if both the CIPHER and the AUTHENTICATION engines are
-available on the device.
+This node should be named sar1-irq-odl, not sar0-irq-odl. Otherwise
+we'll overwrite the settings for sar0 with what is intended for sar1,
+leading to probe failures for sar1 that are quite confusing.
 
-Fixes: ad1332aa67ec ("crypto: qat - add support for capability detection")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 116f7cc43d28 ("arm64: dts: qcom: sc7280: Add herobrine-r1")
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220324223331.876199-1-swboyd@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c   | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280-herobrine.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-index a61ad6c93632..6499b9a2f38f 100644
---- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-+++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-@@ -86,17 +86,23 @@ static u32 get_accel_cap(struct adf_accel_dev *accel_dev)
+diff --git a/arch/arm64/boot/dts/qcom/sc7280-herobrine.dtsi b/arch/arm64/boot/dts/qcom/sc7280-herobrine.dtsi
+index dc17f2079695..7b8fe20afcea 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280-herobrine.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280-herobrine.dtsi
+@@ -741,7 +741,7 @@ ap_ec_spi: &spi10 {
+ 		bias-pull-up;
+ 	};
  
- 	capabilities = ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC |
- 		       ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC |
--		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
-+		       ICP_ACCEL_CAPABILITIES_AUTHENTICATION |
-+		       ICP_ACCEL_CAPABILITIES_CIPHER;
- 
- 	/* Read accelerator capabilities mask */
- 	pci_read_config_dword(pdev, ADF_DEVICE_LEGFUSE_OFFSET, &legfuses);
- 
--	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE)
-+	/* A set bit in legfuses means the feature is OFF in this SKU */
-+	if (legfuses & ICP_ACCEL_MASK_CIPHER_SLICE) {
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC;
-+		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
-+	}
- 	if (legfuses & ICP_ACCEL_MASK_PKE_SLICE)
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC;
--	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE)
-+	if (legfuses & ICP_ACCEL_MASK_AUTH_SLICE) {
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_AUTHENTICATION;
-+		capabilities &= ~ICP_ACCEL_CAPABILITIES_CIPHER;
-+	}
- 	if (legfuses & ICP_ACCEL_MASK_COMPRESS_SLICE)
- 		capabilities &= ~ICP_ACCEL_CAPABILITIES_COMPRESSION;
- 
+-	sar1_irq_odl: sar0-irq-odl {
++	sar1_irq_odl: sar1-irq-odl {
+ 		pins = "gpio140";
+ 		function = "gpio";
+ 		bias-pull-up;
 -- 
 2.35.1
 
