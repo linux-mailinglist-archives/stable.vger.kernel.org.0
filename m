@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B2754146D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCC0541C95
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358562AbiFGUSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:18:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
+        id S1382194AbiFGWCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376699AbiFGURD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:17:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543861CF933;
-        Tue,  7 Jun 2022 11:29:49 -0700 (PDT)
+        with ESMTP id S1382203AbiFGVuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:50:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7469C190D22;
+        Tue,  7 Jun 2022 12:08:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 853656147E;
-        Tue,  7 Jun 2022 18:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA55C385A5;
-        Tue,  7 Jun 2022 18:29:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D39A1B8220B;
+        Tue,  7 Jun 2022 19:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C685C385A5;
+        Tue,  7 Jun 2022 19:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626579;
-        bh=YBEeIKFakKoI6TjeL91aCaKu6R+WbdsfFHaDsD3gaxI=;
+        s=korg; t=1654628915;
+        bh=7ADwI4ceJ9tEh1nUpeN96td1EOsOqnWLQPLVG7+l0rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnGgMp0FVeYXV7NCEsZ7SuYRnJIv4AFeXS7VuKRKz9i85V4tSTiBv3wBItR6q+rKJ
-         FoMVN8QuHR03CEPqva1tm/KX1OcZDncqL9T2DIGtYbNMCB9B8SkIxpuEpIYNSlAqwO
-         jumGIxdSG6KA8bcJf5DDP0XEI/89/ND9EP0h6RUk=
+        b=hDxBsa2wHxHxlkz7O5p3KWa4gLp1OuTUrwpekJYrlNse7Pb70g/TwsUc7Pum/WcoB
+         DZ3NoU1Nh4RxF+hbvXS7l3Jeqoc33AjlWAbUinslWGOpA1iAfk8KsP9WeZcda+iTQf
+         vaKU1TjXi1yMwc+gasCwmes/UyUso43jZqplCWEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfei Dong <yunfei.dong@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 388/772] media: mediatek: vcodec: Fix v4l2 compliance decoder cmd test fail
+Subject: [PATCH 5.18 462/879] irqchip/gic-v3: Ensure pseudo-NMIs have an ISB between ack and handling
 Date:   Tue,  7 Jun 2022 18:59:40 +0200
-Message-Id: <20220607165000.446928187@linuxfoundation.org>
+Message-Id: <20220607165016.284240302@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,70 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Dong <yunfei.dong@mediatek.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 08a83828825cbf3bc2c9f582a4cd4da9f40c77d6 ]
+[ Upstream commit adf14453d2c037ab529040c1186ea32e277e783a ]
 
-Will return -EINVAL using standard framework api when test stateless
-decoder with cmd VIDIOC_(TRY)DECODER_CMD. Disable them to adjust v4l2
-compliance test for user driver(GStreamer/Chrome) won't use decoder cmd.
+There are cases where a context synchronization event is necessary
+between an IRQ being raised and being handled, and there are races such
+that we cannot rely upon the exception entry being subsequent to the
+interrupt being raised.
 
-Fixes: 8cdc3794b2e3 ("media: mtk-vcodec: vdec: support stateless API")
-Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+We identified and fixes this for regular IRQs in commit:
+
+  39a06b67c2c1256b ("irqchip/gic: Ensure we have an ISB between ack and ->handle_irq")
+
+Unfortunately, we forgot to do the same for psuedo-NMIs when support for
+those was added in commit:
+
+  f32c926651dcd168 ("irqchip/gic-v3: Handle pseudo-NMIs")
+
+Which means that when pseudo-NMIs are used for PMU support, we'll hit
+the same problem.
+
+Apply the same fix as for regular IRQs. Note that when EOI mode 1 is in
+use, the call to gic_write_eoir() will provide an ISB.
+
+Fixes: f32c926651dcd168 ("irqchip/gic-v3: Handle pseudo-NMIs")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220513133038.226182-2-mark.rutland@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c  | 13 +------------
- .../media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c  |  3 +++
- 2 files changed, 4 insertions(+), 12 deletions(-)
+ drivers/irqchip/irq-gic-v3.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c
-index 2b334a8a81c6..f99771a038b0 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c
-@@ -47,14 +47,7 @@ static struct mtk_q_data *mtk_vdec_get_q_data(struct mtk_vcodec_ctx *ctx,
- static int vidioc_try_decoder_cmd(struct file *file, void *priv,
- 				struct v4l2_decoder_cmd *cmd)
- {
--	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
--
--	/* Use M2M stateless helper if relevant */
--	if (ctx->dev->vdec_pdata->uses_stateless_api)
--		return v4l2_m2m_ioctl_stateless_try_decoder_cmd(file, priv,
--								cmd);
--	else
--		return v4l2_m2m_ioctl_try_decoder_cmd(file, priv, cmd);
-+	return v4l2_m2m_ioctl_try_decoder_cmd(file, priv, cmd);
- }
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index b252d5534547..7305d84f2df5 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -654,6 +654,9 @@ static inline void gic_handle_nmi(u32 irqnr, struct pt_regs *regs)
  
- 
-@@ -69,10 +62,6 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
- 	if (ret)
- 		return ret;
- 
--	/* Use M2M stateless helper if relevant */
--	if (ctx->dev->vdec_pdata->uses_stateless_api)
--		return v4l2_m2m_ioctl_stateless_decoder_cmd(file, priv, cmd);
--
- 	mtk_v4l2_debug(1, "decoder cmd=%u", cmd->cmd);
- 	dst_vq = v4l2_m2m_get_vq(ctx->m2m_ctx,
- 				V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c
-index 40c39e1e596b..4b5cbaf672ab 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c
-@@ -315,6 +315,9 @@ static int mtk_vcodec_probe(struct platform_device *pdev)
- 	}
- 
- 	if (dev->vdec_pdata->uses_stateless_api) {
-+		v4l2_disable_ioctl(vfd_dec, VIDIOC_DECODER_CMD);
-+		v4l2_disable_ioctl(vfd_dec, VIDIOC_TRY_DECODER_CMD);
+ 	if (static_branch_likely(&supports_deactivate_key))
+ 		gic_write_eoir(irqnr);
++	else
++		isb()
 +
- 		dev->mdev_dec.dev = &pdev->dev;
- 		strscpy(dev->mdev_dec.model, MTK_VCODEC_DEC_NAME,
- 			sizeof(dev->mdev_dec.model));
+ 	/*
+ 	 * Leave the PSR.I bit set to prevent other NMIs to be
+ 	 * received while handling this one.
 -- 
 2.35.1
 
