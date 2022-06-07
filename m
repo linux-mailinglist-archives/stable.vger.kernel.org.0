@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6CB540594
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A68A5541AE5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:39:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346278AbiFGR07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46480 "EHLO
+        id S1381119AbiFGVjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:39:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346365AbiFGRYO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:14 -0400
+        with ESMTP id S1379560AbiFGVif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:38:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315E63C492;
-        Tue,  7 Jun 2022 10:22:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C69328725;
+        Tue,  7 Jun 2022 12:05:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A69C860AE5;
-        Tue,  7 Jun 2022 17:22:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E2FC385A5;
-        Tue,  7 Jun 2022 17:22:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3E9561277;
+        Tue,  7 Jun 2022 19:05:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC3DDC385A2;
+        Tue,  7 Jun 2022 19:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622542;
-        bh=ozh1G02jBvU/LggvUu4u7Djg4oaIrmGMdGp9z3bVmYs=;
+        s=korg; t=1654628731;
+        bh=XRdlFyv+l3XGOOPJ1/GlOwJ8FsDzpPl1DlTotQCzzgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EH0GSzosyqXYY3yONcsSsRzvY8eUHIvPH9d33hvCCILod2rujWuDZOolsXmRVbynD
-         0HCwTOSwSV8cF6hWTY4tsAkP4CleZgXwRMBjGVE0VXQiZvm81TayXVi/7kl5EJVUMu
-         MRx5U7gNBz50sk38q5EXCyIY/jlbEm6B4MhUCRpQ=
+        b=CDHKf3gbSUIup9J/iDExCts24GKbrAL0/wS3W7QMlbpBuTi5kCT3MEQGW3wXMOWKt
+         MPJx4anKj2s26qpUQuXJMvP2CauogHTp9BplVmHCH83lsKjwmNuGHn9z54eq+7BOvK
+         7Y0qnvTU9pLsZvKMcW1aedr9bDotb2l9cI0EbPPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 096/452] gfs2: use i_lock spin_lock for inode qadata
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 435/879] mt76: mt7915: do not pass data pointer to mt7915_mcu_muru_debug_set
 Date:   Tue,  7 Jun 2022 18:59:13 +0200
-Message-Id: <20220607164911.419523793@linuxfoundation.org>
+Message-Id: <20220607165015.497497087@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 5fcff61eea9efd1f4b60e89d2d686b5feaea100f ]
+[ Upstream commit badb6ffaa1439fce30fc6ef10571dcf45a622b44 ]
 
-Before this patch, functions gfs2_qa_get and _put used the i_rw_mutex to
-prevent simultaneous access to its i_qadata. But i_rw_mutex is now used
-for many other things, including iomap_begin and end, which causes a
-conflict according to lockdep. We cannot just remove the lock since
-simultaneous opens (gfs2_open -> gfs2_open_common -> gfs2_qa_get) can
-then stomp on each others values for i_qadata.
+Fix typo in mt7915_muru_debug_set routine and pass muru_debug value to
+mt7915_mcu_muru_debug_set() instead of data pointer.
 
-This patch solves the conflict by using the i_lock spin_lock in the inode
-to prevent simultaneous access.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 1966a5078f2d ("mt76: mt7915: add mu-mimo and ofdma debugfs knobs")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/quota.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
-index 6e173ae378c4..ad953ecb5853 100644
---- a/fs/gfs2/quota.c
-+++ b/fs/gfs2/quota.c
-@@ -531,34 +531,42 @@ static void qdsb_put(struct gfs2_quota_data *qd)
-  */
- int gfs2_qa_get(struct gfs2_inode *ip)
- {
--	int error = 0;
- 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
-+	struct inode *inode = &ip->i_inode;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+index 4e1ecaec8f4f..dece0a6e00b3 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+@@ -95,7 +95,7 @@ mt7915_muru_debug_set(void *data, u64 val)
+ 	struct mt7915_dev *dev = data;
  
- 	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
- 		return 0;
+ 	dev->muru_debug = val;
+-	mt7915_mcu_muru_debug_set(dev, data);
++	mt7915_mcu_muru_debug_set(dev, dev->muru_debug);
  
--	down_write(&ip->i_rw_mutex);
-+	spin_lock(&inode->i_lock);
- 	if (ip->i_qadata == NULL) {
--		ip->i_qadata = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
--		if (!ip->i_qadata) {
--			error = -ENOMEM;
--			goto out;
--		}
-+		struct gfs2_qadata *tmp;
-+
-+		spin_unlock(&inode->i_lock);
-+		tmp = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
-+		if (!tmp)
-+			return -ENOMEM;
-+
-+		spin_lock(&inode->i_lock);
-+		if (ip->i_qadata == NULL)
-+			ip->i_qadata = tmp;
-+		else
-+			kmem_cache_free(gfs2_qadata_cachep, tmp);
- 	}
- 	ip->i_qadata->qa_ref++;
--out:
--	up_write(&ip->i_rw_mutex);
--	return error;
-+	spin_unlock(&inode->i_lock);
-+	return 0;
+ 	return 0;
  }
- 
- void gfs2_qa_put(struct gfs2_inode *ip)
- {
--	down_write(&ip->i_rw_mutex);
-+	struct inode *inode = &ip->i_inode;
-+
-+	spin_lock(&inode->i_lock);
- 	if (ip->i_qadata && --ip->i_qadata->qa_ref == 0) {
- 		kmem_cache_free(gfs2_qadata_cachep, ip->i_qadata);
- 		ip->i_qadata = NULL;
- 	}
--	up_write(&ip->i_rw_mutex);
-+	spin_unlock(&inode->i_lock);
- }
- 
- int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
 -- 
 2.35.1
 
