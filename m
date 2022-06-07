@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A00540C73
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B8C540C77
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352611AbiFGSey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:34:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58414 "EHLO
+        id S1345508AbiFGShC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352328AbiFGSdh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F9D147823;
+        with ESMTP id S1352352AbiFGSdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:33:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC27146740;
         Tue,  7 Jun 2022 10:57:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B474CB8236C;
-        Tue,  7 Jun 2022 17:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FDBC3411F;
-        Tue,  7 Jun 2022 17:57:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAA1061884;
+        Tue,  7 Jun 2022 17:57:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12906C341C4;
+        Tue,  7 Jun 2022 17:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624652;
-        bh=shILPyh39w0dy8dd5dmEgIEAHhtfM2jGyeflTqQGd6Q=;
+        s=k20201202; t=1654624654;
+        bh=3TszrS3lAtEjZ2rupo4rzyU9qtS2/kAgbkhSgz7ytFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0i2hZ0bgarLSU+UFLIXFsht1TKdza4KNXZAQsHlX9kR12b1Tqb5/ozVmdBiGEkb3
-         G3jcWenXmlAx3q83i/6mLrn8H1l3/pgmrrw/xUw8i0RyIeBXpOCqqZ4BpOE0DRJzRl
-         nc2rrtPiuHP1KmgGwMVsqbn7ObGzVF9R2VOrKzfLwsxuCE01LAJUQge4PQIWX3sA4c
-         dNjrDwtuX9u68EqrKv7kMy5wbeLp9nSR2E9EMImw8CaAkCG/PJOfBnEUJ9fuq9IB3T
-         xzxjU/t/c2BzpvCOwdIyg/BxH8GeXvlkIilqmRJilNY/OgNz9gs+Uny44dXwxmHSEV
-         bRjAzIw6cy7cg==
+        b=TZVlescMJJjQRk2G2avq+BpLwKyy0dAx/Rqe+UWQc/XAaHQu1pXWfaK+LHFXuZU8H
+         EX9G3kNbtcpaRJ98LuqkCEsi76qVjJCFSjVtLqxR9rwzZYgSHi2L1TsJI3jE32ea6F
+         Bgd6eUnLhuRk7ifTcOPehvwSgg5rzZdPCjO7rZDki2CEiZI4HwjpcPBCljJvQghn+q
+         a2Q+2g/QpKhbUFfLBsMiySztnKsTNdEQg3SJf4bt4mEu4qXQghqcmWOh60PdwDDDwF
+         3PQ27g11VJl9SU8WsV850W/GVrZ3kaDEMegCU98mhFXxjhbyJMRsG++W9ltHHL4ACj
+         TEMptgQNbkquw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>, Zheyu Ma <zheyuma97@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, hare@kernel.org,
-        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 33/51] scsi: myrb: Fix up null pointer access on myrb_cleanup()
-Date:   Tue,  7 Jun 2022 13:55:32 -0400
-Message-Id: <20220607175552.479948-33-sashal@kernel.org>
+Cc:     Michal Kubecek <mkubecek@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 34/51] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
+Date:   Tue,  7 Jun 2022 13:55:33 -0400
+Message-Id: <20220607175552.479948-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175552.479948-1-sashal@kernel.org>
 References: <20220607175552.479948-1-sashal@kernel.org>
@@ -57,55 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Michal Kubecek <mkubecek@suse.cz>
 
-[ Upstream commit f9f0a46141e2e39bedb4779c88380d1b5f018c14 ]
+[ Upstream commit 9c90c9b3e50e16d03c7f87d63e9db373974781e0 ]
 
-When myrb_probe() fails the callback might not be set, so we need to
-validate the 'disable_intr' callback in myrb_cleanup() to not cause a null
-pointer exception. And while at it do not call myrb_cleanup() if we cannot
-enable the PCI device at all.
+This reverts commit 4dc2a5a8f6754492180741facf2a8787f2c415d7.
 
-Link: https://lore.kernel.org/r/20220523120244.99515-1-hare@suse.de
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+A non-zero return value from pfkey_broadcast() does not necessarily mean
+an error occurred as this function returns -ESRCH when no registered
+listener received the message. In particular, a call with
+BROADCAST_PROMISC_ONLY flag and null one_sk argument can never return
+zero so that this commit in fact prevents processing any PF_KEY message.
+One visible effect is that racoon daemon fails to find encryption
+algorithms like aes and refuses to start.
+
+Excluding -ESRCH return value would fix this but it's not obvious that
+we really want to bail out here and most other callers of
+pfkey_broadcast() also ignore the return value. Also, as pointed out by
+Steffen Klassert, PF_KEY is kind of deprecated and newer userspace code
+should use netlink instead so that we should only disturb the code for
+really important fixes.
+
+v2: add a comment explaining why is the return value ignored
+
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/myrb.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ net/key/af_key.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/myrb.c b/drivers/scsi/myrb.c
-index a4a88323e020..386256369dfc 100644
---- a/drivers/scsi/myrb.c
-+++ b/drivers/scsi/myrb.c
-@@ -1239,7 +1239,8 @@ static void myrb_cleanup(struct myrb_hba *cb)
- 	myrb_unmap(cb);
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 339d95df19d3..d93bde657359 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2826,10 +2826,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
+ 	void *ext_hdrs[SADB_EXT_MAX];
+ 	int err;
  
- 	if (cb->mmio_base) {
--		cb->disable_intr(cb->io_base);
-+		if (cb->disable_intr)
-+			cb->disable_intr(cb->io_base);
- 		iounmap(cb->mmio_base);
- 	}
- 	if (cb->irq)
-@@ -3409,9 +3410,13 @@ static struct myrb_hba *myrb_detect(struct pci_dev *pdev,
- 	mutex_init(&cb->dcmd_mutex);
- 	mutex_init(&cb->dma_mutex);
- 	cb->pdev = pdev;
-+	cb->host = shost;
+-	err = pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
+-			      BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
+-	if (err)
+-		return err;
++	/* Non-zero return value of pfkey_broadcast() does not always signal
++	 * an error and even on an actual error we may still want to process
++	 * the message so rather ignore the return value.
++	 */
++	pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
++			BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
  
--	if (pci_enable_device(pdev))
--		goto failure;
-+	if (pci_enable_device(pdev)) {
-+		dev_err(&pdev->dev, "Failed to enable PCI device\n");
-+		scsi_host_put(shost);
-+		return NULL;
-+	}
- 
- 	if (privdata->hw_init == DAC960_PD_hw_init ||
- 	    privdata->hw_init == DAC960_P_hw_init) {
+ 	memset(ext_hdrs, 0, sizeof(ext_hdrs));
+ 	err = parse_exthdrs(skb, hdr, ext_hdrs);
 -- 
 2.35.1
 
