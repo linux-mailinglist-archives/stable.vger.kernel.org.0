@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE7CB5412E9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CD1540907
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357276AbiFGTzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
+        id S243133AbiFGSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358431AbiFGTw3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946FDEFF17;
-        Tue,  7 Jun 2022 11:20:27 -0700 (PDT)
+        with ESMTP id S1351910AbiFGSCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB446131F00;
+        Tue,  7 Jun 2022 10:46:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DDC0B82239;
-        Tue,  7 Jun 2022 18:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED47C385A2;
-        Tue,  7 Jun 2022 18:20:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 894E8B822CD;
+        Tue,  7 Jun 2022 17:46:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD9AC34115;
+        Tue,  7 Jun 2022 17:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626024;
-        bh=B7+TLIpamswXZAjKolO5qXIuezHKavchvj0PzWpvahY=;
+        s=korg; t=1654623968;
+        bh=yoxhDZYgsb+yYlZZwz5ToNqwGqQPdnkh/B9IKDpd3kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rCWZ54sh8U6nwKr7j55cfTgfxQj/6OBK5b5Ux2fHyw0x24kgjjjoeyiUEBz4C2IXv
-         exNhCakPVzATPHhrDatyRTHsv6zq8J6PAZGSKKahoR3C/hIAtED2SxmCQdffXzWWeW
-         FKe3Oqb0rQ+nb92ogqMya+6jFZ8r9eni5vjks01o=
+        b=YLwWjhS/r2bmyvQMcQReR/CYS/705VdtUFkooptRwtnjFGClNE9Ym/QiJbuGFbHB2
+         lqITFBs9rJbal6tHKHeGswi/Xgc75WRRAof92zXGgvsoYTcTT+W9U3jC+Z6rJC6ZoA
+         jCO1k+0Mkt67HPtnVSNvSsyZV6eP+Xw5OD3Dz2Gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Zixuan Fu <r33s3n6@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 230/772] ath11k: acquire ab->base_lock in unassign when finding the peer by addr
+Subject: [PATCH 5.15 157/667] fs: jfs: fix possible NULL pointer dereference in dbFree()
 Date:   Tue,  7 Jun 2022 18:57:02 +0200
-Message-Id: <20220607164955.809651781@linuxfoundation.org>
+Message-Id: <20220607164939.524767277@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-[ Upstream commit 2db80f93869d491be57cbc2b36f30d0d3a0e5bde ]
+[ Upstream commit 0d4837fdb796f99369cf7691d33de1b856bcaf1f ]
 
-ath11k_peer_find_by_addr states via lockdep that ab->base_lock must be
-held when calling that function in order to protect the list. All
-callers except ath11k_mac_op_unassign_vif_chanctx have that lock
-acquired when calling ath11k_peer_find_by_addr. That lock is also not
-transitively held by a path towards ath11k_mac_op_unassign_vif_chanctx.
-The solution is to acquire the lock when calling
-ath11k_peer_find_by_addr inside ath11k_mac_op_unassign_vif_chanctx.
+In our fault-injection testing, the variable "nblocks" in dbFree() can be
+zero when kmalloc_array() fails in dtSearch(). In this case, the variable
+ "mp" in dbFree() would be NULL and then it is dereferenced in
+"write_metapage(mp)".
 
-I am currently working on a static analyser to detect missing locks and
-this was a reported case. I manually verified the report by looking at
-the code, but I do not have real hardware so this is compile tested
-only.
+The failure log is listed as follows:
 
-Fixes: 701e48a43e15 ("ath11k: add packet log support for QCA6390")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220314215253.92658-1-dossche.niels@gmail.com
+[   13.824137] BUG: kernel NULL pointer dereference, address: 0000000000000020
+...
+[   13.827416] RIP: 0010:dbFree+0x5f7/0x910 [jfs]
+[   13.834341] Call Trace:
+[   13.834540]  <TASK>
+[   13.834713]  txFreeMap+0x7b4/0xb10 [jfs]
+[   13.835038]  txUpdateMap+0x311/0x650 [jfs]
+[   13.835375]  jfs_lazycommit+0x5f2/0xc70 [jfs]
+[   13.835726]  ? sched_dynamic_update+0x1b0/0x1b0
+[   13.836092]  kthread+0x3c2/0x4a0
+[   13.836355]  ? txLockFree+0x160/0x160 [jfs]
+[   13.836763]  ? kthread_unuse_mm+0x160/0x160
+[   13.837106]  ret_from_fork+0x1f/0x30
+[   13.837402]  </TASK>
+...
+
+This patch adds a NULL check of "mp" before "write_metapage(mp)" is called.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/jfs/jfs_dmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index b2dac859dfe1..16b45b742f9d 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -7068,6 +7068,7 @@ ath11k_mac_op_unassign_vif_chanctx(struct ieee80211_hw *hw,
- 	struct ath11k *ar = hw->priv;
- 	struct ath11k_base *ab = ar->ab;
- 	struct ath11k_vif *arvif = (void *)vif->drv_priv;
-+	struct ath11k_peer *peer;
- 	int ret;
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index d8502f4989d9..e75f31b81d63 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -385,7 +385,8 @@ int dbFree(struct inode *ip, s64 blkno, s64 nblocks)
+ 	}
  
- 	mutex_lock(&ar->conf_mutex);
-@@ -7079,9 +7080,13 @@ ath11k_mac_op_unassign_vif_chanctx(struct ieee80211_hw *hw,
- 	WARN_ON(!arvif->is_started);
+ 	/* write the last buffer. */
+-	write_metapage(mp);
++	if (mp)
++		write_metapage(mp);
  
- 	if (ab->hw_params.vdev_start_delay &&
--	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR &&
--	    ath11k_peer_find_by_addr(ab, ar->mac_addr))
--		ath11k_peer_delete(ar, arvif->vdev_id, ar->mac_addr);
-+	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR) {
-+		spin_lock_bh(&ab->base_lock);
-+		peer = ath11k_peer_find_by_addr(ab, ar->mac_addr);
-+		spin_unlock_bh(&ab->base_lock);
-+		if (peer)
-+			ath11k_peer_delete(ar, arvif->vdev_id, ar->mac_addr);
-+	}
+ 	IREAD_UNLOCK(ipbmap);
  
- 	if (arvif->vdev_type == WMI_VDEV_TYPE_MONITOR) {
- 		ret = ath11k_mac_monitor_stop(ar);
 -- 
 2.35.1
 
