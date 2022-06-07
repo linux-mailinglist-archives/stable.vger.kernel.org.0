@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D55C6541865
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 856EB54113A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359423AbiFGVML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35116 "EHLO
+        id S1351729AbiFGTe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379768AbiFGVK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A171215E52;
-        Tue,  7 Jun 2022 11:52:03 -0700 (PDT)
+        with ESMTP id S1344407AbiFGTdW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:33:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07D44110AFE;
+        Tue,  7 Jun 2022 11:13:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1277B8237F;
-        Tue,  7 Jun 2022 18:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260A9C385A5;
-        Tue,  7 Jun 2022 18:51:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA7D360A2A;
+        Tue,  7 Jun 2022 18:12:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDBC3C385A5;
+        Tue,  7 Jun 2022 18:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627920;
-        bh=HQF46pET341uvIM6dclJ+MRdmoa7RzWaMYRR/mwcVOs=;
+        s=korg; t=1654625574;
+        bh=XIqhTsg1qO/7k2cKdd5hBUUYJE1jfjy8SEsUHanP4ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VnDG7HyPl5g42GvOliHIztOCHbdTUroNXrMUqieUdSsbNCjvoAH4nnfPrRVYeo/E+
-         FKaVTRH73EepeDH/zebGXbWXMUYJRh2BgFnCr27IDlH+6earYqVAb4vprrV/jKGHrH
-         rCMguWbF9rmE5r55w0VqFd/YXF73FVmugUJpH3Pg=
+        b=oY9I8mdxw+cvDxJLL7TTF4IdlJVTCNWf96YwmudeuF9QxZ2cKPihIAj6WvnuJzxZk
+         DQrNqbRs9PXVdwE1sdH1ffHgUfAzZMXLnYh3HbGZpQtoGwv7kCnicvQDGBHpOEL35p
+         7xCb/F4lCasaXGY+5E6KbydhCUpvGvgpDu+4w7mY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gavin Li <gavinl@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 140/879] net/mlx5: Increase FW pre-init timeout for health recovery
+Subject: [PATCH 5.17 066/772] mac80211: minstrel_ht: fix where rate stats are stored (fixes debugfs output)
 Date:   Tue,  7 Jun 2022 18:54:18 +0200
-Message-Id: <20220607165006.769133227@linuxfoundation.org>
+Message-Id: <20220607164950.984962726@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,195 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <gavinl@nvidia.com>
+From: Peter Seiderer <ps.report@gmx.net>
 
-[ Upstream commit 37ca95e62ee23fa6d2c2c64e3dc40b4a0c0146dc ]
+[ Upstream commit 5c6dd7bd569b54c0d2904125d7366aa93f077f67 ]
 
-Currently, health recovery will reload driver to recover it from fatal
-errors. During the driver's load process, it would wait for FW to set the
-pre-init bit for up to 120 seconds, beyond this threshold it would abort
-the load process. In some cases, such as a FW upgrade on the DPU, this
-timeout period is insufficient, and the user has no way to recover the
-host device.
+Using an ath9k card the debugfs output of minstrel_ht looks like the following
+(note the zero values for the first four rates sum-of success/attempts):
 
-To solve this issue, introduce a new FW pre-init timeout for health
-recovery, which is set to 2 hours.
+             best    ____________rate__________    ____statistics___    _____last____    ______sum-of________
+mode guard #  rate   [name   idx airtime  max_tp]  [avg(tp) avg(prob)]  [retry|suc|att]  [#success | #attempts]
+OFDM       1    DP     6.0M  272    1640     5.2       3.1      53.8       3     0 0             0   0
+OFDM       1   C       9.0M  273    1104     7.7       4.6      53.8       4     0 0             0   0
+OFDM       1  B       12.0M  274     836    10.0       6.0      53.8       4     0 0             0   0
+OFDM       1 A    S   18.0M  275     568    14.3       8.5      53.8       5     0 0             0   0
+OFDM       1      S   24.0M  276     436    18.1       0.0       0.0       5     0 1            80   1778
+OFDM       1          36.0M  277     300    24.9       0.0       0.0       0     0 1             0   107
+OFDM       1      S   48.0M  278     236    30.4       0.0       0.0       0     0 0             0   75
+OFDM       1          54.0M  279     212    33.0       0.0       0.0       0     0 0             0   72
 
-The timeout for devlink reload and probe will use the original one because
-they are user triggered flows, and therefore should not have a
-significantly long timeout, during which the user command would hang.
+Total packet count::    ideal 16582      lookaround 885
+Average # of aggregated frames per A-MPDU: 1.0
 
-Signed-off-by: Gavin Li <gavinl@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Debugging showed that the rate statistics for the first four rates where
+stored in the MINSTREL_CCK_GROUP instead of the MINSTREL_OFDM_GROUP because
+in minstrel_ht_get_stats() the supported check was not honoured as done in
+various other places, e.g net/mac80211/rc80211_minstrel_ht_debugfs.c:
+
+ 74                 if (!(mi->supported[i] & BIT(j)))
+ 75                         continue;
+
+With the patch applied the output looks good:
+
+              best    ____________rate__________    ____statistics___    _____last____    ______sum-of________
+mode guard #  rate   [name   idx airtime  max_tp]  [avg(tp) avg(prob)]  [retry|suc|att]  [#success | #attempts]
+OFDM       1    D      6.0M  272    1640     5.2       5.2     100.0       3     0 0             1   1
+OFDM       1   C       9.0M  273    1104     7.7       7.7     100.0       4     0 0            38   38
+OFDM       1  B       12.0M  274     836    10.0       9.9      89.5       4     2 2           372   395
+OFDM       1 A   P    18.0M  275     568    14.3      14.3      97.2       5    52 53         6956   7181
+OFDM       1      S   24.0M  276     436    18.1       0.0       0.0       0     0 1             6   163
+OFDM       1          36.0M  277     300    24.9       0.0       0.0       0     0 1             0   35
+OFDM       1      S   48.0M  278     236    30.4       0.0       0.0       0     0 0             0   38
+OFDM       1      S   54.0M  279     212    33.0       0.0       0.0       0     0 0             0   38
+
+Total packet count::    ideal 7097      lookaround 287
+Average # of aggregated frames per A-MPDU: 1.0
+
+Signed-off-by: Peter Seiderer <ps.report@gmx.net>
+Link: https://lore.kernel.org/r/20220404165414.1036-1-ps.report@gmx.net
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/devlink.c |  4 ++--
- .../ethernet/mellanox/mlx5/core/fw_reset.c    |  2 +-
- .../ethernet/mellanox/mlx5/core/lib/tout.c    |  1 +
- .../ethernet/mellanox/mlx5/core/lib/tout.h    |  1 +
- .../net/ethernet/mellanox/mlx5/core/main.c    | 23 +++++++++++--------
- .../ethernet/mellanox/mlx5/core/mlx5_core.h   |  2 +-
- 6 files changed, 20 insertions(+), 13 deletions(-)
+ net/mac80211/rc80211_minstrel_ht.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-index 057dde6f4417..9401127fb0ec 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -178,13 +178,13 @@ static int mlx5_devlink_reload_up(struct devlink *devlink, enum devlink_reload_a
- 	*actions_performed = BIT(action);
- 	switch (action) {
- 	case DEVLINK_RELOAD_ACTION_DRIVER_REINIT:
--		return mlx5_load_one(dev);
-+		return mlx5_load_one(dev, false);
- 	case DEVLINK_RELOAD_ACTION_FW_ACTIVATE:
- 		if (limit == DEVLINK_RELOAD_LIMIT_NO_RESET)
- 			break;
- 		/* On fw_activate action, also driver is reloaded and reinit performed */
- 		*actions_performed |= BIT(DEVLINK_RELOAD_ACTION_DRIVER_REINIT);
--		return mlx5_load_one(dev);
-+		return mlx5_load_one(dev, false);
- 	default:
- 		/* Unsupported action should not get to this function */
- 		WARN_ON(1);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-index 81eb67fb95b0..052af4901c0b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-@@ -149,7 +149,7 @@ static void mlx5_fw_reset_complete_reload(struct mlx5_core_dev *dev)
- 	if (test_bit(MLX5_FW_RESET_FLAGS_PENDING_COMP, &fw_reset->reset_flags)) {
- 		complete(&fw_reset->done);
- 	} else {
--		mlx5_load_one(dev);
-+		mlx5_load_one(dev, false);
- 		devlink_remote_reload_actions_performed(priv_to_devlink(dev), 0,
- 							BIT(DEVLINK_RELOAD_ACTION_DRIVER_REINIT) |
- 							BIT(DEVLINK_RELOAD_ACTION_FW_ACTIVATE));
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-index c1df0d3595d8..d758848d34d0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-@@ -10,6 +10,7 @@ struct mlx5_timeouts {
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 9c3b7fc377c1..50cce990784f 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -362,6 +362,9 @@ minstrel_ht_get_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi,
  
- static const u32 tout_def_sw_val[MAX_TIMEOUT_TYPES] = {
- 	[MLX5_TO_FW_PRE_INIT_TIMEOUT_MS] = 120000,
-+	[MLX5_TO_FW_PRE_INIT_ON_RECOVERY_TIMEOUT_MS] = 7200000,
- 	[MLX5_TO_FW_PRE_INIT_WARN_MESSAGE_INTERVAL_MS] = 20000,
- 	[MLX5_TO_FW_PRE_INIT_WAIT_MS] = 2,
- 	[MLX5_TO_FW_INIT_MS] = 2000,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-index 1c42ead782fa..257c03eeab36 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-@@ -7,6 +7,7 @@
- enum mlx5_timeouts_types {
- 	/* pre init timeouts (not read from FW) */
- 	MLX5_TO_FW_PRE_INIT_TIMEOUT_MS,
-+	MLX5_TO_FW_PRE_INIT_ON_RECOVERY_TIMEOUT_MS,
- 	MLX5_TO_FW_PRE_INIT_WARN_MESSAGE_INTERVAL_MS,
- 	MLX5_TO_FW_PRE_INIT_WAIT_MS,
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index ef196cb764e2..8b5263699994 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1014,7 +1014,7 @@ static void mlx5_cleanup_once(struct mlx5_core_dev *dev)
- 	mlx5_devcom_unregister_device(dev->priv.devcom);
- }
- 
--static int mlx5_function_setup(struct mlx5_core_dev *dev, bool boot)
-+static int mlx5_function_setup(struct mlx5_core_dev *dev, u64 timeout)
- {
- 	int err;
- 
-@@ -1029,11 +1029,11 @@ static int mlx5_function_setup(struct mlx5_core_dev *dev, bool boot)
- 
- 	/* wait for firmware to accept initialization segments configurations
- 	 */
--	err = wait_fw_init(dev, mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT),
-+	err = wait_fw_init(dev, timeout,
- 			   mlx5_tout_ms(dev, FW_PRE_INIT_WARN_MESSAGE_INTERVAL));
- 	if (err) {
- 		mlx5_core_err(dev, "Firmware over %llu MS in pre-initializing state, aborting\n",
--			      mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT));
-+			      timeout);
- 		return err;
- 	}
- 
-@@ -1296,7 +1296,7 @@ int mlx5_init_one(struct mlx5_core_dev *dev)
- 	mutex_lock(&dev->intf_state_mutex);
- 	dev->state = MLX5_DEVICE_STATE_UP;
- 
--	err = mlx5_function_setup(dev, true);
-+	err = mlx5_function_setup(dev, mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT));
- 	if (err)
- 		goto err_function;
- 
-@@ -1360,9 +1360,10 @@ void mlx5_uninit_one(struct mlx5_core_dev *dev)
- 	mutex_unlock(&dev->intf_state_mutex);
- }
- 
--int mlx5_load_one(struct mlx5_core_dev *dev)
-+int mlx5_load_one(struct mlx5_core_dev *dev, bool recovery)
- {
- 	int err = 0;
-+	u64 timeout;
- 
- 	mutex_lock(&dev->intf_state_mutex);
- 	if (test_bit(MLX5_INTERFACE_STATE_UP, &dev->intf_state)) {
-@@ -1372,7 +1373,11 @@ int mlx5_load_one(struct mlx5_core_dev *dev)
- 	/* remove any previous indication of internal error */
- 	dev->state = MLX5_DEVICE_STATE_UP;
- 
--	err = mlx5_function_setup(dev, false);
-+	if (recovery)
-+		timeout = mlx5_tout_ms(dev, FW_PRE_INIT_ON_RECOVERY_TIMEOUT);
-+	else
-+		timeout = mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT);
-+	err = mlx5_function_setup(dev, timeout);
- 	if (err)
- 		goto err_function;
- 
-@@ -1746,7 +1751,7 @@ static void mlx5_pci_resume(struct pci_dev *pdev)
- 
- 	mlx5_pci_trace(dev, "Enter, loading driver..\n");
- 
--	err = mlx5_load_one(dev);
-+	err = mlx5_load_one(dev, false);
- 
- 	mlx5_pci_trace(dev, "Done, err = %d, device %s\n", err,
- 		       !err ? "recovered" : "Failed");
-@@ -1833,7 +1838,7 @@ static int mlx5_resume(struct pci_dev *pdev)
- {
- 	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
- 
--	return mlx5_load_one(dev);
-+	return mlx5_load_one(dev, false);
- }
- 
- static const struct pci_device_id mlx5_core_pci_table[] = {
-@@ -1878,7 +1883,7 @@ int mlx5_recover_device(struct mlx5_core_dev *dev)
- 			return -EIO;
- 	}
- 
--	return mlx5_load_one(dev);
-+	return mlx5_load_one(dev, true);
- }
- 
- static struct pci_driver mlx5_core_driver = {
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-index a9b2d6ead542..9026be1d6223 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-@@ -290,7 +290,7 @@ void mlx5_mdev_uninit(struct mlx5_core_dev *dev);
- int mlx5_init_one(struct mlx5_core_dev *dev);
- void mlx5_uninit_one(struct mlx5_core_dev *dev);
- void mlx5_unload_one(struct mlx5_core_dev *dev);
--int mlx5_load_one(struct mlx5_core_dev *dev);
-+int mlx5_load_one(struct mlx5_core_dev *dev, bool recovery);
- 
- int mlx5_vport_get_other_func_cap(struct mlx5_core_dev *dev, u16 function_id, void *out);
+ 	group = MINSTREL_CCK_GROUP;
+ 	for (idx = 0; idx < ARRAY_SIZE(mp->cck_rates); idx++) {
++		if (!(mi->supported[group] & BIT(idx)))
++			continue;
++
+ 		if (rate->idx != mp->cck_rates[idx])
+ 			continue;
  
 -- 
 2.35.1
