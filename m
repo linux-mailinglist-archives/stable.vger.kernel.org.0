@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CCA5414AC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C040541BE7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358285AbiFGUVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38492 "EHLO
+        id S1379118AbiFGVzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359042AbiFGUTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:19:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29B31D0BEC;
-        Tue,  7 Jun 2022 11:30:18 -0700 (PDT)
+        with ESMTP id S1382610AbiFGVvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED8282F02D;
+        Tue,  7 Jun 2022 12:09:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9ACA611B9;
-        Tue,  7 Jun 2022 18:30:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A25C385A2;
-        Tue,  7 Jun 2022 18:30:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03C83618E2;
+        Tue,  7 Jun 2022 19:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137CEC385A2;
+        Tue,  7 Jun 2022 19:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626607;
-        bh=yUWi9eLXk1J9vjjkZvhBAvrAmSPuFeslmO2wWxRBOq4=;
+        s=korg; t=1654628945;
+        bh=RLD4YtdsaYVnX+6jAT3sOdk/Zl8sOQA3J/lFzBYiBgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIDlYzcwKYSepHkBl1gjzyn9ahJSPoEsn7Bi+n+rNxbkz2w87BUxIiy5ToHUMXXdV
-         iVRO9TMNFSfsonmgWr1z/5mzpZWlz1dNiTBlZzcf28e9UkjD5O2kO2ziEoXMYuNcyi
-         GufT8rNTUaKlx7+FRhxW75rmP7kyP9TLV+ARAhyI=
+        b=UUiGrv2263SsMgpmmmGaVSchA+A3JWWyoKZheAvfF2ICmoyKBe/ZQOn5rr8Ojq6Vh
+         5lldif4PSom6HUutcq2ExLl/3E0nslB4TP/KvZVuZCx8boVduXD3kMTwk177v4qukS
+         yJXEfb6HK3Jvt8Hbgi2n3IoyviAK5BAtcjvSfwD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jeffrey Altman <jaltman@auristor.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Iwona Winiarska <iwona.winiarska@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 440/772] rxrpc: Fix overlapping ACK accounting
+Subject: [PATCH 5.18 514/879] hwmon: (dimmtemp) Fix bitmap handling
 Date:   Tue,  7 Jun 2022 19:00:32 +0200
-Message-Id: <20220607165001.965306957@linuxfoundation.org>
+Message-Id: <20220607165017.796984550@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,107 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 8940ba3cfe4841928777fd45eaa92051522c7f0c ]
+[ Upstream commit 9baabde04de64137e86b39112c6259f3da512bd6 ]
 
-Fix accidental overlapping of Rx-phase ACK accounting with Tx-phase ACK
-accounting through variables shared between the two.  call->acks_* members
-refer to ACKs received in the Tx phase and call->ackr_* members to ACKs
-sent/to be sent during the Rx phase.
+Building arm:allmodconfig may fail with the following error.
 
-Fixes: 1a2391c30c0b ("rxrpc: Fix detection of out of order acks")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jeffrey Altman <jaltman@auristor.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In function 'fortify_memcpy_chk',
+    inlined from 'bitmap_copy' at include/linux/bitmap.h:261:2,
+    inlined from 'bitmap_copy_clear_tail' at include/linux/bitmap.h:270:2,
+    inlined from 'bitmap_from_u64' at include/linux/bitmap.h:622:2,
+    inlined from 'check_populated_dimms' at
+	drivers/hwmon/peci/dimmtemp.c:284:2:
+include/linux/fortify-string.h:344:25: error:
+	call to '__write_overflow_field' declared with attribute warning:
+	detected write beyond size of field (1st parameter)
+
+The problematic code is
+	bitmap_from_u64(priv->dimm_mask, dimm_mask);
+
+dimm_mask is declared as u64, but the bitmap in priv->dimm_mask is only
+24 bit wide. On 32-bit systems, this results in writes over the end of
+the bitmap.
+
+Fix the problem by using u32 instead of u64 for dimm_mask. This is
+currently sufficient, and a compile time check to ensure that the number
+of dimms does not exceed the bit map size is already in place.
+
+Fixes: 73bc1b885dae ("hwmon: peci: Add dimmtemp driver")
+Cc: Iwona Winiarska <iwona.winiarska@intel.com>
+Reviewed-by: Iwona Winiarska <iwona.winiarska@intel.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/ar-internal.h |  7 ++++---
- net/rxrpc/input.c       | 16 ++++++++--------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/hwmon/peci/dimmtemp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 422558d50571..cc1fe6d00eca 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -676,10 +676,9 @@ struct rxrpc_call {
+diff --git a/drivers/hwmon/peci/dimmtemp.c b/drivers/hwmon/peci/dimmtemp.c
+index c8222354c005..53e58a9c28ea 100644
+--- a/drivers/hwmon/peci/dimmtemp.c
++++ b/drivers/hwmon/peci/dimmtemp.c
+@@ -219,7 +219,7 @@ static int check_populated_dimms(struct peci_dimmtemp *priv)
+ 	int chan_rank_max = priv->gen_info->chan_rank_max;
+ 	int dimm_idx_max = priv->gen_info->dimm_idx_max;
+ 	u32 chan_rank_empty = 0;
+-	u64 dimm_mask = 0;
++	u32 dimm_mask = 0;
+ 	int chan_rank, dimm_idx, ret;
+ 	u32 pcs;
  
- 	spinlock_t		input_lock;	/* Lock for packet input to this call */
- 
--	/* receive-phase ACK management */
-+	/* Receive-phase ACK management (ACKs we send). */
- 	u8			ackr_reason;	/* reason to ACK */
- 	rxrpc_serial_t		ackr_serial;	/* serial of packet being ACK'd */
--	rxrpc_serial_t		ackr_first_seq;	/* first sequence number received */
- 	rxrpc_seq_t		ackr_prev_seq;	/* previous sequence number received */
- 	rxrpc_seq_t		ackr_consumed;	/* Highest packet shown consumed */
- 	rxrpc_seq_t		ackr_seen;	/* Highest packet shown seen */
-@@ -692,8 +691,10 @@ struct rxrpc_call {
- #define RXRPC_CALL_RTT_AVAIL_MASK	0xf
- #define RXRPC_CALL_RTT_PEND_SHIFT	8
- 
--	/* transmission-phase ACK management */
-+	/* Transmission-phase ACK management (ACKs we've received). */
- 	ktime_t			acks_latest_ts;	/* Timestamp of latest ACK received */
-+	rxrpc_seq_t		acks_first_seq;	/* first sequence number received */
-+	rxrpc_seq_t		acks_prev_seq;	/* previous sequence number received */
- 	rxrpc_seq_t		acks_lowest_nak; /* Lowest NACK in the buffer (or ==tx_hard_ack) */
- 	rxrpc_seq_t		acks_lost_top;	/* tx_top at the time lost-ack ping sent */
- 	rxrpc_serial_t		acks_lost_ping;	/* Serial number of probe ACK */
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index 67d3eba60dc7..3da33b5c13b2 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -812,7 +812,7 @@ static void rxrpc_input_soft_acks(struct rxrpc_call *call, u8 *acks,
- static bool rxrpc_is_ack_valid(struct rxrpc_call *call,
- 			       rxrpc_seq_t first_pkt, rxrpc_seq_t prev_pkt)
- {
--	rxrpc_seq_t base = READ_ONCE(call->ackr_first_seq);
-+	rxrpc_seq_t base = READ_ONCE(call->acks_first_seq);
- 
- 	if (after(first_pkt, base))
- 		return true; /* The window advanced */
-@@ -820,7 +820,7 @@ static bool rxrpc_is_ack_valid(struct rxrpc_call *call,
- 	if (before(first_pkt, base))
- 		return false; /* firstPacket regressed */
- 
--	if (after_eq(prev_pkt, call->ackr_prev_seq))
-+	if (after_eq(prev_pkt, call->acks_prev_seq))
- 		return true; /* previousPacket hasn't regressed. */
- 
- 	/* Some rx implementations put a serial number in previousPacket. */
-@@ -933,8 +933,8 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
- 	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
- 		trace_rxrpc_rx_discard_ack(call->debug_id, ack_serial,
--					   first_soft_ack, call->ackr_first_seq,
--					   prev_pkt, call->ackr_prev_seq);
-+					   first_soft_ack, call->acks_first_seq,
-+					   prev_pkt, call->acks_prev_seq);
- 		return;
+@@ -278,9 +278,9 @@ static int check_populated_dimms(struct peci_dimmtemp *priv)
+ 		return -EAGAIN;
  	}
  
-@@ -949,14 +949,14 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
- 	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
- 		trace_rxrpc_rx_discard_ack(call->debug_id, ack_serial,
--					   first_soft_ack, call->ackr_first_seq,
--					   prev_pkt, call->ackr_prev_seq);
-+					   first_soft_ack, call->acks_first_seq,
-+					   prev_pkt, call->acks_prev_seq);
- 		goto out;
- 	}
- 	call->acks_latest_ts = skb->tstamp;
+-	dev_dbg(priv->dev, "Scanned populated DIMMs: %#llx\n", dimm_mask);
++	dev_dbg(priv->dev, "Scanned populated DIMMs: %#x\n", dimm_mask);
  
--	call->ackr_first_seq = first_soft_ack;
--	call->ackr_prev_seq = prev_pkt;
-+	call->acks_first_seq = first_soft_ack;
-+	call->acks_prev_seq = prev_pkt;
+-	bitmap_from_u64(priv->dimm_mask, dimm_mask);
++	bitmap_from_arr32(priv->dimm_mask, &dimm_mask, DIMM_NUMS_MAX);
  
- 	/* Parse rwind and mtu sizes if provided. */
- 	if (buf.info.rxMTU)
+ 	return 0;
+ }
 -- 
 2.35.1
 
