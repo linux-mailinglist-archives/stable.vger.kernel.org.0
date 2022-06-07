@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5618540584
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2543E54141A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346500AbiFGR0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45962 "EHLO
+        id S1359353AbiFGUM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:12:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347018AbiFGRZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F76111B93;
-        Tue,  7 Jun 2022 10:23:59 -0700 (PDT)
+        with ESMTP id S1359095AbiFGUJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065DDB79;
+        Tue,  7 Jun 2022 11:27:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E20FFCE2015;
-        Tue,  7 Jun 2022 17:23:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0E4C385A5;
-        Tue,  7 Jun 2022 17:23:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 962AC611B9;
+        Tue,  7 Jun 2022 18:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A66D4C385A5;
+        Tue,  7 Jun 2022 18:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622636;
-        bh=IOLloMgWNNND+MG+cMpo8BWAM9qcdlYLA/9sHrIUEEU=;
+        s=korg; t=1654626443;
+        bh=21hBvAqjWgZPVZ41EoxFTaicryQRjHH9kB2zenjleVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ziiQU9de8IawnLC881D3uPkiZxji3DRJI/lu1gsTTuqRCmlKCYdn6cj9Crjzcp7j
-         agRvuCb39sxZpHqNXQaJrXBJQoqEsKe84pcDesbq64g3Ag1nVg0qr4uSJ+gWHR2K/d
-         /vDi0MUXbbTLvknO+C2T7S3TPVnJzMUYMY5E1Bp4=
+        b=NZ1E9M+nQAUIq4ncjtA8YUiDFtppt9EHPZG8Inc2HcFzF/VmMJKtzBh3pbNiVAm8K
+         5aXHRYPPqUWQLznr6yuXrq6m9blLKrBdy1QMNKKufCexlUXi/5odUNzwD9Pj+fffmu
+         8kpYn5sAurK2tvbRbJMt5D8Vs1deeqgJZ94EGAzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@openvz.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 113/452] tracing: incorrect isolate_mote_t cast in mm_vmscan_lru_isolate
+Subject: [PATCH 5.17 378/772] media: exynos4-is: Change clk_disable to clk_disable_unprepare
 Date:   Tue,  7 Jun 2022 18:59:30 +0200
-Message-Id: <20220607164911.923013028@linuxfoundation.org>
+Message-Id: <20220607165000.154489668@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@openvz.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2b132903de7124dd9a758be0c27562e91a510848 ]
+[ Upstream commit 9fadab72a6916c7507d7fedcd644859eef995078 ]
 
-Fixes following sparse warnings:
+The corresponding API for clk_prepare_enable is clk_disable_unprepare,
+other than clk_disable.
 
-  CHECK   mm/vmscan.c
-mm/vmscan.c: note: in included file (through
-include/trace/trace_events.h, include/trace/define_trace.h,
-include/trace/events/vmscan.h):
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- cast to restricted isolate_mode_t
-./include/trace/events/vmscan.h:281:1: sparse: warning:
- restricted isolate_mode_t degrades to integer
+Fix this by changing clk_disable to clk_disable_unprepare.
 
-Link: https://lkml.kernel.org/r/e85d7ff2-fd10-53f8-c24e-ba0458439c1b@openvz.org
-Signed-off-by: Vasily Averin <vvs@openvz.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b4155d7d5b2c ("[media] exynos4-is: Ensure fimc-is clocks are not enabled until properly configured")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/vmscan.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/trace/events/vmscan.h b/include/trace/events/vmscan.h
-index 2070df64958e..b4feeb4b216a 100644
---- a/include/trace/events/vmscan.h
-+++ b/include/trace/events/vmscan.h
-@@ -283,7 +283,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__field(unsigned long, nr_scanned)
- 		__field(unsigned long, nr_skipped)
- 		__field(unsigned long, nr_taken)
--		__field(isolate_mode_t, isolate_mode)
-+		__field(unsigned int, isolate_mode)
- 		__field(int, lru)
- 	),
- 
-@@ -294,7 +294,7 @@ TRACE_EVENT(mm_vmscan_lru_isolate,
- 		__entry->nr_scanned = nr_scanned;
- 		__entry->nr_skipped = nr_skipped;
- 		__entry->nr_taken = nr_taken;
--		__entry->isolate_mode = isolate_mode;
-+		__entry->isolate_mode = (__force unsigned int)isolate_mode;
- 		__entry->lru = lru;
- 	),
- 
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index 81b290dace3a..e3072d69c49f 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -140,7 +140,7 @@ static int fimc_is_enable_clocks(struct fimc_is *is)
+ 			dev_err(&is->pdev->dev, "clock %s enable failed\n",
+ 				fimc_is_clocks[i]);
+ 			for (--i; i >= 0; i--)
+-				clk_disable(is->clocks[i]);
++				clk_disable_unprepare(is->clocks[i]);
+ 			return ret;
+ 		}
+ 		pr_debug("enabled clock: %s\n", fimc_is_clocks[i]);
 -- 
 2.35.1
 
