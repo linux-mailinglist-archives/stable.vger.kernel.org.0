@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 565E1540962
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9227C54120C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348838AbiFGSHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:07:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
+        id S1356862AbiFGTnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350105AbiFGSAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6B414ACB3;
-        Tue,  7 Jun 2022 10:42:41 -0700 (PDT)
+        with ESMTP id S1357829AbiFGTmY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C77EF15AB17;
+        Tue,  7 Jun 2022 11:16:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C768DB82285;
-        Tue,  7 Jun 2022 17:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D3BC34115;
-        Tue,  7 Jun 2022 17:42:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 610E260C1A;
+        Tue,  7 Jun 2022 18:16:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 714C1C385A2;
+        Tue,  7 Jun 2022 18:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623739;
-        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
+        s=korg; t=1654625793;
+        bh=4kOCYh6aEID/+O+eKHAI2+opl1Varwr+QK9vIOeuhOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8nl3ztyLFbbjX9+Bot4SwK3ciA4Muvz+MF1ODaAFTPBTC8nYagnTJzHAM1DWQA6Q
-         LD9rK5ejzIAsC7nyZTD6G2hJ6mIlXKx+EZVC2Ivh9nt0wcIBWEI/lZliru+6kET3IG
-         XUxV1XHnvKwg9buma5yDTlU27yrDFDLyG1aMo3TY=
+        b=NfE8Hezoh1863/froRB9b82xiQP9+pn4aHY/1MdOzyElpQsp7xs6o4LerKgcU26Qm
+         aQftyNBT/Iy/9CN1Vn4owtq5z3WYk/fh9yMb41Gn4Nrhl9kNQ8vWBR+IZgCSHJ0adA
+         Noz+V/NPqdDJ5EkoQrZPkI075xpuUSLdLsZz3h1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/667] ath9k: fix QCA9561 PA bias level
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Martyn Welch <martyn.welch@collabora.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Ferry Toth <fntoth@gmail.com>
+Subject: [PATCH 5.17 146/772] usbnet: Run unregister_netdev() before unbind() again
 Date:   Tue,  7 Jun 2022 18:55:38 +0200
-Message-Id: <20220607164937.007515088@linuxfoundation.org>
+Message-Id: <20220607164953.346263332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +59,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
+[ Upstream commit d1408f6b4dd78fb1b9e26bcf64477984e5f85409 ]
 
-This patch fixes an invalid TX PA DC bias level on QCA9561, which
-results in a very low output power and very low throughput as devices
-are further away from the AP (compared to other 2.4GHz APs).
+Commit 2c9d6c2b871d ("usbnet: run unbind() before unregister_netdev()")
+sought to fix a use-after-free on disconnect of USB Ethernet adapters.
 
-This patch was suggested by Felix Fietkau, who noted[1]:
-"The value written to that register is wrong, because while the mask
-definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
-shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
-wrong for 9561."
+It turns out that a different fix is necessary to address the issue:
+https://lore.kernel.org/netdev/18b3541e5372bc9b9fc733d422f4e698c089077c.1650177997.git.lukas@wunner.de/
 
-In real life testing, without this patch the 2.4GHz throughput on
-Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
-practical maximum with the patch applied.
+So the commit was not necessary.
 
-[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
+The commit made binding and unbinding of USB Ethernet asymmetrical:
+Before, usbnet_probe() first invoked the ->bind() callback and then
+register_netdev().  usbnet_disconnect() mirrored that by first invoking
+unregister_netdev() and then ->unbind().
 
-Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
+Since the commit, the order in usbnet_disconnect() is reversed and no
+longer mirrors usbnet_probe().
+
+One consequence is that a PHY disconnected (and stopped) in ->unbind()
+is afterwards stopped once more by unregister_netdev() as it closes the
+netdev before unregistering.  That necessitates a contortion in ->stop()
+because the PHY may only be stopped if it hasn't already been
+disconnected.
+
+Reverting the commit allows making the call to phy_stop() unconditional
+in ->stop().
+
+Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
+Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Cc: Martyn Welch <martyn.welch@collabora.com>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/asix_devices.c | 6 +-----
+ drivers/net/usb/smsc95xx.c     | 3 +--
+ drivers/net/usb/usbnet.c       | 6 +++---
+ 3 files changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-index a171dbb29fbb..ad949eb02f3d 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-@@ -720,7 +720,7 @@
- #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
- 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
- #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
--#define AR_CH0_TOP2_XPABIASLVL_S	12
-+#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
+diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
+index 6b2fbdf4e0fd..34854ee537dc 100644
+--- a/drivers/net/usb/asix_devices.c
++++ b/drivers/net/usb/asix_devices.c
+@@ -799,11 +799,7 @@ static int ax88772_stop(struct usbnet *dev)
+ {
+ 	struct asix_common_private *priv = dev->driver_priv;
  
- #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
- 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
+-	/* On unplugged USB, we will get MDIO communication errors and the
+-	 * PHY will be set in to PHY_HALTED state.
+-	 */
+-	if (priv->phydev->state != PHY_HALTED)
+-		phy_stop(priv->phydev);
++	phy_stop(priv->phydev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index a0f29482294d..d81485cd7e90 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -1218,8 +1218,7 @@ static int smsc95xx_start_phy(struct usbnet *dev)
+ 
+ static int smsc95xx_stop(struct usbnet *dev)
+ {
+-	if (dev->net->phydev)
+-		phy_stop(dev->net->phydev);
++	phy_stop(dev->net->phydev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index 9a6450f796dc..36b24ec11650 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1616,9 +1616,6 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 		   xdev->bus->bus_name, xdev->devpath,
+ 		   dev->driver_info->description);
+ 
+-	if (dev->driver_info->unbind)
+-		dev->driver_info->unbind(dev, intf);
+-
+ 	net = dev->net;
+ 	unregister_netdev (net);
+ 
+@@ -1626,6 +1623,9 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 
+ 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 
++	if (dev->driver_info->unbind)
++		dev->driver_info->unbind(dev, intf);
++
+ 	usb_kill_urb(dev->interrupt);
+ 	usb_free_urb(dev->interrupt);
+ 	kfree(dev->padding_pkt);
 -- 
 2.35.1
 
