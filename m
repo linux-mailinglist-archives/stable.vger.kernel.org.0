@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94322540761
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F0D540FB3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348115AbiFGRrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:47:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59178 "EHLO
+        id S1353936AbiFGTLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349069AbiFGRqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CB243EE5;
-        Tue,  7 Jun 2022 10:36:28 -0700 (PDT)
+        with ESMTP id S1354864AbiFGTJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:09:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23013192C40;
+        Tue,  7 Jun 2022 11:06:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F47C60DB5;
-        Tue,  7 Jun 2022 17:36:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C69FC385A5;
-        Tue,  7 Jun 2022 17:36:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0331B82340;
+        Tue,  7 Jun 2022 18:06:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE2EEC385A5;
+        Tue,  7 Jun 2022 18:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623387;
-        bh=bNxTvQwfvlCQhLBV5XP5eB24HHOeNW7RiIDKe2u+9rk=;
+        s=korg; t=1654625172;
+        bh=MLkY1OvX2VTXtWkd4B2hKU9SxPB0F0RJYdX5ADWhvgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lReRfPJuxo946SyjvgSu4NO6kdspcvYoNsuzxLtR16eWjiwTGkNdw4Edqz2jQkWvk
-         PF7jlxATtLPpCX1r8uYYy5oCAlK/hyh0AQbLwkM0x/rapD2bjugxCbRmRjvLBN1Sgu
-         5lkrV9+PWIkyQmoWLbfN786L/yg9ZfsSplBmUBuM=
+        b=cwxKA7/D3V6BQ5ytmRwgHQ70+LlisHCAx6tkooogRF/D5EF3jtcq52Ca5BWtMdgxC
+         OolL8ieNsf3QgKllQ67SoV1eAGr2mILyHPGeszSA9vU1JSiSdHQMWlOUyrQZ1QeojM
+         RjMV+fWwazAZUqQ/V6qiQ8O9XrDXUWobSdx6D+vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 399/452] um: Fix out-of-bounds read in LDT setup
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.15 591/667] drm/nouveau/clk: Fix an incorrect NULL check on list iterator
 Date:   Tue,  7 Jun 2022 19:04:16 +0200
-Message-Id: <20220607164920.450066458@linuxfoundation.org>
+Message-Id: <20220607164952.409379485@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 2a4a62a14be1947fa945c5c11ebf67326381a568 upstream.
+commit 1c3b2a27def609473ed13b1cd668cb10deab49b4 upstream.
 
-syscall_stub_data() expects the data_count parameter to be the number of
-longs, not bytes.
+The bug is here:
+	if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+		return cstate;
 
- ==================================================================
- BUG: KASAN: stack-out-of-bounds in syscall_stub_data+0x70/0xe0
- Read of size 128 at addr 000000006411f6f0 by task swapper/1
+The list iterator value 'cstate' will *always* be set and non-NULL
+by list_for_each_entry_from_reverse(), so it is incorrect to assume
+that the iterator value will be unchanged if the list is empty or no
+element is found (In fact, it will be a bogus pointer to an invalid
+structure object containing the HEAD). Also it missed a NULL check
+at callsite and may lead to invalid memory access after that.
 
- CPU: 0 PID: 1 Comm: swapper Not tainted 5.18.0+ #18
- Call Trace:
-  show_stack.cold+0x166/0x2a7
-  __dump_stack+0x3a/0x43
-  dump_stack_lvl+0x1f/0x27
-  print_report.cold+0xdb/0xf81
-  kasan_report+0x119/0x1f0
-  kasan_check_range+0x3a3/0x440
-  memcpy+0x52/0x140
-  syscall_stub_data+0x70/0xe0
-  write_ldt_entry+0xac/0x190
-  init_new_ldt+0x515/0x960
-  init_new_context+0x2c4/0x4d0
-  mm_init.constprop.0+0x5ed/0x760
-  mm_alloc+0x118/0x170
-  0x60033f48
-  do_one_initcall+0x1d7/0x860
-  0x60003e7b
-  kernel_init+0x6e/0x3d4
-  new_thread_handler+0x1e7/0x2c0
+To fix this bug, just return 'encoder' when found, otherwise return
+NULL. And add the NULL check.
 
- The buggy address belongs to stack of task swapper/1
-  and is located at offset 64 in frame:
-  init_new_ldt+0x0/0x960
-
- This frame has 2 objects:
-  [32, 40) 'addr'
-  [64, 80) 'desc'
- ==================================================================
-
-Fixes: 858259cf7d1c443c83 ("uml: maintain own LDT entries")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in nvkm_cstate_prog")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220327075824.11806-1-xiam0nd.tong@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/um/ldt.c |    6 ++++--
+ drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c |    6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/um/ldt.c
-+++ b/arch/x86/um/ldt.c
-@@ -23,9 +23,11 @@ static long write_ldt_entry(struct mm_id
- {
- 	long res;
- 	void *stub_addr;
-+
-+	BUILD_BUG_ON(sizeof(*desc) % sizeof(long));
-+
- 	res = syscall_stub_data(mm_idp, (unsigned long *)desc,
--				(sizeof(*desc) + sizeof(long) - 1) &
--				    ~(sizeof(long) - 1),
-+				sizeof(*desc) / sizeof(long),
- 				addr, &stub_addr);
- 	if (!res) {
- 		unsigned long args[] = { func,
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+@@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *c
+ 
+ 	list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
+ 		if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+-			break;
++			return cstate;
+ 	}
+ 
+-	return cstate;
++	return NULL;
+ }
+ 
+ static struct nvkm_cstate *
+@@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, s
+ 	if (!list_empty(&pstate->list)) {
+ 		cstate = nvkm_cstate_get(clk, pstate, cstatei);
+ 		cstate = nvkm_cstate_find_best(clk, pstate, cstate);
++		if (!cstate)
++			return -EINVAL;
+ 	} else {
+ 		cstate = &pstate->base;
+ 	}
 
 
