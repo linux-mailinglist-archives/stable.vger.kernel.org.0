@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42634540A2D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB6A5404B6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353081AbiFGSSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
+        id S1345595AbiFGRSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:18:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349725AbiFGSNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:13:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06296159045;
-        Tue,  7 Jun 2022 10:49:00 -0700 (PDT)
+        with ESMTP id S1345591AbiFGRSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2938104CAF;
+        Tue,  7 Jun 2022 10:18:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 375246174D;
-        Tue,  7 Jun 2022 17:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40ACFC385A5;
-        Tue,  7 Jun 2022 17:48:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D28BB822B3;
+        Tue,  7 Jun 2022 17:18:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A0BC385A5;
+        Tue,  7 Jun 2022 17:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624120;
-        bh=F0A7Mei65SjzfGTW7VaoiqeahFKopUN+Ep+hIZ0R9ks=;
+        s=korg; t=1654622323;
+        bh=SGsxrxQjiDf3YxPvS3sf36CWAtpL5zbV7LMn8+lLD1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hveC7wSEXDFVl9SvWr0P1SPCDDloFQjypgMwUvGci0MmzOGJkxx3ueZYn6wnfHULe
-         qL1Ij2/9z0fkBny7bNJ8XxmD1uVgsqTemMQRuvV7PsWrjkqpXC7Tn8bbHlmjn1V/EF
-         fw+t3Uucn+ayOda917ivZOqYemMwzvPf7UjQjKek=
+        b=TwDsPAWm1lRxANYRYMCBLPQkb+al7mUJx0ebvFi6Wtuj99MjvOC/YzMTIT24lAm05
+         D0FkSoQjTGC7fViNCBuilyh1YnD51Oyb3b67uqndcw3rwCeslEwJt2kAD1MLMN3IKT
+         lJe9MSQAFLVkIkWN+tPSxbZzYTJYGEn+pkmf62n8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 211/667] net: dsa: mt7530: 1G can also support 1000BASE-X link mode
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.10 019/452] ptrace/um: Replace PT_DTRACE with TIF_SINGLESTEP
 Date:   Tue,  7 Jun 2022 18:57:56 +0200
-Message-Id: <20220607164941.125976406@linuxfoundation.org>
+Message-Id: <20220607164909.114662851@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 66f862563ed68717dfd84e808ca12705ed275ced ]
+commit c200e4bb44e80b343c09841e7caaaca0aac5e5fa upstream.
 
-When using an external PHY connected using RGMII to mt7531 port 5, the
-PHY can be used to used support 1000BASE-X connections. Moreover, if
-1000BASE-T is supported, then we should allow 1000BASE-X as well, since
-which are supported is a property of the PHY.
+User mode linux is the last user of the PT_DTRACE flag.  Using the flag to indicate
+single stepping is a little confusing and worse changing tsk->ptrace without locking
+could potentionally cause problems.
 
-Therefore, it makes no sense to exclude this from the linkmodes when
-1000BASE-T is supported.
+So use a thread info flag with a better name instead of flag in tsk->ptrace.
 
-Fixes: c288575f7810 ("net: dsa: mt7530: Add the support of MT7531 switch")
-Tested-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove the definition PT_DTRACE as uml is the last user.
+
+Cc: stable@vger.kernel.org
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Tested-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Link: https://lkml.kernel.org/r/20220505182645.497868-3-ebiederm@xmission.com
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mt7530.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ arch/um/include/asm/thread_info.h |    2 ++
+ arch/um/kernel/exec.c             |    2 +-
+ arch/um/kernel/process.c          |    2 +-
+ arch/um/kernel/ptrace.c           |    8 ++++----
+ arch/um/kernel/signal.c           |    4 ++--
+ include/linux/ptrace.h            |    1 -
+ 6 files changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index ca9e171cb2bb..be5c9cca8084 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -2527,13 +2527,7 @@ static void mt7531_sgmii_validate(struct mt7530_priv *priv, int port,
- 	/* Port5 supports ethier RGMII or SGMII.
- 	 * Port6 supports SGMII only.
- 	 */
--	switch (port) {
--	case 5:
--		if (mt7531_is_rgmii_port(priv, port))
--			break;
--		fallthrough;
--	case 6:
--		phylink_set(supported, 1000baseX_Full);
-+	if (port == 6) {
- 		phylink_set(supported, 2500baseX_Full);
- 		phylink_set(supported, 2500baseT_Full);
- 	}
-@@ -2901,8 +2895,6 @@ static void
- mt7530_mac_port_validate(struct dsa_switch *ds, int port,
- 			 unsigned long *supported)
+--- a/arch/um/include/asm/thread_info.h
++++ b/arch/um/include/asm/thread_info.h
+@@ -63,6 +63,7 @@ static inline struct thread_info *curren
+ #define TIF_RESTORE_SIGMASK	7
+ #define TIF_NOTIFY_RESUME	8
+ #define TIF_SECCOMP		9	/* secure computing */
++#define TIF_SINGLESTEP		10	/* single stepping userspace */
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+@@ -70,5 +71,6 @@ static inline struct thread_info *curren
+ #define _TIF_MEMDIE		(1 << TIF_MEMDIE)
+ #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
++#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
+ 
+ #endif
+--- a/arch/um/kernel/exec.c
++++ b/arch/um/kernel/exec.c
+@@ -44,7 +44,7 @@ void start_thread(struct pt_regs *regs,
  {
--	if (port == 5)
--		phylink_set(supported, 1000baseX_Full);
+ 	PT_REGS_IP(regs) = eip;
+ 	PT_REGS_SP(regs) = esp;
+-	current->ptrace &= ~PT_DTRACE;
++	clear_thread_flag(TIF_SINGLESTEP);
+ #ifdef SUBARCH_EXECVE1
+ 	SUBARCH_EXECVE1(regs->regs);
+ #endif
+--- a/arch/um/kernel/process.c
++++ b/arch/um/kernel/process.c
+@@ -341,7 +341,7 @@ int singlestepping(void * t)
+ {
+ 	struct task_struct *task = t ? t : current;
+ 
+-	if (!(task->ptrace & PT_DTRACE))
++	if (!test_thread_flag(TIF_SINGLESTEP))
+ 		return 0;
+ 
+ 	if (task->thread.singlestep_syscall)
+--- a/arch/um/kernel/ptrace.c
++++ b/arch/um/kernel/ptrace.c
+@@ -12,7 +12,7 @@
+ 
+ void user_enable_single_step(struct task_struct *child)
+ {
+-	child->ptrace |= PT_DTRACE;
++	set_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	child->thread.singlestep_syscall = 0;
+ 
+ #ifdef SUBARCH_SET_SINGLESTEPPING
+@@ -22,7 +22,7 @@ void user_enable_single_step(struct task
+ 
+ void user_disable_single_step(struct task_struct *child)
+ {
+-	child->ptrace &= ~PT_DTRACE;
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 	child->thread.singlestep_syscall = 0;
+ 
+ #ifdef SUBARCH_SET_SINGLESTEPPING
+@@ -121,7 +121,7 @@ static void send_sigtrap(struct uml_pt_r
  }
  
- static void mt7531_mac_port_validate(struct dsa_switch *ds, int port,
-@@ -2939,8 +2931,10 @@ mt753x_phylink_validate(struct dsa_switch *ds, int port,
- 	}
+ /*
+- * XXX Check PT_DTRACE vs TIF_SINGLESTEP for singlestepping check and
++ * XXX Check TIF_SINGLESTEP for singlestepping check and
+  * PT_PTRACED vs TIF_SYSCALL_TRACE for syscall tracing check
+  */
+ int syscall_trace_enter(struct pt_regs *regs)
+@@ -145,7 +145,7 @@ void syscall_trace_leave(struct pt_regs
+ 	audit_syscall_exit(regs);
  
- 	/* This switch only supports 1G full-duplex. */
--	if (state->interface != PHY_INTERFACE_MODE_MII)
-+	if (state->interface != PHY_INTERFACE_MODE_MII) {
- 		phylink_set(mask, 1000baseT_Full);
-+		phylink_set(mask, 1000baseX_Full);
-+	}
+ 	/* Fake a debug trap */
+-	if (ptraced & PT_DTRACE)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		send_sigtrap(&regs->regs, 0);
  
- 	priv->info->mac_port_validate(ds, port, mask);
+ 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+--- a/arch/um/kernel/signal.c
++++ b/arch/um/kernel/signal.c
+@@ -53,7 +53,7 @@ static void handle_signal(struct ksignal
+ 	unsigned long sp;
+ 	int err;
  
--- 
-2.35.1
-
+-	if ((current->ptrace & PT_DTRACE) && (current->ptrace & PT_PTRACED))
++	if (test_thread_flag(TIF_SINGLESTEP) && (current->ptrace & PT_PTRACED))
+ 		singlestep = 1;
+ 
+ 	/* Did we come from a system call? */
+@@ -128,7 +128,7 @@ void do_signal(struct pt_regs *regs)
+ 	 * on the host.  The tracing thread will check this flag and
+ 	 * PTRACE_SYSCALL if necessary.
+ 	 */
+-	if (current->ptrace & PT_DTRACE)
++	if (test_thread_flag(TIF_SINGLESTEP))
+ 		current->thread.singlestep_syscall =
+ 			is_syscall(PT_REGS_IP(&current->thread.regs));
+ 
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -30,7 +30,6 @@ extern int ptrace_access_vm(struct task_
+ 
+ #define PT_SEIZED	0x00010000	/* SEIZE used, enable new behavior */
+ #define PT_PTRACED	0x00000001
+-#define PT_DTRACE	0x00000002	/* delayed trace (used on m68k, i386) */
+ 
+ #define PT_OPT_FLAG_SHIFT	3
+ /* PT_TRACE_* event enable flags */
 
 
