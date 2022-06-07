@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C96B5405C3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D098541463
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346630AbiFGR30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:29:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42260 "EHLO
+        id S1358361AbiFGURn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346263AbiFGR2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:28:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDF68115A62;
-        Tue,  7 Jun 2022 10:24:30 -0700 (PDT)
+        with ESMTP id S1359690AbiFGUP5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:15:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B64C1C865F;
+        Tue,  7 Jun 2022 11:28:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 435D860DDA;
-        Tue,  7 Jun 2022 17:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55CBAC385A5;
-        Tue,  7 Jun 2022 17:24:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0A60611F3;
+        Tue,  7 Jun 2022 18:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE5FAC385A2;
+        Tue,  7 Jun 2022 18:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622669;
-        bh=9T8tfKnqf1m6Z2nT5BkADUKc6/Fgxts7hIebGV0ZuGE=;
+        s=korg; t=1654626515;
+        bh=G4QYV8KfCGN2kJuv0APB3ew8HI83mkxuqGlT4tkQ4ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOwYzAk5ZBBER57+VbWw8SJwQChy2hWGL0iJVsuJMWdeE5AameNRvLEEWKSltviJv
-         ghr5X5gc3sDnq21NkK5kgYfsWm2EtaPcDMvfcou+x8HcqdLeHr3m8AuRHh7bp6JKWp
-         RDTTk8AKYp/7SNovaZ7iyKmpGbDgDgHNWl3RfzrI=
+        b=kNgDtSJLrtJiRtgzWvrp6Z49JpEy6hRkZgOT+Yed9BR3TQFzg+Y/sdfRaCBd8+4dN
+         6Zzxu5dwZFAACpYYxqK1Q3s7wyZQZurGqoi08b+Uc9yy9OXTQWe74N+AzlfTHrOX8/
+         McbR34/NB83gSsl1H83M+f61NjCsTp6I3b99LMgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 141/452] scftorture: Fix distribution of short handler delays
+Subject: [PATCH 5.17 406/772] media: rkvdec: h264: Fix bit depth wrap in pps packet
 Date:   Tue,  7 Jun 2022 18:59:58 +0200
-Message-Id: <20220607164912.761568384@linuxfoundation.org>
+Message-Id: <20220607165000.972714984@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit 8106bddbab5f0ba180e6d693c7c1fc6926d57caa ]
+[ Upstream commit a074aa4760d1dad0bd565c0f66e7250f5f219ab0 ]
 
-The scftorture test module's scf_handler() function is supposed to provide
-three different distributions of short delays (including "no delay") and
-one distribution of long delays, if specified by the scftorture.longwait
-module parameter.  However, the second of the two non-zero-wait short delays
-is disabled due to the first such delay's "goto out" not being enclosed in
-the "then" clause with the "udelay()".
+The luma and chroma bit depth fields in the pps packet are 3 bits wide.
+8 is wrongly added to the bit depth values written to these 3 bit fields.
+Because only the 3 LSB are written, the hardware was configured
+correctly.
 
-This commit therefore adjusts the code to provide the intended set of
-delays.
+Correct this by not adding 8 to the luma and chroma bit depth value.
 
-Fixes: e9d338a0b179 ("scftorture: Add smp_call_function() torture test")
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/scftorture.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec-h264.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/scftorture.c b/kernel/scftorture.c
-index 554a521ee235..060ee0b1569a 100644
---- a/kernel/scftorture.c
-+++ b/kernel/scftorture.c
-@@ -253,9 +253,10 @@ static void scf_handler(void *scfc_in)
- 	}
- 	this_cpu_inc(scf_invoked_count);
- 	if (longwait <= 0) {
--		if (!(r & 0xffc0))
-+		if (!(r & 0xffc0)) {
- 			udelay(r & 0x3f);
--		goto out;
-+			goto out;
-+		}
- 	}
- 	if (r & 0xfff)
- 		goto out;
+diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
+index f5d8c6cb740b..22b4bf9e9ef4 100644
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -662,8 +662,8 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
+ 	WRITE_PPS(0xff, PROFILE_IDC);
+ 	WRITE_PPS(1, CONSTRAINT_SET3_FLAG);
+ 	WRITE_PPS(sps->chroma_format_idc, CHROMA_FORMAT_IDC);
+-	WRITE_PPS(sps->bit_depth_luma_minus8 + 8, BIT_DEPTH_LUMA);
+-	WRITE_PPS(sps->bit_depth_chroma_minus8 + 8, BIT_DEPTH_CHROMA);
++	WRITE_PPS(sps->bit_depth_luma_minus8, BIT_DEPTH_LUMA);
++	WRITE_PPS(sps->bit_depth_chroma_minus8, BIT_DEPTH_CHROMA);
+ 	WRITE_PPS(0, QPPRIME_Y_ZERO_TRANSFORM_BYPASS_FLAG);
+ 	WRITE_PPS(sps->log2_max_frame_num_minus4, LOG2_MAX_FRAME_NUM_MINUS4);
+ 	WRITE_PPS(sps->max_num_ref_frames, MAX_NUM_REF_FRAMES);
 -- 
 2.35.1
 
