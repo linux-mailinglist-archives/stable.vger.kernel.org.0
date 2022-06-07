@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CB3540913
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BBEE5419A5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349486AbiFGSEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53176 "EHLO
+        id S1377913AbiFGVXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:23:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351985AbiFGSCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:33 -0400
+        with ESMTP id S1378618AbiFGVWj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:22:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D165DDED4;
-        Tue,  7 Jun 2022 10:46:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B146A226556;
+        Tue,  7 Jun 2022 12:00:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A9DB616B1;
-        Tue,  7 Jun 2022 17:46:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741E1C385A5;
-        Tue,  7 Jun 2022 17:46:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC89D617E8;
+        Tue,  7 Jun 2022 18:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF66C385A2;
+        Tue,  7 Jun 2022 18:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623995;
-        bh=WJzjYaTIQ7PBQPp8PTnU5CBeVSbsOqp7md+v/tz9HXU=;
+        s=korg; t=1654628399;
+        bh=gmKKWmpotjYcp8qIaAw1Rg5fTRetCkoV8RD+koRbpAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RrJdl2K6kztDhozBTSjXi89gETNZLcUdzLPnlduLzTq+zcUAOlxpEtYYRAl25TFie
-         9RVOf3OzwLltBBMbAyANh1MMxpjFRLxlCWm25Xx3AooIcn4GW1pJs0JXnbBKh7YDiZ
-         R4Z90qyd3gTbB14ojt8OALnVTzAlUMHkQKgu9tPc=
+        b=Nq5mviCJyF/d2YiVq4+5SRUtp2dg/Tkqlg5g+M2HW9LSops+wOzgoiCwU4zIFURRi
+         wZ6U9LUsk3NlFtcveDLtOApBz5zYYRRkzxnLs1NAE1LRNJomS+j09Pnt4uhoRc9rsd
+         fQ/CKVj1lj//6nTwXpxgCKaN7HYtJXe1YnmA2Evw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 166/667] ARM: dts: exynos: add atmel,24c128 fallback to Samsung EEPROM
-Date:   Tue,  7 Jun 2022 18:57:11 +0200
-Message-Id: <20220607164939.793711538@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Gavin Wan <Gavin.Wan@amd.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 314/879] drm/amd/amdgpu: Remove static from variable in RLCG Reg RW
+Date:   Tue,  7 Jun 2022 18:57:12 +0200
+Message-Id: <20220607165011.961968301@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Gavin Wan <Gavin.Wan@amd.com>
 
-[ Upstream commit f038e8186fbc5723d7d38c6fa1d342945107347e ]
+[ Upstream commit d68cf992ded575928cf4ddf7c64faff0d8dcce14 ]
 
-The Samsung s524ad0xd1 EEPROM should use atmel,24c128 fallback,
-according to the AT24 EEPROM bindings.
+[why]
+These static variables save the RLC Scratch registers address.
+When we install multiple GPUs (for example: XGMI setting) and
+multiple GPUs call the function at same time. The RLC Scratch
+registers address are changed each other. Then it caused
+reading/writing from/to wrong GPU.
 
-Reported-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220426183443.243113-1-krzysztof.kozlowski@linaro.org
+[how]
+Removed the static from the variables. The variables are
+on the stack.
+
+Fixes: 5d447e29670148 ("drm/amdgpu: add helper for rlcg indirect reg access")
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Gavin Wan <Gavin.Wan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-smdk5250.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-index f042954bdfa5..e4861415a0fe 100644
---- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
-+++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-@@ -129,7 +129,7 @@
- 	samsung,i2c-max-bus-freq = <20000>;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
+index 5e3756643da3..1d55b2bae37e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
+@@ -864,11 +864,11 @@ static u32 amdgpu_virt_rlcg_reg_rw(struct amdgpu_device *adev, u32 offset, u32 v
+ 	uint32_t timeout = 50000;
+ 	uint32_t i, tmp;
+ 	uint32_t ret = 0;
+-	static void *scratch_reg0;
+-	static void *scratch_reg1;
+-	static void *scratch_reg2;
+-	static void *scratch_reg3;
+-	static void *spare_int;
++	void *scratch_reg0;
++	void *scratch_reg1;
++	void *scratch_reg2;
++	void *scratch_reg3;
++	void *spare_int;
  
- 	eeprom@50 {
--		compatible = "samsung,s524ad0xd1";
-+		compatible = "samsung,s524ad0xd1", "atmel,24c128";
- 		reg = <0x50>;
- 	};
- 
-@@ -289,7 +289,7 @@
- 	samsung,i2c-max-bus-freq = <20000>;
- 
- 	eeprom@51 {
--		compatible = "samsung,s524ad0xd1";
-+		compatible = "samsung,s524ad0xd1", "atmel,24c128";
- 		reg = <0x51>;
- 	};
- 
+ 	if (!adev->gfx.rlc.rlcg_reg_access_supported) {
+ 		dev_err(adev->dev,
 -- 
 2.35.1
 
