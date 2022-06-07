@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61330541214
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82FA7541920
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356918AbiFGTny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47564 "EHLO
+        id S1378152AbiFGVS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:18:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357901AbiFGTmb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7D0BF6F;
-        Tue,  7 Jun 2022 11:17:07 -0700 (PDT)
+        with ESMTP id S1380692AbiFGVQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8E1B14AF61;
+        Tue,  7 Jun 2022 11:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95F91B8237B;
-        Tue,  7 Jun 2022 18:17:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 022E7C385A5;
-        Tue,  7 Jun 2022 18:17:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 15853CE244E;
+        Tue,  7 Jun 2022 18:56:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D55C385A2;
+        Tue,  7 Jun 2022 18:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625824;
-        bh=jAZ7dqfEeDobrOdTI8ufggj5s7R4RsJZydxUTGMo1yg=;
+        s=korg; t=1654628169;
+        bh=EVoIgFvb+XVNTHPwe4vjskp+ClintZ4Q0sba7+OJU3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9E36d3EcuxKC57Fm+dO4xbHS9r0njmK4/NnIFNuo5zuA9n7p6Oa8MO7GKzRaUBrj
-         GnWiAeT66RpN95kvphDErANk3VfYt0iB05RQ7XttO/OKe16NCKhtdMudl3R0CMyHKx
-         2XhY49FGC/b8WgQZJW9UqDdIXoOFPPUBtS94C3A8=
+        b=pogQm98mKvu/WsYjflhOk/+zOXOVuF7jPnSvABHItyI6P2KQb8ec1mQvwdkZ9c8t1
+         VjemITePfYpkqSr9YUpra2slMGqBee3ImfYc9FsflrNz4YjjondZfqgj5UTT8yxhw+
+         feJAhomiNKkkEee9lPxYIYyDIHo5bk9bujp2vViw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-        Omar Sandoval <osandov@fb.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 156/772] btrfs: fix anon_dev leak in create_subvol()
+Subject: [PATCH 5.18 230/879] ARM: dts: exynos: add atmel,24c128 fallback to Samsung EEPROM
 Date:   Tue,  7 Jun 2022 18:55:48 +0200
-Message-Id: <20220607164953.640287176@linuxfoundation.org>
+Message-Id: <20220607165009.529329183@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,193 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 2256e901f5bddc56e24089c96f27b77da932dfcc ]
+[ Upstream commit f038e8186fbc5723d7d38c6fa1d342945107347e ]
 
-When btrfs_qgroup_inherit(), btrfs_alloc_tree_block, or
-btrfs_insert_root() fail in create_subvol(), we return without freeing
-anon_dev. Reorganize the error handling in create_subvol() to fix this.
+The Samsung s524ad0xd1 EEPROM should use atmel,24c128 fallback,
+according to the AT24 EEPROM bindings.
 
-Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220426183443.243113-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c | 49 +++++++++++++++++++++++-------------------------
- 1 file changed, 23 insertions(+), 26 deletions(-)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 8fe9d55d6862..072cdcab3061 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -544,7 +544,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	struct timespec64 cur_time = current_time(dir);
- 	struct inode *inode;
- 	int ret;
--	dev_t anon_dev = 0;
-+	dev_t anon_dev;
- 	u64 objectid;
- 	u64 index = 0;
+diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+index 21fbbf3d8684..71293749ac48 100644
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -129,7 +129,7 @@
+ 	samsung,i2c-max-bus-freq = <20000>;
  
-@@ -554,11 +554,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	eeprom@50 {
+-		compatible = "samsung,s524ad0xd1";
++		compatible = "samsung,s524ad0xd1", "atmel,24c128";
+ 		reg = <0x50>;
+ 	};
  
- 	ret = btrfs_get_free_objectid(fs_info->tree_root, &objectid);
- 	if (ret)
--		goto fail_free;
--
--	ret = get_anon_bdev(&anon_dev);
--	if (ret < 0)
--		goto fail_free;
-+		goto out_root_item;
+@@ -289,7 +289,7 @@
+ 	samsung,i2c-max-bus-freq = <20000>;
  
- 	/*
- 	 * Don't create subvolume whose level is not zero. Or qgroup will be
-@@ -566,9 +562,13 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	 */
- 	if (btrfs_qgroup_level(objectid)) {
- 		ret = -ENOSPC;
--		goto fail_free;
-+		goto out_root_item;
- 	}
+ 	eeprom@51 {
+-		compatible = "samsung,s524ad0xd1";
++		compatible = "samsung,s524ad0xd1", "atmel,24c128";
+ 		reg = <0x51>;
+ 	};
  
-+	ret = get_anon_bdev(&anon_dev);
-+	if (ret < 0)
-+		goto out_root_item;
-+
- 	btrfs_init_block_rsv(&block_rsv, BTRFS_BLOCK_RSV_TEMP);
- 	/*
- 	 * The same as the snapshot creation, please see the comment
-@@ -576,26 +576,26 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	 */
- 	ret = btrfs_subvolume_reserve_metadata(root, &block_rsv, 8, false);
- 	if (ret)
--		goto fail_free;
-+		goto out_anon_dev;
- 
- 	trans = btrfs_start_transaction(root, 0);
- 	if (IS_ERR(trans)) {
- 		ret = PTR_ERR(trans);
- 		btrfs_subvolume_release_metadata(root, &block_rsv);
--		goto fail_free;
-+		goto out_anon_dev;
- 	}
- 	trans->block_rsv = &block_rsv;
- 	trans->bytes_reserved = block_rsv.size;
- 
- 	ret = btrfs_qgroup_inherit(trans, 0, objectid, inherit);
- 	if (ret)
--		goto fail;
-+		goto out;
- 
- 	leaf = btrfs_alloc_tree_block(trans, root, 0, objectid, NULL, 0, 0, 0,
- 				      BTRFS_NESTING_NORMAL);
- 	if (IS_ERR(leaf)) {
- 		ret = PTR_ERR(leaf);
--		goto fail;
-+		goto out;
- 	}
- 
- 	btrfs_mark_buffer_dirty(leaf);
-@@ -650,7 +650,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 		btrfs_tree_unlock(leaf);
- 		btrfs_free_tree_block(trans, objectid, leaf, 0, 1);
- 		free_extent_buffer(leaf);
--		goto fail;
-+		goto out;
- 	}
- 
- 	free_extent_buffer(leaf);
-@@ -659,19 +659,18 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	key.offset = (u64)-1;
- 	new_root = btrfs_get_new_fs_root(fs_info, objectid, anon_dev);
- 	if (IS_ERR(new_root)) {
--		free_anon_bdev(anon_dev);
- 		ret = PTR_ERR(new_root);
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
--	/* Freeing will be done in btrfs_put_root() of new_root */
-+	/* anon_dev is owned by new_root now. */
- 	anon_dev = 0;
- 
- 	ret = btrfs_record_root_in_trans(trans, new_root);
- 	if (ret) {
- 		btrfs_put_root(new_root);
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
- 
- 	ret = btrfs_create_subvol_root(trans, new_root, root, mnt_userns);
-@@ -679,7 +678,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	if (ret) {
- 		/* We potentially lose an unused inode item here */
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
- 
- 	/*
-@@ -688,28 +687,28 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	ret = btrfs_set_inode_index(BTRFS_I(dir), &index);
- 	if (ret) {
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
- 
- 	ret = btrfs_insert_dir_item(trans, name, namelen, BTRFS_I(dir), &key,
- 				    BTRFS_FT_DIR, index);
- 	if (ret) {
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
- 
- 	btrfs_i_size_write(BTRFS_I(dir), dir->i_size + namelen * 2);
- 	ret = btrfs_update_inode(trans, root, BTRFS_I(dir));
- 	if (ret) {
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
- 
- 	ret = btrfs_add_root_ref(trans, objectid, root->root_key.objectid,
- 				 btrfs_ino(BTRFS_I(dir)), index, name, namelen);
- 	if (ret) {
- 		btrfs_abort_transaction(trans, ret);
--		goto fail;
-+		goto out;
- 	}
- 
- 	ret = btrfs_uuid_tree_add(trans, root_item->uuid,
-@@ -717,8 +716,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 	if (ret)
- 		btrfs_abort_transaction(trans, ret);
- 
--fail:
--	kfree(root_item);
-+out:
- 	trans->block_rsv = NULL;
- 	trans->bytes_reserved = 0;
- 	btrfs_subvolume_release_metadata(root, &block_rsv);
-@@ -734,11 +732,10 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
- 			return PTR_ERR(inode);
- 		d_instantiate(dentry, inode);
- 	}
--	return ret;
--
--fail_free:
-+out_anon_dev:
- 	if (anon_dev)
- 		free_anon_bdev(anon_dev);
-+out_root_item:
- 	kfree(root_item);
- 	return ret;
- }
 -- 
 2.35.1
 
