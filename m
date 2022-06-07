@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E644D54161D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B15CB54082E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359831AbiFGUoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:44:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
+        id S1348666AbiFGR40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357905AbiFGUnH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:43:07 -0400
+        with ESMTP id S1348698AbiFGRy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:54:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE7941F230E;
-        Tue,  7 Jun 2022 11:38:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B639144FFD;
+        Tue,  7 Jun 2022 10:39:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C6DEB8233E;
-        Tue,  7 Jun 2022 18:38:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D921BC385A2;
-        Tue,  7 Jun 2022 18:38:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACCB0B822CE;
+        Tue,  7 Jun 2022 17:34:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 247B3C34115;
+        Tue,  7 Jun 2022 17:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627127;
-        bh=3fJBXA6aZhNR9OxaZMqECk/6L42UqcFz58XWHO9nFVY=;
+        s=korg; t=1654623288;
+        bh=IeaTqaLEzPlaM4RkSnKLeBGciH+Iz0ykpPXh8d68FCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHPXvAamjSwV1Dxdn3HA2y/QW1CAdmp2sWU/Yhn+Ok+dEkdNRRw8L9qVl/87lJJ6a
-         Qwkvx53pN5MMI5goiPVs3HpvqaqKN8INW5F3bpQKTLqm5ihB5cbiAsS5+KHIYSXFlV
-         Y2X/5kQuvlv6KqKXXiJbVmIW6h+KkQ2r05cIM6GY=
+        b=f8c8HqkXqWWjW1zQGh7PO3xQawNcJu+91v5vwaz3xBxkuqFOQeTBxwf9l/uEmViSA
+         iA7hlpfbl27KmIwmdquA2u+liS3TwoBSENuPkXYYTFx0ptO/ZmobBEC2xcgIQoacHv
+         NWcdgnSvds1Ni15MPMqnj/Fzxio1yo129+PMK5ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 627/772] bfq: Avoid false marking of bic as stably merged
+        stable@vger.kernel.org, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>,
+        syzbot+c7358a3cd05ee786eb31@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 362/452] ext4: filter out EXT4_FC_REPLAY from on-disk superblock field s_state
 Date:   Tue,  7 Jun 2022 19:03:39 +0200
-Message-Id: <20220607165007.413495996@linuxfoundation.org>
+Message-Id: <20220607164919.351649050@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 70456e5210f40ffdb8f6d905acfdcec5bd5fad9e upstream.
+commit c878bea3c9d724ddfa05a813f30de3d25a0ba83f upstream.
 
-bfq_setup_cooperator() can mark bic as stably merged even though it
-decides to not merge its bfqqs (when bfq_setup_merge() returns NULL).
-Make sure to mark bic as stably merged only if we are really going to
-merge bfqqs.
+The EXT4_FC_REPLAY bit in sbi->s_mount_state is used to indicate that
+we are in the middle of replay the fast commit journal.  This was
+actually a mistake, since the sbi->s_mount_info is initialized from
+es->s_state.  Arguably s_mount_state is misleadingly named, but the
+name is historical --- s_mount_state and s_state dates back to ext2.
 
-CC: stable@vger.kernel.org
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Fixes: 430a67f9d616 ("block, bfq: merge bursts of newly-created queues")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+What should have been used is the ext4_{set,clear,test}_mount_flag()
+inline functions, which sets EXT4_MF_* bits in sbi->s_mount_flags.
+
+The problem with using EXT4_FC_REPLAY is that a maliciously corrupted
+superblock could result in EXT4_FC_REPLAY getting set in
+s_mount_state.  This bypasses some sanity checks, and this can trigger
+a BUG() in ext4_es_cache_extent().  As a easy-to-backport-fix, filter
+out the EXT4_FC_REPLAY bit for now.  We should eventually transition
+away from EXT4_FC_REPLAY to something like EXT4_MF_REPLAY.
+
+Cc: stable@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20220420192312.1655305-1-phind.uet@gmail.com
+Link: https://lore.kernel.org/r/20220517174028.942119-1-tytso@mit.edu
+Reported-by: syzbot+c7358a3cd05ee786eb31@syzkaller.appspotmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/ext4/super.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2899,9 +2899,12 @@ bfq_setup_cooperator(struct bfq_data *bf
- 				struct bfq_queue *new_bfqq =
- 					bfq_setup_merge(bfqq, stable_merge_bfqq);
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4538,7 +4538,7 @@ static int ext4_fill_super(struct super_
+ 					sbi->s_inodes_per_block;
+ 	sbi->s_desc_per_block = blocksize / EXT4_DESC_SIZE(sb);
+ 	sbi->s_sbh = bh;
+-	sbi->s_mount_state = le16_to_cpu(es->s_state);
++	sbi->s_mount_state = le16_to_cpu(es->s_state) & ~EXT4_FC_REPLAY;
+ 	sbi->s_addr_per_block_bits = ilog2(EXT4_ADDR_PER_BLOCK(sb));
+ 	sbi->s_desc_per_block_bits = ilog2(EXT4_DESC_PER_BLOCK(sb));
  
--				bic->stably_merged = true;
--				if (new_bfqq && new_bfqq->bic)
--					new_bfqq->bic->stably_merged = true;
-+				if (new_bfqq) {
-+					bic->stably_merged = true;
-+					if (new_bfqq->bic)
-+						new_bfqq->bic->stably_merged =
-+									true;
-+				}
- 				return new_bfqq;
- 			} else
- 				return NULL;
+@@ -5998,7 +5998,8 @@ static int ext4_remount(struct super_blo
+ 				if (err)
+ 					goto restore_opts;
+ 			}
+-			sbi->s_mount_state = le16_to_cpu(es->s_state);
++			sbi->s_mount_state = (le16_to_cpu(es->s_state) &
++					      ~EXT4_FC_REPLAY);
+ 
+ 			err = ext4_setup_super(sb, es, 0);
+ 			if (err)
 
 
