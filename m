@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8669541C0D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68718540D84
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382783AbiFGV4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
+        id S1353946AbiFGSsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:48:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383997AbiFGVx5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9DC3248508;
-        Tue,  7 Jun 2022 12:12:48 -0700 (PDT)
+        with ESMTP id S1354220AbiFGSqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE2B14917E;
+        Tue,  7 Jun 2022 11:00:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FC9DB823B2;
-        Tue,  7 Jun 2022 19:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0E73C385A2;
-        Tue,  7 Jun 2022 19:12:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CE34617B0;
+        Tue,  7 Jun 2022 18:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB3BC385A5;
+        Tue,  7 Jun 2022 18:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629150;
-        bh=uGOW+8+MHh3rmVPSMEwKqXlHKgl6LqpDJPKFDcluQmg=;
+        s=korg; t=1654624820;
+        bh=jv8T9mm9HoMZ2y/WrCuWvj+VF4kRNY4oxnvpwKCYlE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xw+yTyOryKZ54Qy3syorxxhuU62e/x5sRmuVGBYwqiRhXfZnJGShN5GEcp4TVv+mR
-         8VUCnrRwsP8G8D5ogIoAKfugzIKYdp3AmePpRp0cAlFMLQXV4iG+KIIejoQuyQqcPL
-         JYoob1uVVENiEYzckD2Q2WnClkuIwmpYuLaEvSzQ=
+        b=o/ow9zJeRwa0HoRiRGHX217ZK2KT+BGHK4FZfAlLpAmSOz1PMum2siIbre8RqhPUA
+         wzd0P7ALRcUGIo0lvd1bLiYL5KzjOKTjlC+qqmSIkh6ldYNgYyN4BjiFcm1xqU2y73
+         fPgdp+kJ6aWu/85BVySd41ys7Y+T0IbcwPoZ5MYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 585/879] scsi: fcoe: Fix Wstringop-overflow warnings in fcoe_wwn_from_mac()
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        syzbot+bdd6e38a1ed5ee58d8bd@syzkaller.appspotmail.com,
+        Kuniyuki Iwashima <kuni1840@gmail.com>,
+        "Soheil Hassas Yeganeh" <soheil@google.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "Sridhar Samudrala" <sridhar.samudrala@intel.com>,
+        Alexander Duyck <alexander.h.duyck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.15 438/667] list: fix a data-race around ep->rdllist
 Date:   Tue,  7 Jun 2022 19:01:43 +0200
-Message-Id: <20220607165019.833339032@linuxfoundation.org>
+Message-Id: <20220607164947.857538800@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,125 +61,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit 54db804d5d7d36709d1ce70bde3b9a6c61b290b6 ]
+[ Upstream commit d679ae94fdd5d3ab00c35078f5af5f37e068b03d ]
 
-Fix the following Wstringop-overflow warnings when building with GCC-11:
+ep_poll() first calls ep_events_available() with no lock held and checks
+if ep->rdllist is empty by list_empty_careful(), which reads
+rdllist->prev.  Thus all accesses to it need some protection to avoid
+store/load-tearing.
 
-drivers/scsi/fcoe/fcoe.c: In function ‘fcoe_netdev_config’:
-drivers/scsi/fcoe/fcoe.c:744:32: warning: ‘fcoe_wwn_from_mac’ accessing 32 bytes in a region of size 6 [-Wstringop-overflow=]
-  744 |                         wwnn = fcoe_wwn_from_mac(ctlr->ctl_src_addr, 1, 0);
-      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/scsi/fcoe/fcoe.c:744:32: note: referencing argument 1 of type ‘unsigned char *’
-In file included from drivers/scsi/fcoe/fcoe.c:36:
-./include/scsi/libfcoe.h:252:5: note: in a call to function ‘fcoe_wwn_from_mac’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-      |     ^~~~~~~~~~~~~~~~~
-drivers/scsi/fcoe/fcoe.c:747:32: warning: ‘fcoe_wwn_from_mac’ accessing 32 bytes in a region of size 6 [-Wstringop-overflow=]
-  747 |                         wwpn = fcoe_wwn_from_mac(ctlr->ctl_src_addr,
-      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  748 |                                                  2, 0);
-      |                                                  ~~~~~
-drivers/scsi/fcoe/fcoe.c:747:32: note: referencing argument 1 of type ‘unsigned char *’
-In file included from drivers/scsi/fcoe/fcoe.c:36:
-./include/scsi/libfcoe.h:252:5: note: in a call to function ‘fcoe_wwn_from_mac’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-      |     ^~~~~~~~~~~~~~~~~
-  CC      drivers/scsi/bnx2fc/bnx2fc_io.o
-In function ‘bnx2fc_net_config’,
-    inlined from ‘bnx2fc_if_create’ at drivers/scsi/bnx2fc/bnx2fc_fcoe.c:1543:7:
-drivers/scsi/bnx2fc/bnx2fc_fcoe.c:833:32: warning: ‘fcoe_wwn_from_mac’ accessing 32 bytes in a region of size 6 [-Wstringop-overflow=]
-  833 |                         wwnn = fcoe_wwn_from_mac(ctlr->ctl_src_addr,
-      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  834 |                                                  1, 0);
-      |                                                  ~~~~~
-drivers/scsi/bnx2fc/bnx2fc_fcoe.c: In function ‘bnx2fc_if_create’:
-drivers/scsi/bnx2fc/bnx2fc_fcoe.c:833:32: note: referencing argument 1 of type ‘unsigned char *’
-In file included from drivers/scsi/bnx2fc/bnx2fc.h:53,
-                 from drivers/scsi/bnx2fc/bnx2fc_fcoe.c:17:
-./include/scsi/libfcoe.h:252:5: note: in a call to function ‘fcoe_wwn_from_mac’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-      |     ^~~~~~~~~~~~~~~~~
-In function ‘bnx2fc_net_config’,
-    inlined from ‘bnx2fc_if_create’ at drivers/scsi/bnx2fc/bnx2fc_fcoe.c:1543:7:
-drivers/scsi/bnx2fc/bnx2fc_fcoe.c:839:32: warning: ‘fcoe_wwn_from_mac’ accessing 32 bytes in a region of size 6 [-Wstringop-overflow=]
-  839 |                         wwpn = fcoe_wwn_from_mac(ctlr->ctl_src_addr,
-      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  840 |                                                  2, 0);
-      |                                                  ~~~~~
-drivers/scsi/bnx2fc/bnx2fc_fcoe.c: In function ‘bnx2fc_if_create’:
-drivers/scsi/bnx2fc/bnx2fc_fcoe.c:839:32: note: referencing argument 1 of type ‘unsigned char *’
-In file included from drivers/scsi/bnx2fc/bnx2fc.h:53,
-                 from drivers/scsi/bnx2fc/bnx2fc_fcoe.c:17:
-./include/scsi/libfcoe.h:252:5: note: in a call to function ‘fcoe_wwn_from_mac’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-      |     ^~~~~~~~~~~~~~~~~
-drivers/scsi/qedf/qedf_main.c: In function ‘__qedf_probe’:
-drivers/scsi/qedf/qedf_main.c:3520:30: warning: ‘fcoe_wwn_from_mac’ accessing 32 bytes in a region of size 6 [-Wstringop-overflow=]
- 3520 |                 qedf->wwnn = fcoe_wwn_from_mac(qedf->mac, 1, 0);
-      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/scsi/qedf/qedf_main.c:3520:30: note: referencing argument 1 of type ‘unsigned char *’
-In file included from drivers/scsi/qedf/qedf.h:9,
-                 from drivers/scsi/qedf/qedf_main.c:23:
-./include/scsi/libfcoe.h:252:5: note: in a call to function ‘fcoe_wwn_from_mac’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-      |     ^~~~~~~~~~~~~~~~~
-drivers/scsi/qedf/qedf_main.c:3521:30: warning: ‘fcoe_wwn_from_mac’ accessing 32 bytes in a region of size 6 [-Wstringop-overflow=]
- 3521 |                 qedf->wwpn = fcoe_wwn_from_mac(qedf->mac, 2, 0);
-      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/scsi/qedf/qedf_main.c:3521:30: note: referencing argument 1 of type ‘unsigned char *’
-In file included from drivers/scsi/qedf/qedf.h:9,
-                 from drivers/scsi/qedf/qedf_main.c:23:
-./include/scsi/libfcoe.h:252:5: note: in a call to function ‘fcoe_wwn_from_mac’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-      |     ^~~~~~~~~~~~~~~~~
+Note INIT_LIST_HEAD_RCU() already has the annotation for both prev
+and next.
 
-by changing the array size to the correct value of ETH_ALEN in the
-argument declaration.
+Commit bf3b9f6372c4 ("epoll: Add busy poll support to epoll with socket
+fds.") added the first lockless ep_events_available(), and commit
+c5a282e9635e ("fs/epoll: reduce the scope of wq lock in epoll_wait()")
+made some ep_events_available() calls lockless and added single call under
+a lock, finally commit e59d3c64cba6 ("epoll: eliminate unnecessary lock
+for zero timeout") made the last ep_events_available() lockless.
 
-Also, fix a couple of checkpatch warnings:
-WARNING: function definition argument 'unsigned int' should also have an identifier name
+BUG: KCSAN: data-race in do_epoll_wait / do_epoll_wait
 
-This helps with the ongoing efforts to globally enable
--Wstringop-overflow.
+write to 0xffff88810480c7d8 of 8 bytes by task 1802 on cpu 0:
+ INIT_LIST_HEAD include/linux/list.h:38 [inline]
+ list_splice_init include/linux/list.h:492 [inline]
+ ep_start_scan fs/eventpoll.c:622 [inline]
+ ep_send_events fs/eventpoll.c:1656 [inline]
+ ep_poll fs/eventpoll.c:1806 [inline]
+ do_epoll_wait+0x4eb/0xf40 fs/eventpoll.c:2234
+ do_epoll_pwait fs/eventpoll.c:2268 [inline]
+ __do_sys_epoll_pwait fs/eventpoll.c:2281 [inline]
+ __se_sys_epoll_pwait+0x12b/0x240 fs/eventpoll.c:2275
+ __x64_sys_epoll_pwait+0x74/0x80 fs/eventpoll.c:2275
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Link: https://github.com/KSPP/linux/issues/181
-Fixes: 85b4aa4926a5 ("[SCSI] fcoe: Fibre Channel over Ethernet")
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+read to 0xffff88810480c7d8 of 8 bytes by task 1799 on cpu 1:
+ list_empty_careful include/linux/list.h:329 [inline]
+ ep_events_available fs/eventpoll.c:381 [inline]
+ ep_poll fs/eventpoll.c:1797 [inline]
+ do_epoll_wait+0x279/0xf40 fs/eventpoll.c:2234
+ do_epoll_pwait fs/eventpoll.c:2268 [inline]
+ __do_sys_epoll_pwait fs/eventpoll.c:2281 [inline]
+ __se_sys_epoll_pwait+0x12b/0x240 fs/eventpoll.c:2275
+ __x64_sys_epoll_pwait+0x74/0x80 fs/eventpoll.c:2275
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xffff88810480c7d0 -> 0xffff888103c15098
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 1799 Comm: syz-fuzzer Tainted: G        W         5.17.0-rc7-syzkaller-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Link: https://lkml.kernel.org/r/20220322002653.33865-3-kuniyu@amazon.co.jp
+Fixes: e59d3c64cba6 ("epoll: eliminate unnecessary lock for zero timeout")
+Fixes: c5a282e9635e ("fs/epoll: reduce the scope of wq lock in epoll_wait()")
+Fixes: bf3b9f6372c4 ("epoll: Add busy poll support to epoll with socket fds.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Reported-by: syzbot+bdd6e38a1ed5ee58d8bd@syzkaller.appspotmail.com
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
+Cc: "Soheil Hassas Yeganeh" <soheil@google.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: "Sridhar Samudrala" <sridhar.samudrala@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_ctlr.c | 2 +-
- include/scsi/libfcoe.h        | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ include/linux/list.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe_ctlr.c b/drivers/scsi/fcoe/fcoe_ctlr.c
-index 1756a0ac6f08..558f3f4e1859 100644
---- a/drivers/scsi/fcoe/fcoe_ctlr.c
-+++ b/drivers/scsi/fcoe/fcoe_ctlr.c
-@@ -1969,7 +1969,7 @@ EXPORT_SYMBOL(fcoe_ctlr_recv_flogi);
-  *
-  * Returns: u64 fc world wide name
-  */
--u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN],
-+u64 fcoe_wwn_from_mac(unsigned char mac[ETH_ALEN],
- 		      unsigned int scheme, unsigned int port)
+diff --git a/include/linux/list.h b/include/linux/list.h
+index a5709c9955e4..a119dd1990d4 100644
+--- a/include/linux/list.h
++++ b/include/linux/list.h
+@@ -33,7 +33,7 @@
+ static inline void INIT_LIST_HEAD(struct list_head *list)
  {
- 	u64 wwn;
-diff --git a/include/scsi/libfcoe.h b/include/scsi/libfcoe.h
-index fac8e89aed81..310e0dbffda9 100644
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -249,7 +249,8 @@ int fcoe_ctlr_recv_flogi(struct fcoe_ctlr *, struct fc_lport *,
- 			 struct fc_frame *);
+ 	WRITE_ONCE(list->next, list);
+-	list->prev = list;
++	WRITE_ONCE(list->prev, list);
+ }
  
- /* libfcoe funcs */
--u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
-+u64 fcoe_wwn_from_mac(unsigned char mac[ETH_ALEN], unsigned int scheme,
-+		      unsigned int port);
- int fcoe_libfc_config(struct fc_lport *, struct fcoe_ctlr *,
- 		      const struct libfc_function_template *, int init_fcp);
- u32 fcoe_fc_crc(struct fc_frame *fp);
+ #ifdef CONFIG_DEBUG_LIST
+@@ -304,7 +304,7 @@ static inline int list_empty(const struct list_head *head)
+ static inline void list_del_init_careful(struct list_head *entry)
+ {
+ 	__list_del_entry(entry);
+-	entry->prev = entry;
++	WRITE_ONCE(entry->prev, entry);
+ 	smp_store_release(&entry->next, entry);
+ }
+ 
+@@ -324,7 +324,7 @@ static inline void list_del_init_careful(struct list_head *entry)
+ static inline int list_empty_careful(const struct list_head *head)
+ {
+ 	struct list_head *next = smp_load_acquire(&head->next);
+-	return list_is_head(next, head) && (next == head->prev);
++	return list_is_head(next, head) && (next == READ_ONCE(head->prev));
+ }
+ 
+ /**
 -- 
 2.35.1
 
