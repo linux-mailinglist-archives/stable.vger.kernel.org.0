@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C627540E84
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EEB540D38
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354113AbiFGSzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36268 "EHLO
+        id S1353519AbiFGSrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:47:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353524AbiFGSot (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:44:49 -0400
+        with ESMTP id S1353587AbiFGSpg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:45:36 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE89187C32;
-        Tue,  7 Jun 2022 10:59:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44861187C3E;
+        Tue,  7 Jun 2022 10:59:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1F261CE2422;
-        Tue,  7 Jun 2022 17:59:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB70C385A5;
-        Tue,  7 Jun 2022 17:59:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5D904CE2428;
+        Tue,  7 Jun 2022 17:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0439FC34115;
+        Tue,  7 Jun 2022 17:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624747;
-        bh=U/JNCbzFYz5H1YnYXfF3XJT4L5e+nT43zDrhKeKSZhc=;
+        s=k20201202; t=1654624748;
+        bh=93RaP5+sjMAjGExeJo5h97vFM+a0K8BZ5IZE4OzmE1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWjp7uvx9bCQw913jhN8mROXcCgH8iYny0hq5kHWzcv87xupf6fTB99sq4fiTf4IC
-         BoiCntGqZkjUlaetydId9VDOzPsY/hyDiClVdlNN0DphsJO9tyPQ6kqtHNzCNn85eB
-         D1lStNiKyCRS8nw7drEOPJps1uofeQuEzJsaHO8XiF7uFBPZUhPa6fcEsH6pLBzL0V
-         HZLBJ+CfwHYeO44spD4DA2PkVn7CGtx3hZatRFVVI7QioQkYpCBYvQxQnOOsSKakq3
-         P8wOzKY0tRA6/6ICHPNzX508sQt2CeOKyittbi3PYh4dTCIqWaPofQz7CARSH5Z5/y
-         kgMCdM+LINEgw==
+        b=hAvbdtz73Is7OGp+TckSJj5lS0cwMR2Siaj/Mixw8/Wi1/HvxKWFfG1SV1bnLBSy6
+         7iBl+F7rfv8Q0YBJtSKHTRWSrFiRKJzSmrz1p2UfgTshxe4nYauoI2tCES2vzhDHYk
+         9q5dKVHGyZpaaHjgYskgbDEn9naOns9V/DUmb9xSGKboQt6vH5MOecmvapp9vCSY9R
+         DiQwB9Z61ycucnHLI9iNGtNUWrRK1vyVosvJbrvDXhiCkawfcBHn2kxB1dZAqlgbt2
+         WQSxHVXm97GKZYGEnFANBK7VPmJR2wissZmeLpnjs9p6i/pafN76ex7/6LV3Ww87sb
+         IPct/5zvMw3QQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Duoming Zhou <duoming@zju.edu.cn>,
+Cc:     Zhen Ni <nizhen@uniontech.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, dan.carpenter@oracle.com,
-        baihaowen@meizu.com, len.baker@gmx.com, edumazet@google.com,
-        dave@stgolabs.net, wjsota@gmail.com, yangyingliang@huawei.com,
-        linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 08/38] drivers: staging: rtl8192e: Fix deadlock in rtllib_beacons_stop()
-Date:   Tue,  7 Jun 2022 13:58:03 -0400
-Message-Id: <20220607175835.480735-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ok@artecdesign.ee,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 09/38] USB: host: isp116x: check return value after calling platform_get_resource()
+Date:   Tue,  7 Jun 2022 13:58:04 -0400
+Message-Id: <20220607175835.480735-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175835.480735-1-sashal@kernel.org>
 References: <20220607175835.480735-1-sashal@kernel.org>
@@ -59,53 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Zhen Ni <nizhen@uniontech.com>
 
-[ Upstream commit 9b6bdbd9337de3917945847bde262a34a87a6303 ]
+[ Upstream commit 134a3408c2d3f7e23eb0e4556e0a2d9f36c2614e ]
 
-There is a deadlock in rtllib_beacons_stop(), which is shown
-below:
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-   (Thread 1)              |      (Thread 2)
-                           | rtllib_send_beacon()
-rtllib_beacons_stop()      |  mod_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | rtllib_send_beacon_cb()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
-
-We hold ieee->beacon_lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need ieee->beacon_lock in position (2) of thread 2.
-As a result, rtllib_beacons_stop() will block forever.
-
-This patch extracts del_timer_sync() from the protection of
-spin_lock_irqsave(), which could let timer handler to obtain
-the needed lock.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220417141641.124388-1-duoming@zju.edu.cn
+Signed-off-by: Zhen Ni <nizhen@uniontech.com>
+Link: https://lore.kernel.org/r/20220302033716.31272-1-nizhen@uniontech.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_softmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/isp116x-hcd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8192e/rtllib_softmac.c b/drivers/staging/rtl8192e/rtllib_softmac.c
-index e8e72f79ca00..aeb6f015fdda 100644
---- a/drivers/staging/rtl8192e/rtllib_softmac.c
-+++ b/drivers/staging/rtl8192e/rtllib_softmac.c
-@@ -651,9 +651,9 @@ static void rtllib_beacons_stop(struct rtllib_device *ieee)
- 	spin_lock_irqsave(&ieee->beacon_lock, flags);
+diff --git a/drivers/usb/host/isp116x-hcd.c b/drivers/usb/host/isp116x-hcd.c
+index 3055d9abfec3..3e5c54742bef 100644
+--- a/drivers/usb/host/isp116x-hcd.c
++++ b/drivers/usb/host/isp116x-hcd.c
+@@ -1541,10 +1541,12 @@ static int isp116x_remove(struct platform_device *pdev)
  
- 	ieee->beacon_txing = 0;
--	del_timer_sync(&ieee->beacon_timer);
+ 	iounmap(isp116x->data_reg);
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	release_mem_region(res->start, 2);
++	if (res)
++		release_mem_region(res->start, 2);
+ 	iounmap(isp116x->addr_reg);
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	release_mem_region(res->start, 2);
++	if (res)
++		release_mem_region(res->start, 2);
  
- 	spin_unlock_irqrestore(&ieee->beacon_lock, flags);
-+	del_timer_sync(&ieee->beacon_timer);
- 
- }
- 
+ 	usb_put_hcd(hcd);
+ 	return 0;
 -- 
 2.35.1
 
