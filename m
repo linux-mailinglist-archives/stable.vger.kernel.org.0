@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8AF5413D3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D0A540B77
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358416AbiFGUHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:07:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+        id S1350447AbiFGS3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358642AbiFGUFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:05:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E661C2D62;
-        Tue,  7 Jun 2022 11:25:47 -0700 (PDT)
+        with ESMTP id S1351389AbiFGSQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C2F15EA47;
+        Tue,  7 Jun 2022 10:49:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 397F2611F3;
-        Tue,  7 Jun 2022 18:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B605C385A2;
-        Tue,  7 Jun 2022 18:25:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7431EB8233D;
+        Tue,  7 Jun 2022 17:49:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDDCFC34115;
+        Tue,  7 Jun 2022 17:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626334;
-        bh=JGu5/sJQWhxYWpYIMKgqESsrp3SFHjGVwap1IYN4MQY=;
+        s=korg; t=1654624159;
+        bh=j3NkU+9R+MsTVefqY9wmm2az7atQ/kicaRlYli+uGtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6JB6hXfXrGrZ2CdxMJ6ghXx7o9WWwEictqxMayzo3jVMWifQ2kaUCKdfyXGQUsjW
-         155aTn6t8/zQFN+t2qFM+RIn9FYjQnvIA3kqg4E9givIc4d6ry7agMRxavDMfoT2a4
-         Sdl8aiX7vNWuRD/q80oYqLbRC5nDUUa+gyckQUrk=
+        b=F6r98+5AexaWkrhvSlksutT3UP01L5wRmf+DgnG4Qn3J9snVgu/82hz6nB25gEz4x
+         ixmceuQUAvjGg3po5h6G3g5tXbbJIlt+oHU2Zm1uitJSxDdUY4JuPwf0EnwbNtumZJ
+         LjIvXTABS8R2JPbBaZL7h2Lw5hg+Hp8cUHtxbN60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 300/772] drm/msm/dpu: adjust display_v_end for eDP and DP
+Subject: [PATCH 5.15 227/667] sched/fair: Fix cfs_rq_clock_pelt() for throttled cfs_rq
 Date:   Tue,  7 Jun 2022 18:58:12 +0200
-Message-Id: <20220607164957.864779421@linuxfoundation.org>
+Message-Id: <20220607164941.597874590@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +57,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-[ Upstream commit e18aeea7f5efb9508722c8c7fd4d32e6f8cdfe50 ]
+[ Upstream commit 64eaf50731ac0a8c76ce2fedd50ef6652aabc5ff ]
 
-The “DP timing” requires the active region to be defined in the
-bottom-right corner of the frame dimensions which is different
-with DSI. Therefore both display_h_end and display_v_end need
-to be adjusted accordingly. However current implementation has
-only display_h_end adjusted.
+Since commit 23127296889f ("sched/fair: Update scale invariance of PELT")
+change to use rq_clock_pelt() instead of rq_clock_task(), we should also
+use rq_clock_pelt() for throttled_clock_task_time and throttled_clock_task
+accounting to get correct cfs_rq_clock_pelt() of throttled cfs_rq. And
+rename throttled_clock_task(_time) to be clock_pelt rather than clock_task.
 
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-
-Fixes: fc3a69ec68d3 ("drm/msm/dpu: intf timing path for displayport")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/476277/
-Link: https://lore.kernel.org/r/1645824192-29670-2-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 23127296889f ("sched/fair: Update scale invariance of PELT")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20220408115309.81603-1-zhouchengming@bytedance.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/fair.c  | 8 ++++----
+ kernel/sched/pelt.h  | 4 ++--
+ kernel/sched/sched.h | 4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c
-index 116e2b5b1a90..284f5610dc35 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_intf.c
-@@ -148,6 +148,7 @@ static void dpu_hw_intf_setup_timing_engine(struct dpu_hw_intf *ctx,
- 		active_v_end = active_v_start + (p->yres * hsync_period) - 1;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 9a4fa22a69ed..fcbacc35d2b9 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4812,8 +4812,8 @@ static int tg_unthrottle_up(struct task_group *tg, void *data)
  
- 		display_v_start += p->hsync_pulse_width + p->h_back_porch;
-+		display_v_end   -= p->h_front_porch; 
+ 	cfs_rq->throttle_count--;
+ 	if (!cfs_rq->throttle_count) {
+-		cfs_rq->throttled_clock_task_time += rq_clock_task(rq) -
+-					     cfs_rq->throttled_clock_task;
++		cfs_rq->throttled_clock_pelt_time += rq_clock_pelt(rq) -
++					     cfs_rq->throttled_clock_pelt;
  
- 		active_hctl = (active_h_end << 16) | active_h_start;
- 		display_hctl = active_hctl;
+ 		/* Add cfs_rq with load or one or more already running entities to the list */
+ 		if (!cfs_rq_is_decayed(cfs_rq) || cfs_rq->nr_running)
+@@ -4830,7 +4830,7 @@ static int tg_throttle_down(struct task_group *tg, void *data)
+ 
+ 	/* group is entering throttled state, stop time */
+ 	if (!cfs_rq->throttle_count) {
+-		cfs_rq->throttled_clock_task = rq_clock_task(rq);
++		cfs_rq->throttled_clock_pelt = rq_clock_pelt(rq);
+ 		list_del_leaf_cfs_rq(cfs_rq);
+ 	}
+ 	cfs_rq->throttle_count++;
+@@ -5274,7 +5274,7 @@ static void sync_throttle(struct task_group *tg, int cpu)
+ 	pcfs_rq = tg->parent->cfs_rq[cpu];
+ 
+ 	cfs_rq->throttle_count = pcfs_rq->throttle_count;
+-	cfs_rq->throttled_clock_task = rq_clock_task(cpu_rq(cpu));
++	cfs_rq->throttled_clock_pelt = rq_clock_pelt(cpu_rq(cpu));
+ }
+ 
+ /* conditionally throttle active cfs_rq's from put_prev_entity() */
+diff --git a/kernel/sched/pelt.h b/kernel/sched/pelt.h
+index c336f5f481bc..4ff2ed4f8fa1 100644
+--- a/kernel/sched/pelt.h
++++ b/kernel/sched/pelt.h
+@@ -145,9 +145,9 @@ static inline u64 rq_clock_pelt(struct rq *rq)
+ static inline u64 cfs_rq_clock_pelt(struct cfs_rq *cfs_rq)
+ {
+ 	if (unlikely(cfs_rq->throttle_count))
+-		return cfs_rq->throttled_clock_task - cfs_rq->throttled_clock_task_time;
++		return cfs_rq->throttled_clock_pelt - cfs_rq->throttled_clock_pelt_time;
+ 
+-	return rq_clock_pelt(rq_of(cfs_rq)) - cfs_rq->throttled_clock_task_time;
++	return rq_clock_pelt(rq_of(cfs_rq)) - cfs_rq->throttled_clock_pelt_time;
+ }
+ #else
+ static inline u64 cfs_rq_clock_pelt(struct cfs_rq *cfs_rq)
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index d30dc55e6cee..f386c6c2b198 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -615,8 +615,8 @@ struct cfs_rq {
+ 	s64			runtime_remaining;
+ 
+ 	u64			throttled_clock;
+-	u64			throttled_clock_task;
+-	u64			throttled_clock_task_time;
++	u64			throttled_clock_pelt;
++	u64			throttled_clock_pelt_time;
+ 	int			throttled;
+ 	int			throttle_count;
+ 	struct list_head	throttled_list;
 -- 
 2.35.1
 
