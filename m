@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C245405E7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBE46541C67
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346941AbiFGRcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45044 "EHLO
+        id S1382795AbiFGV7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347405AbiFGRan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06836110AC6;
-        Tue,  7 Jun 2022 10:26:40 -0700 (PDT)
+        with ESMTP id S1382810AbiFGVv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E11323E820;
+        Tue,  7 Jun 2022 12:09:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 51080CE2015;
-        Tue,  7 Jun 2022 17:26:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25622C385A5;
-        Tue,  7 Jun 2022 17:26:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B49FB823AF;
+        Tue,  7 Jun 2022 19:09:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A37AC385A5;
+        Tue,  7 Jun 2022 19:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622796;
-        bh=fIRIph3IAV3UW7VoBvpbLF6EznCgmW6Q6wKycaEVmVA=;
+        s=korg; t=1654628975;
+        bh=VT+orIzbW0yg3j05zWzFaQ7qL2FfDI5uldUGWuWUFPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iH6wQmINai21IEUMXPjIxXj3B4lOK62UgaX2zhzKn7DpBrbFbfYa1pdFkRjSOHWB9
-         tXA6PqQ5dfEfss2Q0oRauNnQpfFCG1FstcXa+fVqsd4Hs0lHpvsyIXSV1VJWuojHGV
-         U00j4WAxQcnzpl7dC8++CO8oBpGUdaKY6G0SaHCU=
+        b=LqRb2mY85dbcEQiM6L3b+GfefJb4QfmRsdjWtAMUzCkGGmGTnofosu2PM+4xafP5O
+         UGKp+9bUYlECplpAWi6jKJZt9MMQAie7Sv7QAOoOIEFpVJ3b0O/09jMljvZrbYX0K2
+         Wup+bONnV8zUF3AuHlQ1z26L/YaAD5DE14yA7aJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 185/452] irqchip/exiu: Fix acknowledgment of edge triggered interrupts
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 524/879] dpaa2-eth: use the correct software annotation field
 Date:   Tue,  7 Jun 2022 19:00:42 +0200
-Message-Id: <20220607164914.072873398@linuxfoundation.org>
+Message-Id: <20220607165018.085635379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 4efc851c36e389f7ed432edac0149acc5f94b0c7 ]
+[ Upstream commit d5f4e19a85670b4e5697654f4a4e086e064f8a47 ]
 
-Currently the EXIU uses the fasteoi interrupt flow that is configured by
-it's parent (irq-gic-v3.c). With this flow the only chance to clear the
-interrupt request happens during .irq_eoi() and (obviously) this happens
-after the interrupt handler has run. EXIU requires edge triggered
-interrupts to be acked prior to interrupt handling. Without this we
-risk incorrect interrupt dismissal when a new interrupt is delivered
-after the handler reads and acknowledges the peripheral but before the
-irq_eoi() takes place.
+The incorrect software annotation field was being used, swa->sg.sgt_size
+instead of swa->tso.sgt_size, which meant that the SGT buffer was
+unmapped with a wrong size.
+This is also confirmed by the DMA API debug prints which showed the
+following:
 
-Fix this by clearing the interrupt request from .irq_ack() if we are
-configured for edge triggered interrupts. This requires adopting the
-fasteoi-ack flow instead of the fasteoi to ensure the ack gets called.
+[   38.962434] DMA-API: fsl_dpaa2_eth dpni.2: device driver frees DMA memory with different size [device address=0x0000fffffafba740] [map size=224 bytes] [unmap size=0 bytes]
+[   38.980496] WARNING: CPU: 11 PID: 1131 at kernel/dma/debug.c:973 check_unmap+0x58c/0x9b0
+[   38.988586] Modules linked in:
+[   38.991631] CPU: 11 PID: 1131 Comm: iperf3 Not tainted 5.18.0-rc7-00117-g59130eeb2b8f #1972
+[   38.999970] Hardware name: NXP Layerscape LX2160ARDB (DT)
 
-These changes have been tested using the power button on a
-Developerbox/SC2A11 combined with some hackery in gpio-keys so I can
-play with the different trigger mode [and an mdelay(500) so I can
-can check what happens on a double click in both modes].
-
-Fixes: 706cffc1b912 ("irqchip/exiu: Add support for Socionext Synquacer EXIU controller")
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220503134541.2566457-1-daniel.thompson@linaro.org
+Fixes: 3dc709e0cd47 ("dpaa2-eth: add support for software TSO")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Kconfig.platforms   |  1 +
- drivers/irqchip/irq-sni-exiu.c | 25 ++++++++++++++++++++++---
- 2 files changed, 23 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
-index 5c4ac1c9f4e0..889e78f40a25 100644
---- a/arch/arm64/Kconfig.platforms
-+++ b/arch/arm64/Kconfig.platforms
-@@ -250,6 +250,7 @@ config ARCH_STRATIX10
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index 766391310d1b..f1f140277184 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -1148,7 +1148,7 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
+ 						 dpaa2_sg_get_len(&sgt[i]), DMA_TO_DEVICE);
  
- config ARCH_SYNQUACER
- 	bool "Socionext SynQuacer SoC Family"
-+	select IRQ_FASTEOI_HIERARCHY_HANDLERS
+ 			/* Unmap the SGT buffer */
+-			dma_unmap_single(dev, fd_addr, swa->sg.sgt_size,
++			dma_unmap_single(dev, fd_addr, swa->tso.sgt_size,
+ 					 DMA_BIDIRECTIONAL);
  
- config ARCH_TEGRA
- 	bool "NVIDIA Tegra SoC Family"
-diff --git a/drivers/irqchip/irq-sni-exiu.c b/drivers/irqchip/irq-sni-exiu.c
-index abd011fcecf4..c7db617e1a2f 100644
---- a/drivers/irqchip/irq-sni-exiu.c
-+++ b/drivers/irqchip/irq-sni-exiu.c
-@@ -37,11 +37,26 @@ struct exiu_irq_data {
- 	u32		spi_base;
- };
- 
--static void exiu_irq_eoi(struct irq_data *d)
-+static void exiu_irq_ack(struct irq_data *d)
- {
- 	struct exiu_irq_data *data = irq_data_get_irq_chip_data(d);
- 
- 	writel(BIT(d->hwirq), data->base + EIREQCLR);
-+}
-+
-+static void exiu_irq_eoi(struct irq_data *d)
-+{
-+	struct exiu_irq_data *data = irq_data_get_irq_chip_data(d);
-+
-+	/*
-+	 * Level triggered interrupts are latched and must be cleared during
-+	 * EOI or the interrupt will be jammed on. Of course if a level
-+	 * triggered interrupt is still asserted then the write will not clear
-+	 * the interrupt.
-+	 */
-+	if (irqd_is_level_type(d))
-+		writel(BIT(d->hwirq), data->base + EIREQCLR);
-+
- 	irq_chip_eoi_parent(d);
- }
- 
-@@ -91,10 +106,13 @@ static int exiu_irq_set_type(struct irq_data *d, unsigned int type)
- 	writel_relaxed(val, data->base + EILVL);
- 
- 	val = readl_relaxed(data->base + EIEDG);
--	if (type == IRQ_TYPE_LEVEL_LOW || type == IRQ_TYPE_LEVEL_HIGH)
-+	if (type == IRQ_TYPE_LEVEL_LOW || type == IRQ_TYPE_LEVEL_HIGH) {
- 		val &= ~BIT(d->hwirq);
--	else
-+		irq_set_handler_locked(d, handle_fasteoi_irq);
-+	} else {
- 		val |= BIT(d->hwirq);
-+		irq_set_handler_locked(d, handle_fasteoi_ack_irq);
-+	}
- 	writel_relaxed(val, data->base + EIEDG);
- 
- 	writel_relaxed(BIT(d->hwirq), data->base + EIREQCLR);
-@@ -104,6 +122,7 @@ static int exiu_irq_set_type(struct irq_data *d, unsigned int type)
- 
- static struct irq_chip exiu_irq_chip = {
- 	.name			= "EXIU",
-+	.irq_ack		= exiu_irq_ack,
- 	.irq_eoi		= exiu_irq_eoi,
- 	.irq_enable		= exiu_irq_enable,
- 	.irq_mask		= exiu_irq_mask,
+ 			if (!swa->tso.is_last_fd)
 -- 
 2.35.1
 
