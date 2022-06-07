@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22867540705
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB356540E72
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347514AbiFGRln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
+        id S1354158AbiFGSzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:55:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348412AbiFGRkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626FC11CB49;
-        Tue,  7 Jun 2022 10:34:13 -0700 (PDT)
+        with ESMTP id S1354655AbiFGSvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:51:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75736131F13;
+        Tue,  7 Jun 2022 11:03:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB65C6157D;
-        Tue,  7 Jun 2022 17:33:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD48FC385A5;
-        Tue,  7 Jun 2022 17:33:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C784F618BF;
+        Tue,  7 Jun 2022 18:03:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA3A8C36AFE;
+        Tue,  7 Jun 2022 18:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623222;
-        bh=r+PiPBr4xTAxxMb9zWAk9Kk81bO+/sVjicksRNPqiGI=;
+        s=korg; t=1654625003;
+        bh=5KV7ACFAzBT2nVJRtoNOcMP4du3L+CaEo64YrGNjw8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlHkrWQlUdxp1ge34B9ZjzrhN7cA9rjuvZq4FoC6evka4ELCoM3+a8jVfByZHwiVQ
-         UKkIzSvzGAogpobzWoMn2cnsLi1ZjDpb2EvS2oR6dm5stwkvM9q6kvbG70KtQpsU/3
-         apCZujA2ZMX54oTQ7ulL7431yJpP13cVQDyQ1fkA=
+        b=qp4XdpxKd5A1Hxza6clFeVsb7cX5cusyI2LH8THy9Rx2AgnpB20qY1haKhKLSn8AK
+         1VfQsDrw+eMvEUOZTNoxWLC8LDTF9Li5rE2xFxvkt6up1Z0EpHQM2wTDYQN3bWYUhs
+         4IpvUtIZteOA9HlqF9wW1ydBDUuZaKDvy/YGEJgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 332/452] NFSv4/pNFS: Do not fail I/O when we fail to allocate the pNFS layout
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 524/667] f2fs: fix to do sanity check for inline inode
 Date:   Tue,  7 Jun 2022 19:03:09 +0200
-Message-Id: <20220607164918.452934740@linuxfoundation.org>
+Message-Id: <20220607164950.419842802@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 3764a17e31d579cf9b4bd0a69894b577e8d75702 ]
+commit 677a82b44ebf263d4f9a0cfbd576a6ade797a07b upstream.
 
-Commit 587f03deb69b caused pnfs_update_layout() to stop returning ENOMEM
-when the memory allocation fails, and hence causes it to fall back to
-trying to do I/O through the MDS. There is no guarantee that this will
-fare any better. If we're failing the pNFS layout allocation, then we
-should just redirty the page and retry later.
+Yanming reported a kernel bug in Bugzilla kernel [1], which can be
+reproduced. The bug message is:
 
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Fixes: 587f03deb69b ("pnfs: refactor send_layoutget")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The kernel message is shown below:
+
+kernel BUG at fs/inode.c:611!
+Call Trace:
+ evict+0x282/0x4e0
+ __dentry_kill+0x2b2/0x4d0
+ dput+0x2dd/0x720
+ do_renameat2+0x596/0x970
+ __x64_sys_rename+0x78/0x90
+ do_syscall_64+0x3b/0x90
+
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=215895
+
+The bug is due to fuzzed inode has both inline_data and encrypted flags.
+During f2fs_evict_inode(), as the inode was deleted by rename(), it
+will cause inline data conversion due to conflicting flags. The page
+cache will be polluted and the panic will be triggered in clear_inode().
+
+Try fixing the bug by doing more sanity checks for inline data inode in
+sanity_check_inode().
+
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/pnfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/f2fs.h   |    1 +
+ fs/f2fs/inline.c |   29 ++++++++++++++++++++++++-----
+ fs/f2fs/inode.c  |    3 +--
+ 3 files changed, 26 insertions(+), 7 deletions(-)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index b3b9eff5d572..8c0803d98008 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -2006,6 +2006,7 @@ pnfs_update_layout(struct inode *ino,
- 	lo = pnfs_find_alloc_layout(ino, ctx, gfp_flags);
- 	if (lo == NULL) {
- 		spin_unlock(&ino->i_lock);
-+		lseg = ERR_PTR(-ENOMEM);
- 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, lseg,
- 				 PNFS_UPDATE_LAYOUT_NOMEM);
- 		goto out;
-@@ -2134,6 +2135,7 @@ pnfs_update_layout(struct inode *ino,
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3916,6 +3916,7 @@ extern struct kmem_cache *f2fs_inode_ent
+  * inline.c
+  */
+ bool f2fs_may_inline_data(struct inode *inode);
++bool f2fs_sanity_check_inline_data(struct inode *inode);
+ bool f2fs_may_inline_dentry(struct inode *inode);
+ void f2fs_do_read_inline_data(struct page *page, struct page *ipage);
+ void f2fs_truncate_inline_inode(struct inode *inode,
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -14,21 +14,40 @@
+ #include "node.h"
+ #include <trace/events/f2fs.h>
  
- 	lgp = pnfs_alloc_init_layoutget_args(ino, ctx, &stateid, &arg, gfp_flags);
- 	if (!lgp) {
-+		lseg = ERR_PTR(-ENOMEM);
- 		trace_pnfs_update_layout(ino, pos, count, iomode, lo, NULL,
- 					 PNFS_UPDATE_LAYOUT_NOMEM);
- 		nfs_layoutget_end(lo);
--- 
-2.35.1
-
+-bool f2fs_may_inline_data(struct inode *inode)
++static bool support_inline_data(struct inode *inode)
+ {
+ 	if (f2fs_is_atomic_file(inode))
+ 		return false;
+-
+ 	if (!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))
+ 		return false;
+-
+ 	if (i_size_read(inode) > MAX_INLINE_DATA(inode))
+ 		return false;
++	return true;
++}
++
++bool f2fs_may_inline_data(struct inode *inode)
++{
++	if (!support_inline_data(inode))
++		return false;
++
++	return !f2fs_post_read_required(inode);
++}
+ 
+-	if (f2fs_post_read_required(inode))
++bool f2fs_sanity_check_inline_data(struct inode *inode)
++{
++	if (!f2fs_has_inline_data(inode))
+ 		return false;
+ 
+-	return true;
++	if (!support_inline_data(inode))
++		return true;
++
++	/*
++	 * used by sanity_check_inode(), when disk layout fields has not
++	 * been synchronized to inmem fields.
++	 */
++	return (S_ISREG(inode->i_mode) &&
++		(file_is_encrypt(inode) || file_is_verity(inode) ||
++		(F2FS_I(inode)->i_flags & F2FS_COMPR_FL)));
+ }
+ 
+ bool f2fs_may_inline_dentry(struct inode *inode)
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -276,8 +276,7 @@ static bool sanity_check_inode(struct in
+ 		}
+ 	}
+ 
+-	if (f2fs_has_inline_data(inode) &&
+-			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
++	if (f2fs_sanity_check_inline_data(inode)) {
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
+ 			  __func__, inode->i_ino, inode->i_mode);
 
 
