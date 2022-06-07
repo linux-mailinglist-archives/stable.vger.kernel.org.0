@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 357EA541BF1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CB55405F1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381993AbiFGVze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46196 "EHLO
+        id S242827AbiFGRcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384223AbiFGVyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7D837BD3;
-        Tue,  7 Jun 2022 12:13:11 -0700 (PDT)
+        with ESMTP id S1347629AbiFGRaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B94EA100539;
+        Tue,  7 Jun 2022 10:27:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD2E0617D0;
-        Tue,  7 Jun 2022 19:12:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAAA0C385A2;
-        Tue,  7 Jun 2022 19:12:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C0D26137B;
+        Tue,  7 Jun 2022 17:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5942DC385A5;
+        Tue,  7 Jun 2022 17:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629158;
-        bh=B/QuFEpq78xkrF1rplhhWqWNV0Fu2qI+glk260VWyvc=;
+        s=korg; t=1654622863;
+        bh=YgQ6cG9ycguXV3vG1QTl0qpiSjRDeFpJeg9BCSKj0Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6bzvGyP0Zwy/Qa6IAci3NZ6Zz+bBiygf675ZyvdaWwU8VSF9ndiq7tWs+9wzHW7N
-         GdZQoQt2/97LKjZNmUJXs+kz7zu6spWt5BUGHwzQGaR8t7e3Wq8NDX26YMp1cFvm5E
-         x6efrM2Kg7+21h5hdLdPXJLnvEri4dPExrsbwp60=
+        b=K8TeRNJ4N34Pwio2LXM2PUfdeO2ZhVpHa/G97Pb2B0FvMaKtX73yfMQSkJtJMffO6
+         bXuc9oTSgqQOFg7AK7fp9Ge3nbiHfA2QiiqYrWis3q8IZWV/v6iJSUclO5OEAmGOtI
+         ZrI6c04gfNrHTcX5J/tytJHniw7KVnALkqVJfX28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Ben Widawsky <ben.widawsky@intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hugues Fruchet <hugues.fruchet@foss.st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 550/879] cxl/pci: Add debug for DVSEC range init failures
+Subject: [PATCH 5.10 211/452] media: st-delta: Fix PM disable depth imbalance in delta_probe
 Date:   Tue,  7 Jun 2022 19:01:08 +0200
-Message-Id: <20220607165018.830980067@linuxfoundation.org>
+Message-Id: <20220607164914.850220324@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,73 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit e39f9be08d9dfe685c8a325ac1755c04f383effc ]
+[ Upstream commit 94e3dba710fe0afc772172305444250023fc2d30 ]
 
-In preparation for not treating DVSEC range initialization failures as
-fatal to cxl_pci_probe() add individual dev_dbg() statements for each of
-the major failure reasons in cxl_dvsec_ranges().
+The pm_runtime_enable will decrease power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
 
-The rationale for cxl_dvsec_ranges() failure not being fatal is that
-there is still value for cxl_pci to enable mailbox operations even if
-CXL.mem operation is disabled.
-
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
-Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
-Link: https://lore.kernel.org/r/164730734812.3806189.2726330688692684104.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: f386509e4959 ("[media] st-delta: STiH4xx multi-format video decoder v4l2 driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Hugues Fruchet <hugues.fruchet@foss.st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/pci.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/media/platform/sti/delta/delta-v4l2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
-index 3f2182d66829..c4941a3ca6a8 100644
---- a/drivers/cxl/pci.c
-+++ b/drivers/cxl/pci.c
-@@ -466,12 +466,15 @@ static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
- {
- 	struct cxl_endpoint_dvsec_info *info = &cxlds->info;
- 	struct pci_dev *pdev = to_pci_dev(cxlds->dev);
-+	struct device *dev = &pdev->dev;
- 	int d = cxlds->cxl_dvsec;
- 	int hdm_count, rc, i;
- 	u16 cap, ctrl;
+diff --git a/drivers/media/platform/sti/delta/delta-v4l2.c b/drivers/media/platform/sti/delta/delta-v4l2.c
+index c691b3d81549..5da49a0ab70b 100644
+--- a/drivers/media/platform/sti/delta/delta-v4l2.c
++++ b/drivers/media/platform/sti/delta/delta-v4l2.c
+@@ -1862,7 +1862,7 @@ static int delta_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(delta->dev, "%s failed to initialize firmware ipc channel\n",
+ 			DELTA_PREFIX);
+-		goto err;
++		goto err_pm_disable;
+ 	}
  
--	if (!d)
-+	if (!d) {
-+		dev_dbg(dev, "No DVSEC Capability\n");
- 		return -ENXIO;
-+	}
+ 	/* register all available decoders */
+@@ -1876,7 +1876,7 @@ static int delta_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(delta->dev, "%s failed to register V4L2 device\n",
+ 			DELTA_PREFIX);
+-		goto err;
++		goto err_pm_disable;
+ 	}
  
- 	rc = pci_read_config_word(pdev, d + CXL_DVSEC_CAP_OFFSET, &cap);
- 	if (rc)
-@@ -481,8 +484,10 @@ static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
- 	if (rc)
- 		return rc;
- 
--	if (!(cap & CXL_DVSEC_MEM_CAPABLE))
-+	if (!(cap & CXL_DVSEC_MEM_CAPABLE)) {
-+		dev_dbg(dev, "Not MEM Capable\n");
- 		return -ENXIO;
-+	}
- 
- 	/*
- 	 * It is not allowed by spec for MEM.capable to be set and have 0 legacy
-@@ -495,8 +500,10 @@ static int cxl_dvsec_ranges(struct cxl_dev_state *cxlds)
- 		return -EINVAL;
- 
- 	rc = wait_for_valid(cxlds);
--	if (rc)
-+	if (rc) {
-+		dev_dbg(dev, "Failure awaiting MEM_INFO_VALID (%d)\n", rc);
- 		return rc;
-+	}
- 
- 	info->mem_enabled = FIELD_GET(CXL_DVSEC_MEM_ENABLE, ctrl);
- 
+ 	delta->work_queue = create_workqueue(DELTA_NAME);
+@@ -1901,6 +1901,8 @@ static int delta_probe(struct platform_device *pdev)
+ 	destroy_workqueue(delta->work_queue);
+ err_v4l2:
+ 	v4l2_device_unregister(&delta->v4l2_dev);
++err_pm_disable:
++	pm_runtime_disable(dev);
+ err:
+ 	return ret;
+ }
 -- 
 2.35.1
 
