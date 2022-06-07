@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 526F054178F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F46541777
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378307AbiFGVD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50348 "EHLO
+        id S1357825AbiFGVDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:03:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379282AbiFGVCT (ORCPT
+        with ESMTP id S1379289AbiFGVCT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04335719ED;
-        Tue,  7 Jun 2022 11:47:31 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7204477F3F;
+        Tue,  7 Jun 2022 11:47:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89F056157E;
-        Tue,  7 Jun 2022 18:47:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 943B8C385A2;
-        Tue,  7 Jun 2022 18:47:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F19DAB8239D;
+        Tue,  7 Jun 2022 18:47:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA66C385A5;
+        Tue,  7 Jun 2022 18:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627650;
-        bh=OgiNMBYlEY3guzwZGXY3PG8CmHv0f71hexffQ5zD8SY=;
+        s=korg; t=1654627652;
+        bh=1j72S5O2DBHhhGxv0HK6Aui7WmFeAYDl4SZ8qVhieTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gvv1EZCltwCUtOKTvyfWpGfMu/t7J+tRk+ommlAtFSlJ9E8hE8Q4cGwyct1eFy6ON
-         4V/SkVN+WsMJuM4W6Lys2kJ6tf2QxvL1ihp9r8JXI66l2hhWzII5ECQASPmYOa1k1j
-         4agVAZLNBxzy82KPc2+HOrhAiZEPn4PgFvCYVfJQ=
+        b=M3964GMux3H2psm9WIMiUMos0lZ92MRkURholfMl8fiwJOlIjqLw9ixMztNzhEKXw
+         T8uz1wR6pUYCDxP7ECBiejizM2cruR006BDw+0Mn+fGpqZ5yjUB6ca6MYnNTYkYDUv
+         Qs0eSJ7oCW6zbFky7MzrM3l3HE5q8wz/2WdEtgNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Kees Cook <keescook@chromium.org>,
         Oleg Nesterov <oleg@redhat.com>,
         "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.18 043/879] ptrace/xtensa: Replace PT_SINGLESTEP with TIF_SINGLESTEP
-Date:   Tue,  7 Jun 2022 18:52:41 +0200
-Message-Id: <20220607165003.929708775@linuxfoundation.org>
+Subject: [PATCH 5.18 044/879] ptrace: Reimplement PTRACE_KILL by always sending SIGKILL
+Date:   Tue,  7 Jun 2022 18:52:42 +0200
+Message-Id: <20220607165003.959171310@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -57,81 +57,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 4a3d2717d140401df7501a95e454180831a0c5af upstream.
+commit 6a2d90ba027adba528509ffa27097cffd3879257 upstream.
 
-xtensa is the last user of the PT_SINGLESTEP flag.  Changing tsk->ptrace in
-user_enable_single_step and user_disable_single_step without locking could
-potentiallly cause problems.
+The current implementation of PTRACE_KILL is buggy and has been for
+many years as it assumes it's target has stopped in ptrace_stop.  At a
+quick skim it looks like this assumption has existed since ptrace
+support was added in linux v1.0.
 
-So use a thread info flag instead of a flag in tsk->ptrace.  Use TIF_SINGLESTEP
-that xtensa already had defined but unused.
+While PTRACE_KILL has been deprecated we can not remove it as
+a quick search with google code search reveals many existing
+programs calling it.
 
-Remove the definitions of PT_SINGLESTEP and PT_BLOCKSTEP as they have no more users.
+When the ptracee is not stopped at ptrace_stop some fields would be
+set that are ignored except in ptrace_stop.  Making the userspace
+visible behavior of PTRACE_KILL a noop in those case.
+
+As the usual rules are not obeyed it is not clear what the
+consequences are of calling PTRACE_KILL on a running process.
+Presumably userspace does not do this as it achieves nothing.
+
+Replace the implementation of PTRACE_KILL with a simple
+send_sig_info(SIGKILL) followed by a return 0.  This changes the
+observable user space behavior only in that PTRACE_KILL on a process
+not stopped in ptrace_stop will also kill it.  As that has always
+been the intent of the code this seems like a reasonable change.
 
 Cc: stable@vger.kernel.org
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
 Tested-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Link: https://lkml.kernel.org/r/20220505182645.497868-4-ebiederm@xmission.com
+Link: https://lkml.kernel.org/r/20220505182645.497868-7-ebiederm@xmission.com
 Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/kernel/ptrace.c |    4 ++--
- arch/xtensa/kernel/signal.c |    4 ++--
- include/linux/ptrace.h      |    6 ------
- 3 files changed, 4 insertions(+), 10 deletions(-)
+ arch/x86/kernel/step.c |    3 +--
+ kernel/ptrace.c        |    5 ++---
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
---- a/arch/xtensa/kernel/ptrace.c
-+++ b/arch/xtensa/kernel/ptrace.c
-@@ -225,12 +225,12 @@ const struct user_regset_view *task_user
+--- a/arch/x86/kernel/step.c
++++ b/arch/x86/kernel/step.c
+@@ -180,8 +180,7 @@ void set_task_blockstep(struct task_stru
+ 	 *
+ 	 * NOTE: this means that set/clear TIF_BLOCKSTEP is only safe if
+ 	 * task is current or it can't be running, otherwise we can race
+-	 * with __switch_to_xtra(). We rely on ptrace_freeze_traced() but
+-	 * PTRACE_KILL is not safe.
++	 * with __switch_to_xtra(). We rely on ptrace_freeze_traced().
+ 	 */
+ 	local_irq_disable();
+ 	debugctl = get_debugctlmsr();
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -1236,9 +1236,8 @@ int ptrace_request(struct task_struct *c
+ 		return ptrace_resume(child, request, data);
  
- void user_enable_single_step(struct task_struct *child)
- {
--	child->ptrace |= PT_SINGLESTEP;
-+	set_tsk_thread_flag(child, TIF_SINGLESTEP);
- }
+ 	case PTRACE_KILL:
+-		if (child->exit_state)	/* already dead */
+-			return 0;
+-		return ptrace_resume(child, request, SIGKILL);
++		send_sig_info(SIGKILL, SEND_SIG_NOINFO, child);
++		return 0;
  
- void user_disable_single_step(struct task_struct *child)
- {
--	child->ptrace &= ~PT_SINGLESTEP;
-+	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
- }
- 
- /*
---- a/arch/xtensa/kernel/signal.c
-+++ b/arch/xtensa/kernel/signal.c
-@@ -473,7 +473,7 @@ static void do_signal(struct pt_regs *re
- 		/* Set up the stack frame */
- 		ret = setup_frame(&ksig, sigmask_to_save(), regs);
- 		signal_setup_done(ret, &ksig, 0);
--		if (current->ptrace & PT_SINGLESTEP)
-+		if (test_thread_flag(TIF_SINGLESTEP))
- 			task_pt_regs(current)->icountlevel = 1;
- 
- 		return;
-@@ -499,7 +499,7 @@ static void do_signal(struct pt_regs *re
- 	/* If there's no signal to deliver, we just restore the saved mask.  */
- 	restore_saved_sigmask();
- 
--	if (current->ptrace & PT_SINGLESTEP)
-+	if (test_thread_flag(TIF_SINGLESTEP))
- 		task_pt_regs(current)->icountlevel = 1;
- 	return;
- }
---- a/include/linux/ptrace.h
-+++ b/include/linux/ptrace.h
-@@ -46,12 +46,6 @@ extern int ptrace_access_vm(struct task_
- #define PT_EXITKILL		(PTRACE_O_EXITKILL << PT_OPT_FLAG_SHIFT)
- #define PT_SUSPEND_SECCOMP	(PTRACE_O_SUSPEND_SECCOMP << PT_OPT_FLAG_SHIFT)
- 
--/* single stepping state bits (used on ARM and PA-RISC) */
--#define PT_SINGLESTEP_BIT	31
--#define PT_SINGLESTEP		(1<<PT_SINGLESTEP_BIT)
--#define PT_BLOCKSTEP_BIT	30
--#define PT_BLOCKSTEP		(1<<PT_BLOCKSTEP_BIT)
--
- extern long arch_ptrace(struct task_struct *child, long request,
- 			unsigned long addr, unsigned long data);
- extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char __user *dst, int len);
+ #ifdef CONFIG_HAVE_ARCH_TRACEHOOK
+ 	case PTRACE_GETREGSET:
 
 
