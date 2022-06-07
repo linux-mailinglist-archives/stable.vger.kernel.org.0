@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4374B541713
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 335EB541E5A
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:29:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377345AbiFGU6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:58:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56000 "EHLO
+        id S1380991AbiFGW3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:29:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378316AbiFGU4G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:56:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 254E62010C7;
-        Tue,  7 Jun 2022 11:44:16 -0700 (PDT)
+        with ESMTP id S1380910AbiFGW2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:28:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373522717B2;
+        Tue,  7 Jun 2022 12:23:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D92096157F;
-        Tue,  7 Jun 2022 18:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C25AC385A2;
-        Tue,  7 Jun 2022 18:44:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48A74B823D5;
+        Tue,  7 Jun 2022 19:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A620FC385A2;
+        Tue,  7 Jun 2022 19:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627455;
-        bh=2b3EwAxT/IxY3yiIFVjw+wSEWXH1+Ouo/kRi/T0Wbxw=;
+        s=korg; t=1654629797;
+        bh=0f7FHCUBIcpJRP8sBna+2OFuHoRs45yztzmQqDGxi/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8BOvujUb628fV2yrIc+s0O5aZxa4CYC2MF6HD8ihVTP1ZaDSvmCYG1MFZ6KoeDLQ
-         DrCsfXNRP3gzwNKfRFkdBoAyZuJkFPWTJbcnEbOtVZC/If2gDrvD73pER1Prwgjw9a
-         zGyUyt9/Tk/N6mVnBWtr1NU7l/91EY/piuvBYMgA=
+        b=YmMod0GYuEQRowXWLWxKoq4zl57f5ypWLJR3Zz91QGdCh9X8fY08wlgoFFJVhhMKh
+         GfYkNEmIrNWPAkptWLcCQq3+34Cz1y0naI6YQUkpi6SiVn0uT0PqDzjI8SpjNk1GOi
+         Z/sAk18/N+cNXslS1Ls0yJFAU5TkMCncUo1Q0GyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Hubsch <ohubsch@purestorage.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.17 747/772] SMB3: EBADF/EIO errors in rename/open caused by race condition in smb2_compound_op
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Stephen Zhang <starzhangzsd@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.18 821/879] MIPS: IP30: Remove incorrect `cpu_has_fpu override
 Date:   Tue,  7 Jun 2022 19:05:39 +0200
-Message-Id: <20220607165011.041254831@linuxfoundation.org>
+Message-Id: <20220607165026.682413301@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 0a55cf74ffb5d004b93647e4389096880ce37d6b upstream.
+commit f44b3e74c33fe04defeff24ebcae98c3bcc5b285 upstream.
 
-There is  a race condition in smb2_compound_op:
+Remove unsupported forcing of `cpu_has_fpu' to 1, which makes the `nofpu'
+kernel parameter non-functional, and also causes a link error:
 
-after_close:
-	num_rqst++;
+ld: arch/mips/kernel/traps.o: in function `trap_init':
+./arch/mips/include/asm/msa.h:(.init.text+0x348): undefined reference to `handle_fpe'
+ld: ./arch/mips/include/asm/msa.h:(.init.text+0x354): undefined reference to `handle_fpe'
+ld: ./arch/mips/include/asm/msa.h:(.init.text+0x360): undefined reference to `handle_fpe'
 
-	if (cfile) {
-		cifsFileInfo_put(cfile); // sends SMB2_CLOSE to the server
-		cfile = NULL;
+where the CONFIG_MIPS_FP_SUPPORT configuration option has been disabled.
 
-This is triggered by smb2_query_path_info operation that happens during
-revalidate_dentry. In smb2_query_path_info, get_readable_path is called to
-load the cfile, increasing the reference counter. If in the meantime, this
-reference becomes the very last, this call to cifsFileInfo_put(cfile) will
-trigger a SMB2_CLOSE request sent to the server just before sending this compound
-request – and so then the compound request fails either with EBADF/EIO depending
-on the timing at the server, because the handle is already closed.
-
-In the first scenario, the race seems to be happening between smb2_query_path_info
-triggered by the rename operation, and between “cleanup” of asynchronous writes – while
-fsync(fd) likely waits for the asynchronous writes to complete, releasing the writeback
-structures can happen after the close(fd) call. So the EBADF/EIO errors will pop up if
-the timing is such that:
-1) There are still outstanding references after close(fd) in the writeback structures
-2) smb2_query_path_info successfully fetches the cfile, increasing the refcounter by 1
-3) All writeback structures release the same cfile, reducing refcounter to 1
-4) smb2_compound_op is called with that cfile
-
-In the second scenario, the race seems to be similar – here open triggers the
-smb2_query_path_info operation, and if all other threads in the meantime decrease the
-refcounter to 1 similarly to the first scenario, again SMB2_CLOSE will be sent to the
-server just before issuing the compound request. This case is harder to reproduce.
-
-See https://bugzilla.samba.org/show_bug.cgi?id=15051
-
-Cc: stable@vger.kernel.org
-Fixes: 8de9e86c67ba ("cifs: create a helper to find a writeable handle by path name")
-Signed-off-by: Ondrej Hubsch <ohubsch@purestorage.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Reported-by: Stephen Zhang <starzhangzsd@gmail.com>
+Fixes: 7505576d1c1a ("MIPS: add support for SGI Octane (IP30)")
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2inode.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/cifs/smb2inode.c
-+++ b/fs/cifs/smb2inode.c
-@@ -362,8 +362,6 @@ smb2_compound_op(const unsigned int xid,
- 	num_rqst++;
- 
- 	if (cfile) {
--		cifsFileInfo_put(cfile);
--		cfile = NULL;
- 		rc = compound_send_recv(xid, ses, server,
- 					flags, num_rqst - 2,
- 					&rqst[1], &resp_buftype[1],
+--- a/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
++++ b/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
+@@ -28,7 +28,6 @@
+ #define cpu_has_4kex			1
+ #define cpu_has_3k_cache		0
+ #define cpu_has_4k_cache		1
+-#define cpu_has_fpu			1
+ #define cpu_has_nofpuex			0
+ #define cpu_has_32fpr			1
+ #define cpu_has_counter			1
 
 
