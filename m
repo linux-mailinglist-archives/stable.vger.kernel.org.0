@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D39A65419FE
+	by mail.lfdr.de (Postfix) with ESMTP id 60F265419FD
 	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378704AbiFGV1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:27:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38840 "EHLO
+        id S1378692AbiFGV1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379109AbiFGVZM (ORCPT
+        with ESMTP id S1379112AbiFGVZM (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01942150B56;
-        Tue,  7 Jun 2022 12:01:33 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321F9150B65;
+        Tue,  7 Jun 2022 12:01:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B4AC61768;
-        Tue,  7 Jun 2022 19:01:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A7CC385A2;
-        Tue,  7 Jun 2022 19:01:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E61C6B822C0;
+        Tue,  7 Jun 2022 19:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF2FC385A2;
+        Tue,  7 Jun 2022 19:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628493;
-        bh=ymx9QHg7+ScfhvFTXBKQpujaG21Mb1j9yGQhQARduI4=;
+        s=korg; t=1654628495;
+        bh=IaTamhIYb9RPqj4QayKEjkj2X3Nr3GfNwleznlAfHOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rc7bfRNtiRXT5Sv53NOW/goPaMmEHrDcdZ1q4aEEsc0i8l1X8bOpcwMnUSDuSgMZz
-         Uvm9c0TpfS2o44PXiHgv5XEMvnOXbJlrZnG1xQXWBbMA4GKe7sT0oZLJ4sLP+BiAbX
-         SomHdith6wRG8bNkkG0TGmeMICoOjsyZ7hz11cS8=
+        b=q3FMPub7KeXaFYC6uFHK1uR7JgJBjhaBeJW/2WyuOYzcnXkc0+T4FNJN8FJv9eE99
+         Dm75Ys71h8XHmYqvxqnCoDK1tGvzh6cbT2ay7cE6ygygVt9uE+WQtXzP7UsTINK5J9
+         1PlUD4RyeQrpbB9fJpvlIfyrur8+GHWUIhTguMVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 349/879] fsnotify: fix wrong lockdep annotations
-Date:   Tue,  7 Jun 2022 18:57:47 +0200
-Message-Id: <20220607165012.991241561@linuxfoundation.org>
+Subject: [PATCH 5.18 350/879] spi: rockchip: fix missing error on unsupported SPI_CS_HIGH
+Date:   Tue,  7 Jun 2022 18:57:48 +0200
+Message-Id: <20220607165013.020291908@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,72 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-[ Upstream commit 623af4f538b5df9b416e1b82f720af7371b4c771 ]
+[ Upstream commit d5d933f09ac326aebad85bfb787cc786ad477711 ]
 
-Commit 6960b0d909cd ("fsnotify: change locking order") changed some
-of the mark_mutex locks in direct reclaim path to use:
-  mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
+The hardware (except for the ROCKCHIP_SPI_VER2_TYPE2 version) does not
+support active-high native chip selects. However if such a CS is configured
+the core does not error as it normally should, because the
+'ctlr->use_gpio_descriptors = true' line in rockchip_spi_probe() makes the
+core set SPI_CS_HIGH in ctlr->mode_bits.
 
-This change is explained:
- "...It uses nested locking to avoid deadlock in case we do the final
-  iput() on an inode which still holds marks and thus would take the
-  mutex again when calling fsnotify_inode_delete() in destroy_inode()."
+In such a case the spi-rockchip driver operates normally but produces an
+active-low chip select signal without notice.
 
-The problem is that the mutex_lock_nested() is not a nested lock at
-all. In fact, it has the opposite effect of preventing lockdep from
-warning about a very possible deadlock.
+There is no provision in the current core code to handle this
+situation. Fix by adding a check in the ctlr->setup function (similarly to
+what spi-atmel.c does).
 
-Due to these wrong annotations, a deadlock that was introduced with
-nfsd filecache in kernel v5.4 went unnoticed in v5.4.y for over two
-years until it was reported recently by Khazhismel Kumykov, only to
-find out that the deadlock was already fixed in kernel v5.5.
+This cannot be done reading the SPI_CS_HIGH but in ctlr->mode_bits because
+that bit gets always set by the core for master mode (see above).
 
-Fix the wrong lockdep annotations.
-
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Fixes: 6960b0d909cd ("fsnotify: change locking order")
-Link: https://lore.kernel.org/r/20220321112310.vpr7oxro2xkz5llh@quack3.lan/
-Link: https://lore.kernel.org/r/20220422120327.3459282-4-amir73il@gmail.com
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: eb1262e3cc8b ("spi: spi-rockchip: use num-cs property and ctlr->enable_gpiods")
+Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Link: https://lore.kernel.org/r/20220421213251.1077899-1-luca.ceresoli@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/notify/mark.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/spi/spi-rockchip.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 4853184f7dde..c86982be2d50 100644
---- a/fs/notify/mark.c
-+++ b/fs/notify/mark.c
-@@ -452,7 +452,7 @@ void fsnotify_free_mark(struct fsnotify_mark *mark)
- void fsnotify_destroy_mark(struct fsnotify_mark *mark,
- 			   struct fsnotify_group *group)
- {
--	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock(&group->mark_mutex);
- 	fsnotify_detach_mark(mark);
- 	mutex_unlock(&group->mark_mutex);
- 	fsnotify_free_mark(mark);
-@@ -770,7 +770,7 @@ void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
- 	 * move marks to free to to_free list in one go and then free marks in
- 	 * to_free list one by one.
- 	 */
--	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock(&group->mark_mutex);
- 	list_for_each_entry_safe(mark, lmark, &group->marks_list, g_list) {
- 		if (mark->connector->type == obj_type)
- 			list_move(&mark->g_list, &to_free);
-@@ -779,7 +779,7 @@ void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index cdc16eecaf6b..a08215eb9e14 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -196,6 +196,8 @@ struct rockchip_spi {
  
- clear:
- 	while (1) {
--		mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+		mutex_lock(&group->mark_mutex);
- 		if (list_empty(head)) {
- 			mutex_unlock(&group->mark_mutex);
- 			break;
+ 	bool slave_abort;
+ 	bool cs_inactive; /* spi slave tansmition stop when cs inactive */
++	bool cs_high_supported; /* native CS supports active-high polarity */
++
+ 	struct spi_transfer *xfer; /* Store xfer temporarily */
+ };
+ 
+@@ -719,6 +721,11 @@ static int rockchip_spi_setup(struct spi_device *spi)
+ 	struct rockchip_spi *rs = spi_controller_get_devdata(spi->controller);
+ 	u32 cr0;
+ 
++	if (!spi->cs_gpiod && (spi->mode & SPI_CS_HIGH) && !rs->cs_high_supported) {
++		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
++		return -EINVAL;
++	}
++
+ 	pm_runtime_get_sync(rs->dev);
+ 
+ 	cr0 = readl_relaxed(rs->regs + ROCKCHIP_SPI_CTRLR0);
+@@ -899,6 +906,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
+ 
+ 	switch (readl_relaxed(rs->regs + ROCKCHIP_SPI_VERSION)) {
+ 	case ROCKCHIP_SPI_VER2_TYPE2:
++		rs->cs_high_supported = true;
+ 		ctlr->mode_bits |= SPI_CS_HIGH;
+ 		if (ctlr->can_dma && slave_mode)
+ 			rs->cs_inactive = true;
 -- 
 2.35.1
 
