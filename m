@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F8654160E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBB8540727
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359697AbiFGUpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:45:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35578 "EHLO
+        id S245731AbiFGRnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:43:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359731AbiFGUnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:43:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84BE01F42B3;
-        Tue,  7 Jun 2022 11:39:08 -0700 (PDT)
+        with ESMTP id S1347669AbiFGRmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:42:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E59612B01C;
+        Tue,  7 Jun 2022 10:34:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E26F76157B;
-        Tue,  7 Jun 2022 18:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFBA9C385A2;
-        Tue,  7 Jun 2022 18:38:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6322B822CD;
+        Tue,  7 Jun 2022 17:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C09C341C5;
+        Tue,  7 Jun 2022 17:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627116;
-        bh=ZB5KUxuvNQ0yTaFTUxeKiF3Scpi+CLvkddXIlq4z0cY=;
+        s=korg; t=1654623274;
+        bh=KITF080HglxN5AzB2BU/A8itvTQUXKIvYIZS6LlOGvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9DhyQBoOe9XVgzwc6Gh0Y/VMC461s4pqmJtQCicwZ384UEGQCBpbv2Meb2vXVXof
-         Sw0B4ilsJlxPg7r+a1CnaPv5qWCWJM3TZQD+rLR4LDuK/hzeHY2WDe9giAgNKMirLw
-         +xch6hY+v9X+gV/TdzghqBcdYu2cYBCfwYHc7uqM=
+        b=1ZartB6R6bNrTRMtxY7hrOejLjEfVDItdoNRj1mOxTtPaHOTMEt2ycYP15t5l6A9f
+         oP9o7UiZCvW8mJuBxdBPw7JBW/CHN32dRBIY30pzB5ZwFAChuSX3vtwIXQ28HKNr13
+         kJEw/bWQlPVGDg0dlrFWLyxUmNp10CPSoUr4fWYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.17 623/772] iwlwifi: mei: clear the sap data header before sending
+        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 358/452] bfq: Track whether bfq_group is still online
 Date:   Tue,  7 Jun 2022 19:03:35 +0200
-Message-Id: <20220607165007.294243307@linuxfoundation.org>
+Message-Id: <20220607164919.231706205@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 55cf10488d7a9fa1b1b473a5e44a80666932e094 upstream.
+commit 09f871868080c33992cd6a9b72a5ca49582578fa upstream.
 
-The SAP data header has some fields that are marked as reserved
-but are actually in use by CSME. Clear those fields before sending
-the data to avoid having random values in those fields.
+Track whether bfq_group is still online. We cannot rely on
+blkcg_gq->online because that gets cleared only after all policies are
+offlined and we need something that gets updated already under
+bfqd->lock when we are cleaning up our bfq_group to be able to guarantee
+that when we see online bfq_group, it will stay online while we are
+holding bfqd->lock lock.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Link: https://lore.kernel.org/r/20220517120045.8dd3423cf683.I02976028eaa6aab395cb2e701fa7127212762eb7@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+CC: stable@vger.kernel.org
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-7-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mei/main.c |    1 +
- 1 file changed, 1 insertion(+)
+ block/bfq-cgroup.c  |    3 ++-
+ block/bfq-iosched.h |    2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mei/main.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mei/main.c
-@@ -493,6 +493,7 @@ void iwl_mei_add_data_to_ring(struct sk_
- 	if (cb_tx) {
- 		struct iwl_sap_cb_data *cb_hdr = skb_push(skb, sizeof(*cb_hdr));
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -553,6 +553,7 @@ static void bfq_pd_init(struct blkg_poli
+ 				   */
+ 	bfqg->bfqd = bfqd;
+ 	bfqg->active_entities = 0;
++	bfqg->online = true;
+ 	bfqg->rq_pos_tree = RB_ROOT;
+ }
  
-+		memset(cb_hdr, 0, sizeof(*cb_hdr));
- 		cb_hdr->hdr.type = cpu_to_le16(SAP_MSG_CB_DATA_PACKET);
- 		cb_hdr->hdr.len = cpu_to_le16(skb->len - sizeof(cb_hdr->hdr));
- 		cb_hdr->hdr.seq_num = cpu_to_le32(atomic_inc_return(&mei->sap_seq_no));
+@@ -599,7 +600,6 @@ struct bfq_group *bfq_find_set_group(str
+ 	struct bfq_entity *entity;
+ 
+ 	bfqg = bfq_lookup_bfqg(bfqd, blkcg);
+-
+ 	if (unlikely(!bfqg))
+ 		return NULL;
+ 
+@@ -961,6 +961,7 @@ static void bfq_pd_offline(struct blkg_p
+ 
+ put_async_queues:
+ 	bfq_put_async_queues(bfqd, bfqg);
++	bfqg->online = false;
+ 
+ 	spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	/*
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -901,6 +901,8 @@ struct bfq_group {
+ 
+ 	/* reference counter (see comments in bfq_bic_update_cgroup) */
+ 	int ref;
++	/* Is bfq_group still online? */
++	bool online;
+ 
+ 	struct bfq_entity entity;
+ 	struct bfq_sched_data sched_data;
 
 
