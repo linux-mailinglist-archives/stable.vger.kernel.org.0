@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69CDE541585
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD58540E0A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376509AbiFGUg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46274 "EHLO
+        id S1353783AbiFGSwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:52:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378012AbiFGUep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584951E8E99;
-        Tue,  7 Jun 2022 11:37:13 -0700 (PDT)
+        with ESMTP id S1347168AbiFGSrf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C8593997;
+        Tue,  7 Jun 2022 11:02:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89416B82182;
-        Tue,  7 Jun 2022 18:37:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC68DC341CC;
-        Tue,  7 Jun 2022 18:37:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7D91B82343;
+        Tue,  7 Jun 2022 18:02:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36EFAC34119;
+        Tue,  7 Jun 2022 18:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627030;
-        bh=4JI497rn1w5jLXa3fsVUm1N8VcEniotvqADpCf5bPZE=;
+        s=korg; t=1654624969;
+        bh=Sb1Da9R1h6PFoUXuZpKZcTv76uGodmMk5hoLNQtJKfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ja4WJ22YzyOvma5gJiv8teeHYwN4j6oZRtiNdtXLH/Jk5CK0Otoc5/Dr8TuyxJCuk
-         cg5EkIbhHD2IrDW4jxy5HY70WoGvh0kvG4IsEogeVDRwrXsmvoz01SKLjVG9kOSHOB
-         k/VDAs7UWB6Cpe3g9T7J2eQ7NvkhkGtNtAOndC/4=
+        b=v+WwxxYbPYn0N6TdxWVHHZT2VSVIa+PMlCkilbDQAVKF8e8Z4sUtB2aDcrDv3UXR6
+         dvoZILztcaWaBiqvffYRNshF/pFOxwZsSgPgKPWkIAWOWtMZe8tpdO4c0lHOx59C7D
+         6BB6hNshssnH6+exW3WSD6QCxerodfssWypL8JOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
-        Tyrone Ting <kfting@nuvoton.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 591/772] i2c: npcm: Fix timeout calculation
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 518/667] f2fs: fix to clear dirty inode in f2fs_evict_inode()
 Date:   Tue,  7 Jun 2022 19:03:03 +0200
-Message-Id: <20220607165006.361041110@linuxfoundation.org>
+Message-Id: <20220607164950.239830377@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 288b204492fddf28889cea6dc95a23976632c7a0 ]
+commit f2db71053dc0409fae785096ad19cce4c8a95af7 upstream.
 
-Use adap.timeout for timeout calculation instead of hard-coded
-value of 35ms.
+As Yanming reported in bugzilla:
 
-Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+https://bugzilla.kernel.org/show_bug.cgi?id=215904
+
+The kernel message is shown below:
+
+kernel BUG at fs/f2fs/inode.c:825!
+Call Trace:
+ evict+0x282/0x4e0
+ __dentry_kill+0x2b2/0x4d0
+ shrink_dentry_list+0x17c/0x4f0
+ shrink_dcache_parent+0x143/0x1e0
+ do_one_tree+0x9/0x30
+ shrink_dcache_for_umount+0x51/0x120
+ generic_shutdown_super+0x5c/0x3a0
+ kill_block_super+0x90/0xd0
+ kill_f2fs_super+0x225/0x310
+ deactivate_locked_super+0x78/0xc0
+ cleanup_mnt+0x2b7/0x480
+ task_work_run+0xc8/0x150
+ exit_to_user_mode_prepare+0x14a/0x150
+ syscall_exit_to_user_mode+0x1d/0x40
+ do_syscall_64+0x48/0x90
+
+The root cause is: inode node and dnode node share the same nid,
+so during f2fs_evict_inode(), dnode node truncation will invalidate
+its NAT entry, so when truncating inode node, it fails due to
+invalid NAT entry, result in inode is still marked as dirty, fix
+this issue by clearing dirty for inode and setting SBI_NEED_FSCK
+flag in filesystem.
+
+output from dump.f2fs:
+[print_node_info: 354] Node ID [0xf:15] is inode
+i_nid[0]                      		[0x       f : 15]
+
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/f2fs/inode.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 2ad166355ec9..92fd88a3f415 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -2047,7 +2047,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	u16 nwrite, nread;
- 	u8 *write_data, *read_data;
- 	u8 slave_addr;
--	int timeout;
-+	unsigned long timeout;
- 	int ret = 0;
- 	bool read_block = false;
- 	bool read_PEC = false;
-@@ -2099,13 +2099,13 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 * 9: bits per transaction (including the ack/nack)
- 	 */
- 	timeout_usec = (2 * 9 * USEC_PER_SEC / bus->bus_freq) * (2 + nread + nwrite);
--	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
-+	timeout = max_t(unsigned long, bus->adap.timeout, usecs_to_jiffies(timeout_usec));
- 	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
- 		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
- 		return -EINVAL;
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -786,8 +786,22 @@ retry:
+ 		f2fs_lock_op(sbi);
+ 		err = f2fs_remove_inode_page(inode);
+ 		f2fs_unlock_op(sbi);
+-		if (err == -ENOENT)
++		if (err == -ENOENT) {
+ 			err = 0;
++
++			/*
++			 * in fuzzed image, another node may has the same
++			 * block address as inode's, if it was truncated
++			 * previously, truncation of inode node will fail.
++			 */
++			if (is_inode_flag_set(inode, FI_DIRTY_INODE)) {
++				f2fs_warn(F2FS_I_SB(inode),
++					"f2fs_evict_inode: inconsistent node id, ino:%lu",
++					inode->i_ino);
++				f2fs_inode_synced(inode);
++				set_sbi_flag(sbi, SBI_NEED_FSCK);
++			}
++		}
  	}
  
--	time_left = jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
-+	time_left = jiffies + timeout + 1;
- 	do {
- 		/*
- 		 * we must clear slave address immediately when the bus is not
-@@ -2269,7 +2269,7 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
- 	adap = &bus->adap;
- 	adap->owner = THIS_MODULE;
- 	adap->retries = 3;
--	adap->timeout = HZ;
-+	adap->timeout = msecs_to_jiffies(35);
- 	adap->algo = &npcm_i2c_algo;
- 	adap->quirks = &npcm_i2c_quirks;
- 	adap->algo_data = bus;
--- 
-2.35.1
-
+ 	/* give more chances, if ENOMEM case */
 
 
