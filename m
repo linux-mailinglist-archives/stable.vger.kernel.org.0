@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB869540753
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F07A5415AC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347887AbiFGRq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:46:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
+        id S1357818AbiFGUiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348244AbiFGRpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:45:09 -0400
+        with ESMTP id S1356956AbiFGUfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:35:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA32D120885;
-        Tue,  7 Jun 2022 10:35:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590571EC562;
+        Tue,  7 Jun 2022 11:37:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0339961553;
-        Tue,  7 Jun 2022 17:35:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CACC385A5;
-        Tue,  7 Jun 2022 17:35:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB4076157B;
+        Tue,  7 Jun 2022 18:37:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B34C385A2;
+        Tue,  7 Jun 2022 18:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623327;
-        bh=OWGpgpDpAMD1bKvWKudSWJ9D2kLBavreRhK6baY8F6U=;
+        s=korg; t=1654627077;
+        bh=+qYyiDJGeKCahr8QfyQ+ZqpAAbEYjvVX4oxGHvDXOOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3CrSLSwhxQWSINEkQeqBaaGXoXHolRD2+3QKZsWdXnyBujsXzRbtdYRkSC4RBqtp
-         6VUCPUhPKqZO9AmBWZNFa/3JEGuTxmiowJd+4p+EqnEbM+INP8nih0kJW6oTY/cl+o
-         kBUK5uECxayry78SgPgEGjEPZuOjTARiteq/PqjU=
+        b=ONUrf09sN6+xXspEGojofVFKHN3yfjYvceIeHQF0+0x6a4+D5TkWHk1L4ASdyPIr8
+         AYXzQc4GuHp1r51egygNBnQYqR4C9segC0v0z9Ev4/mUwWpkMLT9k92kPEkvP6FI4o
+         th0bXDsuhpP8DL+DwBAu6X6xCAvwqZuhNjfqcojk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "D. Ziegfeld" <dzigg@posteo.de>,
-        =?UTF-8?q?J=C3=B6rg-Volker=20Peetz?= <jvpeetz@web.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 337/452] iommu/amd: Increase timeout waiting for GA log enablement
+        stable@vger.kernel.org,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 602/772] rtla: Fix __set_sched_attr error message
 Date:   Tue,  7 Jun 2022 19:03:14 +0200
-Message-Id: <20220607164918.599915119@linuxfoundation.org>
+Message-Id: <20220607165006.680494153@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-[ Upstream commit 42bb5aa043382f09bef2cc33b8431be867c70f8e ]
+[ Upstream commit 941a53c39a151e9aceef153cdfaed0f166ba01b7 ]
 
-On some systems it can take a long time for the hardware to enable the
-GA log of the AMD IOMMU. The current wait time is only 0.1ms, but
-testing showed that it can take up to 14ms for the GA log to enter
-running state after it has been enabled.
+rtla's function __set_sched_attr() was borrowed from stalld, but I
+forgot to update the error message to something meaningful for rtla.
 
-Sometimes the long delay happens when booting the system, sometimes
-only on resume. Adjust the timeout accordingly to not print a warning
-when hardware takes a longer than usual.
+ Update the error message from:
+        boost_with_deadline failed to boost pid PID: STRERROR
+ to a proper one:
+        Failed to set sched attributes to the pid PID: STRERROR
 
-There has already been an attempt to fix this with commit
+Link: https://lkml.kernel.org/r/a2d19b2c53f6512aefd1ee7f8c1bd19d4fc8b99d.1651247710.git.bristot@kernel.org
+Link: https://lore.kernel.org/r/eeded730413e7feaa13f946924bcf2cbf7dd9561.1650617571.git.bristot@kernel.org/
 
-	9b45a7738eec ("iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()")
-
-But that commit was based on some wrong math and did not fix the issue
-in all cases.
-
-Cc: "D. Ziegfeld" <dzigg@posteo.de>
-Cc: Jörg-Volker Peetz <jvpeetz@web.de>
-Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220520102214.12563-1-joro@8bytes.org
+Fixes: b1696371d865 ("rtla: Helper functions for rtla")
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/init.c | 2 +-
+ tools/tracing/rtla/src/utils.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index 6eaefc9e7b3d..e988f6f198c5 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -84,7 +84,7 @@
- #define ACPI_DEVFLAG_LINT1              0x80
- #define ACPI_DEVFLAG_ATSDIS             0x10000000
+diff --git a/tools/tracing/rtla/src/utils.c b/tools/tracing/rtla/src/utils.c
+index ffaf8ec84001..c4dd2aa0e963 100644
+--- a/tools/tracing/rtla/src/utils.c
++++ b/tools/tracing/rtla/src/utils.c
+@@ -254,7 +254,7 @@ int __set_sched_attr(int pid, struct sched_attr *attr)
  
--#define LOOP_TIMEOUT	100000
-+#define LOOP_TIMEOUT	2000000
- /*
-  * ACPI table definitions
-  *
+ 	retval = sched_setattr(pid, attr, flags);
+ 	if (retval < 0) {
+-		err_msg("boost_with_deadline failed to boost pid %d: %s\n",
++		err_msg("Failed to set sched attributes to the pid %d: %s\n",
+ 			pid, strerror(errno));
+ 		return 1;
+ 	}
 -- 
 2.35.1
 
