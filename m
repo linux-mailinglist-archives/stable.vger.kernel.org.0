@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD8D540C00
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E46541C11
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbiFGSdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42240 "EHLO
+        id S1382848AbiFGV4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352495AbiFGSbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596C117B87F;
-        Tue,  7 Jun 2022 10:56:22 -0700 (PDT)
+        with ESMTP id S1383244AbiFGVw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E052431B1;
+        Tue,  7 Jun 2022 12:10:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBB72B82372;
-        Tue,  7 Jun 2022 17:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45647C385A5;
-        Tue,  7 Jun 2022 17:56:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6A83B8220B;
+        Tue,  7 Jun 2022 19:10:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18ABAC385A2;
+        Tue,  7 Jun 2022 19:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624579;
-        bh=HQLfXi5VClokbUvWbIwBneJQw4BcuwFWA1nTon43szk=;
+        s=korg; t=1654629047;
+        bh=Lvhq4E20hiCY4U4uXUpM5ihKqDyUNNnEd67JNgqPIjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HgxocYdUJpHWAf1RiiVXL7SBrbXy7/HmnIev+kIAjXslIDCtiCdmUT3s1ynUAxx2Y
-         7AAkxe+CvTm0mkv/Fa2tvKr7Rf01DIevB94ZPDh7LnD8pMsTQiY3rGTEwK9AHXpk/u
-         BttGSRCcw+9LStClyl4Ny90NYMiNiOzuiV4QHrKw=
+        b=ahq+6Chp5pxtWxZAobEbmJScQdrW4h0JtV3e5oWXMn3AZDCfV2G8t21N7agL0maOZ
+         CW5K0quJI5c1BVfF2/rP/FywY0zq6ORD0skaLtGjhiF41R/Plq8JRzQvl21maUhypF
+         Y1C7hOaquOAvZBrYsUygIlTLxIDQ8mvF+nA7p3JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Anup Patel <anup@brainfault.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 351/667] drm/msm/dpu: handle pm_runtime_get_sync() errors in bind path
-Date:   Tue,  7 Jun 2022 19:00:16 +0200
-Message-Id: <20220607164945.285394943@linuxfoundation.org>
+Subject: [PATCH 5.18 499/879] cpuidle: psci: Fix regression leading to no genpd governor
+Date:   Tue,  7 Jun 2022 19:00:17 +0200
+Message-Id: <20220607165017.356200407@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 64b22a0da12adb571c01edd671ee43634ebd7e41 ]
+[ Upstream commit 34be27517cb763ea367da21e3cdee5d1bc40f47f ]
 
-If there are errors while trying to enable the pm in the
-bind path, it will lead to unclocked access of hw revision
-register thereby crashing the device.
+While factoring out the PM domain related code from PSCI domain driver into
+a set of library functions, a regression when initializing the genpds got
+introduced. More precisely, we fail to assign a genpd governor, so let's
+fix this.
 
-This will not address why the pm_runtime_get_sync() fails
-but at the very least we should be able to prevent the
-crash by handling the error and bailing out earlier.
-
-changes in v2:
-	- use pm_runtime_resume_and_get() instead of
-	  pm_runtime_get_sync()
-
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/486721/
-Link: https://lore.kernel.org/r/20220518223407.26147-1-quic_abhinavk@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: 9d976d6721df ("cpuidle: Factor-out power domain related code from PSCI domain driver")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/cpuidle/cpuidle-psci-domain.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-index 33ce6720dfae..2870b0ffe1eb 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-@@ -1001,7 +1001,9 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
+diff --git a/drivers/cpuidle/cpuidle-psci-domain.c b/drivers/cpuidle/cpuidle-psci-domain.c
+index 755bbdfc5b82..3db4fca1172b 100644
+--- a/drivers/cpuidle/cpuidle-psci-domain.c
++++ b/drivers/cpuidle/cpuidle-psci-domain.c
+@@ -52,7 +52,7 @@ static int psci_pd_init(struct device_node *np, bool use_osi)
+ 	struct generic_pm_domain *pd;
+ 	struct psci_pd_provider *pd_provider;
+ 	struct dev_power_governor *pd_gov;
+-	int ret = -ENOMEM, state_count = 0;
++	int ret = -ENOMEM;
  
- 	dpu_kms_parse_data_bus_icc_path(dpu_kms);
+ 	pd = dt_idle_pd_alloc(np, psci_dt_parse_state_node);
+ 	if (!pd)
+@@ -71,7 +71,7 @@ static int psci_pd_init(struct device_node *np, bool use_osi)
+ 		pd->flags |= GENPD_FLAG_ALWAYS_ON;
  
--	pm_runtime_get_sync(&dpu_kms->pdev->dev);
-+	rc = pm_runtime_resume_and_get(&dpu_kms->pdev->dev);
-+	if (rc < 0)
-+		goto error;
+ 	/* Use governor for CPU PM domains if it has some states to manage. */
+-	pd_gov = state_count > 0 ? &pm_domain_cpu_gov : NULL;
++	pd_gov = pd->states ? &pm_domain_cpu_gov : NULL;
  
- 	dpu_kms->core_rev = readl_relaxed(dpu_kms->mmio + 0x0);
- 
+ 	ret = pm_genpd_init(pd, pd_gov, false);
+ 	if (ret)
 -- 
 2.35.1
 
