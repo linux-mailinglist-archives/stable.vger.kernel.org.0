@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEB654110B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDB3541857
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355454AbiFGTcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60090 "EHLO
+        id S1378596AbiFGVLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:11:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356471AbiFGTbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:31:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C611A45FC;
-        Tue,  7 Jun 2022 11:12:28 -0700 (PDT)
+        with ESMTP id S1379211AbiFGVJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:09:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DE412E80E;
+        Tue,  7 Jun 2022 11:51:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA14C6062B;
-        Tue,  7 Jun 2022 18:12:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC3FC385A5;
-        Tue,  7 Jun 2022 18:12:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0289CB81FE1;
+        Tue,  7 Jun 2022 18:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F6CAC385A5;
+        Tue,  7 Jun 2022 18:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625541;
-        bh=eoTntXkJva1hHSA1bjTzO8FjSkV4RFJ+pjuoRT5FL7Q=;
+        s=korg; t=1654627887;
+        bh=4jTvK2lpoiEdeQm+qpzHyCZoxAUPXJcXPmcaCJ93CzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzBl6hEMYMuzu5/wS2XdIiryiY4ZYL5082yO7L0+kmow3kdoyPWPuDjQ1vxk9sCIM
-         vUy/Qu2YzoMh54eqKa3MfiZEcTIHSFPRHn3TsPklbTsAqgKZh8LyBpBS6TgFgiUXfp
-         tlzRBkahkYmwY7Q5mBhrKwL00fnKoJp/YemJngqs=
+        b=DWxb8c3ysWmQ7k5oVLTInjsbVwnEORJcBI+fygSB7mM3FfVduYnwmwEaPzfwVXeju
+         MpQ+uDvVUZqF+WdLeIcr3S7wCTj+Tm6qZlIA0XwTyh6XLuMzau5GNmWLTFF3srh+Vr
+         9seftkbymh/E4Jgv6qkgiG0fVi83GtFP21dEmmYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 055/772] selftests/bpf: Fix parsing of prog types in UAPI hdr for bpftool sync
+Subject: [PATCH 5.18 129/879] ASoC: SOF: ipc3-topology: Correct get_control_data for non bytes payload
 Date:   Tue,  7 Jun 2022 18:54:07 +0200
-Message-Id: <20220607164950.662208337@linuxfoundation.org>
+Message-Id: <20220607165006.447365727@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin@isovalent.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit 4eeebce6ac4ad80ee8243bb847c98e0e55848d47 ]
+[ Upstream commit a962890a5a3cce903ff7c7a19fadee63ed9efdc7 ]
 
-The script for checking that various lists of types in bpftool remain in
-sync with the UAPI BPF header uses a regex to parse enum bpf_prog_type.
-If this enum contains a set of values different from the list of program
-types in bpftool, it complains.
+It is possible to craft a topology where sof_get_control_data() would do
+out of bounds access because it expects that it is only called when the
+payload is bytes type.
+Confusingly it also handles other types of controls, but the payload
+parsing implementation is only valid for bytes.
 
-This script should have reported the addition, some time ago, of the new
-BPF_PROG_TYPE_SYSCALL, which was not reported to bpftool's program types
-list. It failed to do so, because it failed to parse that new type from
-the enum. This is because the new value, in the BPF header, has an
-explicative comment on the same line, and the regex does not support
-that.
+Fix the code to count the non bytes controls and instead of storing a
+pointer to sof_abi_hdr in sof_widget_data (which is only valid for bytes),
+store the pointer to the data itself and add a new member to save the size
+of the data.
 
-Let's update the script to support parsing enum values when they have
-comments on the same line.
+In case of non bytes controls we store the pointer to the chanv itself,
+which is just an array of values at the end.
 
-Signed-off-by: Quentin Monnet <quentin@isovalent.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220404140944.64744-1-quentin@isovalent.com
+In case of bytes control, drop the wrong cdata->data (wdata[i].pdata) check
+against NULL since it is incorrect and invalid in this context.
+The data is pointing to the end of cdata struct, so it should never be
+null.
+
+Reported-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Tested-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Link: https://lore.kernel.org/r/20220427185221.28928-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_bpftool_synctypes.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sof/ipc3-topology.c | 39 +++++++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_bpftool_synctypes.py b/tools/testing/selftests/bpf/test_bpftool_synctypes.py
-index 6bf21e47882a..c0e7acd698ed 100755
---- a/tools/testing/selftests/bpf/test_bpftool_synctypes.py
-+++ b/tools/testing/selftests/bpf/test_bpftool_synctypes.py
-@@ -180,7 +180,7 @@ class FileExtractor(object):
-         @enum_name: name of the enum to parse
-         """
-         start_marker = re.compile(f'enum {enum_name} {{\n')
--        pattern = re.compile('^\s*(BPF_\w+),?$')
-+        pattern = re.compile('^\s*(BPF_\w+),?(\s+/\*.*\*/)?$')
-         end_marker = re.compile('^};')
-         parser = BlockParser(self.reader)
-         parser.search_block(start_marker)
+diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
+index 2f8450a8c0a1..af1bbd34213c 100644
+--- a/sound/soc/sof/ipc3-topology.c
++++ b/sound/soc/sof/ipc3-topology.c
+@@ -20,7 +20,8 @@
+ struct sof_widget_data {
+ 	int ctrl_type;
+ 	int ipc_cmd;
+-	struct sof_abi_hdr *pdata;
++	void *pdata;
++	size_t pdata_size;
+ 	struct snd_sof_control *control;
+ };
+ 
+@@ -784,16 +785,26 @@ static int sof_get_control_data(struct snd_soc_component *scomp,
+ 		}
+ 
+ 		cdata = wdata[i].control->ipc_control_data;
+-		wdata[i].pdata = cdata->data;
+-		if (!wdata[i].pdata)
+-			return -EINVAL;
+ 
+-		/* make sure data is valid - data can be updated at runtime */
+-		if (widget->dobj.widget.kcontrol_type[i] == SND_SOC_TPLG_TYPE_BYTES &&
+-		    wdata[i].pdata->magic != SOF_ABI_MAGIC)
+-			return -EINVAL;
++		if (widget->dobj.widget.kcontrol_type[i] == SND_SOC_TPLG_TYPE_BYTES) {
++			/* make sure data is valid - data can be updated at runtime */
++			if (cdata->data->magic != SOF_ABI_MAGIC)
++				return -EINVAL;
++
++			wdata[i].pdata = cdata->data->data;
++			wdata[i].pdata_size = cdata->data->size;
++		} else {
++			/* points to the control data union */
++			wdata[i].pdata = cdata->chanv;
++			/*
++			 * wdata[i].control->size is calculated with struct_size
++			 * and includes the size of struct sof_ipc_ctrl_data
++			 */
++			wdata[i].pdata_size = wdata[i].control->size -
++					      sizeof(struct sof_ipc_ctrl_data);
++		}
+ 
+-		*size += wdata[i].pdata->size;
++		*size += wdata[i].pdata_size;
+ 
+ 		/* get data type */
+ 		switch (cdata->cmd) {
+@@ -876,10 +887,12 @@ static int sof_process_load(struct snd_soc_component *scomp,
+ 	 */
+ 	if (ipc_data_size) {
+ 		for (i = 0; i < widget->num_kcontrols; i++) {
+-			memcpy(&process->data[offset],
+-			       wdata[i].pdata->data,
+-			       wdata[i].pdata->size);
+-			offset += wdata[i].pdata->size;
++			if (!wdata[i].pdata_size)
++				continue;
++
++			memcpy(&process->data[offset], wdata[i].pdata,
++			       wdata[i].pdata_size);
++			offset += wdata[i].pdata_size;
+ 		}
+ 	}
+ 
 -- 
 2.35.1
 
