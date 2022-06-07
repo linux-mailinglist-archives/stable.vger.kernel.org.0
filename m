@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A29541190
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:38:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA5D5410D6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356621AbiFGTiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:38:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43646 "EHLO
+        id S1355474AbiFGT3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355810AbiFGTh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:37:28 -0400
+        with ESMTP id S1356904AbiFGT2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CDA52458C;
-        Tue,  7 Jun 2022 11:13:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52AFF1A29FE;
+        Tue,  7 Jun 2022 11:11:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB937609FA;
-        Tue,  7 Jun 2022 18:13:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3757C385A5;
-        Tue,  7 Jun 2022 18:13:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05EA861927;
+        Tue,  7 Jun 2022 18:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13FCEC34115;
+        Tue,  7 Jun 2022 18:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625620;
-        bh=q2Xpkw+onYKKa4/Us+LoQ26hoDxY+NiVrhxSovEPERo=;
+        s=korg; t=1654625499;
+        bh=4JWxKeMCzS1I9F8T8lOqSs2eeTmYuFxzWuEf3D1lwX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yq27JBg4H6GwfQ356GZn6UWjlUOTtlLACcpd+yTgyjpi8SdQN/gfeq7gTULAFtZ1P
-         unTF2Cjiaquv3CXbc8uxj5PZZi96IAwt/t/lsW4b5DJZZmu5vXMVgJfiwmP50vjPHN
-         4aRVfHAVha4jgjYxYINIbiu+FhcdPzkgR/ZwBApw=
+        b=viJLPULvug5khyyEPvb0q63Q35yTa3aIcH04CYyYJA6om/r7Yb/YzVlMQifdmonQL
+         8cgR41YZxOScvtyS129QKo8huGEcMGxb35iDqRVGtX3vzGvUK3m6v0k1oS668xhcVv
+         S9bGMCEPOEUCbTYklTyKJ/nwyznMAxe2ssqv1b1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.17 032/772] xhci: Allow host runtime PM as default for Intel Alder Lake N xHCI
-Date:   Tue,  7 Jun 2022 18:53:44 +0200
-Message-Id: <20220607164949.968207354@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michael=20Niew=C3=B6hner?= <linux@mniewoehner.de>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.17 033/772] platform/x86: intel-hid: fix _DSM function index handling
+Date:   Tue,  7 Jun 2022 18:53:45 +0200
+Message-Id: <20220607164949.999122441@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -54,39 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Michael Niewöhner <linux@mniewoehner.de>
 
-commit 74f55a62c4c354f43a6d75f77dd184c4f57b9a26 upstream.
+commit 1620c80bba53af8c547bab34a1d3bc58319fe608 upstream.
 
-Alder Lake N TCSS xHCI needs to be runtime suspended whenever possible
-to allow the TCSS hardware block to enter D3 and thus save energy
+intel_hid_dsm_fn_mask is a bit mask containing one bit for each function
+index. Fix the function index check in intel_hid_evaluate_method
+accordingly, which was missed in commit 97ab4516205e ("platform/x86:
+intel-hid: fix _DSM function index handling").
 
-Cc: stable@kernel.org
-Suggested-by: Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220511220450.85367-10-mathias.nyman@linux.intel.com
+Fixes: 97ab4516205e ("platform/x86: intel-hid: fix _DSM function index handling")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Niewöhner <linux@mniewoehner.de>
+Link: https://lore.kernel.org/r/66f813f5bcc724a0f6dd5adefe6a9728dbe509e3.camel@mniewoehner.de
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/intel/hid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI		0x464e
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
+--- a/drivers/platform/x86/intel/hid.c
++++ b/drivers/platform/x86/intel/hid.c
+@@ -238,7 +238,7 @@ static bool intel_hid_evaluate_method(ac
  
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
-@@ -268,6 +269,7 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 	method_name = (char *)intel_hid_dsm_fn_to_method[fn_index];
  
+-	if (!(intel_hid_dsm_fn_mask & fn_index))
++	if (!(intel_hid_dsm_fn_mask & BIT(fn_index)))
+ 		goto skip_dsm_eval;
+ 
+ 	obj = acpi_evaluate_dsm_typed(handle, &intel_dsm_guid,
 
 
