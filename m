@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE60541DB2
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B82AE540FBB
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382043AbiFGWTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
+        id S1354982AbiFGTL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381764AbiFGWSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:18:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDBD262AC5;
-        Tue,  7 Jun 2022 12:20:31 -0700 (PDT)
+        with ESMTP id S1355160AbiFGTLO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:11:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 397CF193210;
+        Tue,  7 Jun 2022 11:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C95CF6192C;
-        Tue,  7 Jun 2022 19:20:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3871C385A2;
-        Tue,  7 Jun 2022 19:20:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10DC3B82348;
+        Tue,  7 Jun 2022 18:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D57AC385A5;
+        Tue,  7 Jun 2022 18:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629613;
-        bh=BBg+mwCNWImlh+M2q37i5/XLQ4BevCr4QVoRF5vwmqI=;
+        s=korg; t=1654625216;
+        bh=SOVgZGmxox99chUL0j/dLJdoiw+f0+Ci7SsA5C0yofA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGoMej0NE1OFC0jT0d2cIBsb96zV5RxGE7iOA0PX29Cf9C0xS79wj2/0dXBUWznBH
-         yYBdryLna3EfbYsk+Bc4v2jZTP0Nv7Q6HMN9Ppcb/wzF/ArG3sz55pp0d5V6rfwudM
-         mYsKyTCAxrw9Jz+jXJon8W+BRVHj9uuedAVhwOgM=
+        b=rHODHinSK4RNxpyfVs1BFBp7pRzJUx5KbJ9VUVAclHcTXJGtNV8rbCnnqku02LJBq
+         QqB7kt/YZChFL5WUeyIoOUjR+od0Xe9FKPGDDBixNTa9t8TmxcnfSVNnpYkOb7Xfbn
+         lGOqdt4sQ00bL2KFJPmOmcvotqSx1nyHkjLK49wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.18 753/879] drm/amdgpu: add beige goby PCI ID
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 606/667] irqchip/armada-370-xp: Do not touch Performance Counter Overflow on A375, A38x, A39x
 Date:   Tue,  7 Jun 2022 19:04:31 +0200
-Message-Id: <20220607165024.717481003@linuxfoundation.org>
+Message-Id: <20220607164952.851045229@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,29 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 62e9bd20035b53ff6c679499c08546d96c6c60a7 upstream.
+commit a3d66a76348daf559873f19afc912a2a7c2ccdaf upstream.
 
-Add a beige goby PCI ID.
+Register ARMADA_370_XP_INT_FABRIC_MASK_OFFS is Armada 370 and XP specific
+and on new Armada platforms it has different meaning. It does not configure
+Performance Counter Overflow interrupt masking. So do not touch this
+register on non-A370/XP platforms (A375, A38x and A39x).
 
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
 Cc: stable@vger.kernel.org
+Fixes: 28da06dfd9e4 ("irqchip: armada-370-xp: Enable the PMU interrupts")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220425113706.29310-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-armada-370-xp.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1931,6 +1931,7 @@ static const struct pci_device_id pciidl
- 	{0x1002, 0x7421, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
- 	{0x1002, 0x7422, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
- 	{0x1002, 0x7423, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
-+	{0x1002, 0x7424, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
- 	{0x1002, 0x743F, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -308,7 +308,16 @@ static inline int armada_370_xp_msi_init
  
- 	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
+ static void armada_xp_mpic_perf_init(void)
+ {
+-	unsigned long cpuid = cpu_logical_map(smp_processor_id());
++	unsigned long cpuid;
++
++	/*
++	 * This Performance Counter Overflow interrupt is specific for
++	 * Armada 370 and XP. It is not available on Armada 375, 38x and 39x.
++	 */
++	if (!of_machine_is_compatible("marvell,armada-370-xp"))
++		return;
++
++	cpuid = cpu_logical_map(smp_processor_id());
+ 
+ 	/* Enable Performance Counter Overflow interrupts */
+ 	writel(ARMADA_370_XP_INT_CAUSE_PERF(cpuid),
 
 
