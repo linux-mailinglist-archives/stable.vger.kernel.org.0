@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B1B540AFA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46FD5540517
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239650AbiFGSYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53244 "EHLO
+        id S1345919AbiFGRVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:21:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352139AbiFGSQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBF2A10FF3;
-        Tue,  7 Jun 2022 10:50:39 -0700 (PDT)
+        with ESMTP id S1345802AbiFGRVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE4D10636F;
+        Tue,  7 Jun 2022 10:20:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 694BA6172E;
-        Tue,  7 Jun 2022 17:50:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E3B8C34115;
-        Tue,  7 Jun 2022 17:50:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA06FB822AF;
+        Tue,  7 Jun 2022 17:20:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340D7C385A5;
+        Tue,  7 Jun 2022 17:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624238;
-        bh=q0BwqJ4CvR+ef+lKAAfmf0wDmPxqrrz7EQykM+a7NPQ=;
+        s=korg; t=1654622450;
+        bh=r0fIl1paJppCtESdUdyUAQ98xxiKIcSO5MMEPsCXkb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsP53w9VtJtQKkU06WnlgTKxra1y8KWxaerlM1llxg3klmL9hWWfFPAVFzXTrvt2/
-         yy8PDG8fhUtJFBWTHnhF/cVnQI3/+LfaILa3oX7AFfKxiwlE6ltjWxmyUEqSRFvKWe
-         Rp7kKb/r4ZjTyzcGTzCSL7t7V55bmysX71xGUj/Y=
+        b=b3wFzwsSS7hKSylTcH8HFomwBemi3zz1lXb2iJ2ysMc8On7X0SEZsrcNkjaXclSQd
+         h6/FEMi9ghBrVpEBz8H/SOMMLroS89cOQTLtPxig83BR/1jONQ10X0kD95HUVyKQio
+         sUTTHTMynvswUpMzbRp/Dnqkuperj6w6vw+SXLxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 254/667] scsi: ufs: core: Exclude UECxx from SFR dump list
+Subject: [PATCH 5.10 062/452] ASoC: dapm: Dont fold register value changes into notifications
 Date:   Tue,  7 Jun 2022 18:58:39 +0200
-Message-Id: <20220607164942.401411261@linuxfoundation.org>
+Message-Id: <20220607164910.397055905@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit ef60031022eb6d972aac86ca26c98c33e1289436 ]
+[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
 
-Some devices may return invalid or zeroed data during an UIC error
-condition. In addition, reading these SFRs will clear them. This means the
-subsequent error handling will not be able to see them and therefore no
-error handling will be scheduled.
+DAPM tracks and reports the value presented to the user from DAPM controls
+separately to the register value, these may diverge during initialisation
+or when an autodisable control is in use.
 
-Skip reading these SFRs in ufshcd_dump_regs().
+When writing DAPM controls we currently report that a change has occurred
+if either the DAPM value or the value stored in the register has changed,
+meaning that if the two are out of sync we may appear to report a spurious
+event to userspace. Since we use this folded in value for nothing other
+than the value reported to userspace simply drop the folding in of the
+register change.
 
-Link: https://lore.kernel.org/r/1648689845-33521-1-git-send-email-kwmad.kim@samsung.com
-Fixes: d67247566450 ("scsi: ufs: Use explicit access size in ufshcd_dump_regs")
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/soc/soc-dapm.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index b55e0a07363f..5c9a31f18b7f 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -112,8 +112,13 @@ int ufshcd_dump_regs(struct ufs_hba *hba, size_t offset, size_t len,
- 	if (!regs)
- 		return -ENOMEM;
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index 417732bdf286..f2f7f2dde93c 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -3427,7 +3427,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
  
--	for (pos = 0; pos < len; pos += 4)
-+	for (pos = 0; pos < len; pos += 4) {
-+		if (offset == 0 &&
-+		    pos >= REG_UIC_ERROR_CODE_PHY_ADAPTER_LAYER &&
-+		    pos <= REG_UIC_ERROR_CODE_DME)
-+			continue;
- 		regs[pos / 4] = ufshcd_readl(hba, offset + pos);
-+	}
+ 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
+ 						  rconnect);
+@@ -3529,7 +3528,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
  
- 	ufshcd_hex_dump(prefix, regs, len);
- 	kfree(regs);
+ 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
+ 
 -- 
 2.35.1
 
