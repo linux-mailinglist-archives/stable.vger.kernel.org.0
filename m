@@ -2,81 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A5753F82A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 10:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B3553F839
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 10:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237656AbiFGI3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 04:29:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41070 "EHLO
+        id S238236AbiFGIbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 04:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238208AbiFGI3N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 04:29:13 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 439A56A060
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 01:29:11 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id d14so14052159wra.10
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 01:29:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=raspberrypi.com; s=google;
-        h=message-id:date:mime-version:user-agent:to:cc:from:subject
-         :content-transfer-encoding;
-        bh=mNqIfLl/p0QL5F3iAfVfaPdbC6XlfUmt6PRTT6WK24s=;
-        b=FRLrwpLgjfUpPpEUy4tjf1bG7KT4OazdfHAguYBMGv/ozHcOWH/F63f+ZmGj9+3cTV
-         Vr9BJdSIYRfQAHSJy6RZ/cVUgbdyXEmHRIT3z3UJjjGsz+xwndYRkqYiIYqUqQCCu1sp
-         2jSc17xHxaOIeuf4pkn+DkSYX/+gPZwo5GwlNi27XguS2f2m77zxeZlHZVE9NcjroBrY
-         5/fC0fYDAMQh8EdIab+ytn0Cf6tMhV2zo3S8UuPEAinIzZXS8RALl0TBEya34dzvErvI
-         33S6UJDTxrz2QXf/9KtBbIWcouHhJ3x6w8YxebBkp3Y9u0e4ET5brm0qzPPgNOxoNSVo
-         iCZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:to:cc
-         :from:subject:content-transfer-encoding;
-        bh=mNqIfLl/p0QL5F3iAfVfaPdbC6XlfUmt6PRTT6WK24s=;
-        b=oAQi1d3MXc2ww5QNPgBNhiQ3DBdun01B9y9ngbOywcCu0VdelCPxssBDvjpXTnNSFp
-         G8AZu9V55OmMIXM4um9y4rnHJTysCiE+5zD6MUQC+CkXG0d5lZRniT9pnjmvOVk2KMUU
-         M0TOmLlnAV7bO0OTSvt42/bND0e/T98zptHtAx9Ftz4xo1Gt5f0gmzZu6MG9J0raHgav
-         ocS2RlqeC44bq77aBGHNwLdZ8luuna4JFhivVSvifQqVtElnrbf01pXrhs5waYWRTtQn
-         SkDP8NpxZoFsS8hLGNFwM+792aYbNo5r0BmaJhNWLDO2yrWfC8OwAbh6qkyOR7KufG+o
-         bjZw==
-X-Gm-Message-State: AOAM531prQwPtxEQnT126iEce2vrp8O9tzBr2vDgaDVCeBG8+zKUvvg1
-        Y9FOImiLI2mUqACOtzs8Hd8/MA==
-X-Google-Smtp-Source: ABdhPJx7o4Wk5jFgXz1+TL0Ff84JiR3S340A49e8hWu0taVSOBRrBuEl9OjVn4o1Ct6eN4QO4u+gJw==
-X-Received: by 2002:adf:b358:0:b0:216:508c:e0bf with SMTP id k24-20020adfb358000000b00216508ce0bfmr15311946wrd.204.1654590549737;
-        Tue, 07 Jun 2022 01:29:09 -0700 (PDT)
-Received: from ?IPV6:2a00:1098:3142:14:901f:dbcb:c1e4:e4b8? ([2a00:1098:3142:14:901f:dbcb:c1e4:e4b8])
-        by smtp.gmail.com with ESMTPSA id z13-20020adfe54d000000b002103cfd2fbasm18308660wrm.65.2022.06.07.01.29.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jun 2022 01:29:09 -0700 (PDT)
-Message-ID: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
-Date:   Tue, 7 Jun 2022 09:29:09 +0100
+        with ESMTP id S238371AbiFGIbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 04:31:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0BED244E;
+        Tue,  7 Jun 2022 01:31:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A5FE616BD;
+        Tue,  7 Jun 2022 08:31:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99AE4C3411E;
+        Tue,  7 Jun 2022 08:31:05 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="FuzyMElt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1654590662;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=fUt937EWiJwdxfcnA3TwhfA5LXA4pjELaJrATUg3Gno=;
+        b=FuzyMEltiCFIFQUmYH95BwWbsv9Jmv2KImD60Loe0r08XydEY3ttXcvt2b44+BjRtgAm0h
+        oFuS9FJbwBOXJGoKg5jenf+H/iSelcEFK9LRXllKyWlfmzzn26X8gRODeb0i+4mQwuLvsw
+        xC638RdHA9p8zxSDpuTqy57YQtJHXeY=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id c7736b60 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Tue, 7 Jun 2022 08:31:02 +0000 (UTC)
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-2f83983782fso167380197b3.6;
+        Tue, 07 Jun 2022 01:31:01 -0700 (PDT)
+X-Gm-Message-State: AOAM53030pdb+b7HVxAMKm7E/41I944k4+CpQp8ktweDv0zt+LQIypYp
+        F3eeQaWeXi6QZaoVEGY13X/cAl4bsJqOhQOuVT4=
+X-Google-Smtp-Source: ABdhPJw/VMyA0h9d+MMv/xwmYZDFcqj0M+obhAs7O9tOWkc5LQ9u10sR+9mDVCGaUSlxaOjCKRDw5LSvVGWJ0aRCjSc=
+X-Received: by 2002:a0d:cd04:0:b0:300:4784:caa3 with SMTP id
+ p4-20020a0dcd04000000b003004784caa3mr30121618ywd.231.1654590660515; Tue, 07
+ Jun 2022 01:31:00 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>, linux@armlinux.org.uk,
-        rmk+kernel@armlinux.org.uk, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, catalin.marinas@arm.com
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
-From:   Phil Elwell <phil@raspberrypi.com>
+References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
+In-Reply-To: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Tue, 7 Jun 2022 10:30:49 +0200
+X-Gmail-Original-Message-ID: <CAHmME9pL=g7Gz9-QOHnTosLHAL9YSPsW+CnE=9=u3iTQaFzomg@mail.gmail.com>
+Message-ID: <CAHmME9pL=g7Gz9-QOHnTosLHAL9YSPsW+CnE=9=u3iTQaFzomg@mail.gmail.com>
 Subject: Re: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+To:     Phil Elwell <phil@raspberrypi.com>
+Cc:     Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch is fatal for me in the downstream Raspberry Pi kernel - it locks up 
-on boot even before the earlycon output is available. Hacking jump_label_init to 
-skip the jump_entry for "crng_is_ready" allows it to boot, but is likely to have 
-consequences further down the line.
+Hi Phil,
 
-The stable branch may not be living up to its name, but I don't think this is a 
-quick fix.
+Thanks for testing this. Can you let me know if v1 of this works?
 
-Phil
+https://lore.kernel.org/lkml/20220602212234.344394-1-Jason@zx2c4.com/
+
+(I'll also fashion a revert for this part of stable.)
+
+Jason
