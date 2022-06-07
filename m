@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96926540B4C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDCB540B4D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243261AbiFGS1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:27:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
+        id S1350636AbiFGS1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:27:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352478AbiFGSVM (ORCPT
+        with ESMTP id S1352476AbiFGSVM (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:21:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59E833EBD;
-        Tue,  7 Jun 2022 10:53:53 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196CD3466C;
+        Tue,  7 Jun 2022 10:53:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 233A3617A6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D34E06137B;
+        Tue,  7 Jun 2022 17:53:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BFF3C385A5;
         Tue,  7 Jun 2022 17:53:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1264C36AFE;
-        Tue,  7 Jun 2022 17:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624431;
-        bh=jGr8WXM1jdPMD04g4tRJ+Sq3zW2YgJpdz6hJ9tysoig=;
+        s=k20201202; t=1654624433;
+        bh=0/OPehuoJpxf3SgM/ilGfsr7BWC3yKaBiuwbOz7xEW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6RxyhMgWe3KXu4OCXb9MBy1VkR4+tvHfQ3kJmL2t9noNmH5W9luWtTzUcv/8mven
-         ETvjFPhex8jpwkKtIpLDsCytab1huTQmbiwuSgXdnugtYhbp79hHDI70ZJXNH3i3xm
-         aicld636PiQrToTuj/tMSug1GqhxsYvbPa5EP0B1KCQPBvFF3/e28bI1vvO+2qduht
-         bk2+fdpSB+7L6PKMh/dbkSEHnFbNyhMBniGwgH1twmoav2Yrx6ca+1cpEEg8IKkDMS
-         RtGy64EP8QTbdABGbLbezk33m+E6EH+ESRDNQgu4ow0Hdi1ERs3DI6/p3Q6J9ISEFj
-         v2ZlpotvuFniQ==
+        b=IGrZrtMTH9gRLwB8yPNJd5A0TLZQxYh2B/IDe2O2nSOs3/BWGfxNWPbpnfZr5kJjB
+         nei/fz9+FoC6pHZM9n2m7j8GaWCWZ6o3PQgiGmsU86+oVymQA/89k8vtCLB8Hfj4fF
+         2nd9TexvB5eFW7dk/funp9gxwzhv6BTYlAK7aRas29ItS9hxeswr8fAR67pqLAVI1y
+         5feZYp9yQxBIaTH1tfpCjBIpvOYjoVxsqh3WODlnXR9bxKLiKCQvQ67m0l+uIdoqPL
+         1T5YFUiEHDuai7IOqq9aKcMvilW+mEt69vtpql6IwvGiz/kXrADGOo5K3D/fMq0I7Y
+         z+FS2YOauiSaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 19/60] usb: dwc3: host: Stop setting the ACPI companion
-Date:   Tue,  7 Jun 2022 13:52:16 -0400
-Message-Id: <20220607175259.478835-19-sashal@kernel.org>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        agross@kernel.org, bjorn.andersson@linaro.org,
+        yung-chuan.liao@linux.intel.com, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.17 20/60] soundwire: qcom: adjust autoenumeration timeout
+Date:   Tue,  7 Jun 2022 13:52:17 -0400
+Message-Id: <20220607175259.478835-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -57,48 +59,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 7fd069d65da2e20b1caec3b7bcf9dfbe28c04bb2 ]
+[ Upstream commit 74da272400b46f2e898f115d1b1cd60828766919 ]
 
-It is no longer needed. The sysdev pointer is now used when
-assigning the ACPI companions to the xHCI ports and USB
-devices.
+Currently timeout for autoenumeration during probe and bus reset is set to
+2 secs which is really a big value. This can have an adverse effect on
+boot time if the slave device is not ready/reset.
+This was the case with wcd938x which was not reset yet but we spent 2
+secs waiting in the soundwire controller probe. Reduce this time to
+1/10 of Hz which should be good enough time to finish autoenumeration
+if any slaves are available on the bus.
 
-Assigning the ACPI companion here resulted in the
-fwnode->secondary pointer to be replaced also for the parent
-dwc3 device since the primary fwnode (the ACPI companion)
-was shared. That was unintentional and it created potential
-side effects like resource leaks.
-
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220428111056.3558-3-heikki.krogerus@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220506084705.18525-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/host.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/soundwire/qcom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
-index eda871973d6c..f56c30cf151e 100644
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -7,7 +7,6 @@
-  * Authors: Felipe Balbi <balbi@ti.com>,
-  */
+diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
+index 54813417ef8e..249f1b69ec94 100644
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -99,7 +99,7 @@
  
--#include <linux/acpi.h>
- #include <linux/irq.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-@@ -83,7 +82,6 @@ int dwc3_host_init(struct dwc3 *dwc)
- 	}
- 
- 	xhci->dev.parent	= dwc->dev;
--	ACPI_COMPANION_SET(&xhci->dev, ACPI_COMPANION(dwc->dev));
- 
- 	dwc->xhci = xhci;
- 
+ #define SWRM_SPECIAL_CMD_ID	0xF
+ #define MAX_FREQ_NUM		1
+-#define TIMEOUT_MS		(2 * HZ)
++#define TIMEOUT_MS		100
+ #define QCOM_SWRM_MAX_RD_LEN	0x1
+ #define QCOM_SDW_MAX_PORTS	14
+ #define DEFAULT_CLK_FREQ	9600000
 -- 
 2.35.1
 
