@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26EBC540B0E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B705413AD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243084AbiFGSYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58806 "EHLO
+        id S1358081AbiFGUDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:03:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352146AbiFGSQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A44BF62;
-        Tue,  7 Jun 2022 10:50:42 -0700 (PDT)
+        with ESMTP id S1358060AbiFGUCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:02:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62398E8BA2;
+        Tue,  7 Jun 2022 11:25:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CCF861650;
-        Tue,  7 Jun 2022 17:50:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F000C34115;
-        Tue,  7 Jun 2022 17:50:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20908B82389;
+        Tue,  7 Jun 2022 18:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E9BC385A2;
+        Tue,  7 Jun 2022 18:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624241;
-        bh=dbWiRrbUEdq/jShUoMSStxSROdj/mfEgDgb1SJh4nPY=;
+        s=korg; t=1654626303;
+        bh=bECevGEJQRm9zlwoTsq4nSUU2ACxTtNGL7gJ4lWePVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zM/3A9iE9QpSvLllz/GMnTnGgE35Iy2MkzjaHED4DkAe4u2cWtsfq6I9mGP0EWtxz
-         nbBk65UIpvUvwCQFEKuNUOjnvtxesF52qquQVDQ+4xZRUEXkgRpMVYR8xW3792Jz9T
-         5TY6dcA6IfwObqBD5bwNeCNO7AxhXhQMc5JLw/vw=
+        b=ZPVqThyBtxgBOvI6VdSJgmawB3eBna5Q2ALXsaMoqnTx6SKjEveSOjLBpUmgveoG/
+         KmEbDBNWJEf+nvcwAAGo4ZKLgub+EnQT6mI2bJu7oMCwpoG5WGDC8Vy6+mxH3kjMRh
+         vj6PNJRea5lJt3o8uciENGoPdUHF/qUFt/Nk4Plo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        "Juan A. Suarez" <jasuarez@igalia.com>,
-        Melissa Wen <melissa.srw@gmail.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 255/667] drm/v3d: Fix null pointer dereference of pointer perfmon
-Date:   Tue,  7 Jun 2022 18:58:40 +0200
-Message-Id: <20220607164942.431058986@linuxfoundation.org>
+Subject: [PATCH 5.17 329/772] nl80211: dont hold RTNL in color change request
+Date:   Tue,  7 Jun 2022 18:58:41 +0200
+Message-Id: <20220607164958.718055320@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit ce7a1ecf3f9f1fccaf67295307614511d8e11b13 ]
+[ Upstream commit 1b550a0bebfc0b69d6ec08fe6eb58953a8aec48a ]
 
-In the unlikely event that pointer perfmon is null the WARN_ON return path
-occurs after the pointer has already been deferenced. Fix this by only
-dereferencing perfmon after it has been null checked.
+It's not necessary to hold the RTNL across color change
+requests, since all the inner locking needs only the
+wiphy mutex which we already hold as well.
 
-Fixes: 26a4dc29b74a ("drm/v3d: Expose performance counters to userspace")
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Reviewed-by: Juan A. Suarez <jasuarez@igalia.com>
-Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220424183512.1365683-1-colin.i.king@gmail.com
+Fixes: 0d2ab3aea50b ("nl80211: add support for BSS coloring")
+Link: https://lore.kernel.org/r/20220414140402.32e03e8c261b.I5e7dc6bc563a129b938c43298da6bb4e812400a5@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/v3d/v3d_perfmon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/v3d/v3d_perfmon.c b/drivers/gpu/drm/v3d/v3d_perfmon.c
-index 0288ef063513..f6a88abccc7d 100644
---- a/drivers/gpu/drm/v3d/v3d_perfmon.c
-+++ b/drivers/gpu/drm/v3d/v3d_perfmon.c
-@@ -25,11 +25,12 @@ void v3d_perfmon_start(struct v3d_dev *v3d, struct v3d_perfmon *perfmon)
- {
- 	unsigned int i;
- 	u32 mask;
--	u8 ncounters = perfmon->ncounters;
-+	u8 ncounters;
- 
- 	if (WARN_ON_ONCE(!perfmon || v3d->active_perfmon))
- 		return;
- 
-+	ncounters = perfmon->ncounters;
- 	mask = GENMASK(ncounters - 1, 0);
- 
- 	for (i = 0; i < ncounters; i++) {
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index ba53bc820d81..0aad974f17a7 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -16194,8 +16194,7 @@ static const struct genl_small_ops nl80211_small_ops[] = {
+ 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+ 		.doit = nl80211_color_change,
+ 		.flags = GENL_UNS_ADMIN_PERM,
+-		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP |
+-				  NL80211_FLAG_NEED_RTNL,
++		.internal_flags = NL80211_FLAG_NEED_NETDEV_UP,
+ 	},
+ 	{
+ 		.cmd = NL80211_CMD_SET_FILS_AAD,
 -- 
 2.35.1
 
