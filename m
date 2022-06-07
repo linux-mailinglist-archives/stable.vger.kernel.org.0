@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A74E054054D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 569FA5413F5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346380AbiFGRYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:24:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
+        id S1359157AbiFGUJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:09:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346344AbiFGRXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:23:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B544310A625;
-        Tue,  7 Jun 2022 10:21:56 -0700 (PDT)
+        with ESMTP id S1358641AbiFGUHL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:07:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCA91C4B0C;
+        Tue,  7 Jun 2022 11:26:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69476B8220C;
-        Tue,  7 Jun 2022 17:21:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C579AC385A5;
-        Tue,  7 Jun 2022 17:21:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BEFA611B9;
+        Tue,  7 Jun 2022 18:26:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D88C34115;
+        Tue,  7 Jun 2022 18:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622514;
-        bh=T3K49EzgFQoroZgGLydsYozObStO/D4Gzmz7Ic0mvUo=;
+        s=korg; t=1654626362;
+        bh=bkChc6VIB6JtzS4Rga/CFkQ8bKYrPOAxs2A1bHKiS9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIsKWVy5CedFwUSg76evR+2iA+rwo8DqfT3c9HBimU+KLNAEoxXGmlRR9OVVkuI+G
-         NCg+Ga8iNCkFHobMykVPdqSuDK37UC1iPO62NWpFRkl/e31S1o9n4e4Q4fv3MaSN/n
-         yO7Q2C/vyJezRLI2C1TXHzmrTGmwMRm2LniRfvCw=
+        b=xkUK9EWM+ajCcCu/MWvJSM7Va5h6nJjYvoSWrnGUkwox5rcSR7kxKzvdmyWcJ4R0k
+         /GNKGfMIPZw39kjU+E4p1KZp+TMtBzuwKkiGMwGlFSCX38k8ubUO5H76PUDE65KmHf
+         SugnOaFcR3mzU5LoNon5bG4bTCthd3wXoo8O3e88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/452] ASoC: max98357a: remove dependency on GPIOLIB
+Subject: [PATCH 5.17 352/772] ath11k: Dont check arvif->is_started before sending management frames
 Date:   Tue,  7 Jun 2022 18:59:04 +0200
-Message-Id: <20220607164911.148069740@linuxfoundation.org>
+Message-Id: <20220607164959.392543958@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Baochen Qiang <quic_bqiang@quicinc.com>
 
-[ Upstream commit 21ca3274333f5c1cbbf9d91e5b33f4f2463859b2 ]
+[ Upstream commit 355333a217541916576351446b5832fec7930566 ]
 
-commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
-series of unnecessary dependencies on GPIOLIB when the gpio was
-optional.
+Commit 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for
+deleted vdev") wants both of below two conditions are true before
+sending management frames:
 
-A similar simplification seems valid for max98357a, so remove the
-dependency as well. This will avoid the following warning
+1: ar->allocated_vdev_map & (1LL << arvif->vdev_id)
+2: arvif->is_started
 
-   WARNING: unmet direct dependencies detected for SND_SOC_MAX98357A
-     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && GPIOLIB [=n]
-     Selected by [y]:
-     - SND_SOC_INTEL_SOF_CS42L42_MACH [=y] && SOUND [=y] && !UML &&
-       SND [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
-       (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
-       [=y] && ACPI [=y] && SND_HDA_CODEC_HDMI [=y] &&
-       SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
-       COMPILE_TEST [=n])
+Actually the second one is not necessary because with the first one
+we can make sure the vdev is present.
 
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220517172647.468244-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Also use ar->conf_mutex to synchronize vdev delete and mgmt. TX.
+
+This issue is found in case of Passpoint scenario where ath11k
+needs to send action frames before vdev is started.
+
+Fix it by removing the second condition.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Fixes: 66307ca04057 ("ath11k: fix mgmt_tx_wmi cmd sent to FW for deleted vdev")
+Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220506013614.1580274-3-quic_bqiang@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 52c89a6f54e9..612fd7516666 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -857,7 +857,6 @@ config SND_SOC_MAX98095
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 16b45b742f9d..d46f53061d61 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -5515,8 +5515,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 		}
  
- config SND_SOC_MAX98357A
- 	tristate "Maxim MAX98357A CODEC"
--	depends on GPIOLIB
+ 		arvif = ath11k_vif_to_arvif(skb_cb->vif);
+-		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
+-		    arvif->is_started) {
++		mutex_lock(&ar->conf_mutex);
++		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id)) {
+ 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
+ 			if (ret) {
+ 				ath11k_warn(ar->ab, "failed to tx mgmt frame, vdev_id %d :%d\n",
+@@ -5534,6 +5534,7 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 				    arvif->is_started);
+ 			ath11k_mgmt_over_wmi_tx_drop(ar, skb);
+ 		}
++		mutex_unlock(&ar->conf_mutex);
+ 	}
+ }
  
- config SND_SOC_MAX98371
- 	tristate
 -- 
 2.35.1
 
