@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3EA541679
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7D35407E8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358020AbiFGUw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51474 "EHLO
+        id S1347803AbiFGRxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378476AbiFGUwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3502010C6;
-        Tue,  7 Jun 2022 11:42:19 -0700 (PDT)
+        with ESMTP id S1349933AbiFGRvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A7E13CA1C;
+        Tue,  7 Jun 2022 10:39:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9559B8239B;
-        Tue,  7 Jun 2022 18:42:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33741C385A2;
-        Tue,  7 Jun 2022 18:42:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E34426160E;
+        Tue,  7 Jun 2022 17:38:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB61FC385A5;
+        Tue,  7 Jun 2022 17:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627336;
-        bh=/dvj1yLBraTRfb7jibzxDZgOea9b9knsNdoqbo1WkrI=;
+        s=korg; t=1654623497;
+        bh=9o9q4WD8l/Xb1LIFiZ7mZPfpN8Qs+Tj9o9Js+pnAarU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDi53xCn3OrM292eNRJqGSQBCXI3X75RZndcNJQPdqAlyNMeIkCMqICefMlAiuYxA
-         R/qMxNJIO0MJXEUFNUDsgQRFrbWTjrx04IrvvrVwPiNTnMDMrU7MahgSvNOCUBVxcH
-         9Mb+LnrJDjeoNZdu0tZnvBUsvzgZSTtPwxmXV9JY=
+        b=GbkgruOBNMotBLTmZ7etrqagZxvYU7OFsorDD0fU3uSLLNhsJZGnFOb6OedSDaYpg
+         x5fmDDChQ91myVXFeekv6IYoahTyjHNK/jL+sSTHVUn5IkbykPgybQmLQvdyeGvrrf
+         yD1sN1mZy25s0B27yTAehKFjwrQUyVI3C0Bhg0Vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Puyou Lu <puyou.lu@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.17 704/772] lib/string_helpers: fix not adding strarray to devices resource list
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        kernel test robot <lkp@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.10 439/452] thermal/core: fix a UAF bug in __thermal_cooling_device_register()
 Date:   Tue,  7 Jun 2022 19:04:56 +0200
-Message-Id: <20220607165009.794182134@linuxfoundation.org>
+Message-Id: <20220607164921.644649330@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Puyou Lu <puyou.lu@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit cd290a9839cee2f6641558877e707bd373c8f6f1 upstream.
+commit 0a5c26712f963f0500161a23e0ffff8d29f742ab upstream.
 
-Add allocated strarray to device's resource list. This is a must to
-automatically release strarray when the device disappears.
+When device_register() return failed, program will goto out_kfree_type
+to release 'cdev->device' by put_device(). That will call thermal_release()
+to free 'cdev'. But the follow-up processes access 'cdev' continually.
+That trggers the UAF bug.
 
-Without this fix we have a memory leak in the few drivers which use
-devm_kasprintf_strarray().
+====================================================================
+BUG: KASAN: use-after-free in __thermal_cooling_device_register+0x75b/0xa90
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+Call Trace:
+ dump_stack_lvl+0xe2/0x152
+ print_address_description.constprop.0+0x21/0x140
+ ? __thermal_cooling_device_register+0x75b/0xa90
+ kasan_report.cold+0x7f/0x11b
+ ? __thermal_cooling_device_register+0x75b/0xa90
+ __thermal_cooling_device_register+0x75b/0xa90
+ ? memset+0x20/0x40
+ ? __sanitizer_cov_trace_pc+0x1d/0x50
+ ? __devres_alloc_node+0x130/0x180
+ devm_thermal_of_cooling_device_register+0x67/0xf0
+ max6650_probe.cold+0x557/0x6aa
+......
 
-Link: https://lkml.kernel.org/r/20220506044409.30066-1-puyou.lu@gmail.com
-Link: https://lkml.kernel.org/r/20220506073623.2679-1-puyou.lu@gmail.com
-Fixes: acdb89b6c87a ("lib/string_helpers: Introduce managed variant of kasprintf_strarray()")
-Signed-off-by: Puyou Lu <puyou.lu@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Freed by task 258:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x109/0x140
+ kfree+0x117/0x4c0
+ thermal_release+0xa0/0x110
+ device_release+0xa7/0x240
+ kobject_put+0x1ce/0x540
+ put_device+0x20/0x30
+ __thermal_cooling_device_register+0x731/0xa90
+ devm_thermal_of_cooling_device_register+0x67/0xf0
+ max6650_probe.cold+0x557/0x6aa [max6650]
+
+Do not use 'cdev' again after put_device() to fix the problem like doing
+in thermal_zone_device_register().
+
+[dlezcano]: as requested by Rafael, change the affectation into two statements.
+
+Fixes: 584837618100 ("thermal/drivers/core: Use a char pointer for the cooling device name")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20211015024504.947520-1-william.xuanziyang@huawei.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/string_helpers.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/thermal/thermal_core.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/lib/string_helpers.c
-+++ b/lib/string_helpers.c
-@@ -757,6 +757,9 @@ char **devm_kasprintf_strarray(struct de
- 		return ERR_PTR(-ENOMEM);
- 	}
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -1092,7 +1092,7 @@ __thermal_cooling_device_register(struct
+ {
+ 	struct thermal_cooling_device *cdev;
+ 	struct thermal_zone_device *pos = NULL;
+-	int ret;
++	int id, ret;
  
-+	ptr->n = n;
-+	devres_add(dev, ptr);
-+
- 	return ptr->array;
+ 	if (!ops || !ops->get_max_state || !ops->get_cur_state ||
+ 	    !ops->set_cur_state)
+@@ -1106,6 +1106,7 @@ __thermal_cooling_device_register(struct
+ 	if (ret < 0)
+ 		goto out_kfree_cdev;
+ 	cdev->id = ret;
++	id = ret;
+ 
+ 	cdev->type = kstrdup(type ? type : "", GFP_KERNEL);
+ 	if (!cdev->type) {
+@@ -1147,8 +1148,9 @@ out_kfree_type:
+ 	thermal_cooling_device_destroy_sysfs(cdev);
+ 	kfree(cdev->type);
+ 	put_device(&cdev->device);
++	cdev = NULL;
+ out_ida_remove:
+-	ida_simple_remove(&thermal_cdev_ida, cdev->id);
++	ida_simple_remove(&thermal_cdev_ida, id);
+ out_kfree_cdev:
+ 	return ERR_PTR(ret);
  }
- EXPORT_SYMBOL_GPL(devm_kasprintf_strarray);
 
 
