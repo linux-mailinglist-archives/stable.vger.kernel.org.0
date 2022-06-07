@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C5C541AF6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5606540579
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377900AbiFGVmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
+        id S1346359AbiFGR0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:26:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381212AbiFGVkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6EF719D7;
-        Tue,  7 Jun 2022 12:05:58 -0700 (PDT)
+        with ESMTP id S1346470AbiFGRZL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06291059CD;
+        Tue,  7 Jun 2022 10:22:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0960DB822C0;
-        Tue,  7 Jun 2022 19:05:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA0AC385A2;
-        Tue,  7 Jun 2022 19:05:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EDEEB822B3;
+        Tue,  7 Jun 2022 17:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A3EC385A5;
+        Tue,  7 Jun 2022 17:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628755;
-        bh=kTTiIZpJ2ysOrS1uGjg/TY4Npyhe4hfUh2qruWkuNL4=;
+        s=korg; t=1654622567;
+        bh=ma7wx71PH5A9um/tqLsM/4B68rrnnd9bIJDnMJSd77Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSaaq9a/TvCD8t4+dO1o13PkzXgfeFqvZm0EE+MEQoI42L2RojVB5P/te/IOjheTc
-         zKCctDMu6oUZ6hpardNP/w28H06kvxbOCFeA+gwuT6Og8u9ySjcgEkvqDaRbPbGuw9
-         /5sOfeViPvYfunGt1n1UNWZNSnnhnFoCZk3+w9S8=
+        b=p5Bc4d2WFYeHMI/tlX0D+y6Xse9MI1yYdYfKMF3JYIKJMkJvaH6YZSYPHujAd0i9J
+         QgP+iGOO+jelqYRy4ru2SUIblUByQ3koYmo3e9aLNgkobt5rQ03V8/zBOeu4gzCfff
+         IfxomYsv2yZTS/Zu3ZoPcke/qlE/RG/uAkbGGrQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Zixuan Fu <r33s3n6@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 443/879] media: atmel: atmel-isc: Fix PM disable depth imbalance in atmel_isc_probe
+Subject: [PATCH 5.10 104/452] fs: jfs: fix possible NULL pointer dereference in dbFree()
 Date:   Tue,  7 Jun 2022 18:59:21 +0200
-Message-Id: <20220607165015.730476467@linuxfoundation.org>
+Message-Id: <20220607164911.656168253@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-[ Upstream commit 395829c61a196a0821a703a49c4db3ac51daff73 ]
+[ Upstream commit 0d4837fdb796f99369cf7691d33de1b856bcaf1f ]
 
-The pm_runtime_enable will decrease power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable().
+In our fault-injection testing, the variable "nblocks" in dbFree() can be
+zero when kmalloc_array() fails in dtSearch(). In this case, the variable
+ "mp" in dbFree() would be NULL and then it is dereferenced in
+"write_metapage(mp)".
 
-Fixes: 0a0e265515db ("media: atmel: atmel-isc: split driver into driver base and isc")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+The failure log is listed as follows:
+
+[   13.824137] BUG: kernel NULL pointer dereference, address: 0000000000000020
+...
+[   13.827416] RIP: 0010:dbFree+0x5f7/0x910 [jfs]
+[   13.834341] Call Trace:
+[   13.834540]  <TASK>
+[   13.834713]  txFreeMap+0x7b4/0xb10 [jfs]
+[   13.835038]  txUpdateMap+0x311/0x650 [jfs]
+[   13.835375]  jfs_lazycommit+0x5f2/0xc70 [jfs]
+[   13.835726]  ? sched_dynamic_update+0x1b0/0x1b0
+[   13.836092]  kthread+0x3c2/0x4a0
+[   13.836355]  ? txLockFree+0x160/0x160 [jfs]
+[   13.836763]  ? kthread_unuse_mm+0x160/0x160
+[   13.837106]  ret_from_fork+0x1f/0x30
+[   13.837402]  </TASK>
+...
+
+This patch adds a NULL check of "mp" before "write_metapage(mp)" is called.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/atmel/atmel-sama5d2-isc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/jfs/jfs_dmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/atmel/atmel-sama5d2-isc.c b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
-index c5b9563e36cb..e9415495e738 100644
---- a/drivers/media/platform/atmel/atmel-sama5d2-isc.c
-+++ b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
-@@ -562,7 +562,7 @@ static int atmel_isc_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(isc->ispck);
- 	if (ret) {
- 		dev_err(dev, "failed to enable ispck: %d\n", ret);
--		goto cleanup_subdev;
-+		goto disable_pm;
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index e58ae29a223d..0ce17ea8fa8a 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -385,7 +385,8 @@ int dbFree(struct inode *ip, s64 blkno, s64 nblocks)
  	}
  
- 	/* ispck should be greater or equal to hclock */
-@@ -580,6 +580,9 @@ static int atmel_isc_probe(struct platform_device *pdev)
- unprepare_clk:
- 	clk_disable_unprepare(isc->ispck);
+ 	/* write the last buffer. */
+-	write_metapage(mp);
++	if (mp)
++		write_metapage(mp);
  
-+disable_pm:
-+	pm_runtime_disable(dev);
-+
- cleanup_subdev:
- 	isc_subdev_cleanup(isc);
+ 	IREAD_UNLOCK(ipbmap);
  
 -- 
 2.35.1
