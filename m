@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01590541C02
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5036540C24
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382506AbiFGVz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
+        id S1351826AbiFGSeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:34:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382920AbiFGVwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6AC023F7F6;
-        Tue,  7 Jun 2022 12:10:03 -0700 (PDT)
+        with ESMTP id S1353023AbiFGSbg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F079917CE67;
+        Tue,  7 Jun 2022 10:56:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24722B823B1;
-        Tue,  7 Jun 2022 19:10:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AABFC385A5;
-        Tue,  7 Jun 2022 19:10:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27CC1B81F38;
+        Tue,  7 Jun 2022 17:56:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D6BC385A5;
+        Tue,  7 Jun 2022 17:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629000;
-        bh=MUUEaXe42oEIFdsTF9pziCgPfvLKsA9Oo5uJ3FOrQY4=;
+        s=korg; t=1654624601;
+        bh=wpfaxEUSQSSnqw0C1UmU0qcePChoKtwxbyOBltqsojw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PrV7EgEi6jACndLdjFSuzYVQeKl7J9/czNtPpdNcnFkOC1HE9kwKsKQwwKVbvfTg1
-         ZS4sVm2gOzc9/yc4Pmhym6Er1Rgr43XN0bOiCjr15UyboPBZQuLE+83XjqcmbV0Q/D
-         z7/JTUZ6+H6I1S8zTAKnc5Tt1X9Lffj6ZKUc0pcA=
+        b=LAmbJ0g/oNkTq6VUtkk6+xQcAfzfR2odnjBz5aU7k9grbuyiOPTA2gWvStoFzOzt2
+         3S2cu9GEeb4tn3ZEWewbJJ3OxW25sgYICRvelZOUf41Ex77+yFOxVaVmhoDb4I2kTw
+         skEQgd3TDjFwugziYkDp7I+hRWf1wetPEQSYt7M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sean Young <sean@mess.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 532/879] media: lirc: revert removal of unused feature flags
+Subject: [PATCH 5.15 385/667] ARM: dts: BCM5301X: update CRU block description
 Date:   Tue,  7 Jun 2022 19:00:50 +0200
-Message-Id: <20220607165018.315716427@linuxfoundation.org>
+Message-Id: <20220607164946.295076841@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit e5499dd7253c8382d03f687f19a854adcc688357 ]
+[ Upstream commit 31fd9b79dc580301c53a001482755ba7e88c2809 ]
 
-Commit b2a90f4fcb14 ("media: lirc: remove unused lirc features") removed
-feature flags which were never implemented, but they are still used by
-the lirc daemon went built from source.
+This describes CRU in a way matching documentation and fixes:
 
-Reinstate these symbols in order not to break the lirc build.
+arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dt.yaml: cru@100: $nodename:0: 'cru@100' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+        From schema: /lib/python3.6/site-packages/dtschema/schemas/simple-bus.yaml
 
-Fixes: b2a90f4fcb14 ("media: lirc: remove unused lirc features")
-Link: https://lore.kernel.org/all/a0470450-ecfd-2918-e04a-7b57c1fd7694@kernel.org/
-Reported-by: Jiri Slaby <jirislaby@kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/lirc.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/boot/dts/bcm5301x.dtsi | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/linux/lirc.h b/include/uapi/linux/lirc.h
-index 23b0f2c8ba81..8d7ca7c6af42 100644
---- a/include/uapi/linux/lirc.h
-+++ b/include/uapi/linux/lirc.h
-@@ -84,6 +84,13 @@
- #define LIRC_CAN_SEND(x) ((x)&LIRC_CAN_SEND_MASK)
- #define LIRC_CAN_REC(x) ((x)&LIRC_CAN_REC_MASK)
+diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
+index f69d2af3c1fa..db8c3f684786 100644
+--- a/arch/arm/boot/dts/bcm5301x.dtsi
++++ b/arch/arm/boot/dts/bcm5301x.dtsi
+@@ -423,14 +423,14 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
  
-+/*
-+ * Unused features. These features were never implemented, in tree or
-+ * out of tree. These definitions are here so not to break the lircd build.
-+ */
-+#define LIRC_CAN_SET_REC_FILTER		0
-+#define LIRC_CAN_NOTIFY_DECODE		0
+-		cru@100 {
+-			compatible = "simple-bus";
++		cru-bus@100 {
++			compatible = "brcm,ns-cru", "simple-mfd";
+ 			reg = <0x100 0x1a4>;
+ 			ranges;
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
+-			lcpll0: lcpll0@100 {
++			lcpll0: clock-controller@100 {
+ 				#clock-cells = <1>;
+ 				compatible = "brcm,nsp-lcpll0";
+ 				reg = <0x100 0x14>;
+@@ -439,7 +439,7 @@
+ 						     "sdio", "ddr_phy";
+ 			};
+ 
+-			genpll: genpll@140 {
++			genpll: clock-controller@140 {
+ 				#clock-cells = <1>;
+ 				compatible = "brcm,nsp-genpll";
+ 				reg = <0x140 0x24>;
+@@ -450,6 +450,11 @@
+ 						     "sata1", "sata2";
+ 			};
+ 
++			syscon@180 {
++				compatible = "brcm,cru-clkset", "syscon";
++				reg = <0x180 0x4>;
++			};
 +
- /*** IOCTL commands for lirc driver ***/
- 
- #define LIRC_GET_FEATURES              _IOR('i', 0x00000000, __u32)
+ 			pinctrl: pin-controller@1c0 {
+ 				compatible = "brcm,bcm4708-pinmux";
+ 				reg = <0x1c0 0x24>;
 -- 
 2.35.1
 
