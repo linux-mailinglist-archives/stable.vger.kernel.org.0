@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDE95405F3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52F65414C4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346989AbiFGRca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+        id S1358895AbiFGUV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347438AbiFGRao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A66110AFD;
-        Tue,  7 Jun 2022 10:26:48 -0700 (PDT)
+        with ESMTP id S1359868AbiFGUVX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B4A17A880;
+        Tue,  7 Jun 2022 11:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 527676127C;
-        Tue,  7 Jun 2022 17:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 617D8C385A5;
-        Tue,  7 Jun 2022 17:26:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A90F5B82340;
+        Tue,  7 Jun 2022 18:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 075FFC385A2;
+        Tue,  7 Jun 2022 18:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622807;
-        bh=EYs9ncx94BaVVOEcgi9lPfmZq5mNYDCe5PE0656+Wsc=;
+        s=korg; t=1654626652;
+        bh=bFhZ957r2YH94rqSbhXVV4Hj1qf6FyXRtokEAkKhViw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itx+gUYbQhEnQ4JOmyoqimqcEVjaGBuRx2sIp3JI8rrYaeO2qrJIThaaolsikl+td
-         kCaAuyu00rbcMKCuVUqwORCu5sSvYgLWdwMxjsTqsLQ1GtTw65v2KnxLtPPq3vO5dY
-         HMnvsz/71gVeCQCJgRvO6jX7OjFgfP1rUqGCTmvA=
+        b=oYaZhX190OOJmP1fZfbn2eE97MlDRUDAgNS2xtxFFvsibYm2VttWZCGn1aKGyIRJ7
+         X6RJt/FaK3BCr7tDlgye1eUxkpb8VF2mbXWXwqMsVxLiAL3fTaGsRiksLIqvshluwg
+         obnws4Id8/wUcfapaJa5j1ZyD/ypc4vJ98hBYWeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 189/452] arm64: fix types in copy_highpage()
-Date:   Tue,  7 Jun 2022 19:00:46 +0200
-Message-Id: <20220607164914.193828624@linuxfoundation.org>
+Subject: [PATCH 5.17 455/772] ARM: dts: BCM5301X: Update pin controller node name
+Date:   Tue,  7 Jun 2022 19:00:47 +0200
+Message-Id: <20220607165002.410240153@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 921d161f15d6b090599f6a8c23f131969edbd1fa ]
+[ Upstream commit 130b5e32ba9d2d2313e39cf3f6d0729bff02b76a ]
 
-In copy_highpage() the `kto` and `kfrom` local variables are pointers to
-struct page, but these are used to hold arbitrary pointers to kernel memory
-. Each call to page_address() returns a void pointer to memory associated
-with the relevant page, and copy_page() expects void pointers to this
-memory.
+This fixes:
+arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dtb: cru-bus@100: 'pin-controller@1c0' does not match any of the regexes: '^clock-controller@[a-f0-9]+$', '^phy@[a-f0-9]+$', '^pinctrl@[a-f0-9]+$', '^syscon@[a-f0-9]+$', '^thermal@[a-f0-9]+$'
+        From schema: Documentation/devicetree/bindings/mfd/brcm,cru.yaml
+arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dtb: pin-controller@1c0: $nodename:0: 'pin-controller@1c0' does not match '^(pinctrl|pinmux)(@[0-9a-f]+)?$'
+        From schema: Documentation/devicetree/bindings/pinctrl/brcm,ns-pinmux.yaml
 
-This inconsistency was introduced in commit 2563776b41c3 ("arm64: mte:
-Tags-aware copy_{user_,}highpage() implementations") and while this
-doesn't appear to be harmful in practice it is clearly wrong.
-
-Correct this by making `kto` and `kfrom` void pointers.
-
-Fixes: 2563776b41c3 ("arm64: mte: Tags-aware copy_{user_,}highpage() implementations")
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Link: https://lore.kernel.org/r/20220420030418.3189040-3-tongtiangen@huawei.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Ref: e7391b021e3f ("dt-bindings: mfd: brcm,cru: Rename pinctrl node")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/copypage.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm5301x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
-index 70a71f38b6a9..24913271e898 100644
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -16,8 +16,8 @@
+diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
+index 603c700c706f..65f8a759f1e3 100644
+--- a/arch/arm/boot/dts/bcm5301x.dtsi
++++ b/arch/arm/boot/dts/bcm5301x.dtsi
+@@ -455,7 +455,7 @@
+ 				reg = <0x180 0x4>;
+ 			};
  
- void copy_highpage(struct page *to, struct page *from)
- {
--	struct page *kto = page_address(to);
--	struct page *kfrom = page_address(from);
-+	void *kto = page_address(to);
-+	void *kfrom = page_address(from);
- 
- 	copy_page(kto, kfrom);
- 
+-			pinctrl: pin-controller@1c0 {
++			pinctrl: pinctrl@1c0 {
+ 				compatible = "brcm,bcm4708-pinmux";
+ 				reg = <0x1c0 0x24>;
+ 				reg-names = "cru_gpio_control";
 -- 
 2.35.1
 
