@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA039541C2C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE63540603
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381984AbiFGVzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38064 "EHLO
+        id S245174AbiFGRcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382692AbiFGVvo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:44 -0400
+        with ESMTP id S1347298AbiFGRaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C740C517FB;
-        Tue,  7 Jun 2022 12:09:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082EF110462;
+        Tue,  7 Jun 2022 10:26:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2391261846;
-        Tue,  7 Jun 2022 19:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37710C385A5;
-        Tue,  7 Jun 2022 19:09:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89C6860DE0;
+        Tue,  7 Jun 2022 17:26:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ACDCC385A5;
+        Tue,  7 Jun 2022 17:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628953;
-        bh=1uQfHZyEVzAhNvhs2p8gXdX2bJGCq69ZMlYZfgFCGHs=;
+        s=korg; t=1654622774;
+        bh=R0+ycyeuUKrA8o8i3EmIVl88MqRtSro7Ii1+ymFkPwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkFBaArbMB23+ybXznT4Jf39LyjCOkXiO3/9NtRiPfsLS/kKdT92OScqv8yG9EX9T
-         MFXFlPIfJdllyStg9pQ6Y/p1DAi6yiAS3k8Eh2yOySzQ08O9dobfXWY76uHJZWQ+Kh
-         2Smh2aTcYuJ7D9C8GC+7PmAZhhwHI7RLpwKgSghE=
+        b=Ur4DCzGzopsFlOtV5hpbXCz+TW2AZ7ifhCV5zZ1rPG8WDboS3t0pNWaP2iWwDk8+H
+         DreVOcLNpSIVBkk/F7iWPeT2YKAIC0otQ3w8+8UvWvVcnkGWAjZ4Nf/nqKX+IB/3Pb
+         Q28/JRNrzF+cfGr0EEtTaVfi5EOCeo0A6Lgp9Elk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 517/879] rxrpc: Fix listen() setting the bar too high for the prealloc rings
+Subject: [PATCH 5.10 178/452] drm/msm/hdmi: fix error check return value of irq_of_parse_and_map()
 Date:   Tue,  7 Jun 2022 19:00:35 +0200
-Message-Id: <20220607165017.882093825@linuxfoundation.org>
+Message-Id: <20220607164913.865269532@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 88e22159750b0d55793302eeed8ee603f5c1a95c ]
+[ Upstream commit 03371e4fbdeb7f596cbceacb59e474248b6d95ac ]
 
-AF_RXRPC's listen() handler lets you set the backlog up to 32 (if you bump
-up the sysctl), but whilst the preallocation circular buffers have 32 slots
-in them, one of them has to be a dead slot because we're using CIRC_CNT().
+The irq_of_parse_and_map() function returns 0 on failure, and does not
+return a negative value anyhow, so never enter this conditional branch.
 
-This means that listen(rxrpc_sock, 32) will cause an oops when the socket
-is closed because rxrpc_service_prealloc_one() allocated one too many calls
-and rxrpc_discard_prealloc() won't then be able to get rid of them because
-it'll think the ring is empty.  rxrpc_release_calls_on_socket() then tries
-to abort them, but oopses because call->peer isn't yet set.
-
-Fix this by setting the maximum backlog to RXRPC_BACKLOG_MAX - 1 to match
-the ring capacity.
-
- BUG: kernel NULL pointer dereference, address: 0000000000000086
- ...
- RIP: 0010:rxrpc_send_abort_packet+0x73/0x240 [rxrpc]
- Call Trace:
-  <TASK>
-  ? __wake_up_common_lock+0x7a/0x90
-  ? rxrpc_notify_socket+0x8e/0x140 [rxrpc]
-  ? rxrpc_abort_call+0x4c/0x60 [rxrpc]
-  rxrpc_release_calls_on_socket+0x107/0x1a0 [rxrpc]
-  rxrpc_release+0xc9/0x1c0 [rxrpc]
-  __sock_release+0x37/0xa0
-  sock_close+0x11/0x20
-  __fput+0x89/0x240
-  task_work_run+0x59/0x90
-  do_exit+0x319/0xaa0
-
-Fixes: 00e907127e6f ("rxrpc: Preallocate peers, conns and calls for incoming service requests")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lists.infradead.org/pipermail/linux-afs/2022-March/005079.html
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f6a8eaca0ea1 ("drm/msm/mdp5: use irqdomains")
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/483294/
+Link: https://lore.kernel.org/r/20220425091831.3500487-1-lv.ruyi@zte.com.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/sysctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/sysctl.c b/net/rxrpc/sysctl.c
-index 540351d6a5f4..555e0910786b 100644
---- a/net/rxrpc/sysctl.c
-+++ b/net/rxrpc/sysctl.c
-@@ -12,7 +12,7 @@
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index 2758b51aa4e0..28b33b35a30c 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -315,9 +315,9 @@ int msm_hdmi_modeset_init(struct hdmi *hdmi,
+ 	}
  
- static struct ctl_table_header *rxrpc_sysctl_reg_table;
- static const unsigned int four = 4;
--static const unsigned int thirtytwo = 32;
-+static const unsigned int max_backlog = RXRPC_BACKLOG_MAX - 1;
- static const unsigned int n_65535 = 65535;
- static const unsigned int n_max_acks = RXRPC_RXTX_BUFF_SIZE - 1;
- static const unsigned long one_jiffy = 1;
-@@ -89,7 +89,7 @@ static struct ctl_table rxrpc_sysctl_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= (void *)&four,
--		.extra2		= (void *)&thirtytwo,
-+		.extra2		= (void *)&max_backlog,
- 	},
- 	{
- 		.procname	= "rx_window_size",
+ 	hdmi->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
+-	if (hdmi->irq < 0) {
+-		ret = hdmi->irq;
+-		DRM_DEV_ERROR(dev->dev, "failed to get irq: %d\n", ret);
++	if (!hdmi->irq) {
++		ret = -EINVAL;
++		DRM_DEV_ERROR(dev->dev, "failed to get irq\n");
+ 		goto fail;
+ 	}
+ 
 -- 
 2.35.1
 
