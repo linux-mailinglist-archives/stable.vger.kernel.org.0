@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C32C4540E88
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB036540EC7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354058AbiFGSza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58040 "EHLO
+        id S1354055AbiFGSz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353640AbiFGStl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:49:41 -0400
+        with ESMTP id S1353561AbiFGSuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:50:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B90B12E33D;
-        Tue,  7 Jun 2022 11:03:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5E812E83E;
+        Tue,  7 Jun 2022 11:03:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57E26618D3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FFC9617C4;
+        Tue,  7 Jun 2022 18:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49835C36AFE;
         Tue,  7 Jun 2022 18:03:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0E03C34119;
-        Tue,  7 Jun 2022 18:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624992;
-        bh=jdxYV56eY7XhApEmOlDXD1XspYqjrLg6jh431dpAOcQ=;
+        s=k20201202; t=1654624994;
+        bh=3Cg2cdcFJFIK+Z0AxjQzbeZunpyUNwa+EpzWaOfLLEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hrrzxveV9AJAhs2hAhfN8E/laQVLuCHtdWThscSIoUFfQHR2cWdck6WYT9AcFYaR4
-         VfGdW4+v7UtzLA4tf8BaBsjrcKxF/9vjmcu/IkmPoQK5NfBYgDEC2/iVeu8/3sZqfi
-         cIjC3e1I0pM9dmVev8BYv4aYLOYHTPxem9crrfUcr99jfFSPbXssZ3JXKSDho70gqn
-         cPtxUy/e/1+LIA4cIc8uy3X/5Lu+NlLP8RUeiCqLan7VdMe+VBqMrtbgeE2vgWsvPN
-         Fk0lyy+JCwANFeV/WvFCGGATnzx4w+UFvlRmMlK49TGPw71SzMP+P2FZ64H9S2o3O6
-         g3b127udBIB1w==
+        b=ThtnyTkH+IBwkQEKngpAGbBr0Nf7qcb8GDjWkxSRgZiSiF4M+Wmc8UQ6OzweQlet/
+         7TTzYC21e7DluUo/VmysREuGTGMAtQMQvcc+laX3FNpdAMYlapMErLI5RD4YwxgGt7
+         1V2o6z8BC61a2HT+WKV+N68nWZrHOr27t7rIF+OhOcjqjlJSmY8X17k73Azj0a3q6Y
+         xD/G/prWv+xVsNelsrxu0GqrAEX5ARHDwzyzJQUtZlen+TepdcMMY1Cen+Ttefd1TN
+         OIle8C9EstXrhG48PeOlcZRyxkfCGlWeWArNLrnnOexsr0GwFmIEe+JWQXAnirhVAZ
+         rwFjJ7XgW7IrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 4.14 24/25] nbd: fix io hung while disconnecting device
-Date:   Tue,  7 Jun 2022 14:02:25 -0400
-Message-Id: <20220607180229.482040-24-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Christophe de Dinechin <dinechin@redhat.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 25/25] nodemask: Fix return values to be unsigned
+Date:   Tue,  7 Jun 2022 14:02:26 -0400
+Message-Id: <20220607180229.482040-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607180229.482040-1-sashal@kernel.org>
 References: <20220607180229.482040-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,76 +63,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 09dadb5985023e27d4740ebd17e6fea4640110e5 ]
+[ Upstream commit 0dfe54071d7c828a02917b595456bfde1afdddc9 ]
 
-In our tests, "qemu-nbd" triggers a io hung:
+The nodemask routines had mixed return values that provided potentially
+signed return values that could never happen. This was leading to the
+compiler getting confusing about the range of possible return values
+(it was thinking things could be negative where they could not be). Fix
+all the nodemask routines that should be returning unsigned
+(or bool) values. Silences:
 
-INFO: task qemu-nbd:11445 blocked for more than 368 seconds.
-      Not tainted 5.18.0-rc3-next-20220422-00003-g2176915513ca #884
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:qemu-nbd        state:D stack:    0 pid:11445 ppid:     1 flags:0x00000000
-Call Trace:
- <TASK>
- __schedule+0x480/0x1050
- ? _raw_spin_lock_irqsave+0x3e/0xb0
- schedule+0x9c/0x1b0
- blk_mq_freeze_queue_wait+0x9d/0xf0
- ? ipi_rseq+0x70/0x70
- blk_mq_freeze_queue+0x2b/0x40
- nbd_add_socket+0x6b/0x270 [nbd]
- nbd_ioctl+0x383/0x510 [nbd]
- blkdev_ioctl+0x18e/0x3e0
- __x64_sys_ioctl+0xac/0x120
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fd8ff706577
-RSP: 002b:00007fd8fcdfebf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000040000000 RCX: 00007fd8ff706577
-RDX: 000000000000000d RSI: 000000000000ab00 RDI: 000000000000000f
-RBP: 000000000000000f R08: 000000000000fbe8 R09: 000055fe497c62b0
-R10: 00000002aff20000 R11: 0000000000000246 R12: 000000000000006d
-R13: 0000000000000000 R14: 00007ffe82dc5e70 R15: 00007fd8fcdff9c0
+ mm/swapfile.c: In function ‘setup_swap_info’:
+ mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds of ‘struct plist_node[]’ [-Werror=array-bounds]
+  2291 |                                 p->avail_lists[i].prio = 1;
+       |                                 ~~~~~~~~~~~~~~^~~
+ In file included from mm/swapfile.c:16:
+ ./include/linux/swap.h:292:27: note: while referencing ‘avail_lists’
+   292 |         struct plist_node avail_lists[]; /*
+       |                           ^~~~~~~~~~~
 
-"qemu-ndb -d" will call ioctl 'NBD_DISCONNECT' first, however, following
-message was found:
-
-block nbd0: Send disconnect failed -32
-
-Which indicate that something is wrong with the server. Then,
-"qemu-nbd -d" will call ioctl 'NBD_CLEAR_SOCK', however ioctl can't clear
-requests after commit 2516ab1543fd("nbd: only clear the queue on device
-teardown"). And in the meantime, request can't complete through timeout
-because nbd_xmit_timeout() will always return 'BLK_EH_RESET_TIMER', which
-means such request will never be completed in this situation.
-
-Now that the flag 'NBD_CMD_INFLIGHT' can make sure requests won't
-complete multiple times, switch back to call nbd_clear_sock() in
-nbd_clear_sock_ioctl(), so that inflight requests can be cleared.
-
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-5-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Christophe de Dinechin <dinechin@redhat.com>
+Link: https://lore.kernel.org/lkml/20220414150855.2407137-3-dinechin@redhat.com/
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/nodemask.h | 38 +++++++++++++++++++-------------------
+ lib/nodemask.c           |  4 ++--
+ 2 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 9596f93d98b2..338d02a67afb 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1275,7 +1275,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
- 				 struct block_device *bdev)
+diff --git a/include/linux/nodemask.h b/include/linux/nodemask.h
+index de1c50b93c61..ac255392d185 100644
+--- a/include/linux/nodemask.h
++++ b/include/linux/nodemask.h
+@@ -42,11 +42,11 @@
+  * void nodes_shift_right(dst, src, n)	Shift right
+  * void nodes_shift_left(dst, src, n)	Shift left
+  *
+- * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
+- * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
+- * int next_node_in(node, mask)		Next node past 'node', or wrap to first,
++ * unsigned int first_node(mask)	Number lowest set bit, or MAX_NUMNODES
++ * unsigend int next_node(node, mask)	Next node past 'node', or MAX_NUMNODES
++ * unsigned int next_node_in(node, mask) Next node past 'node', or wrap to first,
+  *					or MAX_NUMNODES
+- * int first_unset_node(mask)		First node not set in mask, or 
++ * unsigned int first_unset_node(mask)	First node not set in mask, or
+  *					MAX_NUMNODES
+  *
+  * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
+@@ -144,7 +144,7 @@ static inline void __nodes_clear(nodemask_t *dstp, unsigned int nbits)
+ 
+ #define node_test_and_set(node, nodemask) \
+ 			__node_test_and_set((node), &(nodemask))
+-static inline int __node_test_and_set(int node, nodemask_t *addr)
++static inline bool __node_test_and_set(int node, nodemask_t *addr)
  {
--	sock_shutdown(nbd);
-+	nbd_clear_sock(nbd);
- 	__invalidate_device(bdev, true);
- 	nbd_bdev_reset(bdev);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
+ 	return test_and_set_bit(node, addr->bits);
+ }
+@@ -191,7 +191,7 @@ static inline void __nodes_complement(nodemask_t *dstp,
+ 
+ #define nodes_equal(src1, src2) \
+ 			__nodes_equal(&(src1), &(src2), MAX_NUMNODES)
+-static inline int __nodes_equal(const nodemask_t *src1p,
++static inline bool __nodes_equal(const nodemask_t *src1p,
+ 					const nodemask_t *src2p, unsigned int nbits)
+ {
+ 	return bitmap_equal(src1p->bits, src2p->bits, nbits);
+@@ -199,7 +199,7 @@ static inline int __nodes_equal(const nodemask_t *src1p,
+ 
+ #define nodes_intersects(src1, src2) \
+ 			__nodes_intersects(&(src1), &(src2), MAX_NUMNODES)
+-static inline int __nodes_intersects(const nodemask_t *src1p,
++static inline bool __nodes_intersects(const nodemask_t *src1p,
+ 					const nodemask_t *src2p, unsigned int nbits)
+ {
+ 	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
+@@ -207,20 +207,20 @@ static inline int __nodes_intersects(const nodemask_t *src1p,
+ 
+ #define nodes_subset(src1, src2) \
+ 			__nodes_subset(&(src1), &(src2), MAX_NUMNODES)
+-static inline int __nodes_subset(const nodemask_t *src1p,
++static inline bool __nodes_subset(const nodemask_t *src1p,
+ 					const nodemask_t *src2p, unsigned int nbits)
+ {
+ 	return bitmap_subset(src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define nodes_empty(src) __nodes_empty(&(src), MAX_NUMNODES)
+-static inline int __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
++static inline bool __nodes_empty(const nodemask_t *srcp, unsigned int nbits)
+ {
+ 	return bitmap_empty(srcp->bits, nbits);
+ }
+ 
+ #define nodes_full(nodemask) __nodes_full(&(nodemask), MAX_NUMNODES)
+-static inline int __nodes_full(const nodemask_t *srcp, unsigned int nbits)
++static inline bool __nodes_full(const nodemask_t *srcp, unsigned int nbits)
+ {
+ 	return bitmap_full(srcp->bits, nbits);
+ }
+@@ -251,15 +251,15 @@ static inline void __nodes_shift_left(nodemask_t *dstp,
+           > MAX_NUMNODES, then the silly min_ts could be dropped. */
+ 
+ #define first_node(src) __first_node(&(src))
+-static inline int __first_node(const nodemask_t *srcp)
++static inline unsigned int __first_node(const nodemask_t *srcp)
+ {
+-	return min_t(int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
++	return min_t(unsigned int, MAX_NUMNODES, find_first_bit(srcp->bits, MAX_NUMNODES));
+ }
+ 
+ #define next_node(n, src) __next_node((n), &(src))
+-static inline int __next_node(int n, const nodemask_t *srcp)
++static inline unsigned int __next_node(int n, const nodemask_t *srcp)
+ {
+-	return min_t(int,MAX_NUMNODES,find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
++	return min_t(unsigned int, MAX_NUMNODES, find_next_bit(srcp->bits, MAX_NUMNODES, n+1));
+ }
+ 
+ /*
+@@ -267,7 +267,7 @@ static inline int __next_node(int n, const nodemask_t *srcp)
+  * the first node in src if needed.  Returns MAX_NUMNODES if src is empty.
+  */
+ #define next_node_in(n, src) __next_node_in((n), &(src))
+-int __next_node_in(int node, const nodemask_t *srcp);
++unsigned int __next_node_in(int node, const nodemask_t *srcp);
+ 
+ static inline void init_nodemask_of_node(nodemask_t *mask, int node)
+ {
+@@ -287,9 +287,9 @@ static inline void init_nodemask_of_node(nodemask_t *mask, int node)
+ })
+ 
+ #define first_unset_node(mask) __first_unset_node(&(mask))
+-static inline int __first_unset_node(const nodemask_t *maskp)
++static inline unsigned int __first_unset_node(const nodemask_t *maskp)
+ {
+-	return min_t(int,MAX_NUMNODES,
++	return min_t(unsigned int, MAX_NUMNODES,
+ 			find_first_zero_bit(maskp->bits, MAX_NUMNODES));
+ }
+ 
+@@ -426,11 +426,11 @@ static inline int num_node_state(enum node_states state)
+ 
+ #define first_online_node	first_node(node_states[N_ONLINE])
+ #define first_memory_node	first_node(node_states[N_MEMORY])
+-static inline int next_online_node(int nid)
++static inline unsigned int next_online_node(int nid)
+ {
+ 	return next_node(nid, node_states[N_ONLINE]);
+ }
+-static inline int next_memory_node(int nid)
++static inline unsigned int next_memory_node(int nid)
+ {
+ 	return next_node(nid, node_states[N_MEMORY]);
+ }
+diff --git a/lib/nodemask.c b/lib/nodemask.c
+index 3aa454c54c0d..e22647f5181b 100644
+--- a/lib/nodemask.c
++++ b/lib/nodemask.c
+@@ -3,9 +3,9 @@
+ #include <linux/module.h>
+ #include <linux/random.h>
+ 
+-int __next_node_in(int node, const nodemask_t *srcp)
++unsigned int __next_node_in(int node, const nodemask_t *srcp)
+ {
+-	int ret = __next_node(node, srcp);
++	unsigned int ret = __next_node(node, srcp);
+ 
+ 	if (ret == MAX_NUMNODES)
+ 		ret = __first_node(srcp);
 -- 
 2.35.1
 
