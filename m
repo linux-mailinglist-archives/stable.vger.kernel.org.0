@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD3C54066A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF8A540B96
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347348AbiFGRe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42956 "EHLO
+        id S242314AbiFGS3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346929AbiFGR3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:48 -0400
+        with ESMTP id S1352512AbiFGS0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:26:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFEB011990D;
-        Tue,  7 Jun 2022 10:25:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305CA16A525;
+        Tue,  7 Jun 2022 10:54:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 812B8B8220B;
-        Tue,  7 Jun 2022 17:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E29C385A5;
-        Tue,  7 Jun 2022 17:25:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A099B8236A;
+        Tue,  7 Jun 2022 17:54:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51CAC3411C;
+        Tue,  7 Jun 2022 17:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622703;
-        bh=3BC5bYMYuQeVfy7aRNPDQC8/dHLF6z9uKXDBXN/E6/k=;
+        s=korg; t=1654624490;
+        bh=j4qLntO3VaOtB7btRAveV4YpRZHf6JXJpBSgnbjuGuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6BHAnprlI20aMi4jIfifGu1E3nc4B2ldpgSXAymikkr6ttoeUWHcEXC2JQPzBZLV
-         SUvpbj8uZh9xPx5YA7nUs4jWMMUAewZFV8gBH7Of5SDkDkv1wIgnVE4B3FTJ0htPsb
-         uBmJBCDOIVM8QW8AvQJNyEvswbt8gni8h006hsss=
+        b=wzgJ7sEcKgWRm6RaTdm0KfwHwKG2JfRf70Quk2Ql6Inowli180+9lHhfZyyFCJD/n
+         GQ6tGCSoPGAnjPSNJKU1denMWhTyQosUWWdr990UFFAPv2F4RseOnP4mjbAYLEEFAA
+         nIVyB+oksgPyz61IqrTzm8KeGgcC46z7djilwKgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 152/452] sched/fair: Fix cfs_rq_clock_pelt() for throttled cfs_rq
+Subject: [PATCH 5.15 344/667] regulator: scmi: Fix refcount leak in scmi_regulator_probe
 Date:   Tue,  7 Jun 2022 19:00:09 +0200
-Message-Id: <20220607164913.087782338@linuxfoundation.org>
+Message-Id: <20220607164945.077569797@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,93 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Zhou <zhouchengming@bytedance.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 64eaf50731ac0a8c76ce2fedd50ef6652aabc5ff ]
+[ Upstream commit 68d6c8476fd4f448e70e0ab31ff972838ac41dae ]
 
-Since commit 23127296889f ("sched/fair: Update scale invariance of PELT")
-change to use rq_clock_pelt() instead of rq_clock_task(), we should also
-use rq_clock_pelt() for throttled_clock_task_time and throttled_clock_task
-accounting to get correct cfs_rq_clock_pelt() of throttled cfs_rq. And
-rename throttled_clock_task(_time) to be clock_pelt rather than clock_task.
+of_find_node_by_name() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 23127296889f ("sched/fair: Update scale invariance of PELT")
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20220408115309.81603-1-zhouchengming@bytedance.com
+Fixes: 0fbeae70ee7c ("regulator: add SCMI driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220516074433.32433-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c  | 8 ++++----
- kernel/sched/pelt.h  | 4 ++--
- kernel/sched/sched.h | 4 ++--
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/regulator/scmi-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 1a306ef51bbe..bca0efc03a51 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4758,8 +4758,8 @@ static int tg_unthrottle_up(struct task_group *tg, void *data)
- 
- 	cfs_rq->throttle_count--;
- 	if (!cfs_rq->throttle_count) {
--		cfs_rq->throttled_clock_task_time += rq_clock_task(rq) -
--					     cfs_rq->throttled_clock_task;
-+		cfs_rq->throttled_clock_pelt_time += rq_clock_pelt(rq) -
-+					     cfs_rq->throttled_clock_pelt;
- 
- 		/* Add cfs_rq with already running entity in the list */
- 		if (cfs_rq->nr_running >= 1)
-@@ -4776,7 +4776,7 @@ static int tg_throttle_down(struct task_group *tg, void *data)
- 
- 	/* group is entering throttled state, stop time */
- 	if (!cfs_rq->throttle_count) {
--		cfs_rq->throttled_clock_task = rq_clock_task(rq);
-+		cfs_rq->throttled_clock_pelt = rq_clock_pelt(rq);
- 		list_del_leaf_cfs_rq(cfs_rq);
+diff --git a/drivers/regulator/scmi-regulator.c b/drivers/regulator/scmi-regulator.c
+index 1f02f60ad136..41ae7ac27ff6 100644
+--- a/drivers/regulator/scmi-regulator.c
++++ b/drivers/regulator/scmi-regulator.c
+@@ -352,7 +352,7 @@ static int scmi_regulator_probe(struct scmi_device *sdev)
+ 			return ret;
+ 		}
  	}
- 	cfs_rq->throttle_count++;
-@@ -5194,7 +5194,7 @@ static void sync_throttle(struct task_group *tg, int cpu)
- 	pcfs_rq = tg->parent->cfs_rq[cpu];
- 
- 	cfs_rq->throttle_count = pcfs_rq->throttle_count;
--	cfs_rq->throttled_clock_task = rq_clock_task(cpu_rq(cpu));
-+	cfs_rq->throttled_clock_pelt = rq_clock_pelt(cpu_rq(cpu));
- }
- 
- /* conditionally throttle active cfs_rq's from put_prev_entity() */
-diff --git a/kernel/sched/pelt.h b/kernel/sched/pelt.h
-index 45bf08e22207..89150ced09cf 100644
---- a/kernel/sched/pelt.h
-+++ b/kernel/sched/pelt.h
-@@ -145,9 +145,9 @@ static inline u64 rq_clock_pelt(struct rq *rq)
- static inline u64 cfs_rq_clock_pelt(struct cfs_rq *cfs_rq)
- {
- 	if (unlikely(cfs_rq->throttle_count))
--		return cfs_rq->throttled_clock_task - cfs_rq->throttled_clock_task_time;
-+		return cfs_rq->throttled_clock_pelt - cfs_rq->throttled_clock_pelt_time;
- 
--	return rq_clock_pelt(rq_of(cfs_rq)) - cfs_rq->throttled_clock_task_time;
-+	return rq_clock_pelt(rq_of(cfs_rq)) - cfs_rq->throttled_clock_pelt_time;
- }
- #else
- static inline u64 cfs_rq_clock_pelt(struct cfs_rq *cfs_rq)
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 08db8e095e48..8d39f5d99172 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -599,8 +599,8 @@ struct cfs_rq {
- 	s64			runtime_remaining;
- 
- 	u64			throttled_clock;
--	u64			throttled_clock_task;
--	u64			throttled_clock_task_time;
-+	u64			throttled_clock_pelt;
-+	u64			throttled_clock_pelt_time;
- 	int			throttled;
- 	int			throttle_count;
- 	struct list_head	throttled_list;
+-
++	of_node_put(np);
+ 	/*
+ 	 * Register a regulator for each valid regulator-DT-entry that we
+ 	 * can successfully reach via SCMI and has a valid associated voltage
 -- 
 2.35.1
 
