@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 898F954158E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF0D541CE8
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376541AbiFGUgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:36:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45296 "EHLO
+        id S1382495AbiFGWG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:06:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377931AbiFGUej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C909E17F83E;
-        Tue,  7 Jun 2022 11:36:51 -0700 (PDT)
+        with ESMTP id S1382798AbiFGWEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76F6125069A;
+        Tue,  7 Jun 2022 12:15:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 104C7CE23F1;
-        Tue,  7 Jun 2022 18:36:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B31CC385A5;
-        Tue,  7 Jun 2022 18:36:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 124D361846;
+        Tue,  7 Jun 2022 19:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20081C385A2;
+        Tue,  7 Jun 2022 19:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627008;
-        bh=parI/TPNpyC+fEZbFJ+VeJJ70/4VagoOBOHtPQYuJsA=;
+        s=korg; t=1654629345;
+        bh=bZ/gkPK6FV5YKNITi2OCbXEZcm6VBFXIXhsjV92dqrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCNpbgZHo3WX6TGmk+IpebpcdAxq5+lG2n8xwwbCI1nCmq7pi+0GgWHXyen0T6y7y
-         u8koI9p7ZZw10fNJrrAr0B/DU23bYI0xdB3bmEHL12/ZD2vZYnAYKIqyISiUA+xgm4
-         XklVA6jrCfZq90sBWIddrcPZHVLdUQUE3pcBAi50=
+        b=i1PfjqkW6xsWtYxrPD7QKvuQI1nrwjvbw06D2cjCx1lcJikW0PUFK2asuIumAjcAE
+         w2hTo6i779pp8S4j8EFVTAQ3AgJB9zlDFU2SeAdvOVzi+7btIsM7YUOAKa6mPUotBh
+         Hq36nroxxK9OB2/nJGrpNjFuJCZSoobXOhi4eHQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 584/772] NFS: Dont report errors from nfs_pageio_complete() more than once
+        stable@vger.kernel.org, Jayesh Choudhary <j-choudhary@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 658/879] dmaengine: ti: k3-psil-am62: Update PSIL thread for saul.
 Date:   Tue,  7 Jun 2022 19:02:56 +0200
-Message-Id: <20220607165006.156820962@linuxfoundation.org>
+Message-Id: <20220607165021.944736373@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jayesh Choudhary <j-choudhary@ti.com>
 
-[ Upstream commit c5e483b77cc2edb318da152abe07e33006b975fd ]
+[ Upstream commit b21fe492a3a9831c315eb456cf5480c9490eaeef ]
 
-Since errors from nfs_pageio_complete() are already being reported
-through nfs_async_write_error(), we should not be returning them to the
-callers of do_writepages() as well. They will end up being reported
-through the generic mechanism instead.
+Correct the RX PSIL thread for sa3ul.
 
-Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Jayesh Choudhary <j-choudhary@ti.com>
+Fixes: 5ac6bfb587772 ("dmaengine: ti: k3-psil: Add AM62x PSIL and PDMA data")
+Link: https://lore.kernel.org/r/20220421065323.16378-1-j-choudhary@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/write.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/dma/ti/k3-psil-am62.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 3cb948f13902..b28be2582c90 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -677,11 +677,7 @@ static int nfs_writepage_locked(struct page *page,
- 	err = nfs_do_writepage(page, wbc, &pgio);
- 	pgio.pg_error = 0;
- 	nfs_pageio_complete(&pgio);
--	if (err < 0)
--		return err;
--	if (nfs_error_is_fatal(pgio.pg_error))
--		return pgio.pg_error;
--	return 0;
-+	return err;
- }
- 
- int nfs_writepage(struct page *page, struct writeback_control *wbc)
-@@ -739,9 +735,6 @@ int nfs_writepages(struct address_space *mapping, struct writeback_control *wbc)
- 
- 	if (err < 0)
- 		goto out_err;
--	err = pgio.pg_error;
--	if (nfs_error_is_fatal(err))
--		goto out_err;
- 	return 0;
- out_err:
- 	return err;
+diff --git a/drivers/dma/ti/k3-psil-am62.c b/drivers/dma/ti/k3-psil-am62.c
+index d431e2033237..2b6fd6e37c61 100644
+--- a/drivers/dma/ti/k3-psil-am62.c
++++ b/drivers/dma/ti/k3-psil-am62.c
+@@ -70,10 +70,10 @@
+ /* PSI-L source thread IDs, used for RX (DMA_DEV_TO_MEM) */
+ static struct psil_ep am62_src_ep_map[] = {
+ 	/* SAUL */
+-	PSIL_SAUL(0x7500, 20, 35, 8, 35, 0),
+-	PSIL_SAUL(0x7501, 21, 35, 8, 36, 0),
+-	PSIL_SAUL(0x7502, 22, 43, 8, 43, 0),
+-	PSIL_SAUL(0x7503, 23, 43, 8, 44, 0),
++	PSIL_SAUL(0x7504, 20, 35, 8, 35, 0),
++	PSIL_SAUL(0x7505, 21, 35, 8, 36, 0),
++	PSIL_SAUL(0x7506, 22, 43, 8, 43, 0),
++	PSIL_SAUL(0x7507, 23, 43, 8, 44, 0),
+ 	/* PDMA_MAIN0 - SPI0-3 */
+ 	PSIL_PDMA_XY_PKT(0x4302),
+ 	PSIL_PDMA_XY_PKT(0x4303),
 -- 
 2.35.1
 
