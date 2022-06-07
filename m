@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDB6E54065C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BDD8541C5E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347317AbiFGReo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40658 "EHLO
+        id S1379446AbiFGV7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347949AbiFGRbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BC411CA3F;
-        Tue,  7 Jun 2022 10:28:54 -0700 (PDT)
+        with ESMTP id S1383644AbiFGVxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 477782453B5;
+        Tue,  7 Jun 2022 12:12:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5F6D60BC6;
-        Tue,  7 Jun 2022 17:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6022C34115;
-        Tue,  7 Jun 2022 17:28:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 563FF618EC;
+        Tue,  7 Jun 2022 19:11:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67A97C385A2;
+        Tue,  7 Jun 2022 19:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622933;
-        bh=aUp/OifQgolSAx3aIURumYXllk83tCDdKR+gfTj4IfY=;
+        s=korg; t=1654629113;
+        bh=yCzJMVCUlRwnYxLiqzwsBgrMgG0o7TJdZI532aPA9YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyqIo7L4FXdU1b/KKTlhmbOvapmce6uFkzkZ87CT0X3VBNy0KwkdFGdubseNAd0Fj
-         8E6yxdUbSNcnL3EH/iMrkZaaXZZYH4z+PJXir4XcV9yyN9kxloBr1yxIqphkrjqCtG
-         Hxx2NbTUG8Disr2Wd4K3bnHVrjS0SWU8GJhixx5U=
+        b=NDc2UfhdZd44JJXxR8tghzUQ1YxxN4JUkelML7gFBP3mW/QmehUFWZQk0nMQoN5DI
+         KoRwiK501k809m48VjY7pLkzCw0T3oqrHOHBPXe8zbxkpzwEzi41bQqeKabTRwGbcE
+         fc2RZw2kx/op0+Pd7jAfjUUqP5iMB+v2Fyl8eFio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 234/452] drm/msm/a6xx: Fix refcount leak in a6xx_gpu_init
+Subject: [PATCH 5.18 573/879] crypto: marvell/cesa - ECB does not IV
 Date:   Tue,  7 Jun 2022 19:01:31 +0200
-Message-Id: <20220607164915.533917065@linuxfoundation.org>
+Message-Id: <20220607165019.487265247@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit c56de483093d7ad0782327f95dda7da97bc4c315 ]
+[ Upstream commit 4ffa1763622ae5752961499588f3f8874315f974 ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
+The DES3 ECB has an IV size set but ECB does not need one.
 
-a6xx_gmu_init() passes the node to of_find_device_by_node()
-and of_dma_configure(), of_find_device_by_node() will takes its
-reference, of_dma_configure() doesn't need the node after usage.
-
-Add missing of_node_put() to avoid refcount leak.
-
-Fixes: 4b565ca5a2cb ("drm/msm: Add A6XX device support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Link: https://lore.kernel.org/r/20220512121955.56937-1-linmq006@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 4ada483978237 ("crypto: marvell/cesa - add Triple-DES support")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/marvell/cesa/cipher.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 39563daff4a0..dffc133b8b1c 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1308,6 +1308,7 @@ struct msm_gpu *a6xx_gpu_init(struct drm_device *dev)
- 	BUG_ON(!node);
- 
- 	ret = a6xx_gmu_init(a6xx_gpu, node);
-+	of_node_put(node);
- 	if (ret) {
- 		a6xx_destroy(&(a6xx_gpu->base.base));
- 		return ERR_PTR(ret);
+diff --git a/drivers/crypto/marvell/cesa/cipher.c b/drivers/crypto/marvell/cesa/cipher.c
+index b739d3b873dc..c6f2fa753b7c 100644
+--- a/drivers/crypto/marvell/cesa/cipher.c
++++ b/drivers/crypto/marvell/cesa/cipher.c
+@@ -624,7 +624,6 @@ struct skcipher_alg mv_cesa_ecb_des3_ede_alg = {
+ 	.decrypt = mv_cesa_ecb_des3_ede_decrypt,
+ 	.min_keysize = DES3_EDE_KEY_SIZE,
+ 	.max_keysize = DES3_EDE_KEY_SIZE,
+-	.ivsize = DES3_EDE_BLOCK_SIZE,
+ 	.base = {
+ 		.cra_name = "ecb(des3_ede)",
+ 		.cra_driver_name = "mv-ecb-des3-ede",
 -- 
 2.35.1
 
