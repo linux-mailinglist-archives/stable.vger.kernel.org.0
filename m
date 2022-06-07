@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C9B541400
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA31A54056A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358975AbiFGUJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:09:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
+        id S236592AbiFGR0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:26:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359101AbiFGUJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:09:15 -0400
+        with ESMTP id S1346340AbiFGRYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:24:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CAD1406E5;
-        Tue,  7 Jun 2022 11:26:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F11522D1;
+        Tue,  7 Jun 2022 10:22:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8875CB81FF8;
-        Tue,  7 Jun 2022 18:26:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97FCC385A2;
-        Tue,  7 Jun 2022 18:26:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84930B822B0;
+        Tue,  7 Jun 2022 17:22:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3547C385A5;
+        Tue,  7 Jun 2022 17:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626396;
-        bh=j2Fb0nAZxAw9pFJAaoO0Fz81oQajZ15NykutXoAzCFE=;
+        s=korg; t=1654622550;
+        bh=87fusB1NbeF9d5w5FokHgelhk1HMeGJ7WnXMAGuYKQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVvE1B4fo3op8XSDMBILGZsfP7gygaljDv/p1kae+3yGcd6hMiwtK0RvQ1glGo/9q
-         4I4zys36BSkKGKwMAsKtFUAPNiSTb4y5BTIM0SRgKAJ1SbLUEZyHMKR7VntUwBtYQZ
-         EpIGJXtGKODJYj2MxSBtM/fr3MLvR8GThIL2PEDI=
+        b=H0FqJ0i9gm4Nz6QR/q8gc2i5/tWBCJPn2MfvlORhzOyAp3sYFmDwBjWGrmkjwRorT
+         jzmWypMimf/+bOgivJ5I4iCrQ1tR9LvKS8UK3jiM1tc44bIQgnSfHCb8+r3thXg0ut
+         +3mVpVDnGJnV+7TS8iF3wV6jzi0SDEkjNMiXUzUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 363/772] block: Fix the bio.bi_opf comment
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 098/452] ARM: dts: ox820: align interrupt controller node name with dtschema
 Date:   Tue,  7 Jun 2022 18:59:15 +0200
-Message-Id: <20220607164959.710463312@linuxfoundation.org>
+Message-Id: <20220607164911.477344155@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 5d2ae14276e698c76fa0c8ce870103f343b38263 ]
+[ Upstream commit fbcd5ad7a419ad40644a0bb8b4152bc660172d8a ]
 
-Commit ef295ecf090d modified the Linux kernel such that the bottom bits
-of the bi_opf member contain the operation instead of the topmost bits.
-That commit did not update the comment next to bi_opf. Hence this patch.
+Fixes dtbs_check warnings like:
 
->From commit ef295ecf090d:
--#define bio_op(bio)    ((bio)->bi_opf >> BIO_OP_SHIFT)
-+#define bio_op(bio)    ((bio)->bi_opf & REQ_OP_MASK)
+  gic@1000: $nodename:0: 'gic@1000' does not match '^interrupt-controller(@[0-9a-f,]+)*$'
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Fixes: ef295ecf090d ("block: better op and flags encoding")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220511235152.1082246-1-bvanassche@acm.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220317115705.450427-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/blk_types.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/ox820.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index 86c0f85df8bb..fa6e14b2763f 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -237,9 +237,8 @@ typedef unsigned int blk_qc_t;
- struct bio {
- 	struct bio		*bi_next;	/* request queue link */
- 	struct block_device	*bi_bdev;
--	unsigned int		bi_opf;		/* bottom bits req flags,
--						 * top bits REQ_OP. Use
--						 * accessors.
-+	unsigned int		bi_opf;		/* bottom bits REQ_OP, top bits
-+						 * req_flags.
- 						 */
- 	unsigned short		bi_flags;	/* BIO_* below */
- 	unsigned short		bi_ioprio;
+diff --git a/arch/arm/boot/dts/ox820.dtsi b/arch/arm/boot/dts/ox820.dtsi
+index 90846a7655b4..dde4364892bf 100644
+--- a/arch/arm/boot/dts/ox820.dtsi
++++ b/arch/arm/boot/dts/ox820.dtsi
+@@ -287,7 +287,7 @@
+ 				clocks = <&armclk>;
+ 			};
+ 
+-			gic: gic@1000 {
++			gic: interrupt-controller@1000 {
+ 				compatible = "arm,arm11mp-gic";
+ 				interrupt-controller;
+ 				#interrupt-cells = <3>;
 -- 
 2.35.1
 
