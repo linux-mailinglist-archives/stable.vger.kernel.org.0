@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965BB541E94
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A5F541727
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:59:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381029AbiFGWcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:32:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
+        id S1377224AbiFGU7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:59:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381542AbiFGW3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:29:22 -0400
+        with ESMTP id S1377656AbiFGU6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:58:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3B319C3B9;
-        Tue,  7 Jun 2022 12:23:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9338F209041;
+        Tue,  7 Jun 2022 11:44:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D4CFB823D8;
-        Tue,  7 Jun 2022 19:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A098C385A2;
-        Tue,  7 Jun 2022 19:23:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFE9BB8239A;
+        Tue,  7 Jun 2022 18:44:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20960C385A2;
+        Tue,  7 Jun 2022 18:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629819;
-        bh=X1C2/LqC7ZSYlbBJm017pUCtoKMKyPs5LQhEGfYzQ90=;
+        s=korg; t=1654627477;
+        bh=5OBm9dt0dopWHUdAfMbIrlGBjhk5o7UD1IJ3NEMLvN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1StKF03ITsEPhAUkdnzCeXUY8+FmUzQdILxpr6vO0UEcoDA1IB8W4dsMet4aUZATh
-         /YsEKGScoPv1u4t9NksSgpaB7q4WeHCs+LOFTy7mNIizSHPVpBwGqbMFRdYz49KOot
-         rs7G/27xkCURWpn1Kuwvkc1OX4TOqw67akpKn3gM=
+        b=NWghgRRHVpds1kGkZLTm3yXBUYlT7bL65//7m5QZspGQ4Vwte71BwqhO86GSmQVd+
+         eTKfaiNaLaEZuRuqpRYP3k0hVayvDip2yvCCwV9gvYOHT+al9RkS53c8l+NkBpEYiX
+         JKFEqKsX4A0586afuaZ8tSOPvYt9VWRaDDUI8PaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
-        Minchan Kim <minchan@kernel.org>,
-        David Hildenbrand <david@redhat.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Lecopzer Chen <lecopzer.chen@mediatek.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 828/879] Revert "mm/cma.c: remove redundant cma_mutex lock"
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.17 754/772] net: ipa: fix page free in ipa_endpoint_trans_release()
 Date:   Tue,  7 Jun 2022 19:05:46 +0200
-Message-Id: <20220607165026.888307472@linuxfoundation.org>
+Message-Id: <20220607165011.245179357@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,97 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dong Aisheng <aisheng.dong@nxp.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 60a60e32cf91169840abcb4a80f0b0df31708ba7 upstream.
+commit 155c0c90bca918de6e4327275dfc1d97fd604115 upstream.
 
-This reverts commit a4efc174b382fcdb which introduced a regression issue
-that when there're multiple processes allocating dma memory in parallel by
-calling dma_alloc_coherent(), it may fail sometimes as follows:
+Currently the (possibly compound) page used for receive buffers are
+freed using __free_pages().  But according to this comment above the
+definition of that function, that's wrong:
+    If you want to use the page's reference count to decide when
+    to free the allocation, you should allocate a compound page,
+    and use put_page() instead of __free_pages().
 
-Error log:
-cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
-cma: number of available pages:
-3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
-108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
-7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
+Convert the call to __free_pages() in ipa_endpoint_trans_release()
+to use put_page() instead.
 
-When issue happened, we saw there were still 33161 pages (129M) free CMA
-memory and a lot available free slots for 148 pages in CMA bitmap that we
-want to allocate.
-
-When dumping memory info, we found that there was also ~342M normal
-memory, but only 1352K CMA memory left in buddy system while a lot of
-pageblocks were isolated.
-
-Memory info log:
-Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
-	    active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
-	    unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
-	    bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
-Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
-	36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
-	8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
-
-The root cause of this issue is that since commit a4efc174b382 ("mm/cma.c:
-remove redundant cma_mutex lock"), CMA supports concurrent memory
-allocation.  It's possible that the memory range process A trying to alloc
-has already been isolated by the allocation of process B during memory
-migration.
-
-The problem here is that the memory range isolated during one allocation
-by start_isolate_page_range() could be much bigger than the real size we
-want to alloc due to the range is aligned to MAX_ORDER_NR_PAGES.
-
-Taking an ARMv7 platform with 1G memory as an example, when
-MAX_ORDER_NR_PAGES is big (e.g.  32M with max_order 14) and CMA memory is
-relatively small (e.g.  128M), there're only 4 MAX_ORDER slot, then it's
-very easy that all CMA memory may have already been isolated by other
-processes when one trying to allocate memory using dma_alloc_coherent().
-Since current CMA code will only scan one time of whole available CMA
-memory, then dma_alloc_coherent() may easy fail due to contention with
-other processes.
-
-This patch simply falls back to the original method that using cma_mutex
-to make alloc_contig_range() run sequentially to avoid the issue.
-
-Link: https://lkml.kernel.org/r/20220509094551.3596244-1-aisheng.dong@nxp.com
-Link: https://lore.kernel.org/all/20220315144521.3810298-2-aisheng.dong@nxp.com/
-Fixes: a4efc174b382 ("mm/cma.c: remove redundant cma_mutex lock")
-Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Lecopzer Chen <lecopzer.chen@mediatek.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>	[5.11+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: ed23f02680caa ("net: ipa: define per-endpoint receive buffer size")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/cma.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ipa/ipa_endpoint.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -37,6 +37,7 @@
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -1402,7 +1402,7 @@ void ipa_endpoint_trans_release(struct i
+ 		struct page *page = trans->data;
  
- struct cma cma_areas[MAX_CMA_AREAS];
- unsigned cma_area_count;
-+static DEFINE_MUTEX(cma_mutex);
+ 		if (page)
+-			__free_pages(page, get_order(IPA_RX_BUFFER_SIZE));
++			put_page(page);
+ 	}
+ }
  
- phys_addr_t cma_get_base(const struct cma *cma)
- {
-@@ -468,9 +469,10 @@ struct page *cma_alloc(struct cma *cma,
- 		spin_unlock_irq(&cma->lock);
- 
- 		pfn = cma->base_pfn + (bitmap_no << cma->order_per_bit);
-+		mutex_lock(&cma_mutex);
- 		ret = alloc_contig_range(pfn, pfn + count, MIGRATE_CMA,
- 				     GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0));
--
-+		mutex_unlock(&cma_mutex);
- 		if (ret == 0) {
- 			page = pfn_to_page(pfn);
- 			break;
 
 
