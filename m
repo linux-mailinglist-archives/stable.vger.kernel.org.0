@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB6A5405B2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE27C540B6C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344548AbiFGR2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:28:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39620 "EHLO
+        id S1351187AbiFGS2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346415AbiFGR1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:27:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE56113FB7;
-        Tue,  7 Jun 2022 10:24:21 -0700 (PDT)
+        with ESMTP id S1350935AbiFGSXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA267C5D89;
+        Tue,  7 Jun 2022 10:54:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD050B822AF;
-        Tue,  7 Jun 2022 17:24:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F99C385A5;
-        Tue,  7 Jun 2022 17:24:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 917A5617A8;
+        Tue,  7 Jun 2022 17:54:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CDCBC34119;
+        Tue,  7 Jun 2022 17:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622658;
-        bh=c7Bux8gORtIUyKX+nEOcBp7LJR8TG4CjpwtkMuws2Hw=;
+        s=korg; t=1654624446;
+        bh=EmkAAJ/Rica/F2qr5EdcipU4Cxr6rxC/TLPXIoWcGtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ltSIyk5d6fmZhFWcIhp65a+cYH4IGw21s12tekMKl0hZok6DZBolKyuY2RxAelhpj
-         Jf6w4J3NS0VGmLcI96Iwl/RPF7g72ChhPFGswbwZGHvqljea615J34nGrM+RLGEoWB
-         5d4yZ2A+8gNPjJpJlr9HZae9mLG/8JvhubNRDNro=
+        b=cUMWBiWeJBMlwR2o20660ACG1WIOSwZpvix5YOQwj3k5LanTFDX+RExHyZWMF9Yub
+         5HT6zID2x61veQmsF/4CEhQLJkq7jZkslDTvogAYxAXkmGUcB8YOgGvVm20ekgizQ/
+         nJE892YzQ0Gjs0phZ1jpapRKoOb0a8L64zf9UOS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/452] drm/komeda: Fix an undefined behavior bug in komeda_plane_add()
+Subject: [PATCH 5.15 330/667] Bluetooth: use hdev lock in activate_scan for hci_is_adv_monitoring
 Date:   Tue,  7 Jun 2022 18:59:55 +0200
-Message-Id: <20220607164912.671974322@linuxfoundation.org>
+Message-Id: <20220607164944.666621309@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit f5e284bb74ab296f98122673c7ecd22028b2c200 ]
+[ Upstream commit 50a3633ae5e98cf1b80ef5b73c9e341aee9ad896 ]
 
-In komeda_plane_add(), komeda_get_layer_fourcc_list() is assigned to
-formats and used in drm_universal_plane_init().
-drm_universal_plane_init() passes formats to
-__drm_universal_plane_init(). __drm_universal_plane_init() further
-passes formats to memcpy() as src parameter, which could lead to an
-undefined behavior bug on failure of komeda_get_layer_fourcc_list().
+hci_is_adv_monitoring's function documentation states that it must be
+called under the hdev lock. Paths that leads to an unlocked call are:
+discov_update => start_discovery => interleaved_discov => active_scan
+and: discov_update => start_discovery => active_scan
 
-Fix this bug by adding a check of formats.
+The solution is to take the lock in active_scan during the duration of
+the call to hci_is_adv_monitoring.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_DRM_KOMEDA=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: 61f1c4a8ab75 ("drm/komeda: Attach komeda_dev to DRM-KMS")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://lore.kernel.org/dri-devel/20211201033704.32054-1-zhou1615@umn.edu
+Fixes: c32d624640fd ("Bluetooth: disable filter dup when scan for adv monitor")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/arm/display/komeda/komeda_plane.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/bluetooth/hci_request.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-index a5f57b38d193..bc3f42e915e9 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-@@ -264,6 +264,10 @@ static int komeda_plane_add(struct komeda_kms_dev *kms,
+diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
+index 1d34d330afd3..c2db60ad0f1d 100644
+--- a/net/bluetooth/hci_request.c
++++ b/net/bluetooth/hci_request.c
+@@ -3174,6 +3174,7 @@ static int active_scan(struct hci_request *req, unsigned long opt)
+ 	if (err < 0)
+ 		own_addr_type = ADDR_LE_DEV_PUBLIC;
  
- 	formats = komeda_get_layer_fourcc_list(&mdev->fmt_tbl,
- 					       layer->layer_type, &n_formats);
-+	if (!formats) {
-+		kfree(kplane);
-+		return -ENOMEM;
-+	}
++	hci_dev_lock(hdev);
+ 	if (hci_is_adv_monitoring(hdev)) {
+ 		/* Duplicate filter should be disabled when some advertisement
+ 		 * monitor is activated, otherwise AdvMon can only receive one
+@@ -3190,6 +3191,7 @@ static int active_scan(struct hci_request *req, unsigned long opt)
+ 		 */
+ 		filter_dup = LE_SCAN_FILTER_DUP_DISABLE;
+ 	}
++	hci_dev_unlock(hdev);
  
- 	err = drm_universal_plane_init(&kms->base, plane,
- 			get_possible_crtcs(kms, c->pipeline),
+ 	hci_req_start_scan(req, LE_SCAN_ACTIVE, interval,
+ 			   hdev->le_scan_window_discovery, own_addr_type,
 -- 
 2.35.1
 
