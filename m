@@ -2,51 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F74540699
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7592541556
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346971AbiFGRhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
+        id S1357379AbiFGUe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:34:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347584AbiFGRf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:26 -0400
+        with ESMTP id S1376986AbiFGU2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A5AD189;
-        Tue,  7 Jun 2022 10:30:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8411DA082;
+        Tue,  7 Jun 2022 11:33:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F068B822B4;
-        Tue,  7 Jun 2022 17:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 698C7C385A5;
-        Tue,  7 Jun 2022 17:30:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A88BB82349;
+        Tue,  7 Jun 2022 18:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A28C385A2;
+        Tue,  7 Jun 2022 18:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623038;
-        bh=QKHbAsvs05ymoaBVxoMJKqmHZ8l5en3w076iT945xkM=;
+        s=korg; t=1654626813;
+        bh=WDi9eZKrDjNID0ZsV7FKg95K6kjV/su4UXky+RTVxQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWaRnVCRxoLTKfCBZlk3LbrPjHfyJiITIBI+yr1f01ONy+F//jPwqngN4PU01r73a
-         jFacV2BFwDPAasD0I9v7cPe/TflzUb+hP5ownL9D1xq/c8r+BtGI46ayE3U2Oryk82
-         8FZl/EZlbFt3ZlvEv4UIcewdgnURwPVRHAv2gOhI=
+        b=iFuMY0Hf2YSS+HoIrFitkxFYtqMRKhnDzca4VR9h9+/TVT7ghkvM4xt2hZ3Pmx7ev
+         WceSt6v4gR5+3wJwg5eJS2iR4j7a1iRjfuhzrgZI6zWku161trPUHqWs02WG1NJ3CN
+         2/xhFi0GXcvHKIW27DrI3YHqwV5nqZ1iuz2f9PTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 246/452] ASoC: max98090: Move check for invalid values before casting in max98090_put_enab_tlv()
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        syzbot+bdd6e38a1ed5ee58d8bd@syzkaller.appspotmail.com,
+        Kuniyuki Iwashima <kuni1840@gmail.com>,
+        "Soheil Hassas Yeganeh" <soheil@google.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "Sridhar Samudrala" <sridhar.samudrala@intel.com>,
+        Alexander Duyck <alexander.h.duyck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.17 511/772] list: fix a data-race around ep->rdllist
 Date:   Tue,  7 Jun 2022 19:01:43 +0200
-Message-Id: <20220607164915.889662759@linuxfoundation.org>
+Message-Id: <20220607165004.036825460@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,49 +61,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit f7a344468105ef8c54086dfdc800e6f5a8417d3e ]
+[ Upstream commit d679ae94fdd5d3ab00c35078f5af5f37e068b03d ]
 
-Validation of signed input should be done before casting to unsigned int.
+ep_poll() first calls ep_events_available() with no lock held and checks
+if ep->rdllist is empty by list_empty_careful(), which reads
+rdllist->prev.  Thus all accesses to it need some protection to avoid
+store/load-tearing.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+Note INIT_LIST_HEAD_RCU() already has the annotation for both prev
+and next.
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Suggested-by: Mark Brown <broonie@kernel.org>
-Fixes: 2fbe467bcbfc ("ASoC: max98090: Reject invalid values in custom control put()")
-Link: https://lore.kernel.org/r/1652999486-29653-1-git-send-email-khoroshilov@ispras.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Commit bf3b9f6372c4 ("epoll: Add busy poll support to epoll with socket
+fds.") added the first lockless ep_events_available(), and commit
+c5a282e9635e ("fs/epoll: reduce the scope of wq lock in epoll_wait()")
+made some ep_events_available() calls lockless and added single call under
+a lock, finally commit e59d3c64cba6 ("epoll: eliminate unnecessary lock
+for zero timeout") made the last ep_events_available() lockless.
+
+BUG: KCSAN: data-race in do_epoll_wait / do_epoll_wait
+
+write to 0xffff88810480c7d8 of 8 bytes by task 1802 on cpu 0:
+ INIT_LIST_HEAD include/linux/list.h:38 [inline]
+ list_splice_init include/linux/list.h:492 [inline]
+ ep_start_scan fs/eventpoll.c:622 [inline]
+ ep_send_events fs/eventpoll.c:1656 [inline]
+ ep_poll fs/eventpoll.c:1806 [inline]
+ do_epoll_wait+0x4eb/0xf40 fs/eventpoll.c:2234
+ do_epoll_pwait fs/eventpoll.c:2268 [inline]
+ __do_sys_epoll_pwait fs/eventpoll.c:2281 [inline]
+ __se_sys_epoll_pwait+0x12b/0x240 fs/eventpoll.c:2275
+ __x64_sys_epoll_pwait+0x74/0x80 fs/eventpoll.c:2275
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88810480c7d8 of 8 bytes by task 1799 on cpu 1:
+ list_empty_careful include/linux/list.h:329 [inline]
+ ep_events_available fs/eventpoll.c:381 [inline]
+ ep_poll fs/eventpoll.c:1797 [inline]
+ do_epoll_wait+0x279/0xf40 fs/eventpoll.c:2234
+ do_epoll_pwait fs/eventpoll.c:2268 [inline]
+ __do_sys_epoll_pwait fs/eventpoll.c:2281 [inline]
+ __se_sys_epoll_pwait+0x12b/0x240 fs/eventpoll.c:2275
+ __x64_sys_epoll_pwait+0x74/0x80 fs/eventpoll.c:2275
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xffff88810480c7d0 -> 0xffff888103c15098
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 1799 Comm: syz-fuzzer Tainted: G        W         5.17.0-rc7-syzkaller-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Link: https://lkml.kernel.org/r/20220322002653.33865-3-kuniyu@amazon.co.jp
+Fixes: e59d3c64cba6 ("epoll: eliminate unnecessary lock for zero timeout")
+Fixes: c5a282e9635e ("fs/epoll: reduce the scope of wq lock in epoll_wait()")
+Fixes: bf3b9f6372c4 ("epoll: Add busy poll support to epoll with socket fds.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Reported-by: syzbot+bdd6e38a1ed5ee58d8bd@syzkaller.appspotmail.com
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
+Cc: "Soheil Hassas Yeganeh" <soheil@google.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: "Sridhar Samudrala" <sridhar.samudrala@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/linux/list.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 5b6405392f08..0c73979cad4a 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -393,7 +393,8 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
- 	struct soc_mixer_control *mc =
- 		(struct soc_mixer_control *)kcontrol->private_value;
- 	unsigned int mask = (1 << fls(mc->max)) - 1;
--	unsigned int sel = ucontrol->value.integer.value[0];
-+	int sel_unchecked = ucontrol->value.integer.value[0];
-+	unsigned int sel;
- 	unsigned int val = snd_soc_component_read(component, mc->reg);
- 	unsigned int *select;
+diff --git a/include/linux/list.h b/include/linux/list.h
+index 0f7d8ec5b4ed..0df13cb03028 100644
+--- a/include/linux/list.h
++++ b/include/linux/list.h
+@@ -35,7 +35,7 @@
+ static inline void INIT_LIST_HEAD(struct list_head *list)
+ {
+ 	WRITE_ONCE(list->next, list);
+-	list->prev = list;
++	WRITE_ONCE(list->prev, list);
+ }
  
-@@ -413,8 +414,9 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
+ #ifdef CONFIG_DEBUG_LIST
+@@ -306,7 +306,7 @@ static inline int list_empty(const struct list_head *head)
+ static inline void list_del_init_careful(struct list_head *entry)
+ {
+ 	__list_del_entry(entry);
+-	entry->prev = entry;
++	WRITE_ONCE(entry->prev, entry);
+ 	smp_store_release(&entry->next, entry);
+ }
  
- 	val = (val >> mc->shift) & mask;
+@@ -326,7 +326,7 @@ static inline void list_del_init_careful(struct list_head *entry)
+ static inline int list_empty_careful(const struct list_head *head)
+ {
+ 	struct list_head *next = smp_load_acquire(&head->next);
+-	return list_is_head(next, head) && (next == head->prev);
++	return list_is_head(next, head) && (next == READ_ONCE(head->prev));
+ }
  
--	if (sel < 0 || sel > mc->max)
-+	if (sel_unchecked < 0 || sel_unchecked > mc->max)
- 		return -EINVAL;
-+	sel = sel_unchecked;
- 
- 	*select = sel;
- 
+ /**
 -- 
 2.35.1
 
