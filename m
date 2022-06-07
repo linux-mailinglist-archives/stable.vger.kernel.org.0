@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B68E35414D6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B35F5405DD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358568AbiFGUWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:22:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
+        id S1346890AbiFGRcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358855AbiFGUVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AB51451CB;
-        Tue,  7 Jun 2022 11:31:18 -0700 (PDT)
+        with ESMTP id S1347555AbiFGRav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21A92DAB5;
+        Tue,  7 Jun 2022 10:27:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A52612E9;
-        Tue,  7 Jun 2022 18:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D56C385A2;
-        Tue,  7 Jun 2022 18:31:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B735B822B4;
+        Tue,  7 Jun 2022 17:27:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B550C34115;
+        Tue,  7 Jun 2022 17:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626676;
-        bh=2jA/GTMKTJHBY2Oc4pOOiy4bZGaqPB82S9nyCCUHw2Y=;
+        s=korg; t=1654622835;
+        bh=DTpGyTKV+LT/SCUePKuCxICQSzzQPd2s0Y5HqKYS4CU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIINgUgiLEQZRaGulCp8fFNWIQl8jNkMouoraWxQ86ki+9Vid32RmYvfVIQJ6bU/E
-         y1IVZxw5lVSEgEJdmkzoZxRCxa7cZxMotuvCd8G2z636RJr8q3qhYNjkrhBSpkoJkH
-         ghDGrZqLyZDEuRuUCh0otuoZ/L2QsbZSHtq4kPNo=
+        b=gK1m2lG64T2RlD/Ncoi4w4FjoyK3iEB8Vk0A7LSGISt4lW5DyJBwm1uYL1gNIcExe
+         B9PvwPHudU+DOxhvTKs9JmkTLVtCH2QTDXcE9/onyKoxo0sgG8WU1ihRl1yCcAmeXv
+         L5vRqhcYwUzSNAYRwPKJ5NSDd1o2S+YcPTgBFt00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thorsten Scherer <t.scherer@eckelmann.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 463/772] ARM: dts: ci4x10: Adapt to changes in imx6qdl.dtsi regarding fec clocks
+Subject: [PATCH 5.10 198/452] Revert "cpufreq: Fix possible race in cpufreq online error path"
 Date:   Tue,  7 Jun 2022 19:00:55 +0200
-Message-Id: <20220607165002.643383622@linuxfoundation.org>
+Message-Id: <20220607164914.464475954@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thorsten Scherer <t.scherer@eckelmann.de>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 3d397a1277853498e8b7b305f2610881357c033f ]
+[ Upstream commit 85f0e42bd65d01b351d561efb38e584d4c596553 ]
 
-Commit f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk
-support") added another item to the list of clocks for the fec
-device. As imx6dl-eckelmann-ci4x10.dts only overwrites clocks,
-but not clock-names this resulted in an inconsistency with
-clocks having one item more than clock-names.
+This reverts commit f346e96267cd76175d6c201b40f770c0116a8a04.
 
-Also overwrite clock-names with the same value as in
-imx6qdl.dtsi. This is a no-op today, but prevents similar
-inconsistencies if the soc file will be changed in a similar way
-in the future.
+The commit tried to fix a possible real bug but it made it even worse.
+The fix was simply buggy as now an error out to out_offline_policy or
+out_exit_policy will try to release a semaphore which was never taken in
+the first place. This works fine only if we failed late, i.e. via
+out_destroy_policy.
 
-Signed-off-by: Thorsten Scherer <t.scherer@eckelmann.de>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Fixes: f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk support")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: f346e96267cd ("cpufreq: Fix possible race in cpufreq online error path")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-index b4a9523e325b..864dc5018451 100644
---- a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-+++ b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-@@ -297,7 +297,11 @@
- 	phy-mode = "rmii";
- 	phy-reset-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
- 	phy-handle = <&phy>;
--	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
-+	clocks = <&clks IMX6QDL_CLK_ENET>,
-+		 <&clks IMX6QDL_CLK_ENET>,
-+		 <&rmii_clk>,
-+		 <&clks IMX6QDL_CLK_ENET_REF>;
-+	clock-names = "ipg", "ahb", "ptp", "enet_out";
- 	status = "okay";
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 3540ea93b6f1..30dafe8fc505 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1515,6 +1515,8 @@ static int cpufreq_online(unsigned int cpu)
+ 	for_each_cpu(j, policy->real_cpus)
+ 		remove_cpu_dev_symlink(policy, get_cpu_device(j));
  
- 	mdio {
++	up_write(&policy->rwsem);
++
+ out_offline_policy:
+ 	if (cpufreq_driver->offline)
+ 		cpufreq_driver->offline(policy);
+@@ -1523,9 +1525,6 @@ static int cpufreq_online(unsigned int cpu)
+ 	if (cpufreq_driver->exit)
+ 		cpufreq_driver->exit(policy);
+ 
+-	cpumask_clear(policy->cpus);
+-	up_write(&policy->rwsem);
+-
+ out_free_policy:
+ 	cpufreq_policy_free(policy);
+ 	return ret;
 -- 
 2.35.1
 
