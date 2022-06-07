@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F7E541634
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A7A541D31
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:09:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376922AbiFGUrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37212 "EHLO
+        id S1383752AbiFGWJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:09:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376737AbiFGUqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:46:11 -0400
+        with ESMTP id S1383781AbiFGWIU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:08:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31671F5749;
-        Tue,  7 Jun 2022 11:39:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE68256958;
+        Tue,  7 Jun 2022 12:18:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB978612EC;
-        Tue,  7 Jun 2022 18:39:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C11C385A2;
-        Tue,  7 Jun 2022 18:39:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 745AE61937;
+        Tue,  7 Jun 2022 19:18:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B540C385A2;
+        Tue,  7 Jun 2022 19:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627168;
-        bh=aGyWqYvWyjA/1VAtWXlscfe1t8nAwgekUlQyFJv6zs0=;
+        s=korg; t=1654629518;
+        bh=q/qGVdP1QmculnLBqOY5CtVe3ahdbNWzYw2U/xURrBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIdhD/zy9BpjSq+aGPB7EAFAhLabPgLfS4BLmzjDr0l7GAFeT4ZtwJvaGuRExKCxA
-         s58zA5ucz2WuPcsNeLWmyDSOzjGajsvDOpMAAH23iKDBJDE9UdW1Trc2Z4sKJObJOK
-         NlHat7gX6FcvWLpnP/snTUkM3unkRLh7gnkZl0Ws=
+        b=lgfpTuzh+JmSKYIFKQhcyDrwkaTeQodHGglTLxCyKT6vKp7Wnp6/sfC8KPXF5k8MG
+         FI2YzCrfdzYyRswiWhkWRineDCdnU2/YelAm40ZPul3LlsTEUuxRSH7kTcZnmhYacx
+         upLloTcsNRh2orilBmIwn97z0syg20fZ/amkPFzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Ernster <dri-devel@hardfalcon.net>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 605/772] video: fbdev: vesafb: Fix a use-after-free due early fb_info cleanup
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 679/879] NFS: Do not report flush errors in nfs_write_end()
 Date:   Tue,  7 Jun 2022 19:03:17 +0200
-Message-Id: <20220607165006.768209733@linuxfoundation.org>
+Message-Id: <20220607165022.556269950@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit acde4003efc16480375543638484d8f13f2e99a3 ]
+[ Upstream commit d95b26650e86175e4a97698d89bc1626cd1df0c6 ]
 
-Commit b3c9a924aab6 ("fbdev: vesafb: Cleanup fb_info in .fb_destroy rather
-than .remove") fixed a use-after-free error due the vesafb driver freeing
-the fb_info in the .remove handler instead of doing it in .fb_destroy.
+If we do flush cached writebacks in nfs_write_end() due to the imminent
+expiration of an RPCSEC_GSS session, then we should defer reporting any
+resulting errors until the calls to file_check_and_advance_wb_err() in
+nfs_file_write() and nfs_file_fsync().
 
-This can happen if the .fb_destroy callback is executed after the .remove
-callback, since the former tries to access a pointer freed by the latter.
-
-But that change didn't take into account that another possible scenario is
-that .fb_destroy is called before the .remove callback. For example, if no
-process has the fbdev chardev opened by the time the driver is removed.
-
-If that's the case, fb_info will be freed when unregister_framebuffer() is
-called, making the fb_info pointer accessed in vesafb_remove() after that
-to no longer be valid.
-
-To prevent that, move the expression containing the info->par to happen
-before the unregister_framebuffer() function call.
-
-Fixes: b3c9a924aab6 ("fbdev: vesafb: Cleanup fb_info in .fb_destroy rather than .remove")
-Reported-by: Pascal Ernster <dri-devel@hardfalcon.net>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Pascal Ernster <dri-devel@hardfalcon.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vesafb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/nfs/file.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/vesafb.c b/drivers/video/fbdev/vesafb.c
-index e25e8de5ff67..929d4775cb4b 100644
---- a/drivers/video/fbdev/vesafb.c
-+++ b/drivers/video/fbdev/vesafb.c
-@@ -490,11 +490,12 @@ static int vesafb_remove(struct platform_device *pdev)
- {
- 	struct fb_info *info = platform_get_drvdata(pdev);
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 87e4cd5e8fe2..3f17748eaf29 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -386,11 +386,8 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
+ 		return status;
+ 	NFS_I(mapping->host)->write_io += copied;
  
--	/* vesafb_destroy takes care of info cleanup */
--	unregister_framebuffer(info);
- 	if (((struct vesafb_par *)(info->par))->region)
- 		release_region(0x3c0, 32);
+-	if (nfs_ctx_key_to_expire(ctx, mapping->host)) {
+-		status = nfs_wb_all(mapping->host);
+-		if (status < 0)
+-			return status;
+-	}
++	if (nfs_ctx_key_to_expire(ctx, mapping->host))
++		nfs_wb_all(mapping->host);
  
-+	/* vesafb_destroy takes care of info cleanup */
-+	unregister_framebuffer(info);
-+
- 	return 0;
+ 	return copied;
  }
- 
 -- 
 2.35.1
 
