@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4EB5409BA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 066935412E5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349130AbiFGSNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:13:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48322 "EHLO
+        id S1357123AbiFGTyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349680AbiFGSLx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:11:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1842F132A0A;
-        Tue,  7 Jun 2022 10:48:47 -0700 (PDT)
+        with ESMTP id S1358605AbiFGTwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C61C2E9F4;
+        Tue,  7 Jun 2022 11:21:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B012B81F38;
-        Tue,  7 Jun 2022 17:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03302C385A5;
-        Tue,  7 Jun 2022 17:48:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA742B82239;
+        Tue,  7 Jun 2022 18:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F300C385A2;
+        Tue,  7 Jun 2022 18:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624123;
-        bh=y5FpsC0QGeen2RQowSl2Y0D8H3xk4G0Akqg3acr5AMs=;
+        s=korg; t=1654626082;
+        bh=h6OqCUeDOUqyQBLL56rhlWhklL1em65k+Cw8UX3FKp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vfbyb7wC2OGULnwZCC41V/cn1q9c/6rryFV63Z/nha0rGCDnKfnVsGHLFccmqsJ5n
-         Wu1TXHHP6L8Zxl8CLctLoI+GjPBVK8SxclC8qyKY22tQ2866pWc4FTJ3QuwIndZxOM
-         VeibyISur2D6K7AMGl3kHed3u2fB6FKfCBTQNJho=
+        b=YGouvkdAwUILp2kaBRO+iy5DZ/Tou1utWvgaMMo36cPNY1CtqsUL6nJNXGYLpKDdN
+         1nmV7U4JvBlbsRp4tEXHAqVxW2gu4QM07L2Q0Wv6y7aHofDU9T8yqe6BId+3UqY6hY
+         c7URkPf79fnAfCzWi6+PEjPErWLr9E5B9Aly+p1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 176/667] powerpc/powernv: fix missing of_node_put in uv_init()
+Subject: [PATCH 5.17 249/772] drm/vc4: txp: Dont set TXP_VSTART_AT_EOF
 Date:   Tue,  7 Jun 2022 18:57:21 +0200
-Message-Id: <20220607164940.088645081@linuxfoundation.org>
+Message-Id: <20220607164956.364650024@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 3ffa9fd471f57f365bc54fc87824c530422f64a5 ]
+[ Upstream commit 234998df929f14d00cbf2f1e81a7facb69fd9266 ]
 
-of_find_compatible_node() returns node pointer with refcount incremented,
-use of_node_put() on it when done.
+The TXP_VSTART_AT_EOF will generate a second VSTART signal to the HVS.
+However, the HVS waits for VSTART to enable the FIFO and will thus start
+filling the FIFO before the start of the frame.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220407090043.2491854-1-lv.ruyi@zte.com.cn
+This leads to corruption at the beginning of the first frame, and
+content from the previous frame at the beginning of the next frames.
+
+Since one VSTART is enough, let's get rid of it.
+
+Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20220328153659.2382206-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/ultravisor.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vc4/vc4_txp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/powernv/ultravisor.c b/arch/powerpc/platforms/powernv/ultravisor.c
-index e4a00ad06f9d..67c8c4b2d8b1 100644
---- a/arch/powerpc/platforms/powernv/ultravisor.c
-+++ b/arch/powerpc/platforms/powernv/ultravisor.c
-@@ -55,6 +55,7 @@ static int __init uv_init(void)
- 		return -ENODEV;
+diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
+index 9809ca3e2945..ace2d03649ba 100644
+--- a/drivers/gpu/drm/vc4/vc4_txp.c
++++ b/drivers/gpu/drm/vc4/vc4_txp.c
+@@ -298,7 +298,7 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
+ 	if (WARN_ON(i == ARRAY_SIZE(drm_fmts)))
+ 		return;
  
- 	uv_memcons = memcons_init(node, "memcons");
-+	of_node_put(node);
- 	if (!uv_memcons)
- 		return -ENOENT;
+-	ctrl = TXP_GO | TXP_VSTART_AT_EOF | TXP_EI |
++	ctrl = TXP_GO | TXP_EI |
+ 	       VC4_SET_FIELD(0xf, TXP_BYTE_ENABLE) |
+ 	       VC4_SET_FIELD(txp_fmts[i], TXP_FORMAT);
  
 -- 
 2.35.1
