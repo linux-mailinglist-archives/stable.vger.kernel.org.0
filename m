@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0A25409B5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BAE25404B3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349919AbiFGSMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:12:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52786 "EHLO
+        id S1345588AbiFGRSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:18:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350398AbiFGSK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:10:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76DA85EE4;
-        Tue,  7 Jun 2022 10:48:38 -0700 (PDT)
+        with ESMTP id S1345597AbiFGRSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319601053C9;
+        Tue,  7 Jun 2022 10:18:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1F7E6170B;
-        Tue,  7 Jun 2022 17:48:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D01C385A5;
-        Tue,  7 Jun 2022 17:48:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D92C1B822AF;
+        Tue,  7 Jun 2022 17:18:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44630C34115;
+        Tue,  7 Jun 2022 17:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624115;
-        bh=1vuZle/aJdf8IXFfMGotKYrT8HQrM8syeDFZeWAjPJM=;
+        s=korg; t=1654622317;
+        bh=KZaq+5wpG3X41Uo87q90vm1FixZ/eyT9ZhY/vkIndL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JE/s9n8ku4iH2M2l4FoDRbSNvnr0rHdOsQYvpI2b2rbKjcf2AMFqZHDGpIDAb87fh
-         NgXnsEVjg/TceGDMAkp0G3dcrR/jwflJVe06gkuiyN7F274VgaIeQZO9Dp2/uf+7Ej
-         ZQUR8pfyTZvtN0cKUQLedcZl5pvgon9AeOfZDlK4=
+        b=LhLQ1mma/DiACBb6QZvmjlLlFdcBrLIeLdPUpozVRMM8/8lqgMPv1JKXmg+U3FDaC
+         RQ4EGsWXkkJKpTjwsXlVEBY84PnrOf/K9lCwKGKWZ2WX16RtoiWeEmNU2ymnh/BkR4
+         ZYxaFaHKyUAzvREH03IVBhI0/Bb+NGSxolQiAAiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 209/667] spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
+        stable@vger.kernel.org,
+        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Ammar Faizi <ammarfaizi2@gnuweeb.org>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 017/452] x86/MCE/AMD: Fix memory leak when threshold_create_bank() fails
 Date:   Tue,  7 Jun 2022 18:57:54 +0200
-Message-Id: <20220607164941.066387237@linuxfoundation.org>
+Message-Id: <20220607164909.055097234@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-[ Upstream commit 8b1ea69a63eb62f97cef63e6d816b64ed84e8760 ]
+commit e5f28623ceb103e13fc3d7bd45edf9818b227fd0 upstream.
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+In mce_threshold_create_device(), if threshold_create_bank() fails, the
+previously allocated threshold banks array @bp will be leaked because
+the call to mce_threshold_remove_device() will not free it.
 
-Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220411111034.24447-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happens because mce_threshold_remove_device() fetches the pointer
+through the threshold_banks per-CPU variable but bp is written there
+only after the bank creation is successful, and not before, when
+threshold_create_bank() fails.
+
+Add a helper which unwinds all the bank creation work previously done
+and pass into it the previously allocated threshold banks array for
+freeing.
+
+  [ bp: Massage. ]
+
+Fixes: 6458de97fc15 ("x86/mce/amd: Straighten CPU hotplug path")
+Co-developed-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
+Signed-off-by: Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>
+Co-developed-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220329104705.65256-3-ammarfaizi2@gnuweeb.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-ti-qspi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mce/amd.c |   32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
-index e06aafe169e0..081da1fd3fd7 100644
---- a/drivers/spi/spi-ti-qspi.c
-+++ b/drivers/spi/spi-ti-qspi.c
-@@ -448,6 +448,7 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
- 	enum dma_ctrl_flags flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
- 	struct dma_async_tx_descriptor *tx;
- 	int ret;
-+	unsigned long time_left;
+--- a/arch/x86/kernel/cpu/mce/amd.c
++++ b/arch/x86/kernel/cpu/mce/amd.c
+@@ -1457,10 +1457,23 @@ out_free:
+ 	kfree(bank);
+ }
  
- 	tx = dmaengine_prep_dma_memcpy(chan, dma_dst, dma_src, len, flags);
- 	if (!tx) {
-@@ -467,9 +468,9 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
++static void __threshold_remove_device(struct threshold_bank **bp)
++{
++	unsigned int bank, numbanks = this_cpu_read(mce_num_banks);
++
++	for (bank = 0; bank < numbanks; bank++) {
++		if (!bp[bank])
++			continue;
++
++		threshold_remove_bank(bp[bank]);
++		bp[bank] = NULL;
++	}
++	kfree(bp);
++}
++
+ int mce_threshold_remove_device(unsigned int cpu)
+ {
+ 	struct threshold_bank **bp = this_cpu_read(threshold_banks);
+-	unsigned int bank, numbanks = this_cpu_read(mce_num_banks);
+ 
+ 	if (!bp)
+ 		return 0;
+@@ -1471,13 +1484,7 @@ int mce_threshold_remove_device(unsigned
+ 	 */
+ 	this_cpu_write(threshold_banks, NULL);
+ 
+-	for (bank = 0; bank < numbanks; bank++) {
+-		if (bp[bank]) {
+-			threshold_remove_bank(bp[bank]);
+-			bp[bank] = NULL;
+-		}
+-	}
+-	kfree(bp);
++	__threshold_remove_device(bp);
+ 	return 0;
+ }
+ 
+@@ -1514,15 +1521,14 @@ int mce_threshold_create_device(unsigned
+ 		if (!(this_cpu_read(bank_map) & (1 << bank)))
+ 			continue;
+ 		err = threshold_create_bank(bp, cpu, bank);
+-		if (err)
+-			goto out_err;
++		if (err) {
++			__threshold_remove_device(bp);
++			return err;
++		}
  	}
+ 	this_cpu_write(threshold_banks, bp);
  
- 	dma_async_issue_pending(chan);
--	ret = wait_for_completion_timeout(&qspi->transfer_complete,
-+	time_left = wait_for_completion_timeout(&qspi->transfer_complete,
- 					  msecs_to_jiffies(len));
--	if (ret <= 0) {
-+	if (time_left == 0) {
- 		dmaengine_terminate_sync(chan);
- 		dev_err(qspi->dev, "DMA wait_for_completion_timeout\n");
- 		return -ETIMEDOUT;
--- 
-2.35.1
-
+ 	if (thresholding_irq_en)
+ 		mce_threshold_vector = amd_threshold_interrupt;
+ 	return 0;
+-out_err:
+-	mce_threshold_remove_device(cpu);
+-	return err;
+ }
 
 
