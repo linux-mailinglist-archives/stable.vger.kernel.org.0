@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4045414D7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F5E541BD3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358718AbiFGUWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S1357088AbiFGVyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:54:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356895AbiFGUVr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A501451C0;
-        Tue,  7 Jun 2022 11:31:15 -0700 (PDT)
+        with ESMTP id S1382998AbiFGVwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:52:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A7B7192270;
+        Tue,  7 Jun 2022 12:10:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B663561295;
-        Tue,  7 Jun 2022 18:31:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA084C385A2;
-        Tue,  7 Jun 2022 18:31:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E06D6B8220B;
+        Tue,  7 Jun 2022 19:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB2AC385A5;
+        Tue,  7 Jun 2022 19:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626674;
-        bh=qyEorKugdSDrYM446SI/sSvrMFs3g4trsGrHJkoRY5Y=;
+        s=korg; t=1654629011;
+        bh=DHhMOTAVSHSY0j7O0/1UO25k14ku7/TFOBskDOIVeLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NI4XM1Tgvh2UbdTzc0mrXySHWTJNNm17nUnqGr7lQ115Xwnx9geoFphyHZuQesNJq
-         e9YAWFZRXVgwVbpRwz0Rw0vgIoLDFh19vYJ+iltdo8Png09Hb5pcOpkAA4tnPHmKax
-         EG7LztP3IkZWOcQNrXoorQAmC24dXCH6Gz4QJSsM=
+        b=XTFHIP7F9YqQxMJ436dE5mVc2bSN9hYO8rrVE6EwlSGj4iT75ZdlT2ge0jQbxjWiO
+         uOaacoAc11OFFYtjJGxkSFoPSF1crYiFoIdG0I32jE0iCdReSLrCx0XVPiq2C9qHxD
+         f8eReM6izaP63zn2Tc0CQLDJdCc4eHjanqCmC+XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianrong Zhang <zhangjianrong5@huawei.com>,
-        Jiantao Zhang <water.zhangjiantao@huawei.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 462/772] PCI: dwc: Fix setting error return on MSI DMA mapping failure
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 536/879] memory: samsung: exynos5422-dmc: Avoid some over memory allocation
 Date:   Tue,  7 Jun 2022 19:00:54 +0200
-Message-Id: <20220607165002.614777042@linuxfoundation.org>
+Message-Id: <20220607165018.430760211@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiantao Zhang <water.zhangjiantao@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 88557685cd72cf0db686a4ebff3fad4365cb6071 ]
+[ Upstream commit 56653827f0d7bc7c2d8bac0e119fd1521fa9990a ]
 
-When dma_mapping_error() returns error because of no enough memory,
-but dw_pcie_host_init() returns success, which will mislead the callers.
+'dmc->counter' is a 'struct devfreq_event_dev **', so there is some
+over memory allocation. 'counters_size' should be computed with
+'sizeof(struct devfreq_event_dev *)'.
 
-Link: https://lore.kernel.org/r/30170911-0e2f-98ce-9266-70465b9073e5@huawei.com
-Fixes: 07940c369a6b ("PCI: dwc: Fix MSI page leakage in suspend/resume")
-Signed-off-by: Jianrong Zhang <zhangjianrong5@huawei.com>
-Signed-off-by: Jiantao Zhang <water.zhangjiantao@huawei.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Use 'sizeof(*dmc->counter)' instead to fix it.
+
+While at it, use devm_kcalloc() instead of devm_kzalloc()+open coded
+multiplication.
+
+Fixes: 6e7674c3c6df ("memory: Add DMC driver for Exynos5422")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/69d7e69346986e2fdb994d4382954c932f9f0993.1647760213.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware-host.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/memory/samsung/exynos5422-dmc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
-index f4755f3a03be..9dcb51728dd1 100644
---- a/drivers/pci/controller/dwc/pcie-designware-host.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-host.c
-@@ -390,7 +390,8 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 						      sizeof(pp->msi_msg),
- 						      DMA_FROM_DEVICE,
- 						      DMA_ATTR_SKIP_CPU_SYNC);
--			if (dma_mapping_error(pci->dev, pp->msi_data)) {
-+			ret = dma_mapping_error(pci->dev, pp->msi_data);
-+			if (ret) {
- 				dev_err(pci->dev, "Failed to map MSI data\n");
- 				pp->msi_data = 0;
- 				goto err_free_msi;
+diff --git a/drivers/memory/samsung/exynos5422-dmc.c b/drivers/memory/samsung/exynos5422-dmc.c
+index 9c8318923ed0..4733e7898ffe 100644
+--- a/drivers/memory/samsung/exynos5422-dmc.c
++++ b/drivers/memory/samsung/exynos5422-dmc.c
+@@ -1322,7 +1322,6 @@ static int exynos5_dmc_init_clks(struct exynos5_dmc *dmc)
+  */
+ static int exynos5_performance_counters_init(struct exynos5_dmc *dmc)
+ {
+-	int counters_size;
+ 	int ret, i;
+ 
+ 	dmc->num_counters = devfreq_event_get_edev_count(dmc->dev,
+@@ -1332,8 +1331,8 @@ static int exynos5_performance_counters_init(struct exynos5_dmc *dmc)
+ 		return dmc->num_counters;
+ 	}
+ 
+-	counters_size = sizeof(struct devfreq_event_dev) * dmc->num_counters;
+-	dmc->counter = devm_kzalloc(dmc->dev, counters_size, GFP_KERNEL);
++	dmc->counter = devm_kcalloc(dmc->dev, dmc->num_counters,
++				    sizeof(*dmc->counter), GFP_KERNEL);
+ 	if (!dmc->counter)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
