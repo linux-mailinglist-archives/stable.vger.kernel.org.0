@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 973B6540612
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D414541491
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245123AbiFGRdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41784 "EHLO
+        id S1358789AbiFGUTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347165AbiFGRaH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28254106A79;
-        Tue,  7 Jun 2022 10:25:58 -0700 (PDT)
+        with ESMTP id S1376837AbiFGURR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:17:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FED71D0586;
+        Tue,  7 Jun 2022 11:30:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 67382CE21A9;
-        Tue,  7 Jun 2022 17:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39C19C385A5;
-        Tue,  7 Jun 2022 17:25:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 102B5B81FF8;
+        Tue,  7 Jun 2022 18:30:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C99BC385A2;
+        Tue,  7 Jun 2022 18:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622754;
-        bh=r9c0qyaOAnf+whaVJRgvXFhirnZRfoZ08+Qnh9B1lt0=;
+        s=korg; t=1654626598;
+        bh=Hi710AaJ75VLCt/k8Fpuv/pnB/RLszDa3g79EzWkFxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AV8dXxtvSgNRRIt7JYxAy6zBSMuFF7CACiKlYXjI3bQgnze3oEZyvJS/GQIJmD4Tj
-         eicEPFmOBjT436bB83O9PDhb202NhqZ4wrpUbwc1ViUgaX1JqogkvQRIRo7BqvtGeo
-         F3hq3QKoa29XbqecWwP2/oa6Ts1a5zVMu3LfrkNU=
+        b=drsM+Y8JgBTbHgkT09tn55qq8JA34UKZnjjLp1LHyDVtENjvdaJ7UXyBPa+9MiVPj
+         IbsEbMsxAzttR8QQZxgr6V0FJJoDfY9VM5yoczgWkUMBvYBlyjp3b2XGOBQQASerM6
+         bqlWKzGOwsi87GRCe1ZXm8/1wBbXsuPKibzJNOpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 172/452] perf tools: Add missing headers needed by util/data.h
+Subject: [PATCH 5.17 437/772] rxrpc: Fix locking issue
 Date:   Tue,  7 Jun 2022 19:00:29 +0200
-Message-Id: <20220607164913.687632133@linuxfoundation.org>
+Message-Id: <20220607165001.879124645@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,50 +56,276 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 4d27cf1d9de5becfa4d1efb2ea54dba1b9fc962a ]
+[ Upstream commit ad25f5cb39872ca14bcbe00816ae65c22fe04b89 ]
 
-'struct perf_data' in util/data.h uses the "u64" data type, which is
-defined in "linux/types.h".
+There's a locking issue with the per-netns list of calls in rxrpc.  The
+pieces of code that add and remove a call from the list use write_lock()
+and the calls procfile uses read_lock() to access it.  However, the timer
+callback function may trigger a removal by trying to queue a call for
+processing and finding that it's already queued - at which point it has a
+spare refcount that it has to do something with.  Unfortunately, if it puts
+the call and this reduces the refcount to 0, the call will be removed from
+the list.  Unfortunately, since the _bh variants of the locking functions
+aren't used, this can deadlock.
 
-If we only include util/data.h, the following compilation error occurs:
+================================
+WARNING: inconsistent lock state
+5.18.0-rc3-build4+ #10 Not tainted
+--------------------------------
+inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+ksoftirqd/2/25 [HC0[0]:SC1[1]:HE1:SE0] takes:
+ffff888107ac4038 (&rxnet->call_lock){+.?.}-{2:2}, at: rxrpc_put_call+0x103/0x14b
+{SOFTIRQ-ON-W} state was registered at:
+...
+ Possible unsafe locking scenario:
 
-  util/data.h:38:3: error: unknown type name ‘u64’
-     u64    version;
-     ^~~
+       CPU0
+       ----
+  lock(&rxnet->call_lock);
+  <Interrupt>
+    lock(&rxnet->call_lock);
 
-Solution: include "linux/types.h." to add the needed type definitions.
+ *** DEADLOCK ***
 
-Fixes: 258031c017c353e8 ("perf header: Add DIR_FORMAT feature to describe directory data")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220429090539.212448-1-yangjihong1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+1 lock held by ksoftirqd/2/25:
+ #0: ffff8881008ffdb0 ((&call->timer)){+.-.}-{0:0}, at: call_timer_fn+0x5/0x23d
+
+Changes
+=======
+ver #2)
+ - Changed to using list_next_rcu() rather than rcu_dereference() directly.
+
+Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/data.h | 1 +
- 1 file changed, 1 insertion(+)
+ fs/seq_file.c            | 32 ++++++++++++++++++++++++++++++++
+ include/linux/list.h     | 10 ++++++++++
+ include/linux/seq_file.h |  4 ++++
+ net/rxrpc/ar-internal.h  |  2 +-
+ net/rxrpc/call_accept.c  |  6 +++---
+ net/rxrpc/call_object.c  | 18 +++++++++---------
+ net/rxrpc/net_ns.c       |  2 +-
+ net/rxrpc/proc.c         | 10 ++--------
+ 8 files changed, 62 insertions(+), 22 deletions(-)
 
-diff --git a/tools/perf/util/data.h b/tools/perf/util/data.h
-index 75947ef6bc17..5b52ffedf0d5 100644
---- a/tools/perf/util/data.h
-+++ b/tools/perf/util/data.h
-@@ -3,6 +3,7 @@
- #define __PERF_DATA_H
+diff --git a/fs/seq_file.c b/fs/seq_file.c
+index f8e1f4ee87ff..3cc7fb448771 100644
+--- a/fs/seq_file.c
++++ b/fs/seq_file.c
+@@ -931,6 +931,38 @@ struct list_head *seq_list_next(void *v, struct list_head *head, loff_t *ppos)
+ }
+ EXPORT_SYMBOL(seq_list_next);
  
- #include <stdbool.h>
-+#include <linux/types.h>
++struct list_head *seq_list_start_rcu(struct list_head *head, loff_t pos)
++{
++	struct list_head *lh;
++
++	list_for_each_rcu(lh, head)
++		if (pos-- == 0)
++			return lh;
++
++	return NULL;
++}
++EXPORT_SYMBOL(seq_list_start_rcu);
++
++struct list_head *seq_list_start_head_rcu(struct list_head *head, loff_t pos)
++{
++	if (!pos)
++		return head;
++
++	return seq_list_start_rcu(head, pos - 1);
++}
++EXPORT_SYMBOL(seq_list_start_head_rcu);
++
++struct list_head *seq_list_next_rcu(void *v, struct list_head *head,
++				    loff_t *ppos)
++{
++	struct list_head *lh;
++
++	lh = list_next_rcu((struct list_head *)v);
++	++*ppos;
++	return lh == head ? NULL : lh;
++}
++EXPORT_SYMBOL(seq_list_next_rcu);
++
+ /**
+  * seq_hlist_start - start an iteration of a hlist
+  * @head: the head of the hlist
+diff --git a/include/linux/list.h b/include/linux/list.h
+index dd6c2041d09c..0f7d8ec5b4ed 100644
+--- a/include/linux/list.h
++++ b/include/linux/list.h
+@@ -579,6 +579,16 @@ static inline void list_splice_tail_init(struct list_head *list,
+ #define list_for_each(pos, head) \
+ 	for (pos = (head)->next; !list_is_head(pos, (head)); pos = pos->next)
  
- enum perf_data_mode {
- 	PERF_DATA_MODE_WRITE,
++/**
++ * list_for_each_rcu - Iterate over a list in an RCU-safe fashion
++ * @pos:	the &struct list_head to use as a loop cursor.
++ * @head:	the head for your list.
++ */
++#define list_for_each_rcu(pos, head)		  \
++	for (pos = rcu_dereference((head)->next); \
++	     !list_is_head(pos, (head)); \
++	     pos = rcu_dereference(pos->next))
++
+ /**
+  * list_for_each_continue - continue iteration over a list
+  * @pos:	the &struct list_head to use as a loop cursor.
+diff --git a/include/linux/seq_file.h b/include/linux/seq_file.h
+index 88cc16444b43..4baf03ea8992 100644
+--- a/include/linux/seq_file.h
++++ b/include/linux/seq_file.h
+@@ -276,6 +276,10 @@ extern struct list_head *seq_list_start_head(struct list_head *head,
+ extern struct list_head *seq_list_next(void *v, struct list_head *head,
+ 		loff_t *ppos);
+ 
++extern struct list_head *seq_list_start_rcu(struct list_head *head, loff_t pos);
++extern struct list_head *seq_list_start_head_rcu(struct list_head *head, loff_t pos);
++extern struct list_head *seq_list_next_rcu(void *v, struct list_head *head, loff_t *ppos);
++
+ /*
+  * Helpers for iteration over hlist_head-s in seq_files
+  */
+diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
+index 969e532f77a9..422558d50571 100644
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -68,7 +68,7 @@ struct rxrpc_net {
+ 	struct proc_dir_entry	*proc_net;	/* Subdir in /proc/net */
+ 	u32			epoch;		/* Local epoch for detecting local-end reset */
+ 	struct list_head	calls;		/* List of calls active in this namespace */
+-	rwlock_t		call_lock;	/* Lock for ->calls */
++	spinlock_t		call_lock;	/* Lock for ->calls */
+ 	atomic_t		nr_calls;	/* Count of allocated calls */
+ 
+ 	atomic_t		nr_conns;
+diff --git a/net/rxrpc/call_accept.c b/net/rxrpc/call_accept.c
+index 1ae90fb97936..8b24ffbc72ef 100644
+--- a/net/rxrpc/call_accept.c
++++ b/net/rxrpc/call_accept.c
+@@ -140,9 +140,9 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
+ 	write_unlock(&rx->call_lock);
+ 
+ 	rxnet = call->rxnet;
+-	write_lock(&rxnet->call_lock);
+-	list_add_tail(&call->link, &rxnet->calls);
+-	write_unlock(&rxnet->call_lock);
++	spin_lock_bh(&rxnet->call_lock);
++	list_add_tail_rcu(&call->link, &rxnet->calls);
++	spin_unlock_bh(&rxnet->call_lock);
+ 
+ 	b->call_backlog[call_head] = call;
+ 	smp_store_release(&b->call_backlog_head, (call_head + 1) & (size - 1));
+diff --git a/net/rxrpc/call_object.c b/net/rxrpc/call_object.c
+index 043508fd8d8a..25c9a2cbf048 100644
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -337,9 +337,9 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
+ 	write_unlock(&rx->call_lock);
+ 
+ 	rxnet = call->rxnet;
+-	write_lock(&rxnet->call_lock);
+-	list_add_tail(&call->link, &rxnet->calls);
+-	write_unlock(&rxnet->call_lock);
++	spin_lock_bh(&rxnet->call_lock);
++	list_add_tail_rcu(&call->link, &rxnet->calls);
++	spin_unlock_bh(&rxnet->call_lock);
+ 
+ 	/* From this point on, the call is protected by its own lock. */
+ 	release_sock(&rx->sk);
+@@ -631,9 +631,9 @@ void rxrpc_put_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
+ 		ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
+ 
+ 		if (!list_empty(&call->link)) {
+-			write_lock(&rxnet->call_lock);
++			spin_lock_bh(&rxnet->call_lock);
+ 			list_del_init(&call->link);
+-			write_unlock(&rxnet->call_lock);
++			spin_unlock_bh(&rxnet->call_lock);
+ 		}
+ 
+ 		rxrpc_cleanup_call(call);
+@@ -705,7 +705,7 @@ void rxrpc_destroy_all_calls(struct rxrpc_net *rxnet)
+ 	_enter("");
+ 
+ 	if (!list_empty(&rxnet->calls)) {
+-		write_lock(&rxnet->call_lock);
++		spin_lock_bh(&rxnet->call_lock);
+ 
+ 		while (!list_empty(&rxnet->calls)) {
+ 			call = list_entry(rxnet->calls.next,
+@@ -720,12 +720,12 @@ void rxrpc_destroy_all_calls(struct rxrpc_net *rxnet)
+ 			       rxrpc_call_states[call->state],
+ 			       call->flags, call->events);
+ 
+-			write_unlock(&rxnet->call_lock);
++			spin_unlock_bh(&rxnet->call_lock);
+ 			cond_resched();
+-			write_lock(&rxnet->call_lock);
++			spin_lock_bh(&rxnet->call_lock);
+ 		}
+ 
+-		write_unlock(&rxnet->call_lock);
++		spin_unlock_bh(&rxnet->call_lock);
+ 	}
+ 
+ 	atomic_dec(&rxnet->nr_calls);
+diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
+index cc7e30733feb..e4d6d432515b 100644
+--- a/net/rxrpc/net_ns.c
++++ b/net/rxrpc/net_ns.c
+@@ -50,7 +50,7 @@ static __net_init int rxrpc_init_net(struct net *net)
+ 	rxnet->epoch |= RXRPC_RANDOM_EPOCH;
+ 
+ 	INIT_LIST_HEAD(&rxnet->calls);
+-	rwlock_init(&rxnet->call_lock);
++	spin_lock_init(&rxnet->call_lock);
+ 	atomic_set(&rxnet->nr_calls, 1);
+ 
+ 	atomic_set(&rxnet->nr_conns, 1);
+diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
+index e2f990754f88..5a67955cc00f 100644
+--- a/net/rxrpc/proc.c
++++ b/net/rxrpc/proc.c
+@@ -26,29 +26,23 @@ static const char *const rxrpc_conn_states[RXRPC_CONN__NR_STATES] = {
+  */
+ static void *rxrpc_call_seq_start(struct seq_file *seq, loff_t *_pos)
+ 	__acquires(rcu)
+-	__acquires(rxnet->call_lock)
+ {
+ 	struct rxrpc_net *rxnet = rxrpc_net(seq_file_net(seq));
+ 
+ 	rcu_read_lock();
+-	read_lock(&rxnet->call_lock);
+-	return seq_list_start_head(&rxnet->calls, *_pos);
++	return seq_list_start_head_rcu(&rxnet->calls, *_pos);
+ }
+ 
+ static void *rxrpc_call_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+ 	struct rxrpc_net *rxnet = rxrpc_net(seq_file_net(seq));
+ 
+-	return seq_list_next(v, &rxnet->calls, pos);
++	return seq_list_next_rcu(v, &rxnet->calls, pos);
+ }
+ 
+ static void rxrpc_call_seq_stop(struct seq_file *seq, void *v)
+-	__releases(rxnet->call_lock)
+ 	__releases(rcu)
+ {
+-	struct rxrpc_net *rxnet = rxrpc_net(seq_file_net(seq));
+-
+-	read_unlock(&rxnet->call_lock);
+ 	rcu_read_unlock();
+ }
+ 
 -- 
 2.35.1
 
