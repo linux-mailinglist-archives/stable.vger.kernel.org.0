@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8025541C10
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80ACF540CDD
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382839AbiFGV4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45898 "EHLO
+        id S1352640AbiFGSlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383420AbiFGVxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E82244466;
-        Tue,  7 Jun 2022 12:11:44 -0700 (PDT)
+        with ESMTP id S1353450AbiFGSlX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:41:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E1818629C;
+        Tue,  7 Jun 2022 10:58:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7275C612EC;
-        Tue,  7 Jun 2022 19:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E525C385A2;
-        Tue,  7 Jun 2022 19:11:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AF69B8236C;
+        Tue,  7 Jun 2022 17:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEC5C34115;
+        Tue,  7 Jun 2022 17:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629102;
-        bh=TGEP3+wcP3I5eC612IMnC6aIjznzCHpeaDh26azRWDY=;
+        s=korg; t=1654624706;
+        bh=zH/pSgAZjZwfNYbHLmOYRBuLfI0NNzWZ3BELSFKBlck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKAho9U6ApxJIkbjtNluWJxsr9s/OIXBpqffmNkVHVp0Q6KjRPoTHKaBWLJfchJrV
-         boYkjZSxbNXyXknpSP0gcROdc7z7l7L/J62fbHR3UGiSec/M6zsGCvRq1z+gP+OoR1
-         PXAjMfWVc6nFDovMegYs/nvunnZjqdL9AqZJE+Xg=
+        b=YO2e98vTN2LKZTeTxMqnm/9PdtUbZMVWjNKZ2PIsCSvt137RJ0TzbuIBL26d2Vf/R
+         wSwWjqIFqhNDzb2e2Lq53Yw9git8pUKtpgmVbPv4oDkizEqXmX9RiXUseLR8kXmwC5
+         D5CIi1Oe4g2XRNAfTezp5jT6A6Dowpg1rsFcGdrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 570/879] misc: ocxl: fix possible double free in ocxl_file_register_afu
+Subject: [PATCH 5.15 423/667] soc: bcm: Check for NULL return of devm_kzalloc()
 Date:   Tue,  7 Jun 2022 19:01:28 +0200
-Message-Id: <20220607165019.402781669@linuxfoundation.org>
+Message-Id: <20220607164947.418341271@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: QintaoShen <unSimple1993@163.com>
 
-[ Upstream commit 950cf957fe34d40d63dfa3bf3968210430b6491e ]
+[ Upstream commit b4bd2aafacce48db26b0a213d849818d940556dd ]
 
-info_release() will be called in device_unregister() when info->dev's
-reference count is 0. So there is no need to call ocxl_afu_put() and
-kfree() again.
+As the potential failure of allocation, devm_kzalloc() may return NULL.  Then
+the 'pd->pmb' and the follow lines of code may bring null pointer dereference.
 
-Fix this by adding free_minor() and return to err_unregister error path.
+Therefore, it is better to check the return value of devm_kzalloc() to avoid
+this confusion.
 
-Fixes: 75ca758adbaf ("ocxl: Create a clear delineation between ocxl backend & frontend")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220418085758.38145-1-hbh25y@gmail.com
+Fixes: 8bcac4011ebe ("soc: bcm: add PM driver for Broadcom's PMB")
+Signed-off-by: QintaoShen <unSimple1993@163.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ocxl/file.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/soc/bcm/bcm63xx/bcm-pmb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
-index d881f5e40ad9..6777c419a8da 100644
---- a/drivers/misc/ocxl/file.c
-+++ b/drivers/misc/ocxl/file.c
-@@ -556,7 +556,9 @@ int ocxl_file_register_afu(struct ocxl_afu *afu)
+diff --git a/drivers/soc/bcm/bcm63xx/bcm-pmb.c b/drivers/soc/bcm/bcm63xx/bcm-pmb.c
+index 774465c119be..2ac20084e5a5 100644
+--- a/drivers/soc/bcm/bcm63xx/bcm-pmb.c
++++ b/drivers/soc/bcm/bcm63xx/bcm-pmb.c
+@@ -314,6 +314,9 @@ static int bcm_pmb_probe(struct platform_device *pdev)
+ 	for (e = table; e->name; e++) {
+ 		struct bcm_pmb_pm_domain *pd = devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
  
- err_unregister:
- 	ocxl_sysfs_unregister_afu(info); // safe to call even if register failed
-+	free_minor(info);
- 	device_unregister(&info->dev);
-+	return rc;
- err_put:
- 	ocxl_afu_put(afu);
- 	free_minor(info);
++		if (!pd)
++			return -ENOMEM;
++
+ 		pd->pmb = pmb;
+ 		pd->data = e;
+ 		pd->genpd.name = e->name;
 -- 
 2.35.1
 
