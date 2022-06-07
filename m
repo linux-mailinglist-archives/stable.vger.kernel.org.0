@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF285405A9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59DF5540B6A
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346463AbiFGR2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45002 "EHLO
+        id S1351247AbiFGS2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346728AbiFGR2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:28:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91C61146B6;
-        Tue,  7 Jun 2022 10:24:23 -0700 (PDT)
+        with ESMTP id S237897AbiFGSXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:23:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0B6C5DA6;
+        Tue,  7 Jun 2022 10:54:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69BF3B8220B;
-        Tue,  7 Jun 2022 17:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2096C3411F;
-        Tue,  7 Jun 2022 17:24:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 506E961825;
+        Tue,  7 Jun 2022 17:54:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC7EC385A5;
+        Tue,  7 Jun 2022 17:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622661;
-        bh=GLDAKbEa053lI4HJOxqF2OP2qasoTwIbfzJ5kXxgezQ=;
+        s=korg; t=1654624448;
+        bh=wXAfGWgTE2nwx+GSzU2Lgt8EBZdj6oFr+d45/+PJBiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rizUv7b6ZSyeNASV8waN2DVToZBcYHyU3mwrATo40dJTDgCkT+pUUjTfrNx4tkzqU
-         J7H/okqVJL/CoAM9vJPX6p9U0a29N1TpcT7r0tol9yD5mgCAbGUnR92E+EVuiOwBZN
-         6HMAQNB0W1y5DAFtJJLDUAAzapHP7gdF3FpkCREw=
+        b=zPQf1mpNDw6qZDoM+4VLDFJajNH6zSuGwPRUvjMN9DYxURqfDts84LmSX329u0BUi
+         vUtka1eB9MIA0H8kalfPawRUvGTMU3wi5nr9RwS5e609APnh1UTVboSdqf1b0Y1hYS
+         H7H4Z7g3THnGCeSrARagJv4+FJbC5Sl9sX/5x0bM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Brian Starkey <brian.starkey@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 139/452] drm: mali-dp: potential dereference of null pointer
+Subject: [PATCH 5.15 331/667] Bluetooth: use hdev lock for accept_list and reject_list in conn req
 Date:   Tue,  7 Jun 2022 18:59:56 +0200
-Message-Id: <20220607164912.701018307@linuxfoundation.org>
+Message-Id: <20220607164944.696448493@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 73c3ed7495c67b8fbdc31cf58e6ca8757df31a33 ]
+[ Upstream commit fb048cae51bacdfbbda2954af3c213fdb1d484f4 ]
 
-The return value of kzalloc() needs to be checked.
-To avoid use of null pointer '&state->base' in case of the
-failure of alloc.
+All accesses (both reads and modifications) to
+hdev->{accept,reject}_list are protected by hdev lock,
+except the ones in hci_conn_request_evt. This can cause a race
+condition in the form of a list corruption.
+The solution is to protect these lists in hci_conn_request_evt as well.
 
-Fixes: 99665d072183 ("drm: mali-dp: add malidp_crtc_state struct")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Brian Starkey <brian.starkey@arm.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211214100837.46912-1-jiasheng@iscas.ac.cn
+I was unable to find the exact commit that introduced the issue for the
+reject list, I was only able to find it for the accept list.
+
+Fixes: a55bd29d5227 ("Bluetooth: Add white list lookup for incoming connection requests")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/arm/malidp_crtc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/arm/malidp_crtc.c b/drivers/gpu/drm/arm/malidp_crtc.c
-index 587d94798f5c..af729094260c 100644
---- a/drivers/gpu/drm/arm/malidp_crtc.c
-+++ b/drivers/gpu/drm/arm/malidp_crtc.c
-@@ -483,7 +483,10 @@ static void malidp_crtc_reset(struct drm_crtc *crtc)
- 	if (crtc->state)
- 		malidp_crtc_destroy_state(crtc, crtc->state);
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index e984a8b4b914..5ac3aca6deeb 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -2790,10 +2790,12 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 		return;
+ 	}
  
--	__drm_atomic_helper_crtc_reset(crtc, &state->base);
-+	if (state)
-+		__drm_atomic_helper_crtc_reset(crtc, &state->base);
-+	else
-+		__drm_atomic_helper_crtc_reset(crtc, NULL);
++	hci_dev_lock(hdev);
++
+ 	if (hci_bdaddr_list_lookup(&hdev->reject_list, &ev->bdaddr,
+ 				   BDADDR_BREDR)) {
+ 		hci_reject_conn(hdev, &ev->bdaddr);
+-		return;
++		goto unlock;
+ 	}
+ 
+ 	/* Require HCI_CONNECTABLE or an accept list entry to accept the
+@@ -2805,13 +2807,11 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	    !hci_bdaddr_list_lookup_with_flags(&hdev->accept_list, &ev->bdaddr,
+ 					       BDADDR_BREDR)) {
+ 		hci_reject_conn(hdev, &ev->bdaddr);
+-		return;
++		goto unlock;
+ 	}
+ 
+ 	/* Connection accepted */
+ 
+-	hci_dev_lock(hdev);
+-
+ 	ie = hci_inquiry_cache_lookup(hdev, &ev->bdaddr);
+ 	if (ie)
+ 		memcpy(ie->data.dev_class, ev->dev_class, 3);
+@@ -2823,8 +2823,7 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 				    HCI_ROLE_SLAVE);
+ 		if (!conn) {
+ 			bt_dev_err(hdev, "no memory for new connection");
+-			hci_dev_unlock(hdev);
+-			return;
++			goto unlock;
+ 		}
+ 	}
+ 
+@@ -2864,6 +2863,10 @@ static void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 		conn->state = BT_CONNECT2;
+ 		hci_connect_cfm(conn, 0);
+ 	}
++
++	return;
++unlock:
++	hci_dev_unlock(hdev);
  }
  
- static int malidp_crtc_enable_vblank(struct drm_crtc *crtc)
+ static u8 hci_to_mgmt_reason(u8 err)
 -- 
 2.35.1
 
