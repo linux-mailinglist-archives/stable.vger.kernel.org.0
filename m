@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E6F541770
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5775417C2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378611AbiFGVDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50220 "EHLO
+        id S1358024AbiFGVDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379201AbiFGVCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BF5D1203D4;
-        Tue,  7 Jun 2022 11:46:54 -0700 (PDT)
+        with ESMTP id S1379223AbiFGVCN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:02:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9026EBBC;
+        Tue,  7 Jun 2022 11:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D80F26156D;
-        Tue,  7 Jun 2022 18:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6FA5C385A2;
-        Tue,  7 Jun 2022 18:46:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48D7EB81FE1;
+        Tue,  7 Jun 2022 18:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95656C34115;
+        Tue,  7 Jun 2022 18:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627613;
-        bh=pXhqvl9Prhi+I+cIV2Zsg8ToLcJLpo51jTXHhnpd+Lo=;
+        s=korg; t=1654627615;
+        bh=InTEJxokk0gSldDDmnuCDCLtUbImqooZSkroi+Xe/fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZqmskhmofU995+yuU7fzOQMC0ZaQaYXs3TSYX6A9j9lHnurLktq7aNacdmMofRJm
-         QAVRYEaKnpmHvY9J1BHPgwWOwRsgmkN+BtbnPf5koZ/xd/ISgnT0VbZDcyyIXjtVqS
-         9U6+m3tMYKvyIOwY7BHD9ThwP1pe2/TRv+j20v6E=
+        b=ConUKPUQljQl8f38nIqrienv97ERXDR3w6xAlTNtPpPL/jVfYK3pFEM19lfwX/9Tn
+         YJrucOM6WBEpzotHj+TndYqP8H7aeT9SelNbqJHaVyXte1oqLW3c7WZFAGoEXrhpVh
+         0cbzaBx1j4k3/dtU1qqZWpu1x8K2y9iK8gc2BmxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Byron Stanoszek <gandalf@winds.org>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        stable@vger.kernel.org, Roberto Bergantinos <rbergant@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.18 031/879] cifs: fix ntlmssp on old servers
-Date:   Tue,  7 Jun 2022 18:52:29 +0200
-Message-Id: <20220607165003.579512241@linuxfoundation.org>
+Subject: [PATCH 5.18 032/879] cifs: fix potential double free during failed mount
+Date:   Tue,  7 Jun 2022 18:52:30 +0200
+Message-Id: <20220607165003.608638078@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,227 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit de3a9e943ddecba8d2ac1dde4cfff538e5c6a7b9 upstream.
+commit 8378a51e3f8140f60901fb27208cc7a6e47047b5 upstream.
 
-Some older servers seem to require the workstation name during ntlmssp
-to be at most 15 chars (RFC1001 name length), so truncate it before
-sending when using insecure dialects.
+RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=2088799
 
-Link: https://lore.kernel.org/r/e6837098-15d9-acb6-7e34-1923cf8c6fe1@winds.org
-Reported-by: Byron Stanoszek <gandalf@winds.org>
-Tested-by: Byron Stanoszek <gandalf@winds.org>
-Fixes: 49bd49f983b5 ("cifs: send workstation name during ntlmssp session setup")
 Cc: stable@vger.kernel.org
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Roberto Bergantinos <rbergant@redhat.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsglob.h   |   15 ++++++++++++++-
- fs/cifs/connect.c    |   22 ++++------------------
- fs/cifs/fs_context.c |   29 ++++-------------------------
- fs/cifs/fs_context.h |    2 +-
- fs/cifs/misc.c       |    1 -
- fs/cifs/sess.c       |    6 +++---
- 6 files changed, 26 insertions(+), 49 deletions(-)
+ fs/cifs/cifsfs.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -944,7 +944,7 @@ struct cifs_ses {
- 				   and after mount option parsing we fill it */
- 	char *domainName;
- 	char *password;
--	char *workstation_name;
-+	char workstation_name[CIFS_MAX_WORKSTATION_LEN];
- 	struct session_key auth_key;
- 	struct ntlmssp_auth *ntlmssp; /* ciphertext, flags, server challenge */
- 	enum securityEnum sectype; /* what security flavor was specified? */
-@@ -1979,4 +1979,17 @@ static inline bool cifs_is_referral_serv
- 	return is_tcon_dfs(tcon) || (ref && (ref->flags & DFSREF_REFERRAL_SERVER));
- }
- 
-+static inline size_t ntlmssp_workstation_name_size(const struct cifs_ses *ses)
-+{
-+	if (WARN_ON_ONCE(!ses || !ses->server))
-+		return 0;
-+	/*
-+	 * Make workstation name no more than 15 chars when using insecure dialects as some legacy
-+	 * servers do require it during NTLMSSP.
-+	 */
-+	if (ses->server->dialect <= SMB20_PROT_ID)
-+		return min_t(size_t, sizeof(ses->workstation_name), RFC1001_NAME_LEN_WITH_NULL);
-+	return sizeof(ses->workstation_name);
-+}
-+
- #endif	/* _CIFS_GLOB_H */
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2037,18 +2037,7 @@ cifs_set_cifscreds(struct smb3_fs_contex
- 		}
- 	}
- 
--	ctx->workstation_name = kstrdup(ses->workstation_name, GFP_KERNEL);
--	if (!ctx->workstation_name) {
--		cifs_dbg(FYI, "Unable to allocate memory for workstation_name\n");
--		rc = -ENOMEM;
--		kfree(ctx->username);
--		ctx->username = NULL;
--		kfree_sensitive(ctx->password);
--		ctx->password = NULL;
--		kfree(ctx->domainname);
--		ctx->domainname = NULL;
--		goto out_key_put;
--	}
-+	strscpy(ctx->workstation_name, ses->workstation_name, sizeof(ctx->workstation_name));
- 
- out_key_put:
- 	up_read(&key->sem);
-@@ -2157,12 +2146,9 @@ cifs_get_smb_ses(struct TCP_Server_Info
- 		if (!ses->domainName)
- 			goto get_ses_fail;
- 	}
--	if (ctx->workstation_name) {
--		ses->workstation_name = kstrdup(ctx->workstation_name,
--						GFP_KERNEL);
--		if (!ses->workstation_name)
--			goto get_ses_fail;
--	}
-+
-+	strscpy(ses->workstation_name, ctx->workstation_name, sizeof(ses->workstation_name));
-+
- 	if (ctx->domainauto)
- 		ses->domainAuto = ctx->domainauto;
- 	ses->cred_uid = ctx->cred_uid;
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -312,7 +312,6 @@ smb3_fs_context_dup(struct smb3_fs_conte
- 	new_ctx->password = NULL;
- 	new_ctx->server_hostname = NULL;
- 	new_ctx->domainname = NULL;
--	new_ctx->workstation_name = NULL;
- 	new_ctx->UNC = NULL;
- 	new_ctx->source = NULL;
- 	new_ctx->iocharset = NULL;
-@@ -327,7 +326,6 @@ smb3_fs_context_dup(struct smb3_fs_conte
- 	DUP_CTX_STR(UNC);
- 	DUP_CTX_STR(source);
- 	DUP_CTX_STR(domainname);
--	DUP_CTX_STR(workstation_name);
- 	DUP_CTX_STR(nodename);
- 	DUP_CTX_STR(iocharset);
- 
-@@ -766,8 +764,7 @@ static int smb3_verify_reconfigure_ctx(s
- 		cifs_errorf(fc, "can not change domainname during remount\n");
- 		return -EINVAL;
- 	}
--	if (new_ctx->workstation_name &&
--	    (!old_ctx->workstation_name || strcmp(new_ctx->workstation_name, old_ctx->workstation_name))) {
-+	if (strcmp(new_ctx->workstation_name, old_ctx->workstation_name)) {
- 		cifs_errorf(fc, "can not change workstation_name during remount\n");
- 		return -EINVAL;
- 	}
-@@ -814,7 +811,6 @@ static int smb3_reconfigure(struct fs_co
- 	STEAL_STRING(cifs_sb, ctx, username);
- 	STEAL_STRING(cifs_sb, ctx, password);
- 	STEAL_STRING(cifs_sb, ctx, domainname);
--	STEAL_STRING(cifs_sb, ctx, workstation_name);
- 	STEAL_STRING(cifs_sb, ctx, nodename);
- 	STEAL_STRING(cifs_sb, ctx, iocharset);
- 
-@@ -1467,22 +1463,15 @@ static int smb3_fs_context_parse_param(s
- 
- int smb3_init_fs_context(struct fs_context *fc)
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -836,7 +836,7 @@ cifs_smb3_do_mount(struct file_system_ty
+ 	      int flags, struct smb3_fs_context *old_ctx)
  {
--	int rc;
- 	struct smb3_fs_context *ctx;
- 	char *nodename = utsname()->nodename;
- 	int i;
- 
- 	ctx = kzalloc(sizeof(struct smb3_fs_context), GFP_KERNEL);
--	if (unlikely(!ctx)) {
--		rc = -ENOMEM;
--		goto err_exit;
--	}
-+	if (unlikely(!ctx))
-+		return -ENOMEM;
- 
--	ctx->workstation_name = kstrdup(nodename, GFP_KERNEL);
--	if (unlikely(!ctx->workstation_name)) {
--		rc = -ENOMEM;
--		goto err_exit;
--	}
-+	strscpy(ctx->workstation_name, nodename, sizeof(ctx->workstation_name));
- 
- 	/*
- 	 * does not have to be perfect mapping since field is
-@@ -1555,14 +1544,6 @@ int smb3_init_fs_context(struct fs_conte
- 	fc->fs_private = ctx;
- 	fc->ops = &smb3_fs_context_ops;
- 	return 0;
--
--err_exit:
--	if (ctx) {
--		kfree(ctx->workstation_name);
--		kfree(ctx);
--	}
--
--	return rc;
+ 	int rc;
+-	struct super_block *sb;
++	struct super_block *sb = NULL;
+ 	struct cifs_sb_info *cifs_sb = NULL;
+ 	struct cifs_mnt_data mnt_data;
+ 	struct dentry *root;
+@@ -932,9 +932,11 @@ out_super:
+ 	return root;
+ out:
+ 	if (cifs_sb) {
+-		kfree(cifs_sb->prepath);
+-		smb3_cleanup_fs_context(cifs_sb->ctx);
+-		kfree(cifs_sb);
++		if (!sb || IS_ERR(sb)) {  /* otherwise kill_sb will handle */
++			kfree(cifs_sb->prepath);
++			smb3_cleanup_fs_context(cifs_sb->ctx);
++			kfree(cifs_sb);
++		}
+ 	}
+ 	return root;
  }
- 
- void
-@@ -1588,8 +1569,6 @@ smb3_cleanup_fs_context_contents(struct
- 	ctx->source = NULL;
- 	kfree(ctx->domainname);
- 	ctx->domainname = NULL;
--	kfree(ctx->workstation_name);
--	ctx->workstation_name = NULL;
- 	kfree(ctx->nodename);
- 	ctx->nodename = NULL;
- 	kfree(ctx->iocharset);
---- a/fs/cifs/fs_context.h
-+++ b/fs/cifs/fs_context.h
-@@ -170,7 +170,7 @@ struct smb3_fs_context {
- 	char *server_hostname;
- 	char *UNC;
- 	char *nodename;
--	char *workstation_name;
-+	char workstation_name[CIFS_MAX_WORKSTATION_LEN];
- 	char *iocharset;  /* local code page for mapping to and from Unicode */
- 	char source_rfc1001_name[RFC1001_NAME_LEN_WITH_NULL]; /* clnt nb name */
- 	char target_rfc1001_name[RFC1001_NAME_LEN_WITH_NULL]; /* srvr nb name */
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -95,7 +95,6 @@ sesInfoFree(struct cifs_ses *buf_to_free
- 	kfree_sensitive(buf_to_free->password);
- 	kfree(buf_to_free->user_name);
- 	kfree(buf_to_free->domainName);
--	kfree(buf_to_free->workstation_name);
- 	kfree_sensitive(buf_to_free->auth_key.response);
- 	kfree(buf_to_free->iface_list);
- 	kfree_sensitive(buf_to_free);
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -714,9 +714,9 @@ static int size_of_ntlmssp_blob(struct c
- 	else
- 		sz += sizeof(__le16);
- 
--	if (ses->workstation_name)
-+	if (ses->workstation_name[0])
- 		sz += sizeof(__le16) * strnlen(ses->workstation_name,
--			CIFS_MAX_WORKSTATION_LEN);
-+					       ntlmssp_workstation_name_size(ses));
- 	else
- 		sz += sizeof(__le16);
- 
-@@ -960,7 +960,7 @@ int build_ntlmssp_auth_blob(unsigned cha
- 
- 	cifs_security_buffer_from_str(&sec_blob->WorkstationName,
- 				      ses->workstation_name,
--				      CIFS_MAX_WORKSTATION_LEN,
-+				      ntlmssp_workstation_name_size(ses),
- 				      *pbuffer, &tmp,
- 				      nls_cp);
- 
 
 
