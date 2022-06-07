@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E34A54185A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D82C154116B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379667AbiFGVMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
+        id S1353693AbiFGThK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379852AbiFGVLH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:07 -0400
+        with ESMTP id S1355923AbiFGTe0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:34:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342D3216288;
-        Tue,  7 Jun 2022 11:52:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D2A41AA17E;
+        Tue,  7 Jun 2022 11:13:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0210461734;
-        Tue,  7 Jun 2022 18:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D83DC385A2;
-        Tue,  7 Jun 2022 18:52:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06CF060B3B;
+        Tue,  7 Jun 2022 18:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF5FC385A2;
+        Tue,  7 Jun 2022 18:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627931;
-        bh=GyameJLNn35/i4nSz9B0JeJrRXUDJHFDMxiweObynGk=;
+        s=korg; t=1654625585;
+        bh=j8edraf78Gz65VYZ9nUIUzDh7hJEDVGQ5Xh3R5WcUCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dHtNkGEbrnG2jro21xXL5HdfQ0O9kCSwntg/iNfLd0hq6f5gp12P+R8WyiG1n7JKg
-         mXKh57VX9HpUjgXcEoy0CI8qqrMK/46IhoxwL1JVLu3IGWn0RXZskPLs2UrTkpUEMh
-         ulBa59YMAAHiXw+SuNBAWf69aFW/ABoRTPhp6KAo=
+        b=GOeJwOT1WeEJ1syymSdTgEVvRZdkYhDYQiMiYB8b8b/QwoXF9Px3VnT6ZWEDKYYR8
+         bu7KIlABArThNrz5dCQfa9S2Iv0SehQ1rWfej9gNLDR2zixcNzGK99RJAqp+pp5P+H
+         Rk94vwo5HspzqJ8yiGtLFNaqjg7OAhIE4Gk/knTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 144/879] scsi: lpfc: Alter FPIN stat accounting logic
+Subject: [PATCH 5.17 070/772] rcu-tasks: Handle sparse cpu_possible_mask in rcu_tasks_invoke_cbs()
 Date:   Tue,  7 Jun 2022 18:54:22 +0200
-Message-Id: <20220607165006.885014079@linuxfoundation.org>
+Message-Id: <20220607164951.103939864@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,172 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit e6f51041450282a8668af3a8fc5c7744e81a447c ]
+[ Upstream commit ab2756ea6b74987849b44ad0e33c3cfec159033b ]
 
-When configuring CMF management based on signals instead of FPINs, FPIN
-alarm and warning statistics are not tracked.
+If the cpu_possible_mask is sparse (for example, if bits are set only for
+CPUs 0, 4, 8, ...), then rcu_tasks_invoke_cbs() will access per-CPU data
+for a CPU not in cpu_possible_mask.  It makes these accesses while doing
+a workqueue-based binary search for non-empty callback lists.  Although
+this search must pass through CPUs not represented in cpu_possible_mask,
+it has no need to check the callback list for such CPUs.
 
-Change the behavior so that FPIN alarms and warnings are always tracked
-regardless of the configured mode.
+This commit therefore changes the rcu_tasks_invoke_cbs() function's
+binary search so as to only check callback lists for CPUs present in
+cpu_possible_mask.
 
-Similar changes are made in the CMF signal stat accounting logic.  Upon
-receipt of a signal, only track signaled alarms and warnings. FPIN stats
-should not be incremented upon receipt of a signal.
-
-Link: https://lore.kernel.org/r/20220506035519.50908-11-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c  | 49 +++++++++++------------------------
- drivers/scsi/lpfc/lpfc_init.c | 22 ++--------------
- 2 files changed, 17 insertions(+), 54 deletions(-)
+ kernel/rcu/tasks.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 9545a35f0777..892b3da1ba45 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -3877,9 +3877,6 @@ lpfc_least_capable_settings(struct lpfc_hba *phba,
- {
- 	u32 rsp_sig_cap = 0, drv_sig_cap = 0;
- 	u32 rsp_sig_freq_cyc = 0, rsp_sig_freq_scale = 0;
--	struct lpfc_cgn_info *cp;
--	u32 crc;
--	u16 sig_freq;
- 
- 	/* Get rsp signal and frequency capabilities.  */
- 	rsp_sig_cap = be32_to_cpu(pcgd->xmt_signal_capability);
-@@ -3935,25 +3932,7 @@ lpfc_least_capable_settings(struct lpfc_hba *phba,
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 30c42797f53b..1664e472524b 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -460,7 +460,7 @@ static void rcu_tasks_invoke_cbs(struct rcu_tasks *rtp, struct rcu_tasks_percpu
  		}
  	}
  
--	if (!phba->cgn_i)
--		return;
--
--	/* Update signal frequency in congestion info buffer */
--	cp = (struct lpfc_cgn_info *)phba->cgn_i->virt;
--
--	/* Frequency (in ms) Signal Warning/Signal Congestion Notifications
--	 * are received by the HBA
--	 */
--	sig_freq = phba->cgn_sig_freq;
--
--	if (phba->cgn_reg_signal == EDC_CG_SIG_WARN_ONLY)
--		cp->cgn_warn_freq = cpu_to_le16(sig_freq);
--	if (phba->cgn_reg_signal == EDC_CG_SIG_WARN_ALARM) {
--		cp->cgn_alarm_freq = cpu_to_le16(sig_freq);
--		cp->cgn_warn_freq = cpu_to_le16(sig_freq);
--	}
--	crc = lpfc_cgn_calc_crc32(cp, LPFC_CGN_INFO_SZ, LPFC_CGN_CRC32_SEED);
--	cp->cgn_info_crc = cpu_to_le32(crc);
-+	/* We are NOT recording signal frequency in congestion info buffer */
- 	return;
- 
- out_no_support:
-@@ -9971,11 +9950,14 @@ lpfc_els_rcv_fpin_cgn(struct lpfc_hba *phba, struct fc_tlv_desc *tlv)
- 			/* Take action here for an Alarm event */
- 			if (phba->cmf_active_mode != LPFC_CFG_OFF) {
- 				if (phba->cgn_reg_fpin & LPFC_CGN_FPIN_ALARM) {
--					/* Track of alarm cnt for cgn_info */
--					atomic_inc(&phba->cgn_fabric_alarm_cnt);
- 					/* Track of alarm cnt for SYNC_WQE */
- 					atomic_inc(&phba->cgn_sync_alarm_cnt);
- 				}
-+				/* Track alarm cnt for cgn_info regardless
-+				 * of whether CMF is configured for Signals
-+				 * or FPINs.
-+				 */
-+				atomic_inc(&phba->cgn_fabric_alarm_cnt);
- 				goto cleanup;
- 			}
- 			break;
-@@ -9983,11 +9965,14 @@ lpfc_els_rcv_fpin_cgn(struct lpfc_hba *phba, struct fc_tlv_desc *tlv)
- 			/* Take action here for a Warning event */
- 			if (phba->cmf_active_mode != LPFC_CFG_OFF) {
- 				if (phba->cgn_reg_fpin & LPFC_CGN_FPIN_WARN) {
--					/* Track of warning cnt for cgn_info */
--					atomic_inc(&phba->cgn_fabric_warn_cnt);
- 					/* Track of warning cnt for SYNC_WQE */
- 					atomic_inc(&phba->cgn_sync_warn_cnt);
- 				}
-+				/* Track warning cnt and freq for cgn_info
-+				 * regardless of whether CMF is configured for
-+				 * Signals or FPINs.
-+				 */
-+				atomic_inc(&phba->cgn_fabric_warn_cnt);
- cleanup:
- 				/* Save frequency in ms */
- 				phba->cgn_fpin_frequency =
-@@ -9996,14 +9981,10 @@ lpfc_els_rcv_fpin_cgn(struct lpfc_hba *phba, struct fc_tlv_desc *tlv)
- 				if (phba->cgn_i) {
- 					cp = (struct lpfc_cgn_info *)
- 						phba->cgn_i->virt;
--					if (phba->cgn_reg_fpin &
--						LPFC_CGN_FPIN_ALARM)
--						cp->cgn_alarm_freq =
--							cpu_to_le16(value);
--					if (phba->cgn_reg_fpin &
--						LPFC_CGN_FPIN_WARN)
--						cp->cgn_warn_freq =
--							cpu_to_le16(value);
-+					cp->cgn_alarm_freq =
-+						cpu_to_le16(value);
-+					cp->cgn_warn_freq =
-+						cpu_to_le16(value);
- 					crc = lpfc_cgn_calc_crc32
- 						(cp,
- 						LPFC_CGN_INFO_SZ,
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index f9cd4b72d949..011849c1ed3c 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -5866,21 +5866,8 @@ lpfc_cgn_save_evt_cnt(struct lpfc_hba *phba)
- 
- 	/* Use the frequency found in the last rcv'ed FPIN */
- 	value = phba->cgn_fpin_frequency;
--	if (phba->cgn_reg_fpin & LPFC_CGN_FPIN_WARN)
--		cp->cgn_warn_freq = cpu_to_le16(value);
--	if (phba->cgn_reg_fpin & LPFC_CGN_FPIN_ALARM)
--		cp->cgn_alarm_freq = cpu_to_le16(value);
--
--	/* Frequency (in ms) Signal Warning/Signal Congestion Notifications
--	 * are received by the HBA
--	 */
--	value = phba->cgn_sig_freq;
--
--	if (phba->cgn_reg_signal == EDC_CG_SIG_WARN_ONLY ||
--	    phba->cgn_reg_signal == EDC_CG_SIG_WARN_ALARM)
--		cp->cgn_warn_freq = cpu_to_le16(value);
--	if (phba->cgn_reg_signal == EDC_CG_SIG_WARN_ALARM)
--		cp->cgn_alarm_freq = cpu_to_le16(value);
-+	cp->cgn_warn_freq = cpu_to_le16(value);
-+	cp->cgn_alarm_freq = cpu_to_le16(value);
- 
- 	lvalue = lpfc_cgn_calc_crc32(cp, LPFC_CGN_INFO_SZ,
- 				     LPFC_CGN_CRC32_SEED);
-@@ -6595,9 +6582,6 @@ lpfc_sli4_async_sli_evt(struct lpfc_hba *phba, struct lpfc_acqe_sli *acqe_sli)
- 		/* Alarm overrides warning, so check that first */
- 		if (cgn_signal->alarm_cnt) {
- 			if (phba->cgn_reg_signal == EDC_CG_SIG_WARN_ALARM) {
--				/* Keep track of alarm cnt for cgn_info */
--				atomic_add(cgn_signal->alarm_cnt,
--					   &phba->cgn_fabric_alarm_cnt);
- 				/* Keep track of alarm cnt for CMF_SYNC_WQE */
- 				atomic_add(cgn_signal->alarm_cnt,
- 					   &phba->cgn_sync_alarm_cnt);
-@@ -6606,8 +6590,6 @@ lpfc_sli4_async_sli_evt(struct lpfc_hba *phba, struct lpfc_acqe_sli *acqe_sli)
- 			/* signal action needs to be taken */
- 			if (phba->cgn_reg_signal == EDC_CG_SIG_WARN_ONLY ||
- 			    phba->cgn_reg_signal == EDC_CG_SIG_WARN_ALARM) {
--				/* Keep track of warning cnt for cgn_info */
--				atomic_add(cnt, &phba->cgn_fabric_warn_cnt);
- 				/* Keep track of warning cnt for CMF_SYNC_WQE */
- 				atomic_add(cnt, &phba->cgn_sync_warn_cnt);
- 			}
+-	if (rcu_segcblist_empty(&rtpcp->cblist))
++	if (rcu_segcblist_empty(&rtpcp->cblist) || !cpu_possible(cpu))
+ 		return;
+ 	raw_spin_lock_irqsave_rcu_node(rtpcp, flags);
+ 	rcu_segcblist_advance(&rtpcp->cblist, rcu_seq_current(&rtp->tasks_gp_seq));
 -- 
 2.35.1
 
