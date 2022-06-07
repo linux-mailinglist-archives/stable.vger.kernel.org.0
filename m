@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A98541A6F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87713541333
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377805AbiFGVdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49136 "EHLO
+        id S1354329AbiFGT4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380158AbiFGVaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 921902298FF;
-        Tue,  7 Jun 2022 12:02:45 -0700 (PDT)
+        with ESMTP id S1358000AbiFGT4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:56:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DC1A98A5;
+        Tue,  7 Jun 2022 11:23:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 082D8617E5;
-        Tue,  7 Jun 2022 19:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18166C385A2;
-        Tue,  7 Jun 2022 19:02:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69EDAB82384;
+        Tue,  7 Jun 2022 18:23:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC0AC385A2;
+        Tue,  7 Jun 2022 18:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628564;
-        bh=JsZE5AxHTbW00VZnJgu/U+JfgGO6KlUPjLQsTZoemWU=;
+        s=korg; t=1654626224;
+        bh=NPDiN+CanNAilpu0n+ltTem564gOr0BM86ye5sr/dEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkB0aUysGDe64hmyZ0BzNtBiS91InsQ0a4LzYC6JKvABdlOqjZoJYJJtC6L6OOshi
-         E3Q5zB8fJckRoEe8b2crx4H2o4MYE4OxR+7w+xTaeGi2ON+6tVyanrKMUeOajunLwS
-         /3GbzyE01wvfYB/4qgbTe384LkxA3Ams/q5GjQcg=
+        b=b8FkRndOaajOuunZJnQj5fJEsMXKraqh3jUUj4ZaRAY8bWbnjporH23YGQOAou4L0
+         3yZeYqDtTpwViyBkYveS/zAQQd3DBbUGs6JBTjhVD8CmkSth86SjjQA84CR/X4IsqJ
+         ciN9VVI/oGR1+7OweXj/Et4ZDJUaNHWEZ4QypwE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 325/879] HID: hid-led: fix maximum brightness for Dream Cheeky
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 251/772] libbpf: Dont error out on CO-RE relos for overriden weak subprogs
 Date:   Tue,  7 Jun 2022 18:57:23 +0200
-Message-Id: <20220607165012.286594594@linuxfoundation.org>
+Message-Id: <20220607164956.421914516@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
+[ Upstream commit e89d57d938c8fa80c457982154ed6110804814fe ]
 
-Increase maximum brightness for Dream Cheeky to 63. Emperically
-determined based on testing in kernel 4.4 on this device:
+During BPF static linking, all the ELF relocations and .BTF.ext
+information (including CO-RE relocations) are preserved for __weak
+subprograms that were logically overriden by either previous weak
+subprogram instance or by corresponding "strong" (non-weak) subprogram.
+This is just how native user-space linkers work, nothing new.
 
-Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
+But libbpf is over-zealous when processing CO-RE relocation to error out
+when CO-RE relocation belonging to such eliminated weak subprogram is
+encountered. Instead of erroring out on this expected situation, log
+debug-level message and skip the relocation.
 
-Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: db2b8b06423c ("libbpf: Support CO-RE relocations for multi-prog sections")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220408181425.2287230-2-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-led.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index c2c66ceca132..7d82f8d426bb 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -366,7 +366,7 @@ static const struct hidled_config hidled_configs[] = {
- 		.type = DREAM_CHEEKY,
- 		.name = "Dream Cheeky Webmail Notifier",
- 		.short_name = "dream_cheeky",
--		.max_brightness = 31,
-+		.max_brightness = 63,
- 		.num_leds = 1,
- 		.report_size = 9,
- 		.report_type = RAW_REQUEST,
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 41515a770e3a..9c202bba911c 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -5656,10 +5656,17 @@ bpf_object__relocate_core(struct bpf_object *obj, const char *targ_btf_path)
+ 			insn_idx = rec->insn_off / BPF_INSN_SZ;
+ 			prog = find_prog_by_sec_insn(obj, sec_idx, insn_idx);
+ 			if (!prog) {
+-				pr_warn("sec '%s': failed to find program at insn #%d for CO-RE offset relocation #%d\n",
+-					sec_name, insn_idx, i);
+-				err = -EINVAL;
+-				goto out;
++				/* When __weak subprog is "overridden" by another instance
++				 * of the subprog from a different object file, linker still
++				 * appends all the .BTF.ext info that used to belong to that
++				 * eliminated subprogram.
++				 * This is similar to what x86-64 linker does for relocations.
++				 * So just ignore such relocations just like we ignore
++				 * subprog instructions when discovering subprograms.
++				 */
++				pr_debug("sec '%s': skipping CO-RE relocation #%d for insn #%d belonging to eliminated weak subprogram\n",
++					 sec_name, i, insn_idx);
++				continue;
+ 			}
+ 			/* no need to apply CO-RE relocation if the program is
+ 			 * not going to be loaded
 -- 
 2.35.1
 
