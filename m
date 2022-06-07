@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 464A054063D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43613541C68
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347237AbiFGReQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42804 "EHLO
+        id S1376927AbiFGV7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347380AbiFGRam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F271109A5;
-        Tue,  7 Jun 2022 10:26:31 -0700 (PDT)
+        with ESMTP id S1382793AbiFGVvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB8623E82B;
+        Tue,  7 Jun 2022 12:09:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77A8261281;
-        Tue,  7 Jun 2022 17:26:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDE7C3411C;
-        Tue,  7 Jun 2022 17:26:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 474F3B81F6D;
+        Tue,  7 Jun 2022 19:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8213C3411C;
+        Tue,  7 Jun 2022 19:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622790;
-        bh=pyLxJJu2335MYC6nO5LPYnAaHyR9bqLkt5X1tsiA4IQ=;
+        s=korg; t=1654628973;
+        bh=3WkLGgrPgXyt6niNQshuTYXlUyoQOPiPks9fVvqPlt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXYNNB2Lh7Hy/+SDJVu8Vpil52rWN8U/8DSFIdcbg9R3ipnSBSM2W82N5zngemT00
-         yT1PnhpGOS9k6zUUF2h1EwSvAdP+b2qdXPc8VDg1ln4Hl2qB8J2BXqf/fCbZzXkpq1
-         SwYWDgKKakzhcmmOWCzIKvKFjUor1CdjGfKSgtGY=
+        b=s5SwWJcSkBfxuJyijW4LCgLX3Zs5bSVuPyl4QL/opX0QWlsYp/aDYP4RuEa9VoGQt
+         x1yyDXu8zYTPl5Ve2n5+8oPClnUnKDLrkOudRtygMLqfbBMFL0cIoi/N2tOS1aR/Nk
+         j+BmiQsMjOUsOWNmx8x9aNWYd/dcg8NwzfbE031k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 184/452] x86: Fix return value of __setup handlers
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 523/879] dpaa2-eth: retrieve the virtual address before dma_unmap
 Date:   Tue,  7 Jun 2022 19:00:41 +0200
-Message-Id: <20220607164914.043084880@linuxfoundation.org>
+Message-Id: <20220607165018.057656305@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 12441ccdf5e2f5a01a46e344976cbbd3d46845c9 ]
+[ Upstream commit 06d129946a71f3159b3b40ee95549183edf2c79d ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled. A return
-of 0 causes the boot option/value to be listed as an Unknown kernel
-parameter and added to init's (limited) argument (no '=') or environment
-(with '=') strings. So return 1 from these x86 __setup handlers.
+The TSO header was DMA unmapped before the virtual address was retrieved
+and then used to free the buffer. This meant that we were actually
+removing the DMA map and then trying to search for it to help in
+retrieving the virtual address. This lead to a invalid virtual address
+being used in the kfree call.
 
-Examples:
+Fix this by calling dpaa2_iova_to_virt() prior to the dma_unmap call.
 
-  Unknown kernel command line parameters "apicpmtimer
-    BOOT_IMAGE=/boot/bzImage-517rc8 vdso=1 ring3mwait=disable", will be
-    passed to user space.
+[  487.231819] Unable to handle kernel paging request at virtual address fffffd9807000008
 
-  Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-     apicpmtimer
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc8
-     vdso=1
-     ring3mwait=disable
+(...)
 
-Fixes: 2aae950b21e4 ("x86_64: Add vDSO for x86-64 with gettimeofday/clock_gettime/getcpu")
-Fixes: 77b52b4c5c66 ("x86: add "debugpat" boot option")
-Fixes: e16fd002afe2 ("x86/cpufeature: Enable RING3MWAIT for Knights Landing")
-Fixes: b8ce33590687 ("x86_64: convert to clock events")
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220314012725.26661-1-rdunlap@infradead.org
+[  487.354061] Hardware name: SolidRun LX2160A Honeycomb (DT)
+[  487.359535] pstate: a0400005 (NzCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  487.366485] pc : kfree+0xac/0x304
+[  487.369799] lr : kfree+0x204/0x304
+[  487.373191] sp : ffff80000c4eb120
+[  487.376493] x29: ffff80000c4eb120 x28: ffff662240c46400 x27: 0000000000000001
+[  487.383621] x26: 0000000000000001 x25: ffff662246da0cc0 x24: ffff66224af78000
+[  487.390748] x23: ffffad184f4ce008 x22: ffffad1850185000 x21: ffffad1838d13cec
+[  487.397874] x20: ffff6601c0000000 x19: fffffd9807000000 x18: 0000000000000000
+[  487.405000] x17: ffffb910cdc49000 x16: ffffad184d7d9080 x15: 0000000000004000
+[  487.412126] x14: 0000000000000008 x13: 000000000000ffff x12: 0000000000000000
+[  487.419252] x11: 0000000000000004 x10: 0000000000000001 x9 : ffffad184d7d927c
+[  487.426379] x8 : 0000000000000000 x7 : 0000000ffffffd1d x6 : ffff662240a94900
+[  487.433505] x5 : 0000000000000003 x4 : 0000000000000009 x3 : ffffad184f4ce008
+[  487.440632] x2 : ffff662243eec000 x1 : 0000000100000100 x0 : fffffc0000000000
+[  487.447758] Call trace:
+[  487.450194]  kfree+0xac/0x304
+[  487.453151]  dpaa2_eth_free_tx_fd.isra.0+0x33c/0x3e0 [fsl_dpaa2_eth]
+[  487.459507]  dpaa2_eth_tx_conf+0x100/0x2e0 [fsl_dpaa2_eth]
+[  487.464989]  dpaa2_eth_poll+0xdc/0x380 [fsl_dpaa2_eth]
+
+Fixes: 3dc709e0cd47 ("dpaa2-eth: add support for software TSO")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215886
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/vdso/vma.c   | 2 +-
- arch/x86/kernel/apic/apic.c | 2 +-
- arch/x86/kernel/cpu/intel.c | 2 +-
- arch/x86/mm/pat/memtype.c   | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
-index 9185cb1d13b9..5876289e48d8 100644
---- a/arch/x86/entry/vdso/vma.c
-+++ b/arch/x86/entry/vdso/vma.c
-@@ -440,7 +440,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- static __init int vdso_setup(char *s)
- {
- 	vdso64_enabled = simple_strtoul(s, NULL, 0);
--	return 0;
-+	return 1;
- }
- __setup("vdso=", vdso_setup);
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index 4b047255d928..766391310d1b 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -1097,6 +1097,7 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
+ 	u32 fd_len = dpaa2_fd_get_len(fd);
+ 	struct dpaa2_sg_entry *sgt;
+ 	int should_free_skb = 1;
++	void *tso_hdr;
+ 	int i;
  
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 24539a05c58c..1c96f2425eaf 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -168,7 +168,7 @@ static __init int setup_apicpmtimer(char *s)
- {
- 	apic_calibrate_pmtmr = 1;
- 	notsc_setup(NULL);
--	return 0;
-+	return 1;
- }
- __setup("apicpmtimer", setup_apicpmtimer);
- #endif
-diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
-index 816fdbec795a..c6ad53e38f65 100644
---- a/arch/x86/kernel/cpu/intel.c
-+++ b/arch/x86/kernel/cpu/intel.c
-@@ -88,7 +88,7 @@ static bool ring3mwait_disabled __read_mostly;
- static int __init ring3mwait_disable(char *__unused)
- {
- 	ring3mwait_disabled = true;
--	return 0;
-+	return 1;
- }
- __setup("ring3mwait=disable", ring3mwait_disable);
+ 	fd_addr = dpaa2_fd_get_addr(fd);
+@@ -1136,9 +1137,10 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
+ 							priv->tx_data_offset);
  
-diff --git a/arch/x86/mm/pat/memtype.c b/arch/x86/mm/pat/memtype.c
-index 232932bda4e5..f9c53a710740 100644
---- a/arch/x86/mm/pat/memtype.c
-+++ b/arch/x86/mm/pat/memtype.c
-@@ -101,7 +101,7 @@ int pat_debug_enable;
- static int __init pat_debug_setup(char *str)
- {
- 	pat_debug_enable = 1;
--	return 0;
-+	return 1;
- }
- __setup("debugpat", pat_debug_setup);
+ 			/* Unmap and free the header */
++			tso_hdr = dpaa2_iova_to_virt(priv->iommu_domain, dpaa2_sg_get_addr(sgt));
+ 			dma_unmap_single(dev, dpaa2_sg_get_addr(sgt), TSO_HEADER_SIZE,
+ 					 DMA_TO_DEVICE);
+-			kfree(dpaa2_iova_to_virt(priv->iommu_domain, dpaa2_sg_get_addr(sgt)));
++			kfree(tso_hdr);
  
+ 			/* Unmap the other SG entries for the data */
+ 			for (i = 1; i < swa->tso.num_sg; i++)
 -- 
 2.35.1
 
