@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 261D6541CDA
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 195BC541592
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382380AbiFGWG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:06:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40078 "EHLO
+        id S1356504AbiFGUgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383158AbiFGWFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:05:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1D419594A;
-        Tue,  7 Jun 2022 12:16:31 -0700 (PDT)
+        with ESMTP id S1378126AbiFGUex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E55AA1E8EAF;
+        Tue,  7 Jun 2022 11:37:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15E2BB823CA;
-        Tue,  7 Jun 2022 19:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73593C385A2;
-        Tue,  7 Jun 2022 19:16:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E7B3615D1;
+        Tue,  7 Jun 2022 18:37:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BC80C385A2;
+        Tue,  7 Jun 2022 18:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629388;
-        bh=b1g1fws0lCsOl10pEsDk3as04zJl0512CLXA21q35DY=;
+        s=korg; t=1654627049;
+        bh=+7xftkGjyf+e5zg4DgvqH+lSjN974cPn3Aj+rSWqdhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HTzPwQhSa5ZElVoIp24FjoKQmbQ+trwyFQRuf0KriS0fSKpyU4S2fzl89TgxIHuKn
-         gei99Px6/g6gTsyuFKy1MzCOmLQUQire33KT3Fhex1xZnvcQzOXYQ2CDDENoiVg57F
-         pWA3buCRbkNSH6l4/x3sT4gs3g5Ce/KGzPMSYU1I=
+        b=mlHcdwopR3V7HaMQt7Zi9I1RgXnQPlwZcGPvs1T0k53E9CUS6nnBUR6R3W5oj4lG+
+         gtZWuZ0BeGKGGZV4y+ta7cmqBS7N8hFuAE/GDpv4eGNWZy1CpzftEvcKTsCLRaFjyt
+         xR0RvHPVX5/pL0FLlZst71kOF2uQ8Cegh2Rx2ZXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Zhangfei Gao <zhangfei.gao@linaro.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 671/879] iommu/arm-smmu-v3-sva: Fix mm use-after-free
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 597/772] MIPS: RALINK: Define pci_remap_iospace under CONFIG_PCI_DRIVERS_GENERIC
 Date:   Tue,  7 Jun 2022 19:03:09 +0200
-Message-Id: <20220607165022.326261425@linuxfoundation.org>
+Message-Id: <20220607165006.534454012@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit cbd23144f7662b00bcde32a938c4a4057e476d68 ]
+[ Upstream commit 7e4fd16b38923028b01d3dbadf4ca973d885c53e ]
 
-We currently call arm64_mm_context_put() without holding a reference to
-the mm, which can result in use-after-free. Call mmgrab()/mmdrop() to
-ensure the mm only gets freed after we unpinned the ASID.
+kernel test robot reports a build error used with clang compiler and
+mips-randconfig [1]:
 
-Fixes: 32784a9562fb ("iommu/arm-smmu-v3: Implement iommu_sva_bind/unbind()")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Tested-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-Link: https://lore.kernel.org/r/20220426130444.300556-1-jean-philippe@linaro.org
-Signed-off-by: Will Deacon <will@kernel.org>
+    ld.lld: error: undefined symbol: pci_remap_iospace
+
+we can see the following configs in the mips-randconfig file:
+
+    CONFIG_RALINK=y
+    CONFIG_SOC_MT7620=y
+    CONFIG_PCI_DRIVERS_LEGACY=y
+    CONFIG_PCI=y
+
+CONFIG_RALINK is set, so pci_remap_iospace is defined in the related
+arch/mips/include/asm/mach-ralink/spaces.h header file:
+
+    #define pci_remap_iospace pci_remap_iospace
+
+CONFIG_PCI is set, so pci_remap_iospace() in drivers/pci/pci.c is not
+built due to pci_remap_iospace is defined under CONFIG_RALINK.
+
+    #ifndef pci_remap_iospace
+    int pci_remap_iospace(const struct resource *res, ...)
+
+    $ objdump -d drivers/pci/pci.o | grep pci_remap_iospace
+    00004cc8 <devm_pci_remap_iospace>:
+        4d18:	10400008 	beqz	v0,4d3c <devm_pci_remap_iospace+0x74>
+        4d2c:	1040000c 	beqz	v0,4d60 <devm_pci_remap_iospace+0x98>
+        4d70:	1000fff3 	b	4d40 <devm_pci_remap_iospace+0x78>
+
+In addition, CONFIG_PCI_DRIVERS_GENERIC is not set, so pci_remap_iospace()
+in arch/mips/pci/pci-generic.c is not built too.
+
+    #ifdef pci_remap_iospace
+    int pci_remap_iospace(const struct resource *res, ...)
+
+For the above reasons, undefined reference pci_remap_iospace() looks like
+reasonable.
+
+Here are simple steps to reproduce used with gcc and defconfig:
+
+    cd mips.git
+    make vocore2_defconfig # set RALINK, SOC_MT7620, PCI_DRIVERS_LEGACY
+    make menuconfig        # set PCI
+    make
+
+there exists the following build error:
+
+      LD      vmlinux.o
+      MODPOST vmlinux.symvers
+      MODINFO modules.builtin.modinfo
+      GEN     modules.builtin
+      LD      .tmp_vmlinux.kallsyms1
+    drivers/pci/pci.o: In function `devm_pci_remap_iospace':
+    pci.c:(.text+0x4d24): undefined reference to `pci_remap_iospace'
+    Makefile:1158: recipe for target 'vmlinux' failed
+    make: *** [vmlinux] Error 1
+
+Define pci_remap_iospace under CONFIG_PCI_DRIVERS_GENERIC can fix the build
+error, with this patch, no build error remains. This patch is similar with
+commit e538e8649892 ("MIPS: asm: pci: define arch-specific
+'pci_remap_iospace()' dependent on 'CONFIG_PCI_DRIVERS_GENERIC'").
+
+[1] https://lore.kernel.org/lkml/202205251247.nQ5cxSV6-lkp@intel.com/
+
+Fixes: 09d97da660ff ("MIPS: Only define pci_remap_iospace() for Ralink")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/mach-ralink/spaces.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-index c623dae1e115..1ef7bbb4acf3 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-@@ -6,6 +6,7 @@
- #include <linux/mm.h>
- #include <linux/mmu_context.h>
- #include <linux/mmu_notifier.h>
-+#include <linux/sched/mm.h>
- #include <linux/slab.h>
+diff --git a/arch/mips/include/asm/mach-ralink/spaces.h b/arch/mips/include/asm/mach-ralink/spaces.h
+index f7af11ea2d61..a9f0570d0f04 100644
+--- a/arch/mips/include/asm/mach-ralink/spaces.h
++++ b/arch/mips/include/asm/mach-ralink/spaces.h
+@@ -6,7 +6,9 @@
+ #define PCI_IOSIZE	SZ_64K
+ #define IO_SPACE_LIMIT	(PCI_IOSIZE - 1)
  
- #include "arm-smmu-v3.h"
-@@ -96,9 +97,14 @@ static struct arm_smmu_ctx_desc *arm_smmu_alloc_shared_cd(struct mm_struct *mm)
- 	struct arm_smmu_ctx_desc *cd;
- 	struct arm_smmu_ctx_desc *ret = NULL;
++#ifdef CONFIG_PCI_DRIVERS_GENERIC
+ #define pci_remap_iospace pci_remap_iospace
++#endif
  
-+	/* Don't free the mm until we release the ASID */
-+	mmgrab(mm);
-+
- 	asid = arm64_mm_context_get(mm);
--	if (!asid)
--		return ERR_PTR(-ESRCH);
-+	if (!asid) {
-+		err = -ESRCH;
-+		goto out_drop_mm;
-+	}
- 
- 	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
- 	if (!cd) {
-@@ -165,6 +171,8 @@ static struct arm_smmu_ctx_desc *arm_smmu_alloc_shared_cd(struct mm_struct *mm)
- 	kfree(cd);
- out_put_context:
- 	arm64_mm_context_put(mm);
-+out_drop_mm:
-+	mmdrop(mm);
- 	return err < 0 ? ERR_PTR(err) : ret;
- }
- 
-@@ -173,6 +181,7 @@ static void arm_smmu_free_shared_cd(struct arm_smmu_ctx_desc *cd)
- 	if (arm_smmu_free_asid(cd)) {
- 		/* Unpin ASID */
- 		arm64_mm_context_put(cd->mm);
-+		mmdrop(cd->mm);
- 		kfree(cd);
- 	}
- }
+ #include <asm/mach-generic/spaces.h>
+ #endif
 -- 
 2.35.1
 
