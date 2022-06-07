@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7709541172
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE8654189E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355834AbiFGTha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
+        id S1379687AbiFGVNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356423AbiFGTg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:36:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1725D1ACE5F;
-        Tue,  7 Jun 2022 11:13:28 -0700 (PDT)
+        with ESMTP id S1379908AbiFGVLJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:09 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5476216805;
+        Tue,  7 Jun 2022 11:52:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80F17B8236B;
-        Tue,  7 Jun 2022 18:13:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC151C385A2;
-        Tue,  7 Jun 2022 18:13:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F35D1CE2425;
+        Tue,  7 Jun 2022 18:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD503C385A2;
+        Tue,  7 Jun 2022 18:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625598;
-        bh=GTHiEG6Fbnv6d3nL/QXh9DsjWVX96eO95njhrpvwukM=;
+        s=korg; t=1654627945;
+        bh=JRkJa0zl65vatEo/O3a7Xd7SVKXSRFf9IzYWnB78tLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJkIn73C70kTuSktnyYzN/AHvoPLEcf5pba+H10pLzoQ/SSs/lCmx6bOJzHRQe6uj
-         XSQlQvKt/LzrH0UyPt0teBKhsV6dkoiD/WFXhMDEM7ACzNigWumQgHXg1NM1iRCVGh
-         PFYolM+aq+a5loaO1Ap9i7T6KuEzZuCsP6SgqWQo=
+        b=v6rSj0X/KzzynKj1yzSjhL8goHfi1ihcalTa01s+63/+nQXenIk5vv9RBmHMApNbU
+         fg2jrvbFFKEJtA3hwWJZkhy1duyBBSh1wAHMJlPqAA7eFCyEEmzcWkpesO2YsRP2Qw
+         /AQB7MbGr7v8MUnecS0YVtjo0lHO+0vmhs8eUoeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 073/772] ALSA: jack: Access input_dev under mutex
-Date:   Tue,  7 Jun 2022 18:54:25 +0200
-Message-Id: <20220607164951.193138467@linuxfoundation.org>
+        stable@vger.kernel.org, Hao Jia <jiahao.os@bytedance.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 148/879] sched/core: Avoid obvious double update_rq_clock warning
+Date:   Tue,  7 Jun 2022 18:54:26 +0200
+Message-Id: <20220607165007.001307779@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,152 +55,257 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Hao Jia <jiahao.os@bytedance.com>
 
-[ Upstream commit 1b6a6fc5280e97559287b61eade2d4b363e836f2 ]
+[ Upstream commit 2679a83731d51a744657f718fc02c3b077e47562 ]
 
-It is possible when using ASoC that input_dev is unregistered while
-calling snd_jack_report, which causes NULL pointer dereference.
-In order to prevent this serialize access to input_dev using mutex lock.
+When we use raw_spin_rq_lock() to acquire the rq lock and have to
+update the rq clock while holding the lock, the kernel may issue
+a WARN_DOUBLE_CLOCK warning.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20220412091628.3056922-1-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Since we directly use raw_spin_rq_lock() to acquire rq lock instead of
+rq_lock(), there is no corresponding change to rq->clock_update_flags.
+In particular, we have obtained the rq lock of other CPUs, the
+rq->clock_update_flags of this CPU may be RQCF_UPDATED at this time, and
+then calling update_rq_clock() will trigger the WARN_DOUBLE_CLOCK warning.
+
+So we need to clear RQCF_UPDATED of rq->clock_update_flags to avoid
+the WARN_DOUBLE_CLOCK warning.
+
+For the sched_rt_period_timer() and migrate_task_rq_dl() cases
+we simply replace raw_spin_rq_lock()/raw_spin_rq_unlock() with
+rq_lock()/rq_unlock().
+
+For the {pull,push}_{rt,dl}_task() cases, we add the
+double_rq_clock_clear_update() function to clear RQCF_UPDATED of
+rq->clock_update_flags, and call double_rq_clock_clear_update()
+before double_lock_balance()/double_rq_lock() returns to avoid the
+WARN_DOUBLE_CLOCK warning.
+
+Some call trace reports:
+Call Trace 1:
+ <IRQ>
+ sched_rt_period_timer+0x10f/0x3a0
+ ? enqueue_top_rt_rq+0x110/0x110
+ __hrtimer_run_queues+0x1a9/0x490
+ hrtimer_interrupt+0x10b/0x240
+ __sysvec_apic_timer_interrupt+0x8a/0x250
+ sysvec_apic_timer_interrupt+0x9a/0xd0
+ </IRQ>
+ <TASK>
+ asm_sysvec_apic_timer_interrupt+0x12/0x20
+
+Call Trace 2:
+ <TASK>
+ activate_task+0x8b/0x110
+ push_rt_task.part.108+0x241/0x2c0
+ push_rt_tasks+0x15/0x30
+ finish_task_switch+0xaa/0x2e0
+ ? __switch_to+0x134/0x420
+ __schedule+0x343/0x8e0
+ ? hrtimer_start_range_ns+0x101/0x340
+ schedule+0x4e/0xb0
+ do_nanosleep+0x8e/0x160
+ hrtimer_nanosleep+0x89/0x120
+ ? hrtimer_init_sleeper+0x90/0x90
+ __x64_sys_nanosleep+0x96/0xd0
+ do_syscall_64+0x34/0x90
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Call Trace 3:
+ <TASK>
+ deactivate_task+0x93/0xe0
+ pull_rt_task+0x33e/0x400
+ balance_rt+0x7e/0x90
+ __schedule+0x62f/0x8e0
+ do_task_dead+0x3f/0x50
+ do_exit+0x7b8/0xbb0
+ do_group_exit+0x2d/0x90
+ get_signal+0x9df/0x9e0
+ ? preempt_count_add+0x56/0xa0
+ ? __remove_hrtimer+0x35/0x70
+ arch_do_signal_or_restart+0x36/0x720
+ ? nanosleep_copyout+0x39/0x50
+ ? do_nanosleep+0x131/0x160
+ ? audit_filter_inodes+0xf5/0x120
+ exit_to_user_mode_prepare+0x10f/0x1e0
+ syscall_exit_to_user_mode+0x17/0x30
+ do_syscall_64+0x40/0x90
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Call Trace 4:
+ update_rq_clock+0x128/0x1a0
+ migrate_task_rq_dl+0xec/0x310
+ set_task_cpu+0x84/0x1e4
+ try_to_wake_up+0x1d8/0x5c0
+ wake_up_process+0x1c/0x30
+ hrtimer_wakeup+0x24/0x3c
+ __hrtimer_run_queues+0x114/0x270
+ hrtimer_interrupt+0xe8/0x244
+ arch_timer_handler_phys+0x30/0x50
+ handle_percpu_devid_irq+0x88/0x140
+ generic_handle_domain_irq+0x40/0x60
+ gic_handle_irq+0x48/0xe0
+ call_on_irq_stack+0x2c/0x60
+ do_interrupt_handler+0x80/0x84
+
+Steps to reproduce:
+1. Enable CONFIG_SCHED_DEBUG when compiling the kernel
+2. echo 1 > /sys/kernel/debug/clear_warn_once
+   echo "WARN_DOUBLE_CLOCK" > /sys/kernel/debug/sched/features
+   echo "NO_RT_PUSH_IPI" > /sys/kernel/debug/sched/features
+3. Run some rt/dl tasks that periodically work and sleep, e.g.
+Create 2*n rt or dl (90% running) tasks via rt-app (on a system
+with n CPUs), and Dietmar Eggemann reports Call Trace 4 when running
+on PREEMPT_RT kernel.
+
+Signed-off-by: Hao Jia <jiahao.os@bytedance.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lore.kernel.org/r/20220430085843.62939-2-jiahao.os@bytedance.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/jack.h |  1 +
- sound/core/jack.c    | 34 +++++++++++++++++++++++++++-------
- 2 files changed, 28 insertions(+), 7 deletions(-)
+ kernel/sched/core.c     |  6 +++---
+ kernel/sched/deadline.c |  5 +++--
+ kernel/sched/rt.c       |  5 +++--
+ kernel/sched/sched.h    | 28 ++++++++++++++++++++++++----
+ 4 files changed, 33 insertions(+), 11 deletions(-)
 
-diff --git a/include/sound/jack.h b/include/sound/jack.h
-index 1181f536557e..1ed90e2109e9 100644
---- a/include/sound/jack.h
-+++ b/include/sound/jack.h
-@@ -62,6 +62,7 @@ struct snd_jack {
- 	const char *id;
- #ifdef CONFIG_SND_JACK_INPUT_DEV
- 	struct input_dev *input_dev;
-+	struct mutex input_dev_lock;
- 	int registered;
- 	int type;
- 	char name[100];
-diff --git a/sound/core/jack.c b/sound/core/jack.c
-index d1e3055f2b6a..88493cc31914 100644
---- a/sound/core/jack.c
-+++ b/sound/core/jack.c
-@@ -42,8 +42,11 @@ static int snd_jack_dev_disconnect(struct snd_device *device)
- #ifdef CONFIG_SND_JACK_INPUT_DEV
- 	struct snd_jack *jack = device->device_data;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index d58c0389eb23..e58d894df207 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -610,10 +610,10 @@ void double_rq_lock(struct rq *rq1, struct rq *rq2)
+ 		swap(rq1, rq2);
  
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return 0;
-+	}
+ 	raw_spin_rq_lock(rq1);
+-	if (__rq_lockp(rq1) == __rq_lockp(rq2))
+-		return;
++	if (__rq_lockp(rq1) != __rq_lockp(rq2))
++		raw_spin_rq_lock_nested(rq2, SINGLE_DEPTH_NESTING);
  
- 	/* If the input device is registered with the input subsystem
- 	 * then we need to use a different deallocator. */
-@@ -52,6 +55,7 @@ static int snd_jack_dev_disconnect(struct snd_device *device)
- 	else
- 		input_free_device(jack->input_dev);
- 	jack->input_dev = NULL;
-+	mutex_unlock(&jack->input_dev_lock);
- #endif /* CONFIG_SND_JACK_INPUT_DEV */
- 	return 0;
+-	raw_spin_rq_lock_nested(rq2, SINGLE_DEPTH_NESTING);
++	double_rq_clock_clear_update(rq1, rq2);
  }
-@@ -90,8 +94,11 @@ static int snd_jack_dev_register(struct snd_device *device)
- 	snprintf(jack->name, sizeof(jack->name), "%s %s",
- 		 card->shortname, jack->id);
+ #endif
  
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return 0;
-+	}
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index fb4255ae0b2c..b61281d10458 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -1832,6 +1832,7 @@ select_task_rq_dl(struct task_struct *p, int cpu, int flags)
  
- 	jack->input_dev->name = jack->name;
- 
-@@ -116,6 +123,7 @@ static int snd_jack_dev_register(struct snd_device *device)
- 	if (err == 0)
- 		jack->registered = 1;
- 
-+	mutex_unlock(&jack->input_dev_lock);
- 	return err;
- }
- #endif /* CONFIG_SND_JACK_INPUT_DEV */
-@@ -517,9 +525,11 @@ int snd_jack_new(struct snd_card *card, const char *id, int type,
- 		return -ENOMEM;
- 	}
- 
--	/* don't creat input device for phantom jack */
--	if (!phantom_jack) {
- #ifdef CONFIG_SND_JACK_INPUT_DEV
-+	mutex_init(&jack->input_dev_lock);
-+
-+	/* don't create input device for phantom jack */
-+	if (!phantom_jack) {
- 		int i;
- 
- 		jack->input_dev = input_allocate_device();
-@@ -537,8 +547,8 @@ int snd_jack_new(struct snd_card *card, const char *id, int type,
- 				input_set_capability(jack->input_dev, EV_SW,
- 						     jack_switch_types[i]);
- 
--#endif /* CONFIG_SND_JACK_INPUT_DEV */
- 	}
-+#endif /* CONFIG_SND_JACK_INPUT_DEV */
- 
- 	err = snd_device_new(card, SNDRV_DEV_JACK, jack, &ops);
- 	if (err < 0)
-@@ -578,10 +588,14 @@ EXPORT_SYMBOL(snd_jack_new);
- void snd_jack_set_parent(struct snd_jack *jack, struct device *parent)
+ static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused)
  {
- 	WARN_ON(jack->registered);
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return;
-+	}
++	struct rq_flags rf;
+ 	struct rq *rq;
  
- 	jack->input_dev->dev.parent = parent;
-+	mutex_unlock(&jack->input_dev_lock);
+ 	if (READ_ONCE(p->__state) != TASK_WAKING)
+@@ -1843,7 +1844,7 @@ static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused
+ 	 * from try_to_wake_up(). Hence, p->pi_lock is locked, but
+ 	 * rq->lock is not... So, lock it
+ 	 */
+-	raw_spin_rq_lock(rq);
++	rq_lock(rq, &rf);
+ 	if (p->dl.dl_non_contending) {
+ 		update_rq_clock(rq);
+ 		sub_running_bw(&p->dl, &rq->dl);
+@@ -1859,7 +1860,7 @@ static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused
+ 			put_task_struct(p);
+ 	}
+ 	sub_rq_bw(&p->dl, &rq->dl);
+-	raw_spin_rq_unlock(rq);
++	rq_unlock(rq, &rf);
  }
- EXPORT_SYMBOL(snd_jack_set_parent);
  
-@@ -629,6 +643,8 @@ EXPORT_SYMBOL(snd_jack_set_key);
+ static void check_preempt_equal_dl(struct rq *rq, struct task_struct *p)
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index a32c46889af8..7891c0f0e1ff 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -871,6 +871,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
+ 		int enqueue = 0;
+ 		struct rt_rq *rt_rq = sched_rt_period_rt_rq(rt_b, i);
+ 		struct rq *rq = rq_of_rt_rq(rt_rq);
++		struct rq_flags rf;
+ 		int skip;
  
- /**
-  * snd_jack_report - Report the current status of a jack
-+ * Note: This function uses mutexes and should be called from a
-+ * context which can sleep (such as a workqueue).
-  *
-  * @jack:   The jack to report status for
-  * @status: The current status of the jack
-@@ -654,8 +670,11 @@ void snd_jack_report(struct snd_jack *jack, int status)
- 					     status & jack_kctl->mask_bits);
+ 		/*
+@@ -885,7 +886,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
+ 		if (skip)
+ 			continue;
  
- #ifdef CONFIG_SND_JACK_INPUT_DEV
--	if (!jack->input_dev)
-+	mutex_lock(&jack->input_dev_lock);
-+	if (!jack->input_dev) {
-+		mutex_unlock(&jack->input_dev_lock);
- 		return;
-+	}
+-		raw_spin_rq_lock(rq);
++		rq_lock(rq, &rf);
+ 		update_rq_clock(rq);
  
- 	for (i = 0; i < ARRAY_SIZE(jack->key); i++) {
- 		int testbit = ((SND_JACK_BTN_0 >> i) & ~mask_bits);
-@@ -675,6 +694,7 @@ void snd_jack_report(struct snd_jack *jack, int status)
+ 		if (rt_rq->rt_time) {
+@@ -923,7 +924,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
+ 
+ 		if (enqueue)
+ 			sched_rt_rq_enqueue(rt_rq);
+-		raw_spin_rq_unlock(rq);
++		rq_unlock(rq, &rf);
  	}
  
- 	input_sync(jack->input_dev);
-+	mutex_unlock(&jack->input_dev_lock);
- #endif /* CONFIG_SND_JACK_INPUT_DEV */
+ 	if (!throttled && (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF))
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 8dccb34eb190..2133aea22086 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2478,6 +2478,24 @@ unsigned long arch_scale_freq_capacity(int cpu)
  }
- EXPORT_SYMBOL(snd_jack_report);
+ #endif
+ 
++#ifdef CONFIG_SCHED_DEBUG
++/*
++ * In double_lock_balance()/double_rq_lock(), we use raw_spin_rq_lock() to
++ * acquire rq lock instead of rq_lock(). So at the end of these two functions
++ * we need to call double_rq_clock_clear_update() to clear RQCF_UPDATED of
++ * rq->clock_update_flags to avoid the WARN_DOUBLE_CLOCK warning.
++ */
++static inline void double_rq_clock_clear_update(struct rq *rq1, struct rq *rq2)
++{
++	rq1->clock_update_flags &= (RQCF_REQ_SKIP|RQCF_ACT_SKIP);
++	/* rq1 == rq2 for !CONFIG_SMP, so just clear RQCF_UPDATED once. */
++#ifdef CONFIG_SMP
++	rq2->clock_update_flags &= (RQCF_REQ_SKIP|RQCF_ACT_SKIP);
++#endif
++}
++#else
++static inline void double_rq_clock_clear_update(struct rq *rq1, struct rq *rq2) {}
++#endif
+ 
+ #ifdef CONFIG_SMP
+ 
+@@ -2543,14 +2561,15 @@ static inline int _double_lock_balance(struct rq *this_rq, struct rq *busiest)
+ 	__acquires(busiest->lock)
+ 	__acquires(this_rq->lock)
+ {
+-	if (__rq_lockp(this_rq) == __rq_lockp(busiest))
+-		return 0;
+-
+-	if (likely(raw_spin_rq_trylock(busiest)))
++	if (__rq_lockp(this_rq) == __rq_lockp(busiest) ||
++	    likely(raw_spin_rq_trylock(busiest))) {
++		double_rq_clock_clear_update(this_rq, busiest);
+ 		return 0;
++	}
+ 
+ 	if (rq_order_less(this_rq, busiest)) {
+ 		raw_spin_rq_lock_nested(busiest, SINGLE_DEPTH_NESTING);
++		double_rq_clock_clear_update(this_rq, busiest);
+ 		return 0;
+ 	}
+ 
+@@ -2644,6 +2663,7 @@ static inline void double_rq_lock(struct rq *rq1, struct rq *rq2)
+ 	BUG_ON(rq1 != rq2);
+ 	raw_spin_rq_lock(rq1);
+ 	__acquire(rq2->lock);	/* Fake it out ;) */
++	double_rq_clock_clear_update(rq1, rq2);
+ }
+ 
+ /*
 -- 
 2.35.1
 
