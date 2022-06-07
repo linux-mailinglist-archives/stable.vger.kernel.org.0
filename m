@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 692EE5416DB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA4A5407D9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377722AbiFGUyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:54:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
+        id S1347928AbiFGRwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378543AbiFGUwO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:14 -0400
+        with ESMTP id S1349856AbiFGRvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6091021CB;
-        Tue,  7 Jun 2022 11:42:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05EC13F1F5;
+        Tue,  7 Jun 2022 10:39:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBFD0B8220B;
-        Tue,  7 Jun 2022 18:42:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26CE6C385A2;
-        Tue,  7 Jun 2022 18:42:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3383BB81F38;
+        Tue,  7 Jun 2022 17:38:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81488C34115;
+        Tue,  7 Jun 2022 17:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627342;
-        bh=bEMjmt/fs8kRVG7tWEi/Vb+6ioSU5XDC+V8l26sZGkg=;
+        s=korg; t=1654623502;
+        bh=eZLploCWWHaF/e5TfqlvMEdXoL+bQn3oW0qOysb6+OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knVTFDoOUFdizxltrdlrVZ6x/pIAFEjKA5QZIdVa4p5R1vd0sQIk/Kidupq9if3g3
-         /wCNdrkuTRMQGNF29+3jb+ogIEOEi89/hMBwbF3Vom0WtnGrAkl9eH2reBOliSXiXA
-         6ZLsPCzpKx2/EnLrEiZb7Q4fOosFyf3hEKrje0uk=
+        b=WIIBfbjhPoRSg/hgIhW9/yxODX/jRAytPCEM+fwndQDHqF8yuDP60nbWNS2g3+Scd
+         DD8xVrvIwq2L/WOQfKv1iy0gLkRfmNIh0Q2czbeJiIVOptyW73na6xWAHse1UvdcEL
+         F0HwPGYxTzRikGd8paTSfFwzMZjxbvWOoIH7gusA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.17 706/772] mmc: core: Allows to override the timeout value for ioctl() path
+        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 441/452] bfq: Avoid merging queues with different parents
 Date:   Tue,  7 Jun 2022 19:04:58 +0200
-Message-Id: <20220607165009.851901533@linuxfoundation.org>
+Message-Id: <20220607164921.704862201@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 23e09be254f95a5b75cd87f91a4014f3b46dda3f upstream.
+commit c1cee4ab36acef271be9101590756ed0c0c374d9 upstream.
 
-Occasionally, user-land applications initiate longer timeout values for certain commands
-through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
-in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
-userspace application. This patch allows custom timeout values to override this default
-timeout values on the ioctl path.
+It can happen that the parent of a bfqq changes between the moment we
+decide two queues are worth to merge (and set bic->stable_merge_bfqq)
+and the moment bfq_setup_merge() is called. This can happen e.g. because
+the process submitted IO for a different cgroup and thus bfqq got
+reparented. It can even happen that the bfqq we are merging with has
+parent cgroup that is already offline and going to be destroyed in which
+case the merge can lead to use-after-free issues such as:
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220423221623.1074556-3-huobean@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+BUG: KASAN: use-after-free in __bfq_deactivate_entity+0x9cb/0xa50
+Read of size 8 at addr ffff88800693c0c0 by task runc:[2:INIT]/10544
+
+CPU: 0 PID: 10544 Comm: runc:[2:INIT] Tainted: G            E     5.15.2-0.g5fb85fd-default #1 openSUSE Tumbleweed (unreleased) f1f3b891c72369aebecd2e43e4641a6358867c70
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0x46/0x5a
+ print_address_description.constprop.0+0x1f/0x140
+ ? __bfq_deactivate_entity+0x9cb/0xa50
+ kasan_report.cold+0x7f/0x11b
+ ? __bfq_deactivate_entity+0x9cb/0xa50
+ __bfq_deactivate_entity+0x9cb/0xa50
+ ? update_curr+0x32f/0x5d0
+ bfq_deactivate_entity+0xa0/0x1d0
+ bfq_del_bfqq_busy+0x28a/0x420
+ ? resched_curr+0x116/0x1d0
+ ? bfq_requeue_bfqq+0x70/0x70
+ ? check_preempt_wakeup+0x52b/0xbc0
+ __bfq_bfqq_expire+0x1a2/0x270
+ bfq_bfqq_expire+0xd16/0x2160
+ ? try_to_wake_up+0x4ee/0x1260
+ ? bfq_end_wr_async_queues+0xe0/0xe0
+ ? _raw_write_unlock_bh+0x60/0x60
+ ? _raw_spin_lock_irq+0x81/0xe0
+ bfq_idle_slice_timer+0x109/0x280
+ ? bfq_dispatch_request+0x4870/0x4870
+ __hrtimer_run_queues+0x37d/0x700
+ ? enqueue_hrtimer+0x1b0/0x1b0
+ ? kvm_clock_get_cycles+0xd/0x10
+ ? ktime_get_update_offsets_now+0x6f/0x280
+ hrtimer_interrupt+0x2c8/0x740
+
+Fix the problem by checking that the parent of the two bfqqs we are
+merging in bfq_setup_merge() is the same.
+
+Link: https://lore.kernel.org/linux-block/20211125172809.GC19572@quack2.suse.cz/
+CC: stable@vger.kernel.org
+Fixes: 430a67f9d616 ("block, bfq: merge bursts of newly-created queues")
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-2-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ block/bfq-iosched.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mm
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2509,6 +2509,14 @@ bfq_setup_merge(struct bfq_queue *bfqq,
+ 	if (process_refs == 0 || new_process_refs == 0)
+ 		return NULL;
  
- 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
- 		/*
--		 * Ensure RPMB/R1B command has completed by polling CMD13
--		 * "Send Status".
-+		 * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
-+		 * allow to override the default timeout value if a custom timeout is specified.
- 		 */
--		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
--					MMC_BUSY_IO);
-+		err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
-+					false, MMC_BUSY_IO);
- 	}
++	/*
++	 * Make sure merged queues belong to the same parent. Parents could
++	 * have changed since the time we decided the two queues are suitable
++	 * for merging.
++	 */
++	if (new_bfqq->entity.parent != bfqq->entity.parent)
++		return NULL;
++
+ 	bfq_log_bfqq(bfqq->bfqd, bfqq, "scheduling merge with queue %d",
+ 		new_bfqq->pid);
  
- 	return err;
 
 
