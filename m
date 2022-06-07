@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B62A541B6E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF65541464
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381369AbiFGVrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:47:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60568 "EHLO
+        id S1358388AbiFGURq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382039AbiFGVqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:46:10 -0400
+        with ESMTP id S1359853AbiFGUQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AAFB23527D;
-        Tue,  7 Jun 2022 12:07:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED011CAC3B;
+        Tue,  7 Jun 2022 11:28:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2AD9B82182;
-        Tue,  7 Jun 2022 19:07:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AF90C385A2;
-        Tue,  7 Jun 2022 19:07:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB17CB81FF8;
+        Tue,  7 Jun 2022 18:28:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14851C385A2;
+        Tue,  7 Jun 2022 18:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628860;
-        bh=QawVH5XJK4WTWh1gfW7u/zbDDesGoYCTL7NMv1kBu1Y=;
+        s=korg; t=1654626523;
+        bh=N+n/PXc8mQporsmtg2maY4wKZMzz+9Xk7FGVO0RJx2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGSA83ur1RUaD47cykhYEYnNwuAGvz/dtqhgcutak0SYt9nuodoqemhRWRvn9q8Up
-         CsTpt9fKZpqTmE9sqhQ4bazTQFY5C83PkXRXFEtgsLtJy47elPTKWcTg4dROeO/yC0
-         +3uPxf1r37SJTTuiKTSuYwi6/cqYFzt5rFjb0aUU=
+        b=C8lua4bCjoof1BgbBehbUh8jtegniK2BreEwIBHVVSLgOZZkc38daFMKWQWKpNH9t
+         W3vNv2j3KTbvxipdYAlR5cc/YV65UZIBLNsp4bDyguntpBfvty1mQnp5QbSH8h3BIH
+         dEnmLpTvnzE7kBrPggQ/buZFfmNLQzzJXQKfwjrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Lukas Czerner <lczerner@redhat.com>,
+        stable@vger.kernel.org, Moshe Tal <moshet@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 482/879] ext4: reject the commit option on ext2 filesystems
-Date:   Tue,  7 Jun 2022 19:00:00 +0200
-Message-Id: <20220607165016.865680072@linuxfoundation.org>
+Subject: [PATCH 5.17 409/772] net/mlx5e: Correct the calculation of max channels for rep
+Date:   Tue,  7 Jun 2022 19:00:01 +0200
+Message-Id: <20220607165001.058852496@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Moshe Tal <moshet@nvidia.com>
 
-[ Upstream commit cb8435dc8ba33bcafa41cf2aa253794320a3b8df ]
+[ Upstream commit 6d0ba49321a40a8dada22c223bbe91c063b08db4 ]
 
-The 'commit' option is only applicable for ext3 and ext4 filesystems,
-and has never been accepted by the ext2 filesystem driver, so the ext4
-driver shouldn't allow it on ext2 filesystems.
+Correct the calculation of maximum channels of rep to better utilize
+the hardware resources and allow a larger scale of reps.
 
-This fixes a failure in xfstest ext4/053.
+This will allow creation of all virtual ports configured.
 
-Fixes: 8dc0aa8cf0f7 ("ext4: check incompatible mount options while mounting ext2/3")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Link: https://lore.kernel.org/r/20220510183232.172615-1-ebiggers@kernel.org
+Fixes: 473baf2e9e8c ("net/mlx5e: Allow profile-specific limitation on max num of channels")
+Signed-off-by: Moshe Tal <moshet@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h      |  1 +
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |  9 +++++++++
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c  | 10 ++++++++--
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 1466fbdbc8e3..f1987c0690a4 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1913,6 +1913,7 @@ static const struct mount_opts {
- 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
- 	{Opt_warn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_SET},
- 	{Opt_nowarn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_CLEAR},
-+	{Opt_commit, 0, MOPT_NO_EXT2},
- 	{Opt_nojournal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
- 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
- 	{Opt_journal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index c14e06ca64d8..5ccd6c634274 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -1188,6 +1188,7 @@ mlx5e_tx_mpwqe_supported(struct mlx5_core_dev *mdev)
+ 		MLX5_CAP_ETH(mdev, enhanced_multi_pkt_send_wqe);
+ }
+ 
++int mlx5e_get_pf_num_tirs(struct mlx5_core_dev *mdev);
+ int mlx5e_priv_init(struct mlx5e_priv *priv,
+ 		    const struct mlx5e_profile *profile,
+ 		    struct net_device *netdev,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 3500faf08671..531fffe1abe3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -5206,6 +5206,15 @@ mlx5e_calc_max_nch(struct mlx5_core_dev *mdev, struct net_device *netdev,
+ 	return max_nch;
+ }
+ 
++int mlx5e_get_pf_num_tirs(struct mlx5_core_dev *mdev)
++{
++	/* Indirect TIRS: 2 sets of TTCs (inner + outer steering)
++	 * and 1 set of direct TIRS
++	 */
++	return 2 * MLX5E_NUM_INDIR_TIRS
++		+ mlx5e_profile_max_num_channels(mdev, &mlx5e_nic_profile);
++}
++
+ /* mlx5e generic netdev management API (move to en_common.c) */
+ int mlx5e_priv_init(struct mlx5e_priv *priv,
+ 		    const struct mlx5e_profile *profile,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+index 06d1f46f1688..f6a1c5efdb25 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -592,10 +592,16 @@ bool mlx5e_eswitch_vf_rep(const struct net_device *netdev)
+ 	return netdev->netdev_ops == &mlx5e_netdev_ops_rep;
+ }
+ 
++/* One indirect TIR set for outer. Inner not supported in reps. */
++#define REP_NUM_INDIR_TIRS MLX5E_NUM_INDIR_TIRS
++
+ static int mlx5e_rep_max_nch_limit(struct mlx5_core_dev *mdev)
+ {
+-	return (1 << MLX5_CAP_GEN(mdev, log_max_tir)) /
+-		mlx5_eswitch_get_total_vports(mdev);
++	int max_tir_num = 1 << MLX5_CAP_GEN(mdev, log_max_tir);
++	int num_vports = mlx5_eswitch_get_total_vports(mdev);
++
++	return (max_tir_num - mlx5e_get_pf_num_tirs(mdev)
++		- (num_vports * REP_NUM_INDIR_TIRS)) / num_vports;
+ }
+ 
+ static void mlx5e_build_rep_params(struct net_device *netdev)
 -- 
 2.35.1
 
