@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1FF5408F1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C12F541274
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347903AbiFGSEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33180 "EHLO
+        id S1356958AbiFGTq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:46:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351647AbiFGSCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522CF158744;
-        Tue,  7 Jun 2022 10:45:04 -0700 (PDT)
+        with ESMTP id S1356757AbiFGTn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:43:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A1255360;
+        Tue,  7 Jun 2022 11:18:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02D26B822B8;
-        Tue,  7 Jun 2022 17:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D203C385A5;
-        Tue,  7 Jun 2022 17:45:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A00CB8237C;
+        Tue,  7 Jun 2022 18:18:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6DDDC385A2;
+        Tue,  7 Jun 2022 18:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623901;
-        bh=mY7KrG6r191VUiGCfk7TkE+/2zhyGYPgoN5cuvSvJXs=;
+        s=korg; t=1654625893;
+        bh=4c4aEuU/cvjom0M16ArwJiuqMUd3ut2aEY2KHB7piac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmijJJpkF3f7yb/PA/rKSgmJWath5yyQnGAq/f04SavHzzD4m+SZaqVuAepkasont
-         tL5uULHITKxK+jtOk80Z23rgD23/QuDyvtbI4VSCja7eiOz4S6MJKSwFuce7zCTqhh
-         uuMt1prlI73gp7Ih5HIAhAXMXLjt7ROxKB+YZ96w=
+        b=QEjmt5JFzaawMzDGL2J9bQ8Fu/Pu09tHF9uTmt8cIMNK4CWc2DI2AfgRYV8sovqFa
+         U+K4AhR0pMyRh0uY0QGALlLnf8HItun9dz8Pf8j8dhkCWg2iv+u0eKNxEBoo2X9N2x
+         BYAR1VrZ5SM9UX7rp3ZaNeNmjgXzLNRufXkuJyUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jianghaoran <jianghaoran@kylinos.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <yujie.liu@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/667] ipv6: Dont send rs packets to the interface of ARPHRD_TUNNEL
+Subject: [PATCH 5.17 165/772] ASoC: rt1015p: remove dependency on GPIOLIB
 Date:   Tue,  7 Jun 2022 18:55:57 +0200
-Message-Id: <20220607164937.579629019@linuxfoundation.org>
+Message-Id: <20220607164953.902807910@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jianghaoran <jianghaoran@kylinos.cn>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit b52e1cce31ca721e937d517411179f9196ee6135 ]
+[ Upstream commit b390c25c6757b9d56cecdfbf6d55f15fc89a6386 ]
 
-ARPHRD_TUNNEL interface can't process rs packets
-and will generate TX errors
+commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
+series of unnecessary dependencies on GPIOLIB when the gpio was
+optional.
 
-ex:
-ip tunnel add ethn mode ipip local 192.168.1.1 remote 192.168.1.2
-ifconfig ethn x.x.x.x
+A similar simplification seems valid for rt1015p, so remove the
+dependency as well. This will avoid the following warning
 
-ethn: flags=209<UP,POINTOPOINT,RUNNING,NOARP>  mtu 1480
-	inet x.x.x.x  netmask 255.255.255.255  destination x.x.x.x
-	inet6 fe80::5efe:ac1e:3cdb  prefixlen 64  scopeid 0x20<link>
-	tunnel   txqueuelen 1000  (IPIP Tunnel)
-	RX packets 0  bytes 0 (0.0 B)
-	RX errors 0  dropped 0  overruns 0  frame 0
-	TX packets 0  bytes 0 (0.0 B)
-	TX errors 3  dropped 0 overruns 0  carrier 0  collisions 0
+  WARNING: unmet direct dependencies detected for SND_SOC_RT1015P
 
-Signed-off-by: jianghaoran <jianghaoran@kylinos.cn>
-Link: https://lore.kernel.org/r/20220429053802.246681-1-jianghaoran@kylinos.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] &&
+     GPIOLIB [=n]
+
+     Selected by [y]:
+
+     - SND_SOC_INTEL_SOF_RT5682_MACH [=y] && SOUND [=y] && !UML && SND
+       [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
+       (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
+       [=y] && ACPI [=y] && (SND_HDA_CODEC_HDMI [=y] &&
+       SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
+       COMPILE_TEST [=y]) || SND_SOC_SOF_BAYTRAIL [=n] &&
+       (X86_INTEL_LPSS [=n] || COMPILE_TEST [=y]))
+
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220517172647.468244-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 1ba5ff21412c..07b868c002a3 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -4219,7 +4219,8 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
- 	send_rs = send_mld &&
- 		  ipv6_accept_ra(ifp->idev) &&
- 		  ifp->idev->cnf.rtr_solicits != 0 &&
--		  (dev->flags&IFF_LOOPBACK) == 0;
-+		  (dev->flags & IFF_LOOPBACK) == 0 &&
-+		  (dev->type != ARPHRD_TUNNEL);
- 	read_unlock_bh(&ifp->idev->lock);
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index a8c6c2bfd5a7..3496403004ac 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -1202,7 +1202,6 @@ config SND_SOC_RT1015
  
- 	/* While dad is in progress mld report's source address is in6_addrany.
+ config SND_SOC_RT1015P
+ 	tristate
+-	depends on GPIOLIB
+ 
+ config SND_SOC_RT1019
+ 	tristate
 -- 
 2.35.1
 
