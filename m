@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB24D54189F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD7D54112B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:34:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379819AbiFGVMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43478 "EHLO
+        id S1355515AbiFGTeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:34:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379706AbiFGVKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AFD215667;
-        Tue,  7 Jun 2022 11:52:00 -0700 (PDT)
+        with ESMTP id S1355053AbiFGTcW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:32:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EFE113B78;
+        Tue,  7 Jun 2022 11:12:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D077B8239B;
-        Tue,  7 Jun 2022 18:51:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E0DC385A2;
-        Tue,  7 Jun 2022 18:51:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0C85B82182;
+        Tue,  7 Jun 2022 18:12:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29E8AC385A2;
+        Tue,  7 Jun 2022 18:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627917;
-        bh=BMxjupewSyN1zYjMGF8CZPdW+jWCEaz6ImvUq00v+cY=;
+        s=korg; t=1654625571;
+        bh=GqappdJ46XNiKfc/847FHFLyVCNgfObnyezwpSKixLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zG0M8xtIikkBk9QtrkwQdUku1owQcHQzGwlf1a4pEESiNnI37oNOiiWpGSSEmqYa5
-         pM3RuauPJkbhK30WDA4Uo5KkBmYhA/DOWWTscBoEv8pk2Iv74vmplpfU1auDhQi06U
-         UtEyBBUYlI+6NsJuzod26KjSPy1Rh9+KVupUZiTk=
+        b=Y2jl+YxIT4p64kTCsGael6CLyK8JYuoUGnIsdvmpy60atvZ9eMJBpuJO1CiksadwE
+         eU6T8ljSB11G3czBQ7+vlDgRM0yvPm6jnsVcB+4XSlnuOtCcJdTt1cXJXW42fg2Ibl
+         F1JjJ+tknTMJZk3hHzDnefG2fZPhb8y33tRJsKbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Runqing Yang <rainkin1993@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 139/879] ASoC: tscs454: Add endianness flag in snd_soc_component_driver
+Subject: [PATCH 5.17 065/772] libbpf: Fix a bug with checking bpf_probe_read_kernel() support in old kernels
 Date:   Tue,  7 Jun 2022 18:54:17 +0200
-Message-Id: <20220607165006.740371177@linuxfoundation.org>
+Message-Id: <20220607164950.955107013@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Runqing Yang <rainkin1993@gmail.com>
 
-[ Upstream commit ff69ec96b87dccb3a29edef8cec5d4fefbbc2055 ]
+[ Upstream commit d252a4a499a07bec21c65873f605c3a1ef52ffed ]
 
-The endianness flag is used on the CODEC side to specify an
-ambivalence to endian, typically because it is lost over the hardware
-link. This device receives audio over an I2S DAI and as such should
-have endianness applied.
+Background:
+Libbpf automatically replaces calls to BPF bpf_probe_read_{kernel,user}
+[_str]() helpers with bpf_probe_read[_str](), if libbpf detects that
+kernel doesn't support new APIs. Specifically, libbpf invokes the
+probe_kern_probe_read_kernel function to load a small eBPF program into
+the kernel in which bpf_probe_read_kernel API is invoked and lets the
+kernel checks whether the new API is valid. If the loading fails, libbpf
+considers the new API invalid and replaces it with the old API.
 
-A fixup is also required to use the width directly rather than relying
-on the format in hw_params, now both little and big endian would be
-supported. It is worth noting this changes the behaviour of S24_LE to
-use a word length of 24 rather than 32. This would appear to be a
-correction since the fact S24_LE is stored as 32 bits should not be
-presented over the bus.
+static int probe_kern_probe_read_kernel(void)
+{
+	struct bpf_insn insns[] = {
+		BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),	/* r1 = r10 (fp) */
+		BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -8),	/* r1 += -8 */
+		BPF_MOV64_IMM(BPF_REG_2, 8),		/* r2 = 8 */
+		BPF_MOV64_IMM(BPF_REG_3, 0),		/* r3 = 0 */
+		BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_probe_read_kernel),
+		BPF_EXIT_INSN(),
+	};
+	int fd, insn_cnt = ARRAY_SIZE(insns);
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220504170905.332415-26-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+	fd = bpf_prog_load(BPF_PROG_TYPE_KPROBE, NULL,
+                           "GPL", insns, insn_cnt, NULL);
+	return probe_fd(fd);
+}
+
+Bug:
+On older kernel versions [0], the kernel checks whether the version
+number provided in the bpf syscall, matches the LINUX_VERSION_CODE.
+If not matched, the bpf syscall fails. eBPF However, the
+probe_kern_probe_read_kernel code does not set the kernel version
+number provided to the bpf syscall, which causes the loading process
+alwasys fails for old versions. It means that libbpf will replace the
+new API with the old one even the kernel supports the new one.
+
+Solution:
+After a discussion in [1], the solution is using BPF_PROG_TYPE_TRACEPOINT
+program type instead of BPF_PROG_TYPE_KPROBE because kernel does not
+enfoce version check for tracepoint programs. I test the patch in old
+kernels (4.18 and 4.19) and it works well.
+
+  [0] https://elixir.bootlin.com/linux/v4.19/source/kernel/bpf/syscall.c#L1360
+  [1] Closes: https://github.com/libbpf/libbpf/issues/473
+
+Signed-off-by: Runqing Yang <rainkin1993@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220409144928.27499-1-rainkin1993@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tscs454.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/lib/bpf/libbpf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/tscs454.c b/sound/soc/codecs/tscs454.c
-index 7e1826d6f06f..32e6fa7b0a06 100644
---- a/sound/soc/codecs/tscs454.c
-+++ b/sound/soc/codecs/tscs454.c
-@@ -3120,18 +3120,17 @@ static int set_aif_sample_format(struct snd_soc_component *component,
- 	unsigned int width;
- 	int ret;
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 94a6a8543cbc..41515a770e3a 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -4564,7 +4564,7 @@ static int probe_kern_probe_read_kernel(void)
+ 	};
+ 	int fd, insn_cnt = ARRAY_SIZE(insns);
  
--	switch (format) {
--	case SNDRV_PCM_FORMAT_S16_LE:
-+	switch (snd_pcm_format_width(format)) {
-+	case 16:
- 		width = FV_WL_16;
- 		break;
--	case SNDRV_PCM_FORMAT_S20_3LE:
-+	case 20:
- 		width = FV_WL_20;
- 		break;
--	case SNDRV_PCM_FORMAT_S24_3LE:
-+	case 24:
- 		width = FV_WL_24;
- 		break;
--	case SNDRV_PCM_FORMAT_S24_LE:
--	case SNDRV_PCM_FORMAT_S32_LE:
-+	case 32:
- 		width = FV_WL_32;
- 		break;
- 	default:
-@@ -3326,6 +3325,7 @@ static const struct snd_soc_component_driver soc_component_dev_tscs454 = {
- 	.num_dapm_routes = ARRAY_SIZE(tscs454_intercon),
- 	.controls =	tscs454_snd_controls,
- 	.num_controls = ARRAY_SIZE(tscs454_snd_controls),
-+	.endianness = 1,
- };
+-	fd = bpf_prog_load(BPF_PROG_TYPE_KPROBE, NULL, "GPL", insns, insn_cnt, NULL);
++	fd = bpf_prog_load(BPF_PROG_TYPE_TRACEPOINT, NULL, "GPL", insns, insn_cnt, NULL);
+ 	return probe_fd(fd);
+ }
  
- #define TSCS454_RATES SNDRV_PCM_RATE_8000_96000
 -- 
 2.35.1
 
