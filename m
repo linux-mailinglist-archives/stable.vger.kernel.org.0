@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37BFA541970
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FCD1540927
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377982AbiFGVWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
+        id S1350219AbiFGSFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:05:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380908AbiFGVRI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3DF721FBFF;
-        Tue,  7 Jun 2022 11:58:04 -0700 (PDT)
+        with ESMTP id S1351541AbiFGSCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0F91545BB;
+        Tue,  7 Jun 2022 10:44:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52523617DA;
-        Tue,  7 Jun 2022 18:58:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 620AFC385A2;
-        Tue,  7 Jun 2022 18:58:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21FCEB822CE;
+        Tue,  7 Jun 2022 17:44:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B0E6C385A5;
+        Tue,  7 Jun 2022 17:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628283;
-        bh=iOb0nUWMNLkduNeH44/8s0eyZ5TAcg1492StEU120iE=;
+        s=korg; t=1654623887;
+        bh=bnrcRjMfckQxsM84Kybl6SlPqIVCfrWLK493AIts6sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SICEqomvNZa0SqCfmfKaRBZve9/LNvmxP+7stDvlWjbZ/W3VgQrZCgt7CljKHUn8J
-         tnN/gw3H12wCViVmEaXkRHwAV5Z2FB0JUuAgaRsb6GGqGK2VbyVDGtz+7Qc8Kg4P7f
-         Mlrd/y2MEZaHD8tjKX8HWvIUkQKchihxLYPU8XNo=
+        b=oEDwqOYxkqj4IeP26eayLQRx5Q4BTfc+NDaIk3VTIzs5zYfdQmXtEOAsdLRI/XxAl
+         tHbdoZuC4oL3qxWhOEpiJTWPeRH2+mr+2gnCcB8F5JDS1gK74RFr04R1ZsyT3e6WnY
+         1Gy+IOELyZCCSPJJOTqxa/KaUZr+P4K2fms5gbQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 272/879] drm/edid: fix invalid EDID extension block filtering
-Date:   Tue,  7 Jun 2022 18:56:30 +0200
-Message-Id: <20220607165010.745218657@linuxfoundation.org>
+        stable@vger.kernel.org, Xu Jianhai <zero.xu@bytedance.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 126/667] nbd: Fix hung on disconnect request if socket is closed before
+Date:   Tue,  7 Jun 2022 18:56:31 +0200
+Message-Id: <20220607164938.604729240@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 3aefc722ff52076407203b6af9713de567993adf ]
+[ Upstream commit 491bf8f236fdeec698fa6744993f1ecf3fafd1a5 ]
 
-The invalid EDID block filtering uses the number of valid EDID
-extensions instead of all EDID extensions for looping the extensions in
-the copy. This is fine, by coincidence, if all the invalid blocks are at
-the end of the EDID. However, it's completely broken if there are
-invalid extensions in the middle; the invalid blocks are included and
-valid blocks are excluded.
+When userspace closes the socket before sending a disconnect
+request, the following I/O requests will be blocked in
+wait_for_reconnect() until dead timeout. This will cause the
+following disconnect request also hung on blk_mq_quiesce_queue().
+That means we have no way to disconnect a nbd device if there
+are some I/O requests waiting for reconnecting until dead timeout.
+It's not expected. So let's wake up the thread waiting for
+reconnecting directly when a disconnect request is sent.
 
-Fix it by modifying the base block after, not before, the copy.
-
-Fixes: 14544d0937bf ("drm/edid: Only print the bad edid when aborting")
-Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220330170426.349248-1-jani.nikula@intel.com
+Reported-by: Xu Jianhai <zero.xu@bytedance.com>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220322080639.142-1-xieyongji@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/block/nbd.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index cc7bd58369df..c5b86414873e 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -2031,9 +2031,6 @@ struct edid *drm_do_get_edid(struct drm_connector *connector,
- 
- 		connector_bad_edid(connector, edid, edid[0x7e] + 1);
- 
--		edid[EDID_LENGTH-1] += edid[0x7e] - valid_extensions;
--		edid[0x7e] = valid_extensions;
--
- 		new = kmalloc_array(valid_extensions + 1, EDID_LENGTH,
- 				    GFP_KERNEL);
- 		if (!new)
-@@ -2050,6 +2047,9 @@ struct edid *drm_do_get_edid(struct drm_connector *connector,
- 			base += EDID_LENGTH;
- 		}
- 
-+		new[EDID_LENGTH - 1] += new[0x7e] - valid_extensions;
-+		new[0x7e] = valid_extensions;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 582b23befb5c..8704212482e5 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -896,11 +896,15 @@ static int wait_for_reconnect(struct nbd_device *nbd)
+ 	struct nbd_config *config = nbd->config;
+ 	if (!config->dead_conn_timeout)
+ 		return 0;
+-	if (test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags))
 +
- 		kfree(edid);
- 		edid = new;
- 	}
++	if (!wait_event_timeout(config->conn_wait,
++				test_bit(NBD_RT_DISCONNECTED,
++					 &config->runtime_flags) ||
++				atomic_read(&config->live_connections) > 0,
++				config->dead_conn_timeout))
+ 		return 0;
+-	return wait_event_timeout(config->conn_wait,
+-				  atomic_read(&config->live_connections) > 0,
+-				  config->dead_conn_timeout) > 0;
++
++	return !test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags);
+ }
+ 
+ static int nbd_handle_cmd(struct nbd_cmd *cmd, int index)
+@@ -2026,6 +2030,7 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
+ 	mutex_lock(&nbd->config_lock);
+ 	nbd_disconnect(nbd);
+ 	sock_shutdown(nbd);
++	wake_up(&nbd->config->conn_wait);
+ 	/*
+ 	 * Make sure recv thread has finished, we can safely call nbd_clear_que()
+ 	 * to cancel the inflight I/Os.
 -- 
 2.35.1
 
