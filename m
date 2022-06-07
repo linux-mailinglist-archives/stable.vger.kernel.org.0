@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C3C6540DC0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6CE541D1B
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353529AbiFGSt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58432 "EHLO
+        id S1357054AbiFGWI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:08:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354479AbiFGSrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:04 -0400
+        with ESMTP id S1382206AbiFGWG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D92A66AFF;
-        Tue,  7 Jun 2022 11:01:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078AE2534C5;
+        Tue,  7 Jun 2022 12:16:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BA6A617B0;
-        Tue,  7 Jun 2022 18:01:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B8BC34119;
-        Tue,  7 Jun 2022 18:01:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97D2161922;
+        Tue,  7 Jun 2022 19:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A428AC385A2;
+        Tue,  7 Jun 2022 19:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624887;
-        bh=qOG8Y18WbTQ5OroftqQAArGQvZPIVLqJFUdTH/Dey4Y=;
+        s=korg; t=1654629400;
+        bh=KiuypoSUd6NP4ZOZhLO+Q6SdpDwgU1oyK6PAXpq4hFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rg/q3B0r4Ma9aIGqBoe6Z0/Bl3gTJc9OSVJUh5P+uLuh/XAH/bmI27b0K/SONSaln
-         uw8qnR7nCxuJWQQS7ZUWfog2gYlGyr2Ve+//Mt44/XjPXT0BlwYRM62eT6+Zbj3gC6
-         NKxzVzrwMkbam0btqabCTcsAapdFnvUh2IJ4KenM=
+        b=IVUVRtjKAGq7jppZ2bXXVDtjXM/Gvty2BY2ccYKE6a4ZDAy7q1EkytPo5qNhWBuok
+         ZtEfu2SjKgE7Ea+wzJ2fy7K5zWAsmJLBRuK17jG6vDftt+hVlRc0qnDeiIuaY0KR3z
+         MwcbyiN5W9dPzJ146htl/zVz67T06WP+MKdVaS8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Yong Wu <yong.wu@mediatek.com>,
-        kernel test robot <lkp@intel.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 490/667] iommu/mediatek: Fix NULL pointer dereference when printing dev_name
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 637/879] mailbox: pcc: Fix an invalid-load caught by the address sanitizer
 Date:   Tue,  7 Jun 2022 19:02:35 +0200
-Message-Id: <20220607164949.395899818@linuxfoundation.org>
+Message-Id: <20220607165021.338940803@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,132 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit de78657e16f41417da9332f09c2d67d100096939 ]
+[ Upstream commit 369e4ef87a8f5da7c348ec2c61ec5cd726e8337a ]
 
-When larbdev is NULL (in the case I hit, the node is incorrectly set
-iommus = <&iommu NUM>), it will cause device_link_add() fail and
-kernel crashes when we try to print dev_name(larbdev).
+`pcc_mailbox_probe` doesn't initialize all memory that has been allocated
+before the first time that one of it's members `txdone_irq` may be
+accessed.
 
-Let's fail the probe if a larbdev is NULL to avoid invalid inputs from
-dts.
+This leads to a an invalid load any time that this member is accessed:
+[    2.429769] UBSAN: invalid-load in drivers/mailbox/pcc.c:684:22
+[    2.430324] UBSAN: invalid-load in drivers/mailbox/mailbox.c:486:12
+[    4.276782] UBSAN: invalid-load in drivers/acpi/cppc_acpi.c:314:45
 
-It should work for normal correct setting and avoid the crash caused
-by my incorrect setting.
-
-Error log:
-[   18.189042][  T301] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000050
-...
-[   18.344519][  T301] pstate: a0400005 (NzCv daif +PAN -UAO)
-[   18.345213][  T301] pc : mtk_iommu_probe_device+0xf8/0x118 [mtk_iommu]
-[   18.346050][  T301] lr : mtk_iommu_probe_device+0xd0/0x118 [mtk_iommu]
-[   18.346884][  T301] sp : ffffffc00a5635e0
-[   18.347392][  T301] x29: ffffffc00a5635e0 x28: ffffffd44a46c1d8
-[   18.348156][  T301] x27: ffffff80c39a8000 x26: ffffffd44a80cc38
-[   18.348917][  T301] x25: 0000000000000000 x24: ffffffd44a80cc38
-[   18.349677][  T301] x23: ffffffd44e4da4c6 x22: ffffffd44a80cc38
-[   18.350438][  T301] x21: ffffff80cecd1880 x20: 0000000000000000
-[   18.351198][  T301] x19: ffffff80c439f010 x18: ffffffc00a50d0c0
-[   18.351959][  T301] x17: ffffffffffffffff x16: 0000000000000004
-[   18.352719][  T301] x15: 0000000000000004 x14: ffffffd44eb5d420
-[   18.353480][  T301] x13: 0000000000000ad2 x12: 0000000000000003
-[   18.354241][  T301] x11: 00000000fffffad2 x10: c0000000fffffad2
-[   18.355003][  T301] x9 : a0d288d8d7142d00 x8 : a0d288d8d7142d00
-[   18.355763][  T301] x7 : ffffffd44c2bc640 x6 : 0000000000000000
-[   18.356524][  T301] x5 : 0000000000000080 x4 : 0000000000000001
-[   18.357284][  T301] x3 : 0000000000000000 x2 : 0000000000000005
-[   18.358045][  T301] x1 : 0000000000000000 x0 : 0000000000000000
-[   18.360208][  T301] Hardware name: MT6873 (DT)
-[   18.360771][  T301] Call trace:
-[   18.361168][  T301]  dump_backtrace+0xf8/0x1f0
-[   18.361737][  T301]  dump_stack_lvl+0xa8/0x11c
-[   18.362305][  T301]  dump_stack+0x1c/0x2c
-[   18.362816][  T301]  mrdump_common_die+0x184/0x40c [mrdump]
-[   18.363575][  T301]  ipanic_die+0x24/0x38 [mrdump]
-[   18.364230][  T301]  atomic_notifier_call_chain+0x128/0x2b8
-[   18.364937][  T301]  die+0x16c/0x568
-[   18.365394][  T301]  __do_kernel_fault+0x1e8/0x214
-[   18.365402][  T301]  do_page_fault+0xb8/0x678
-[   18.366934][  T301]  do_translation_fault+0x48/0x64
-[   18.368645][  T301]  do_mem_abort+0x68/0x148
-[   18.368652][  T301]  el1_abort+0x40/0x64
-[   18.368660][  T301]  el1h_64_sync_handler+0x54/0x88
-[   18.368668][  T301]  el1h_64_sync+0x68/0x6c
-[   18.368673][  T301]  mtk_iommu_probe_device+0xf8/0x118 [mtk_iommu]
-...
-
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Yong Wu <yong.wu@mediatek.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 635319a4a744 ("media: iommu/mediatek: Add device_link between the consumer and the larb devices")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220505132731.21628-1-miles.chen@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215587
+Fixes: ce028702ddbc ("mailbox: pcc: Move bulk of PCCT parsing into pcc_mbox_probe")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c    | 6 ++++++
- drivers/iommu/mtk_iommu_v1.c | 7 +++++++
- 2 files changed, 13 insertions(+)
+ drivers/mailbox/pcc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 9b3ded518f83..2ae46fa6b3de 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -586,6 +586,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 	 * All the ports in each a device should be in the same larbs.
- 	 */
- 	larbid = MTK_M4U_TO_LARB(fwspec->ids[0]);
-+	if (larbid >= MTK_LARB_NR_MAX)
-+		return ERR_PTR(-EINVAL);
-+
- 	for (i = 1; i < fwspec->num_ids; i++) {
- 		larbidx = MTK_M4U_TO_LARB(fwspec->ids[i]);
- 		if (larbid != larbidx) {
-@@ -595,6 +598,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 		}
- 	}
- 	larbdev = data->larb_imu[larbid].dev;
-+	if (!larbdev)
-+		return ERR_PTR(-EINVAL);
-+
- 	link = device_link_add(dev, larbdev,
- 			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
- 	if (!link)
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index bc7ee90b9373..254530ad6c48 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -80,6 +80,7 @@
- /* MTK generation one iommu HW only support 4K size mapping */
- #define MT2701_IOMMU_PAGE_SHIFT			12
- #define MT2701_IOMMU_PAGE_SIZE			(1UL << MT2701_IOMMU_PAGE_SHIFT)
-+#define MT2701_LARB_NR_MAX			3
- 
- /*
-  * MTK m4u support 4GB iova address space, and only support 4K page
-@@ -457,6 +458,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 
- 	/* Link the consumer device with the smi-larb device(supplier) */
- 	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
-+	if (larbid >= MT2701_LARB_NR_MAX)
-+		return ERR_PTR(-EINVAL);
-+
- 	for (idx = 1; idx < fwspec->num_ids; idx++) {
- 		larbidx = mt2701_m4u_to_larb(fwspec->ids[idx]);
- 		if (larbid != larbidx) {
-@@ -467,6 +471,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
+diff --git a/drivers/mailbox/pcc.c b/drivers/mailbox/pcc.c
+index ed18936b8ce6..ebfa33a40fce 100644
+--- a/drivers/mailbox/pcc.c
++++ b/drivers/mailbox/pcc.c
+@@ -654,7 +654,7 @@ static int pcc_mbox_probe(struct platform_device *pdev)
+ 		goto err;
  	}
  
- 	larbdev = data->larb_imu[larbid].dev;
-+	if (!larbdev)
-+		return ERR_PTR(-EINVAL);
-+
- 	link = device_link_add(dev, larbdev,
- 			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
- 	if (!link)
+-	pcc_mbox_ctrl = devm_kmalloc(dev, sizeof(*pcc_mbox_ctrl), GFP_KERNEL);
++	pcc_mbox_ctrl = devm_kzalloc(dev, sizeof(*pcc_mbox_ctrl), GFP_KERNEL);
+ 	if (!pcc_mbox_ctrl) {
+ 		rc = -ENOMEM;
+ 		goto err;
 -- 
 2.35.1
 
