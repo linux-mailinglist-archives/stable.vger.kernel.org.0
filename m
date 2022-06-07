@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C477540901
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:05:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0215412A3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349296AbiFGSEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:04:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
+        id S1356302AbiFGTy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351877AbiFGSCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42EAD120882;
-        Tue,  7 Jun 2022 10:46:01 -0700 (PDT)
+        with ESMTP id S1358385AbiFGTw0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663C2EACDB;
+        Tue,  7 Jun 2022 11:20:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C18A46146F;
-        Tue,  7 Jun 2022 17:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6590C385A5;
-        Tue,  7 Jun 2022 17:45:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 037F460DB7;
+        Tue,  7 Jun 2022 18:20:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13408C385A2;
+        Tue,  7 Jun 2022 18:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623960;
-        bh=3a8gxMHCDSeL/R2EhuktrXzbJmCqXw0BGoZqVqZ6DYA=;
+        s=korg; t=1654626016;
+        bh=0or0bOVZvhDFy8k7MzwZE5SMX4NHHdVIR77GgpLle00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vA94riozqmX/zFbxrjmLy4L/efmRVs8WrNbpxwtoi6lD+KLxTs2bHj7ECtNqPs4IT
-         h04B9hI2v0+I8idw4BgrxrxVcSzkEfz0zAEdMeiA9B5r48KCdJZ/KYkG2knTRsTmlJ
-         jo/7cS380rW04LriGS+Byw0B8KXst6UHR5/KQLkc=
+        b=BV5f0ugb65dS8+MCRiTafHW4FX9/Gw0MTASqLIAKdE1fjO7QHJfJZBRmpLNHMj5oE
+         sFdNbfUCQd+VStQV+LS1WuODAyeawHdUey794Cu/Za+gj6vXJtJhCChOGz6CzovXCd
+         CzK9aUL0S3vEkO+EeGSXm1RVE1SDarIN9kHhbgxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 154/667] PM / devfreq: rk3399_dmc: Disable edev on remove()
+Subject: [PATCH 5.17 227/772] drm/omap: fix NULL but dereferenced coccicheck error
 Date:   Tue,  7 Jun 2022 18:56:59 +0200
-Message-Id: <20220607164939.434342098@linuxfoundation.org>
+Message-Id: <20220607164955.721390952@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-[ Upstream commit 2fccf9e6050e0e3b8b4cd275d41daf7f7fa22804 ]
+[ Upstream commit 8f2a3970c969d0d8d7289a4c65edcedafc16fd92 ]
 
-Otherwise we hit an unablanced enable-count when unbinding the DFI
-device:
+Fix the following coccicheck warning:
+./drivers/gpu/drm/omapdrm/omap_overlay.c:89:22-25: ERROR: r_ovl is NULL
+but dereferenced.
 
-[ 1279.659119] ------------[ cut here ]------------
-[ 1279.659179] WARNING: CPU: 2 PID: 5638 at drivers/devfreq/devfreq-event.c:360 devfreq_event_remove_edev+0x84/0x8c
-...
-[ 1279.659352] Hardware name: Google Kevin (DT)
-[ 1279.659363] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
-[ 1279.659371] pc : devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659380] lr : devm_devfreq_event_release+0x1c/0x28
-...
-[ 1279.659571] Call trace:
-[ 1279.659582]  devfreq_event_remove_edev+0x84/0x8c
-[ 1279.659590]  devm_devfreq_event_release+0x1c/0x28
-[ 1279.659602]  release_nodes+0x1cc/0x244
-[ 1279.659611]  devres_release_all+0x44/0x60
-[ 1279.659621]  device_release_driver_internal+0x11c/0x1ac
-[ 1279.659629]  device_driver_detach+0x20/0x2c
-[ 1279.659641]  unbind_store+0x7c/0xb0
-[ 1279.659650]  drv_attr_store+0x2c/0x40
-[ 1279.659663]  sysfs_kf_write+0x44/0x58
-[ 1279.659672]  kernfs_fop_write_iter+0xf4/0x190
-[ 1279.659684]  vfs_write+0x2b0/0x2e4
-[ 1279.659693]  ksys_write+0x80/0xec
-[ 1279.659701]  __arm64_sys_write+0x24/0x30
-[ 1279.659714]  el0_svc_common+0xf0/0x1d8
-[ 1279.659724]  do_el0_svc_compat+0x28/0x3c
-[ 1279.659738]  el0_svc_compat+0x10/0x1c
-[ 1279.659746]  el0_sync_compat_handler+0xa8/0xcc
-[ 1279.659758]  el0_sync_compat+0x188/0x1c0
-[ 1279.659768] ---[ end trace cec200e5094155b4 ]---
+Here should be ovl->idx rather than r_ovl->idx.
 
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: e02b5cc9e898ad ("drm/omap: Add a 'right overlay' to plane state")
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220307095612.409090-1-wanjiabing@vivo.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/rk3399_dmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/omapdrm/omap_overlay.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
-index 293857ebfd75..538e8dc74f40 100644
---- a/drivers/devfreq/rk3399_dmc.c
-+++ b/drivers/devfreq/rk3399_dmc.c
-@@ -477,6 +477,8 @@ static int rk3399_dmcfreq_remove(struct platform_device *pdev)
- {
- 	struct rk3399_dmcfreq *dmcfreq = dev_get_drvdata(&pdev->dev);
- 
-+	devfreq_event_disable_edev(dmcfreq->edev);
-+
- 	/*
- 	 * Before remove the opp table we need to unregister the opp notifier.
- 	 */
+diff --git a/drivers/gpu/drm/omapdrm/omap_overlay.c b/drivers/gpu/drm/omapdrm/omap_overlay.c
+index 10730c9b2752..b0bc9ad2ef73 100644
+--- a/drivers/gpu/drm/omapdrm/omap_overlay.c
++++ b/drivers/gpu/drm/omapdrm/omap_overlay.c
+@@ -86,7 +86,7 @@ int omap_overlay_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 		r_ovl = omap_plane_find_free_overlay(s->dev, overlay_map,
+ 						     caps, fourcc);
+ 		if (!r_ovl) {
+-			overlay_map[r_ovl->idx] = NULL;
++			overlay_map[ovl->idx] = NULL;
+ 			*overlay = NULL;
+ 			return -ENOMEM;
+ 		}
 -- 
 2.35.1
 
