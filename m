@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74874540BD8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA9D540BDF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351325AbiFGScF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
+        id S1351430AbiFGScL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350862AbiFGS3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:43 -0400
+        with ESMTP id S1351264AbiFGS3o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC28E179C12;
-        Tue,  7 Jun 2022 10:55:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F76179C3C;
+        Tue,  7 Jun 2022 10:55:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E054B617E1;
-        Tue,  7 Jun 2022 17:55:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB69C3411C;
-        Tue,  7 Jun 2022 17:55:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDA2861827;
+        Tue,  7 Jun 2022 17:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CAE1C385A5;
+        Tue,  7 Jun 2022 17:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624524;
-        bh=sAkOyYAdlcm/cEjKk2Eg7D9Ue+girWWWfYJDPt8GC8Q=;
+        s=k20201202; t=1654624526;
+        bh=h9I8z9yfCsj9WKik3+U8sz5LvflAmBBSL/fxUrdruoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuPcem3UXZ/KlnV88b+3KNrSYStWoNgonREZizKhHlBTKIVBnybiGw1Z0SRHcLoCI
-         /qluDNu/1vzHxHxFU+D3Uj5haB5IdYwFZiNz5skdldo7vvok4E70GuG+EG5lQGtXcl
-         ADHc8FNE0lKqehKc+bM0soyc0pDOvap+/vnUtkatjGdl8MLazzb7P2DtHI78m+RuEp
-         9XGj72xCFz/OZgurynYGk3emA/ankiBTrvavoAqvyasAFWel/IEBbU817TCucD+L44
-         oMROxeEMUL2Q6PWO+l09LJmG/Ap77essNmcfQCiyN9h6nEShbQSRi2q6lkjqTsP6FD
-         PNiFU5lwPc1BA==
+        b=VCMivFLbvGfQnvLUG2ocKSeY/JcfmWr6k1jXTw3VLdFx97IOXWaCFkaIfpGn6YNPt
+         /fxicwqDJ1VhR/3cnpK+BWvFwZ3YK0iC6KgWNwDqoJIw0YE9qUvSoj1z5qQfXDZAVA
+         QCPrwKAOEtwMUO0+ehFuR3nYmVKrF/C5TOV9q0P2e4Q76q65isC4U5Z69p/1WMyiAb
+         rgvZN2UsYj+vSjS6GNtodrJYM0druJxWW4/WP4zLujYppDeqOERDTmrMAfcvCAgOR0
+         plPxmqE8JfjZ7tvBDQX+MGIz03cTEovWYCdcMCr5WBGPO692Kly8OAKw+ahQk3VXZ+
+         Qte+cGt9jl8Mw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 5.17 51/60] nbd: fix io hung while disconnecting device
-Date:   Tue,  7 Jun 2022 13:52:48 -0400
-Message-Id: <20220607175259.478835-51-sashal@kernel.org>
+Cc:     Namjae Jeon <linkinjeon@kernel.org>,
+        Gerald Lee <sundaywind2004@gmail.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.17 52/60] fs/ntfs3: Fix invalid free in log_replay
+Date:   Tue,  7 Jun 2022 13:52:49 -0400
+Message-Id: <20220607175259.478835-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -56,76 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 09dadb5985023e27d4740ebd17e6fea4640110e5 ]
+[ Upstream commit f26967b9f7a830e228bb13fb41bd516ddd9d789d ]
 
-In our tests, "qemu-nbd" triggers a io hung:
+log_read_rst() returns ENOMEM error when there is not enough memory.
+In this case, if info is returned without initialization,
+it attempts to kfree the uninitialized info->r_page pointer. This patch
+moves the memset initialization code to before log_read_rst() is called.
 
-INFO: task qemu-nbd:11445 blocked for more than 368 seconds.
-      Not tainted 5.18.0-rc3-next-20220422-00003-g2176915513ca #884
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:qemu-nbd        state:D stack:    0 pid:11445 ppid:     1 flags:0x00000000
-Call Trace:
- <TASK>
- __schedule+0x480/0x1050
- ? _raw_spin_lock_irqsave+0x3e/0xb0
- schedule+0x9c/0x1b0
- blk_mq_freeze_queue_wait+0x9d/0xf0
- ? ipi_rseq+0x70/0x70
- blk_mq_freeze_queue+0x2b/0x40
- nbd_add_socket+0x6b/0x270 [nbd]
- nbd_ioctl+0x383/0x510 [nbd]
- blkdev_ioctl+0x18e/0x3e0
- __x64_sys_ioctl+0xac/0x120
- do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fd8ff706577
-RSP: 002b:00007fd8fcdfebf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000040000000 RCX: 00007fd8ff706577
-RDX: 000000000000000d RSI: 000000000000ab00 RDI: 000000000000000f
-RBP: 000000000000000f R08: 000000000000fbe8 R09: 000055fe497c62b0
-R10: 00000002aff20000 R11: 0000000000000246 R12: 000000000000006d
-R13: 0000000000000000 R14: 00007ffe82dc5e70 R15: 00007fd8fcdff9c0
-
-"qemu-ndb -d" will call ioctl 'NBD_DISCONNECT' first, however, following
-message was found:
-
-block nbd0: Send disconnect failed -32
-
-Which indicate that something is wrong with the server. Then,
-"qemu-nbd -d" will call ioctl 'NBD_CLEAR_SOCK', however ioctl can't clear
-requests after commit 2516ab1543fd("nbd: only clear the queue on device
-teardown"). And in the meantime, request can't complete through timeout
-because nbd_xmit_timeout() will always return 'BLK_EH_RESET_TIMER', which
-means such request will never be completed in this situation.
-
-Now that the flag 'NBD_CMD_INFLIGHT' can make sure requests won't
-complete multiple times, switch back to call nbd_clear_sock() in
-nbd_clear_sock_ioctl(), so that inflight requests can be cleared.
-
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220521073749.3146892-5-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Gerald Lee <sundaywind2004@gmail.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ntfs3/fslog.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index f26cdb51812b..4a163bccd592 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1420,7 +1420,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
- 				 struct block_device *bdev)
- {
--	sock_shutdown(nbd);
-+	nbd_clear_sock(nbd);
- 	__invalidate_device(bdev, true);
- 	nbd_bdev_reset(bdev);
- 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
+diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
+index 06492f088d60..fc36c53b865a 100644
+--- a/fs/ntfs3/fslog.c
++++ b/fs/ntfs3/fslog.c
+@@ -1185,8 +1185,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
+ 	if (!r_page)
+ 		return -ENOMEM;
+ 
+-	memset(info, 0, sizeof(struct restart_info));
+-
+ 	/* Determine which restart area we are looking for. */
+ 	if (first) {
+ 		vbo = 0;
+@@ -3791,10 +3789,11 @@ int log_replay(struct ntfs_inode *ni, bool *initialized)
+ 	if (!log)
+ 		return -ENOMEM;
+ 
++	memset(&rst_info, 0, sizeof(struct restart_info));
++
+ 	log->ni = ni;
+ 	log->l_size = l_size;
+ 	log->one_page_buf = kmalloc(page_size, GFP_NOFS);
+-
+ 	if (!log->one_page_buf) {
+ 		err = -ENOMEM;
+ 		goto out;
+@@ -3842,6 +3841,7 @@ int log_replay(struct ntfs_inode *ni, bool *initialized)
+ 	if (rst_info.vbo)
+ 		goto check_restart_area;
+ 
++	memset(&rst_info2, 0, sizeof(struct restart_info));
+ 	err = log_read_rst(log, l_size, false, &rst_info2);
+ 
+ 	/* Determine which restart area to use. */
 -- 
 2.35.1
 
