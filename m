@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A63D5415FA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB34541C57
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376407AbiFGUnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35378 "EHLO
+        id S1379266AbiFGV5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:57:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377298AbiFGUdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFF11E3B23;
-        Tue,  7 Jun 2022 11:34:50 -0700 (PDT)
+        with ESMTP id S1382118AbiFGVzh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:55:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC8124C0B1;
+        Tue,  7 Jun 2022 12:13:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55D8B60B3D;
-        Tue,  7 Jun 2022 18:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61785C385A5;
-        Tue,  7 Jun 2022 18:34:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A5F36187F;
+        Tue,  7 Jun 2022 19:13:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84F99C385A2;
+        Tue,  7 Jun 2022 19:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626884;
-        bh=0hnrDxBMOqsivW40nLJd3AIIdOwo4+bA30YVTdbKlFo=;
+        s=korg; t=1654629221;
+        bh=ahpB3z3e2xSNZkK8vXSnKkUONv9J/XSv9U0JcNldZX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvMQ1Uyd7HYpeZlVg2EXBzOzkcUeydxwL1ZSp5vIAENMEWB56pUii7FjYEm3USeAZ
-         6eAC4Ju1ny1qJeccOfaN6SGUUvnFaKkpNoL62yAddT4HrQ1OoNMYsGHjfiSM8ItZ+i
-         i3JpApDdS4yEnbl0eIA0Rrs8TtNZzJne7858cfbI=
+        b=OfveBuSuHRiqDO8b5Yb0DLsXhtuXBRuC46r5DKYbvgn9ToZ4FI7wSwxJ3s9ZQskUc
+         UGwfBOy3hIPE1r/eWsLew1VIdLcvloAdBbaqPWDQSuAdFhTMwd5nfUzjQq+QmHlBKu
+         SeyuDDUnGq/Hlb67PNzZyTF/YA7s1ZojzHhwVxP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 539/772] KVM: PPC: Book3S HV: Fix vcore_blocked tracepoint
+Subject: [PATCH 5.18 613/879] ASoC: atmel-classd: Remove endianness flag on class d component
 Date:   Tue,  7 Jun 2022 19:02:11 +0200
-Message-Id: <20220607165004.848635400@linuxfoundation.org>
+Message-Id: <20220607165020.642605947@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit ad55bae7dc364417434b69dd6c30104f20d0f84d ]
+[ Upstream commit 0104d52a6a69b06b0e8167f7c1247e8c76aca070 ]
 
-We removed most of the vcore logic from the P9 path but there's still
-a tracepoint that tried to dereference vc->runner.
+The endianness flag should have been removed when the driver was
+ported across from having both a CODEC and CPU side component, to
+just having a CPU component and using the dummy for the CODEC. The
+endianness flag is used to indicate that the device is completely
+ambivalent to the endianness of the data, typically due to the
+endianness being lost over the hardware link (ie. the link defines
+bit ordering). It's usage didn't have any effect when the driver
+had both a CPU and CODEC component, since the union of those equals
+the CPU side settings, but now causes the driver to falsely report
+it supports big endian. Correct this by removing the flag.
 
-Fixes: ecb6a7207f92 ("KVM: PPC: Book3S HV P9: Remove most of the vcore logic")
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220328215831.320409-1-farosas@linux.ibm.com
+Fixes: 1dfdbe73ccf9 ("ASoC: atmel-classd: remove codec component")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220504170905.332415-4-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 8 ++++----
- arch/powerpc/kvm/trace_hv.h  | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ sound/soc/atmel/atmel-classd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 0da8c0df768d..85a3b756e0b0 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -4238,13 +4238,13 @@ static void kvmppc_vcore_blocked(struct kvmppc_vcore *vc)
- 	start_wait = ktime_get();
+diff --git a/sound/soc/atmel/atmel-classd.c b/sound/soc/atmel/atmel-classd.c
+index a9f9f449c48c..74b7b2611aa7 100644
+--- a/sound/soc/atmel/atmel-classd.c
++++ b/sound/soc/atmel/atmel-classd.c
+@@ -458,7 +458,6 @@ static const struct snd_soc_component_driver atmel_classd_cpu_dai_component = {
+ 	.num_controls		= ARRAY_SIZE(atmel_classd_snd_controls),
+ 	.idle_bias_on		= 1,
+ 	.use_pmdown_time	= 1,
+-	.endianness		= 1,
+ };
  
- 	vc->vcore_state = VCORE_SLEEPING;
--	trace_kvmppc_vcore_blocked(vc, 0);
-+	trace_kvmppc_vcore_blocked(vc->runner, 0);
- 	spin_unlock(&vc->lock);
- 	schedule();
- 	finish_rcuwait(&vc->wait);
- 	spin_lock(&vc->lock);
- 	vc->vcore_state = VCORE_INACTIVE;
--	trace_kvmppc_vcore_blocked(vc, 1);
-+	trace_kvmppc_vcore_blocked(vc->runner, 1);
- 	++vc->runner->stat.halt_successful_wait;
- 
- 	cur = ktime_get();
-@@ -4624,9 +4624,9 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
- 			if (kvmppc_vcpu_check_block(vcpu))
- 				break;
- 
--			trace_kvmppc_vcore_blocked(vc, 0);
-+			trace_kvmppc_vcore_blocked(vcpu, 0);
- 			schedule();
--			trace_kvmppc_vcore_blocked(vc, 1);
-+			trace_kvmppc_vcore_blocked(vcpu, 1);
- 		}
- 		finish_rcuwait(wait);
- 	}
-diff --git a/arch/powerpc/kvm/trace_hv.h b/arch/powerpc/kvm/trace_hv.h
-index 830a126e095d..9c56da21a075 100644
---- a/arch/powerpc/kvm/trace_hv.h
-+++ b/arch/powerpc/kvm/trace_hv.h
-@@ -408,9 +408,9 @@ TRACE_EVENT(kvmppc_run_core,
- );
- 
- TRACE_EVENT(kvmppc_vcore_blocked,
--	TP_PROTO(struct kvmppc_vcore *vc, int where),
-+	TP_PROTO(struct kvm_vcpu *vcpu, int where),
- 
--	TP_ARGS(vc, where),
-+	TP_ARGS(vcpu, where),
- 
- 	TP_STRUCT__entry(
- 		__field(int,	n_runnable)
-@@ -420,8 +420,8 @@ TRACE_EVENT(kvmppc_vcore_blocked,
- 	),
- 
- 	TP_fast_assign(
--		__entry->runner_vcpu = vc->runner->vcpu_id;
--		__entry->n_runnable  = vc->n_runnable;
-+		__entry->runner_vcpu = vcpu->vcpu_id;
-+		__entry->n_runnable  = vcpu->arch.vcore->n_runnable;
- 		__entry->where       = where;
- 		__entry->tgid	     = current->tgid;
- 	),
+ /* ASoC sound card */
 -- 
 2.35.1
 
