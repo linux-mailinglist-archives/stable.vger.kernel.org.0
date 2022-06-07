@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34262540CD2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457E9540CCF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352368AbiFGSll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:41:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55236 "EHLO
+        id S1352035AbiFGSlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345942AbiFGSjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:39:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE12184857;
+        with ESMTP id S1352647AbiFGSjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:39:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A63184863;
         Tue,  7 Jun 2022 10:58:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 92606CE2424;
-        Tue,  7 Jun 2022 17:58:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333ABC34115;
-        Tue,  7 Jun 2022 17:58:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 255CEB81F38;
+        Tue,  7 Jun 2022 17:58:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E30EC36AFE;
+        Tue,  7 Jun 2022 17:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624698;
-        bh=h9I8z9yfCsj9WKik3+U8sz5LvflAmBBSL/fxUrdruoU=;
+        s=k20201202; t=1654624699;
+        bh=WjlPiW19crEYmsn/usMNLrHWV8DmX3Lja2fcB7x66uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uz7tkK3AjxgxK/ZhgzaWejkr6VgtcxExCxy8mhWG85J2x24km9HyQUjeWORfkSAxw
-         TrDT7BxRykQdYeJN0Js7AS/lxpbSeRCXozMc+UfnorziV6iVfjK4FDaiM3/fJCwn/a
-         v5fImAuJ6pa8QpuLzRpimvg2c7R/SyFRM2GZgvSfYop2k+QBCU+aP+pRo9k/94VfO2
-         qS40Mkft1fH+3cuDQYrI/AeDt3kKlUBtPiqFqNYGhnMTfJiMTcTYjT1tV8VLC4aFP2
-         Fw3dYWc6xpcjXzGVjRWxcun4t3kXiy0hyT3cmcJDc6CbtDbnoOY7o3VXKd38yEpmJu
-         sA5++ouRKsHLg==
+        b=l1lxFBtXd9M5LJtVJ882+sbE++xBs+pTst6un4fpc8cFy6nsdZ41pFIPzjjn/2Jaj
+         KDUi6bZyEvUlh9GD9dhoaRxEJeZguRMVmx5lyouThdHpxXBRgseDGZcZjMzNaUTNf+
+         LLLOgVp0++Lg2hKZ61+MvN0Vokb+l6lEGoyw0l2f29el5b1SDw1GK+PcSnmycZQRhj
+         JZ5ctQsjsIBs2Je3ZbOq1iPoGQOzROrfPTdHDFEeI7MZuhYUfn4SmEyVO9MzklqDiT
+         BTumA2sH5Yk4D8D63/816hY5UKAs7uPNh4TpuZbsamNbFkqqtAZE3ADSGo2OPy0MSi
+         22B9xqVMIe2vQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Namjae Jeon <linkinjeon@kernel.org>,
-        Gerald Lee <sundaywind2004@gmail.com>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>, ntfs3@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 47/51] fs/ntfs3: Fix invalid free in log_replay
-Date:   Tue,  7 Jun 2022 13:55:46 -0400
-Message-Id: <20220607175552.479948-47-sashal@kernel.org>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
+        gor@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 48/51] s390/gmap: voluntarily schedule during key setting
+Date:   Tue,  7 Jun 2022 13:55:47 -0400
+Message-Id: <20220607175552.479948-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175552.479948-1-sashal@kernel.org>
 References: <20220607175552.479948-1-sashal@kernel.org>
@@ -57,57 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-[ Upstream commit f26967b9f7a830e228bb13fb41bd516ddd9d789d ]
+[ Upstream commit 6d5946274df1fff539a7eece458a43be733d1db8 ]
 
-log_read_rst() returns ENOMEM error when there is not enough memory.
-In this case, if info is returned without initialization,
-it attempts to kfree the uninitialized info->r_page pointer. This patch
-moves the memset initialization code to before log_read_rst() is called.
+With large and many guest with storage keys it is possible to create
+large latencies or stalls during initial key setting:
 
-Reported-by: Gerald Lee <sundaywind2004@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+rcu: INFO: rcu_sched self-detected stall on CPU
+rcu:   18-....: (2099 ticks this GP) idle=54e/1/0x4000000000000002 softirq=35598716/35598716 fqs=998
+       (t=2100 jiffies g=155867385 q=20879)
+Task dump for CPU 18:
+CPU 1/KVM       R  running task        0 1030947 256019 0x06000004
+Call Trace:
+sched_show_task
+rcu_dump_cpu_stacks
+rcu_sched_clock_irq
+update_process_times
+tick_sched_handle
+tick_sched_timer
+__hrtimer_run_queues
+hrtimer_interrupt
+do_IRQ
+ext_int_handler
+ptep_zap_key
+
+The mmap lock is held during the page walking but since this is a
+semaphore scheduling is still possible. Same for the kvm srcu.
+To minimize overhead do this on every segment table entry or large page.
+
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220530092706.11637-2-borntraeger@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/fslog.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/mm/gmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
-index 06492f088d60..fc36c53b865a 100644
---- a/fs/ntfs3/fslog.c
-+++ b/fs/ntfs3/fslog.c
-@@ -1185,8 +1185,6 @@ static int log_read_rst(struct ntfs_log *log, u32 l_size, bool first,
- 	if (!r_page)
- 		return -ENOMEM;
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index d63c0ccc5ccd..4ce3a2f01c91 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2601,6 +2601,18 @@ static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
+ 	return 0;
+ }
  
--	memset(info, 0, sizeof(struct restart_info));
--
- 	/* Determine which restart area we are looking for. */
- 	if (first) {
- 		vbo = 0;
-@@ -3791,10 +3789,11 @@ int log_replay(struct ntfs_inode *ni, bool *initialized)
- 	if (!log)
- 		return -ENOMEM;
- 
-+	memset(&rst_info, 0, sizeof(struct restart_info));
++/*
++ * Give a chance to schedule after setting a key to 256 pages.
++ * We only hold the mm lock, which is a rwsem and the kvm srcu.
++ * Both can sleep.
++ */
++static int __s390_enable_skey_pmd(pmd_t *pmd, unsigned long addr,
++				  unsigned long next, struct mm_walk *walk)
++{
++	cond_resched();
++	return 0;
++}
 +
- 	log->ni = ni;
- 	log->l_size = l_size;
- 	log->one_page_buf = kmalloc(page_size, GFP_NOFS);
--
- 	if (!log->one_page_buf) {
- 		err = -ENOMEM;
- 		goto out;
-@@ -3842,6 +3841,7 @@ int log_replay(struct ntfs_inode *ni, bool *initialized)
- 	if (rst_info.vbo)
- 		goto check_restart_area;
+ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 				      unsigned long hmask, unsigned long next,
+ 				      struct mm_walk *walk)
+@@ -2623,12 +2635,14 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 	end = start + HPAGE_SIZE - 1;
+ 	__storage_key_init_range(start, end);
+ 	set_bit(PG_arch_1, &page->flags);
++	cond_resched();
+ 	return 0;
+ }
  
-+	memset(&rst_info2, 0, sizeof(struct restart_info));
- 	err = log_read_rst(log, l_size, false, &rst_info2);
+ static const struct mm_walk_ops enable_skey_walk_ops = {
+ 	.hugetlb_entry		= __s390_enable_skey_hugetlb,
+ 	.pte_entry		= __s390_enable_skey_pte,
++	.pmd_entry		= __s390_enable_skey_pmd,
+ };
  
- 	/* Determine which restart area to use. */
+ int s390_enable_skey(void)
 -- 
 2.35.1
 
