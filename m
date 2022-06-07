@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0DD541988
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD185408DF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378521AbiFGVWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54790 "EHLO
+        id S1349469AbiFGSDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:03:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380697AbiFGVQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467C921F9AA;
-        Tue,  7 Jun 2022 11:56:20 -0700 (PDT)
+        with ESMTP id S1350894AbiFGSB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72DF14D79D;
+        Tue,  7 Jun 2022 10:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04B39B82018;
-        Tue,  7 Jun 2022 18:56:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55EBBC385A2;
-        Tue,  7 Jun 2022 18:56:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 429C5615B8;
+        Tue,  7 Jun 2022 17:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E32DC385A5;
+        Tue,  7 Jun 2022 17:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628177;
-        bh=djdQ9S61mfxn5Qroahz8b0fLg9sK1orzkaSB+oH7BUw=;
+        s=korg; t=1654623818;
+        bh=Nk3kL6bonCgW2p1suaJIp+npmeYoouMji55NiDP4wXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMgnU8JSd9ee/5s0365axmLgAGiv7iCslud19PIYwhhcp2r78xtq5JbS+iGOe2wqY
-         lA5lHn4Uj5FRyvmJ/qWAhMC/W1YYH4iut8UX+ls0IDJEXAaBGhMGNA55gv1Rdc3nC2
-         y4XddK2dVBY/i1nhHnEfJFgZORvxL6cpuRPnW9EI=
+        b=yWtM9BxrATpTx2GlE0kO8ap8/Ztyo2U4cerdJWFt6+whtRz6vdeqfaaW78sYgn3Rd
+         hA8atIY8Pp6MhfKVVXiXzqUvTwIQYqiVlLLcrqsPqkH81HLKM/e0BWKQ3dWUAzovot
+         /h0IBXDbfwiAw2hL33XQ2Uu/XsyTQJI1CYfEE1h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Wu <wupeng58@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 233/879] ARM: hisi: Add missing of_node_put after of_find_compatible_node
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 086/667] drm/plane: Move range check for format_count earlier
 Date:   Tue,  7 Jun 2022 18:55:51 +0200
-Message-Id: <20220607165009.618117963@linuxfoundation.org>
+Message-Id: <20220607164937.399282938@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Wu <wupeng58@huawei.com>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit 9bc72e47d4630d58a840a66a869c56b29554cfe4 ]
+[ Upstream commit 4b674dd69701c2e22e8e7770c1706a69f3b17269 ]
 
-of_find_compatible_node  will increment the refcount of the returned
-device_node. Calling of_node_put() to avoid the refcount leak
+While the check for format_count > 64 in __drm_universal_plane_init()
+shouldn't be hit (it's a WARN_ON), in its current position it will then
+leak the plane->format_types array and fail to call
+drm_mode_object_unregister() leaking the modeset identifier. Move it to
+the start of the function to avoid allocating those resources in the
+first place.
 
-Signed-off-by: Peng Wu <wupeng58@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://lore.kernel.org/dri-devel/20211203102815.38624-1-steven.price@arm.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-hisi/platsmp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/drm_plane.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/mach-hisi/platsmp.c b/arch/arm/mach-hisi/platsmp.c
-index a56cc64deeb8..9ce93e0b6cdc 100644
---- a/arch/arm/mach-hisi/platsmp.c
-+++ b/arch/arm/mach-hisi/platsmp.c
-@@ -67,14 +67,17 @@ static void __init hi3xxx_smp_prepare_cpus(unsigned int max_cpus)
- 		}
- 		ctrl_base = of_iomap(np, 0);
- 		if (!ctrl_base) {
-+			of_node_put(np);
- 			pr_err("failed to map address\n");
- 			return;
- 		}
- 		if (of_property_read_u32(np, "smp-offset", &offset) < 0) {
-+			of_node_put(np);
- 			pr_err("failed to find smp-offset property\n");
- 			return;
- 		}
- 		ctrl_base += offset;
-+		of_node_put(np);
+diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+index 82afb854141b..fd0bf90fb4c2 100644
+--- a/drivers/gpu/drm/drm_plane.c
++++ b/drivers/gpu/drm/drm_plane.c
+@@ -249,6 +249,13 @@ static int __drm_universal_plane_init(struct drm_device *dev,
+ 	if (WARN_ON(config->num_total_plane >= 32))
+ 		return -EINVAL;
+ 
++	/*
++	 * First driver to need more than 64 formats needs to fix this. Each
++	 * format is encoded as a bit and the current code only supports a u64.
++	 */
++	if (WARN_ON(format_count > 64))
++		return -EINVAL;
++
+ 	WARN_ON(drm_drv_uses_atomic_modeset(dev) &&
+ 		(!funcs->atomic_destroy_state ||
+ 		 !funcs->atomic_duplicate_state));
+@@ -270,13 +277,6 @@ static int __drm_universal_plane_init(struct drm_device *dev,
+ 		return -ENOMEM;
  	}
- }
  
-@@ -160,6 +163,7 @@ static int hip01_boot_secondary(unsigned int cpu, struct task_struct *idle)
- 	if (WARN_ON(!node))
- 		return -1;
- 	ctrl_base = of_iomap(node, 0);
-+	of_node_put(node);
+-	/*
+-	 * First driver to need more than 64 formats needs to fix this. Each
+-	 * format is encoded as a bit and the current code only supports a u64.
+-	 */
+-	if (WARN_ON(format_count > 64))
+-		return -EINVAL;
+-
+ 	if (format_modifiers) {
+ 		const uint64_t *temp_modifiers = format_modifiers;
  
- 	/* set the secondary core boot from DDR */
- 	remap_reg_value = readl_relaxed(ctrl_base + REG_SC_CTRL);
 -- 
 2.35.1
 
