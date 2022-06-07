@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 101C4541220
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AD40541989
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357044AbiFGToG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55222 "EHLO
+        id S1352333AbiFGVWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:22:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357919AbiFGTmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:33 -0400
+        with ESMTP id S1380698AbiFGVQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41CAA2712;
-        Tue,  7 Jun 2022 11:17:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3047A14AF70;
+        Tue,  7 Jun 2022 11:56:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0B8B60DD7;
-        Tue,  7 Jun 2022 18:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF5DC385A5;
-        Tue,  7 Jun 2022 18:17:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C036D61311;
+        Tue,  7 Jun 2022 18:56:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACF2C385A2;
+        Tue,  7 Jun 2022 18:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625838;
-        bh=lyG/J14veE4PPv7P93S7wmHZ8PtfDwL4ePf9On8nxYM=;
+        s=korg; t=1654628183;
+        bh=r3DLkc6jEcY3i0/3z56pH0qiShiXBiSeWD+DV9othKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqUCkf/W0BsIchl4QhoV9GITPzNUhICsofr3gSuCQUTfsSOcxCiJKQSgfT8ZoGJES
-         +pnSpkS3CcwgELluuzerJNygEHQAlAv0S5thr6m/cL/tbVgHFPeCOskyTaCvPOIcrs
-         UA7nTpIPUeP6S4FcPNd5AuiAFjOMLfZT264f4iOk=
+        b=wtGeOixaWLcyLofPkvsBSJC3xddUg+Tqu9olhOX1qpKZWCsh/lGfycSdggZb4f7MO
+         +eMmp73dXpBo9SseJ3HcDKCKhUqh34jCr3gL7HwyadO8Y0LbcfJj0R1qGI0oYUqOyF
+         NxGYVRzAI0xEfav57eAme1q03k8/RsBs+y5ZsDvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Sebastian Fricke <sebastian.fricke@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Rex-BC Chen <rex-bc.chen@mediatek.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Jia-wei Chang <jia-wei.chang@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 160/772] media: hantro: Stop using H.264 parameter pic_num
+Subject: [PATCH 5.18 234/879] cpufreq: Avoid unnecessary frequency updates due to mismatch
 Date:   Tue,  7 Jun 2022 18:55:52 +0200
-Message-Id: <20220607164953.756167625@linuxfoundation.org>
+Message-Id: <20220607165009.646354366@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 831410700909f4e29d5af1ef26b8c59fc2d1988e ]
+[ Upstream commit f55ae08c89873e140c7cac2a7fa161d31a0d60cf ]
 
-The hardware expects FrameNumWrap or long_term_frame_idx. Picture
-numbers are per field, and are mostly used during the memory
-management process, which is done in userland. This fixes two
-ITU conformance tests:
+For some platforms, the frequency returned by hardware may be slightly
+different from what is provided in the frequency table. For example,
+hardware may return 499 MHz instead of 500 MHz. In such cases it is
+better to avoid getting into unnecessary frequency updates, as we may
+end up switching policy->cur between the two and sending unnecessary
+pre/post update notifications, etc.
 
-  - MR6_BT_B
-  - MR8_BT_B
+This patch has chosen allows the hardware frequency and table frequency
+to deviate by 1 MHz for now, we may want to increase it a bit later on
+if someone still complains.
 
-Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Jia-wei Chang <jia-wei.chang@mediatek.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_h264.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/cpufreq/cpufreq.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/staging/media/hantro/hantro_h264.c b/drivers/staging/media/hantro/hantro_h264.c
-index 0b4d2491be3b..228629fb3cdf 100644
---- a/drivers/staging/media/hantro/hantro_h264.c
-+++ b/drivers/staging/media/hantro/hantro_h264.c
-@@ -354,8 +354,6 @@ u16 hantro_h264_get_ref_nbr(struct hantro_ctx *ctx, unsigned int dpb_idx)
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 80f535cc8a75..fbaa8e6c7d23 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -28,6 +28,7 @@
+ #include <linux/suspend.h>
+ #include <linux/syscore_ops.h>
+ #include <linux/tick.h>
++#include <linux/units.h>
+ #include <trace/events/power.h>
  
- 	if (!(dpb->flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE))
- 		return 0;
--	if (dpb->flags & V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM)
--		return dpb->pic_num;
- 	return dpb->frame_num;
- }
+ static LIST_HEAD(cpufreq_policy_list);
+@@ -1707,6 +1708,16 @@ static unsigned int cpufreq_verify_current_freq(struct cpufreq_policy *policy, b
+ 		return new_freq;
  
+ 	if (policy->cur != new_freq) {
++		/*
++		 * For some platforms, the frequency returned by hardware may be
++		 * slightly different from what is provided in the frequency
++		 * table, for example hardware may return 499 MHz instead of 500
++		 * MHz. In such cases it is better to avoid getting into
++		 * unnecessary frequency updates.
++		 */
++		if (abs(policy->cur - new_freq) < HZ_PER_MHZ)
++			return policy->cur;
++
+ 		cpufreq_out_of_sync(policy, new_freq);
+ 		if (update)
+ 			schedule_work(&policy->update);
 -- 
 2.35.1
 
