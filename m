@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A675410C1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56725416DC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355136AbiFGT3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
+        id S1358338AbiFGUyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355887AbiFGT0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:26:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB0119F05B;
-        Tue,  7 Jun 2022 11:09:32 -0700 (PDT)
+        with ESMTP id S1379005AbiFGUwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D85E606D3;
+        Tue,  7 Jun 2022 11:43:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB61DB81F38;
-        Tue,  7 Jun 2022 18:09:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDD7C385A2;
-        Tue,  7 Jun 2022 18:09:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B294E61295;
+        Tue,  7 Jun 2022 18:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDB9DC385A2;
+        Tue,  7 Jun 2022 18:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625369;
-        bh=0zqDnn8AWgneW2psyZRXzX0YIsFeJ0J6TgZN6NpYX3E=;
+        s=korg; t=1654627414;
+        bh=4v+cu7e+Xt75WklgaATgEEarc6UDXVoriEbxTMfiz7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aoIe+Es3/3mcgvxn7L7dY7Qk0Zvuy0N9ooxjiStmg2KlGapAbOkjMr16dr4GejD1x
-         37mdzngt8ZOxk9VnrS2688b4MevFdeFuopf6yAMioceUA2Ef5TQ/0qTdSoV0K3wT3r
-         WWrbZgGal6cKoC+sZ4KyBW9HiQeXOdulMNBMjZfk=
+        b=q6hp4j1ITkWFVki+DWjWBXbP7rj0Qnd+Dj+/6VZyVgpokCciYPW60V97tFxegvLM6
+         u/AOgW6MQzm2sY6BXUFc5+FfdqfeoG7RXuGCVMYQZu+9Q/QIa40E/al+SArZPD2Un6
+         QYtb5e5L2nLIFoy5OyAKIp+1TPd/NTdC/CHt1dKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 655/667] RDMA/hns: Remove the num_cqc_timer variable
-Date:   Tue,  7 Jun 2022 19:05:20 +0200
-Message-Id: <20220607164954.292745089@linuxfoundation.org>
+        stable@vger.kernel.org, pa@panix.com,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.17 729/772] rtl818x: Prevent using not initialized queues
+Date:   Tue,  7 Jun 2022 19:05:21 +0200
+Message-Id: <20220607165010.522757570@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixing Liu <liuyixing1@huawei.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-commit db5dfbf5b201df65c1f5332c4d9d5e7c2f42396b upstream.
+commit 746285cf81dc19502ab238249d75f5990bd2d231 upstream.
 
-The bt number of cqc_timer of HIP09 increases compared with that of HIP08.
-Therefore, cqc_timer_bt_num and num_cqc_timer do not match. As a result,
-the driver may fail to allocate cqc_timer. So the driver needs to uniquely
-uses cqc_timer_bt_num to represent the bt number of cqc_timer.
+Using not existing queues can panic the kernel with rtl8180/rtl8185 cards.
+Ignore the skb priority for those cards, they only have one tx queue. Pierre
+Asselin (pa@panix.com) reported the kernel crash in the Gentoo forum:
 
-Fixes: 0e40dc2f70cd ("RDMA/hns: Add timer allocation support for hip08")
-Link: https://lore.kernel.org/r/20220429093545.58070-1-liangwenpeng@huawei.com
-Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+https://forums.gentoo.org/viewtopic-t-1147832-postdays-0-postorder-asc-start-25.html
+
+He also confirmed that this patch fixes the issue. In summary this happened:
+
+After updating wpa_supplicant from 2.9 to 2.10 the kernel crashed with a
+"divide error: 0000" when connecting to an AP. Control port tx now tries to
+use IEEE80211_AC_VO for the priority, which wpa_supplicants starts to use in
+2.10.
+
+Since only the rtl8187se part of the driver supports QoS, the priority
+of the skb is set to IEEE80211_AC_BE (2) by mac80211 for rtl8180/rtl8185
+cards.
+
+rtl8180 is then unconditionally reading out the priority and finally crashes on
+drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c line 544 without this
+patch:
+	idx = (ring->idx + skb_queue_len(&ring->queue)) % ring->entries
+
+"ring->entries" is zero for rtl8180/rtl8185 cards, tx_ring[2] never got
+initialized.
+
+Cc: stable@vger.kernel.org
+Reported-by: pa@panix.com
+Tested-by: pa@panix.com
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220422145228.7567-1-alexander@wetzel-home.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_device.h |    1 -
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |    3 +--
- drivers/infiniband/hw/hns/hns_roce_hw_v2.h  |    2 +-
- drivers/infiniband/hw/hns/hns_roce_main.c   |    2 +-
- 4 files changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_device.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_device.h
-@@ -759,7 +759,6 @@ struct hns_roce_caps {
- 	u32		num_pi_qps;
- 	u32		reserved_qps;
- 	int		num_qpc_timer;
--	int		num_cqc_timer;
- 	int		num_srqs;
- 	u32		max_wqes;
- 	u32		max_srq_wrs;
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1973,7 +1973,7 @@ static void set_default_caps(struct hns_
- 	caps->num_mtpts		= HNS_ROCE_V2_MAX_MTPT_NUM;
- 	caps->num_pds		= HNS_ROCE_V2_MAX_PD_NUM;
- 	caps->num_qpc_timer	= HNS_ROCE_V2_MAX_QPC_TIMER_NUM;
--	caps->num_cqc_timer	= HNS_ROCE_V2_MAX_CQC_TIMER_NUM;
-+	caps->cqc_timer_bt_num	= HNS_ROCE_V2_MAX_CQC_TIMER_BT_NUM;
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
+@@ -460,8 +460,10 @@ static void rtl8180_tx(struct ieee80211_
+ 	struct rtl8180_priv *priv = dev->priv;
+ 	struct rtl8180_tx_ring *ring;
+ 	struct rtl8180_tx_desc *entry;
++	unsigned int prio = 0;
+ 	unsigned long flags;
+-	unsigned int idx, prio, hw_prio;
++	unsigned int idx, hw_prio;
++
+ 	dma_addr_t mapping;
+ 	u32 tx_flags;
+ 	u8 rc_flags;
+@@ -470,7 +472,9 @@ static void rtl8180_tx(struct ieee80211_
+ 	/* do arithmetic and then convert to le16 */
+ 	u16 frame_duration = 0;
  
- 	caps->max_qp_init_rdma	= HNS_ROCE_V2_MAX_QP_INIT_RDMA;
- 	caps->max_qp_dest_rdma	= HNS_ROCE_V2_MAX_QP_DEST_RDMA;
-@@ -2267,7 +2267,6 @@ static int hns_roce_query_pf_caps(struct
- 	caps->max_rq_sg = roundup_pow_of_two(caps->max_rq_sg);
- 	caps->max_extend_sg	     = le32_to_cpu(resp_a->max_extend_sg);
- 	caps->num_qpc_timer	     = le16_to_cpu(resp_a->num_qpc_timer);
--	caps->num_cqc_timer	     = le16_to_cpu(resp_a->num_cqc_timer);
- 	caps->max_srq_sges	     = le16_to_cpu(resp_a->max_srq_sges);
- 	caps->max_srq_sges = roundup_pow_of_two(caps->max_srq_sges);
- 	caps->num_aeq_vectors	     = resp_a->num_aeq_vectors;
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-@@ -51,7 +51,7 @@
- #define HNS_ROCE_V2_MAX_SRQ_WR			0x8000
- #define HNS_ROCE_V2_MAX_SRQ_SGE			64
- #define HNS_ROCE_V2_MAX_CQ_NUM			0x100000
--#define HNS_ROCE_V2_MAX_CQC_TIMER_NUM		0x100
-+#define HNS_ROCE_V2_MAX_CQC_TIMER_BT_NUM	0x100
- #define HNS_ROCE_V2_MAX_SRQ_NUM			0x100000
- #define HNS_ROCE_V2_MAX_CQE_NUM			0x400000
- #define HNS_ROCE_V2_MAX_SRQWQE_NUM		0x8000
---- a/drivers/infiniband/hw/hns/hns_roce_main.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_main.c
-@@ -663,7 +663,7 @@ static int hns_roce_init_hem(struct hns_
- 		ret = hns_roce_init_hem_table(hr_dev, &hr_dev->cqc_timer_table,
- 					      HEM_TYPE_CQC_TIMER,
- 					      hr_dev->caps.cqc_timer_entry_sz,
--					      hr_dev->caps.num_cqc_timer, 1);
-+					      hr_dev->caps.cqc_timer_bt_num, 1);
- 		if (ret) {
- 			dev_err(dev,
- 				"Failed to init CQC timer memory, aborting.\n");
+-	prio = skb_get_queue_mapping(skb);
++	/* rtl8180/rtl8185 only has one useable tx queue */
++	if (dev->queues > IEEE80211_AC_BK)
++		prio = skb_get_queue_mapping(skb);
+ 	ring = &priv->tx_ring[prio];
+ 
+ 	mapping = dma_map_single(&priv->pdev->dev, skb->data, skb->len,
 
 
