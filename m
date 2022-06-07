@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4E3540D00
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B87541C34
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346725AbiFGSmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38366 "EHLO
+        id S1379333AbiFGV5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351737AbiFGSlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:41:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5B23186BA8;
-        Tue,  7 Jun 2022 10:58:53 -0700 (PDT)
+        with ESMTP id S1383937AbiFGVxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD600247924;
+        Tue,  7 Jun 2022 12:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22EC6B82368;
-        Tue,  7 Jun 2022 17:58:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94FF7C34115;
-        Tue,  7 Jun 2022 17:58:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C4CB618D9;
+        Tue,  7 Jun 2022 19:12:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85613C34115;
+        Tue,  7 Jun 2022 19:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624730;
-        bh=QaBLpXvVZZrFl1X5v6hzQGyuNtnzNjh2StDhRAR2WBY=;
+        s=korg; t=1654629127;
+        bh=bYutRTyCZx340hOqd5JJwkoFAuQUP33ThESNoJBGSPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiL67AkKyHSPm9LeZXq6BP6ZJ5r21PaZBAEGAzq5vrLOjUIbczfYXvs935/X2Hcpq
-         H9m9GgdVCRBPBuY2VkwNTVmeNPU5f2xgTYKccEuJM/f+S2ylmqtBh2ST9l9mLkRfQe
-         Git+udgt054xV84INKYwrR47XWzNeB3lPBGJGW3U=
+        b=atxyMfF1b9V0u3X8I/mpjD9O9v9bezDXm6LQPNfcdUjigPI007ZTvstvZmZeuXXmF
+         B6IifIict6caBHw3D1vdYPhBV93hKv5tDFr+9EWd8R8OlFQfFf3RjYKBHY/0WGC0wd
+         R/ZEqc6Pp5Q2FvE6a3X/YFZV4nZAAW1F1Nj4qCzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 431/667] pinctrl: mvebu: Fix irq_of_parse_and_map() return value
+Subject: [PATCH 5.18 578/879] arm: mediatek: select arch timer for mt7629
 Date:   Tue,  7 Jun 2022 19:01:36 +0200
-Message-Id: <20220607164947.651762721@linuxfoundation.org>
+Message-Id: <20220607165019.631458487@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Chuanhong Guo <gch981213@gmail.com>
 
-[ Upstream commit 71bc7cf3be65bab441e03667cf215c557712976c ]
+[ Upstream commit d66aea197d534e23d4989eb72fca9c0c114b97c9 ]
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+This chip has an armv7 arch timer according to the dts. Select it in
+Kconfig to enforce the support for it.
+Otherwise the system time is just completely wrong if user forget to
+enable ARM_ARCH_TIMER in kernel config.
 
-Fixes: 2f227605394b ("pinctrl: armada-37xx: Add irqchip support")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220422105339.78810-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: a43379dddf1b ("arm: mediatek: add MT7629 smp bring up code")
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Link: https://lore.kernel.org/r/20220409091347.2473449-1-gch981213@gmail.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-mediatek/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 5cb018f98800..85a0052bb0e6 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -781,7 +781,7 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
- 	for (i = 0; i < nr_irq_parent; i++) {
- 		int irq = irq_of_parse_and_map(np, i);
+diff --git a/arch/arm/mach-mediatek/Kconfig b/arch/arm/mach-mediatek/Kconfig
+index 9e0f592d87d8..35a3430c7942 100644
+--- a/arch/arm/mach-mediatek/Kconfig
++++ b/arch/arm/mach-mediatek/Kconfig
+@@ -30,6 +30,7 @@ config MACH_MT7623
+ config MACH_MT7629
+ 	bool "MediaTek MT7629 SoCs support"
+ 	default ARCH_MEDIATEK
++	select HAVE_ARM_ARCH_TIMER
  
--		if (irq < 0)
-+		if (!irq)
- 			continue;
- 		girq->parents[i] = irq;
- 	}
+ config MACH_MT8127
+ 	bool "MediaTek MT8127 SoCs support"
 -- 
 2.35.1
 
