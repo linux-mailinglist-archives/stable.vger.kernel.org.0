@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0653D540E3D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB28540E27
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352186AbiFGSx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58130 "EHLO
+        id S1353479AbiFGSwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:52:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354575AbiFGSrJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:09 -0400
+        with ESMTP id S1354580AbiFGSrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04648BA55E;
-        Tue,  7 Jun 2022 11:02:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CB9AF1F5;
+        Tue,  7 Jun 2022 11:02:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93A97617AE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF413617AE;
+        Tue,  7 Jun 2022 18:02:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77436C36AFF;
         Tue,  7 Jun 2022 18:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67FCC34115;
-        Tue,  7 Jun 2022 18:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624939;
-        bh=CLxhyRsIbGorzJp3CfbUxXaPLoemca5e22KRT6otbHs=;
+        s=k20201202; t=1654624940;
+        bh=XwFXbMMdJibZIWYA/iWR+3Sh0kSMy0/LmOH9DmOggJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxE2GrcI2XMSSItKlfBLnLDtlpDepq5fIp5hzC0TrsGTIZZWhjYmor3QHyTn9bzlK
-         o4yJeDJ4YwcYr8hrp4QjCH5ZGL6p7Xrpy6hECIkOg+9TeEe8iXxIw7uxakYUjkKm5b
-         f7jpkCnV+XuIY8x5HOgPo/lU9vZi7rgz/8gVNj6Qhsa9TjcyepPkDESHhhFaJqbSjM
-         RD6BsMZTaUGFkkPcinABjIx4TzR6e06nU1UzwxlXG2gdhD7S8NOHBR3YgnqBd5/fqr
-         pV5BDLpxfp5CuwnL8n3w1KhgW9tgkewgMhkIX3PrGFJT2bSFw4Nu9VPn8l2l2cVZsq
-         Epn/6iKCzR7rQ==
+        b=GDhDd1/sLlNMy0ZLDGpyzlr8B5XimYPL9EIhOFGSCb6ErqVfKUHjRrf9lB3LceIYh
+         E1Pic4WvSJ37JDSdNaCMZduXTupk9IN9yl7/E65bE0NYaGRsWuF5xPdYgmwvLsDu+u
+         59bm6+vjKNxe7kqFQgTyuX2LXVL1BNaXz7/6fK5C5Ab48owLmFqp6iO1UhWtVL82MP
+         iNyJh8imbbNekcYBHU0j0bNmucP4Ls4KckGbWd1Mytak+q/rqbfLlI01pyYbWGtBU0
+         cZUe9tyylJNA9CRhIP0nZHOnAwOnAP58PJt9+j/JW65v2OBfQa/n8BJ02IqVH/5nsR
+         DKYUA+rUkvLAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gong Yuanjun <ruc_gongyuanjun@163.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 22/27] drm/radeon: fix a possible null pointer dereference
-Date:   Tue,  7 Jun 2022 14:01:26 -0400
-Message-Id: <20220607180133.481701-22-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>, michal.lkml@markovi.net,
+        linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 23/27] modpost: fix undefined behavior of is_arm_mapping_symbol()
+Date:   Tue,  7 Jun 2022 14:01:27 -0400
+Message-Id: <20220607180133.481701-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607180133.481701-1-sashal@kernel.org>
 References: <20220607180133.481701-1-sashal@kernel.org>
@@ -58,45 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gong Yuanjun <ruc_gongyuanjun@163.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit a2b28708b645c5632dc93669ab06e97874c8244f ]
+[ Upstream commit d6b732666a1bae0df3c3ae06925043bba34502b1 ]
 
-In radeon_fp_native_mode(), the return value of drm_mode_duplicate()
-is assigned to mode, which will lead to a NULL pointer dereference
-on failure of drm_mode_duplicate(). Add a check to avoid npd.
+The return value of is_arm_mapping_symbol() is unpredictable when "$"
+is passed in.
 
-The failure status of drm_cvt_mode() on the other path is checked too.
+strchr(3) says:
+  The strchr() and strrchr() functions return a pointer to the matched
+  character or NULL if the character is not found. The terminating null
+  byte is considered part of the string, so that if c is specified as
+  '\0', these functions return a pointer to the terminator.
 
-Signed-off-by: Gong Yuanjun <ruc_gongyuanjun@163.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+When str[1] is '\0', strchr("axtd", str[1]) is not NULL, and str[2] is
+referenced (i.e. buffer overrun).
+
+Test code
+---------
+
+  char str1[] = "abc";
+  char str2[] = "ab";
+
+  strcpy(str1, "$");
+  strcpy(str2, "$");
+
+  printf("test1: %d\n", is_arm_mapping_symbol(str1));
+  printf("test2: %d\n", is_arm_mapping_symbol(str2));
+
+Result
+------
+
+  test1: 0
+  test2: 1
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_connectors.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ scripts/mod/modpost.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
-index b9927101e845..47240983f360 100644
---- a/drivers/gpu/drm/radeon/radeon_connectors.c
-+++ b/drivers/gpu/drm/radeon/radeon_connectors.c
-@@ -476,6 +476,8 @@ static struct drm_display_mode *radeon_fp_native_mode(struct drm_encoder *encode
- 	    native_mode->vdisplay != 0 &&
- 	    native_mode->clock != 0) {
- 		mode = drm_mode_duplicate(dev, native_mode);
-+		if (!mode)
-+			return NULL;
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		drm_mode_set_name(mode);
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index 7c693bd775c1..1c2f59245849 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1218,7 +1218,8 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
  
-@@ -490,6 +492,8 @@ static struct drm_display_mode *radeon_fp_native_mode(struct drm_encoder *encode
- 		 * simpler.
- 		 */
- 		mode = drm_cvt_mode(dev, native_mode->hdisplay, native_mode->vdisplay, 60, true, false, false);
-+		if (!mode)
-+			return NULL;
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		DRM_DEBUG_KMS("Adding cvt approximation of native panel mode %s\n", mode->name);
- 	}
+ static inline int is_arm_mapping_symbol(const char *str)
+ {
+-	return str[0] == '$' && strchr("axtd", str[1])
++	return str[0] == '$' &&
++	       (str[1] == 'a' || str[1] == 'd' || str[1] == 't' || str[1] == 'x')
+ 	       && (str[2] == '\0' || str[2] == '.');
+ }
+ 
 -- 
 2.35.1
 
