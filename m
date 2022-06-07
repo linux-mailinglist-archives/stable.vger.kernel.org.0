@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC61540FF9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B38541720
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355248AbiFGTOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:14:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55128 "EHLO
+        id S1358858AbiFGU7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:59:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355251AbiFGTOI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:14:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD06194BFC;
-        Tue,  7 Jun 2022 11:07:28 -0700 (PDT)
+        with ESMTP id S1377483AbiFGU6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:58:39 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47DA1207ED9;
+        Tue,  7 Jun 2022 11:44:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45315617A5;
-        Tue,  7 Jun 2022 18:07:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55353C34115;
-        Tue,  7 Jun 2022 18:07:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4C02ECE246B;
+        Tue,  7 Jun 2022 18:39:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D35DC385A2;
+        Tue,  7 Jun 2022 18:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625244;
-        bh=jAfyJdtY7AW8Hezy+hcbPYqE7q7fX2MgEkIpU715TEs=;
+        s=korg; t=1654627165;
+        bh=iGrk7ybXy8UBEz6nBp+6bzcQu5WH/ziqTIZ8/LsZenM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2gfXERaUQ9MQQadlHhOCIXZfzo5GTOnK+ohyLjcXktbfuGbREoXYSGrmh1AMzMHd
-         c6Gf5fRmde08kd8FHc/ijjKhkL4V+7gvo90S08MG9fTl5R+2tvt/3b2bBxIj/5p7+9
-         3ZdkY2S2Hj6xpGwhhoYJ8yOwpKlxwxSGVLhQ4Ln8=
+        b=tAa4rZmdCGl68S7JZ7CuyNzF0zH/ycehLWlcakoWNYdYiBVFK6zjLFbcX+Op5Yixe
+         mXAZDUp/wOSQYLe5JGd21wROXBlMtCZ2nXro2/suRqwbhw8U9D/nEaAawLQGgySYtw
+         qkmCOfqsqdnffFm/waz13Kt6Mhoq5bP2DGx0Co78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.15 567/667] landlock: Add clang-format exceptions
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.17 640/772] ext4: fix warning in ext4_handle_inode_extension
 Date:   Tue,  7 Jun 2022 19:03:52 +0200
-Message-Id: <20220607164951.699114218@linuxfoundation.org>
+Message-Id: <20220607165007.926370031@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 6cc2df8e3a3967e7c13a424f87f6efb1d4a62d80 upstream.
+commit f4534c9fc94d22383f187b9409abb3f9df2e3db3 upstream.
 
-In preparation to a following commit, add clang-format on and
-clang-format off stanzas around constant definitions.  This enables to
-keep aligned values, which is much more readable than packed
-definitions.
+We got issue as follows:
+EXT4-fs error (device loop0) in ext4_reserve_inode_write:5741: Out of memory
+EXT4-fs error (device loop0): ext4_setattr:5462: inode #13: comm syz-executor.0: mark_inode_dirty error
+EXT4-fs error (device loop0) in ext4_setattr:5519: Out of memory
+EXT4-fs error (device loop0): ext4_ind_map_blocks:595: inode #13: comm syz-executor.0: Can't allocate blocks for non-extent mapped inodes with bigalloc
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 4361 at fs/ext4/file.c:301 ext4_file_write_iter+0x11c9/0x1220
+Modules linked in:
+CPU: 1 PID: 4361 Comm: syz-executor.0 Not tainted 5.10.0+ #1
+RIP: 0010:ext4_file_write_iter+0x11c9/0x1220
+RSP: 0018:ffff924d80b27c00 EFLAGS: 00010282
+RAX: ffffffff815a3379 RBX: 0000000000000000 RCX: 000000003b000000
+RDX: ffff924d81601000 RSI: 00000000000009cc RDI: 00000000000009cd
+RBP: 000000000000000d R08: ffffffffbc5a2c6b R09: 0000902e0e52a96f
+R10: ffff902e2b7c1b40 R11: ffff902e2b7c1b40 R12: 000000000000000a
+R13: 0000000000000001 R14: ffff902e0e52aa10 R15: ffffffffffffff8b
+FS:  00007f81a7f65700(0000) GS:ffff902e3bc80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffff600400 CR3: 000000012db88001 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ do_iter_readv_writev+0x2e5/0x360
+ do_iter_write+0x112/0x4c0
+ do_pwritev+0x1e5/0x390
+ __x64_sys_pwritev2+0x7e/0xa0
+ do_syscall_64+0x37/0x50
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Link: https://lore.kernel.org/r/20220506160513.523257-2-mic@digikod.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Above issue may happen as follows:
+Assume
+inode.i_size=4096
+EXT4_I(inode)->i_disksize=4096
+
+step 1: set inode->i_isize = 8192
+ext4_setattr
+  if (attr->ia_size != inode->i_size)
+    EXT4_I(inode)->i_disksize = attr->ia_size;
+    rc = ext4_mark_inode_dirty
+       ext4_reserve_inode_write
+          ext4_get_inode_loc
+            __ext4_get_inode_loc
+              sb_getblk --> return -ENOMEM
+   ...
+   if (!error)  ->will not update i_size
+     i_size_write(inode, attr->ia_size);
+Now:
+inode.i_size=4096
+EXT4_I(inode)->i_disksize=8192
+
+step 2: Direct write 4096 bytes
+ext4_file_write_iter
+ ext4_dio_write_iter
+   iomap_dio_rw ->return error
+ if (extend)
+   ext4_handle_inode_extension
+     WARN_ON_ONCE(i_size_read(inode) < EXT4_I(inode)->i_disksize);
+->Then trigger warning.
+
+To solve above issue, if mark inode dirty failed in ext4_setattr just
+set 'EXT4_I(inode)->i_disksize' with old value.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220326065351.761952-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/landlock.h |    4 ++++
- security/landlock/fs.c        |    2 ++
- security/landlock/limits.h    |    4 ++++
- 3 files changed, 10 insertions(+)
+ fs/ext4/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/uapi/linux/landlock.h
-+++ b/include/uapi/linux/landlock.h
-@@ -33,7 +33,9 @@ struct landlock_ruleset_attr {
-  * - %LANDLOCK_CREATE_RULESET_VERSION: Get the highest supported Landlock ABI
-  *   version.
-  */
-+/* clang-format off */
- #define LANDLOCK_CREATE_RULESET_VERSION			(1U << 0)
-+/* clang-format on */
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5381,6 +5381,7 @@ int ext4_setattr(struct user_namespace *
+ 	if (attr->ia_valid & ATTR_SIZE) {
+ 		handle_t *handle;
+ 		loff_t oldsize = inode->i_size;
++		loff_t old_disksize;
+ 		int shrink = (attr->ia_size < inode->i_size);
  
- /**
-  * enum landlock_rule_type - Landlock rule type
-@@ -120,6 +122,7 @@ struct landlock_path_beneath_attr {
-  *   :manpage:`access(2)`.
-  *   Future Landlock evolutions will enable to restrict them.
-  */
-+/* clang-format off */
- #define LANDLOCK_ACCESS_FS_EXECUTE			(1ULL << 0)
- #define LANDLOCK_ACCESS_FS_WRITE_FILE			(1ULL << 1)
- #define LANDLOCK_ACCESS_FS_READ_FILE			(1ULL << 2)
-@@ -133,5 +136,6 @@ struct landlock_path_beneath_attr {
- #define LANDLOCK_ACCESS_FS_MAKE_FIFO			(1ULL << 10)
- #define LANDLOCK_ACCESS_FS_MAKE_BLOCK			(1ULL << 11)
- #define LANDLOCK_ACCESS_FS_MAKE_SYM			(1ULL << 12)
-+/* clang-format on */
+ 		if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
+@@ -5452,6 +5453,7 @@ int ext4_setattr(struct user_namespace *
+ 					inode->i_sb->s_blocksize_bits);
  
- #endif /* _UAPI_LINUX_LANDLOCK_H */
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -141,10 +141,12 @@ retry:
- }
- 
- /* All access rights that can be tied to files. */
-+/* clang-format off */
- #define ACCESS_FILE ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_FILE)
-+/* clang-format on */
- 
- /*
-  * @path: Should have been checked by get_path_from_fd().
---- a/security/landlock/limits.h
-+++ b/security/landlock/limits.h
-@@ -12,10 +12,14 @@
- #include <linux/limits.h>
- #include <uapi/linux/landlock.h>
- 
-+/* clang-format off */
-+
- #define LANDLOCK_MAX_NUM_LAYERS		64
- #define LANDLOCK_MAX_NUM_RULES		U32_MAX
- 
- #define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_MAKE_SYM
- #define LANDLOCK_MASK_ACCESS_FS		((LANDLOCK_LAST_ACCESS_FS << 1) - 1)
- 
-+/* clang-format on */
-+
- #endif /* _SECURITY_LANDLOCK_LIMITS_H */
+ 			down_write(&EXT4_I(inode)->i_data_sem);
++			old_disksize = EXT4_I(inode)->i_disksize;
+ 			EXT4_I(inode)->i_disksize = attr->ia_size;
+ 			rc = ext4_mark_inode_dirty(handle, inode);
+ 			if (!error)
+@@ -5463,6 +5465,8 @@ int ext4_setattr(struct user_namespace *
+ 			 */
+ 			if (!error)
+ 				i_size_write(inode, attr->ia_size);
++			else
++				EXT4_I(inode)->i_disksize = old_disksize;
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error)
 
 
