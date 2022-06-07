@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6C5541CD7
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D0335406B4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348985AbiFGWGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:06:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38174 "EHLO
+        id S1347445AbiFGRhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382751AbiFGWEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48F5194BD2;
-        Tue,  7 Jun 2022 12:15:42 -0700 (PDT)
+        with ESMTP id S1348686AbiFGRgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B241145C;
+        Tue,  7 Jun 2022 10:33:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56EF5B82182;
-        Tue,  7 Jun 2022 19:15:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1177C385A2;
-        Tue,  7 Jun 2022 19:15:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66352614B5;
+        Tue,  7 Jun 2022 17:32:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7899DC34119;
+        Tue,  7 Jun 2022 17:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629340;
-        bh=d7M/rrGTQxwwpheykmHfdAUrTOWJWEeOlwizrmgwhOo=;
+        s=korg; t=1654623163;
+        bh=tmYD8/nsll7NJKmVEHlF3A1b8W1FaCtSrxRU7QBuKKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoecNCu+Jv+UTyo4KxadkUt6S+Ms9X3AM1/F1kZ9aH6kR1lzlh3J4lz7AnnInG3Ri
-         LJGT2/q2hvPDzWJUrm52fbjXD/CjNi+s6TnT9t1wysyeN7XLVOGYSj9lIBR6A7Xhfn
-         ubTp+njlHerczghV3jrmD2Z0CN+2gND37Oz83z9k=
+        b=MELragdlSxVByOX+qI2YOR/hqhjTYfcmOG1NMF6sy5xkZg0aDhBHLyna/HDuaezWI
+         Fjdj3/6sV4/p/PChtU4aTwdX+Y00pRbugibOmADsk9uT0NBTiN6XjhdpCTbZJwijpt
+         GB3dbDMglWa1/MDS8DCfwwfSo0sq1qXP7ButIP4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 656/879] Input: stmfts - do not leave device disabled in stmfts_input_open
+Subject: [PATCH 5.10 317/452] Input: stmfts - do not leave device disabled in stmfts_input_open
 Date:   Tue,  7 Jun 2022 19:02:54 +0200
-Message-Id: <20220607165021.886367492@linuxfoundation.org>
+Message-Id: <20220607164918.004714780@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,7 +76,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index 72e0b767e1ba..c175d44c52f3 100644
+index 64b690a72d10..a05a7a66b4ed 100644
 --- a/drivers/input/touchscreen/stmfts.c
 +++ b/drivers/input/touchscreen/stmfts.c
 @@ -337,13 +337,15 @@ static int stmfts_input_open(struct input_dev *dev)
