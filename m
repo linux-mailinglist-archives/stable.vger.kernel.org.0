@@ -2,112 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 522FE540CD5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA5F540645
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352471AbiFGSlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38350 "EHLO
+        id S1347037AbiFGReP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352558AbiFGSiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:38:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E34E1842F4;
-        Tue,  7 Jun 2022 10:58:25 -0700 (PDT)
+        with ESMTP id S1347859AbiFGRbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9703B1059CB;
+        Tue,  7 Jun 2022 10:28:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1F6E618DB;
-        Tue,  7 Jun 2022 17:58:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E40FEC36B03;
-        Tue,  7 Jun 2022 17:58:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BC931CE2396;
+        Tue,  7 Jun 2022 17:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8030C385A5;
+        Tue,  7 Jun 2022 17:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624695;
-        bh=p0aLmWRISE6ht0b6iIng3ogD2g7pyk9Y428MhTNJoag=;
+        s=korg; t=1654622914;
+        bh=hKaaFKKJkTwL/NOcTKoKRquAfxInXdQEATkMxPCLz1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kFew4n6nBdhRO2qYHWzrvIYafDqdEOqRMb5apNrQSa2iTzzu6M8dCyVxzGPAfD5PD
-         X7f0sEbEs3yimXrRx3x3lKQx151MgLjjFUB4S3flOMSrPFm8s66DiN0U0ugoUkxmky
-         VPM+P/U9iRIth4hup8GE2MD0SUnJzO7FCp0Pwokg=
+        b=euZ1V3lF2vYOho1A7FOeMBiaq5VSfaiLCRZsxr6UpHSySd2o7BGheEiGRC/Ga4Iml
+         7PqgM+Km1z4YLfcrSYQ02yvS7NbVVcaX2q5Fz5gu7E8YB3CcNLYgzMFimtnED2Vn+F
+         9VbaCJ3ru9UvvWVZpRqTzz3G50iEpl9OMLjyKGEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 420/667] powerpc/fadump: fix PT_LOAD segment for boot memory area
+Subject: [PATCH 5.10 228/452] media: ov7670: remove ov7670_power_off from ov7670_remove
 Date:   Tue,  7 Jun 2022 19:01:25 +0200
-Message-Id: <20220607164947.332423795@linuxfoundation.org>
+Message-Id: <20220607164915.356419505@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Bathini <hbathini@linux.ibm.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 15eb77f873255cf9f4d703b63cfbd23c46579654 ]
+[ Upstream commit 5bf19572e31375368f19edd2dbb2e0789518bb99 ]
 
-Boot memory area is setup as separate PT_LOAD segment in the vmcore
-as it is moved by f/w, on crash, to a destination address provided by
-the kernel. Having separate PT_LOAD segment helps in handling the
-different physical address and offset for boot memory area in the
-vmcore.
+In ov7670_probe, it always invokes ov7670_power_off() no matter
+the execution is successful or failed. So we cannot invoke it
+agiain in ov7670_remove().
 
-Commit ced1bf52f477 ("powerpc/fadump: merge adjacent memory ranges to
-reduce PT_LOAD segements") inadvertly broke this pre-condition for
-cases where some of the first kernel memory is available adjacent to
-boot memory area. This scenario is rare but possible when memory for
-fadump could not be reserved adjacent to boot memory area owing to
-memory hole or such. Reading memory from a vmcore exported in such
-scenario provides incorrect data.  Fix it by ensuring no other region
-is folded into boot memory area.
+Fix this by removing ov7670_power_off from ov7670_remove.
 
-Fixes: ced1bf52f477 ("powerpc/fadump: merge adjacent memory ranges to reduce PT_LOAD segements")
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220406093839.206608-2-hbathini@linux.ibm.com
+Fixes: 030f9f682e66 ("media: ov7670: control clock along with power")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/fadump.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ov7670.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
-index 60f5fc14aa23..ad1c4575c61c 100644
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -861,7 +861,6 @@ static int fadump_alloc_mem_ranges(struct fadump_mrange_info *mrange_info)
- 				       sizeof(struct fadump_memory_range));
+diff --git a/drivers/media/i2c/ov7670.c b/drivers/media/i2c/ov7670.c
+index b42b289faaef..154776d0069e 100644
+--- a/drivers/media/i2c/ov7670.c
++++ b/drivers/media/i2c/ov7670.c
+@@ -2000,7 +2000,6 @@ static int ov7670_remove(struct i2c_client *client)
+ 	v4l2_async_unregister_subdev(sd);
+ 	v4l2_ctrl_handler_free(&info->hdl);
+ 	media_entity_cleanup(&info->sd.entity);
+-	ov7670_power_off(sd);
  	return 0;
  }
--
- static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
- 				       u64 base, u64 end)
- {
-@@ -880,7 +879,12 @@ static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
- 		start = mem_ranges[mrange_info->mem_range_cnt - 1].base;
- 		size  = mem_ranges[mrange_info->mem_range_cnt - 1].size;
  
--		if ((start + size) == base)
-+		/*
-+		 * Boot memory area needs separate PT_LOAD segment(s) as it
-+		 * is moved to a different location at the time of crash.
-+		 * So, fold only if the region is not boot memory area.
-+		 */
-+		if ((start + size) == base && start >= fw_dump.boot_mem_top)
- 			is_adjacent = true;
- 	}
- 	if (!is_adjacent) {
 -- 
 2.35.1
 
