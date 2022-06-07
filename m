@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 244A0541D81
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD9B540F79
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354608AbiFGWRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59418 "EHLO
+        id S1346585AbiFGTIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384482AbiFGWOk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:14:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06AFD25DFB9;
-        Tue,  7 Jun 2022 12:19:43 -0700 (PDT)
+        with ESMTP id S1352879AbiFGTGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:06:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534C4190D23;
+        Tue,  7 Jun 2022 11:05:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4707CB8233E;
-        Tue,  7 Jun 2022 19:19:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A44C7C385A2;
-        Tue,  7 Jun 2022 19:19:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A7A0B82340;
+        Tue,  7 Jun 2022 18:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BC00C34115;
+        Tue,  7 Jun 2022 18:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629541;
-        bh=ac12JH8yvmBKG96v1+jlYRJ8DxZdAouOgOx3/vF7S3o=;
+        s=korg; t=1654625142;
+        bh=g87Y1uGDdJzNQpe0rlFlHuESKO6QUlZYQPzLsH/O1Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/oFff9rZFbPuHAfL2Qn0GaieY59baKNhwDh4tO01HPzpcH6CM9fU0LJpRWyAvsDk
-         PRVFtPe9xvMfoxUa9tpj1qhuud1PHu3TQOjre3vM5yqw020RDHqqxu/aI/ymCq1pdE
-         WtY1HfGy9a+f1yZ9/JgSZREJjE/0aNUitEpBsVbw=
+        b=YFZKp37jOc8jU044LRDbUuQeJY/G6h8tkQELIIUFRChqIwKDRQ69MoZs/4G1bdnbB
+         f+zArD4VAZwcBJlXiORzvfSxuGcjtHNb772yAEUL2gfPmkyh1PfsLHL6kFWT8Q0swa
+         OUIdzru7Aq4t1A2An04CkNSNTnUKg97Hl+zCGWFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 729/879] bfq: Split shared queues on move between cgroups
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 582/667] landlock: Change landlock_restrict_self(2) check ordering
 Date:   Tue,  7 Jun 2022 19:04:07 +0200
-Message-Id: <20220607165024.016185919@linuxfoundation.org>
+Message-Id: <20220607164952.140641075@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 3bc5e683c67d94bd839a1da2e796c15847b51b69 upstream.
+commit eba39ca4b155c54adf471a69e91799cc1727873f upstream.
 
-When bfqq is shared by multiple processes it can happen that one of the
-processes gets moved to a different cgroup (or just starts submitting IO
-for different cgroup). In case that happens we need to split the merged
-bfqq as otherwise we will have IO for multiple cgroups in one bfqq and
-we will just account IO time to wrong entities etc.
+According to the Landlock goal to be a security feature available to
+unprivileges processes, it makes more sense to first check for
+no_new_privs before checking anything else (i.e. syscall arguments).
 
-Similarly if the bfqq is scheduled to merge with another bfqq but the
-merge didn't happen yet, cancel the merge as it need not be valid
-anymore.
+Merge inval_fd_enforce and unpriv_enforce_without_no_new_privs tests
+into the new restrict_self_checks_ordering.  This is similar to the
+previous commit checking other syscalls.
 
-CC: stable@vger.kernel.org
-Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-3-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220506160820.524344-10-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-cgroup.c  |   36 +++++++++++++++++++++++++++++++++---
- block/bfq-iosched.c |    2 +-
- block/bfq-iosched.h |    1 +
- 3 files changed, 35 insertions(+), 4 deletions(-)
+ security/landlock/syscalls.c                 |    8 ++--
+ tools/testing/selftests/landlock/base_test.c |   47 +++++++++++++++++++++------
+ 2 files changed, 41 insertions(+), 14 deletions(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -743,9 +743,39 @@ static struct bfq_group *__bfq_bic_chang
- 	}
+--- a/security/landlock/syscalls.c
++++ b/security/landlock/syscalls.c
+@@ -405,10 +405,6 @@ SYSCALL_DEFINE2(landlock_restrict_self,
+ 	if (!landlock_initialized)
+ 		return -EOPNOTSUPP;
  
- 	if (sync_bfqq) {
--		entity = &sync_bfqq->entity;
--		if (entity->sched_data != &bfqg->sched_data)
--			bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-+		if (!sync_bfqq->new_bfqq && !bfq_bfqq_coop(sync_bfqq)) {
-+			/* We are the only user of this bfqq, just move it */
-+			if (sync_bfqq->entity.sched_data != &bfqg->sched_data)
-+				bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-+		} else {
-+			struct bfq_queue *bfqq;
+-	/* No flag for now. */
+-	if (flags)
+-		return -EINVAL;
+-
+ 	/*
+ 	 * Similar checks as for seccomp(2), except that an -EPERM may be
+ 	 * returned.
+@@ -417,6 +413,10 @@ SYSCALL_DEFINE2(landlock_restrict_self,
+ 	    !ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
++	/* No flag for now. */
++	if (flags)
++		return -EINVAL;
 +
-+			/*
-+			 * The queue was merged to a different queue. Check
-+			 * that the merge chain still belongs to the same
-+			 * cgroup.
-+			 */
-+			for (bfqq = sync_bfqq; bfqq; bfqq = bfqq->new_bfqq)
-+				if (bfqq->entity.sched_data !=
-+				    &bfqg->sched_data)
-+					break;
-+			if (bfqq) {
-+				/*
-+				 * Some queue changed cgroup so the merge is
-+				 * not valid anymore. We cannot easily just
-+				 * cancel the merge (by clearing new_bfqq) as
-+				 * there may be other processes using this
-+				 * queue and holding refs to all queues below
-+				 * sync_bfqq->new_bfqq. Similarly if the merge
-+				 * already happened, we need to detach from
-+				 * bfqq now so that we cannot merge bio to a
-+				 * request from the old cgroup.
-+				 */
-+				bfq_put_cooperator(sync_bfqq);
-+				bfq_release_process_ref(bfqd, sync_bfqq);
-+				bic_set_bfqq(bic, NULL, 1);
-+			}
-+		}
- 	}
- 
- 	return bfqg;
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5319,7 +5319,7 @@ static void bfq_put_stable_ref(struct bf
- 	bfq_put_queue(bfqq);
+ 	/* Gets and checks the ruleset. */
+ 	ruleset = get_ruleset_from_fd(ruleset_fd, FMODE_CAN_READ);
+ 	if (IS_ERR(ruleset))
+--- a/tools/testing/selftests/landlock/base_test.c
++++ b/tools/testing/selftests/landlock/base_test.c
+@@ -168,22 +168,49 @@ TEST(add_rule_checks_ordering)
+ 	ASSERT_EQ(0, close(ruleset_fd));
  }
  
--static void bfq_put_cooperator(struct bfq_queue *bfqq)
-+void bfq_put_cooperator(struct bfq_queue *bfqq)
+-TEST(inval_fd_enforce)
++/* Tests ordering of syscall argument and permission checks. */
++TEST(restrict_self_checks_ordering)
  {
- 	struct bfq_queue *__bfqq, *next;
++	const struct landlock_ruleset_attr ruleset_attr = {
++		.handled_access_fs = LANDLOCK_ACCESS_FS_EXECUTE,
++	};
++	struct landlock_path_beneath_attr path_beneath_attr = {
++		.allowed_access = LANDLOCK_ACCESS_FS_EXECUTE,
++		.parent_fd = -1,
++	};
++	const int ruleset_fd =
++		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
++
++	ASSERT_LE(0, ruleset_fd);
++	path_beneath_attr.parent_fd =
++		open("/tmp", O_PATH | O_NOFOLLOW | O_DIRECTORY | O_CLOEXEC);
++	ASSERT_LE(0, path_beneath_attr.parent_fd);
++	ASSERT_EQ(0, landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
++				       &path_beneath_attr, 0));
++	ASSERT_EQ(0, close(path_beneath_attr.parent_fd));
++
++	/* Checks unprivileged enforcement without no_new_privs. */
++	drop_caps(_metadata);
++	ASSERT_EQ(-1, landlock_restrict_self(-1, -1));
++	ASSERT_EQ(EPERM, errno);
++	ASSERT_EQ(-1, landlock_restrict_self(-1, 0));
++	ASSERT_EQ(EPERM, errno);
++	ASSERT_EQ(-1, landlock_restrict_self(ruleset_fd, 0));
++	ASSERT_EQ(EPERM, errno);
++
+ 	ASSERT_EQ(0, prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0));
  
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -980,6 +980,7 @@ void bfq_weights_tree_remove(struct bfq_
- void bfq_bfqq_expire(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 		     bool compensate, enum bfqq_expiration reason);
- void bfq_put_queue(struct bfq_queue *bfqq);
-+void bfq_put_cooperator(struct bfq_queue *bfqq);
- void bfq_end_wr_async_queues(struct bfq_data *bfqd, struct bfq_group *bfqg);
- void bfq_release_process_ref(struct bfq_data *bfqd, struct bfq_queue *bfqq);
- void bfq_schedule_dispatch(struct bfq_data *bfqd);
++	/* Checks invalid flags. */
++	ASSERT_EQ(-1, landlock_restrict_self(-1, -1));
++	ASSERT_EQ(EINVAL, errno);
++
++	/* Checks invalid ruleset FD. */
+ 	ASSERT_EQ(-1, landlock_restrict_self(-1, 0));
+ 	ASSERT_EQ(EBADF, errno);
+-}
+-
+-TEST(unpriv_enforce_without_no_new_privs)
+-{
+-	int err;
+ 
+-	drop_caps(_metadata);
+-	err = landlock_restrict_self(-1, 0);
+-	ASSERT_EQ(EPERM, errno);
+-	ASSERT_EQ(err, -1);
++	/* Checks valid call. */
++	ASSERT_EQ(0, landlock_restrict_self(ruleset_fd, 0));
++	ASSERT_EQ(0, close(ruleset_fd));
+ }
+ 
+ TEST(ruleset_fd_io)
 
 
