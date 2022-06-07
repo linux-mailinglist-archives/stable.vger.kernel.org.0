@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C54B8541DA9
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00973540FB6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351513AbiFGWSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S1354683AbiFGTLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:11:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379706AbiFGWRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:17:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C4FA2629F3;
-        Tue,  7 Jun 2022 12:20:29 -0700 (PDT)
+        with ESMTP id S1354936AbiFGTKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:10:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB9611A20;
+        Tue,  7 Jun 2022 11:06:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32D89B823D4;
-        Tue,  7 Jun 2022 19:20:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1582C385A2;
-        Tue,  7 Jun 2022 19:20:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D829761903;
+        Tue,  7 Jun 2022 18:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6553C385A5;
+        Tue,  7 Jun 2022 18:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629605;
-        bh=JxY/VihCn/5qC+b37PZXge5+aQpv5S/03KtLqKxk3nM=;
+        s=korg; t=1654625208;
+        bh=wqsqcvWTbLzMotDf2t9XScE5reyC24Ssv9J0/gAwXrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpchsDhFe1XYzDN+iO2UUJ4GT+VwFmiUsvF37wQRJQ+yLqpucOGbr4rch7YoldmCy
-         jxTeaBNsw43DRoW7YJ2G81GzADZHUh/9RAAH2207Mdy+aEa01L/feIq4ptzg111cvn
-         f8tZC9b2iF+CSOhxum008SUZ6bGA1UK67jk+ShXI=
+        b=uNSBiunCaaaCd0iWzmm++yyU0NHHFexI/w39hJ1zZYqFVs7GwOrsvwLZpxzA3Y1RA
+         46WUy7BI4JOD7QduATsKzd++tIOg9MP77M5lyeNPu7chyFL712tY5KnA5HxNeid2kp
+         6IU5MVfi9ZvYmuytBRx3WDU2/u2WQ1OeY08KDeFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.18 750/879] tracing: Fix potential double free in create_var_ref()
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.15 603/667] RDMA/hfi1: Fix potential integer multiplication overflow errors
 Date:   Tue,  7 Jun 2022 19:04:28 +0200
-Message-Id: <20220607165024.630935231@linuxfoundation.org>
+Message-Id: <20220607164952.763502055@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
 
-commit 99696a2592bca641eb88cc9a80c90e591afebd0f upstream.
+commit f93e91a0372c922c20d5bee260b0f43b4b8a1bee upstream.
 
-In create_var_ref(), init_var_ref() is called to initialize the fields
-of variable ref_field, which is allocated in the previous function call
-to create_hist_field(). Function init_var_ref() allocates the
-corresponding fields such as ref_field->system, but frees these fields
-when the function encounters an error. The caller later calls
-destroy_hist_field() to conduct error handling, which frees the fields
-and the variable itself. This results in double free of the fields which
-are already freed in the previous function.
+When multiplying of different types, an overflow is possible even when
+storing the result in a larger type. This is because the conversion is
+done after the multiplication. So arithmetic overflow and thus in
+incorrect value is possible.
 
-Fix this by storing NULL to the corresponding fields when they are freed
-in init_var_ref().
+Correct an instance of this in the inter packet delay calculation.  Fix by
+ensuring one of the operands is u64 which will promote the other to u64 as
+well ensuring no overflow.
 
-Link: https://lkml.kernel.org/r/20220425063739.3859998-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-
-Fixes: 067fe038e70f ("tracing: Add variable reference handling to hist triggers")
-CC: stable@vger.kernel.org
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: stable@vger.kernel.org
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20220520183712.48973.29855.stgit@awfm-01.cornelisnetworks.com
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/hfi1/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2093,8 +2093,11 @@ static int init_var_ref(struct hist_fiel
- 	return err;
-  free:
- 	kfree(ref_field->system);
-+	ref_field->system = NULL;
- 	kfree(ref_field->event_name);
-+	ref_field->event_name = NULL;
- 	kfree(ref_field->name);
-+	ref_field->name = NULL;
- 
- 	goto out;
- }
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -488,7 +488,7 @@ void set_link_ipg(struct hfi1_pportdata
+ 	u16 shift, mult;
+ 	u64 src;
+ 	u32 current_egress_rate; /* Mbits /sec */
+-	u32 max_pkt_time;
++	u64 max_pkt_time;
+ 	/*
+ 	 * max_pkt_time is the maximum packet egress time in units
+ 	 * of the fabric clock period 1/(805 MHz).
 
 
