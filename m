@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF110541A4B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 601A7540968
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357899AbiFGVcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:32:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48986 "EHLO
+        id S1349932AbiFGSIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:08:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380053AbiFGVaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C3B2298FC;
-        Tue,  7 Jun 2022 12:02:40 -0700 (PDT)
+        with ESMTP id S1351037AbiFGSGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:06:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF0738183;
+        Tue,  7 Jun 2022 10:47:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C55F617C8;
-        Tue,  7 Jun 2022 19:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8808C385A2;
-        Tue,  7 Jun 2022 19:02:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98B43B8233F;
+        Tue,  7 Jun 2022 17:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CF5C385A5;
+        Tue,  7 Jun 2022 17:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628559;
-        bh=nlbDq5Qtba23p9Q/PwoqIirCVA439fgQBmugmYl66yw=;
+        s=korg; t=1654624046;
+        bh=6XMVPS8SiKn88Sfrb5bkzOBcMDeYi4pabtSf9+6MYXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzQDXL2AbvNT9ApMBvnrRYsf7Ozr9v2nHZCZ3ZCBYyw/no8W2/k+0xa2sWjEUzOX3
-         EjvixDGV6Zr+HOkQzpH/LgYBRGM7h+/uo45bMtYzUpYdSX0r8HHXNR4/YzhBh8HVax
-         elQO51Ql1EOeljlgaj37YOCQcuN3Gh1htbRhphlA=
+        b=V5UeAsGujxOED1PN1vwkx1nNmU+gfOiXFM5n8qdZQIzecVrsL3bCuGNrxERI+mZmd
+         rWYl315iUUVKTyyNbznUjKu4tnWMxdJdlXZ77evdA06gi//NaDQX0wg+JcIDgvimTM
+         iM5Obnp4BOfrI0KraLpoJEpYCDmx662tufRjsFwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 333/879] spi: img-spfi: Fix pm_runtime_get_sync() error checking
+Subject: [PATCH 5.15 186/667] ath11k: acquire ab->base_lock in unassign when finding the peer by addr
 Date:   Tue,  7 Jun 2022 18:57:31 +0200
-Message-Id: <20220607165012.523367630@linuxfoundation.org>
+Message-Id: <20220607164940.384733125@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit cc470d55343056d6b2a5c32e10e0aad06f324078 ]
+[ Upstream commit 2db80f93869d491be57cbc2b36f30d0d3a0e5bde ]
 
-If the device is already in a runtime PM enabled state
-pm_runtime_get_sync() will return 1, so a test for negative
-value should be used to check for errors.
+ath11k_peer_find_by_addr states via lockdep that ab->base_lock must be
+held when calling that function in order to protect the list. All
+callers except ath11k_mac_op_unassign_vif_chanctx have that lock
+acquired when calling ath11k_peer_find_by_addr. That lock is also not
+transitively held by a path towards ath11k_mac_op_unassign_vif_chanctx.
+The solution is to acquire the lock when calling
+ath11k_peer_find_by_addr inside ath11k_mac_op_unassign_vif_chanctx.
 
-Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220422062641.10486-1-zhengyongjun3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+I am currently working on a static analyser to detect missing locks and
+this was a reported case. I manually verified the report by looking at
+the code, but I do not have real hardware so this is compile tested
+only.
+
+Fixes: 701e48a43e15 ("ath11k: add packet log support for QCA6390")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220314215253.92658-1-dossche.niels@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-img-spfi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
-index 5f05d519fbbd..71376b6df89d 100644
---- a/drivers/spi/spi-img-spfi.c
-+++ b/drivers/spi/spi-img-spfi.c
-@@ -731,7 +731,7 @@ static int img_spfi_resume(struct device *dev)
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 07004564a3ec..bf64ab6e8484 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -5592,6 +5592,7 @@ ath11k_mac_op_unassign_vif_chanctx(struct ieee80211_hw *hw,
+ 	struct ath11k *ar = hw->priv;
+ 	struct ath11k_base *ab = ar->ab;
+ 	struct ath11k_vif *arvif = (void *)vif->drv_priv;
++	struct ath11k_peer *peer;
  	int ret;
  
- 	ret = pm_runtime_get_sync(dev);
--	if (ret) {
-+	if (ret < 0) {
- 		pm_runtime_put_noidle(dev);
- 		return ret;
- 	}
+ 	mutex_lock(&ar->conf_mutex);
+@@ -5603,9 +5604,13 @@ ath11k_mac_op_unassign_vif_chanctx(struct ieee80211_hw *hw,
+ 	WARN_ON(!arvif->is_started);
+ 
+ 	if (ab->hw_params.vdev_start_delay &&
+-	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR &&
+-	    ath11k_peer_find_by_addr(ab, ar->mac_addr))
+-		ath11k_peer_delete(ar, arvif->vdev_id, ar->mac_addr);
++	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR) {
++		spin_lock_bh(&ab->base_lock);
++		peer = ath11k_peer_find_by_addr(ab, ar->mac_addr);
++		spin_unlock_bh(&ab->base_lock);
++		if (peer)
++			ath11k_peer_delete(ar, arvif->vdev_id, ar->mac_addr);
++	}
+ 
+ 	ret = ath11k_mac_vdev_stop(arvif);
+ 	if (ret)
 -- 
 2.35.1
 
