@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5D3540502
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:21:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A11F540B5F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233832AbiFGRU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:20:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38672 "EHLO
+        id S1351166AbiFGS2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345872AbiFGRTs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:19:48 -0400
+        with ESMTP id S1351464AbiFGSQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 904BC1059DF;
-        Tue,  7 Jun 2022 10:19:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C169615FE38;
+        Tue,  7 Jun 2022 10:49:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68843618D8;
-        Tue,  7 Jun 2022 17:19:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 784F8C385A5;
-        Tue,  7 Jun 2022 17:19:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68D8561799;
+        Tue,  7 Jun 2022 17:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F451C385A5;
+        Tue,  7 Jun 2022 17:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622371;
-        bh=LFAaeYAd6ES5RH+w95kOQSffh/TkhEEe7Sm7yfccbd8=;
+        s=korg; t=1654624164;
+        bh=nlbDq5Qtba23p9Q/PwoqIirCVA439fgQBmugmYl66yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1iiu0g+yAHInkwqG6a4EMpVzQZe81GNdYgyAj2QhhqUuHhb38pZLvgu0PTuXlvXy
-         06wCGUu0zM0csePQQOdxXKeZQJThkL6ETK8R4lEhNyEFtoDOLNZJdOMtpfvMlXcv+d
-         KUn4e2VSjpAJY90eiSfGijgqa6UC8I5uMjfnHT5Q=
+        b=zopi9KBHMrz3RgHL3Y2atD3jBnAVc8rM4azwAPIi/wL/Ac2En68MaW5mtJhkUWhMv
+         QcrUfyW5HsQVfLi6ia69q3JS+Z/UyNxLOLqkNqhDIhC8tfCcseXJOEAdyJNa4GELCd
+         7bm21qbr00XCi0omIKSdEvIEl9U46/OA2OECVtsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Padmanabha Srinivasaiah <treasure4paddy@gmail.com>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/452] rcu-tasks: Fix race in schedule and flush work
-Date:   Tue,  7 Jun 2022 18:58:13 +0200
-Message-Id: <20220607164909.623816033@linuxfoundation.org>
+Subject: [PATCH 5.15 229/667] spi: img-spfi: Fix pm_runtime_get_sync() error checking
+Date:   Tue,  7 Jun 2022 18:58:14 +0200
+Message-Id: <20220607164941.657311131@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit f75fd4b9221d93177c50dcfde671b2e907f53e86 ]
+[ Upstream commit cc470d55343056d6b2a5c32e10e0aad06f324078 ]
 
-While booting secondary CPUs, cpus_read_[lock/unlock] is not keeping
-online cpumask stable. The transient online mask results in below
-calltrace.
+If the device is already in a runtime PM enabled state
+pm_runtime_get_sync() will return 1, so a test for negative
+value should be used to check for errors.
 
-[    0.324121] CPU1: Booted secondary processor 0x0000000001 [0x410fd083]
-[    0.346652] Detected PIPT I-cache on CPU2
-[    0.347212] CPU2: Booted secondary processor 0x0000000002 [0x410fd083]
-[    0.377255] Detected PIPT I-cache on CPU3
-[    0.377823] CPU3: Booted secondary processor 0x0000000003 [0x410fd083]
-[    0.379040] ------------[ cut here ]------------
-[    0.383662] WARNING: CPU: 0 PID: 10 at kernel/workqueue.c:3084 __flush_work+0x12c/0x138
-[    0.384850] Modules linked in:
-[    0.385403] CPU: 0 PID: 10 Comm: rcu_tasks_rude_ Not tainted 5.17.0-rc3-v8+ #13
-[    0.386473] Hardware name: Raspberry Pi 4 Model B Rev 1.4 (DT)
-[    0.387289] pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    0.388308] pc : __flush_work+0x12c/0x138
-[    0.388970] lr : __flush_work+0x80/0x138
-[    0.389620] sp : ffffffc00aaf3c60
-[    0.390139] x29: ffffffc00aaf3d20 x28: ffffffc009c16af0 x27: ffffff80f761df48
-[    0.391316] x26: 0000000000000004 x25: 0000000000000003 x24: 0000000000000100
-[    0.392493] x23: ffffffffffffffff x22: ffffffc009c16b10 x21: ffffffc009c16b28
-[    0.393668] x20: ffffffc009e53861 x19: ffffff80f77fbf40 x18: 00000000d744fcc9
-[    0.394842] x17: 000000000000000b x16: 00000000000001c2 x15: ffffffc009e57550
-[    0.396016] x14: 0000000000000000 x13: ffffffffffffffff x12: 0000000100000000
-[    0.397190] x11: 0000000000000462 x10: ffffff8040258008 x9 : 0000000100000000
-[    0.398364] x8 : 0000000000000000 x7 : ffffffc0093c8bf4 x6 : 0000000000000000
-[    0.399538] x5 : 0000000000000000 x4 : ffffffc00a976e40 x3 : ffffffc00810444c
-[    0.400711] x2 : 0000000000000004 x1 : 0000000000000000 x0 : 0000000000000000
-[    0.401886] Call trace:
-[    0.402309]  __flush_work+0x12c/0x138
-[    0.402941]  schedule_on_each_cpu+0x228/0x278
-[    0.403693]  rcu_tasks_rude_wait_gp+0x130/0x144
-[    0.404502]  rcu_tasks_kthread+0x220/0x254
-[    0.405264]  kthread+0x174/0x1ac
-[    0.405837]  ret_from_fork+0x10/0x20
-[    0.406456] irq event stamp: 102
-[    0.406966] hardirqs last  enabled at (101): [<ffffffc0093c8468>] _raw_spin_unlock_irq+0x78/0xb4
-[    0.408304] hardirqs last disabled at (102): [<ffffffc0093b8270>] el1_dbg+0x24/0x5c
-[    0.409410] softirqs last  enabled at (54): [<ffffffc0081b80c8>] local_bh_enable+0xc/0x2c
-[    0.410645] softirqs last disabled at (50): [<ffffffc0081b809c>] local_bh_disable+0xc/0x2c
-[    0.411890] ---[ end trace 0000000000000000 ]---
-[    0.413000] smp: Brought up 1 node, 4 CPUs
-[    0.413762] SMP: Total of 4 processors activated.
-[    0.414566] CPU features: detected: 32-bit EL0 Support
-[    0.415414] CPU features: detected: 32-bit EL1 Support
-[    0.416278] CPU features: detected: CRC32 instructions
-[    0.447021] Callback from call_rcu_tasks_rude() invoked.
-[    0.506693] Callback from call_rcu_tasks() invoked.
-
-This commit therefore fixes this issue by applying a single-CPU
-optimization to the RCU Tasks Rude grace-period process.  The key point
-here is that the purpose of this RCU flavor is to force a schedule on
-each online CPU since some past event.  But the rcu_tasks_rude_wait_gp()
-function runs in the context of the RCU Tasks Rude's grace-period kthread,
-so there must already have been a context switch on the current CPU since
-the call to either synchronize_rcu_tasks_rude() or call_rcu_tasks_rude().
-So if there is only a single CPU online, RCU Tasks Rude's grace-period
-kthread does not need to anything at all.
-
-It turns out that the rcu_tasks_rude_wait_gp() function's call to
-schedule_on_each_cpu() causes problems during early boot.  During that
-time, there is only one online CPU, namely the boot CPU.  Therefore,
-applying this single-CPU optimization fixes early-boot instances of
-this problem.
-
-Link: https://lore.kernel.org/lkml/20220210184319.25009-1-treasure4paddy@gmail.com/T/
-Suggested-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Link: https://lore.kernel.org/r/20220422062641.10486-1-zhengyongjun3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi-img-spfi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 7c05c5ab7865..14af29fe1377 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -620,6 +620,9 @@ static void rcu_tasks_be_rude(struct work_struct *work)
- // Wait for one rude RCU-tasks grace period.
- static void rcu_tasks_rude_wait_gp(struct rcu_tasks *rtp)
- {
-+	if (num_online_cpus() <= 1)
-+		return;	// Fastpath for only one CPU.
-+
- 	rtp->n_ipis += cpumask_weight(cpu_online_mask);
- 	schedule_on_each_cpu(rcu_tasks_be_rude);
- }
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index 5f05d519fbbd..71376b6df89d 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -731,7 +731,7 @@ static int img_spfi_resume(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret) {
++	if (ret < 0) {
+ 		pm_runtime_put_noidle(dev);
+ 		return ret;
+ 	}
 -- 
 2.35.1
 
