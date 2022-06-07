@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EC0D541D2B
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:09:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B4F5407FC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358583AbiFGWJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
+        id S232593AbiFGRxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:53:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383408AbiFGWHV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:07:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49C7625697F;
-        Tue,  7 Jun 2022 12:18:42 -0700 (PDT)
+        with ESMTP id S1348540AbiFGRtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:49:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30746134E0C;
+        Tue,  7 Jun 2022 10:37:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 644FEB823D7;
-        Tue,  7 Jun 2022 19:18:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7F96C385A5;
-        Tue,  7 Jun 2022 19:18:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 35D2DCE23E7;
+        Tue,  7 Jun 2022 17:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B73C34115;
+        Tue,  7 Jun 2022 17:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629513;
-        bh=kvQwX66IBqrliEZUsOIORhCNcgPD4+MofW2EB6QgFGY=;
+        s=korg; t=1654623431;
+        bh=fKOmGeRYgG3j50YlOQ0Vw/r7fBFkPvZ8bFRh8oMkVvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwrKwOthhKO5++ZBDR1+7XlO3D3gujNd7+YB4gAi9AlluZxfkGIJlv2AKB9+4cVOf
-         yooEpKsoudDkl45peQOinHmXKcCge+dwiTtgh/FEb3An7xnyuHMe7tGIN4I0FPRREE
-         BIwpwYkQonRUpVxrW9c6KDxplu28ZOVAEiYajosI=
+        b=AjaT4n+n9DDZOz07RHO3yutbc42dfUVgMkJP7SqaSFMoIet0AqnNZYI4WWypxgtnZ
+         wqyL1ovZqowqa7o31qdX1qIuyfLoewKB7EVCgqp3uAmYSVxRRfUP+4DmxAk+ih618u
+         4rxAfjQmb5wBsaJatsX0R/zX4ZGSW3kcyhoVL/8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.18 716/879] f2fs: fix to do sanity check for inline inode
-Date:   Tue,  7 Jun 2022 19:03:54 +0200
-Message-Id: <20220607165023.636219498@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 378/452] drm/amdgpu/cs: make commands with 0 chunks illegal behaviour.
+Date:   Tue,  7 Jun 2022 19:03:55 +0200
+Message-Id: <20220607164919.827940164@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,114 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Dave Airlie <airlied@redhat.com>
 
-commit 677a82b44ebf263d4f9a0cfbd576a6ade797a07b upstream.
+commit 31ab27b14daaa75541a415c6794d6f3567fea44a upstream.
 
-Yanming reported a kernel bug in Bugzilla kernel [1], which can be
-reproduced. The bug message is:
+Submitting a cs with 0 chunks, causes an oops later, found trying
+to execute the wrong userspace driver.
 
-The kernel message is shown below:
+MESA_LOADER_DRIVER_OVERRIDE=v3d glxinfo
 
-kernel BUG at fs/inode.c:611!
-Call Trace:
- evict+0x282/0x4e0
- __dentry_kill+0x2b2/0x4d0
- dput+0x2dd/0x720
- do_renameat2+0x596/0x970
- __x64_sys_rename+0x78/0x90
- do_syscall_64+0x3b/0x90
+[172536.665184] BUG: kernel NULL pointer dereference, address: 00000000000001d8
+[172536.665188] #PF: supervisor read access in kernel mode
+[172536.665189] #PF: error_code(0x0000) - not-present page
+[172536.665191] PGD 6712a0067 P4D 6712a0067 PUD 5af9ff067 PMD 0
+[172536.665195] Oops: 0000 [#1] SMP NOPTI
+[172536.665197] CPU: 7 PID: 2769838 Comm: glxinfo Tainted: P           O      5.10.81 #1-NixOS
+[172536.665199] Hardware name: To be filled by O.E.M. To be filled by O.E.M./CROSSHAIR V FORMULA-Z, BIOS 2201 03/23/2015
+[172536.665272] RIP: 0010:amdgpu_cs_ioctl+0x96/0x1ce0 [amdgpu]
+[172536.665274] Code: 75 18 00 00 4c 8b b2 88 00 00 00 8b 46 08 48 89 54 24 68 49 89 f7 4c 89 5c 24 60 31 d2 4c 89 74 24 30 85 c0 0f 85 c0 01 00 00 <48> 83 ba d8 01 00 00 00 48 8b b4 24 90 00 00 00 74 16 48 8b 46 10
+[172536.665276] RSP: 0018:ffffb47c0e81bbe0 EFLAGS: 00010246
+[172536.665277] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[172536.665278] RDX: 0000000000000000 RSI: ffffb47c0e81be28 RDI: ffffb47c0e81bd68
+[172536.665279] RBP: ffff936524080010 R08: 0000000000000000 R09: ffffb47c0e81be38
+[172536.665281] R10: ffff936524080010 R11: ffff936524080000 R12: ffffb47c0e81bc40
+[172536.665282] R13: ffffb47c0e81be28 R14: ffff9367bc410000 R15: ffffb47c0e81be28
+[172536.665283] FS:  00007fe35e05d740(0000) GS:ffff936c1edc0000(0000) knlGS:0000000000000000
+[172536.665284] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[172536.665286] CR2: 00000000000001d8 CR3: 0000000532e46000 CR4: 00000000000406e0
+[172536.665287] Call Trace:
+[172536.665322]  ? amdgpu_cs_find_mapping+0x110/0x110 [amdgpu]
+[172536.665332]  drm_ioctl_kernel+0xaa/0xf0 [drm]
+[172536.665338]  drm_ioctl+0x201/0x3b0 [drm]
+[172536.665369]  ? amdgpu_cs_find_mapping+0x110/0x110 [amdgpu]
+[172536.665372]  ? selinux_file_ioctl+0x135/0x230
+[172536.665399]  amdgpu_drm_ioctl+0x49/0x80 [amdgpu]
+[172536.665403]  __x64_sys_ioctl+0x83/0xb0
+[172536.665406]  do_syscall_64+0x33/0x40
+[172536.665409]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=215895
-
-The bug is due to fuzzed inode has both inline_data and encrypted flags.
-During f2fs_evict_inode(), as the inode was deleted by rename(), it
-will cause inline data conversion due to conflicting flags. The page
-cache will be polluted and the panic will be triggered in clear_inode().
-
-Try fixing the bug by doing more sanity checks for inline data inode in
-sanity_check_inode().
-
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2018
+Signed-off-by: Dave Airlie <airlied@redhat.com>
 Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/f2fs.h   |    1 +
- fs/f2fs/inline.c |   29 ++++++++++++++++++++++++-----
- fs/f2fs/inode.c  |    3 +--
- 3 files changed, 26 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -4052,6 +4052,7 @@ extern struct kmem_cache *f2fs_inode_ent
-  * inline.c
-  */
- bool f2fs_may_inline_data(struct inode *inode);
-+bool f2fs_sanity_check_inline_data(struct inode *inode);
- bool f2fs_may_inline_dentry(struct inode *inode);
- void f2fs_do_read_inline_data(struct page *page, struct page *ipage);
- void f2fs_truncate_inline_inode(struct inode *inode,
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -14,21 +14,40 @@
- #include "node.h"
- #include <trace/events/f2fs.h>
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -116,7 +116,7 @@ static int amdgpu_cs_parser_init(struct
+ 	int ret;
  
--bool f2fs_may_inline_data(struct inode *inode)
-+static bool support_inline_data(struct inode *inode)
- {
- 	if (f2fs_is_atomic_file(inode))
- 		return false;
--
- 	if (!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))
- 		return false;
--
- 	if (i_size_read(inode) > MAX_INLINE_DATA(inode))
- 		return false;
-+	return true;
-+}
-+
-+bool f2fs_may_inline_data(struct inode *inode)
-+{
-+	if (!support_inline_data(inode))
-+		return false;
-+
-+	return !f2fs_post_read_required(inode);
-+}
+ 	if (cs->in.num_chunks == 0)
+-		return 0;
++		return -EINVAL;
  
--	if (f2fs_post_read_required(inode))
-+bool f2fs_sanity_check_inline_data(struct inode *inode)
-+{
-+	if (!f2fs_has_inline_data(inode))
- 		return false;
- 
--	return true;
-+	if (!support_inline_data(inode))
-+		return true;
-+
-+	/*
-+	 * used by sanity_check_inode(), when disk layout fields has not
-+	 * been synchronized to inmem fields.
-+	 */
-+	return (S_ISREG(inode->i_mode) &&
-+		(file_is_encrypt(inode) || file_is_verity(inode) ||
-+		(F2FS_I(inode)->i_flags & F2FS_COMPR_FL)));
- }
- 
- bool f2fs_may_inline_dentry(struct inode *inode)
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -276,8 +276,7 @@ static bool sanity_check_inode(struct in
- 		}
- 	}
- 
--	if (f2fs_has_inline_data(inode) &&
--			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
-+	if (f2fs_sanity_check_inline_data(inode)) {
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
- 			  __func__, inode->i_ino, inode->i_mode);
+ 	chunk_array = kmalloc_array(cs->in.num_chunks, sizeof(uint64_t), GFP_KERNEL);
+ 	if (!chunk_array)
 
 
