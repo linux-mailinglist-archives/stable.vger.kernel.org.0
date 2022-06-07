@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 804D4541C13
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9958854146B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382854AbiFGV4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32848 "EHLO
+        id S1358514AbiFGUR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:17:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382141AbiFGVtY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:49:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2405118FF11;
-        Tue,  7 Jun 2022 12:08:34 -0700 (PDT)
+        with ESMTP id S1376629AbiFGUQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EDF1CF173;
+        Tue,  7 Jun 2022 11:29:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B06461768;
-        Tue,  7 Jun 2022 19:08:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DC7C385A5;
-        Tue,  7 Jun 2022 19:08:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0B3661435;
+        Tue,  7 Jun 2022 18:29:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CAA8C385A2;
+        Tue,  7 Jun 2022 18:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628913;
-        bh=1xphEaU64A+Q8NDY8DCsk7LVDIw4vXTtIDDTXjOER0w=;
+        s=korg; t=1654626577;
+        bh=TMGAqEloyoxU4WWgbjXsB23jfVXybmE1fmgBgQzaYfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPsHLHzHS/FeLP6xIzS39z0qqe/vnJfgREmPexgRTUOw8pjdoGX5GT+LqW+xAFZ5e
-         /Rjtu81428sVvoH0fTbzP5i1Esro63exTEi8tLxzI8eBLNxUd+VGze++Y20i10zcBg
-         Qsmljk7MN03rUtCsGTwf/hMu0U2iyt4kHxRT9iBA=
+        b=rRxtqJhgL6phvhmVpWOhC2pTe8688zRWF9XfuXFQOxshfazEBJGQzJz/HFFsOEh3D
+         mpxv39fWMvT4ZNYU0hZ/f7YIzXfjOvsTzmdSwlm8SGAFebMewllLSLSVByWvlJqpBX
+         CoyMVyEAE5j4/50mQS8gevd+ICNkANm4eIw0fnsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 461/879] io_uring: only wake when the correct events are set
+        stable@vger.kernel.org, Yake Yang <yake.yang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 387/772] Bluetooth: btmtksdio: fix use-after-free at btmtksdio_recv_event
 Date:   Tue,  7 Jun 2022 18:59:39 +0200
-Message-Id: <20220607165016.254910676@linuxfoundation.org>
+Message-Id: <20220607165000.418114487@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@fb.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 1b1d7b4bf1d9948c8dba5ee550459ce7c65ac019 ]
+[ Upstream commit 0fab6361c4ba17d1b43a991bef4238a3c1754d35 ]
 
-The check for waking up a request compares the poll_t bits, however this
-will always contain some common flags so this always wakes up.
+We should not access skb buffer data anymore after hci_recv_frame was
+called.
 
-For files with single wait queues such as sockets this can cause the
-request to be sent to the async worker unnecesarily. Further if it is
-non-blocking will complete the request with EAGAIN which is not desired.
+[   39.634809] BUG: KASAN: use-after-free in btmtksdio_recv_event+0x1b0
+[   39.634855] Read of size 1 at addr ffffff80cf28a60d by task kworker
+[   39.634962] Call trace:
+[   39.634974]  dump_backtrace+0x0/0x3b8
+[   39.634999]  show_stack+0x20/0x2c
+[   39.635016]  dump_stack_lvl+0x60/0x78
+[   39.635040]  print_address_description+0x70/0x2f0
+[   39.635062]  kasan_report+0x154/0x194
+[   39.635079]  __asan_report_load1_noabort+0x44/0x50
+[   39.635099]  btmtksdio_recv_event+0x1b0/0x1c4
+[   39.635129]  btmtksdio_txrx_work+0x6cc/0xac4
+[   39.635157]  process_one_work+0x560/0xc5c
+[   39.635177]  worker_thread+0x7ec/0xcc0
+[   39.635195]  kthread+0x2d0/0x3d0
+[   39.635215]  ret_from_fork+0x10/0x20
+[   39.635247] Allocated by task 0:
+[   39.635260] (stack is not available)
+[   39.635281] Freed by task 2392:
+[   39.635295]  kasan_save_stack+0x38/0x68
+[   39.635319]  kasan_set_track+0x28/0x3c
+[   39.635338]  kasan_set_free_info+0x28/0x4c
+[   39.635357]  ____kasan_slab_free+0x104/0x150
+[   39.635374]  __kasan_slab_free+0x18/0x28
+[   39.635391]  slab_free_freelist_hook+0x114/0x248
+[   39.635410]  kfree+0xf8/0x2b4
+[   39.635427]  skb_free_head+0x58/0x98
+[   39.635447]  skb_release_data+0x2f4/0x410
+[   39.635464]  skb_release_all+0x50/0x60
+[   39.635481]  kfree_skb+0xc8/0x25c
+[   39.635498]  hci_event_packet+0x894/0xca4 [bluetooth]
+[   39.635721]  hci_rx_work+0x1c8/0x68c [bluetooth]
+[   39.635925]  process_one_work+0x560/0xc5c
+[   39.635951]  worker_thread+0x7ec/0xcc0
+[   39.635970]  kthread+0x2d0/0x3d0
+[   39.635990]  ret_from_fork+0x10/0x20
+[   39.636021] The buggy address belongs to the object at ffffff80cf28a600
+                which belongs to the cache kmalloc-512 of size 512
+[   39.636039] The buggy address is located 13 bytes inside of
+                512-byte region [ffffff80cf28a600, ffffff80cf28a800)
 
-Here exclude these common events, making sure to not exclude POLLERR which
-might be important.
-
-Fixes: d7718a9d25a6 ("io_uring: use poll driven retry for files that support it")
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Link: https://lore.kernel.org/r/20220512091834.728610-3-dylany@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 9aebfd4a2200 ("Bluetooth: mediatek: add support for MediaTek MT7663S and MT7668S SDIO devices")
+Co-developed-by: Yake Yang <yake.yang@mediatek.com>
+Signed-off-by: Yake Yang <yake.yang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/bluetooth/btmtksdio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7272e410d24a..9e247335e70d 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5981,6 +5981,7 @@ static void io_poll_cancel_req(struct io_kiocb *req)
+diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
+index ecf29cfa7d79..411676ad0c6b 100644
+--- a/drivers/bluetooth/btmtksdio.c
++++ b/drivers/bluetooth/btmtksdio.c
+@@ -368,6 +368,7 @@ static int btmtksdio_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
+ {
+ 	struct btmtksdio_dev *bdev = hci_get_drvdata(hdev);
+ 	struct hci_event_hdr *hdr = (void *)skb->data;
++	u8 evt = hdr->evt;
+ 	int err;
  
- #define wqe_to_req(wait)	((void *)((unsigned long) (wait)->private & ~1))
- #define wqe_is_double(wait)	((unsigned long) (wait)->private & 1)
-+#define IO_ASYNC_POLL_COMMON	(EPOLLONESHOT | POLLPRI)
+ 	/* When someone waits for the WMT event, the skb is being cloned
+@@ -385,7 +386,7 @@ static int btmtksdio_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
+ 	if (err < 0)
+ 		goto err_free_skb;
  
- static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 			void *key)
-@@ -6015,7 +6016,7 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 	}
- 
- 	/* for instances that support it check for an event match first */
--	if (mask && !(mask & poll->events))
-+	if (mask && !(mask & (poll->events & ~IO_ASYNC_POLL_COMMON)))
- 		return 0;
- 
- 	if (io_poll_get_ownership(req)) {
-@@ -6171,7 +6172,7 @@ static int io_arm_poll_handler(struct io_kiocb *req, unsigned issue_flags)
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct async_poll *apoll;
- 	struct io_poll_table ipt;
--	__poll_t mask = EPOLLONESHOT | POLLERR | POLLPRI;
-+	__poll_t mask = IO_ASYNC_POLL_COMMON | POLLERR;
- 	int ret;
- 
- 	if (!def->pollin && !def->pollout)
+-	if (hdr->evt == HCI_EV_WMT) {
++	if (evt == HCI_EV_WMT) {
+ 		if (test_and_clear_bit(BTMTKSDIO_TX_WAIT_VND_EVT,
+ 				       &bdev->tx_state)) {
+ 			/* Barrier to sync with other CPUs */
 -- 
 2.35.1
 
