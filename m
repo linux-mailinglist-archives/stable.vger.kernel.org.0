@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C785423ED
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A9F542632
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:56:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348706AbiFHCrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 22:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S1357216AbiFHBOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:14:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447787AbiFHCoF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:44:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB23D26855B;
-        Tue,  7 Jun 2022 12:21:43 -0700 (PDT)
+        with ESMTP id S1840106AbiFHAEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 20:04:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5486026ACA4;
+        Tue,  7 Jun 2022 12:22:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4359B60A54;
-        Tue,  7 Jun 2022 19:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C633C385A2;
-        Tue,  7 Jun 2022 19:21:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 724EEB823D4;
+        Tue,  7 Jun 2022 19:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1DCC385A2;
+        Tue,  7 Jun 2022 19:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629702;
-        bh=5eZbs3RUyx8krHHab6EXWvD9mRyJfw/nCvHv1W7UiA4=;
+        s=korg; t=1654629722;
+        bh=wJFVW/I+qZbsg4ltQvCNNL+rG+/iesshOHnsxPxAr4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnixDBPe+KhUQBj054s3qDlfByDfVFkS8nBjri+a5tY70AgOV7Zv6lGjYKBXMq04u
-         PV+PS+3iytTHvxXYC0Xxo786zU/CNem8Re7Y7gDa4ObRhJ4FDb7MV8N/zeb5fzoR6R
-         HpbhXFUAMbL0r8VRrD4THUhyFHJTsa6dIrqZsPKU=
+        b=BVyWhbuxBFKU6YI3Q+VSW6Tuchd/pwbttXjhXsK+CVW2FxViGGptUo5BNYp2DC5/Q
+         rrTVxIE+oHjWU/dF8qUVv3ZESAHnCkKswNR8Xgx80KSpSFf+OW/xrpHaFqptz1Hpjq
+         82TndWjmrhMFtbjQ0cpg9NsoirVmujxlhol4GjoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.18 786/879] selftests/landlock: Test landlock_create_ruleset(2) argument check ordering
-Date:   Tue,  7 Jun 2022 19:05:04 +0200
-Message-Id: <20220607165025.682786588@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.18 792/879] drm/nouveau/subdev/bus: Ratelimit logging for fault errors
+Date:   Tue,  7 Jun 2022 19:05:10 +0200
+Message-Id: <20220607165025.851983840@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -53,70 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 6533d0c3a86ee1cc74ff37ac92ca597deb87015c upstream.
+commit 9887bda0c831df0c044d6de147d002e48024fb4a upstream.
 
-Add inval_create_ruleset_arguments, extension of
-inval_create_ruleset_flags, to also check error ordering for
-landlock_create_ruleset(2).
+There's plenty of ways to fudge the GPU when developing on nouveau by
+mistake, some of which can result in nouveau seriously spamming dmesg with
+fault errors. This can be somewhat annoying, as it can quickly overrun the
+message buffer (or your terminal emulator's buffer) and get rid of actually
+useful feedback from the driver. While working on my new atomic only MST
+branch, I ran into this issue a couple of times.
 
-This is similar to the previous commit checking landlock_add_rule(2).
+So, let's fix this by adding nvkm_error_ratelimited(), and using it to
+ratelimit errors from faults. This should be fine for developers, since
+it's nearly always only the first few faults that we care about seeing.
+Plus, you can turn off rate limiting in the kernel if you really need to.
 
-Test coverage for security/landlock is 94.4% of 504 lines accorging to
-gcc/gcov-11.
-
-Link: https://lore.kernel.org/r/20220506160820.524344-11-mic@digikod.net
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220429195350.85620-1-lyude@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/base_test.c |   21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/include/nvkm/core/subdev.h |    2 ++
+ drivers/gpu/drm/nouveau/nvkm/subdev/bus/gf100.c    |   14 +++++++-------
+ drivers/gpu/drm/nouveau/nvkm/subdev/bus/nv31.c     |    6 +++---
+ drivers/gpu/drm/nouveau/nvkm/subdev/bus/nv50.c     |    6 +++---
+ 4 files changed, 15 insertions(+), 13 deletions(-)
 
---- a/tools/testing/selftests/landlock/base_test.c
-+++ b/tools/testing/selftests/landlock/base_test.c
-@@ -97,14 +97,17 @@ TEST(abi_version)
- 	ASSERT_EQ(EINVAL, errno);
- }
- 
--TEST(inval_create_ruleset_flags)
-+/* Tests ordering of syscall argument checks. */
-+TEST(create_ruleset_checks_ordering)
- {
- 	const int last_flag = LANDLOCK_CREATE_RULESET_VERSION;
- 	const int invalid_flag = last_flag << 1;
-+	int ruleset_fd;
- 	const struct landlock_ruleset_attr ruleset_attr = {
- 		.handled_access_fs = LANDLOCK_ACCESS_FS_READ_FILE,
- 	};
- 
-+	/* Checks priority for invalid flags. */
- 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 0, invalid_flag));
- 	ASSERT_EQ(EINVAL, errno);
- 
-@@ -119,6 +122,22 @@ TEST(inval_create_ruleset_flags)
- 		  landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr),
- 					  invalid_flag));
- 	ASSERT_EQ(EINVAL, errno);
+--- a/drivers/gpu/drm/nouveau/include/nvkm/core/subdev.h
++++ b/drivers/gpu/drm/nouveau/include/nvkm/core/subdev.h
+@@ -62,4 +62,6 @@ void nvkm_subdev_intr(struct nvkm_subdev
+ #define nvkm_debug(s,f,a...) nvkm_printk((s), DEBUG,   info, f, ##a)
+ #define nvkm_trace(s,f,a...) nvkm_printk((s), TRACE,   info, f, ##a)
+ #define nvkm_spam(s,f,a...)  nvkm_printk((s),  SPAM,    dbg, f, ##a)
 +
-+	/* Checks too big ruleset_attr size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, -1, 0));
-+	ASSERT_EQ(E2BIG, errno);
-+
-+	/* Checks too small ruleset_attr size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 0, 0));
-+	ASSERT_EQ(EINVAL, errno);
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 1, 0));
-+	ASSERT_EQ(EINVAL, errno);
-+
-+	/* Checks valid call. */
-+	ruleset_fd =
-+		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-+	ASSERT_LE(0, ruleset_fd);
-+	ASSERT_EQ(0, close(ruleset_fd));
- }
++#define nvkm_error_ratelimited(s,f,a...) nvkm_printk((s), ERROR, err_ratelimited, f, ##a)
+ #endif
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bus/gf100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bus/gf100.c
+@@ -35,13 +35,13 @@ gf100_bus_intr(struct nvkm_bus *bus)
+ 		u32 addr = nvkm_rd32(device, 0x009084);
+ 		u32 data = nvkm_rd32(device, 0x009088);
  
- /* Tests ordering of syscall argument checks. */
+-		nvkm_error(subdev,
+-			   "MMIO %s of %08x FAULT at %06x [ %s%s%s]\n",
+-			   (addr & 0x00000002) ? "write" : "read", data,
+-			   (addr & 0x00fffffc),
+-			   (stat & 0x00000002) ? "!ENGINE " : "",
+-			   (stat & 0x00000004) ? "PRIVRING " : "",
+-			   (stat & 0x00000008) ? "TIMEOUT " : "");
++		nvkm_error_ratelimited(subdev,
++				       "MMIO %s of %08x FAULT at %06x [ %s%s%s]\n",
++				       (addr & 0x00000002) ? "write" : "read", data,
++				       (addr & 0x00fffffc),
++				       (stat & 0x00000002) ? "!ENGINE " : "",
++				       (stat & 0x00000004) ? "PRIVRING " : "",
++				       (stat & 0x00000008) ? "TIMEOUT " : "");
+ 
+ 		nvkm_wr32(device, 0x009084, 0x00000000);
+ 		nvkm_wr32(device, 0x001100, (stat & 0x0000000e));
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bus/nv31.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bus/nv31.c
+@@ -45,9 +45,9 @@ nv31_bus_intr(struct nvkm_bus *bus)
+ 		u32 addr = nvkm_rd32(device, 0x009084);
+ 		u32 data = nvkm_rd32(device, 0x009088);
+ 
+-		nvkm_error(subdev, "MMIO %s of %08x FAULT at %06x\n",
+-			   (addr & 0x00000002) ? "write" : "read", data,
+-			   (addr & 0x00fffffc));
++		nvkm_error_ratelimited(subdev, "MMIO %s of %08x FAULT at %06x\n",
++				       (addr & 0x00000002) ? "write" : "read", data,
++				       (addr & 0x00fffffc));
+ 
+ 		stat &= ~0x00000008;
+ 		nvkm_wr32(device, 0x001100, 0x00000008);
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bus/nv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bus/nv50.c
+@@ -60,9 +60,9 @@ nv50_bus_intr(struct nvkm_bus *bus)
+ 		u32 addr = nvkm_rd32(device, 0x009084);
+ 		u32 data = nvkm_rd32(device, 0x009088);
+ 
+-		nvkm_error(subdev, "MMIO %s of %08x FAULT at %06x\n",
+-			   (addr & 0x00000002) ? "write" : "read", data,
+-			   (addr & 0x00fffffc));
++		nvkm_error_ratelimited(subdev, "MMIO %s of %08x FAULT at %06x\n",
++				       (addr & 0x00000002) ? "write" : "read", data,
++				       (addr & 0x00fffffc));
+ 
+ 		stat &= ~0x00000008;
+ 		nvkm_wr32(device, 0x001100, 0x00000008);
 
 
