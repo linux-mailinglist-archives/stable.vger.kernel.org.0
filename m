@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB5E540A4F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29574540539
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:23:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350298AbiFGSTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:19:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42292 "EHLO
+        id S238507AbiFGRXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:23:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352187AbiFGSQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B996915717;
-        Tue,  7 Jun 2022 10:51:01 -0700 (PDT)
+        with ESMTP id S1346069AbiFGRVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAF5107887;
+        Tue,  7 Jun 2022 10:21:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0A9CACE21CD;
-        Tue,  7 Jun 2022 17:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51E3C3411C;
-        Tue,  7 Jun 2022 17:50:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CAD4B822B0;
+        Tue,  7 Jun 2022 17:21:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7BAC34119;
+        Tue,  7 Jun 2022 17:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624258;
-        bh=JsZE5AxHTbW00VZnJgu/U+JfgGO6KlUPjLQsTZoemWU=;
+        s=korg; t=1654622469;
+        bh=Bkd23sX7Gv/V+UyqdUT5JU9g3D19EXhrLTVzmu+pFg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuSN/1xJjhlAPa93KlsXQ6EofATEjsF33qYioj9KDGBOTl49A/43SQsj9SatSqKP2
-         L6dESRvQIczqbX7C1SOTrGS2+WndPYRxxYvMst29oOjGy8FQJGAq3p8SzsFTnlClZg
-         R2dcifOlQJvsRPCvqy9ylv+4GqW60Fa6+e8z3xnQ=
+        b=eQlIxANOY5tWgXmdq11Pb0qIjqm8wakfbtNoEJMrfXT6TqSmp2hEdXCU08qjgAiwk
+         QWk2YB26Xq7rPxnC9fZziyLj+9yQv+ntcVpdi9Qu0RLo2ER132WP3xFdI5gskmPHF7
+         /68ALlA/Gh2Gxo8JBiX+7GpEC7ie5u5zXrHm0XWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Teh <jonathan.teh@outlook.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 221/667] HID: hid-led: fix maximum brightness for Dream Cheeky
+        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/452] b43: Fix assigning negative value to unsigned variable
 Date:   Tue,  7 Jun 2022 18:58:06 +0200
-Message-Id: <20220607164941.418776483@linuxfoundation.org>
+Message-Id: <20220607164909.415359836@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Teh <jonathan.teh@outlook.com>
+From: Haowen Bai <baihaowen@meizu.com>
 
-[ Upstream commit 116c3f4a78ebe478d5ad5a038baf931e93e7d748 ]
+[ Upstream commit 11800d893b38e0e12d636c170c1abc19c43c730c ]
 
-Increase maximum brightness for Dream Cheeky to 63. Emperically
-determined based on testing in kernel 4.4 on this device:
+fix warning reported by smatch:
+drivers/net/wireless/broadcom/b43/phy_n.c:585 b43_nphy_adjust_lna_gain_table()
+warn: assigning (-2) to unsigned variable '*(lna_gain[0])'
 
-Bus 003 Device 002: ID 1d34:0004 Dream Cheeky Webmail Notifier
-
-Fixes: 6c7ad07e9e05 ("HID: migrate USB LED driver from usb misc to hid")
-Signed-off-by: Jonathan Teh <jonathan.teh@outlook.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1648203315-28093-1-git-send-email-baihaowen@meizu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-led.c | 2 +-
+ drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index c2c66ceca132..7d82f8d426bb 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -366,7 +366,7 @@ static const struct hidled_config hidled_configs[] = {
- 		.type = DREAM_CHEEKY,
- 		.name = "Dream Cheeky Webmail Notifier",
- 		.short_name = "dream_cheeky",
--		.max_brightness = 31,
-+		.max_brightness = 63,
- 		.num_leds = 1,
- 		.report_size = 9,
- 		.report_type = RAW_REQUEST,
+diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
+index 665b737fbb0d..39975b7d1a16 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_n.c
++++ b/drivers/net/wireless/broadcom/b43/phy_n.c
+@@ -582,7 +582,7 @@ static void b43_nphy_adjust_lna_gain_table(struct b43_wldev *dev)
+ 	u16 data[4];
+ 	s16 gain[2];
+ 	u16 minmax[2];
+-	static const u16 lna_gain[4] = { -2, 10, 19, 25 };
++	static const s16 lna_gain[4] = { -2, 10, 19, 25 };
+ 
+ 	if (nphy->hang_avoid)
+ 		b43_nphy_stay_in_carrier_search(dev, 1);
 -- 
 2.35.1
 
