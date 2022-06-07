@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 867F2540E76
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B3354157E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353949AbiFGSzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53900 "EHLO
+        id S1376497AbiFGUgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354570AbiFGSrJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9EB110AFD;
-        Tue,  7 Jun 2022 11:02:17 -0700 (PDT)
+        with ESMTP id S1377909AbiFGUej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:39 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D60E136420;
+        Tue,  7 Jun 2022 11:36:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3835E617AE;
-        Tue,  7 Jun 2022 18:02:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4389DC36AFE;
-        Tue,  7 Jun 2022 18:02:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BAC9ACE2461;
+        Tue,  7 Jun 2022 18:36:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC8CC385A5;
+        Tue,  7 Jun 2022 18:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624936;
-        bh=SYfDcBS5l0KHvukvnWZ1CDr4lBjQVVe7NVWB4fHKLWA=;
+        s=korg; t=1654627000;
+        bh=TFlFG1TxST65rzWu8o+ql5jezpasEcSRnZQBFqoJotI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POkLCfrWr6ianXN6w/51GGOC1Kcpwip8luUSlWH6uFF65WvAXcV86t2V/y4aI3bhJ
-         g1tfqIesUX0P/ssPCn2ODLizHa7iLzATuhZq1s/Aa4GZ64OeILjxj1lYfjN4TbqPsB
-         B9haCBx8+hHKrqvMKxnXuGVULFYtVd4RuAVNGKUw=
+        b=Gm1sXPaB7XYg+22u6snKz0omvxx6lg5miKni6lNzVsestnda6j6v5tqFtTZySOrwn
+         xG2yvmpKcVZqqTe/d4t8yBUoHhPoZjG7ZUY0bWBc4n7/8RVwYFE7sX3Is+2VXbjqZs
+         1cXxqAUyHaWYG6fGDIPNBapPjJZg1XZbDEozFyAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 507/667] i2c: rcar: fix PM ref counts in probe error paths
-Date:   Tue,  7 Jun 2022 19:02:52 +0200
-Message-Id: <20220607164949.905865504@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 581/772] NFS: fsync() should report filesystem errors over EINTR/ERESTARTSYS
+Date:   Tue,  7 Jun 2022 19:02:53 +0200
+Message-Id: <20220607165006.069302431@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 3fe2ec59db1a7569e18594b9c0cf1f4f1afd498e ]
+[ Upstream commit 9641d9bc9b75f11f70646f5c6ee9f5f519a1012e ]
 
-We have to take care of ID_P_PM_BLOCKED when bailing out during probe.
+If the commit to disk is interrupted, we should still first check for
+filesystem errors so that we can report them in preference to the error
+due to the signal.
 
-Fixes: 7ee24eb508d6 ("i2c: rcar: disable PM in multi-master mode")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 2197e9b06c22 ("NFS: Fix up fsync() when the server rebooted")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ fs/nfs/file.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index bff9913c37b8..2c016f0299fc 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1070,8 +1070,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 	pm_runtime_get_sync(dev);
- 	ret = rcar_i2c_clock_calculate(priv);
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index d8583f57ff99..ce761c88d260 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -209,15 +209,16 @@ static int
+ nfs_file_fsync_commit(struct file *file, int datasync)
+ {
+ 	struct inode *inode = file_inode(file);
+-	int ret;
++	int ret, ret2;
+ 
+ 	dprintk("NFS: fsync file(%pD2) datasync %d\n", file, datasync);
+ 
+ 	nfs_inc_stats(inode, NFSIOS_VFSFSYNC);
+ 	ret = nfs_commit_inode(inode, FLUSH_SYNC);
 -	if (ret < 0)
--		goto out_pm_put;
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
-+		goto out_pm_disable;
-+	}
+-		return ret;
+-	return file_check_and_advance_wb_err(file);
++	ret2 = file_check_and_advance_wb_err(file);
++	if (ret2 < 0)
++		return ret2;
++	return ret;
+ }
  
- 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
- 
-@@ -1100,19 +1102,19 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 
- 	ret = platform_get_irq(pdev, 0);
- 	if (ret < 0)
--		goto out_pm_disable;
-+		goto out_pm_put;
- 	priv->irq = ret;
- 	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", priv->irq);
--		goto out_pm_disable;
-+		goto out_pm_put;
- 	}
- 
- 	platform_set_drvdata(pdev, priv);
- 
- 	ret = i2c_add_numbered_adapter(adap);
- 	if (ret < 0)
--		goto out_pm_disable;
-+		goto out_pm_put;
- 
- 	if (priv->flags & ID_P_HOST_NOTIFY) {
- 		priv->host_notify_client = i2c_new_slave_host_notify_device(adap);
-@@ -1129,7 +1131,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
-  out_del_device:
- 	i2c_del_adapter(&priv->adap);
-  out_pm_put:
--	pm_runtime_put(dev);
-+	if (priv->flags & ID_P_PM_BLOCKED)
-+		pm_runtime_put(dev);
-  out_pm_disable:
- 	pm_runtime_disable(dev);
- 	return ret;
+ int
 -- 
 2.35.1
 
