@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E92541CEA
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867F2540E76
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382531AbiFGWG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:06:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40260 "EHLO
+        id S1353949AbiFGSzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382571AbiFGWEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 453481957BD;
-        Tue,  7 Jun 2022 12:15:37 -0700 (PDT)
+        with ESMTP id S1354570AbiFGSrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9EB110AFD;
+        Tue,  7 Jun 2022 11:02:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C49E9B8233E;
-        Tue,  7 Jun 2022 19:15:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D053C385A5;
-        Tue,  7 Jun 2022 19:15:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3835E617AE;
+        Tue,  7 Jun 2022 18:02:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4389DC36AFE;
+        Tue,  7 Jun 2022 18:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629334;
-        bh=Ok82NdQlu5FkySxI5+3ZGfOpXbcVehWXEJPOChoCMOA=;
+        s=korg; t=1654624936;
+        bh=SYfDcBS5l0KHvukvnWZ1CDr4lBjQVVe7NVWB4fHKLWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7epv/ZIYwKQMBH15ysTGucpcUQ2czS0BMEeLh+5F5T+f3IxF2nJQ7j+LWGgoJLNz
-         wcPg54H8L8yoiRc/z2AsWtVbeRwKvX5TDgAOQ9nfYJcfpyyKHVkC3jF1QE8b3Jr7rB
-         CsGhXrgjyGdO/d6E38/nWHmA563wXfLZ8vLJ+kmA=
+        b=POkLCfrWr6ianXN6w/51GGOC1Kcpwip8luUSlWH6uFF65WvAXcV86t2V/y4aI3bhJ
+         g1tfqIesUX0P/ssPCn2ODLizHa7iLzATuhZq1s/Aa4GZ64OeILjxj1lYfjN4TbqPsB
+         B9haCBx8+hHKrqvMKxnXuGVULFYtVd4RuAVNGKUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 654/879] pinctrl: apple: Use a raw spinlock for the regmap
+        stable@vger.kernel.org,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 507/667] i2c: rcar: fix PM ref counts in probe error paths
 Date:   Tue,  7 Jun 2022 19:02:52 +0200
-Message-Id: <20220607165021.829606310@linuxfoundation.org>
+Message-Id: <20220607164949.905865504@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 83969805cc716a7dc6b296c3fb1bc7e5cd7ca321 ]
+[ Upstream commit 3fe2ec59db1a7569e18594b9c0cf1f4f1afd498e ]
 
-The irqchip ops are called with a raw spinlock held, so the subsequent
-regmap usage cannot use a plain spinlock.
+We have to take care of ID_P_PM_BLOCKED when bailing out during probe.
 
-spi-hid-apple-of spi0.0: spihid_apple_of_probe:74
-
-=============================
-[ BUG: Invalid wait context ]
-5.18.0-asahi-00176-g0fa3ab03bdea #1337 Not tainted
------------------------------
-kworker/u20:3/86 is trying to lock:
-ffff8000166b5018 (pinctrl_apple_gpio:462:(&regmap_config)->lock){....}-{3:3}, at: regmap_lock_spinlock+0x18/0x30
-other info that might help us debug this:
-context-{5:5}
-7 locks held by kworker/u20:3/86:
- #0: ffff800017725d48 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1c8/0x670
- #1: ffff80001e33bdd0 (deferred_probe_work){+.+.}-{0:0}, at: process_one_work+0x1c8/0x670
- #2: ffff800017d629a0 (&dev->mutex){....}-{4:4}, at: __device_attach+0x30/0x17c
- #3: ffff80002414e618 (&ctlr->add_lock){+.+.}-{4:4}, at: spi_add_device+0x40/0x80
- #4: ffff800024116990 (&dev->mutex){....}-{4:4}, at: __device_attach+0x30/0x17c
- #5: ffff800022d4be58 (request_class){+.+.}-{4:4}, at: __setup_irq+0xa8/0x720
- #6: ffff800022d4bcc8 (lock_class){....}-{2:2}, at: __setup_irq+0xcc/0x720
-
-Fixes: a0f160ffcb83 ("pinctrl: add pinctrl/GPIO driver for Apple SoCs")
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20220524142206.18833-1-marcan@marcan.st
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 7ee24eb508d6 ("i2c: rcar: disable PM in multi-master mode")
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-apple-gpio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-rcar.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-apple-gpio.c b/drivers/pinctrl/pinctrl-apple-gpio.c
-index 72f4dd2466e1..6d1bff9588d9 100644
---- a/drivers/pinctrl/pinctrl-apple-gpio.c
-+++ b/drivers/pinctrl/pinctrl-apple-gpio.c
-@@ -72,6 +72,7 @@ struct regmap_config regmap_config = {
- 	.max_register = 512 * sizeof(u32),
- 	.num_reg_defaults_raw = 512,
- 	.use_relaxed_mmio = true,
-+	.use_raw_spinlock = true,
- };
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index bff9913c37b8..2c016f0299fc 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -1070,8 +1070,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
+ 	ret = rcar_i2c_clock_calculate(priv);
+-	if (ret < 0)
+-		goto out_pm_put;
++	if (ret < 0) {
++		pm_runtime_put(dev);
++		goto out_pm_disable;
++	}
  
- /* No locking needed to mask/unmask IRQs as the interrupt mode is per pin-register. */
+ 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+ 
+@@ -1100,19 +1102,19 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = platform_get_irq(pdev, 0);
+ 	if (ret < 0)
+-		goto out_pm_disable;
++		goto out_pm_put;
+ 	priv->irq = ret;
+ 	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot get irq %d\n", priv->irq);
+-		goto out_pm_disable;
++		goto out_pm_put;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, priv);
+ 
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret < 0)
+-		goto out_pm_disable;
++		goto out_pm_put;
+ 
+ 	if (priv->flags & ID_P_HOST_NOTIFY) {
+ 		priv->host_notify_client = i2c_new_slave_host_notify_device(adap);
+@@ -1129,7 +1131,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+  out_del_device:
+ 	i2c_del_adapter(&priv->adap);
+  out_pm_put:
+-	pm_runtime_put(dev);
++	if (priv->flags & ID_P_PM_BLOCKED)
++		pm_runtime_put(dev);
+  out_pm_disable:
+ 	pm_runtime_disable(dev);
+ 	return ret;
 -- 
 2.35.1
 
