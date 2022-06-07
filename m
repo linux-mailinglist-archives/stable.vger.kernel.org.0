@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E31C1540F18
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F15C854083D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352220AbiFGTBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:01:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49228 "EHLO
+        id S1348858AbiFGR4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:56:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354370AbiFGTBM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:01:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B092150A16;
-        Tue,  7 Jun 2022 11:04:43 -0700 (PDT)
+        with ESMTP id S1349153AbiFGRzn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:55:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE82E146416;
+        Tue,  7 Jun 2022 10:40:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6305861804;
-        Tue,  7 Jun 2022 18:04:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E6EC385A5;
-        Tue,  7 Jun 2022 18:04:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64CF56146F;
+        Tue,  7 Jun 2022 17:35:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AB68C385A5;
+        Tue,  7 Jun 2022 17:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625080;
-        bh=tTRXdsZk3qVL7leSZdmAYurzYGCe14BTkNs7eIceQfc=;
+        s=korg; t=1654623299;
+        bh=54fPIN8G1JovSP05z2k3xNR+dvWsXyhzfXkHCXyejmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdtusdGwUY2GrUWoVHsF14dgsi0MDDfM5Ei9Gb8z0JCNceeuKGaVEiNXv/BBgJ5yo
-         zLe8UunfwzK2mz7wXBYr0BWJfdL5J1DcuM7aJM7FwekqXOaddw7ivmCi5CWKqo81n4
-         hKk4j4MkkzufRLpnYeRHkcQzUZLbpP8GZ7g0m+Us=
+        b=N40sMEUQm/Lv0JGi8Ie07s9FUFffkrCcwqD+1FlG7gscSzVCD2oSahz+1dduQmdKT
+         Ri/nXvO4CwAqY4skivGNMlXUXLVLvPL5dgJnUbrW4mV8X0hLImICUrLpbZF+sy4mF5
+         OAsQftg1onk48CqGc6+tBPDRscOIuSPEHiBHv0zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Oscar Salvador <osalvador@suse.de>,
-        Don Dutile <ddutile@redhat.com>,
-        Wonhyuk Yang <vvghjk1234@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 558/667] mm, compaction: fast_find_migrateblock() should return pfn in the target zone
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 366/452] ACPI: property: Release subnode properties with data nodes
 Date:   Tue,  7 Jun 2022 19:03:43 +0200
-Message-Id: <20220607164951.435153923@linuxfoundation.org>
+Message-Id: <20220607164919.469141778@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,49 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit bbe832b9db2e1ad21522f8f0bf02775fff8a0e0e upstream.
+commit 3bd561e1572ee02a50cd1a5be339abf1a5b78d56 upstream.
 
-At present, pages not in the target zone are added to cc->migratepages
-list in isolate_migratepages_block().  As a result, pages may migrate
-between nodes unintentionally.
+struct acpi_device_properties describes one source of properties present
+on either struct acpi_device or struct acpi_data_node. When properties are
+parsed, both are populated but when released, only those properties that
+are associated with the device node are freed.
 
-This would be a serious problem for older kernels without commit
-a984226f457f849e ("mm: memcontrol: remove the pgdata parameter of
-mem_cgroup_page_lruvec"), because it can corrupt the lru list by
-handling pages in list without holding proper lru_lock.
+Fix this by also releasing memory of the data node properties.
 
-Avoid returning a pfn outside the target zone in the case that it is
-not aligned with a pageblock boundary.  Otherwise
-isolate_migratepages_block() will handle pages not in the target zone.
-
-Link: https://lkml.kernel.org/r/20220511044300.4069-1-yamamoto.rei@jp.fujitsu.com
-Fixes: 70b44595eafe ("mm, compaction: use free lists to quickly locate a migration source")
-Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Don Dutile <ddutile@redhat.com>
-Cc: Wonhyuk Yang <vvghjk1234@gmail.com>
-Cc: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 5f5e4890d57a ("ACPI / property: Allow multiple property compatible _DSD entries")
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/compaction.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/property.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1815,6 +1815,8 @@ static unsigned long fast_find_migratebl
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -433,6 +433,16 @@ void acpi_init_properties(struct acpi_de
+ 		acpi_extract_apple_properties(adev);
+ }
  
- 				update_fast_start_pfn(cc, free_pfn);
- 				pfn = pageblock_start_pfn(free_pfn);
-+				if (pfn < cc->zone->zone_start_pfn)
-+					pfn = cc->zone->zone_start_pfn;
- 				cc->fast_search_fail = 0;
- 				found_block = true;
- 				set_pageblock_skip(freepage);
++static void acpi_free_device_properties(struct list_head *list)
++{
++	struct acpi_device_properties *props, *tmp;
++
++	list_for_each_entry_safe(props, tmp, list, list) {
++		list_del(&props->list);
++		kfree(props);
++	}
++}
++
+ static void acpi_destroy_nondev_subnodes(struct list_head *list)
+ {
+ 	struct acpi_data_node *dn, *next;
+@@ -445,22 +455,18 @@ static void acpi_destroy_nondev_subnodes
+ 		wait_for_completion(&dn->kobj_done);
+ 		list_del(&dn->sibling);
+ 		ACPI_FREE((void *)dn->data.pointer);
++		acpi_free_device_properties(&dn->data.properties);
+ 		kfree(dn);
+ 	}
+ }
+ 
+ void acpi_free_properties(struct acpi_device *adev)
+ {
+-	struct acpi_device_properties *props, *tmp;
+-
+ 	acpi_destroy_nondev_subnodes(&adev->data.subnodes);
+ 	ACPI_FREE((void *)adev->data.pointer);
+ 	adev->data.of_compatible = NULL;
+ 	adev->data.pointer = NULL;
+-	list_for_each_entry_safe(props, tmp, &adev->data.properties, list) {
+-		list_del(&props->list);
+-		kfree(props);
+-	}
++	acpi_free_device_properties(&adev->data.properties);
+ }
+ 
+ /**
 
 
