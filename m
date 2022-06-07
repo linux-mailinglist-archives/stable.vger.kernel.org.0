@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F41854138F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42F18541A66
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353518AbiFGUC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
+        id S1379618AbiFGVcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:32:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358303AbiFGUAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:00:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086881BF813;
-        Tue,  7 Jun 2022 11:25:01 -0700 (PDT)
+        with ESMTP id S1380772AbiFGVbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:31:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCACAEE04;
+        Tue,  7 Jun 2022 12:03:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79691B82340;
-        Tue,  7 Jun 2022 18:24:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD84C36AFE;
-        Tue,  7 Jun 2022 18:24:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C881F61807;
+        Tue,  7 Jun 2022 19:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFBCBC385A5;
+        Tue,  7 Jun 2022 19:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626265;
-        bh=h3Iy+kVmndOWjfqZOnxjHYmN6wP9QVfI61uzfD0c8rU=;
+        s=korg; t=1654628606;
+        bh=xJEmcH7BdIMe2MshrxICDjoyR5Wr/24nzN4gOgNNMsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbjbvmvBZWKgYTbSyh0q+RWNyenRXLn5JryWlS4Pbt5QWHpLEIS/PSHbVSaZMYPNR
-         Lt8QyfnA1l8y5rjLFvlkTLnOVBqx+IZzAAHkTQEG3McmoHdG7g01LsMNamZdK0167B
-         3r55wj3VuAIbYTVvFr3EW9nvJs4YYqN4SAIomCdw=
+        b=pJ0YfWJ14BCUfUrmag1tEJcSM2dutWdPlXR2TzxnpV+T3vLAXwSr1Kh743QpvIBuk
+         9s62XYy09n+j1wcrYBMYym1g8UZP6y6c3VWf0L56EsjQwkKj3deN+8QoJBe2bNLLnI
+         64nHzJcbOuyJ7H9MAiiNPRU50SfF1ghsBSksSOeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 316/772] drm/msm/dp: fix error check return value of irq_of_parse_and_map()
+        stable@vger.kernel.org, Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 390/879] x86/mm: Cleanup the control_va_addr_alignment() __setup handler
 Date:   Tue,  7 Jun 2022 18:58:28 +0200
-Message-Id: <20220607164958.338307735@linuxfoundation.org>
+Message-Id: <20220607165014.185340434@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit e92d0d93f86699b7b25c7906613fdc374d66c8ca ]
+[ Upstream commit 1ef64b1e89e6d4018da46e08ffc32779a31160c7 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+Clean up control_va_addr_alignment():
 
-Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483176/
-Link: https://lore.kernel.org/r/20220424032418.3173632-1-lv.ruyi@zte.com.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+a. Make '=' required instead of optional (as documented).
+b. Print a warning if an invalid option value is used.
+c. Return 1 from the __setup handler when an invalid option value is
+   used. This prevents the kernel from polluting init's (limited)
+   environment space with the entire string.
+
+Fixes: dfb09f9b7ab0 ("x86, amd: Avoid cache aliasing penalties on AMD family 15h")
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Link: https://lore.kernel.org/r/20220315001045.7680-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/x86/kernel/sys_x86_64.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 229c699f6227..fb424f8b29e5 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -1212,10 +1212,9 @@ int dp_display_request_irq(struct msm_dp *dp_display)
- 	dp = container_of(dp_display, struct dp_display_private, dp_display);
+diff --git a/arch/x86/kernel/sys_x86_64.c b/arch/x86/kernel/sys_x86_64.c
+index 660b78827638..8cc653ffdccd 100644
+--- a/arch/x86/kernel/sys_x86_64.c
++++ b/arch/x86/kernel/sys_x86_64.c
+@@ -68,9 +68,6 @@ static int __init control_va_addr_alignment(char *str)
+ 	if (*str == 0)
+ 		return 1;
  
- 	dp->irq = irq_of_parse_and_map(dp->pdev->dev.of_node, 0);
--	if (dp->irq < 0) {
--		rc = dp->irq;
--		DRM_ERROR("failed to get irq: %d\n", rc);
--		return rc;
-+	if (!dp->irq) {
-+		DRM_ERROR("failed to get irq\n");
-+		return -EINVAL;
- 	}
+-	if (*str == '=')
+-		str++;
+-
+ 	if (!strcmp(str, "32"))
+ 		va_align.flags = ALIGN_VA_32;
+ 	else if (!strcmp(str, "64"))
+@@ -80,11 +77,11 @@ static int __init control_va_addr_alignment(char *str)
+ 	else if (!strcmp(str, "on"))
+ 		va_align.flags = ALIGN_VA_32 | ALIGN_VA_64;
+ 	else
+-		return 0;
++		pr_warn("invalid option value: 'align_va_addr=%s'\n", str);
  
- 	rc = devm_request_irq(&dp->pdev->dev, dp->irq,
+ 	return 1;
+ }
+-__setup("align_va_addr", control_va_addr_alignment);
++__setup("align_va_addr=", control_va_addr_alignment);
+ 
+ SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
+ 		unsigned long, prot, unsigned long, flags,
 -- 
 2.35.1
 
