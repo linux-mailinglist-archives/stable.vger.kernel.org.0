@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5679A5425A0
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0662054273D
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 08:59:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbiFHCQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 22:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41534 "EHLO
+        id S1384218AbiFHBPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 21:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444868AbiFHCL2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 22:11:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C430927B997;
-        Tue,  7 Jun 2022 12:25:11 -0700 (PDT)
+        with ESMTP id S1843643AbiFHALR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 20:11:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7396C27C276;
+        Tue,  7 Jun 2022 12:25:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C7A2611D3;
-        Tue,  7 Jun 2022 19:25:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2322BC385A2;
-        Tue,  7 Jun 2022 19:25:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6B55608CD;
+        Tue,  7 Jun 2022 19:25:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F23AFC385A2;
+        Tue,  7 Jun 2022 19:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629910;
-        bh=whKsu2kQ5R/kSc9mTeCeMK1+7GSKVLf+ZR+OdqXreFQ=;
+        s=korg; t=1654629943;
+        bh=rEXuqKaQFolUhzZoisORWwah/+wIF+yL/H+ScGQFSQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWjPsuoGwCRGEvVgC4uG5BeESN+lPr5UUY8GjH87popIxkEuHc8jKFddlWQdMJe91
-         TPVCXOBIGWsok+uA9qCL1vM7yo2q89nKBH6/FXDywgcpZhm91MwvaTA6t4oD6L02/3
-         u7nr+VSndhubdTpyikoqQ1ZbDjJ0S68bXV6TZRy4=
+        b=oJ493/nmPL0waQLVvAact7Fs4FxebXhyy1mIGIdDJM20L7gvelatmeXZg/YVLIOuf
+         Ssb9tG707Nl1R0hK/YdShJXB8FoWLSWZ0UP/F/SMYvJcv5cjJ7qmwP/zH6oa6TcQXi
+         aQYIKwnMBLT2xG6mn6CdtLXopVxGr3gw82+FVL0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 862/879] net: ipa: fix page free in ipa_endpoint_replenish_one()
-Date:   Tue,  7 Jun 2022 19:06:20 +0200
-Message-Id: <20220607165027.876591870@linuxfoundation.org>
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.18 873/879] exportfs: support idmapped mounts
+Date:   Tue,  7 Jun 2022 19:06:31 +0200
+Message-Id: <20220607165028.197049374@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -53,38 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Christian Brauner <brauner@kernel.org>
 
-commit 70132763d5d2e94cd185e3aa92ac6a3ba89068fa upstream.
+commit 3a761d72fa62eec8913e45d29375344f61706541 upstream.
 
-Currently the (possibly compound) pages used for receive buffers are
-freed using __free_pages().  But according to this comment above the
-definition of that function, that's wrong:
-    If you want to use the page's reference count to decide
-    when to free the allocation, you should allocate a compound
-    page, and use put_page() instead of __free_pages().
+Make the two locations where exportfs helpers check permission to lookup
+a given inode idmapped mount aware by switching it to the lookup_one()
+helper. This is a bugfix for the open_by_handle_at() system call which
+doesn't take idmapped mounts into account currently. It's not tied to a
+specific commit so we'll just Cc stable.
 
-Convert the call to __free_pages() in ipa_endpoint_replenish_one()
-to use put_page() instead.
+In addition this is required to support idmapped base layers in overlay.
+The overlay filesystem uses exportfs to encode and decode file handles
+for its index=on mount option and when nfs_export=on.
 
-Fixes: 6a606b90153b8 ("net: ipa: allocate transaction in replenish loop")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-fsdevel@vger.kernel.org>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_endpoint.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exportfs/expfs.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1062,7 +1062,7 @@ static int ipa_endpoint_replenish_one(st
+--- a/fs/exportfs/expfs.c
++++ b/fs/exportfs/expfs.c
+@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(stru
+ 	if (err)
+ 		goto out_err;
+ 	dprintk("%s: found name: %s\n", __func__, nbuf);
+-	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
++	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
+ 	if (IS_ERR(tmp)) {
+ 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
+ 		err = PTR_ERR(tmp);
+@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *
+ 		}
  
- 	ret = gsi_trans_page_add(trans, page, len, offset);
- 	if (ret)
--		__free_pages(page, get_order(buffer_size));
-+		put_page(page);
- 	else
- 		trans->data = page;	/* transaction owns page now */
- 
+ 		inode_lock(target_dir->d_inode);
+-		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
++		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
++				     target_dir, strlen(nbuf));
+ 		if (!IS_ERR(nresult)) {
+ 			if (unlikely(nresult->d_inode != result->d_inode)) {
+ 				dput(nresult);
 
 
