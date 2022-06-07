@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4262254040B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 18:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B99754040C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 18:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237182AbiFGQrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 12:47:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56796 "EHLO
+        id S232878AbiFGQrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 12:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232878AbiFGQrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 12:47:06 -0400
+        with ESMTP id S1344143AbiFGQrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 12:47:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45C4F5525
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 09:47:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E8A5F5527
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 09:47:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FBE76183D
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 16:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CBC7C34114;
-        Tue,  7 Jun 2022 16:47:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A66F61851
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 16:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A74C34114;
+        Tue,  7 Jun 2022 16:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654620424;
-        bh=s87TlWN9rxdHxl9IntY37i1x6/uqk9oqCWM8U+0K5+A=;
+        s=korg; t=1654620427;
+        bh=bFJMV0R5HVBsrR7cVUOzKU7eYiqQz2E2bb6P+HAJK9k=;
         h=Subject:To:Cc:From:Date:From;
-        b=CsO+UIfQ8hhkTPWThe27Od1SFrm6CAZz2RgC3vKNsg+pjbIJn+b68B9GYNiBgwZYg
-         5Tp0h65EW5Xs5ndzrPQKEmeh+X2YyMw9mP9eNxPbPut6W2VHxOSchdJJTb06bJpMkh
-         0JpMfqQbiDjj468vYFkoJ4MuFQ234QIOgefEMLr4=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: Fix packet data hex dump output" failed to apply to 5.15-stable tree
+        b=wPNwpBKoEXDJkIq/orSRD9KMxgfyvL2bybcdkd2WiaRiqr10jPiXG+73kkFAw/9G/
+         leOtmBWl6vvzHhrus0g7pkPj1ktqAs4pcVqZgthrmkK0EwiFwx4WZgtMCCx2ykRRVd
+         3DMxolbyrAR3gMEVn5yWtGLx7iqbaZvUW1Zm0gdA=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: Fix packet data hex dump output" failed to apply to 5.10-stable tree
 To:     tony@atomide.com, gregkh@linuxfoundation.org, swboyd@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 07 Jun 2022 18:46:54 +0200
-Message-ID: <165462041421452@kroah.com>
+Message-ID: <16546204146242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
