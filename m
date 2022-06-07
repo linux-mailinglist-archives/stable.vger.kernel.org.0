@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69155540F6E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C575416A4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354027AbiFGTIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:08:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
+        id S1377390AbiFGUyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354801AbiFGTGm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:06:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E4F1900EE;
-        Tue,  7 Jun 2022 11:05:37 -0700 (PDT)
+        with ESMTP id S1378161AbiFGUv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 629781FE4C8;
+        Tue,  7 Jun 2022 11:41:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F11B5B82182;
-        Tue,  7 Jun 2022 18:05:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E3BC385A5;
-        Tue,  7 Jun 2022 18:05:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3CAB6160D;
+        Tue,  7 Jun 2022 18:41:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04458C385A2;
+        Tue,  7 Jun 2022 18:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625134;
-        bh=YdTQ0DxyDqXgO4kk5oAbF39iZyrEOqj+FEmQCwUfOSA=;
+        s=korg; t=1654627309;
+        bh=yRHv5eXkjDPEXQstJOBVNdSb05vdr2N8+AelV6TYtYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYhU7fp9Ilg7QqodYTJc2Cf7tnLWWtKmDwYAGawU9z+c/axCnhZ23Lt75OrM/Mhz0
-         UHDj49Jv02hULct7KCtOa2Xcp9gHlhROQgUgbRZfr0mnCRwR3AaXmzqGlkNiEkfAU1
-         vAUdhHEJyc2RLDYXWVUTLOEd60JuSG1TMUAeWcXg=
+        b=oVPvlwKKJarCCloEBWzrlhE7M5uaNZpBRaP7abxL79afVYMTlIgnXL4OdMGozEwni
+         kJsR6f9mQHr91fdLjZFo3FdNC9e3o82AWTkwJP617n9xTs0FQyEWmWaPdu3NJLmjPz
+         Y2zjUchW+hJf+51ZWHy+SnZdRS2U8nNHOw+CwX00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.15 579/667] selftests/landlock: Fully test file rename with "remove" access
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.17 652/772] drm/amdgpu: add beige goby PCI ID
 Date:   Tue,  7 Jun 2022 19:04:04 +0200
-Message-Id: <20220607164952.054036584@linuxfoundation.org>
+Message-Id: <20220607165008.276326032@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,122 +53,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 6a1bdd4a0bfc30fa4fa2b3a979e6525f28996db9 upstream.
+commit 62e9bd20035b53ff6c679499c08546d96c6c60a7 upstream.
 
-These tests were missing to check the check_access_path() call with all
-combinations of maybe_remove(old_dentry) and maybe_remove(new_dentry).
+Add a beige goby PCI ID.
 
-Extend layout1.link with a new complementary test and check that
-REMOVE_FILE is not required to link a file.
-
-Cc: Shuah Khan <shuah@kernel.org>
-Link: https://lore.kernel.org/r/20220506160820.524344-7-mic@digikod.net
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/fs_test.c |   41 ++++++++++++++++++++++++++---
- 1 file changed, 37 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -1659,15 +1659,21 @@ TEST_F_FORK(layout1, execute)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1955,6 +1955,7 @@ static const struct pci_device_id pciidl
+ 	{0x1002, 0x7421, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x7422, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x7423, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
++	{0x1002, 0x7424, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x743F, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
  
- TEST_F_FORK(layout1, link)
- {
--	const struct rule rules[] = {
-+	const struct rule layer1[] = {
- 		{
- 			.path = dir_s1d2,
- 			.access = LANDLOCK_ACCESS_FS_MAKE_REG,
- 		},
- 		{},
- 	};
--	const int ruleset_fd =
--		create_ruleset(_metadata, rules[0].access, rules);
-+	const struct rule layer2[] = {
-+		{
-+			.path = dir_s1d3,
-+			.access = LANDLOCK_ACCESS_FS_REMOVE_FILE,
-+		},
-+		{},
-+	};
-+	int ruleset_fd = create_ruleset(_metadata, layer1[0].access, layer1);
- 
- 	ASSERT_LE(0, ruleset_fd);
- 
-@@ -1680,14 +1686,30 @@ TEST_F_FORK(layout1, link)
- 
- 	ASSERT_EQ(-1, link(file2_s1d1, file1_s1d1));
- 	ASSERT_EQ(EACCES, errno);
-+
- 	/* Denies linking because of reparenting. */
- 	ASSERT_EQ(-1, link(file1_s2d1, file1_s1d2));
- 	ASSERT_EQ(EXDEV, errno);
- 	ASSERT_EQ(-1, link(file2_s1d2, file1_s1d3));
- 	ASSERT_EQ(EXDEV, errno);
-+	ASSERT_EQ(-1, link(file2_s1d3, file1_s1d2));
-+	ASSERT_EQ(EXDEV, errno);
- 
- 	ASSERT_EQ(0, link(file2_s1d2, file1_s1d2));
- 	ASSERT_EQ(0, link(file2_s1d3, file1_s1d3));
-+
-+	/* Prepares for next unlinks. */
-+	ASSERT_EQ(0, unlink(file2_s1d2));
-+	ASSERT_EQ(0, unlink(file2_s1d3));
-+
-+	ruleset_fd = create_ruleset(_metadata, layer2[0].access, layer2);
-+	ASSERT_LE(0, ruleset_fd);
-+	enforce_ruleset(_metadata, ruleset_fd);
-+	ASSERT_EQ(0, close(ruleset_fd));
-+
-+	/* Checks that linkind doesn't require the ability to delete a file. */
-+	ASSERT_EQ(0, link(file1_s1d2, file2_s1d2));
-+	ASSERT_EQ(0, link(file1_s1d3, file2_s1d3));
- }
- 
- TEST_F_FORK(layout1, rename_file)
-@@ -1708,7 +1730,6 @@ TEST_F_FORK(layout1, rename_file)
- 
- 	ASSERT_LE(0, ruleset_fd);
- 
--	ASSERT_EQ(0, unlink(file1_s1d1));
- 	ASSERT_EQ(0, unlink(file1_s1d2));
- 
- 	enforce_ruleset(_metadata, ruleset_fd);
-@@ -1744,9 +1765,15 @@ TEST_F_FORK(layout1, rename_file)
- 	ASSERT_EQ(-1, renameat2(AT_FDCWD, dir_s2d2, AT_FDCWD, file1_s2d1,
- 				RENAME_EXCHANGE));
- 	ASSERT_EQ(EACCES, errno);
-+	/* Checks that file1_s2d1 cannot be removed (instead of ENOTDIR). */
-+	ASSERT_EQ(-1, rename(dir_s2d2, file1_s2d1));
-+	ASSERT_EQ(EACCES, errno);
- 	ASSERT_EQ(-1, renameat2(AT_FDCWD, file1_s2d1, AT_FDCWD, dir_s2d2,
- 				RENAME_EXCHANGE));
- 	ASSERT_EQ(EACCES, errno);
-+	/* Checks that file1_s1d1 cannot be removed (instead of EISDIR). */
-+	ASSERT_EQ(-1, rename(file1_s1d1, dir_s1d2));
-+	ASSERT_EQ(EACCES, errno);
- 
- 	/* Renames files with different parents. */
- 	ASSERT_EQ(-1, rename(file1_s2d2, file1_s1d2));
-@@ -1809,9 +1836,15 @@ TEST_F_FORK(layout1, rename_dir)
- 	ASSERT_EQ(-1, renameat2(AT_FDCWD, dir_s1d1, AT_FDCWD, dir_s2d1,
- 				RENAME_EXCHANGE));
- 	ASSERT_EQ(EACCES, errno);
-+	/* Checks that dir_s1d2 cannot be removed (instead of ENOTDIR). */
-+	ASSERT_EQ(-1, rename(dir_s1d2, file1_s1d1));
-+	ASSERT_EQ(EACCES, errno);
- 	ASSERT_EQ(-1, renameat2(AT_FDCWD, file1_s1d1, AT_FDCWD, dir_s1d2,
- 				RENAME_EXCHANGE));
- 	ASSERT_EQ(EACCES, errno);
-+	/* Checks that dir_s1d2 cannot be removed (instead of EISDIR). */
-+	ASSERT_EQ(-1, rename(file1_s1d1, dir_s1d2));
-+	ASSERT_EQ(EACCES, errno);
- 
- 	/*
- 	 * Exchanges and renames directory to the same parent, which allows
+ 	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
 
 
