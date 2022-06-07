@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 942B6540F17
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DAA540734
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346523AbiFGTBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:01:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
+        id S1347563AbiFGRoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:44:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353602AbiFGS7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:59:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0458814FC84;
-        Tue,  7 Jun 2022 11:04:28 -0700 (PDT)
+        with ESMTP id S1347903AbiFGRnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:43:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7FB12E31B;
+        Tue,  7 Jun 2022 10:35:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A41FB61804;
-        Tue,  7 Jun 2022 18:04:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BC32C385A5;
-        Tue,  7 Jun 2022 18:04:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CDC9B822B3;
+        Tue,  7 Jun 2022 17:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5AE5C36B00;
+        Tue,  7 Jun 2022 17:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625064;
-        bh=MbQT3yDB4fBHzRho6MJMlu6Da25l/MOTCcZEZ46eGKI=;
+        s=korg; t=1654623283;
+        bh=TfGOvyIwaEoLDHC69Z6PPXCHD8kR3jJhdj6r89QSPQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAwU4Hy9oqpBj+asYzDAz/2fz9HO2F2i91/JuxwHheP2myPxRENofCN4RDHb42XUa
-         JyJgpTKp5PeMC3Mz/rn3zhS0aOegLkMqCdAoeJIsbgViwem/DoHTCV5nbE5+s+Zk8n
-         jSg7BKQnlH2cXfdJycjt4Z6fYWaN7atMS/laBqw0=
+        b=R/16cZ3v9oE6plmsFVD0EFyzGOBm28lbWfhiKETB0coVcydTLBB57FrC1cNgg+15J
+         uVq5DCRiajC3YumDc+FD2Il95uEXj8sTRJj/RNUy3ouRJxg3uQry4PHGb/BQ891e4G
+         kqNmeUJ9l2c5K22yhYBPbY/KO6gXZ6+bgBf4dVdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>
-Subject: [PATCH 5.15 526/667] objtool: Fix symbol creation
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 334/452] dmaengine: stm32-mdma: remove GISR1 register
 Date:   Tue,  7 Jun 2022 19:03:11 +0200
-Message-Id: <20220607164950.480058906@linuxfoundation.org>
+Message-Id: <20220607164918.512235259@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,346 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-commit ead165fa1042247b033afad7be4be9b815d04ade upstream.
+[ Upstream commit 9d6a2d92e450926c483e45eaf426080a19219f4e ]
 
-Nathan reported objtool failing with the following messages:
+GISR1 was described in a not up-to-date documentation when the stm32-mdma
+driver has been developed. This register has not been added in reference
+manual of STM32 SoC with MDMA, which have only 32 MDMA channels.
+So remove it from stm32-mdma driver.
 
-  warning: objtool: no non-local symbols !?
-  warning: objtool: gelf_update_symshndx: invalid section index
-
-The problem is due to commit 4abff6d48dbc ("objtool: Fix code relocs
-vs weak symbols") failing to consider the case where an object would
-have no non-local symbols.
-
-The problem that commit tries to address is adding a STB_LOCAL symbol
-to the symbol table in light of the ELF spec's requirement that:
-
-  In each symbol table, all symbols with STB_LOCAL binding preced the
-  weak and global symbols.  As ``Sections'' above describes, a symbol
-  table section's sh_info section header member holds the symbol table
-  index for the first non-local symbol.
-
-The approach taken is to find this first non-local symbol, move that
-to the end and then re-use the freed spot to insert a new local symbol
-and increment sh_info.
-
-Except it never considered the case of object files without global
-symbols and got a whole bunch of details wrong -- so many in fact that
-it is a wonder it ever worked :/
-
-Specifically:
-
- - It failed to re-hash the symbol on the new index, so a subsequent
-   find_symbol_by_index() would not find it at the new location and a
-   query for the old location would now return a non-deterministic
-   choice between the old and new symbol.
-
- - It failed to appreciate that the GElf wrappers are not a valid disk
-   format (it works because GElf is basically Elf64 and we only
-   support x86_64 atm.)
-
- - It failed to fully appreciate how horrible the libelf API really is
-   and got the gelf_update_symshndx() call pretty much completely
-   wrong; with the direct consequence that if inserting a second
-   STB_LOCAL symbol would require moving the same STB_GLOBAL symbol
-   again it would completely come unstuck.
-
-Write a new elf_update_symbol() function that wraps all the magic
-required to update or create a new symbol at a given index.
-
-Specifically, gelf_update_sym*() require an @ndx argument that is
-relative to the @data argument; this means you have to manually
-iterate the section data descriptor list and update @ndx.
-
-Fixes: 4abff6d48dbc ("objtool: Fix code relocs vs weak symbols")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/YoPCTEYjoPqE4ZxB@hirez.programming.kicks-ass.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a4ffb13c8946 ("dmaengine: Add STM32 MDMA driver")
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20220504155322.121431-2-amelie.delaunay@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/elf.c |  196 +++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 128 insertions(+), 68 deletions(-)
+ drivers/dma/stm32-mdma.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -314,6 +314,8 @@ static void elf_add_symbol(struct elf *e
- 	struct list_head *entry;
- 	struct rb_node *pnode;
+diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
+index fe36738f2dd7..cd394624085a 100644
+--- a/drivers/dma/stm32-mdma.c
++++ b/drivers/dma/stm32-mdma.c
+@@ -40,7 +40,6 @@
+ 					 STM32_MDMA_SHIFT(mask))
  
-+	sym->alias = sym;
-+
- 	sym->type = GELF_ST_TYPE(sym->sym.st_info);
- 	sym->bind = GELF_ST_BIND(sym->sym.st_info);
+ #define STM32_MDMA_GISR0		0x0000 /* MDMA Int Status Reg 1 */
+-#define STM32_MDMA_GISR1		0x0004 /* MDMA Int Status Reg 2 */
  
-@@ -375,7 +377,6 @@ static int read_symbols(struct elf *elf)
- 			return -1;
- 		}
- 		memset(sym, 0, sizeof(*sym));
--		sym->alias = sym;
+ /* MDMA Channel x interrupt/status register */
+ #define STM32_MDMA_CISR(x)		(0x40 + 0x40 * (x)) /* x = 0..62 */
+@@ -196,7 +195,7 @@
  
- 		sym->idx = i;
+ #define STM32_MDMA_MAX_BUF_LEN		128
+ #define STM32_MDMA_MAX_BLOCK_LEN	65536
+-#define STM32_MDMA_MAX_CHANNELS		63
++#define STM32_MDMA_MAX_CHANNELS		32
+ #define STM32_MDMA_MAX_REQUESTS		256
+ #define STM32_MDMA_MAX_BURST		128
+ #define STM32_MDMA_VERY_HIGH_PRIORITY	0x11
+@@ -1350,21 +1349,11 @@ static irqreturn_t stm32_mdma_irq_handler(int irq, void *devid)
  
-@@ -539,24 +540,21 @@ static void elf_dirty_reloc_sym(struct e
- }
- 
- /*
-- * Move the first global symbol, as per sh_info, into a new, higher symbol
-- * index. This fees up the shndx for a new local symbol.
-+ * The libelf API is terrible; gelf_update_sym*() takes a data block relative
-+ * index value, *NOT* the symbol index. As such, iterate the data blocks and
-+ * adjust index until it fits.
-+ *
-+ * If no data block is found, allow adding a new data block provided the index
-+ * is only one past the end.
-  */
--static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
--				  struct section *symtab_shndx)
-+static int elf_update_symbol(struct elf *elf, struct section *symtab,
-+			     struct section *symtab_shndx, struct symbol *sym)
- {
--	Elf_Data *data, *shndx_data = NULL;
--	Elf32_Word first_non_local;
--	struct symbol *sym;
--	Elf_Scn *s;
--
--	first_non_local = symtab->sh.sh_info;
--
--	sym = find_symbol_by_index(elf, first_non_local);
--	if (!sym) {
--		WARN("no non-local symbols !?");
--		return first_non_local;
--	}
-+	Elf32_Word shndx = sym->sec ? sym->sec->idx : SHN_UNDEF;
-+	Elf_Data *symtab_data = NULL, *shndx_data = NULL;
-+	Elf64_Xword entsize = symtab->sh.sh_entsize;
-+	int max_idx, idx = sym->idx;
-+	Elf_Scn *s, *t = NULL;
- 
- 	s = elf_getscn(elf->elf, symtab->idx);
- 	if (!s) {
-@@ -564,79 +562,124 @@ static int elf_move_global_symbol(struct
- 		return -1;
- 	}
- 
--	data = elf_newdata(s);
--	if (!data) {
--		WARN_ELF("elf_newdata");
--		return -1;
-+	if (symtab_shndx) {
-+		t = elf_getscn(elf->elf, symtab_shndx->idx);
-+		if (!t) {
-+			WARN_ELF("elf_getscn");
-+			return -1;
-+		}
- 	}
- 
--	data->d_buf = &sym->sym;
--	data->d_size = sizeof(sym->sym);
--	data->d_align = 1;
--	data->d_type = ELF_T_SYM;
-+	for (;;) {
-+		/* get next data descriptor for the relevant sections */
-+		symtab_data = elf_getdata(s, symtab_data);
-+		if (t)
-+			shndx_data = elf_getdata(t, shndx_data);
-+
-+		/* end-of-list */
-+		if (!symtab_data) {
-+			void *buf;
-+
-+			if (idx) {
-+				/* we don't do holes in symbol tables */
-+				WARN("index out of range");
-+				return -1;
-+			}
- 
--	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
--	elf_dirty_reloc_sym(elf, sym);
-+			/* if @idx == 0, it's the next contiguous entry, create it */
-+			symtab_data = elf_newdata(s);
-+			if (t)
-+				shndx_data = elf_newdata(t);
-+
-+			buf = calloc(1, entsize);
-+			if (!buf) {
-+				WARN("malloc");
-+				return -1;
-+			}
- 
--	symtab->sh.sh_info += 1;
--	symtab->sh.sh_size += data->d_size;
--	symtab->changed = true;
-+			symtab_data->d_buf = buf;
-+			symtab_data->d_size = entsize;
-+			symtab_data->d_align = 1;
-+			symtab_data->d_type = ELF_T_SYM;
-+
-+			symtab->sh.sh_size += entsize;
-+			symtab->changed = true;
-+
-+			if (t) {
-+				shndx_data->d_buf = &sym->sec->idx;
-+				shndx_data->d_size = sizeof(Elf32_Word);
-+				shndx_data->d_align = sizeof(Elf32_Word);
-+				shndx_data->d_type = ELF_T_WORD;
- 
--	if (symtab_shndx) {
--		s = elf_getscn(elf->elf, symtab_shndx->idx);
--		if (!s) {
--			WARN_ELF("elf_getscn");
-+				symtab_shndx->sh.sh_size += sizeof(Elf32_Word);
-+				symtab_shndx->changed = true;
-+			}
-+
-+			break;
-+		}
-+
-+		/* empty blocks should not happen */
-+		if (!symtab_data->d_size) {
-+			WARN("zero size data");
- 			return -1;
- 		}
- 
--		shndx_data = elf_newdata(s);
-+		/* is this the right block? */
-+		max_idx = symtab_data->d_size / entsize;
-+		if (idx < max_idx)
-+			break;
-+
-+		/* adjust index and try again */
-+		idx -= max_idx;
-+	}
-+
-+	/* something went side-ways */
-+	if (idx < 0) {
-+		WARN("negative index");
-+		return -1;
-+	}
-+
-+	/* setup extended section index magic and write the symbol */
-+	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
-+		sym->sym.st_shndx = shndx;
-+		if (!shndx_data)
-+			shndx = 0;
-+	} else {
-+		sym->sym.st_shndx = SHN_XINDEX;
- 		if (!shndx_data) {
--			WARN_ELF("elf_newshndx_data");
-+			WARN("no .symtab_shndx");
- 			return -1;
- 		}
-+	}
- 
--		shndx_data->d_buf = &sym->sec->idx;
--		shndx_data->d_size = sizeof(Elf32_Word);
--		shndx_data->d_align = 4;
--		shndx_data->d_type = ELF_T_WORD;
--
--		symtab_shndx->sh.sh_size += 4;
--		symtab_shndx->changed = true;
-+	if (!gelf_update_symshndx(symtab_data, shndx_data, idx, &sym->sym, shndx)) {
-+		WARN_ELF("gelf_update_symshndx");
-+		return -1;
- 	}
- 
--	return first_non_local;
-+	return 0;
- }
- 
- static struct symbol *
- elf_create_section_symbol(struct elf *elf, struct section *sec)
- {
- 	struct section *symtab, *symtab_shndx;
--	Elf_Data *shndx_data = NULL;
--	struct symbol *sym;
--	Elf32_Word shndx;
-+	Elf32_Word first_non_local, new_idx;
-+	struct symbol *sym, *old;
- 
- 	symtab = find_section_by_name(elf, ".symtab");
- 	if (symtab) {
- 		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
--		if (symtab_shndx)
--			shndx_data = symtab_shndx->data;
- 	} else {
- 		WARN("no .symtab");
- 		return NULL;
- 	}
- 
--	sym = malloc(sizeof(*sym));
-+	sym = calloc(1, sizeof(*sym));
- 	if (!sym) {
- 		perror("malloc");
- 		return NULL;
- 	}
--	memset(sym, 0, sizeof(*sym));
--
--	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
--	if (sym->idx < 0) {
--		WARN("elf_move_global_symbol");
--		return NULL;
--	}
- 
- 	sym->name = sec->name;
- 	sym->sec = sec;
-@@ -646,24 +689,41 @@ elf_create_section_symbol(struct elf *el
- 	// st_other 0
- 	// st_value 0
- 	// st_size 0
--	shndx = sec->idx;
--	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
--		sym->sym.st_shndx = shndx;
--		if (!shndx_data)
--			shndx = 0;
+ 	/* Find out which channel generates the interrupt */
+ 	status = readl_relaxed(dmadev->base + STM32_MDMA_GISR0);
+-	if (status) {
+-		id = __ffs(status);
 -	} else {
--		sym->sym.st_shndx = SHN_XINDEX;
--		if (!shndx_data) {
--			WARN("no .symtab_shndx");
-+
-+	/*
-+	 * Move the first global symbol, as per sh_info, into a new, higher
-+	 * symbol index. This fees up a spot for a new local symbol.
-+	 */
-+	first_non_local = symtab->sh.sh_info;
-+	new_idx = symtab->sh.sh_size / symtab->sh.sh_entsize;
-+	old = find_symbol_by_index(elf, first_non_local);
-+	if (old) {
-+		old->idx = new_idx;
-+
-+		hlist_del(&old->hash);
-+		elf_hash_add(symbol, &old->hash, old->idx);
-+
-+		elf_dirty_reloc_sym(elf, old);
-+
-+		if (elf_update_symbol(elf, symtab, symtab_shndx, old)) {
-+			WARN("elf_update_symbol move");
- 			return NULL;
- 		}
-+
-+		new_idx = first_non_local;
+-		status = readl_relaxed(dmadev->base + STM32_MDMA_GISR1);
+-		if (!status) {
+-			dev_dbg(mdma2dev(dmadev), "spurious it\n");
+-			return IRQ_NONE;
+-		}
+-		id = __ffs(status);
+-		/*
+-		 * As GISR0 provides status for channel id from 0 to 31,
+-		 * so GISR1 provides status for channel id from 32 to 62
+-		 */
+-		id += 32;
++	if (!status) {
++		dev_dbg(mdma2dev(dmadev), "spurious it\n");
++		return IRQ_NONE;
  	}
++	id = __ffs(status);
  
--	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
--		WARN_ELF("gelf_update_symshndx");
-+	sym->idx = new_idx;
-+	if (elf_update_symbol(elf, symtab, symtab_shndx, sym)) {
-+		WARN("elf_update_symbol");
- 		return NULL;
- 	}
- 
-+	/*
-+	 * Either way, we added a LOCAL symbol.
-+	 */
-+	symtab->sh.sh_info += 1;
-+
- 	elf_add_symbol(elf, sym);
- 
- 	return sym;
+ 	chan = &dmadev->chan[id];
+ 	if (!chan) {
+-- 
+2.35.1
+
 
 
