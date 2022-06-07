@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF8A540B96
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B50C6541B88
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:49:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242314AbiFGS3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35066 "EHLO
+        id S1382011AbiFGVtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:49:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352512AbiFGS0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:26:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305CA16A525;
-        Tue,  7 Jun 2022 10:54:51 -0700 (PDT)
+        with ESMTP id S1380635AbiFGVrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:47:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 792C11900E5;
+        Tue,  7 Jun 2022 12:08:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A099B8236A;
-        Tue,  7 Jun 2022 17:54:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51CAC3411C;
-        Tue,  7 Jun 2022 17:54:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B418D61768;
+        Tue,  7 Jun 2022 19:08:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFFA0C385A2;
+        Tue,  7 Jun 2022 19:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624490;
-        bh=j4qLntO3VaOtB7btRAveV4YpRZHf6JXJpBSgnbjuGuk=;
+        s=korg; t=1654628888;
+        bh=InK2P2719+ucxNiXUq5akHXves7w4RjNdOe6zfMyDME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzgJ7sEcKgWRm6RaTdm0KfwHwKG2JfRf70Quk2Ql6Inowli180+9lHhfZyyFCJD/n
-         GQ6tGCSoPGAnjPSNJKU1denMWhTyQosUWWdr990UFFAPv2F4RseOnP4mjbAYLEEFAA
-         nIVyB+oksgPyz61IqrTzm8KeGgcC46z7djilwKgY=
+        b=caDUBd4xVwOT2DeimpyvL9ri4My1VfIbzB7qZo4fk8a/nr+TrJg+9mq/13YOQTqdb
+         iIdIs3zTdtHN3Nsy8udAsnruWAxBPWIbhr4DScElhuvAFofF/tpGlNyIeTFjZIC1xc
+         ZIl9jEr/7FtAvT09WrhnWvuG+shoebEk8C2DFEzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 344/667] regulator: scmi: Fix refcount leak in scmi_regulator_probe
+Subject: [PATCH 5.18 491/879] thermal/drivers/bcm2711: Dont clamp temperature at zero
 Date:   Tue,  7 Jun 2022 19:00:09 +0200
-Message-Id: <20220607164945.077569797@linuxfoundation.org>
+Message-Id: <20220607165017.123408598@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 68d6c8476fd4f448e70e0ab31ff972838ac41dae ]
+[ Upstream commit 106e0121e243de4da7d634338089a68a8da2abe9 ]
 
-of_find_node_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+The thermal sensor on BCM2711 is capable of negative temperatures, so don't
+clamp the measurements at zero. Since this was the only use for variable t,
+drop it.
 
-Fixes: 0fbeae70ee7c ("regulator: add SCMI driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220516074433.32433-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This change based on a patch by Dom Cobley, who also tested the fix.
+
+Fixes: 59b781352dc4 ("thermal: Add BCM2711 thermal driver")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220412195423.104511-1-stefan.wahren@i2se.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/scmi-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/broadcom/bcm2711_thermal.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/scmi-regulator.c b/drivers/regulator/scmi-regulator.c
-index 1f02f60ad136..41ae7ac27ff6 100644
---- a/drivers/regulator/scmi-regulator.c
-+++ b/drivers/regulator/scmi-regulator.c
-@@ -352,7 +352,7 @@ static int scmi_regulator_probe(struct scmi_device *sdev)
- 			return ret;
- 		}
- 	}
+diff --git a/drivers/thermal/broadcom/bcm2711_thermal.c b/drivers/thermal/broadcom/bcm2711_thermal.c
+index 1ec57d9ecf53..e9bef5c3414b 100644
+--- a/drivers/thermal/broadcom/bcm2711_thermal.c
++++ b/drivers/thermal/broadcom/bcm2711_thermal.c
+@@ -38,7 +38,6 @@ static int bcm2711_get_temp(void *data, int *temp)
+ 	int offset = thermal_zone_get_offset(priv->thermal);
+ 	u32 val;
+ 	int ret;
+-	long t;
+ 
+ 	ret = regmap_read(priv->regmap, AVS_RO_TEMP_STATUS, &val);
+ 	if (ret)
+@@ -50,9 +49,7 @@ static int bcm2711_get_temp(void *data, int *temp)
+ 	val &= AVS_RO_TEMP_STATUS_DATA_MSK;
+ 
+ 	/* Convert a HW code to a temperature reading (millidegree celsius) */
+-	t = slope * val + offset;
 -
-+	of_node_put(np);
- 	/*
- 	 * Register a regulator for each valid regulator-DT-entry that we
- 	 * can successfully reach via SCMI and has a valid associated voltage
+-	*temp = t < 0 ? 0 : t;
++	*temp = slope * val + offset;
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
