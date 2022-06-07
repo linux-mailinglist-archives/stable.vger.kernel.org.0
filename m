@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B34C55416AE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F30ED541DD2
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:22:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377439AbiFGUyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:54:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
+        id S1358083AbiFGWVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378042AbiFGUvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E35185C86;
-        Tue,  7 Jun 2022 11:41:32 -0700 (PDT)
+        with ESMTP id S1384899AbiFGWUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:20:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C08263289;
+        Tue,  7 Jun 2022 12:20:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67A82B822C0;
-        Tue,  7 Jun 2022 18:41:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E04C34115;
-        Tue,  7 Jun 2022 18:41:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D41B600E1;
+        Tue,  7 Jun 2022 19:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45728C385A2;
+        Tue,  7 Jun 2022 19:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627290;
-        bh=5eZbs3RUyx8krHHab6EXWvD9mRyJfw/nCvHv1W7UiA4=;
+        s=korg; t=1654629632;
+        bh=Rf2BtKigmj85vqHrqvMHp6RrUnAF/AVzeXa9HlfYhMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLnaD/jdgWzC6Bu+uBLr+0IRQMFRxYMGuX1JfehmjZLyFPiWwW6m90SQTG3P7vC++
-         jemGmWuuWmPPS7PoD5dL7zWdCySbzba8+3GKme6o5dvaZRG3rEmOMUVWzeH10/zj5D
-         K8nGnkwbrf64zgqMY2O4PU/liV2gi5bgfSGwtwbQ=
+        b=nwwPregZygrhB0sws5UDJ0+FPTVv6btwxsKiOlZw0upx63W7yXTSw3iwM3AiZH0B8
+         KgFL5l+FpqbRrcAmLQlHk+u+RN9WwMfdtOgwjwg1GVcw9KSXqEd432TvUz+N/+QzPP
+         17CcVGuVPR2d0eFYEdsBFP0BhXqWw8d5CBuR0ki8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.17 684/772] selftests/landlock: Test landlock_create_ruleset(2) argument check ordering
-Date:   Tue,  7 Jun 2022 19:04:36 +0200
-Message-Id: <20220607165009.212656492@linuxfoundation.org>
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.18 759/879] block: Fix potential deadlock in blk_ia_range_sysfs_show()
+Date:   Tue,  7 Jun 2022 19:04:37 +0200
+Message-Id: <20220607165024.895162554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 6533d0c3a86ee1cc74ff37ac92ca597deb87015c upstream.
+commit 41e46b3c2aa24f755b2ae9ec4ce931ba5f0d8532 upstream.
 
-Add inval_create_ruleset_arguments, extension of
-inval_create_ruleset_flags, to also check error ordering for
-landlock_create_ruleset(2).
+When being read, a sysfs attribute is already protected against removal
+with the kobject node active reference counter. As a result, in
+blk_ia_range_sysfs_show(), there is no need to take the queue sysfs
+lock when reading the value of a range attribute. Using the queue sysfs
+lock in this function creates a potential deadlock situation with the
+disk removal, something that a lockdep signals with a splat when the
+device is removed:
 
-This is similar to the previous commit checking landlock_add_rule(2).
+[  760.703551]  Possible unsafe locking scenario:
+[  760.703551]
+[  760.703554]        CPU0                    CPU1
+[  760.703556]        ----                    ----
+[  760.703558]   lock(&q->sysfs_lock);
+[  760.703565]                                lock(kn->active#385);
+[  760.703573]                                lock(&q->sysfs_lock);
+[  760.703579]   lock(kn->active#385);
+[  760.703587]
+[  760.703587]  *** DEADLOCK ***
 
-Test coverage for security/landlock is 94.4% of 504 lines accorging to
-gcc/gcov-11.
+Solve this by removing the mutex_lock()/mutex_unlock() calls from
+blk_ia_range_sysfs_show().
 
-Link: https://lore.kernel.org/r/20220506160820.524344-11-mic@digikod.net
+Fixes: a2247f19ee1c ("block: Add independent access ranges support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20220603021905.1441419-1-damien.lemoal@opensource.wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/base_test.c |   21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ block/blk-ia-ranges.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/tools/testing/selftests/landlock/base_test.c
-+++ b/tools/testing/selftests/landlock/base_test.c
-@@ -97,14 +97,17 @@ TEST(abi_version)
- 	ASSERT_EQ(EINVAL, errno);
+--- a/block/blk-ia-ranges.c
++++ b/block/blk-ia-ranges.c
+@@ -54,13 +54,8 @@ static ssize_t blk_ia_range_sysfs_show(s
+ 		container_of(attr, struct blk_ia_range_sysfs_entry, attr);
+ 	struct blk_independent_access_range *iar =
+ 		container_of(kobj, struct blk_independent_access_range, kobj);
+-	ssize_t ret;
+ 
+-	mutex_lock(&iar->queue->sysfs_lock);
+-	ret = entry->show(iar, buf);
+-	mutex_unlock(&iar->queue->sysfs_lock);
+-
+-	return ret;
++	return entry->show(iar, buf);
  }
  
--TEST(inval_create_ruleset_flags)
-+/* Tests ordering of syscall argument checks. */
-+TEST(create_ruleset_checks_ordering)
- {
- 	const int last_flag = LANDLOCK_CREATE_RULESET_VERSION;
- 	const int invalid_flag = last_flag << 1;
-+	int ruleset_fd;
- 	const struct landlock_ruleset_attr ruleset_attr = {
- 		.handled_access_fs = LANDLOCK_ACCESS_FS_READ_FILE,
- 	};
- 
-+	/* Checks priority for invalid flags. */
- 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 0, invalid_flag));
- 	ASSERT_EQ(EINVAL, errno);
- 
-@@ -119,6 +122,22 @@ TEST(inval_create_ruleset_flags)
- 		  landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr),
- 					  invalid_flag));
- 	ASSERT_EQ(EINVAL, errno);
-+
-+	/* Checks too big ruleset_attr size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, -1, 0));
-+	ASSERT_EQ(E2BIG, errno);
-+
-+	/* Checks too small ruleset_attr size. */
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 0, 0));
-+	ASSERT_EQ(EINVAL, errno);
-+	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 1, 0));
-+	ASSERT_EQ(EINVAL, errno);
-+
-+	/* Checks valid call. */
-+	ruleset_fd =
-+		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-+	ASSERT_LE(0, ruleset_fd);
-+	ASSERT_EQ(0, close(ruleset_fd));
- }
- 
- /* Tests ordering of syscall argument checks. */
+ static const struct sysfs_ops blk_ia_range_sysfs_ops = {
 
 
