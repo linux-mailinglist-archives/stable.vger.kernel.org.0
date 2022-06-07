@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 804BC54154E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBFE5406CE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378219AbiFGUfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:35:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
+        id S1346826AbiFGRid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359600AbiFGU3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:29:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129F91DF103;
-        Tue,  7 Jun 2022 11:34:14 -0700 (PDT)
+        with ESMTP id S1347259AbiFGReW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:34:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4C611990E;
+        Tue,  7 Jun 2022 10:30:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F9E961578;
-        Tue,  7 Jun 2022 18:34:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94134C385A2;
-        Tue,  7 Jun 2022 18:34:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C2B361529;
+        Tue,  7 Jun 2022 17:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970BCC385A5;
+        Tue,  7 Jun 2022 17:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626851;
-        bh=UxbhR46gJUd+PJemqjtAXlkwz/NFwLdLTfbOQ5t3pJ4=;
+        s=korg; t=1654623011;
+        bh=hzmh5xx+LcFfdBOwF9UjRFodRuc2GeEb4Zhds6M05Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8Ro7JHv3GdOf1dZ5B03pqk4sMpyatgK1G2iU8JO1x8wnOqKhh3CLFN6cvZWDGdNM
-         gQzfXhQnMJ09tAtQR7djHewNUAxwRDPZL5sX6zc3gcH8z4k2rXdCOCjb4LxtKcvpPr
-         7zbDoQrlwRba5k0bVslfkA1xhzByLWLNxLkyLGJg=
+        b=VBMrSQL/1YnXKZwJy/DW6lw+O6m/ekJTq2FEGbxQZaTMUTG9SdbREPZ45AJiQhq2D
+         U7taDg/8/m7EHEuX2ac5lV1K/mHcKYGjpNMwu+yPvjvtTu2LfkfpR9Im7mGXXsZ/tK
+         M5Lm+hjn1ezeIZjlK8e2w5g3TKXSyUlXQq7JLio8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 528/772] module: fix [e_shstrndx].sh_size=0 OOB access
+Subject: [PATCH 5.10 263/452] PCI: cadence: Fix find_first_zero_bit() limit
 Date:   Tue,  7 Jun 2022 19:02:00 +0200
-Message-Id: <20220607165004.532150453@linuxfoundation.org>
+Message-Id: <20220607164916.389779494@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 391e982bfa632b8315235d8be9c0a81374c6a19c ]
+[ Upstream commit 0aa3a0937feeb91a0e4e438c3c063b749b194192 ]
 
-It is trivial to craft a module to trigger OOB access in this line:
+The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
 
-	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
-
-BUG: unable to handle page fault for address: ffffc90000aa0fff
-PGD 100000067 P4D 100000067 PUD 100066067 PMD 10436f067 PTE 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 7 PID: 1215 Comm: insmod Not tainted 5.18.0-rc5-00007-g9bf578647087-dirty #10
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
-RIP: 0010:load_module+0x19b/0x2391
-
-Fixes: ec2a29593c83 ("module: harden ELF info handling")
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-[rebased patch onto modules-next]
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20220315065829.GA13572@kili
+Fixes: 37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/controller/cadence/pcie-cadence-ep.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 46a5c2ed1928..740323cff545 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3033,6 +3033,10 @@ static int elf_validity_check(struct load_info *info)
- 	 * strings in the section safe.
- 	 */
- 	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
-+	if (strhdr->sh_size == 0) {
-+		pr_err("empty section name table\n");
-+		goto no_exec;
-+	}
- 	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
- 		pr_err("ELF Spec violation: section name table isn't null terminated\n");
- 		goto no_exec;
+diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+index 1af14474abcf..4c5e6349d78c 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
++++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+@@ -154,8 +154,7 @@ static int cdns_pcie_ep_map_addr(struct pci_epc *epc, u8 fn, phys_addr_t addr,
+ 	struct cdns_pcie *pcie = &ep->pcie;
+ 	u32 r;
+ 
+-	r = find_first_zero_bit(&ep->ob_region_map,
+-				sizeof(ep->ob_region_map) * BITS_PER_LONG);
++	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
+ 	if (r >= ep->max_regions - 1) {
+ 		dev_err(&epc->dev, "no free outbound region\n");
+ 		return -EINVAL;
 -- 
 2.35.1
 
