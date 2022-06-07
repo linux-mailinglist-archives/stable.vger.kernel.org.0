@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05EEE5415A6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0DEC541CE6
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376819AbiFGUhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:37:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46118 "EHLO
+        id S1382377AbiFGWEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:04:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377805AbiFGUeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7560117F82A;
-        Tue,  7 Jun 2022 11:36:05 -0700 (PDT)
+        with ESMTP id S1382853AbiFGWEA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:04:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD0E1666B6;
+        Tue,  7 Jun 2022 12:15:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 496FACE2461;
-        Tue,  7 Jun 2022 18:36:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D437C385A2;
-        Tue,  7 Jun 2022 18:36:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D3C5B823C4;
+        Tue,  7 Jun 2022 19:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAF22C385A2;
+        Tue,  7 Jun 2022 19:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626961;
-        bh=HLX7pPoGn8AZ3p6Ae+pqSRxqIuL7yut+DcoPlzH7TiM=;
+        s=korg; t=1654629299;
+        bh=Y6TWKOwbYNbidzBbkHVVF/Mn8GuvnGLPY9wvQ6RrF1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3wjzrUaq+C88n3ZbIbdyZFDtfxKXYkjTyAJZKZv1fPsUl8+miG/PkbiudiB9YX6y
-         azSapi/Md201e5wjcBVTp+MoeYnrAgCqWIQ7yqpYX5R/4NGTzhwm1WY7n1RgaUMM5u
-         FufEfXsSOGpWbmMKjrIeqnM60nX/YMpSbJm+dnlo=
+        b=OEEyMwfbGl5V8+HVyN9oo9taZXiplMTnyER0E9VOFO9sYvrTxD8//DgEY63oYzrdE
+         ZvcJqnzA8gunb/4jb/9FxZDG9v9+lBZ4co4XiAHYlsBR7wcVigfBKYKOz5EGaxDw9V
+         DzFbgUIXqfy9u8bA8ie0fh6ETGwi9sGehQSxKVoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 568/772] iommu/mediatek: Fix 2 HW sharing pgtable issue
+        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 642/879] powerpc/perf: Fix the threshold compare group constraint for power9
 Date:   Tue,  7 Jun 2022 19:02:40 +0200
-Message-Id: <20220607165005.691533132@linuxfoundation.org>
+Message-Id: <20220607165021.480813027@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 645b87c190c959e9bb4f216b8c4add4ee880451a ]
+[ Upstream commit ab0cc6bbf0c812731c703ec757fcc3fc3a457a34 ]
 
-In the commit 4f956c97d26b ("iommu/mediatek: Move domain_finalise into
-attach_device"), I overlooked the sharing pgtable case.
-After that commit, the "data" in the mtk_iommu_domain_finalise always is
-the data of the current IOMMU HW. Fix this for the sharing pgtable case.
+Thresh compare bits for a event is used to program thresh compare
+field in Monitor Mode Control Register A (MMCRA: 9-18 bits for power9).
+When scheduling events as a group, all events in that group should
+match value in threshold bits (like thresh compare, thresh control,
+thresh select). Otherwise event open for the sibling events should fail.
+But in the current code, incase thresh compare bits are not valid,
+we are not failing in group_constraint function which can result
+in invalid group schduling.
 
-Only affect mt2712 which is the only SoC that share pgtable currently.
+Fix the issue by returning -1 incase event is threshold and threshold
+compare value is not valid.
 
-Fixes: 4f956c97d26b ("iommu/mediatek: Move domain_finalise into attach_device")
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20220503071427.2285-5-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Thresh control bits in the event code is used to program thresh_ctl
+field in Monitor Mode Control Register A (MMCRA: 48-55). In below example,
+the scheduling of group events PM_MRK_INST_CMPL (873534401e0) and
+PM_THRESH_MET (8734340101ec) is expected to fail as both event
+request different thresh control bits and invalid thresh compare value.
+
+Result before the patch changes:
+
+[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
+
+ Performance counter stats for 'sleep 1':
+
+            11,048      r8735340401e0
+             1,967      r8734340101ec
+
+       1.001354036 seconds time elapsed
+
+       0.001421000 seconds user
+       0.000000000 seconds sys
+
+Result after the patch changes:
+
+[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
+Error:
+The sys_perf_event_open() syscall returned with 22 (Invalid argument)
+for event (r8735340401e0).
+/bin/dmesg | grep -i perf may provide additional information.
+
+Fixes: 78a16d9fc1206 ("powerpc/perf: Avoid FAB_*_MATCH checks for power9")
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220506061015.43916-2-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/powerpc/perf/isa207-common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 5971a1168666..cf4e33db6a2d 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -451,7 +451,7 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
- static int mtk_iommu_attach_device(struct iommu_domain *domain,
- 				   struct device *dev)
- {
--	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
-+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev), *frstdata;
- 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
- 	struct device *m4udev = data->dev;
- 	int ret, domid;
-@@ -461,7 +461,10 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
- 		return domid;
- 
- 	if (!dom->data) {
--		if (mtk_iommu_domain_finalise(dom, data, domid))
-+		/* Data is in the frstdata in sharing pgtable case. */
-+		frstdata = mtk_iommu_get_m4u_data();
-+
-+		if (mtk_iommu_domain_finalise(dom, frstdata, domid))
- 			return -ENODEV;
- 		dom->data = data;
- 	}
+diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
+index 013b06af6fe6..bb5d64862bc9 100644
+--- a/arch/powerpc/perf/isa207-common.c
++++ b/arch/powerpc/perf/isa207-common.c
+@@ -508,7 +508,8 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp,
+ 		if (event_is_threshold(event) && is_thresh_cmp_valid(event)) {
+ 			mask  |= CNST_THRESH_MASK;
+ 			value |= CNST_THRESH_VAL(event >> EVENT_THRESH_SHIFT);
+-		}
++		} else if (event_is_threshold(event))
++			return -1;
+ 	} else {
+ 		/*
+ 		 * Special case for PM_MRK_FAB_RSP_MATCH and PM_MRK_FAB_RSP_MATCH_CYC,
 -- 
 2.35.1
 
