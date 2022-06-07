@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7789B540875
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9DC541205
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349170AbiFGR6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:58:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39764 "EHLO
+        id S1356774AbiFGTne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349046AbiFGR5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7F74A911;
-        Tue,  7 Jun 2022 10:40:52 -0700 (PDT)
+        with ESMTP id S1356682AbiFGTjg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:39:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C768F99DE;
+        Tue,  7 Jun 2022 11:14:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 262036165B;
-        Tue,  7 Jun 2022 17:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33151C385A5;
-        Tue,  7 Jun 2022 17:40:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 548BD6062B;
+        Tue,  7 Jun 2022 18:14:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C455C385A2;
+        Tue,  7 Jun 2022 18:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623651;
-        bh=/LhHZS7KZOsRLjw20/Yc+E1iY9xUP5yA1eGvoz1lRmU=;
+        s=korg; t=1654625653;
+        bh=Y5TfIR57pQIvdobT2yvCU/JqS/K7zygsgLVkFeCYq5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=va+pQ+JCFJmksengzKwJhm95Sc7YR7x2jvmd1AICbCuSWAkoYaY5Jz2lx+p4Ds6Rd
-         miey4VGDgLQU9BRWjzUoe2KT4W1CIm4a8Jb9JsqjK+8WHI2SBaJb1Fw/+J+FyUHdDk
-         k1rW2uJ5XvSBMbJ79phPgiUYzGVDO+I/7ltZ2f4M=
+        b=J9Vd/HDos00jfisKJEDEm0ywwSOgUwOj+hUEGlaRc9Dj9SI1PYCZIasx9kUFnKW+n
+         v8RRCtewtZs9NX/PMQONwffQAL/3Pefwy1fxwZNhJt5wDsnF+1If6+RZ5VGIchd3hV
+         7ZsaHLGww0aBXLc35o8eyCtODNmCw6m1QmRUXm08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Huaming Jiang <jianghuaming.jhm@alibaba-inc.com>,
-        Guo Ren <guoren@kernel.org>, Heiko Stuebner <heiko@sntech.de>,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Nick Kossifidis <mick@ics.forth.gr>
-Subject: [PATCH 5.15 005/667] RISC-V: Mark IORESOURCE_EXCLUSIVE for reserved mem instead of IORESOURCE_BUSY
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 078/772] tcp: consume incoming skb leading to a reset
 Date:   Tue,  7 Jun 2022 18:54:30 +0200
-Message-Id: <20220607164934.940034192@linuxfoundation.org>
+Message-Id: <20220607164951.337712968@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,68 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit e61bf5c071148c80d091f8e7220b3b9130780ae3 upstream.
+[ Upstream commit d9d024f96609016628d750ebc8ee4a6f0d80e6e1 ]
 
-Commit 00ab027a3b82 ("RISC-V: Add kernel image sections to the resource tree")
-marked IORESOURCE_BUSY for reserved memory, which caused resource map
-failed in subsequent operations of related driver, so remove the
-IORESOURCE_BUSY flag. In order to prohibit userland mapping reserved
-memory, mark IORESOURCE_EXCLUSIVE for it.
+Whenever tcp_validate_incoming() handles a valid RST packet,
+we should not pretend the packet was dropped.
 
-The code to reproduce the issue,
-dts:
-        mem0: memory@a0000000 {
-                reg = <0x0 0xa0000000 0 0x1000000>;
-                no-map;
-        };
+Create a special section at the end of tcp_validate_incoming()
+to handle this case.
 
-        &test {
-                status = "okay";
-                memory-region = <&mem0>;
-        };
-
-code:
-        np = of_parse_phandle(pdev->dev.of_node, "memory-region", 0);
-        ret = of_address_to_resource(np, 0, &r);
-        base = devm_ioremap_resource(&pdev->dev, &r);
-        // base = -EBUSY
-
-Fixes: 00ab027a3b82 ("RISC-V: Add kernel image sections to the resource tree")
-Reported-by: Huaming Jiang <jianghuaming.jhm@alibaba-inc.com>
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Co-developed-by: Nick Kossifidis <mick@ics.forth.gr>
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220518013428.1338983-1-xianting.tian@linux.alibaba.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/setup.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_input.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -199,7 +199,7 @@ static void __init init_resources(void)
- 		res = &mem_res[res_idx--];
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 7bf84ce34d9e..96c25c97ee56 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5694,7 +5694,7 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
+ 						  &tp->last_oow_ack_time))
+ 				tcp_send_dupack(sk, skb);
+ 		} else if (tcp_reset_check(sk, skb)) {
+-			tcp_reset(sk, skb);
++			goto reset;
+ 		}
+ 		goto discard;
+ 	}
+@@ -5730,17 +5730,16 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
+ 		}
  
- 		res->name = "Reserved";
--		res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
-+		res->flags = IORESOURCE_MEM | IORESOURCE_EXCLUSIVE;
- 		res->start = __pfn_to_phys(memblock_region_reserved_base_pfn(region));
- 		res->end = __pfn_to_phys(memblock_region_reserved_end_pfn(region)) - 1;
+ 		if (rst_seq_match)
+-			tcp_reset(sk, skb);
+-		else {
+-			/* Disable TFO if RST is out-of-order
+-			 * and no data has been received
+-			 * for current active TFO socket
+-			 */
+-			if (tp->syn_fastopen && !tp->data_segs_in &&
+-			    sk->sk_state == TCP_ESTABLISHED)
+-				tcp_fastopen_active_disable(sk);
+-			tcp_send_challenge_ack(sk);
+-		}
++			goto reset;
++
++		/* Disable TFO if RST is out-of-order
++		 * and no data has been received
++		 * for current active TFO socket
++		 */
++		if (tp->syn_fastopen && !tp->data_segs_in &&
++		    sk->sk_state == TCP_ESTABLISHED)
++			tcp_fastopen_active_disable(sk);
++		tcp_send_challenge_ack(sk);
+ 		goto discard;
+ 	}
  
-@@ -224,7 +224,7 @@ static void __init init_resources(void)
+@@ -5765,6 +5764,11 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
+ discard:
+ 	tcp_drop(sk, skb);
+ 	return false;
++
++reset:
++	tcp_reset(sk, skb);
++	__kfree_skb(skb);
++	return false;
+ }
  
- 		if (unlikely(memblock_is_nomap(region))) {
- 			res->name = "Reserved";
--			res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
-+			res->flags = IORESOURCE_MEM | IORESOURCE_EXCLUSIVE;
- 		} else {
- 			res->name = "System RAM";
- 			res->flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
+ /*
+-- 
+2.35.1
+
 
 
