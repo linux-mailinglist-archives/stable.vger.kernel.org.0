@@ -2,44 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E162541D6C
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:14:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73086540773
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378603AbiFGWO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50672 "EHLO
+        id S1348229AbiFGRrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353209AbiFGWM4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:12:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C465F25D5E3;
-        Tue,  7 Jun 2022 12:19:37 -0700 (PDT)
+        with ESMTP id S1349084AbiFGRqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:46:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FADFBB5;
+        Tue,  7 Jun 2022 10:36:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E7B661929;
-        Tue,  7 Jun 2022 19:19:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E182C385A2;
-        Tue,  7 Jun 2022 19:19:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4105E614D8;
+        Tue,  7 Jun 2022 17:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC55C385A5;
+        Tue,  7 Jun 2022 17:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629576;
-        bh=I/AxesGm+UuH/LfTjxhIW+yj0CyrQKwGuT/W633gWPQ=;
+        s=korg; t=1654623398;
+        bh=1deBv8pWO4EhlblSV+d3qc0OS1zA34siQuYQ1ppkR98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbqViWYb9tLy7QAPvZbPu1Z175C0NLltnVvD89gvduqiLLoWBuUMWhPfb/in3MQnL
-         OGp/MdXOk3Ecm6x7gqZcxXVvkzWDrpnjHTgPklNTVmkZ8UP2AHqA+wZ32RvQgwO/Fd
-         hfXXjwHUo9u3f8smBwZTAb7brqY2ckHMAnGITAJU=
+        b=lYe6IKyFlDnLoTHFFrTk8L2NV4t0xr6XZsCMj8eybpAA9+d+tKdxtiLiCTTySkpht
+         xvO0E9mRMgdb9Lw/wwQ1VNnWUC9cfsxmDrfqv28JQKT5M57dqQLOrzw3jauaLpHjri
+         qaztdH4T5tq6z2XCKV1ZoWwfOfo3dq7gTYP9KqQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.18 741/879] ext4: fix memory leak in parse_apply_sb_mount_options()
-Date:   Tue,  7 Jun 2022 19:04:19 +0200
-Message-Id: <20220607165024.366221861@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe de Dinechin <christophe@dinechin.org>,
+        Christophe de Dinechin <dinechin@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ben Segall <bsegall@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.10 403/452] nodemask.h: fix compilation error with GCC12
+Date:   Tue,  7 Jun 2022 19:04:20 +0200
+Message-Id: <20220607164920.568752125@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +67,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Christophe de Dinechin <dinechin@redhat.com>
 
-commit c069db76ed7b681c69159f44be96d2137e9ca989 upstream.
+commit 37462a920392cb86541650a6f4121155f11f1199 upstream.
 
-If processing the on-disk mount options fails after any memory was
-allocated in the ext4_fs_context, e.g. s_qf_names, then this memory is
-leaked.  Fix this by calling ext4_fc_free() instead of kfree() directly.
+With gcc version 12.0.1 20220401 (Red Hat 12.0.1-0), building with
+defconfig results in the following compilation error:
 
-Reproducer:
+|   CC      mm/swapfile.o
+| mm/swapfile.c: In function `setup_swap_info':
+| mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds
+|  of `struct plist_node[]' [-Werror=array-bounds]
+|  2291 |                                 p->avail_lists[i].prio = 1;
+|       |                                 ~~~~~~~~~~~~~~^~~
+| In file included from mm/swapfile.c:16:
+| ./include/linux/swap.h:292:27: note: while referencing `avail_lists'
+|   292 |         struct plist_node avail_lists[]; /*
+|       |                           ^~~~~~~~~~~
 
-    mkfs.ext4 -F /dev/vdc
-    tune2fs /dev/vdc -E mount_opts=usrjquota=file
-    echo clear > /sys/kernel/debug/kmemleak
-    mount /dev/vdc /vdc
-    echo scan > /sys/kernel/debug/kmemleak
-    sleep 5
-    echo scan > /sys/kernel/debug/kmemleak
-    cat /sys/kernel/debug/kmemleak
+This is due to the compiler detecting that the mask in
+node_states[__state] could theoretically be zero, which would lead to
+first_node() returning -1 through find_first_bit.
 
-Fixes: 7edfd85b1ffd ("ext4: Completely separate options parsing and sb setup")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Tested-by: Ritesh Harjani <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220513231605.175121-2-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+I believe that the warning/error is legitimate.  I first tried adding a
+test to check that the node mask is not emtpy, since a similar test exists
+in the case where MAX_NUMNODES == 1.
+
+However, adding the if statement causes other warnings to appear in
+for_each_cpu_node_but, because it introduces a dangling else ambiguity.
+And unfortunately, GCC is not smart enough to detect that the added test
+makes the case where (node) == -1 impossible, so it still complains with
+the same message.
+
+This is why I settled on replacing that with a harmless, but relatively
+useless (node) >= 0 test.  Based on the warning for the dangling else, I
+also decided to fix the case where MAX_NUMNODES == 1 by moving the
+condition inside the for loop.  It will still only be tested once.  This
+ensures that the meaning of an else following for_each_node_mask or
+derivatives would not silently have a different meaning depending on the
+configuration.
+
+Link: https://lkml.kernel.org/r/20220414150855.2407137-3-dinechin@redhat.com
+Signed-off-by: Christophe de Dinechin <christophe@dinechin.org>
+Signed-off-by: Christophe de Dinechin <dinechin@redhat.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/linux/nodemask.h |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2626,8 +2626,10 @@ parse_failed:
- 	ret = ext4_apply_options(fc, sb);
- 
- out_free:
--	kfree(s_ctx);
--	kfree(fc);
-+	if (fc) {
-+		ext4_fc_free(fc);
-+		kfree(fc);
-+	}
- 	kfree(s_mount_opts);
- 	return ret;
+--- a/include/linux/nodemask.h
++++ b/include/linux/nodemask.h
+@@ -375,14 +375,13 @@ static inline void __nodes_fold(nodemask
  }
+ 
+ #if MAX_NUMNODES > 1
+-#define for_each_node_mask(node, mask)			\
+-	for ((node) = first_node(mask);			\
+-		(node) < MAX_NUMNODES;			\
+-		(node) = next_node((node), (mask)))
++#define for_each_node_mask(node, mask)				    \
++	for ((node) = first_node(mask);				    \
++	     (node >= 0) && (node) < MAX_NUMNODES;		    \
++	     (node) = next_node((node), (mask)))
+ #else /* MAX_NUMNODES == 1 */
+-#define for_each_node_mask(node, mask)			\
+-	if (!nodes_empty(mask))				\
+-		for ((node) = 0; (node) < 1; (node)++)
++#define for_each_node_mask(node, mask)                                  \
++	for ((node) = 0; (node) < 1 && !nodes_empty(mask); (node)++)
+ #endif /* MAX_NUMNODES */
+ 
+ /*
 
 
