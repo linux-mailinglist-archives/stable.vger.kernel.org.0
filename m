@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D6A541D0F
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49DBD5415F0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377829AbiFGWHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S1376361AbiFGUnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383749AbiFGWGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA1AF1366;
-        Tue,  7 Jun 2022 12:17:17 -0700 (PDT)
+        with ESMTP id S1377391AbiFGUmG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:42:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293531F0FDA;
+        Tue,  7 Jun 2022 11:38:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2949061929;
-        Tue,  7 Jun 2022 19:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 343E6C385A2;
-        Tue,  7 Jun 2022 19:17:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B20612EC;
+        Tue,  7 Jun 2022 18:38:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 651B0C385A2;
+        Tue,  7 Jun 2022 18:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629436;
-        bh=/fej+mXE9IrJnCoGX4AW8AzyF2M8v1cIvlXyCB/f208=;
+        s=korg; t=1654627099;
+        bh=CILQ1YVuKBFuBbXAYQz0i+aRPj9Cf6NaxvMtdI7muXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5C5RphSGM64LPF+KyI/OhhxvGh0HVorQSOgaTfL/63/r0lXILSYZuVbFZsGqnwpb
-         qpgvvO384HF5pqnWtx/q7CHJe65WIqg8+ilJSlFpmKCZhotssC4hmQdlYfNxkMrx9i
-         EwnuK/hAWiQ331PmxF61sMZ3ryY3HjpmPCuxS5Ds=
+        b=kPqrPX2Z+kbolPPjhbffy+GWsZNg4G/7dN/0MxnuOG9aVUfB/FDmSW/VQFy+p0L3A
+         sarmo1UBO5Yha4TEOeGK1bcs2jRwz8q9yuJKGdrOYLh7NhScBh3vFlvpiryJkzXy+c
+         sUn42e9fpUy/EjNH8TVgSTBVqXoYmhpj15D/ZMNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 691/879] i2c: rcar: fix PM ref counts in probe error paths
-Date:   Tue,  7 Jun 2022 19:03:29 +0200
-Message-Id: <20220607165022.905400150@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.17 618/772] objtool: Fix objtool regression on x32 systems
+Date:   Tue,  7 Jun 2022 19:03:30 +0200
+Message-Id: <20220607165007.148168205@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 3fe2ec59db1a7569e18594b9c0cf1f4f1afd498e ]
+commit 22682a07acc308ef78681572e19502ce8893c4d4 upstream.
 
-We have to take care of ID_P_PM_BLOCKED when bailing out during probe.
+Commit c087c6e7b551 ("objtool: Fix type of reloc::addend") failed to
+appreciate cross building from ILP32 hosts, where 'int' == 'long' and
+the issue persists.
 
-Fixes: 7ee24eb508d6 ("i2c: rcar: disable PM in multi-master mode")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As such, use s64/int64_t/Elf64_Sxword for this field and suffer the
+pain that is ISO C99 printf formats for it.
+
+Fixes: c087c6e7b551 ("objtool: Fix type of reloc::addend")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+[peterz: reword changelog, s/long long/s64/]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2205161041260.11556@file01.intranet.prod.int.rdu2.redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ tools/objtool/check.c               |    9 +++++----
+ tools/objtool/elf.c                 |    2 +-
+ tools/objtool/include/objtool/elf.h |    4 ++--
+ 3 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 0db3d7559066..0064c632af5c 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1063,8 +1063,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 	pm_runtime_get_sync(dev);
- 	ret = rcar_i2c_clock_calculate(priv);
--	if (ret < 0)
--		goto out_pm_put;
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
-+		goto out_pm_disable;
-+	}
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -5,6 +5,7 @@
  
- 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+ #include <string.h>
+ #include <stdlib.h>
++#include <inttypes.h>
+ #include <sys/mman.h>
  
-@@ -1093,19 +1095,19 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ #include <arch/elf.h>
+@@ -546,12 +547,12 @@ static int add_dead_ends(struct objtool_
+ 		else if (reloc->addend == reloc->sym->sec->sh.sh_size) {
+ 			insn = find_last_insn(file, reloc->sym->sec);
+ 			if (!insn) {
+-				WARN("can't find unreachable insn at %s+0x%lx",
++				WARN("can't find unreachable insn at %s+0x%" PRIx64,
+ 				     reloc->sym->sec->name, reloc->addend);
+ 				return -1;
+ 			}
+ 		} else {
+-			WARN("can't find unreachable insn at %s+0x%lx",
++			WARN("can't find unreachable insn at %s+0x%" PRIx64,
+ 			     reloc->sym->sec->name, reloc->addend);
+ 			return -1;
+ 		}
+@@ -581,12 +582,12 @@ reachable:
+ 		else if (reloc->addend == reloc->sym->sec->sh.sh_size) {
+ 			insn = find_last_insn(file, reloc->sym->sec);
+ 			if (!insn) {
+-				WARN("can't find reachable insn at %s+0x%lx",
++				WARN("can't find reachable insn at %s+0x%" PRIx64,
+ 				     reloc->sym->sec->name, reloc->addend);
+ 				return -1;
+ 			}
+ 		} else {
+-			WARN("can't find reachable insn at %s+0x%lx",
++			WARN("can't find reachable insn at %s+0x%" PRIx64,
+ 			     reloc->sym->sec->name, reloc->addend);
+ 			return -1;
+ 		}
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -486,7 +486,7 @@ static struct section *elf_create_reloc_
+ 						int reltype);
  
- 	ret = platform_get_irq(pdev, 0);
- 	if (ret < 0)
--		goto out_pm_disable;
-+		goto out_pm_put;
- 	priv->irq = ret;
- 	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", priv->irq);
--		goto out_pm_disable;
-+		goto out_pm_put;
- 	}
+ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
+-		  unsigned int type, struct symbol *sym, long addend)
++		  unsigned int type, struct symbol *sym, s64 addend)
+ {
+ 	struct reloc *reloc;
  
- 	platform_set_drvdata(pdev, priv);
+--- a/tools/objtool/include/objtool/elf.h
++++ b/tools/objtool/include/objtool/elf.h
+@@ -73,7 +73,7 @@ struct reloc {
+ 	struct symbol *sym;
+ 	unsigned long offset;
+ 	unsigned int type;
+-	long addend;
++	s64 addend;
+ 	int idx;
+ 	bool jump_table_start;
+ };
+@@ -135,7 +135,7 @@ struct elf *elf_open_read(const char *na
+ struct section *elf_create_section(struct elf *elf, const char *name, unsigned int sh_flags, size_t entsize, int nr);
  
- 	ret = i2c_add_numbered_adapter(adap);
- 	if (ret < 0)
--		goto out_pm_disable;
-+		goto out_pm_put;
- 
- 	if (priv->flags & ID_P_HOST_NOTIFY) {
- 		priv->host_notify_client = i2c_new_slave_host_notify_device(adap);
-@@ -1122,7 +1124,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
-  out_del_device:
- 	i2c_del_adapter(&priv->adap);
-  out_pm_put:
--	pm_runtime_put(dev);
-+	if (priv->flags & ID_P_PM_BLOCKED)
-+		pm_runtime_put(dev);
-  out_pm_disable:
- 	pm_runtime_disable(dev);
- 	return ret;
--- 
-2.35.1
-
+ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
+-		  unsigned int type, struct symbol *sym, long addend);
++		  unsigned int type, struct symbol *sym, s64 addend);
+ int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
+ 			  unsigned long offset, unsigned int type,
+ 			  struct section *insn_sec, unsigned long insn_off);
 
 
