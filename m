@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD1E541C64
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB95540BE7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382823AbiFGV7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:59:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45988 "EHLO
+        id S239099AbiFGSdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382814AbiFGVv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97635192269;
-        Tue,  7 Jun 2022 12:09:41 -0700 (PDT)
+        with ESMTP id S1352513AbiFGSbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAB5146414;
+        Tue,  7 Jun 2022 10:56:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAF53B823B1;
-        Tue,  7 Jun 2022 19:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5147BC385A5;
-        Tue,  7 Jun 2022 19:09:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0BF2B8237D;
+        Tue,  7 Jun 2022 17:56:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9C7C36B05;
+        Tue,  7 Jun 2022 17:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628978;
-        bh=7JNySWG9G7almkc45VVzVriFrHF3dyFSg50wqEO2dSA=;
+        s=korg; t=1654624582;
+        bh=l0FwX6vnSfPHMFtFGMF5ei/ho1GrpvkhyQLI9eGiIZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehjKjeiIAH45gaBW9/rCgf8JhvUDR1VSGx5M7HmHsjZtPALgThTHI4HPXs+OrlqOl
-         2CnTckDEB5Hj9PO5O5GV5akNY0GKgxvE0XdDAlsjYuQaOpHiPzz3jDbH/EaJVAH9M5
-         s5+5SxrQF0hA7/0LDv6a6tpuKkj84+0EyHFt0cBY=
+        b=rXDH4p7160mnUKQS3DYHLhqCgK5la9KnRvtHw1kU5N0LV33Dc+zdcE//WuyyKHhX2
+         x4gu8ZgDmoJq4grwouZHR6+io6h5dybejsO3vQVMH5YI0OYXf1yuSyj9cjZh/wGWJc
+         Cz3jnvntKSCjA/MFIJbheNx7bG3IR9gMRziQHkZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 525/879] dpaa2-eth: unmap the SGT buffer before accessing its contents
+Subject: [PATCH 5.15 378/667] dma-direct: dont call dma_set_decrypted for remapped allocations
 Date:   Tue,  7 Jun 2022 19:00:43 +0200
-Message-Id: <20220607165018.113810611@linuxfoundation.org>
+Message-Id: <20220607164946.086122133@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 0a09c5b8cb8f75344da7d90c771b84f7cdeaea04 ]
+[ Upstream commit 5570449b6876f215d49ac4db9ccce6ff7aa1e20a ]
 
-DMA unmap the Scatter/Gather table before going through the array to
-unmap and free each of the header and data chunks. This is so we do not
-touch the data between the dma_map and dma_unmap calls.
+Remapped allocations handle the encrypted bit through the pgprot passed
+to vmap, so there is no call dma_set_decrypted.  Note that this case is
+currently entirely theoretical as no valid kernel configuration supports
+remapped allocations and memory encryption currently.
 
-Fixes: 3dc709e0cd47 ("dpaa2-eth: add support for software TSO")
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/dma/direct.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index f1f140277184..cd9ec80522e7 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -1136,6 +1136,10 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
- 			sgt = (struct dpaa2_sg_entry *)(buffer_start +
- 							priv->tx_data_offset);
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index b9513fd68239..473964620773 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -241,8 +241,6 @@ void *dma_direct_alloc(struct device *dev, size_t size,
+ 				__builtin_return_address(0));
+ 		if (!ret)
+ 			goto out_free_pages;
+-		if (dma_set_decrypted(dev, ret, size))
+-			goto out_free_pages;
+ 		memset(ret, 0, size);
+ 		goto done;
+ 	}
+@@ -316,12 +314,13 @@ void dma_direct_free(struct device *dev, size_t size,
+ 	    dma_free_from_pool(dev, cpu_addr, PAGE_ALIGN(size)))
+ 		return;
  
-+			/* Unmap the SGT buffer */
-+			dma_unmap_single(dev, fd_addr, swa->tso.sgt_size,
-+					 DMA_BIDIRECTIONAL);
-+
- 			/* Unmap and free the header */
- 			tso_hdr = dpaa2_iova_to_virt(priv->iommu_domain, dpaa2_sg_get_addr(sgt));
- 			dma_unmap_single(dev, dpaa2_sg_get_addr(sgt), TSO_HEADER_SIZE,
-@@ -1147,10 +1151,6 @@ static void dpaa2_eth_free_tx_fd(struct dpaa2_eth_priv *priv,
- 				dma_unmap_single(dev, dpaa2_sg_get_addr(&sgt[i]),
- 						 dpaa2_sg_get_len(&sgt[i]), DMA_TO_DEVICE);
- 
--			/* Unmap the SGT buffer */
--			dma_unmap_single(dev, fd_addr, swa->tso.sgt_size,
--					 DMA_BIDIRECTIONAL);
+-	dma_set_encrypted(dev, cpu_addr, 1 << page_order);
 -
- 			if (!swa->tso.is_last_fd)
- 				should_free_skb = 0;
- 		} else {
+-	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
++	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr)) {
+ 		vunmap(cpu_addr);
+-	else if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
+-		arch_dma_clear_uncached(cpu_addr, size);
++	} else {
++		if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
++			arch_dma_clear_uncached(cpu_addr, size);
++		dma_set_encrypted(dev, cpu_addr, 1 << page_order);
++	}
+ 
+ 	__dma_direct_free_pages(dev, dma_direct_to_page(dev, dma_addr), size);
+ }
 -- 
 2.35.1
 
