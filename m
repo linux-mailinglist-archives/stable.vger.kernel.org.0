@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D435416EA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0135407D2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377285AbiFGU4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:56:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51806 "EHLO
+        id S1347429AbiFGRw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358728AbiFGUyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:54:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF4511E1FD;
-        Tue,  7 Jun 2022 11:43:49 -0700 (PDT)
+        with ESMTP id S1349131AbiFGRud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4FA13AF13;
+        Tue,  7 Jun 2022 10:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61F5F61295;
-        Tue,  7 Jun 2022 18:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2EAC385A2;
-        Tue,  7 Jun 2022 18:43:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C15BEB820C3;
+        Tue,  7 Jun 2022 17:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 290CBC34119;
+        Tue,  7 Jun 2022 17:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627427;
-        bh=xiLWkNmixvVSQwpw1QWGQmagplQgT+Gr15V/DWT4f9k=;
+        s=korg; t=1654623469;
+        bh=OqZ1fM3XT7xiCBk1pwig0hnNmi/cqv4tqNiVLsVyCeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgQ1FPDmVT6d9BWyLp/RuqC0vvZo9Bimz7RADRHmaccSIPhOq3ON5a/YE3xigD7Qu
-         3mHCDRfBzQ6qlMJwm+ggxGgUHKy8MS1uC3+6N4sefBdoOY3YEmRbesqXUjgo06JI5K
-         NKdK0MsmMUMvrCaQmGSLBjr7sjnxaNGYTtwt/YGI=
+        b=imLsQ7q6b/R+FiHpbDkJpe3RObs7lMMBOcLXmWRc1egr3d4QXfky/ZNsJQb4GInR3
+         ZdFC3o154oWIgwmMUGycHCQnPdePPOYxsQfxBUiFZYQkYiqkaZ0DnfLM7I5U3q+qYp
+         x673Og6/80RYJbc77UOPJ1EOizN6huHkZYlMgQFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ville Syrjala <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.17 695/772] drm/i915/dsi: fix VBT send packet port selection for ICL+
+        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 430/452] xfs: set inode size after creating symlink
 Date:   Tue,  7 Jun 2022 19:04:47 +0200
-Message-Id: <20220607165009.531218729@linuxfoundation.org>
+Message-Id: <20220607164921.367417409@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
 
-commit 0ea917819d12fed41ea4662cc26ffa0060a5c354 upstream.
+commit 8aa921a95335d0a8c8e2be35a44467e7c91ec3e4 upstream.
 
-The VBT send packet port selection was never updated for ICL+ where the
-2nd link is on port B instead of port C as in VLV+ DSI.
+When XFS creates a new symlink, it writes its size to disk but not to the
+VFS inode. This causes i_size_read() to return 0 for that symlink until
+it is re-read from disk, for example when the system is rebooted.
 
-First, single link DSI needs to use the configured port instead of
-relying on the VBT sequence block port. Remove the hard-coded port C
-check here and make it generic. For reference, see commit f915084edc5a
-("drm/i915: Changes related to the sequence port no for") for the
-original VLV specific fix.
+I found this inconsistency while protecting directories with eCryptFS.
+The command "stat path/to/symlink/in/ecryptfs" will report "Size: 0" if
+the symlink was created after the last reboot on an XFS root.
 
-Second, the sequence block port number is either 0 or 1, where 1
-indicates the 2nd link. Remove the hard-coded port C here for 2nd
-link. (This could be a "find second set bit" on DSI ports, but just
-check the two possible options.)
+Call i_size_write() in xfs_symlink()
 
-Third, sanity check the result with a warning to avoid a NULL pointer
-dereference.
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5984
-Cc: stable@vger.kernel.org # v4.19+
-Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220520094600.2066945-1-jani.nikula@intel.com
-(cherry picked from commit 08c59dde71b73a0ac94e3ed2d431345b01f20485)
+Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_dsi_vbt.c |   33 ++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ fs/xfs/xfs_symlink.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-+++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-@@ -122,9 +122,25 @@ struct i2c_adapter_lookup {
- #define  ICL_GPIO_DDPA_CTRLCLK_2	8
- #define  ICL_GPIO_DDPA_CTRLDATA_2	9
+--- a/fs/xfs/xfs_symlink.c
++++ b/fs/xfs/xfs_symlink.c
+@@ -300,6 +300,7 @@ xfs_symlink(
+ 		}
+ 		ASSERT(pathlen == 0);
+ 	}
++	i_size_write(VFS_I(ip), ip->i_d.di_size);
  
--static enum port intel_dsi_seq_port_to_port(u8 port)
-+static enum port intel_dsi_seq_port_to_port(struct intel_dsi *intel_dsi,
-+					    u8 seq_port)
- {
--	return port ? PORT_C : PORT_A;
-+	/*
-+	 * If single link DSI is being used on any port, the VBT sequence block
-+	 * send packet apparently always has 0 for the port. Just use the port
-+	 * we have configured, and ignore the sequence block port.
-+	 */
-+	if (hweight8(intel_dsi->ports) == 1)
-+		return ffs(intel_dsi->ports) - 1;
-+
-+	if (seq_port) {
-+		if (intel_dsi->ports & PORT_B)
-+			return PORT_B;
-+		else if (intel_dsi->ports & PORT_C)
-+			return PORT_C;
-+	}
-+
-+	return PORT_A;
- }
- 
- static const u8 *mipi_exec_send_packet(struct intel_dsi *intel_dsi,
-@@ -146,15 +162,10 @@ static const u8 *mipi_exec_send_packet(s
- 
- 	seq_port = (flags >> MIPI_PORT_SHIFT) & 3;
- 
--	/* For DSI single link on Port A & C, the seq_port value which is
--	 * parsed from Sequence Block#53 of VBT has been set to 0
--	 * Now, read/write of packets for the DSI single link on Port A and
--	 * Port C will based on the DVO port from VBT block 2.
--	 */
--	if (intel_dsi->ports == (1 << PORT_C))
--		port = PORT_C;
--	else
--		port = intel_dsi_seq_port_to_port(seq_port);
-+	port = intel_dsi_seq_port_to_port(intel_dsi, seq_port);
-+
-+	if (drm_WARN_ON(&dev_priv->drm, !intel_dsi->dsi_hosts[port]))
-+		goto out;
- 
- 	dsi_device = intel_dsi->dsi_hosts[port]->device;
- 	if (!dsi_device) {
+ 	/*
+ 	 * Create the directory entry for the symlink.
 
 
