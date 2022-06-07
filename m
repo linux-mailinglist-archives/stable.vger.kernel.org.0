@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83BC6540883
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE72B541235
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349161AbiFGR7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:59:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39620 "EHLO
+        id S1357193AbiFGToj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349019AbiFGR6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2C466AFA;
-        Tue,  7 Jun 2022 10:41:23 -0700 (PDT)
+        with ESMTP id S1357978AbiFGTmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7FE20BFC;
+        Tue,  7 Jun 2022 11:17:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C8D461499;
-        Tue,  7 Jun 2022 17:41:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 886A1C341C0;
-        Tue,  7 Jun 2022 17:41:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35F89B8237B;
+        Tue,  7 Jun 2022 18:17:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EAD2C385A2;
+        Tue,  7 Jun 2022 18:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623681;
-        bh=FQ0KiZojiiCMdSntTJQX+VlNmgl4iS0gWsxYxk6CTm8=;
+        s=korg; t=1654625852;
+        bh=sbZJ/EgR/Q6h7bQ8bXYkdHk3sVPiz5d14IrGMh6M1ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJJYmtDduXnyl8LGyrwEu58IWzZE8SlHUkfXKcrcTrR0JRHAD86xznxjsChmrCQmn
-         4jVC739tE0Mg52lpxl8Vk4XCwfjQg0F87RliNZLnFCcLlV/M2Mph2Y6TWWvFL3mYc3
-         MayTQRvKh5Gqxe/Ut8JaXb0yzlLbkiClsj2jmneA=
+        b=JNOFmqkyKmnJORrEpvBqeuvGUJmwtI+muvrKL1QSXC8EE5YSoAPhZd5zFD5A7jK9F
+         ivkQzzgHz3R9MR7g302aeqfoCXaeBdlOPmoNsCyIoY5juzRPp3NwkZNusbozmeMEsE
+         MrQLZIMEF/dsCh6P+R0b/dpDEmV9NbDysFAkjgCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Travis <mike.travis@hpe.com>,
-        Steve Wahl <steve.wahl@hpe.com>, Borislav Petkov <bp@suse.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Ravi Bangoria <ravi.bangoria@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/667] x86/platform/uv: Update TSC sync state for UV5
+Subject: [PATCH 5.17 127/772] perf/amd/ibs: Cascade pmu init functions return value
 Date:   Tue,  7 Jun 2022 18:55:19 +0200
-Message-Id: <20220607164936.431769189@linuxfoundation.org>
+Message-Id: <20220607164952.787588399@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Travis <mike.travis@hpe.com>
+From: Ravi Bangoria <ravi.bangoria@amd.com>
 
-[ Upstream commit bb3ab81bdbd53f88f26ffabc9fb15bd8466486ec ]
+[ Upstream commit 39b2ca75eec8a33e2ffdb8aa0c4840ec3e3b472c ]
 
-The UV5 platform synchronizes the TSCs among all chassis, and will not
-proceed to OS boot without achieving synchronization.  Previous UV
-platforms provided a register indicating successful synchronization.
-This is no longer available on UV5.  On this platform TSC_ADJUST
-should not be reset by the kernel.
+IBS pmu initialization code ignores return value provided by
+callee functions. Fix it.
 
-Signed-off-by: Mike Travis <mike.travis@hpe.com>
-Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dimitri Sivanich <dimitri.sivanich@hpe.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20220406195149.228164-3-steve.wahl@hpe.com
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220509044914.1473-2-ravi.bangoria@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/x2apic_uv_x.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/events/amd/ibs.c | 37 +++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/x2apic_uv_x.c b/arch/x86/kernel/apic/x2apic_uv_x.c
-index f5a48e66e4f5..a6e9c2794ef5 100644
---- a/arch/x86/kernel/apic/x2apic_uv_x.c
-+++ b/arch/x86/kernel/apic/x2apic_uv_x.c
-@@ -199,7 +199,13 @@ static void __init uv_tsc_check_sync(void)
- 	int mmr_shift;
- 	char *state;
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 9739019d4b67..367ca899e6e8 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -759,9 +759,10 @@ static __init int perf_ibs_pmu_init(struct perf_ibs *perf_ibs, char *name)
+ 	return ret;
+ }
  
--	/* Different returns from different UV BIOS versions */
-+	/* UV5 guarantees synced TSCs; do not zero TSC_ADJUST */
-+	if (!is_uv(UV2|UV3|UV4)) {
-+		mark_tsc_async_resets("UV5+");
-+		return;
-+	}
+-static __init void perf_event_ibs_init(void)
++static __init int perf_event_ibs_init(void)
+ {
+ 	struct attribute **attr = ibs_op_format_attrs;
++	int ret;
+ 
+ 	/*
+ 	 * Some chips fail to reset the fetch count when it is written; instead
+@@ -773,7 +774,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
+ 		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
+ 
+-	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
++	ret = perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
++	if (ret)
++		return ret;
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
+ 		perf_ibs_op.config_mask |= IBS_OP_CNT_CTL;
+@@ -786,15 +789,35 @@ static __init void perf_event_ibs_init(void)
+ 		perf_ibs_op.cnt_mask    |= IBS_OP_MAX_CNT_EXT_MASK;
+ 	}
+ 
+-	perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
++	ret = perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
++	if (ret)
++		goto err_op;
 +
-+	/* UV2,3,4, UV BIOS TSC sync state available */
- 	mmr = uv_early_read_mmr(UVH_TSC_SYNC_MMR);
- 	mmr_shift =
- 		is_uv2_hub() ? UVH_TSC_SYNC_SHIFT_UV2K : UVH_TSC_SYNC_SHIFT;
++	ret = register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");
++	if (ret)
++		goto err_nmi;
+ 
+-	register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");
+ 	pr_info("perf: AMD IBS detected (0x%08x)\n", ibs_caps);
++	return 0;
++
++err_nmi:
++	perf_pmu_unregister(&perf_ibs_op.pmu);
++	free_percpu(perf_ibs_op.pcpu);
++	perf_ibs_op.pcpu = NULL;
++err_op:
++	perf_pmu_unregister(&perf_ibs_fetch.pmu);
++	free_percpu(perf_ibs_fetch.pcpu);
++	perf_ibs_fetch.pcpu = NULL;
++
++	return ret;
+ }
+ 
+ #else /* defined(CONFIG_PERF_EVENTS) && defined(CONFIG_CPU_SUP_AMD) */
+ 
+-static __init void perf_event_ibs_init(void) { }
++static __init int perf_event_ibs_init(void)
++{
++	return 0;
++}
+ 
+ #endif
+ 
+@@ -1064,9 +1087,7 @@ static __init int amd_ibs_init(void)
+ 			  x86_pmu_amd_ibs_starting_cpu,
+ 			  x86_pmu_amd_ibs_dying_cpu);
+ 
+-	perf_event_ibs_init();
+-
+-	return 0;
++	return perf_event_ibs_init();
+ }
+ 
+ /* Since we need the pci subsystem to init ibs we can't do this earlier: */
 -- 
 2.35.1
 
