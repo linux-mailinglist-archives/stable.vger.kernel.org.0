@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF6A541854
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D774D541830
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378742AbiFGVJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:09:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36258 "EHLO
+        id S1379280AbiFGVJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:09:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379215AbiFGVJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:09:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 893BD213E40;
-        Tue,  7 Jun 2022 11:51:08 -0700 (PDT)
+        with ESMTP id S1379238AbiFGVJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:09:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BDF213E56;
+        Tue,  7 Jun 2022 11:51:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A52DB82182;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 149D5616A9;
+        Tue,  7 Jun 2022 18:51:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F4BEC385A2;
         Tue,  7 Jun 2022 18:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630C3C385A2;
-        Tue,  7 Jun 2022 18:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627865;
-        bh=agAvA2UlDjU1S+805plgMgA31btECECZRC2FbGPFZ+k=;
+        s=korg; t=1654627868;
+        bh=MQrjqXErBDcH5v3vhgMjiO1PsCtlzbFiX1PZbys4/vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=db8ufcIahlPoFEjJGEHd0OOxv7DiNtXbb9nNyB7VUW64t9IIOaTwe0h9Fot9+VuXb
-         6YRoBX4N8Lu+Dk7G/ZxIuJTtYEW6wQiH5eqUsXvziavtUpv5/U7/1AafQ9cHIykQ2L
-         qy1Z53vR/qP17nPwgN0R2BDi4H1VBrzJtLMYnoDQ=
+        b=hv9qn/4tI5TQnohFqI1DYvgC5EeehWHd35yiJh6SXP6WMM3PZSaOCq7Tjczr7h4hI
+         4kAiwciptH7MMyQjTdyVxLsQPe467Iboj6t6EKp1pEzzS9NC0Ea/UlRs10hEvJM6tJ
+         ZHITIMj3uaYjh1DmMqNnmYYWVNCq4FUl7KIoErHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 122/879] xtensa: move trace_hardirqs_off call back to entry.S
-Date:   Tue,  7 Jun 2022 18:54:00 +0200
-Message-Id: <20220607165006.242073367@linuxfoundation.org>
+Subject: [PATCH 5.18 123/879] ath11k: fix warning of not found station for bssid in message
+Date:   Tue,  7 Jun 2022 18:54:01 +0200
+Message-Id: <20220607165006.271462013@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -53,99 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit de4415d0bac91192ee9c74e849bc61429efa9b42 ]
+[ Upstream commit 7330e1ec9748948177830c6e1a13379835d577f9 ]
 
-Context tracking call must be done after hardirq tracking call,
-otherwise lockdep_assert_irqs_disabled called from rcu_eqs_exit gives
-a warning. To avoid context tracking logic duplication for IRQ/exception
-entry paths move trace_hardirqs_off call back to common entry code.
+When test connect/disconnect to an AP frequently with WCN6855, sometimes
+it show below log.
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+[  277.040121] wls1: deauthenticating from 8c:21:0a:b3:5a:64 by local choice (Reason: 3=DEAUTH_LEAVING)
+[  277.050906] ath11k_pci 0000:05:00.0: wmi stats vdev id 0 mac 00:03:7f:29:61:11
+[  277.050944] ath11k_pci 0000:05:00.0: wmi stats bssid 8c:21:0a:b3:5a:64 vif         pK-error
+[  277.050954] ath11k_pci 0000:05:00.0: not found station for bssid 8c:21:0a:b3:5a:64
+[  277.050961] ath11k_pci 0000:05:00.0: failed to parse rssi chain -71
+[  277.050967] ath11k_pci 0000:05:00.0: failed to pull fw stats: -71
+[  277.050976] ath11k_pci 0000:05:00.0: wmi stats vdev id 0 mac 00:03:7f:29:61:11
+[  277.050983] ath11k_pci 0000:05:00.0: wmi stats bssid 8c:21:0a:b3:5a:64 vif         pK-error
+[  277.050989] ath11k_pci 0000:05:00.0: not found station for bssid 8c:21:0a:b3:5a:64
+[  277.050995] ath11k_pci 0000:05:00.0: failed to parse rssi chain -71
+[  277.051000] ath11k_pci 0000:05:00.0: failed to pull fw stats: -71
+[  278.064050] ath11k_pci 0000:05:00.0: failed to request fw stats: -110
+
+Reason is:
+When running disconnect operation, sta_info removed from local->sta_hash
+by __sta_info_destroy_part1() from __sta_info_flush(), after this,
+ieee80211_find_sta_by_ifaddr() which called by
+ath11k_wmi_tlv_fw_stats_data_parse() and ath11k_wmi_tlv_rssi_chain_parse()
+cannot find this station, then failed log printed.
+
+steps are like this:
+1. when disconnect from AP, __sta_info_destroy() called __sta_info_destroy_part1()
+and __sta_info_destroy_part2().
+
+2. in __sta_info_destroy_part1(),  it has "sta_info_hash_del(local, sta)"
+and "list_del_rcu(&sta->list)", it will remove the ieee80211_sta from the
+list of ieee80211_hw.
+
+3. in __sta_info_destroy_part2(), it called drv_sta_state()->ath11k_mac_op_sta_state(),
+then peer->sta is clear at this moment.
+
+4. in __sta_info_destroy_part2(), it then called sta_set_sinfo()->drv_sta_statistics()
+->ath11k_mac_op_sta_statistics(), then WMI_REQUEST_STATS_CMDID sent to firmware.
+
+5. WMI_UPDATE_STATS_EVENTID reported from firmware, at this moment, the
+ieee80211_sta can not be found again because it has remove from list in
+step2 and also peer->sta is clear in step3.
+
+6. in __sta_info_destroy_part2(), it then called cleanup_single_sta()->
+sta_info_free()->kfree(sta), at this moment, the ieee80211_sta is freed
+in memory, then the failed log will not happen because function
+ath11k_mac_op_sta_state() will not be called.
+
+Actually this print log is not a real error, it is only to skip parse the
+info, so change to skip print by default debug setting.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220428022426.2927-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/entry.S | 19 +++++++++++++------
- arch/xtensa/kernel/traps.c | 11 ++---------
- 2 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/net/wireless/ath/ath11k/wmi.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/xtensa/kernel/entry.S b/arch/xtensa/kernel/entry.S
-index 6b6eff658795..07d683d94e17 100644
---- a/arch/xtensa/kernel/entry.S
-+++ b/arch/xtensa/kernel/entry.S
-@@ -442,7 +442,6 @@ KABI_W	or	a3, a3, a0
- 	moveqz	a3, a0, a2		# a3 = LOCKLEVEL iff interrupt
- KABI_W	movi	a2, PS_WOE_MASK
- KABI_W	or	a3, a3, a2
--	rsr	a2, exccause
- #endif
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index 2751fe8814df..0900f75eef20 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -5789,9 +5789,9 @@ static int ath11k_wmi_tlv_rssi_chain_parse(struct ath11k_base *ab,
+ 					   arvif->bssid,
+ 					   NULL);
+ 	if (!sta) {
+-		ath11k_warn(ab, "not found station for bssid %pM\n",
+-			    arvif->bssid);
+-		ret = -EPROTO;
++		ath11k_dbg(ab, ATH11K_DBG_WMI,
++			   "not found station of bssid %pM for rssi chain\n",
++			   arvif->bssid);
+ 		goto exit;
+ 	}
  
- 	/* restore return address (or 0 if return to userspace) */
-@@ -469,19 +468,27 @@ KABI_W	or	a3, a3, a2
+@@ -5889,8 +5889,9 @@ static int ath11k_wmi_tlv_fw_stats_data_parse(struct ath11k_base *ab,
+ 					   "wmi stats vdev id %d snr %d\n",
+ 					   src->vdev_id, src->beacon_snr);
+ 			} else {
+-				ath11k_warn(ab, "not found station for bssid %pM\n",
+-					    arvif->bssid);
++				ath11k_dbg(ab, ATH11K_DBG_WMI,
++					   "not found station of bssid %pM for vdev stat\n",
++					   arvif->bssid);
+ 			}
+ 		}
  
- 	save_xtregs_opt a1 a3 a4 a5 a6 a7 PT_XTREGS_OPT
- 	
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	rsr		abi_tmp0, ps
-+	extui		abi_tmp0, abi_tmp0, PS_INTLEVEL_SHIFT, PS_INTLEVEL_WIDTH
-+	beqz		abi_tmp0, 1f
-+	abi_call	trace_hardirqs_off
-+1:
-+#endif
-+
- 	/* Go to second-level dispatcher. Set up parameters to pass to the
- 	 * exception handler and call the exception handler.
- 	 */
- 
--	rsr	a4, excsave1
--	addx4	a4, a2, a4
--	l32i	a4, a4, EXC_TABLE_DEFAULT		# load handler
--	mov	abi_arg1, a2			# pass EXCCAUSE
-+	l32i	abi_arg1, a1, PT_EXCCAUSE	# pass EXCCAUSE
-+	rsr	abi_tmp0, excsave1
-+	addx4	abi_tmp0, abi_arg1, abi_tmp0
-+	l32i	abi_tmp0, abi_tmp0, EXC_TABLE_DEFAULT	# load handler
- 	mov	abi_arg0, a1			# pass stack frame
- 
- 	/* Call the second-level handler */
- 
--	abi_callx	a4
-+	abi_callx	abi_tmp0
- 
- 	/* Jump here for exception exit */
- 	.global common_exception_return
-diff --git a/arch/xtensa/kernel/traps.c b/arch/xtensa/kernel/traps.c
-index 9345007d474d..5f86208c67c8 100644
---- a/arch/xtensa/kernel/traps.c
-+++ b/arch/xtensa/kernel/traps.c
-@@ -242,12 +242,8 @@ DEFINE_PER_CPU(unsigned long, nmi_count);
- 
- void do_nmi(struct pt_regs *regs)
- {
--	struct pt_regs *old_regs;
-+	struct pt_regs *old_regs = set_irq_regs(regs);
- 
--	if ((regs->ps & PS_INTLEVEL_MASK) < LOCKLEVEL)
--		trace_hardirqs_off();
--
--	old_regs = set_irq_regs(regs);
- 	nmi_enter();
- 	++*this_cpu_ptr(&nmi_count);
- 	check_valid_nmi();
-@@ -269,12 +265,9 @@ void do_interrupt(struct pt_regs *regs)
- 		XCHAL_INTLEVEL6_MASK,
- 		XCHAL_INTLEVEL7_MASK,
- 	};
--	struct pt_regs *old_regs;
-+	struct pt_regs *old_regs = set_irq_regs(regs);
- 	unsigned unhandled = ~0u;
- 
--	trace_hardirqs_off();
--
--	old_regs = set_irq_regs(regs);
- 	irq_enter();
- 
- 	for (;;) {
 -- 
 2.35.1
 
