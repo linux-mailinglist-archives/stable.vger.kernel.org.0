@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A42540B30
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA160540595
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237662AbiFGS1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:27:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44902 "EHLO
+        id S1346350AbiFGR1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:27:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351280AbiFGSSs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:18:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7595C509A;
-        Tue,  7 Jun 2022 10:53:30 -0700 (PDT)
+        with ESMTP id S1346946AbiFGRZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8541108AA6;
+        Tue,  7 Jun 2022 10:23:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9C36617A6;
-        Tue,  7 Jun 2022 17:53:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC0CDC385A5;
-        Tue,  7 Jun 2022 17:53:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1D9EDCE2017;
+        Tue,  7 Jun 2022 17:23:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9205C3411F;
+        Tue,  7 Jun 2022 17:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624410;
-        bh=sQXuJwoXwKhHrCNYb8Yinm9Ja3LysUM379OcmxSH9k8=;
+        s=korg; t=1654622622;
+        bh=cnXSpj71eQMwhKdrGkg6POkXC+2h0YgRyd9EbaikIb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcg7uPTv2Wxpv4oHEoddaEgNzrN2E+a79BqsGAwBEdQofy6M6NiIu7ZcPpLYp+O1n
-         R96S1NGUA05/MCpHsW0FtaStoy+W1LwofRIr9YvDmYC+XwxKrzEb0TtFrUqf4iHuL1
-         Z2sTQzb9AirSe82a3pvFvd3MlZUYc66WNxiZOIoU=
+        b=0tHJ59TECvRi1rXVKDKzvS93zilhDgd9m99lVoP0TOjYAp6HRvQK4qbw7/yZitK1i
+         mLa0zdm81F7upAOMO0HuFNkmu85oYTP6dukzeVFxksGl5QYf5xX0JtYCkrTtnb8/9e
+         lKcrsxRkhMXFlune/RzQFRe+g7t6Puqtrd8F6FEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 318/667] media: exynos4-is: Fix PM disable depth imbalance in fimc_is_probe
+Subject: [PATCH 5.10 126/452] spi: qcom-qspi: Add minItems to interconnect-names
 Date:   Tue,  7 Jun 2022 18:59:43 +0200
-Message-Id: <20220607164944.309167032@linuxfoundation.org>
+Message-Id: <20220607164912.313103228@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,46 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
 
-[ Upstream commit 5c0db68ce0faeb000c3540d095eb272d671a6e03 ]
+[ Upstream commit e23d86c49a9c78e8dbe3abff20b30812b26ab427 ]
 
-If probe fails then we need to call pm_runtime_disable() to balance
-out the previous pm_runtime_enable() call.
+Add minItems constraint to interconnect-names as well. The schema
+currently tries to match 2 names and fail for DTs with single entry.
 
-Fixes: 9a761e436843 ("[media] exynos4-is: Add Exynos4x12 FIMC-IS driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+With the change applied, below interconnect-names values are possible:
+['qspi-config'], ['qspi-config', 'qspi-memory']
+
+Fixes: 8f9c291558ea ("dt-bindings: spi: Add interconnect binding for QSPI")
+Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220328192006.18523-1-singh.kuldeep87k@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/spi/qcom,spi-qcom-qspi.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index e55e411038f4..81b290dace3a 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -830,7 +830,7 @@ static int fimc_is_probe(struct platform_device *pdev)
+diff --git a/Documentation/devicetree/bindings/spi/qcom,spi-qcom-qspi.yaml b/Documentation/devicetree/bindings/spi/qcom,spi-qcom-qspi.yaml
+index ef5698f426b2..392204a08e96 100644
+--- a/Documentation/devicetree/bindings/spi/qcom,spi-qcom-qspi.yaml
++++ b/Documentation/devicetree/bindings/spi/qcom,spi-qcom-qspi.yaml
+@@ -45,6 +45,7 @@ properties:
+     maxItems: 2
  
- 	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
--		goto err_irq;
-+		goto err_pm_disable;
- 
- 	vb2_dma_contig_set_max_seg_size(dev, DMA_BIT_MASK(32));
- 
-@@ -864,6 +864,8 @@ static int fimc_is_probe(struct platform_device *pdev)
- 	pm_runtime_put_noidle(dev);
- 	if (!pm_runtime_enabled(dev))
- 		fimc_is_runtime_suspend(dev);
-+err_pm_disable:
-+	pm_runtime_disable(dev);
- err_irq:
- 	free_irq(is->irq, is);
- err_clk:
+   interconnect-names:
++    minItems: 1
+     items:
+       - const: qspi-config
+       - const: qspi-memory
 -- 
 2.35.1
 
