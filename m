@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D88C7540951
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D465541926
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349602AbiFGSHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
+        id S1352570AbiFGVT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350622AbiFGSBU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:01:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A19614B2ED;
-        Tue,  7 Jun 2022 10:43:20 -0700 (PDT)
+        with ESMTP id S1380242AbiFGVP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:15:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF8D158757;
+        Tue,  7 Jun 2022 11:54:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C50DB82285;
-        Tue,  7 Jun 2022 17:43:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8AEC385A5;
-        Tue,  7 Jun 2022 17:43:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D685617A0;
+        Tue,  7 Jun 2022 18:54:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499C9C385A2;
+        Tue,  7 Jun 2022 18:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623780;
-        bh=zLKqJ7YRx9+AQT3UXBkTEmxLVA2wtgkhaELDhD9VzXs=;
+        s=korg; t=1654628088;
+        bh=Kp8VJzKJlpWZkHGsD8IDe+JQQwNyAiTWjYeGgo66Je0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlUGuVQQDNvj6lGWmJ/1NJLBhxi+Tu7tkDN0fgha0Psco+6rNah0RRrPnFUzTjR76
-         QJO/V1nbcg0dwF1kIBWYRKnZHmMkmBLEHRDJCR80d8DwcYmbJ6u+rpb7EEFio5CNxl
-         ifLmSBpBfeYu+0v+qQ3qHai3OaRm4V9xacrXnFZQ=
+        b=vNMCLshvimHvtI4NzsoRR/euyfOaUvsZ3YbFY5BFfOBJiq90fQ7pPqNFkuR+bcfwo
+         GU+2Qx5ToTgHnUrxbo0gPsoikhGJVMGlftQvRvSCDtWEHOF8H6rWUSeLoMhEeWLjcu
+         f63icdywshcO3ELde8GPkRK1TgYiq505ozyERxw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/667] mwifiex: add mutex lock for call in mwifiex_dfs_chan_sw_work_queue
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 195/879] net: ipa: ignore endianness if there is no header
 Date:   Tue,  7 Jun 2022 18:55:13 +0200
-Message-Id: <20220607164936.247014318@linuxfoundation.org>
+Message-Id: <20220607165008.504526030@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 3e12968f6d12a34b540c39cbd696a760cc4616f0 ]
+[ Upstream commit 332ef7c814bdd60f08d0d9013d0e1104798b2d23 ]
 
-cfg80211_ch_switch_notify uses ASSERT_WDEV_LOCK to assert that
-net_device->ieee80211_ptr->mtx (which is the same as priv->wdev.mtx)
-is held during the function's execution.
-mwifiex_dfs_chan_sw_work_queue is one of its callers, which does not
-hold that lock, therefore violating the assertion.
-Add a lock around the call.
+If we program an RX endpoint to have no header (header length is 0),
+header-related endpoint configuration values are meaningless and are
+ignored.
 
-Disclaimer:
-I am currently working on a static analyser to detect missing locks.
-This was a reported case. I manually verified the report by looking
-at the code, so that I do not send wrong information or patches.
-After concluding that this seems to be a true positive, I created
-this patch.
-However, as I do not in fact have this particular hardware,
-I was unable to test it.
+The only case we support that defines a header is QMAP endpoints.
+In ipa_endpoint_init_hdr_ext() we set the endianness mask value
+unconditionally, but it should not be done if there is no header
+(meaning it is not configured for QMAP).
 
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220321225515.32113-1-dossche.niels@gmail.com
+Set the endianness conditionally, and rearrange the logic in that
+function slightly to avoid testing the qmap flag twice.
+
+Delete an incorrect comment in ipa_endpoint_init_aggr().
+
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/11h.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ipa/ipa_endpoint.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/11h.c b/drivers/net/wireless/marvell/mwifiex/11h.c
-index d2ee6469e67b..3fa25cd64cda 100644
---- a/drivers/net/wireless/marvell/mwifiex/11h.c
-+++ b/drivers/net/wireless/marvell/mwifiex/11h.c
-@@ -303,5 +303,7 @@ void mwifiex_dfs_chan_sw_work_queue(struct work_struct *work)
+diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
+index 53764f3c0c7e..55322800ba58 100644
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -587,19 +587,23 @@ static void ipa_endpoint_init_hdr_ext(struct ipa_endpoint *endpoint)
+ 	struct ipa *ipa = endpoint->ipa;
+ 	u32 val = 0;
  
- 	mwifiex_dbg(priv->adapter, MSG,
- 		    "indicating channel switch completion to kernel\n");
-+	mutex_lock(&priv->wdev.mtx);
- 	cfg80211_ch_switch_notify(priv->netdev, &priv->dfs_chandef);
-+	mutex_unlock(&priv->wdev.mtx);
- }
+-	val |= HDR_ENDIANNESS_FMASK;		/* big endian */
+-
+-	/* A QMAP header contains a 6 bit pad field at offset 0.  The RMNet
+-	 * driver assumes this field is meaningful in packets it receives,
+-	 * and assumes the header's payload length includes that padding.
+-	 * The RMNet driver does *not* pad packets it sends, however, so
+-	 * the pad field (although 0) should be ignored.
+-	 */
+-	if (endpoint->data->qmap && !endpoint->toward_ipa) {
+-		val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
+-		/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
+-		val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
+-		/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
++	if (endpoint->data->qmap) {
++		/* We have a header, so we must specify its endianness */
++		val |= HDR_ENDIANNESS_FMASK;	/* big endian */
++
++		/* A QMAP header contains a 6 bit pad field at offset 0.
++		 * The RMNet driver assumes this field is meaningful in
++		 * packets it receives, and assumes the header's payload
++		 * length includes that padding.  The RMNet driver does
++		 * *not* pad packets it sends, however, so the pad field
++		 * (although 0) should be ignored.
++		 */
++		if (!endpoint->toward_ipa) {
++			val |= HDR_TOTAL_LEN_OR_PAD_VALID_FMASK;
++			/* HDR_TOTAL_LEN_OR_PAD is 0 (pad, not total_len) */
++			val |= HDR_PAYLOAD_LEN_INC_PADDING_FMASK;
++			/* HDR_TOTAL_LEN_OR_PAD_OFFSET is 0 */
++		}
+ 	}
+ 
+ 	/* HDR_PAYLOAD_LEN_INC_PADDING is 0 */
+@@ -759,8 +763,6 @@ static void ipa_endpoint_init_aggr(struct ipa_endpoint *endpoint)
+ 
+ 			close_eof = rx_data->aggr_close_eof;
+ 			val |= aggr_sw_eof_active_encoded(version, close_eof);
+-
+-			/* AGGR_HARD_BYTE_LIMIT_ENABLE is 0 */
+ 		} else {
+ 			val |= u32_encode_bits(IPA_ENABLE_DEAGGR,
+ 					       AGGR_EN_FMASK);
 -- 
 2.35.1
 
