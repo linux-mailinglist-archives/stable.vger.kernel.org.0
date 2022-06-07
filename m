@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84DE5540653
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 144EC540C79
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347118AbiFGReh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40440 "EHLO
+        id S1345595AbiFGShD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:37:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347545AbiFGRau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A941D0DB;
-        Tue,  7 Jun 2022 10:27:15 -0700 (PDT)
+        with ESMTP id S1351323AbiFGScF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:32:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2403417DDEC;
+        Tue,  7 Jun 2022 10:57:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47AECB822B8;
-        Tue,  7 Jun 2022 17:27:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7D74C36B0C;
-        Tue,  7 Jun 2022 17:27:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE3AFB81F38;
+        Tue,  7 Jun 2022 17:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B70DC385A5;
+        Tue,  7 Jun 2022 17:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622833;
-        bh=h52zxNpYYU8WCZXmj5zjTKIXV+j+MQqMSEZmLGWkZrc=;
+        s=korg; t=1654624618;
+        bh=fRe79pQzQ00SUCgti1liPLwhypqgSHJgjERP8cOsPe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gaU6SbO/M+vb6KsgP4fl7dZ9PbsVC3Hb96ZIVfWxBS3FRWC5FyrwEaZhYLaOdXsu
-         o2Ql1cd9MbEwvT2nkp8pEvVOBHmPbZBuEZIccx9V3tnassWXpl2pWiPIYl8PAb40/X
-         1zq66/JRiPjF1yqOiLLGVPp2/qFZgTUQRD/st5XA=
+        b=PIYtEFmfDQ/OXAeAo071Y5HKnsaR31Q+LIuhYstFWbjjx0I5+plRrK6TCnrD3p831
+         B2G5Lr7VnwxIdCa0yf6l1y2lVYNNZZY5n0XE2I+vL2R46bafG5UUfJ7jomz9//MSr/
+         Uj2hwI6ti2RmpckEp/9ltg2VxnAwQiYB11O+SyMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 197/452] spi: spi-fsl-qspi: check return value after calling platform_get_resource_byname()
-Date:   Tue,  7 Jun 2022 19:00:54 +0200
-Message-Id: <20220607164914.435376679@linuxfoundation.org>
+Subject: [PATCH 5.15 390/667] PCI: cadence: Fix find_first_zero_bit() limit
+Date:   Tue,  7 Jun 2022 19:00:55 +0200
+Message-Id: <20220607164946.442819172@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a2b331ac11e1cac56f5b7d367e9f3c5796deaaed ]
+[ Upstream commit 0aa3a0937feeb91a0e4e438c3c063b749b194192 ]
 
-It will cause null-ptr-deref if platform_get_resource_byname() returns NULL,
-we need check the return value.
+The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
 
-Fixes: 858e26a515c2 ("spi: spi-fsl-qspi: Reduce devm_ioremap size to 4 times AHB buffer size")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220505093954.1285615-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220315065829.GA13572@kili
+Fixes: 37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-qspi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/controller/cadence/pcie-cadence-ep.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-qspi.c b/drivers/spi/spi-fsl-qspi.c
-index 9851551ebbe0..46ae46a944c5 100644
---- a/drivers/spi/spi-fsl-qspi.c
-+++ b/drivers/spi/spi-fsl-qspi.c
-@@ -876,6 +876,10 @@ static int fsl_qspi_probe(struct platform_device *pdev)
+diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+index 88e05b9c2e5b..18e32b8ffd5e 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
++++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
+@@ -187,8 +187,7 @@ static int cdns_pcie_ep_map_addr(struct pci_epc *epc, u8 fn, u8 vfn,
+ 	struct cdns_pcie *pcie = &ep->pcie;
+ 	u32 r;
  
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
- 					"QuadSPI-memory");
-+	if (!res) {
-+		ret = -EINVAL;
-+		goto err_put_ctrl;
-+	}
- 	q->memmap_phy = res->start;
- 	/* Since there are 4 cs, map size required is 4 times ahb_buf_size */
- 	q->ahb_addr = devm_ioremap(dev, q->memmap_phy,
+-	r = find_first_zero_bit(&ep->ob_region_map,
+-				sizeof(ep->ob_region_map) * BITS_PER_LONG);
++	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
+ 	if (r >= ep->max_regions - 1) {
+ 		dev_err(&epc->dev, "no free outbound region\n");
+ 		return -EINVAL;
 -- 
 2.35.1
 
