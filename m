@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B0754053B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E40541332
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244780AbiFGRXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
+        id S1357473AbiFGT4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346073AbiFGRVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:21:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26FE3107891;
-        Tue,  7 Jun 2022 10:21:15 -0700 (PDT)
+        with ESMTP id S1357763AbiFGTzu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:55:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A6B4A7E18;
+        Tue,  7 Jun 2022 11:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC151B822B8;
-        Tue,  7 Jun 2022 17:21:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C9E4C385A5;
-        Tue,  7 Jun 2022 17:21:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9634611B9;
+        Tue,  7 Jun 2022 18:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFEFFC385A2;
+        Tue,  7 Jun 2022 18:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622472;
-        bh=0jYq7SrEBjoFSLyblsX/VqNdX518v94WFZHXPitwbSk=;
+        s=korg; t=1654626227;
+        bh=TY/+PwTvpEYxQkMo3I5D4CqBoTzcVkJcSgad3CTPxNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yk1y7sVqh8Qoa0KmdHlXx5C+kanyhmpOJ4FPdR08L+xKsHsVmbGqPyFEyzmCHCW7U
-         L0u/0dYPo81fhpt5j2HK3lL8erbvJVnfBk4JnzDyea1hDxl7BTOdpgdMeAtgOTzDus
-         8lixnrSdzx6ZbHPh64SBXBOmer0vKC9eETUpyQIk=
+        b=CxceSfW42WgyQccB8xvLyLC4UWKY3KVe5d4ll6F34PA8ahd0PR0D0O/JHykOpbLRr
+         18Y+fftaMi6szTNbpNj6+uDtTS4oZFz0jXf2le82BkerlVrGCILA0gue4rLT+y2HkA
+         QMhj2TSdI5hIjcUl/uHYqW8mQiTtQXie932mnxk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/452] ipw2x00: Fix potential NULL dereference in libipw_xmit()
+        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 295/772] spi: rockchip: Preset cs-high and clk polarity in setup progress
 Date:   Tue,  7 Jun 2022 18:58:07 +0200
-Message-Id: <20220607164909.445541971@linuxfoundation.org>
+Message-Id: <20220607164957.716198963@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Jon Lin <jon.lin@rock-chips.com>
 
-[ Upstream commit e8366bbabe1d207cf7c5b11ae50e223ae6fc278b ]
+[ Upstream commit 3a4bf922d42efa4e9a3dc803d1fd786d43e8a501 ]
 
-crypt and crypt->ops could be null, so we need to checking null
-before dereference
+After power up, the cs and clock is in default status, and the cs-high
+and clock polarity dts property configuration will take no effect until
+the calling of rockchip_spi_config in the first transmission.
+So preset them to make sure a correct voltage before the first
+transmission coming.
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648797055-25730-1-git-send-email-baihaowen@meizu.com
+Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
+Link: https://lore.kernel.org/r/20220216014028.8123-5-jon.lin@rock-chips.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/ipw2x00/libipw_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-rockchip.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/ipw2x00/libipw_tx.c b/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-index d9baa2fa603b..e4c60caa6543 100644
---- a/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-+++ b/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-@@ -383,7 +383,7 @@ netdev_tx_t libipw_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index 5ecd0692cca1..83da8fdb3c02 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -713,6 +713,29 @@ static bool rockchip_spi_can_dma(struct spi_controller *ctlr,
+ 	return xfer->len / bytes_per_word >= rs->fifo_len;
+ }
  
- 		/* Each fragment may need to have room for encryption
- 		 * pre/postfix */
--		if (host_encrypt)
-+		if (host_encrypt && crypt && crypt->ops)
- 			bytes_per_frag -= crypt->ops->extra_mpdu_prefix_len +
- 			    crypt->ops->extra_mpdu_postfix_len;
++static int rockchip_spi_setup(struct spi_device *spi)
++{
++	struct rockchip_spi *rs = spi_controller_get_devdata(spi->controller);
++	u32 cr0;
++
++	pm_runtime_get_sync(rs->dev);
++
++	cr0 = readl_relaxed(rs->regs + ROCKCHIP_SPI_CTRLR0);
++
++	cr0 &= ~(0x3 << CR0_SCPH_OFFSET);
++	cr0 |= ((spi->mode & 0x3) << CR0_SCPH_OFFSET);
++	if (spi->mode & SPI_CS_HIGH && spi->chip_select <= 1)
++		cr0 |= BIT(spi->chip_select) << CR0_SOI_OFFSET;
++	else if (spi->chip_select <= 1)
++		cr0 &= ~(BIT(spi->chip_select) << CR0_SOI_OFFSET);
++
++	writel_relaxed(cr0, rs->regs + ROCKCHIP_SPI_CTRLR0);
++
++	pm_runtime_put(rs->dev);
++
++	return 0;
++}
++
+ static int rockchip_spi_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+@@ -840,6 +863,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
+ 	ctlr->min_speed_hz = rs->freq / BAUDR_SCKDV_MAX;
+ 	ctlr->max_speed_hz = min(rs->freq / BAUDR_SCKDV_MIN, MAX_SCLK_OUT);
  
++	ctlr->setup = rockchip_spi_setup;
+ 	ctlr->set_cs = rockchip_spi_set_cs;
+ 	ctlr->transfer_one = rockchip_spi_transfer_one;
+ 	ctlr->max_transfer_size = rockchip_spi_max_transfer_size;
 -- 
 2.35.1
 
