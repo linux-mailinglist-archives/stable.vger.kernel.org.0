@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 472EC541327
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F960541331
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354570AbiFGT4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49962 "EHLO
+        id S1353561AbiFGT4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356551AbiFGTyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:54:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B088D68E;
-        Tue,  7 Jun 2022 11:23:35 -0700 (PDT)
+        with ESMTP id S1357507AbiFGTzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:55:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE33C8A052;
+        Tue,  7 Jun 2022 11:23:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C8C4B822C0;
-        Tue,  7 Jun 2022 18:23:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCB1C385A5;
-        Tue,  7 Jun 2022 18:23:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7647D60DDF;
+        Tue,  7 Jun 2022 18:23:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4D1C3411C;
+        Tue,  7 Jun 2022 18:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626213;
-        bh=zsjmbv4CwpLwHPpbcPnSVnTmO+KVbwQy7o0E/Pbn7LU=;
+        s=korg; t=1654626215;
+        bh=/dbWxOZHy2OewWmHqoNlkYSibashwQ7otUvCVbYc+WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1H/v7H6bCes+t+69V2f6bOvxiZShc3HAo6xXclViWdZ6maqyvG+JPsLOZrnEWyNmr
-         AChci2BQYL9vrn9TdALXoEgdiodz4XSPuaQpONaOadkyXn1c0bQRG0qluvDZ7GKAsv
-         ii9k7dp60coxhbjzvI2wsuzvw2VIgo+I2FFJpaZk=
+        b=ld3IMjjax5UbWYX4+h+94+7bNWGXLNNRCuHiJnQgS0nuipwG3nBWAHtRDjxdUqn3c
+         FGVSu2BZUaoxyqmgG8Q0vFsyQD2KMHnPXXBF0M7pd13tq98t26HnABUArFYkSUOpEY
+         xQOtbxels1DGQCKVmYWddqlj7tcmnU1wtfOCCMyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Brian Starkey <brian.starkey@arm.com>,
         Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 257/772] drm/komeda: Fix an undefined behavior bug in komeda_plane_add()
-Date:   Tue,  7 Jun 2022 18:57:29 +0200
-Message-Id: <20220607164956.595798329@linuxfoundation.org>
+Subject: [PATCH 5.17 258/772] drm: mali-dp: potential dereference of null pointer
+Date:   Tue,  7 Jun 2022 18:57:30 +0200
+Message-Id: <20220607164956.625088066@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -54,56 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit f5e284bb74ab296f98122673c7ecd22028b2c200 ]
+[ Upstream commit 73c3ed7495c67b8fbdc31cf58e6ca8757df31a33 ]
 
-In komeda_plane_add(), komeda_get_layer_fourcc_list() is assigned to
-formats and used in drm_universal_plane_init().
-drm_universal_plane_init() passes formats to
-__drm_universal_plane_init(). __drm_universal_plane_init() further
-passes formats to memcpy() as src parameter, which could lead to an
-undefined behavior bug on failure of komeda_get_layer_fourcc_list().
+The return value of kzalloc() needs to be checked.
+To avoid use of null pointer '&state->base' in case of the
+failure of alloc.
 
-Fix this bug by adding a check of formats.
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_DRM_KOMEDA=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: 61f1c4a8ab75 ("drm/komeda: Attach komeda_dev to DRM-KMS")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Fixes: 99665d072183 ("drm: mali-dp: add malidp_crtc_state struct")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Brian Starkey <brian.starkey@arm.com>
 Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://lore.kernel.org/dri-devel/20211201033704.32054-1-zhou1615@umn.edu
+Link: https://patchwork.freedesktop.org/patch/msgid/20211214100837.46912-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/arm/display/komeda/komeda_plane.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/arm/malidp_crtc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-index d646e3ae1a23..517b94c3bcaf 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-@@ -265,6 +265,10 @@ static int komeda_plane_add(struct komeda_kms_dev *kms,
+diff --git a/drivers/gpu/drm/arm/malidp_crtc.c b/drivers/gpu/drm/arm/malidp_crtc.c
+index 494075ddbef6..b5928b52e279 100644
+--- a/drivers/gpu/drm/arm/malidp_crtc.c
++++ b/drivers/gpu/drm/arm/malidp_crtc.c
+@@ -487,7 +487,10 @@ static void malidp_crtc_reset(struct drm_crtc *crtc)
+ 	if (crtc->state)
+ 		malidp_crtc_destroy_state(crtc, crtc->state);
  
- 	formats = komeda_get_layer_fourcc_list(&mdev->fmt_tbl,
- 					       layer->layer_type, &n_formats);
-+	if (!formats) {
-+		kfree(kplane);
-+		return -ENOMEM;
-+	}
+-	__drm_atomic_helper_crtc_reset(crtc, &state->base);
++	if (state)
++		__drm_atomic_helper_crtc_reset(crtc, &state->base);
++	else
++		__drm_atomic_helper_crtc_reset(crtc, NULL);
+ }
  
- 	err = drm_universal_plane_init(&kms->base, plane,
- 			get_possible_crtcs(kms, c->pipeline),
+ static int malidp_crtc_enable_vblank(struct drm_crtc *crtc)
 -- 
 2.35.1
 
