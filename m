@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86247541481
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB8C540B91
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358634AbiFGUSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:18:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
+        id S1351170AbiFGS3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:29:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376424AbiFGUQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34C71CE796;
-        Tue,  7 Jun 2022 11:29:09 -0700 (PDT)
+        with ESMTP id S1352466AbiFGS0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:26:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F161406F3;
+        Tue,  7 Jun 2022 10:54:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2372C61481;
-        Tue,  7 Jun 2022 18:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FBCEC385A2;
-        Tue,  7 Jun 2022 18:29:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8E38B82367;
+        Tue,  7 Jun 2022 17:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D4E8C34115;
+        Tue,  7 Jun 2022 17:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626545;
-        bh=8E0BnoU9Kquo9eN4N25XA/aH9OKrsoQnWkajsrplp68=;
+        s=korg; t=1654624484;
+        bh=G4QYV8KfCGN2kJuv0APB3ew8HI83mkxuqGlT4tkQ4ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/ICAhzsFaqRfHMNcl2LdvZeTUbScbRQmdbcKOWuWaTKm99gKvtyEIHYNCwzXbWpY
-         aT+PwN8+BPY9QvQ33QfVgCB5uq/ozylJVF1UDa2BPaDkiSksREyiLQ1bNngsf6eOyy
-         WVOPquPH4VoEvb6A2Ae0YuuFacDmvNbWtU9HM0As=
+        b=02/V7J3rEWxY98ODD5y08qYgE7iSp2A2eDuVPbvnKOkpceH8oefAe4Vn/g7nSHTZr
+         anP4BgKEcXyTOzSOCUF7pwrzivHof07WgZP8ukXu5CdcR5UKABTKXyTdFMFEXdwTuD
+         jhugBbb+/FaVtINr6TY71egzmEC9SCdc+Vtdw910=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 416/772] drm/msm/dpu: handle pm_runtime_get_sync() errors in bind path
+Subject: [PATCH 5.15 343/667] media: rkvdec: h264: Fix bit depth wrap in pps packet
 Date:   Tue,  7 Jun 2022 19:00:08 +0200
-Message-Id: <20220607165001.266000117@linuxfoundation.org>
+Message-Id: <20220607164945.047717132@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhinav Kumar <quic_abhinavk@quicinc.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit 64b22a0da12adb571c01edd671ee43634ebd7e41 ]
+[ Upstream commit a074aa4760d1dad0bd565c0f66e7250f5f219ab0 ]
 
-If there are errors while trying to enable the pm in the
-bind path, it will lead to unclocked access of hw revision
-register thereby crashing the device.
+The luma and chroma bit depth fields in the pps packet are 3 bits wide.
+8 is wrongly added to the bit depth values written to these 3 bit fields.
+Because only the 3 LSB are written, the hardware was configured
+correctly.
 
-This will not address why the pm_runtime_get_sync() fails
-but at the very least we should be able to prevent the
-crash by handling the error and bailing out earlier.
+Correct this by not adding 8 to the luma and chroma bit depth value.
 
-changes in v2:
-	- use pm_runtime_resume_and_get() instead of
-	  pm_runtime_get_sync()
-
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/486721/
-Link: https://lore.kernel.org/r/20220518223407.26147-1-quic_abhinavk@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/media/rkvdec/rkvdec-h264.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-index 4a8cf33594c3..ddb76fe46948 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-@@ -1075,7 +1075,9 @@ static int dpu_kms_hw_init(struct msm_kms *kms)
- 
- 	dpu_kms_parse_data_bus_icc_path(dpu_kms);
- 
--	pm_runtime_get_sync(&dpu_kms->pdev->dev);
-+	rc = pm_runtime_resume_and_get(&dpu_kms->pdev->dev);
-+	if (rc < 0)
-+		goto error;
- 
- 	dpu_kms->core_rev = readl_relaxed(dpu_kms->mmio + 0x0);
- 
+diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
+index f5d8c6cb740b..22b4bf9e9ef4 100644
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -662,8 +662,8 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
+ 	WRITE_PPS(0xff, PROFILE_IDC);
+ 	WRITE_PPS(1, CONSTRAINT_SET3_FLAG);
+ 	WRITE_PPS(sps->chroma_format_idc, CHROMA_FORMAT_IDC);
+-	WRITE_PPS(sps->bit_depth_luma_minus8 + 8, BIT_DEPTH_LUMA);
+-	WRITE_PPS(sps->bit_depth_chroma_minus8 + 8, BIT_DEPTH_CHROMA);
++	WRITE_PPS(sps->bit_depth_luma_minus8, BIT_DEPTH_LUMA);
++	WRITE_PPS(sps->bit_depth_chroma_minus8, BIT_DEPTH_CHROMA);
+ 	WRITE_PPS(0, QPPRIME_Y_ZERO_TRANSFORM_BYPASS_FLAG);
+ 	WRITE_PPS(sps->log2_max_frame_num_minus4, LOG2_MAX_FRAME_NUM_MINUS4);
+ 	WRITE_PPS(sps->max_num_ref_frames, MAX_NUM_REF_FRAMES);
 -- 
 2.35.1
 
