@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA333541B28
+	by mail.lfdr.de (Postfix) with ESMTP id 593C2541B27
 	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381001AbiFGVmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
+        id S1352848AbiFGVmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381283AbiFGVkY (ORCPT
+        with ESMTP id S1381285AbiFGVkY (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C101826558;
-        Tue,  7 Jun 2022 12:06:07 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A0616FEEC;
+        Tue,  7 Jun 2022 12:06:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B30D617DA;
-        Tue,  7 Jun 2022 19:06:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC3CC385A2;
-        Tue,  7 Jun 2022 19:06:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFB48617DA;
+        Tue,  7 Jun 2022 19:06:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F44DC385A2;
+        Tue,  7 Jun 2022 19:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628766;
-        bh=q41phyPIPeloQ6si3/G89TZ9tn96bErSYBQJUnEKDZo=;
+        s=korg; t=1654628769;
+        bh=/LaCpluMEeShuvIrMiUNHXDWu5sar2QacCl1BpBcrRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEI4SX8gci3zKW/N8O+UpsengUMnExeiuCLCtLKv1fYh1uq3q6V1BTOOsopQipeFt
-         1Z4Czv6PD1Y0tHcb7YO9nNRnjQCUERUEMSR+Z9RtBVfMx9ZP8Jy7I7Jx3b7CKJrnY3
-         0QcOtD42VBESDxX2qDvQpt0HbcTOkPopet5FKygM=
+        b=DMDbfDbchsYrYAb2frUDigqtdocfe9MlSEqkZIUx3zgVZEPCri2UXlOecnESeCc2D
+         yQFJyuongZk8VT//uewKgxgJ9AEckb8p5fs2fh2cXFeOR1sO+fsZjPnyfnvvPNo2dg
+         LlmoNqvnO8ddNJwgJZB8DJaWCOLCIdUSlXzU0/l8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Michael Rodin <mrodin@de.adit-jv.com>,
+        LUU HOAI <hoai.luu.ub@renesas.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 447/879] media: make RADIO_ADAPTERS tristate
-Date:   Tue,  7 Jun 2022 18:59:25 +0200
-Message-Id: <20220607165015.845592042@linuxfoundation.org>
+Subject: [PATCH 5.18 448/879] media: vsp1: Fix offset calculation for plane cropping
+Date:   Tue,  7 Jun 2022 18:59:26 +0200
+Message-Id: <20220607165015.873509496@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -46,72 +47,59 @@ User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Michael Rodin <mrodin@de.adit-jv.com>
 
-[ Upstream commit 215d49a41709610b9e82a49b27269cfaff1ef0b6 ]
+[ Upstream commit 5f25abec8f21b7527c1223a354d23c270befddb3 ]
 
-Fix build errors when RADIO_TEA575X=y, VIDEO_BT848=m, and VIDEO_DEV=m.
+The vertical subsampling factor is currently not considered in the
+offset calculation for plane cropping done in rpf_configure_partition.
+This causes a distortion (shift of the color plane) when formats with
+the vsub factor larger than 1 are used (e.g. NV12, see
+vsp1_video_formats in vsp1_pipe.c). This commit considers vsub factor
+for all planes except plane 0 (luminance).
 
-The build errors occur due to [in drivers/media/Makefile]:
-obj-$(CONFIG_VIDEO_DEV) += radio/
-so the (would be) builtin tea575x.o is not being built.
+Drop generalization of the offset calculation to reduce the binary size.
 
-This is also due to drivers/media/radio/Kconfig declaring a bool
-Kconfig symbol (RADIO_ADAPTERS) that depends on a tristate (VIDEO_DEV),
-so when VIDEO_DEV=m, RADIO_ADAPTERS becomes =y, and then the drivers
-that depend on RADIO_ADPATERS can be configured as builtin (=y) or
-as loadable modules (=m).
-
-Fix this by converting RADIO_ADAPTERS to a tristate symbol instead
-of a bool symbol.
-
-Fixes these build errors:
-
-ERROR: modpost: "snd_tea575x_hw_init" [drivers/media/pci/bt8xx/bttv.ko] undefined!
-ERROR: modpost: "snd_tea575x_set_freq" [drivers/media/pci/bt8xx/bttv.ko] undefined!
-ERROR: modpost: "snd_tea575x_s_hw_freq_seek" [drivers/media/pci/bt8xx/bttv.ko] undefined!
-ERROR: modpost: "snd_tea575x_enum_freq_bands" [drivers/media/pci/bt8xx/bttv.ko] undefined!
-ERROR: modpost: "snd_tea575x_g_tuner" [drivers/media/pci/bt8xx/bttv.ko] undefined!
-
-Link: lore.kernel.org/r/202204191711.IKJJFjgU-lkp@intel.com
-
-Fixes: 9958d30f38b9 ("media: Kconfig: cleanup VIDEO_DEV dependencies")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: e5ad37b64de9 ("[media] v4l: vsp1: Add cropping support")
+Signed-off-by: Michael Rodin <mrodin@de.adit-jv.com>
+Signed-off-by: LUU HOAI <hoai.luu.ub@renesas.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/renesas/vsp1/vsp1_rpf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/radio/Kconfig b/drivers/media/radio/Kconfig
-index cca03bd2cc42..616a38feb641 100644
---- a/drivers/media/radio/Kconfig
-+++ b/drivers/media/radio/Kconfig
-@@ -4,10 +4,10 @@
- #
+diff --git a/drivers/media/platform/renesas/vsp1/vsp1_rpf.c b/drivers/media/platform/renesas/vsp1/vsp1_rpf.c
+index 85587c1b6a37..75083cb234fe 100644
+--- a/drivers/media/platform/renesas/vsp1/vsp1_rpf.c
++++ b/drivers/media/platform/renesas/vsp1/vsp1_rpf.c
+@@ -291,11 +291,11 @@ static void rpf_configure_partition(struct vsp1_entity *entity,
+ 		     + crop.left * fmtinfo->bpp[0] / 8;
  
- menuconfig RADIO_ADAPTERS
--	bool "Radio Adapters"
-+	tristate "Radio Adapters"
- 	depends on VIDEO_DEV
- 	depends on MEDIA_RADIO_SUPPORT
--	default y
-+	default VIDEO_DEV
- 	help
- 	  Say Y here to enable selecting AM/FM radio adapters.
+ 	if (format->num_planes > 1) {
++		unsigned int bpl = format->plane_fmt[1].bytesperline;
+ 		unsigned int offset;
  
+-		offset = crop.top * format->plane_fmt[1].bytesperline
+-		       + crop.left / fmtinfo->hsub
+-		       * fmtinfo->bpp[1] / 8;
++		offset = crop.top / fmtinfo->vsub * bpl
++		       + crop.left / fmtinfo->hsub * fmtinfo->bpp[1] / 8;
+ 		mem.addr[1] += offset;
+ 		mem.addr[2] += offset;
+ 	}
 -- 
 2.35.1
 
