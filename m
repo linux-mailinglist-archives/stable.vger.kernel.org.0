@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5016F540A68
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E05B541361
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351783AbiFGSUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:20:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
+        id S1357923AbiFGT7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:59:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351941AbiFGSQs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFB919F95;
-        Tue,  7 Jun 2022 10:50:11 -0700 (PDT)
+        with ESMTP id S1357931AbiFGT7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:59:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF0E1BBAE5;
+        Tue,  7 Jun 2022 11:24:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0ECFEB8234A;
-        Tue,  7 Jun 2022 17:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B928C385A5;
-        Tue,  7 Jun 2022 17:50:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E7B4611B9;
+        Tue,  7 Jun 2022 18:24:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B1AC385A2;
+        Tue,  7 Jun 2022 18:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624208;
-        bh=dyUWHoCX8ZiwGXskDcR9+7U5Ap2FdBhASl8Kl6ho7I4=;
+        s=korg; t=1654626268;
+        bh=NBK0iamOlMrlXkAP/b4ijtRd6i0U/z+DxuS8kwValWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HnuHgnEh1wjRY1wuPEZf9r3YjUBLHw9/n3JPcvLnirjPjs+tx0jaXJFFgcMDPwY8/
-         rmSS1sJckXL0HZcnqtjdRAdlcJXGwSIHsQhN3lLPuyDGTeF7VECbs9FllxTnTJG7GM
-         sUkmQ83yUfCjha5VQ5lf8grorN+2yNXw/xZVNDnw=
+        b=Z8mkJGBO+L2NUgwxDO/xTZgAop36ireSD2eVY/zhNDNe0TAUWcOnnWvdNHrepIMQa
+         LRTTzkb4yBoKZB0keX1+IXAdizuTteLEL8K+YO7EVn+NmrtSNJT0kqBA4qvG3vJKZ6
+         B0a4aayHGdwZ/3TH99b4EE79FXGoWaefu01HcHnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 244/667] spi: rockchip: Stop spi slave dma receiver when cs inactive
+Subject: [PATCH 5.17 317/772] drm/msm/dp: reset DP controller before transmit phy test pattern
 Date:   Tue,  7 Jun 2022 18:58:29 +0200
-Message-Id: <20220607164942.103315062@linuxfoundation.org>
+Message-Id: <20220607164958.367663242@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,212 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Lin <jon.lin@rock-chips.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 869f2c94db92f0f1d6acd0dff1c1ebb8160f5e29 ]
+[ Upstream commit 581d69981159b00f0443d171a4b900089f34ccfe ]
 
-The spi which's version is higher than ver 2 will automatically
-enable this feature.
+DP controller state can not switch from video ready state to
+transmit phy pattern state at run time. DP mainlink has to be
+teared down followed by reset controller to default state to have
+DP controller switch to transmit phy test pattern state and start
+generate specified phy test pattern to sinker once main link setup
+again.
 
-If the length of master transmission is uncertain, the RK spi slave
-is better to automatically stop after cs inactive instead of waiting
-for xfer_completion forever.
+Changes in v2:
+-- correct Fixes's commit id
 
-Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/20220216014028.8123-4-jon.lin@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 52352fe2f866 ("drm/msm/dp: use dp_ctrl_off_link_stream during PHY compliance test run")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Patchwork: https://patchwork.freedesktop.org/patch/483563/
+Link: https://lore.kernel.org/r/1650995939-28467-2-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 81 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 73 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index c6a1bb09be05..5ecd0692cca1 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -133,7 +133,8 @@
- #define INT_TF_OVERFLOW				(1 << 1)
- #define INT_RF_UNDERFLOW			(1 << 2)
- #define INT_RF_OVERFLOW				(1 << 3)
--#define INT_RF_FULL					(1 << 4)
-+#define INT_RF_FULL				(1 << 4)
-+#define INT_CS_INACTIVE				(1 << 6)
- 
- /* Bit fields in ICR, 4bit */
- #define ICR_MASK					0x0f
-@@ -194,6 +195,8 @@ struct rockchip_spi {
- 	bool cs_asserted[ROCKCHIP_SPI_MAX_CS_NUM];
- 
- 	bool slave_abort;
-+	bool cs_inactive; /* spi slave tansmition stop when cs inactive */
-+	struct spi_transfer *xfer; /* Store xfer temporarily */
- };
- 
- static inline void spi_enable_chip(struct rockchip_spi *rs, bool enable)
-@@ -343,6 +346,15 @@ static irqreturn_t rockchip_spi_isr(int irq, void *dev_id)
- 	struct spi_controller *ctlr = dev_id;
- 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
- 
-+	/* When int_cs_inactive comes, spi slave abort */
-+	if (rs->cs_inactive && readl_relaxed(rs->regs + ROCKCHIP_SPI_IMR) & INT_CS_INACTIVE) {
-+		ctlr->slave_abort(ctlr);
-+		writel_relaxed(0, rs->regs + ROCKCHIP_SPI_IMR);
-+		writel_relaxed(0xffffffff, rs->regs + ROCKCHIP_SPI_ICR);
-+
-+		return IRQ_HANDLED;
-+	}
-+
- 	if (rs->tx_left)
- 		rockchip_spi_pio_writer(rs);
- 
-@@ -350,6 +362,7 @@ static irqreturn_t rockchip_spi_isr(int irq, void *dev_id)
- 	if (!rs->rx_left) {
- 		spi_enable_chip(rs, false);
- 		writel_relaxed(0, rs->regs + ROCKCHIP_SPI_IMR);
-+		writel_relaxed(0xffffffff, rs->regs + ROCKCHIP_SPI_ICR);
- 		spi_finalize_current_transfer(ctlr);
- 	}
- 
-@@ -357,14 +370,18 @@ static irqreturn_t rockchip_spi_isr(int irq, void *dev_id)
- }
- 
- static int rockchip_spi_prepare_irq(struct rockchip_spi *rs,
--		struct spi_transfer *xfer)
-+				    struct spi_controller *ctlr,
-+				    struct spi_transfer *xfer)
- {
- 	rs->tx = xfer->tx_buf;
- 	rs->rx = xfer->rx_buf;
- 	rs->tx_left = rs->tx ? xfer->len / rs->n_bytes : 0;
- 	rs->rx_left = xfer->len / rs->n_bytes;
- 
--	writel_relaxed(INT_RF_FULL, rs->regs + ROCKCHIP_SPI_IMR);
-+	if (rs->cs_inactive)
-+		writel_relaxed(INT_RF_FULL | INT_CS_INACTIVE, rs->regs + ROCKCHIP_SPI_IMR);
-+	else
-+		writel_relaxed(INT_RF_FULL, rs->regs + ROCKCHIP_SPI_IMR);
- 	spi_enable_chip(rs, true);
- 
- 	if (rs->tx_left)
-@@ -383,6 +400,9 @@ static void rockchip_spi_dma_rxcb(void *data)
- 	if (state & TXDMA && !rs->slave_abort)
- 		return;
- 
-+	if (rs->cs_inactive)
-+		writel_relaxed(0, rs->regs + ROCKCHIP_SPI_IMR);
-+
- 	spi_enable_chip(rs, false);
- 	spi_finalize_current_transfer(ctlr);
- }
-@@ -423,14 +443,16 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
- 
- 	atomic_set(&rs->state, 0);
- 
-+	rs->tx = xfer->tx_buf;
-+	rs->rx = xfer->rx_buf;
-+
- 	rxdesc = NULL;
- 	if (xfer->rx_buf) {
- 		struct dma_slave_config rxconf = {
- 			.direction = DMA_DEV_TO_MEM,
- 			.src_addr = rs->dma_addr_rx,
- 			.src_addr_width = rs->n_bytes,
--			.src_maxburst = rockchip_spi_calc_burst_size(xfer->len /
--								     rs->n_bytes),
-+			.src_maxburst = rockchip_spi_calc_burst_size(xfer->len / rs->n_bytes),
- 		};
- 
- 		dmaengine_slave_config(ctlr->dma_rx, &rxconf);
-@@ -474,10 +496,13 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
- 	/* rx must be started before tx due to spi instinct */
- 	if (rxdesc) {
- 		atomic_or(RXDMA, &rs->state);
--		dmaengine_submit(rxdesc);
-+		ctlr->dma_rx->cookie = dmaengine_submit(rxdesc);
- 		dma_async_issue_pending(ctlr->dma_rx);
- 	}
- 
-+	if (rs->cs_inactive)
-+		writel_relaxed(INT_CS_INACTIVE, rs->regs + ROCKCHIP_SPI_IMR);
-+
- 	spi_enable_chip(rs, true);
- 
- 	if (txdesc) {
-@@ -584,7 +609,42 @@ static size_t rockchip_spi_max_transfer_size(struct spi_device *spi)
- static int rockchip_spi_slave_abort(struct spi_controller *ctlr)
- {
- 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
-+	u32 rx_fifo_left;
-+	struct dma_tx_state state;
-+	enum dma_status status;
-+
-+	/* Get current dma rx point */
-+	if (atomic_read(&rs->state) & RXDMA) {
-+		dmaengine_pause(ctlr->dma_rx);
-+		status = dmaengine_tx_status(ctlr->dma_rx, ctlr->dma_rx->cookie, &state);
-+		if (status == DMA_ERROR) {
-+			rs->rx = rs->xfer->rx_buf;
-+			rs->xfer->len = 0;
-+			rx_fifo_left = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXFLR);
-+			for (; rx_fifo_left; rx_fifo_left--)
-+				readl_relaxed(rs->regs + ROCKCHIP_SPI_RXDR);
-+			goto out;
-+		} else {
-+			rs->rx += rs->xfer->len - rs->n_bytes * state.residue;
-+		}
-+	}
- 
-+	/* Get the valid data left in rx fifo and set rs->xfer->len real rx size */
-+	if (rs->rx) {
-+		rx_fifo_left = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXFLR);
-+		for (; rx_fifo_left; rx_fifo_left--) {
-+			u32 rxw = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXDR);
-+
-+			if (rs->n_bytes == 1)
-+				*(u8 *)rs->rx = (u8)rxw;
-+			else
-+				*(u16 *)rs->rx = (u16)rxw;
-+			rs->rx += rs->n_bytes;
-+		}
-+		rs->xfer->len = (unsigned int)(rs->rx - rs->xfer->rx_buf);
-+	}
-+
-+out:
- 	if (atomic_read(&rs->state) & RXDMA)
- 		dmaengine_terminate_sync(ctlr->dma_rx);
- 	if (atomic_read(&rs->state) & TXDMA)
-@@ -626,7 +686,7 @@ static int rockchip_spi_transfer_one(
- 	}
- 
- 	rs->n_bytes = xfer->bits_per_word <= 8 ? 1 : 2;
--
-+	rs->xfer = xfer;
- 	use_dma = ctlr->can_dma ? ctlr->can_dma(ctlr, spi, xfer) : false;
- 
- 	ret = rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
-@@ -636,7 +696,7 @@ static int rockchip_spi_transfer_one(
- 	if (use_dma)
- 		return rockchip_spi_prepare_dma(rs, ctlr, xfer);
- 
--	return rockchip_spi_prepare_irq(rs, xfer);
-+	return rockchip_spi_prepare_irq(rs, ctlr, xfer);
- }
- 
- static bool rockchip_spi_can_dma(struct spi_controller *ctlr,
-@@ -815,8 +875,13 @@ static int rockchip_spi_probe(struct platform_device *pdev)
- 	switch (readl_relaxed(rs->regs + ROCKCHIP_SPI_VERSION)) {
- 	case ROCKCHIP_SPI_VER2_TYPE2:
- 		ctlr->mode_bits |= SPI_CS_HIGH;
-+		if (ctlr->can_dma && slave_mode)
-+			rs->cs_inactive = true;
-+		else
-+			rs->cs_inactive = false;
- 		break;
- 	default:
-+		rs->cs_inactive = false;
- 		break;
- 	}
- 
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index 8d1ea694d06c..02372495561a 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1519,7 +1519,7 @@ static int dp_ctrl_process_phy_test_request(struct dp_ctrl_private *ctrl)
+ 	 * running. Add the global reset just before disabling the
+ 	 * link clocks and core clocks.
+ 	 */
+-	ret = dp_ctrl_off_link_stream(&ctrl->dp_ctrl);
++	ret = dp_ctrl_off(&ctrl->dp_ctrl);
+ 	if (ret) {
+ 		DRM_ERROR("failed to disable DP controller\n");
+ 		return ret;
 -- 
 2.35.1
 
