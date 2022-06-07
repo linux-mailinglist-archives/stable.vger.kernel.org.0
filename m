@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8800B54084F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF68754118E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348878AbiFGR5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58648 "EHLO
+        id S1356686AbiFGTiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348897AbiFGR4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:56:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11631483E4;
-        Tue,  7 Jun 2022 10:40:18 -0700 (PDT)
+        with ESMTP id S1356081AbiFGTiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:38:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDE536B41;
+        Tue,  7 Jun 2022 11:13:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4CC96165B;
-        Tue,  7 Jun 2022 17:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7779C3411C;
-        Tue,  7 Jun 2022 17:40:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52823B8233E;
+        Tue,  7 Jun 2022 18:13:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA9C0C385A2;
+        Tue,  7 Jun 2022 18:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623618;
-        bh=OQNA3pbhO751SWW63OLtmzQBzHLEIHa7GSdyG62NU3k=;
+        s=korg; t=1654625623;
+        bh=RBHz7ZF803gdhje7BfbRLZ/t4QWWO44yiiVcusiMfKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TzAh+EAsrm0zJVdKf1fx0CtaXIO1WobJbVXuon0PST03BpH4nSpuV0bP7z/HpHewE
-         AtCAIKkUC5BIyKF+BsxKb151PDV4A95pczipnTYorFkDmxT83THBn+YI7zdR21ceR4
-         GrggCn+ccW/ma81KhIUs8BYWwdeiTL17nzV2iDv4=
+        b=TL0l+30vNG0w0chT0Xfi0uoblNd/koIzJp2icW0++y6LGfhak6rm/4d6rVkBZ+Sqo
+         o9Uxqx5YgtcZkerv3i5LP3rqcAqnSu7HwU8M+v1W1tFJI4KbOLrKjBiQgKpvWZjgtp
+         DorllSATjIXZddZvHsDpj4ixEeZBBojMbiOE1Ag4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 003/667] parisc/stifb: Implement fb_is_primary_device()
-Date:   Tue,  7 Jun 2022 18:54:28 +0200
-Message-Id: <20220607164934.878895962@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 077/772] tools/power turbostat: fix ICX DRAM power numbers
+Date:   Tue,  7 Jun 2022 18:54:29 +0200
+Message-Id: <20220607164951.309194275@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,87 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Len Brown <len.brown@intel.com>
 
-commit cf936af790a3ef5f41ff687ec91bfbffee141278 upstream.
+[ Upstream commit 6397b6418935773a34b533b3348b03f4ce3d7050 ]
 
-Implement fb_is_primary_device() function, so that fbcon detects if this
-framebuffer belongs to the default graphics card which was used to start
-the system.
+ICX (and its duplicates) require special hard-coded DRAM RAPL units,
+rather than using the generic RAPL energy units.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org   # v5.10+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/fb.h    |    4 ++++
- drivers/video/console/sticore.c |   17 +++++++++++++++++
- drivers/video/fbdev/stifb.c     |    4 ++--
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ tools/power/x86/turbostat/turbostat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/parisc/include/asm/fb.h
-+++ b/arch/parisc/include/asm/fb.h
-@@ -12,9 +12,13 @@ static inline void fb_pgprotect(struct f
- 	pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
- }
- 
-+#if defined(CONFIG_STI_CONSOLE) || defined(CONFIG_FB_STI)
-+int fb_is_primary_device(struct fb_info *info);
-+#else
- static inline int fb_is_primary_device(struct fb_info *info)
- {
- 	return 0;
- }
-+#endif
- 
- #endif /* _ASM_FB_H_ */
---- a/drivers/video/console/sticore.c
-+++ b/drivers/video/console/sticore.c
-@@ -30,6 +30,7 @@
- #include <asm/pdc.h>
- #include <asm/cacheflush.h>
- #include <asm/grfioctl.h>
-+#include <asm/fb.h>
- 
- #include "../fbdev/sticore.h"
- 
-@@ -1127,6 +1128,22 @@ int sti_call(const struct sti_struct *st
- 	return ret;
- }
- 
-+/* check if given fb_info is the primary device */
-+int fb_is_primary_device(struct fb_info *info)
-+{
-+	struct sti_struct *sti;
-+
-+	sti = sti_get_rom(0);
-+
-+	/* if no built-in graphics card found, allow any fb driver as default */
-+	if (!sti)
-+		return true;
-+
-+	/* return true if it's the default built-in framebuffer driver */
-+	return (sti->info == info);
-+}
-+EXPORT_SYMBOL(fb_is_primary_device);
-+
- MODULE_AUTHOR("Philipp Rumpf, Helge Deller, Thomas Bogendoerfer");
- MODULE_DESCRIPTION("Core STI driver for HP's NGLE series graphics cards in HP PARISC machines");
- MODULE_LICENSE("GPL v2");
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1317,11 +1317,11 @@ static int __init stifb_init_fb(struct s
- 		goto out_err3;
- 	}
- 
-+	/* save for primary gfx device detection & unregister_framebuffer() */
-+	sti->info = info;
- 	if (register_framebuffer(&fb->info) < 0)
- 		goto out_err4;
- 
--	sti->info = info; /* save for unregister_framebuffer() */
--
- 	fb_info(&fb->info, "%s %dx%d-%d frame buffer device, %s, id: %04x, mmio: 0x%04lx\n",
- 		fix->id,
- 		var->xres, 
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 47d3ba895d6d..4f176bbf29f4 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4376,6 +4376,7 @@ static double rapl_dram_energy_units_probe(int model, double rapl_energy_units)
+ 	case INTEL_FAM6_BROADWELL_X:	/* BDX */
+ 	case INTEL_FAM6_SKYLAKE_X:	/* SKX */
+ 	case INTEL_FAM6_XEON_PHI_KNL:	/* KNL */
++	case INTEL_FAM6_ICELAKE_X:	/* ICX */
+ 		return (rapl_dram_energy_units = 15.3 / 1000000);
+ 	default:
+ 		return (rapl_energy_units);
+-- 
+2.35.1
+
 
 
