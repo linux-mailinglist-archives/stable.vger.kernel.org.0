@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 793D5540C2D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E4045414D7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352276AbiFGSeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:34:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35214 "EHLO
+        id S1358718AbiFGUWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:22:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351290AbiFGScE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:32:04 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8314117DDE6;
-        Tue,  7 Jun 2022 10:56:59 -0700 (PDT)
+        with ESMTP id S1356895AbiFGUVr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A501451C0;
+        Tue,  7 Jun 2022 11:31:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8C9C0CE240C;
-        Tue,  7 Jun 2022 17:56:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8850DC3411C;
-        Tue,  7 Jun 2022 17:56:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B663561295;
+        Tue,  7 Jun 2022 18:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA084C385A2;
+        Tue,  7 Jun 2022 18:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624615;
-        bh=4JIrRICiYrnw1c2ygg9e+MEN7EFrlrJShWuE87GFz/4=;
+        s=korg; t=1654626674;
+        bh=qyEorKugdSDrYM446SI/sSvrMFs3g4trsGrHJkoRY5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vkf9rwCqRuZ4hQOM87UBIGLA3gbBkxhu1RTzfeEWkeYBw4fl1zCN8jg5LkH5LH4B8
-         /aRXBOoa7iSbmHbwYbZmfsPqXH4RAcuFSjUq686J/ryLOe1TONVdDlCg4NZJ4gBN7e
-         1nzj/hIRR74zXcSfF82rmrHNoiOdlrcRDJZbyRCw=
+        b=NI4XM1Tgvh2UbdTzc0mrXySHWTJNNm17nUnqGr7lQ115Xwnx9geoFphyHZuQesNJq
+         e9YAWFZRXVgwVbpRwz0Rw0vgIoLDFh19vYJ+iltdo8Png09Hb5pcOpkAA4tnPHmKax
+         EG7LztP3IkZWOcQNrXoorQAmC24dXCH6Gz4QJSsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 389/667] soc: qcom: smsm: Fix missing of_node_put() in smsm_parse_ipc
+        stable@vger.kernel.org, Jianrong Zhang <zhangjianrong5@huawei.com>,
+        Jiantao Zhang <water.zhangjiantao@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 462/772] PCI: dwc: Fix setting error return on MSI DMA mapping failure
 Date:   Tue,  7 Jun 2022 19:00:54 +0200
-Message-Id: <20220607164946.413420535@linuxfoundation.org>
+Message-Id: <20220607165002.614777042@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiantao Zhang <water.zhangjiantao@huawei.com>
 
-[ Upstream commit aad66a3c78da668f4506356c2fdb70b7a19ecc76 ]
+[ Upstream commit 88557685cd72cf0db686a4ebff3fad4365cb6071 ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+When dma_mapping_error() returns error because of no enough memory,
+but dw_pcie_host_init() returns success, which will mislead the callers.
 
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220308073648.24634-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/30170911-0e2f-98ce-9266-70465b9073e5@huawei.com
+Fixes: 07940c369a6b ("PCI: dwc: Fix MSI page leakage in suspend/resume")
+Signed-off-by: Jianrong Zhang <zhangjianrong5@huawei.com>
+Signed-off-by: Jiantao Zhang <water.zhangjiantao@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smsm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/dwc/pcie-designware-host.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index ef15d014c03a..9df9bba242f3 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -374,6 +374,7 @@ static int smsm_parse_ipc(struct qcom_smsm *smsm, unsigned host_id)
- 		return 0;
- 
- 	host->ipc_regmap = syscon_node_to_regmap(syscon);
-+	of_node_put(syscon);
- 	if (IS_ERR(host->ipc_regmap))
- 		return PTR_ERR(host->ipc_regmap);
- 
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index f4755f3a03be..9dcb51728dd1 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -390,7 +390,8 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 						      sizeof(pp->msi_msg),
+ 						      DMA_FROM_DEVICE,
+ 						      DMA_ATTR_SKIP_CPU_SYNC);
+-			if (dma_mapping_error(pci->dev, pp->msi_data)) {
++			ret = dma_mapping_error(pci->dev, pp->msi_data);
++			if (ret) {
+ 				dev_err(pci->dev, "Failed to map MSI data\n");
+ 				pp->msi_data = 0;
+ 				goto err_free_msi;
 -- 
 2.35.1
 
