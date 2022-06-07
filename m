@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3A254087F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DBA9541917
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348503AbiFGR7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:59:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
+        id S1378169AbiFGVS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349184AbiFGR6s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E1EA7E01;
-        Tue,  7 Jun 2022 10:41:30 -0700 (PDT)
+        with ESMTP id S1380728AbiFGVQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DC3E21F9E1;
+        Tue,  7 Jun 2022 11:56:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BC40B822C0;
-        Tue,  7 Jun 2022 17:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A710C385A5;
-        Tue,  7 Jun 2022 17:41:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDE7A61794;
+        Tue,  7 Jun 2022 18:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD1FAC385A2;
+        Tue,  7 Jun 2022 18:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623687;
-        bh=zrO+I81q/bOufw7+PNCwLxw9CKtniX3Y5piTVB+tuCs=;
+        s=korg; t=1654628205;
+        bh=iNHK4FsWAeAmGLGVXN+d7gkN/OJ8GAY1t4eehMHASVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozzIPt8vzIBnsvnmnHF1+eLzmymAK1o4JG01w89ctZsJ2t17rbN/rB8zogveZ1D0F
-         +cF6kNe5WhL9oz3Ehcy+SyR8GrAPd8xhrDBI6M1Gu1AD7OpE5EB1+B1s/TOfcESHzO
-         KZOZ9+VH/5Gdpep+1W/PkpPlj+ODqqQRijgRurdc=
+        b=DsMkhhbx1YaGIOiuB8rTCaIEodtZSB/sMvClPuSJq+mz0eWRNRh0RGitVv9d6GyTu
+         kJWPhHNzvll44DgjFLyqUNMlfW/qrQtc7OTX2iVW9EXbxxuZv05u6PRt5wEMi5dbBI
+         XtCZy+C3aB1MGs023KIin9edWxVA3KrZFVnsDNsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/667] mac80211: minstrel_ht: fix where rate stats are stored (fixes debugfs output)
+Subject: [PATCH 5.18 203/879] char: tpm: cr50_i2c: Suppress duplicated error message in .remove()
 Date:   Tue,  7 Jun 2022 18:55:21 +0200
-Message-Id: <20220607164936.493337697@linuxfoundation.org>
+Message-Id: <20220607165008.738250110@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Seiderer <ps.report@gmx.net>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 5c6dd7bd569b54c0d2904125d7366aa93f077f67 ]
+[ Upstream commit e0687fe958f763f1790f22ed5483025b7624e744 ]
 
-Using an ath9k card the debugfs output of minstrel_ht looks like the following
-(note the zero values for the first four rates sum-of success/attempts):
+Returning an error value in an i2c remove callback results in an error
+message being emitted by the i2c core, but otherwise it doesn't make a
+difference. The device goes away anyhow and the devm cleanups are
+called.
 
-             best    ____________rate__________    ____statistics___    _____last____    ______sum-of________
-mode guard #  rate   [name   idx airtime  max_tp]  [avg(tp) avg(prob)]  [retry|suc|att]  [#success | #attempts]
-OFDM       1    DP     6.0M  272    1640     5.2       3.1      53.8       3     0 0             0   0
-OFDM       1   C       9.0M  273    1104     7.7       4.6      53.8       4     0 0             0   0
-OFDM       1  B       12.0M  274     836    10.0       6.0      53.8       4     0 0             0   0
-OFDM       1 A    S   18.0M  275     568    14.3       8.5      53.8       5     0 0             0   0
-OFDM       1      S   24.0M  276     436    18.1       0.0       0.0       5     0 1            80   1778
-OFDM       1          36.0M  277     300    24.9       0.0       0.0       0     0 1             0   107
-OFDM       1      S   48.0M  278     236    30.4       0.0       0.0       0     0 0             0   75
-OFDM       1          54.0M  279     212    33.0       0.0       0.0       0     0 0             0   72
+As tpm_cr50_i2c_remove() emits an error message already and the
+additional error message by the i2c core doesn't add any useful
+information, change the return value to zero to suppress this error
+message.
 
-Total packet count::    ideal 16582      lookaround 885
-Average # of aggregated frames per A-MPDU: 1.0
+Note that if i2c_clientdata is NULL, there is something really fishy.
+Assuming no memory corruption happened (then all bets are lost anyhow),
+tpm_cr50_i2c_remove() is only called after tpm_cr50_i2c_probe() returned
+successfully. So there was a tpm chip registered before and after
+tpm_cr50_i2c_remove() its privdata is freed but the associated character
+device isn't removed. If after that happened userspace accesses the
+character device it's likely that the freed memory is accessed. For that
+reason the warning message is made a bit more frightening.
 
-Debugging showed that the rate statistics for the first four rates where
-stored in the MINSTREL_CCK_GROUP instead of the MINSTREL_OFDM_GROUP because
-in minstrel_ht_get_stats() the supported check was not honoured as done in
-various other places, e.g net/mac80211/rc80211_minstrel_ht_debugfs.c:
-
- 74                 if (!(mi->supported[i] & BIT(j)))
- 75                         continue;
-
-With the patch applied the output looks good:
-
-              best    ____________rate__________    ____statistics___    _____last____    ______sum-of________
-mode guard #  rate   [name   idx airtime  max_tp]  [avg(tp) avg(prob)]  [retry|suc|att]  [#success | #attempts]
-OFDM       1    D      6.0M  272    1640     5.2       5.2     100.0       3     0 0             1   1
-OFDM       1   C       9.0M  273    1104     7.7       7.7     100.0       4     0 0            38   38
-OFDM       1  B       12.0M  274     836    10.0       9.9      89.5       4     2 2           372   395
-OFDM       1 A   P    18.0M  275     568    14.3      14.3      97.2       5    52 53         6956   7181
-OFDM       1      S   24.0M  276     436    18.1       0.0       0.0       0     0 1             6   163
-OFDM       1          36.0M  277     300    24.9       0.0       0.0       0     0 1             0   35
-OFDM       1      S   48.0M  278     236    30.4       0.0       0.0       0     0 0             0   38
-OFDM       1      S   54.0M  279     212    33.0       0.0       0.0       0     0 0             0   38
-
-Total packet count::    ideal 7097      lookaround 287
-Average # of aggregated frames per A-MPDU: 1.0
-
-Signed-off-by: Peter Seiderer <ps.report@gmx.net>
-Link: https://lore.kernel.org/r/20220404165414.1036-1-ps.report@gmx.net
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rc80211_minstrel_ht.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/tpm/tpm_tis_i2c_cr50.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
-index 72b44d4c42d0..90238170dec3 100644
---- a/net/mac80211/rc80211_minstrel_ht.c
-+++ b/net/mac80211/rc80211_minstrel_ht.c
-@@ -364,6 +364,9 @@ minstrel_ht_get_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi,
+diff --git a/drivers/char/tpm/tpm_tis_i2c_cr50.c b/drivers/char/tpm/tpm_tis_i2c_cr50.c
+index f6c0affbb456..bf608b6af339 100644
+--- a/drivers/char/tpm/tpm_tis_i2c_cr50.c
++++ b/drivers/char/tpm/tpm_tis_i2c_cr50.c
+@@ -768,8 +768,8 @@ static int tpm_cr50_i2c_remove(struct i2c_client *client)
+ 	struct device *dev = &client->dev;
  
- 	group = MINSTREL_CCK_GROUP;
- 	for (idx = 0; idx < ARRAY_SIZE(mp->cck_rates); idx++) {
-+		if (!(mi->supported[group] & BIT(idx)))
-+			continue;
-+
- 		if (rate->idx != mp->cck_rates[idx])
- 			continue;
+ 	if (!chip) {
+-		dev_err(dev, "Could not get client data at remove\n");
+-		return -ENODEV;
++		dev_crit(dev, "Could not get client data at remove, memory corruption ahead\n");
++		return 0;
+ 	}
  
+ 	tpm_chip_unregister(chip);
 -- 
 2.35.1
 
