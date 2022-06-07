@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0CDF541979
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B52154125D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378634AbiFGVWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47284 "EHLO
+        id S1357237AbiFGTqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380800AbiFGVQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:59 -0400
+        with ESMTP id S1357366AbiFGTpN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:45:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99FDA1A9;
-        Tue,  7 Jun 2022 11:57:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C02915F25F;
+        Tue,  7 Jun 2022 11:18:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8921CB822C0;
-        Tue,  7 Jun 2022 18:57:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7182C385A2;
-        Tue,  7 Jun 2022 18:57:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAE07B82385;
+        Tue,  7 Jun 2022 18:18:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F158C36B05;
+        Tue,  7 Jun 2022 18:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628251;
-        bh=VMBQ25Si+CvDpexTdClyp2NZuPRPUCh8Jw3Nk8iusDw=;
+        s=korg; t=1654625906;
+        bh=ysGPMCEE6zTrrAwWhMonkdrC5EuSx87LJP4/nYS+s1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFiOnok2CweQF9lTocIG30TWCb9eSbtBktWPlJmONYTo9GIiUi3s1bITz6h91sQ1/
-         nfctQOyuJdXpuirZaOBIXMV/YKvhI3AtYCeNNkHt6TptSX4w2j2lrN+ymuUX2HkAfE
-         42Ny4Y1E4vTgUAgxHOc2PFwTS0n/c4Ba3NSXKfHE=
+        b=HUfaHOfzptpYfWN0YaJsniiApWMwPENxmhvGJyn4lZjV5mpaOZ2+H1fDk+oMGfvnL
+         ynrmNjUEsZ9l6V0F0JcS7yT232TIq9uJ7Ve5obxYV17IV3p51UMBqMXhGzef19+4Dj
+         cnV4bNx5A1aDs+z4dUysnpePRrkoF2AcS8yUUbcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 261/879] drm/solomon: Make DRM_SSD130X depends on MMU
+Subject: [PATCH 5.17 187/772] ASoC: amd: Add driver data to acp6x machine driver
 Date:   Tue,  7 Jun 2022 18:56:19 +0200
-Message-Id: <20220607165010.426578702@linuxfoundation.org>
+Message-Id: <20220607164954.546554661@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 47042e0ddd218f100292cebc5208cb1eff7473b6 ]
+[ Upstream commit e521f087780d07731e8c950f2f34d08358c86bc9 ]
 
-WARNING: unmet direct dependencies detected for DRM_GEM_SHMEM_HELPER
-  Depends on [n]: HAS_IOMEM [=y] && DRM [=m] && MMU [=n]
-  Selected by [m]:
-  - DRM_SSD130X [=m] && HAS_IOMEM [=y] && DRM [=m]
+Currently all of the quirked systems use the same card and so the
+DMI quirk list doesn't contain driver data.
 
-DRM_GEM_SHMEM_HELPER depends on MMU, DRM_SSD130X should also depends on MMU.
+Add driver data to these quirks and then check the data was present
+or not.  This will allow potentially setting quirks for systems with
+faulty firmware that claims to have a DMIC but doesn't really.
 
-Fixes: a61732e80867 ("drm: Add driver for Solomon SSD130x OLED displays")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220312063437.19160-1-yuehaibing@huawei.com
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20220411134532.13538-2-mario.limonciello@amd.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/solomon/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/amd/yc/acp6x-mach.c | 29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/solomon/Kconfig b/drivers/gpu/drm/solomon/Kconfig
-index 5861c3ab7c45..6230369505c9 100644
---- a/drivers/gpu/drm/solomon/Kconfig
-+++ b/drivers/gpu/drm/solomon/Kconfig
-@@ -1,6 +1,6 @@
- config DRM_SSD130X
- 	tristate "DRM support for Solomon SSD130x OLED displays"
--	depends on DRM
-+	depends on DRM && MMU
- 	select BACKLIGHT_CLASS_DEVICE
- 	select DRM_GEM_SHMEM_HELPER
- 	select DRM_KMS_HELPER
+diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
+index 9a767f47b89f..959b70e8baf2 100644
+--- a/sound/soc/amd/yc/acp6x-mach.c
++++ b/sound/soc/amd/yc/acp6x-mach.c
+@@ -45,108 +45,126 @@ static struct snd_soc_card acp6x_card = {
+ 
+ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D2"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D3"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D4"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D5"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CF"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CG"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CQ"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CR"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21AW"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21AX"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21BN"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21BQ"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CH"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CJ"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CK"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21CL"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D8"),
+ 		}
+ 	},
+ 	{
++		.driver_data = &acp6x_card,
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D9"),
+@@ -157,18 +175,21 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 
+ static int acp6x_probe(struct platform_device *pdev)
+ {
++	const struct dmi_system_id *dmi_id;
+ 	struct acp6x_pdm *machine = NULL;
+ 	struct snd_soc_card *card;
+ 	int ret;
+-	const struct dmi_system_id *dmi_id;
+ 
++	/* check for any DMI overrides */
+ 	dmi_id = dmi_first_match(yc_acp_quirk_table);
+-	if (!dmi_id)
++	if (dmi_id)
++		platform_set_drvdata(pdev, dmi_id->driver_data);
++
++	card = platform_get_drvdata(pdev);
++	if (!card)
+ 		return -ENODEV;
+-	card = &acp6x_card;
+ 	acp6x_card.dev = &pdev->dev;
+ 
+-	platform_set_drvdata(pdev, card);
+ 	snd_soc_card_set_drvdata(card, machine);
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+ 	if (ret) {
 -- 
 2.35.1
 
