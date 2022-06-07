@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 601A7540968
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA0154132F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349932AbiFGSIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:08:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52736 "EHLO
+        id S1357347AbiFGT4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351037AbiFGSGn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:06:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF0738183;
-        Tue,  7 Jun 2022 10:47:50 -0700 (PDT)
+        with ESMTP id S1357509AbiFGTzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:55:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A38C9BAC7;
+        Tue,  7 Jun 2022 11:23:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98B43B8233F;
-        Tue,  7 Jun 2022 17:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CF5C385A5;
-        Tue,  7 Jun 2022 17:47:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 355386127C;
+        Tue,  7 Jun 2022 18:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B87C385A2;
+        Tue,  7 Jun 2022 18:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624046;
-        bh=6XMVPS8SiKn88Sfrb5bkzOBcMDeYi4pabtSf9+6MYXY=;
+        s=korg; t=1654626218;
+        bh=1vuZle/aJdf8IXFfMGotKYrT8HQrM8syeDFZeWAjPJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5UeAsGujxOED1PN1vwkx1nNmU+gfOiXFM5n8qdZQIzecVrsL3bCuGNrxERI+mZmd
-         rWYl315iUUVKTyyNbznUjKu4tnWMxdJdlXZ77evdA06gi//NaDQX0wg+JcIDgvimTM
-         iM5Obnp4BOfrI0KraLpoJEpYCDmx662tufRjsFwU=
+        b=AW6SA2lFoDclCIIhy+oJEk+vpoPdebWfWMbVduJjxud0vDm0zDwxFLeepp4t9L2LT
+         T+tWsEo+rcpiwdmkyINbzmdNcn4Argy5vSNDI3WpXOfXqi9+i345vZdlJ0E0E9vjyH
+         MeZcQmYgkQXkdhUeyc4jtji/O/6bx+4h1eYF4y2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/667] ath11k: acquire ab->base_lock in unassign when finding the peer by addr
+Subject: [PATCH 5.17 259/772] spi: spi-ti-qspi: Fix return value handling of wait_for_completion_timeout
 Date:   Tue,  7 Jun 2022 18:57:31 +0200
-Message-Id: <20220607164940.384733125@linuxfoundation.org>
+Message-Id: <20220607164956.654518382@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2db80f93869d491be57cbc2b36f30d0d3a0e5bde ]
+[ Upstream commit 8b1ea69a63eb62f97cef63e6d816b64ed84e8760 ]
 
-ath11k_peer_find_by_addr states via lockdep that ab->base_lock must be
-held when calling that function in order to protect the list. All
-callers except ath11k_mac_op_unassign_vif_chanctx have that lock
-acquired when calling ath11k_peer_find_by_addr. That lock is also not
-transitively held by a path towards ath11k_mac_op_unassign_vif_chanctx.
-The solution is to acquire the lock when calling
-ath11k_peer_find_by_addr inside ath11k_mac_op_unassign_vif_chanctx.
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-I am currently working on a static analyser to detect missing locks and
-this was a reported case. I manually verified the report by looking at
-the code, but I do not have real hardware so this is compile tested
-only.
-
-Fixes: 701e48a43e15 ("ath11k: add packet log support for QCA6390")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220314215253.92658-1-dossche.niels@gmail.com
+Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220411111034.24447-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/spi/spi-ti-qspi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 07004564a3ec..bf64ab6e8484 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -5592,6 +5592,7 @@ ath11k_mac_op_unassign_vif_chanctx(struct ieee80211_hw *hw,
- 	struct ath11k *ar = hw->priv;
- 	struct ath11k_base *ab = ar->ab;
- 	struct ath11k_vif *arvif = (void *)vif->drv_priv;
-+	struct ath11k_peer *peer;
+diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
+index e06aafe169e0..081da1fd3fd7 100644
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -448,6 +448,7 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
+ 	enum dma_ctrl_flags flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+ 	struct dma_async_tx_descriptor *tx;
  	int ret;
++	unsigned long time_left;
  
- 	mutex_lock(&ar->conf_mutex);
-@@ -5603,9 +5604,13 @@ ath11k_mac_op_unassign_vif_chanctx(struct ieee80211_hw *hw,
- 	WARN_ON(!arvif->is_started);
+ 	tx = dmaengine_prep_dma_memcpy(chan, dma_dst, dma_src, len, flags);
+ 	if (!tx) {
+@@ -467,9 +468,9 @@ static int ti_qspi_dma_xfer(struct ti_qspi *qspi, dma_addr_t dma_dst,
+ 	}
  
- 	if (ab->hw_params.vdev_start_delay &&
--	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR &&
--	    ath11k_peer_find_by_addr(ab, ar->mac_addr))
--		ath11k_peer_delete(ar, arvif->vdev_id, ar->mac_addr);
-+	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR) {
-+		spin_lock_bh(&ab->base_lock);
-+		peer = ath11k_peer_find_by_addr(ab, ar->mac_addr);
-+		spin_unlock_bh(&ab->base_lock);
-+		if (peer)
-+			ath11k_peer_delete(ar, arvif->vdev_id, ar->mac_addr);
-+	}
- 
- 	ret = ath11k_mac_vdev_stop(arvif);
- 	if (ret)
+ 	dma_async_issue_pending(chan);
+-	ret = wait_for_completion_timeout(&qspi->transfer_complete,
++	time_left = wait_for_completion_timeout(&qspi->transfer_complete,
+ 					  msecs_to_jiffies(len));
+-	if (ret <= 0) {
++	if (time_left == 0) {
+ 		dmaengine_terminate_sync(chan);
+ 		dev_err(qspi->dev, "DMA wait_for_completion_timeout\n");
+ 		return -ETIMEDOUT;
 -- 
 2.35.1
 
