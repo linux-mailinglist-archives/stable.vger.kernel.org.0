@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB5C541893
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E010540862
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379436AbiFGVMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43878 "EHLO
+        id S1348708AbiFGR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:58:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380286AbiFGVLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:46 -0400
+        with ESMTP id S1348810AbiFGR5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2CBF149D97;
-        Tue,  7 Jun 2022 11:53:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B313BFB5;
+        Tue,  7 Jun 2022 10:40:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 757B4B82018;
-        Tue,  7 Jun 2022 18:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CCAC385A2;
-        Tue,  7 Jun 2022 18:53:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CC4CB81F38;
+        Tue,  7 Jun 2022 17:40:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD885C385A5;
+        Tue,  7 Jun 2022 17:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628028;
-        bh=hPUbUC3wFDCP8aithaZ5HvATm1athO3Gq5+G/6a2wHU=;
+        s=korg; t=1654623632;
+        bh=bsTNda9l7crjrlZe3Ff5XFFGKZFrLAbAYQhN31eBlWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLiSVoJHZmQLofjDbPSIsK093pKMEaFtsurvIweOrLcirAZnRiTa+aWe9yvXsa6O9
-         gdeEk4yDfVMuAIJV/fJ1vXVPhs/epJr3lmKCFqQIbLamCj/rQboA8eSz3IDRLnKkjy
-         HO4xXLg9eqcTwosdBGeaYXre1mZZcTNiNOAt3uUU=
+        b=YD/1713iUgBzuo6/S/PN+C4Zejd5D91rTVuqvMGoh/W/PzYWq2thRA7a7vWRxR8sZ
+         lypK6JhFvvT7uh1WvDTXUGegZgr6m180XmjoM+85DBZfDEFMf8PM2QG9LHqJdlqyps
+         NBtlvAOa6SNNHQiEUaeg/jukiQ5bfk1gJD28xdWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 180/879] drm/amdgpu: Move mutex_init(&smu->message_lock) to smu_early_init()
-Date:   Tue,  7 Jun 2022 18:54:58 +0200
-Message-Id: <20220607165008.065260983@linuxfoundation.org>
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Dave Young <dyoung@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 034/667] x86/kexec: fix memory leak of elf header buffer
+Date:   Tue,  7 Jun 2022 18:54:59 +0200
+Message-Id: <20220607164935.818988514@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Baoquan He <bhe@redhat.com>
 
-[ Upstream commit 4b9caaa0281972ca5ea4e1cdac2e12b9df1ae00b ]
+commit b3e34a47f98974d0844444c5121aaff123004e57 upstream.
 
-Lockdep complains about the smu->message_lock mutex being used before
-it is initialized through the following call path:
+This is reported by kmemleak detector:
 
-amdgpu_device_init()
- amdgpu_dpm_mode2_reset()
-  smu_mode2_reset()
-   smu_v12_0_mode2_reset()
-    smu_cmn_send_smc_msg_with_param()
+unreferenced object 0xffffc900002a9000 (size 4096):
+  comm "kexec", pid 14950, jiffies 4295110793 (age 373.951s)
+  hex dump (first 32 bytes):
+    7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00  .ELF............
+    04 00 3e 00 01 00 00 00 00 00 00 00 00 00 00 00  ..>.............
+  backtrace:
+    [<0000000016a8ef9f>] __vmalloc_node_range+0x101/0x170
+    [<000000002b66b6c0>] __vmalloc_node+0xb4/0x160
+    [<00000000ad40107d>] crash_prepare_elf64_headers+0x8e/0xcd0
+    [<0000000019afff23>] crash_load_segments+0x260/0x470
+    [<0000000019ebe95c>] bzImage64_load+0x814/0xad0
+    [<0000000093e16b05>] arch_kexec_kernel_image_load+0x1be/0x2a0
+    [<000000009ef2fc88>] kimage_file_alloc_init+0x2ec/0x5a0
+    [<0000000038f5a97a>] __do_sys_kexec_file_load+0x28d/0x530
+    [<0000000087c19992>] do_syscall_64+0x3b/0x90
+    [<0000000066e063a4>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Move the mutex_init() call to smu_early_init() to fix the mutex being
-used before it is initialized.
+In crash_prepare_elf64_headers(), a buffer is allocated via vmalloc() to
+store elf headers.  While it's not freed back to system correctly when
+kdump kernel is reloaded or unloaded.  Then memory leak is caused.  Fix it
+by introducing x86 specific function arch_kimage_file_post_load_cleanup(),
+and freeing the buffer there.
 
-This fixes the following lockdep splat:
+And also remove the incorrect elf header buffer freeing code.  Before
+calling arch specific kexec_file loading function, the image instance has
+been initialized.  So 'image->elf_headers' must be NULL.  It doesn't make
+sense to free the elf header buffer in the place.
 
-[    3.867331] ------------[ cut here ]------------
-[    3.867335] fbcon: Taking over console
-[    3.867338] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-[    3.867340] WARNING: CPU: 14 PID: 491 at kernel/locking/mutex.c:579 __mutex_lock+0x44c/0x830
-[    3.867349] Modules linked in: amdgpu(+) crct10dif_pclmul drm_ttm_helper crc32_pclmul ttm crc32c_intel ghash_clmulni_intel hid_lg_g15 iommu_v2 sp5100_tco nvme gpu_sched drm_dp_helper nvme_core ccp wmi video hid_logitech_dj ip6_tables ip_tables ipmi_devintf ipmi_msghandler fuse i2c_dev
-[    3.867363] CPU: 14 PID: 491 Comm: systemd-udevd Tainted: G          I       5.18.0-rc5+ #33
-[    3.867366] Hardware name: Micro-Star International Co., Ltd. MS-7C95/B550M PRO-VDH WIFI (MS-7C95), BIOS 2.90 12/23/2021
-[    3.867369] RIP: 0010:__mutex_lock+0x44c/0x830
-[    3.867372] Code: ff 85 c0 0f 84 33 fc ff ff 8b 0d b7 50 25 01 85 c9 0f 85 25 fc ff ff 48 c7 c6 fb 41 82 99 48 c7 c7 6b 63 80 99 e8 88 2a f8 ff <0f> 0b e9 0b fc ff ff f6 83 b9 0c 00 00 01 0f 85 64 ff ff ff 4c 89
-[    3.867377] RSP: 0018:ffffaef8c0fc79f0 EFLAGS: 00010286
-[    3.867380] RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000027
-[    3.867382] RDX: ffff9ccc0dda0928 RSI: 0000000000000001 RDI: ffff9ccc0dda0920
-[    3.867384] RBP: ffffaef8c0fc7a80 R08: 0000000000000000 R09: ffffaef8c0fc7820
-[    3.867386] R10: 0000000000000003 R11: ffff9ccc2a2fffe8 R12: 0000000000000002
-[    3.867388] R13: ffff9cc990808058 R14: 0000000000000000 R15: ffff9cc98bfc0000
-[    3.867390] FS:  00007fc4d830f580(0000) GS:ffff9ccc0dd80000(0000) knlGS:0000000000000000
-[    3.867394] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.867396] CR2: 0000560a77031410 CR3: 000000010f522000 CR4: 0000000000750ee0
-[    3.867398] PKRU: 55555554
-[    3.867399] Call Trace:
-[    3.867401]  <TASK>
-[    3.867403]  ? smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
-[    3.867533]  ? __mutex_lock+0x90/0x830
-[    3.867535]  ? amdgpu_dpm_mode2_reset+0x37/0x60 [amdgpu]
-[    3.867653]  ? smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
-[    3.867758]  smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
-[    3.867857]  smu_mode2_reset+0x2b/0x50 [amdgpu]
-[    3.867953]  amdgpu_dpm_mode2_reset+0x46/0x60 [amdgpu]
-[    3.868096]  amdgpu_device_init.cold+0x1069/0x1e78 [amdgpu]
-[    3.868219]  ? _raw_spin_unlock_irqrestore+0x30/0x50
-[    3.868222]  ? pci_conf1_read+0x9b/0xf0
-[    3.868226]  amdgpu_driver_load_kms+0x15/0x110 [amdgpu]
-[    3.868314]  amdgpu_pci_probe+0x1a9/0x3c0 [amdgpu]
-[    3.868398]  local_pci_probe+0x41/0x80
-[    3.868401]  pci_device_probe+0xab/0x200
-[    3.868404]  really_probe+0x1a1/0x370
-[    3.868407]  __driver_probe_device+0xfc/0x170
-[    3.868410]  driver_probe_device+0x1f/0x90
-[    3.868412]  __driver_attach+0xbf/0x1a0
-[    3.868414]  ? __device_attach_driver+0xe0/0xe0
-[    3.868416]  bus_for_each_dev+0x65/0x90
-[    3.868419]  bus_add_driver+0x151/0x1f0
-[    3.868421]  driver_register+0x89/0xd0
-[    3.868423]  ? 0xffffffffc0bd4000
-[    3.868425]  do_one_initcall+0x5d/0x300
-[    3.868428]  ? do_init_module+0x22/0x240
-[    3.868431]  ? rcu_read_lock_sched_held+0x3c/0x70
-[    3.868434]  ? trace_kmalloc+0x30/0xe0
-[    3.868437]  ? kmem_cache_alloc_trace+0x1e6/0x3a0
-[    3.868440]  do_init_module+0x4a/0x240
-[    3.868442]  __do_sys_finit_module+0x93/0xf0
-[    3.868446]  do_syscall_64+0x5b/0x80
-[    3.868449]  ? rcu_read_lock_sched_held+0x3c/0x70
-[    3.868451]  ? lockdep_hardirqs_on_prepare+0xd9/0x180
-[    3.868454]  ? do_syscall_64+0x67/0x80
-[    3.868456]  ? do_syscall_64+0x67/0x80
-[    3.868458]  ? do_syscall_64+0x67/0x80
-[    3.868460]  ? do_syscall_64+0x67/0x80
-[    3.868462]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[    3.868465] RIP: 0033:0x7fc4d8ec1ced
-[    3.868467] Code: 5d c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d fb 70 0e 00 f7 d8 64 89 01 48
-[    3.868472] RSP: 002b:00007fff687ae6b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[    3.868475] RAX: ffffffffffffffda RBX: 0000560a76fbca60 RCX: 00007fc4d8ec1ced
-[    3.868477] RDX: 0000000000000000 RSI: 00007fc4d902343c RDI: 0000000000000011
-[    3.868479] RBP: 00007fc4d902343c R08: 0000000000000000 R09: 0000560a76fb59c0
-[    3.868481] R10: 0000000000000011 R11: 0000000000000246 R12: 0000000000020000
-[    3.868484] R13: 0000560a76f8bfd0 R14: 0000000000000000 R15: 0000560a76fc2d10
-[    3.868487]  </TASK>
-[    3.868489] irq event stamp: 120617
-[    3.868490] hardirqs last  enabled at (120617): [<ffffffff9817169e>] __up_console_sem+0x5e/0x70
-[    3.868494] hardirqs last disabled at (120616): [<ffffffff98171683>] __up_console_sem+0x43/0x70
-[    3.868497] softirqs last  enabled at (119684): [<ffffffff980ee83a>] __irq_exit_rcu+0xca/0x100
-[    3.868501] softirqs last disabled at (119679): [<ffffffff980ee83a>] __irq_exit_rcu+0xca/0x100
-[    3.868504] ---[ end trace 0000000000000000 ]---
+Three different people have reported three bugs about the memory leak on
+x86_64 inside Redhat.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220223113225.63106-2-bhe@redhat.com
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Acked-by: Dave Young <dyoung@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/machine_kexec_64.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-index f10a0256413e..32cff21f261c 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -576,6 +576,8 @@ static int smu_early_init(void *handle)
- 	smu->smu_baco.platform_support = false;
- 	smu->user_dpm_profile.fan_mode = -1;
- 
-+	mutex_init(&smu->message_lock);
-+
- 	adev->powerplay.pp_handle = smu;
- 	adev->powerplay.pp_funcs = &swsmu_pm_funcs;
- 
-@@ -975,8 +977,6 @@ static int smu_sw_init(void *handle)
- 	bitmap_zero(smu->smu_feature.supported, SMU_FEATURE_MAX);
- 	bitmap_zero(smu->smu_feature.allowed, SMU_FEATURE_MAX);
- 
--	mutex_init(&smu->message_lock);
+--- a/arch/x86/kernel/machine_kexec_64.c
++++ b/arch/x86/kernel/machine_kexec_64.c
+@@ -373,9 +373,6 @@ void machine_kexec(struct kimage *image)
+ #ifdef CONFIG_KEXEC_FILE
+ void *arch_kexec_kernel_image_load(struct kimage *image)
+ {
+-	vfree(image->elf_headers);
+-	image->elf_headers = NULL;
 -
- 	INIT_WORK(&smu->throttling_logging_work, smu_throttling_logging_work_fn);
- 	INIT_WORK(&smu->interrupt_work, smu_interrupt_work_fn);
- 	atomic64_set(&smu->throttle_int_counter, 0);
--- 
-2.35.1
-
+ 	if (!image->fops || !image->fops->load)
+ 		return ERR_PTR(-ENOEXEC);
+ 
+@@ -511,6 +508,15 @@ overflow:
+ 	       (int)ELF64_R_TYPE(rel[i].r_info), value);
+ 	return -ENOEXEC;
+ }
++
++int arch_kimage_file_post_load_cleanup(struct kimage *image)
++{
++	vfree(image->elf_headers);
++	image->elf_headers = NULL;
++	image->elf_headers_sz = 0;
++
++	return kexec_image_post_load_cleanup_default(image);
++}
+ #endif /* CONFIG_KEXEC_FILE */
+ 
+ static int
 
 
