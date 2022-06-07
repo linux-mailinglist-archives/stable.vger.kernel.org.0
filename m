@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF125540996
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883EF5419F1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236589AbiFGSLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51762 "EHLO
+        id S1378401AbiFGV1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349707AbiFGSIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:08:54 -0400
+        with ESMTP id S1378753AbiFGVX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51FDA6972D;
-        Tue,  7 Jun 2022 10:48:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215EF227CD0;
+        Tue,  7 Jun 2022 12:01:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 517F1B81F38;
-        Tue,  7 Jun 2022 17:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F46C385A5;
-        Tue,  7 Jun 2022 17:47:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C66CB82399;
+        Tue,  7 Jun 2022 19:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB705C385A5;
+        Tue,  7 Jun 2022 19:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624057;
-        bh=hUvwyKVOQbDpGx6Hckq8zm0lWzn9AMXQ9SVC87nl7bE=;
+        s=korg; t=1654628459;
+        bh=nJKABFV7L4RLPvBO5QH7DR8OColWYo8kBeH2aJhbCnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gWkCqU5Um48BwYXzVmVsLWteNu3Q3T9mByvHHna7AgatVXgKHoyDZSOk0Oe2+KT3
-         GraDzJ+L3rgLw+fWMcbKKA3P3uY2iL9iWn6f3v+wCHy986JFSmDF+GVkiLDC8Myy22
-         Eum7B3q3/nH23AbNymS8wjCYNo7JLBMnWFIojSjg=
+        b=DA/tqeg70Hs78LKpyAzy8D8TITYv6ApEobCGvXIEqtWB/XkZsL9diVfdvjaaeU26H
+         9RWbWNfKLhzpy7Ri7Clh/rIcv8eOAGjyq63IF7JNirSKw1z0W8zobi4S2T0ikDVKEo
+         U0lRK36v07EiPlKicsmohrg80HBQkFmPQh3RRg8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 190/667] drm/bridge: adv7511: clean up CEC adapter when probe fails
-Date:   Tue,  7 Jun 2022 18:57:35 +0200
-Message-Id: <20220607164940.501449023@linuxfoundation.org>
+Subject: [PATCH 5.18 338/879] ath9k_htc: fix potential out of bounds access with invalid rxstatus->rs_keyix
+Date:   Tue,  7 Jun 2022 18:57:36 +0200
+Message-Id: <20220607165012.669140851@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7ed2b0dabf7a22874cb30f8878df239ef638eb53 ]
+[ Upstream commit 2dc509305cf956381532792cb8dceef2b1504765 ]
 
-When the probe routine fails we also need to clean up the
-CEC adapter registered in adv7511_cec_init().
+The "rxstatus->rs_keyix" eventually gets passed to test_bit() so we need to
+ensure that it is within the bitmap.
 
-Fixes: 3b1b975003e4 ("drm: adv7511/33: add HDMI CEC support")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220321104705.2804423-1-l.stach@pengutronix.de
+drivers/net/wireless/ath/ath9k/common.c:46 ath9k_cmn_rx_accept()
+error: passing untrusted data 'rx_stats->rs_keyix' to 'test_bit()'
+
+Fixes: 4ed1a8d4a257 ("ath9k_htc: use ath9k_cmn_rx_accept")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220409061225.GA5447@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index c02f3ec60b04..8c2025584f1b 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -1306,6 +1306,7 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
- 	return 0;
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index 6a850a0bfa8a..a23eaca0326d 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -1016,6 +1016,14 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 		goto rx_next;
+ 	}
  
- err_unregister_cec:
-+	cec_unregister_adapter(adv7511->cec_adap);
- 	i2c_unregister_device(adv7511->i2c_cec);
- 	clk_disable_unprepare(adv7511->cec_clk);
- err_i2c_unregister_packet:
++	if (rxstatus->rs_keyix >= ATH_KEYMAX &&
++	    rxstatus->rs_keyix != ATH9K_RXKEYIX_INVALID) {
++		ath_dbg(common, ANY,
++			"Invalid keyix, dropping (keyix: %d)\n",
++			rxstatus->rs_keyix);
++		goto rx_next;
++	}
++
+ 	/* Get the RX status information */
+ 
+ 	memset(rx_status, 0, sizeof(struct ieee80211_rx_status));
 -- 
 2.35.1
 
