@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC88F5416E3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE1D5407D5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358843AbiFGU40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49850 "EHLO
+        id S1347584AbiFGRwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376818AbiFGUxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:53:15 -0400
+        with ESMTP id S1349411AbiFGRur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2DAC118010;
-        Tue,  7 Jun 2022 11:43:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BA8517048;
+        Tue,  7 Jun 2022 10:38:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D0C6B81FE1;
-        Tue,  7 Jun 2022 18:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1042C34115;
-        Tue,  7 Jun 2022 18:43:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F14CB822B5;
+        Tue,  7 Jun 2022 17:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FF3C385A5;
+        Tue,  7 Jun 2022 17:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627422;
-        bh=Mfy3ytbbDKigbAx7RnPOWXW8wcLTxwl+MTXvB2B/5Hs=;
+        s=korg; t=1654623464;
+        bh=PP6xuZ+OYIWi/Lg7w2BAYMZ4Np2wleQMLd4YyDw0zp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ap7mKn4ErWuHM16KceF0QckdYGvCRcTEy70HMSstKOpa4ayZtTuM2lIfEHzb3HIsR
-         7dhema9JWKKklEHIeVZtc7rr4jW3JvaJFdwxwbfD/Qgj8Tfx/5AN/X17rsg1+v2cOT
-         kv1G8DuTJbsvUrqvn4GbQDCvuhefAaSdFH5U2qtE=
+        b=zefBUM+UhjI3jzP8SF2JkbJzjaiKt7w5StznelQXkCO+fHWUEvdoKAQ0s3lEjalJ+
+         saLp9aY3phFYyWUq/7HqRIKRxWtvYf3LCjHXGxFFv5tuQzFF3mEQY/Twtxi6k+Okjx
+         jqpsd0b+NiopQgx6yTGCQogI670wQsoAtZuKdivk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.17 693/772] drm/nouveau/kms/nv50-: atom: fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 428/452] net: ipa: fix page free in ipa_endpoint_trans_release()
 Date:   Tue,  7 Jun 2022 19:04:45 +0200
-Message-Id: <20220607165009.473578541@linuxfoundation.org>
+Message-Id: <20220607164921.309516217@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 6ce4431c7ba7954c4fa6a96ce16ca1b2943e1a83 upstream.
+commit 155c0c90bca918de6e4327275dfc1d97fd604115 upstream.
 
-The bug is here:
-	return encoder;
+Currently the (possibly compound) page used for receive buffers are
+freed using __free_pages().  But according to this comment above the
+definition of that function, that's wrong:
+    If you want to use the page's reference count to decide when
+    to free the allocation, you should allocate a compound page,
+    and use put_page() instead of __free_pages().
 
-The list iterator value 'encoder' will *always* be set and non-NULL
-by drm_for_each_encoder_mask(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element found.
-Otherwise it will bypass some NULL checks and lead to invalid memory
-access passing the check.
+Convert the call to __free_pages() in ipa_endpoint_trans_release()
+to use put_page() instead.
 
-To fix this bug, just return 'encoder' when found, otherwise return
-NULL.
-
-Cc: stable@vger.kernel.org
-Fixes: 12885ecbfe62d ("drm/nouveau/kms/nvd9-: Add CRC support")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-[Changed commit title]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327073925.11121-1-xiam0nd.tong@gmail.com
+Fixes: ed23f02680caa ("net: ipa: define per-endpoint receive buffer size")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/atom.h |    6 +++---
- drivers/gpu/drm/nouveau/dispnv50/crc.c  |   27 ++++++++++++++++++++++-----
- 2 files changed, 25 insertions(+), 8 deletions(-)
+ drivers/net/ipa/ipa_endpoint.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/nouveau/dispnv50/atom.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/atom.h
-@@ -160,14 +160,14 @@ nv50_head_atom_get(struct drm_atomic_sta
- static inline struct drm_encoder *
- nv50_head_atom_get_encoder(struct nv50_head_atom *atom)
- {
--	struct drm_encoder *encoder = NULL;
-+	struct drm_encoder *encoder;
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -1179,7 +1179,7 @@ void ipa_endpoint_trans_release(struct i
+ 		struct page *page = trans->data;
  
- 	/* We only ever have a single encoder */
- 	drm_for_each_encoder_mask(encoder, atom->state.crtc->dev,
- 				  atom->state.encoder_mask)
--		break;
-+		return encoder;
- 
--	return encoder;
-+	return NULL;
+ 		if (page)
+-			__free_pages(page, get_order(IPA_RX_BUFFER_SIZE));
++			put_page(page);
+ 	}
  }
  
- #define nv50_wndw_atom(p) container_of((p), struct nv50_wndw_atom, state)
---- a/drivers/gpu/drm/nouveau/dispnv50/crc.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/crc.c
-@@ -390,9 +390,18 @@ void nv50_crc_atomic_check_outp(struct n
- 		struct nv50_head_atom *armh = nv50_head_atom(old_crtc_state);
- 		struct nv50_head_atom *asyh = nv50_head_atom(new_crtc_state);
- 		struct nv50_outp_atom *outp_atom;
--		struct nouveau_encoder *outp =
--			nv50_real_outp(nv50_head_atom_get_encoder(armh));
--		struct drm_encoder *encoder = &outp->base.base;
-+		struct nouveau_encoder *outp;
-+		struct drm_encoder *encoder, *enc;
-+
-+		enc = nv50_head_atom_get_encoder(armh);
-+		if (!enc)
-+			continue;
-+
-+		outp = nv50_real_outp(enc);
-+		if (!outp)
-+			continue;
-+
-+		encoder = &outp->base.base;
- 
- 		if (!asyh->clr.crc)
- 			continue;
-@@ -443,8 +452,16 @@ void nv50_crc_atomic_set(struct nv50_hea
- 	struct drm_device *dev = crtc->dev;
- 	struct nv50_crc *crc = &head->crc;
- 	const struct nv50_crc_func *func = nv50_disp(dev)->core->func->crc;
--	struct nouveau_encoder *outp =
--		nv50_real_outp(nv50_head_atom_get_encoder(asyh));
-+	struct nouveau_encoder *outp;
-+	struct drm_encoder *encoder;
-+
-+	encoder = nv50_head_atom_get_encoder(asyh);
-+	if (!encoder)
-+		return;
-+
-+	outp = nv50_real_outp(encoder);
-+	if (!outp)
-+		return;
- 
- 	func->set_src(head, outp->or, nv50_crc_source_type(outp, asyh->crc.src),
- 		      &crc->ctx[crc->ctx_idx]);
 
 
