@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA1154057A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615CD540A72
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346269AbiFGR0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
+        id S1350823AbiFGSTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:19:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346868AbiFGRZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B556D1109B4;
-        Tue,  7 Jun 2022 10:23:25 -0700 (PDT)
+        with ESMTP id S1352264AbiFGSRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D45379803;
+        Tue,  7 Jun 2022 10:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69611B81F38;
-        Tue,  7 Jun 2022 17:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A2AC385A5;
-        Tue,  7 Jun 2022 17:23:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33A26B82340;
+        Tue,  7 Jun 2022 17:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A01A4C3411C;
+        Tue,  7 Jun 2022 17:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622603;
-        bh=4lNzNS2p7KxnpndFtuhi60Ak7ru+mfW1yQXaFo4Cags=;
+        s=korg; t=1654624275;
+        bh=MhY5AKNn21dWYS0iPSQcwo1ibmMkfbI6/CS3dfxBLL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+nu8dYRQjSh7qHlbmFZNzsQLVYGZvOW5oVTtus8/ihjmm9JDWwQ6u3Q5+HM5pxZg
-         uY/FzPeEvNVcbE0hEHX2DnGfMHZNvxyX2qiK9xCN3G0/VFVTXUM/DIeV/k7vRDyLXS
-         dhk2EmIR6fHWe7Y98a5Ztl9b4pMhGUe/ulGTBtFk=
+        b=Y/A4bB9nXSjYlk1r+G0k1nolkh47lJ78geX2N81yrvaUPJYt4v+s0N5OuE8Q9mg7+
+         XNN9ffD6jQa8X8k1xfTMZK8TxE9qzbVjbI7grgWFEijvpiowW3fAXItJlIdG+PJcm7
+         9ahVujtGWeKF9auDCOFHsaZLmiDDxGDeEgG4vmpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/452] net: remove two BUG() from skb_checksum_help()
-Date:   Tue,  7 Jun 2022 18:58:45 +0200
-Message-Id: <20220607164910.577153212@linuxfoundation.org>
+Subject: [PATCH 5.15 261/667] mtd: rawnand: intel: fix possible null-ptr-deref in ebu_nand_probe()
+Date:   Tue,  7 Jun 2022 18:58:46 +0200
+Message-Id: <20220607164942.611137577@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d7ea0d9df2a6265b2b180d17ebc64b38105968fc ]
+[ Upstream commit ddf66aefd685fd46500b9917333e1b1e118276dc ]
 
-I have a syzbot report that managed to get a crash in skb_checksum_help()
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
 
-If syzbot can trigger these BUG(), it makes sense to replace
-them with more friendly WARN_ON_ONCE() since skb_checksum_help()
-can instead return an error code.
-
-Note that syzbot will still crash there, until real bug is fixed.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0b1039f016e8 ("mtd: rawnand: Add NAND controller support on Intel LGM SoC")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220426084913.4021868-2-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/intel-nand-controller.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 0bab2aca07fd..af52050b0f38 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3241,11 +3241,15 @@ int skb_checksum_help(struct sk_buff *skb)
- 	}
+diff --git a/drivers/mtd/nand/raw/intel-nand-controller.c b/drivers/mtd/nand/raw/intel-nand-controller.c
+index 7c1c80dae826..e91b879b32bd 100644
+--- a/drivers/mtd/nand/raw/intel-nand-controller.c
++++ b/drivers/mtd/nand/raw/intel-nand-controller.c
+@@ -619,9 +619,9 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	resname = devm_kasprintf(dev, GFP_KERNEL, "nand_cs%d", cs);
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, resname);
+ 	ebu_host->cs[cs].chipaddr = devm_ioremap_resource(dev, res);
+-	ebu_host->cs[cs].nand_pa = res->start;
+ 	if (IS_ERR(ebu_host->cs[cs].chipaddr))
+ 		return PTR_ERR(ebu_host->cs[cs].chipaddr);
++	ebu_host->cs[cs].nand_pa = res->start;
  
- 	offset = skb_checksum_start_offset(skb);
--	BUG_ON(offset >= skb_headlen(skb));
-+	ret = -EINVAL;
-+	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
-+		goto out;
-+
- 	csum = skb_checksum(skb, offset, skb->len - offset, 0);
- 
- 	offset += skb->csum_offset;
--	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
-+	if (WARN_ON_ONCE(offset + sizeof(__sum16) > skb_headlen(skb)))
-+		goto out;
- 
- 	ret = skb_ensure_writable(skb, offset + sizeof(__sum16));
- 	if (ret)
+ 	ebu_host->clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(ebu_host->clk))
 -- 
 2.35.1
 
