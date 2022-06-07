@@ -2,247 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 683BF53F52A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 06:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B8053F544
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 06:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229797AbiFGEhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 00:37:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48180 "EHLO
+        id S236629AbiFGErx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 00:47:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229773AbiFGEhb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 00:37:31 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59DE62126A
-        for <stable@vger.kernel.org>; Mon,  6 Jun 2022 21:37:29 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id mh16-20020a17090b4ad000b001e8313301f1so6964119pjb.1
-        for <stable@vger.kernel.org>; Mon, 06 Jun 2022 21:37:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=voaWoWbyoU8gMiLHfXJjWyhBbZZ4m7/TQmGRAQ4AsYs=;
-        b=0iJJj5xJUBhyhB+L/kJH+1cO87YEWjSd99oHbfd4gAWi+ICOy7dfTI58k/Krw1MU7h
-         rWiTF2Gx30EOzNiQxd3oZUmxgdt0T5LGKyfXJmcxhKEiGsIns9+01ke2puslRDcI/XXE
-         OfiR6zPDyEk49NnEPpYOtZqCc56J7ywxWCyiUmjoEJe8ZPQUQ8r9m/mJcm+F/ny4xIM5
-         MVo4EgkfnbUzFrp/V5TtVV0tfUufT8XlL3tlKQ4oD8ETTT+jmReunIGFM3B9PxijZcVB
-         B8ZXwAwtfqksYhK15WIp39ouAkAi2+yJkgDsj99SmjysWvwV94o3Qj+O5KaJIu4o8v/x
-         dGRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=voaWoWbyoU8gMiLHfXJjWyhBbZZ4m7/TQmGRAQ4AsYs=;
-        b=1geyN8z5jPGVZnL6vS5vc1nusoOcopCOPJU4EWAeR8MrBF9Pai/nNbu9KDNQrraWUN
-         M+vBJgSBcr+lMGgbMwZzICK9K4Png8UUXSIdcSDNr5pILsosF9UsYNnDoCIExoPd1JIa
-         TUjZkeHdCPGLhj2qBjhxXaF3jargwMmiV9Fg4NSG8oH8OCfHThYeOJuw9GNsMWGrIT7D
-         u2MLJX77RM6mqktxo/GL5uyIU3yPbKkKAQiVPYslmsaI/mrQTd9K1jQGLR71j6igFpZM
-         ytQq9eL5zWlRxAo4dZIlrO47LgIA2X7uzupk3Qr8FJG+mT3SQuSajakfeE65Pp6Ft9IN
-         gerw==
-X-Gm-Message-State: AOAM533b5g6jjAuezTcOGeAUYaDja5x+4nMXX40SYyAduOnOhAWgzn5t
-        jlyViAQcqZeAnX+C+uxGeqO7x3nnHW5Jp7+A
-X-Google-Smtp-Source: ABdhPJzQ5xkMhJhKXq6ziBxdOWCax6ZfDjzdV0SFKaVXwKAkkMEyvms/qBkP+wZ96loZ14UL5/5qZQ==
-X-Received: by 2002:a17:902:b215:b0:165:7bdd:a9f1 with SMTP id t21-20020a170902b21500b001657bdda9f1mr27796116plr.41.1654576648577;
-        Mon, 06 Jun 2022 21:37:28 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ix9-20020a170902f80900b0016797c486e4sm256200plb.259.2022.06.06.21.37.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jun 2022 21:37:27 -0700 (PDT)
-Message-ID: <629ed607.1c69fb81.137c0.0cfa@mx.google.com>
-Date:   Mon, 06 Jun 2022 21:37:27 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236663AbiFGErk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 00:47:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ABCF4FC50;
+        Mon,  6 Jun 2022 21:47:31 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97BDEB81CA9;
+        Tue,  7 Jun 2022 04:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8543DC385A5;
+        Tue,  7 Jun 2022 04:47:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654577249;
+        bh=76beSbAffKgR1ju5ajqnTe0btnAx0H79wqEaXuHKV84=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vdznkf0hzD5GoIe2jdZ7YMCofYd3kNDph5qA3gb884gpKNyzvplB8+kpRTAVkA4Tp
+         AKynY7LKnpscONFXPmS+y03uIbJduuGre07QmYHITwSXReGSuED5lq2tTa1eAlScnL
+         r2dC2vROka4IQM9HQ/fgyd0xDi9I9i1cTPMjzdEo=
+Date:   Tue, 7 Jun 2022 06:47:26 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Dave Chinner <david@fromorbit.com>
+Cc:     Amir Goldstein <amir73il@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Dave Chinner <dchinner@redhat.com>
+Subject: Re: [PATCH 5.10 v2 8/8] xfs: assert in xfs_btree_del_cursor should
+ take into account error
+Message-ID: <Yp7YXqn4BIZrebq7@kroah.com>
+References: <20220606143255.685988-1-amir73il@gmail.com>
+ <20220606143255.685988-9-amir73il@gmail.com>
+ <20220606213042.GS227878@dread.disaster.area>
+ <CAOQ4uxhCjLoYOd7X-yFQOA24YtychwKz3wUfX79zUwFs2o3ziw@mail.gmail.com>
+ <20220607030147.GU227878@dread.disaster.area>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.45-652-g938d073d082af
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 156 runs,
- 4 regressions (v5.15.45-652-g938d073d082af)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220607030147.GU227878@dread.disaster.area>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 156 runs, 4 regressions (v5.15.45-652-g938d0=
-73d082af)
+On Tue, Jun 07, 2022 at 01:01:47PM +1000, Dave Chinner wrote:
+> On Tue, Jun 07, 2022 at 01:33:06AM +0300, Amir Goldstein wrote:
+> > On Tue, Jun 7, 2022 at 12:30 AM Dave Chinner <david@fromorbit.com> wrote:
+> > >
+> > > On Mon, Jun 06, 2022 at 05:32:55PM +0300, Amir Goldstein wrote:
+> > > > From: Dave Chinner <dchinner@redhat.com>
+> > > >
+> > > > commit 56486f307100e8fc66efa2ebd8a71941fa10bf6f upstream.
+> > > >
+> > > > xfs/538 on a 1kB block filesystem failed with this assert:
+> > > >
+> > > > XFS: Assertion failed: cur->bc_btnum != XFS_BTNUM_BMAP || cur->bc_ino.allocated == 0 || xfs_is_shutdown(cur->bc_mp), file: fs/xfs/libxfs/xfs_btree.c, line: 448
+> > >
+> > > You haven't mentioned that you combined a second upstream
+> > > commit into this patch to fix the bug in this commit.....
+> > >
+> > 
+> > I am confused.
+> > 
+> > patch [5.10 7/8] xfs: consider shutdown in bmapbt cursor delete assert
+> > is the patch that I backported from 5.12 and posted for review.
+> > This patch [5.10 8/8] is the patch from 5.19-rc1 that you pointed out
+> > that I should take to fix the bug in patch [5.10 7/8].
+> 
+> Sorry, I missed that this was a new patch because the set looked
+> the same as the last posting and you said in the summary letter:
+> 
+> "These fixes have been posted to review on xfs list [1]."
+> 
+> Except this patch *wasn't part of that set*. I mistook it for the
+> patch that introduced the assert because I assumed from the above
+> statement, the absence of a changelog in cover letter and that you'd
+> sent it to Greg meant for inclusion meant *no new patches had been
+> added*.
+> 
+> Add to that the fact I rushed through them because I saw that Greg
+> has already queued these before anyone had any time to actually
+> review the posting. Hence the timing of the release of unreviewed
+> patches has been taken completely out of our control, and so I
+> rushed through them and misinterpreted what I was seeing.
+> 
+> That's not how the review process is supposed to work. You need to
+> wait for people to review the changes and ACK them before then
+> asking for them to be merged into the stable trees. You need to have
+> changelogs in your summary letters. You need to do all the things
+> that you've been complaining bitterly about over the past month that
+> upstream developers weren't doing 18 months ago.
 
-Regressions Summary
--------------------
+I thought these had already been reviewed, which is why I took them.
 
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
-         | 1          =
+And there still are days before these go anywhere, just adding them to
+the stable queue doesn't mean they are "set in stone".
 
-rk3288-veyron-jaq   | arm   | lab-collabora | gcc-10   | multi_v7_defconfig=
-         | 1          =
+Heck, even if they do get merged into a stable release, 'git revert' is
+our friend here, and we can easily revert anything that is found to be
+wrong.
 
-rk3399-gru-kevin    | arm64 | lab-collabora | gcc-10   | defconfig+arm64-ch=
-romebook | 1          =
+> And I notice that you've already sent out yet another set of stable
+> patches for review despite the paint not even being dry on these
+> ones. Not to mention that there's a another set of different 5.15
+> stable patches out for review as well.
+> 
+> This is not a sustainable process.
+> 
+> Seriously: slow down and stop being so damn aggressive. Let everyone
+> catch up and build sustainable processes and timetables. If you keep
+> going like this, you are going break people.
 
-tegra124-nyan-big   | arm   | lab-collabora | gcc-10   | tegra_defconfig   =
-         | 1          =
+What am I supposed to do here, not take patches you all send me?  Wait
+X number of days?
 
+totally confused,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.45-652-g938d073d082af/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.45-652-g938d073d082af
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      938d073d082afdc040999061269d2e1a86b10944 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-r8a77950-salvator-x | arm64 | lab-baylibre  | gcc-10   | defconfig         =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629eb1e3a4af86a8fda39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629eb1e3a4af86a8fda39=
-bce
-        new failure (last pass: v5.15.43-154-g1ef22a290e0e) =
-
- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-rk3288-veyron-jaq   | arm   | lab-collabora | gcc-10   | multi_v7_defconfig=
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629ecfa593f7bd2938a39bd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
-288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
-288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629ecfa593f7bd2938a39=
-bd1
-        new failure (last pass: v5.15.43-212-g8b5c4320ffac2) =
-
- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-rk3399-gru-kevin    | arm64 | lab-collabora | gcc-10   | defconfig+arm64-ch=
-romebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629e9f093379fa9923a39bfb
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/629e9f093379fa9923a39c1d
-        failing since 91 days (last pass: v5.15.26-42-gc89c0807b943, first =
-fail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-06-07T00:42:23.915240  <8>[   59.648268] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-06-07T00:42:24.938609  /lava-6556965/1/../bin/lava-test-case   =
-
- =
-
-
-
-platform            | arch  | lab           | compiler | defconfig         =
-         | regressions
---------------------+-------+---------------+----------+-------------------=
----------+------------
-tegra124-nyan-big   | arm   | lab-collabora | gcc-10   | tegra_defconfig   =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/629ec51e15953beaf2a39bf4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra1=
-24-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-652-g938d073d082af/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra1=
-24-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/629ec51e15953beaf2a39=
-bf5
-        failing since 13 days (last pass: v5.15.40-102-g526a14d366391, firs=
-t fail: v5.15.41-132-gede7034a09d1) =
-
- =20
+greg k-h
