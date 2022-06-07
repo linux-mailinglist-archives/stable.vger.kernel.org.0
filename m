@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F0D3540B9F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B272F541B8E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:49:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239106AbiFGS3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:29:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35198 "EHLO
+        id S1382032AbiFGVtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352546AbiFGS0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:26:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95B016F351;
-        Tue,  7 Jun 2022 10:54:54 -0700 (PDT)
+        with ESMTP id S1381444AbiFGVsM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:48:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF40239099;
+        Tue,  7 Jun 2022 12:08:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DBC8B82368;
-        Tue,  7 Jun 2022 17:54:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A648C34119;
-        Tue,  7 Jun 2022 17:54:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66965617DA;
+        Tue,  7 Jun 2022 19:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 777DAC385A2;
+        Tue,  7 Jun 2022 19:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624493;
-        bh=+G5GEmz+BT2JKSlxb2wRNzIYN6rxnqFYaiTdGexDj70=;
+        s=korg; t=1654628890;
+        bh=7gLmPXzMhNy7D2VimkqVQcs4oFEM8KSRbDToOpCrFlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r46ps2o+0IzlWkQRFHJZ/EhbB4ddVx8meCIoAn87qdhfgrzIfSB4MzS2znrxmpaxI
-         waFpJcFFgghaKdt8qRQMSkSvXdcdvmt9twBTt87m7UWFV2I+AbETl4ynfWYqVao9Ku
-         ++l9bjCv8M/coVZcrjkD12puLMu6sUulwWqlOsHI=
+        b=s6LAoqZy4UdzmE6fa9NbIkk/cQ1oBrhk2023b8W6wn44m/JhzGOCoVMi8bnwIQv2M
+         SncGcolC8XnX68/t1qRKCp1LuJm1lznpXO5cLccFPhPSceaYC122ZJdHdDIWsu1qPu
+         Zi/JFMMbjd/KNL5gOKSizLCAbGyXyrAf8FweiuGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Ritesh Harjani <ritesh.list@gmail.com>,
-        Lukas Czerner <lczerner@redhat.com>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 345/667] ext4: reject the commit option on ext2 filesystems
+Subject: [PATCH 5.18 492/879] thermal/drivers/broadcom: Fix potential NULL dereference in sr_thermal_probe
 Date:   Tue,  7 Jun 2022 19:00:10 +0200
-Message-Id: <20220607164945.107545099@linuxfoundation.org>
+Message-Id: <20220607165017.152295215@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit cb8435dc8ba33bcafa41cf2aa253794320a3b8df ]
+[ Upstream commit e20d136ec7d6f309989c447638365840d3424c8e ]
 
-The 'commit' option is only applicable for ext3 and ext4 filesystems,
-and has never been accepted by the ext2 filesystem driver, so the ext4
-driver shouldn't allow it on ext2 filesystems.
+platform_get_resource() may return NULL, add proper check to
+avoid potential NULL dereferencing.
 
-This fixes a failure in xfstest ext4/053.
-
-Fixes: 8dc0aa8cf0f7 ("ext4: check incompatible mount options while mounting ext2/3")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Link: https://lore.kernel.org/r/20220510183232.172615-1-ebiggers@kernel.org
+Fixes: 250e211057c72 ("thermal: broadcom: Add Stingray thermal driver")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Link: https://lore.kernel.org/r/20220425092929.90412-1-zhengyongjun3@huawei.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/broadcom/sr-thermal.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index d12f11c6fbf2..10d5ee6c3edd 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1934,6 +1934,7 @@ static const struct mount_opts {
- 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
- 	{Opt_warn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_SET},
- 	{Opt_nowarn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_CLEAR},
-+	{Opt_commit, 0, MOPT_NO_EXT2},
- 	{Opt_nojournal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
- 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
- 	{Opt_journal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
+diff --git a/drivers/thermal/broadcom/sr-thermal.c b/drivers/thermal/broadcom/sr-thermal.c
+index 475ce2900771..85ab9edd580c 100644
+--- a/drivers/thermal/broadcom/sr-thermal.c
++++ b/drivers/thermal/broadcom/sr-thermal.c
+@@ -60,6 +60,9 @@ static int sr_thermal_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -ENOENT;
++
+ 	sr_thermal->regs = (void __iomem *)devm_memremap(&pdev->dev, res->start,
+ 							 resource_size(res),
+ 							 MEMREMAP_WB);
 -- 
 2.35.1
 
