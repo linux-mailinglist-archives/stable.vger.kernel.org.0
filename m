@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C76B05414D3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1862A5405F8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358927AbiFGUWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:22:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47442 "EHLO
+        id S1347016AbiFGRck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359203AbiFGUWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:22:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091AD1451FD;
-        Tue,  7 Jun 2022 11:31:26 -0700 (PDT)
+        with ESMTP id S1347088AbiFGRaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B24FF589;
+        Tue,  7 Jun 2022 10:25:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97FC461295;
-        Tue,  7 Jun 2022 18:31:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4232C385A5;
-        Tue,  7 Jun 2022 18:31:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 712F9B81F38;
+        Tue,  7 Jun 2022 17:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFB8C34115;
+        Tue,  7 Jun 2022 17:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626685;
-        bh=dJUCVa4nIa8YINdSoor1J/gc2l6XzUX9TFZT4NQvPgc=;
+        s=korg; t=1654622735;
+        bh=4en+cC/nYj++7MgCIJDMIe5jSsByg+LEvsp7KKofpjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGBcaAcT52IwaiFpdplmUD7TZPpWKAk3cG7lQtl4qcJ4NkqQq3bqaB5W3r8rvoPzv
-         MHQRNqMwz3jmCNISdT8scqtrRNj6XB6hq1u9+p//p6MUyxrU8eQxEV21iGZ/EjUcA4
-         r5U667Xv3skpMKnWKoraK855RWJLijqkn+181UGo=
+        b=iFBA9eCaUP6+UQRBCqUHwn+xfBC82ia1J6JinOyEExCME4Q5KHnDQQAMMMT2aKWwf
+         bx6PbZpv0WT+M2n7IFkNTYLG+5kPUTs0vRiC3+dJdNgUdrXY/Lr7BwMeeN2hKQzkkg
+         JzgC2Uahux8WQuhWB3IkQv6ZJHt1MR1h3mJLMk6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 430/772] ASoC: max98090: Move check for invalid values before casting in max98090_put_enab_tlv()
+Subject: [PATCH 5.10 165/452] selftests/resctrl: Fix null pointer dereference on open failed
 Date:   Tue,  7 Jun 2022 19:00:22 +0200
-Message-Id: <20220607165001.673831982@linuxfoundation.org>
+Message-Id: <20220607164913.480453834@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit f7a344468105ef8c54086dfdc800e6f5a8417d3e ]
+[ Upstream commit c7b607fa9325ccc94982774c505176677117689c ]
 
-Validation of signed input should be done before casting to unsigned int.
+Currently if opening /dev/null fails to open then file pointer fp
+is null and further access to fp via fprintf will cause a null
+pointer dereference. Fix this by returning a negative error value
+when a null fp is detected.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+Detected using cppcheck static analysis:
+tools/testing/selftests/resctrl/fill_buf.c:124:6: note: Assuming
+that condition '!fp' is not redundant
+ if (!fp)
+     ^
+tools/testing/selftests/resctrl/fill_buf.c:126:10: note: Null
+pointer dereference
+ fprintf(fp, "Sum: %d ", ret);
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Suggested-by: Mark Brown <broonie@kernel.org>
-Fixes: 2fbe467bcbfc ("ASoC: max98090: Reject invalid values in custom control put()")
-Link: https://lore.kernel.org/r/1652999486-29653-1-git-send-email-khoroshilov@ispras.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a2561b12fe39 ("selftests/resctrl: Add built in benchmark")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/testing/selftests/resctrl/fill_buf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 62b41ca050a2..5513acd360b8 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -393,7 +393,8 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
- 	struct soc_mixer_control *mc =
- 		(struct soc_mixer_control *)kcontrol->private_value;
- 	unsigned int mask = (1 << fls(mc->max)) - 1;
--	unsigned int sel = ucontrol->value.integer.value[0];
-+	int sel_unchecked = ucontrol->value.integer.value[0];
-+	unsigned int sel;
- 	unsigned int val = snd_soc_component_read(component, mc->reg);
- 	unsigned int *select;
+diff --git a/tools/testing/selftests/resctrl/fill_buf.c b/tools/testing/selftests/resctrl/fill_buf.c
+index 51e5cf22632f..56ccbeae0638 100644
+--- a/tools/testing/selftests/resctrl/fill_buf.c
++++ b/tools/testing/selftests/resctrl/fill_buf.c
+@@ -121,8 +121,10 @@ static int fill_cache_read(unsigned char *start_ptr, unsigned char *end_ptr,
  
-@@ -413,8 +414,9 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
- 
- 	val = (val >> mc->shift) & mask;
- 
--	if (sel < 0 || sel > mc->max)
-+	if (sel_unchecked < 0 || sel_unchecked > mc->max)
- 		return -EINVAL;
-+	sel = sel_unchecked;
- 
- 	*select = sel;
+ 	/* Consume read result so that reading memory is not optimized out. */
+ 	fp = fopen("/dev/null", "w");
+-	if (!fp)
++	if (!fp) {
+ 		perror("Unable to write to /dev/null");
++		return -1;
++	}
+ 	fprintf(fp, "Sum: %d ", ret);
+ 	fclose(fp);
  
 -- 
 2.35.1
