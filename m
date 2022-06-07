@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76162541550
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E085540684
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378225AbiFGUfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:35:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35274 "EHLO
+        id S237419AbiFGRgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:36:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359481AbiFGU2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6121DE2F6;
-        Tue,  7 Jun 2022 11:34:10 -0700 (PDT)
+        with ESMTP id S1345104AbiFGReA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:34:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F6E6106341;
+        Tue,  7 Jun 2022 10:30:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE5D260906;
-        Tue,  7 Jun 2022 18:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF40C385A2;
-        Tue,  7 Jun 2022 18:34:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7B0160C7C;
+        Tue,  7 Jun 2022 17:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 021DCC34115;
+        Tue,  7 Jun 2022 17:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626849;
-        bh=jqHGMCzx24qQKDPktTXW/vu9addVIfjBqKQ83UTvzSY=;
+        s=korg; t=1654623005;
+        bh=TEyi3OH9X77Dmi3sI/sc/3+TjArekS69CqgUMczDuug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1dZTq+Axg4JH7LmSXkOLwjDvGFvKyRQsvDZX+tKo2o+O7OjZwQ15QWGtaM8fz0NF
-         lavxyR1sZtII4IBABz0tla6qxEHqDw0NJx62rY4E0EhSXS0+GRr495fGlUg3T4OVzs
-         FC/OCj7KsnAxUlt92iusQzGR0fUte6VRgQEmNnhU=
+        b=oeGiFoilIXkFCvEKGg1MVqaIkdiE7O/VWBgCgJ9yuaniCa6f9ENOKxALZ7HM+gLkB
+         LXpp0dEC3NeJIqq3AhG8Y2iqazemXmTUyO50NF53qTiXFta6MenggRmEkvAeMhWlyZ
+         UomPHaa4Q9QZIdkSxQoOKM/+svmfCVnWJHg2tye8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Jessica Yu <jeyu@kernel.org>,
-        Matthias Maennich <maennich@google.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 527/772] module.h: simplify MODULE_IMPORT_NS
+Subject: [PATCH 5.10 262/452] soc: qcom: smsm: Fix missing of_node_put() in smsm_parse_ipc
 Date:   Tue,  7 Jun 2022 19:01:59 +0200
-Message-Id: <20220607165004.503229394@linuxfoundation.org>
+Message-Id: <20220607164916.361415353@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 80140a81f7f833998d732102eea0fea230b88067 ]
+[ Upstream commit aad66a3c78da668f4506356c2fdb70b7a19ecc76 ]
 
-In commit ca321ec74322 ("module.h: allow #define strings to work with
-MODULE_IMPORT_NS") I fixed up the MODULE_IMPORT_NS() macro to allow
-defined strings to work with it.  Unfortunatly I did it in a two-stage
-process, when it could just be done with the __stringify() macro as
-pointed out by Masahiro Yamada.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Clean this up to only be one macro instead of two steps to achieve the
-same end result.
-
-Fixes: ca321ec74322 ("module.h: allow #define strings to work with MODULE_IMPORT_NS")
-Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Matthias Maennich <maennich@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308073648.24634-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/module.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/soc/qcom/smsm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/module.h b/include/linux/module.h
-index 1e135fd5c076..d5e9066990ca 100644
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -290,8 +290,7 @@ extern typeof(name) __mod_##type##__##name##_device_table		\
-  * files require multiple MODULE_FIRMWARE() specifiers */
- #define MODULE_FIRMWARE(_firmware) MODULE_INFO(firmware, _firmware)
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index c428d0f78816..6564f15c5319 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -359,6 +359,7 @@ static int smsm_parse_ipc(struct qcom_smsm *smsm, unsigned host_id)
+ 		return 0;
  
--#define _MODULE_IMPORT_NS(ns)	MODULE_INFO(import_ns, #ns)
--#define MODULE_IMPORT_NS(ns)	_MODULE_IMPORT_NS(ns)
-+#define MODULE_IMPORT_NS(ns)	MODULE_INFO(import_ns, __stringify(ns))
- 
- struct notifier_block;
+ 	host->ipc_regmap = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(host->ipc_regmap))
+ 		return PTR_ERR(host->ipc_regmap);
  
 -- 
 2.35.1
