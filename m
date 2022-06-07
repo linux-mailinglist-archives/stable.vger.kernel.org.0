@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C595407CD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B34C55416AE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347134AbiFGRwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59172 "EHLO
+        id S1377439AbiFGUyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349258AbiFGRul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:41 -0400
+        with ESMTP id S1378042AbiFGUvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC9E7C158;
-        Tue,  7 Jun 2022 10:38:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E35185C86;
+        Tue,  7 Jun 2022 11:41:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F7E9B822B4;
-        Tue,  7 Jun 2022 17:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E55EC385A5;
-        Tue,  7 Jun 2022 17:37:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67A82B822C0;
+        Tue,  7 Jun 2022 18:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E04C34115;
+        Tue,  7 Jun 2022 18:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623461;
-        bh=9cwsQzx9KFuoGCP4gbpCTyY9CMxz32hlrdPF6P5tOtk=;
+        s=korg; t=1654627290;
+        bh=5eZbs3RUyx8krHHab6EXWvD9mRyJfw/nCvHv1W7UiA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPP9yB1Hitv870IPPC7Ap0h1OcnCfe2OpQX9eVQ+Xu1KEhO+phVNG1Q10SgHDStBN
-         J/wLH49j9Hvdelx7pk6HZdlqSPYmYy//t2ntogNO+15Kv00W8BvUQBbvPFjVSit1qN
-         0IwDxcavdQuxuNGEBlxk5VKQ2IIW0ztQI8usLdAQ=
+        b=oLnaD/jdgWzC6Bu+uBLr+0IRQMFRxYMGuX1JfehmjZLyFPiWwW6m90SQTG3P7vC++
+         jemGmWuuWmPPS7PoD5dL7zWdCySbzba8+3GKme6o5dvaZRG3rEmOMUVWzeH10/zj5D
+         K8nGnkwbrf64zgqMY2O4PU/liV2gi5bgfSGwtwbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.10 419/452] ARM: dts: s5pv210: Remove spi-cs-high on panel in Aries
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.17 684/772] selftests/landlock: Test landlock_create_ruleset(2) argument check ordering
 Date:   Tue,  7 Jun 2022 19:04:36 +0200
-Message-Id: <20220607164921.042633882@linuxfoundation.org>
+Message-Id: <20220607165009.212656492@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 096f58507374e1293a9e9cff8a1ccd5f37780a20 upstream.
+commit 6533d0c3a86ee1cc74ff37ac92ca597deb87015c upstream.
 
-Since commit 766c6b63aa04 ("spi: fix client driver breakages when using
-GPIO descriptors"), the panel has been blank due to an inverted CS GPIO.
-In order to correct this, drop the spi-cs-high from the panel SPI device.
+Add inval_create_ruleset_arguments, extension of
+inval_create_ruleset_flags, to also check error ordering for
+landlock_create_ruleset(2).
 
-Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/CY4PR04MB05670C771062570E911AF3B4CB1C9@CY4PR04MB0567.namprd04.prod.outlook.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+This is similar to the previous commit checking landlock_add_rule(2).
+
+Test coverage for security/landlock is 94.4% of 504 lines accorging to
+gcc/gcov-11.
+
+Link: https://lore.kernel.org/r/20220506160820.524344-11-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/s5pv210-aries.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ tools/testing/selftests/landlock/base_test.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/s5pv210-aries.dtsi b/arch/arm/boot/dts/s5pv210-aries.dtsi
-index c8f1c324a6c2..dba186d57924 100644
---- a/arch/arm/boot/dts/s5pv210-aries.dtsi
-+++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
-@@ -564,7 +564,6 @@ panel@0 {
- 			reset-gpios = <&mp05 5 GPIO_ACTIVE_LOW>;
- 			vdd3-supply = <&ldo7_reg>;
- 			vci-supply = <&ldo17_reg>;
--			spi-cs-high;
- 			spi-max-frequency = <1200000>;
+--- a/tools/testing/selftests/landlock/base_test.c
++++ b/tools/testing/selftests/landlock/base_test.c
+@@ -97,14 +97,17 @@ TEST(abi_version)
+ 	ASSERT_EQ(EINVAL, errno);
+ }
  
- 			pinctrl-names = "default";
--- 
-2.36.1
-
+-TEST(inval_create_ruleset_flags)
++/* Tests ordering of syscall argument checks. */
++TEST(create_ruleset_checks_ordering)
+ {
+ 	const int last_flag = LANDLOCK_CREATE_RULESET_VERSION;
+ 	const int invalid_flag = last_flag << 1;
++	int ruleset_fd;
+ 	const struct landlock_ruleset_attr ruleset_attr = {
+ 		.handled_access_fs = LANDLOCK_ACCESS_FS_READ_FILE,
+ 	};
+ 
++	/* Checks priority for invalid flags. */
+ 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 0, invalid_flag));
+ 	ASSERT_EQ(EINVAL, errno);
+ 
+@@ -119,6 +122,22 @@ TEST(inval_create_ruleset_flags)
+ 		  landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr),
+ 					  invalid_flag));
+ 	ASSERT_EQ(EINVAL, errno);
++
++	/* Checks too big ruleset_attr size. */
++	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, -1, 0));
++	ASSERT_EQ(E2BIG, errno);
++
++	/* Checks too small ruleset_attr size. */
++	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 0, 0));
++	ASSERT_EQ(EINVAL, errno);
++	ASSERT_EQ(-1, landlock_create_ruleset(&ruleset_attr, 1, 0));
++	ASSERT_EQ(EINVAL, errno);
++
++	/* Checks valid call. */
++	ruleset_fd =
++		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
++	ASSERT_LE(0, ruleset_fd);
++	ASSERT_EQ(0, close(ruleset_fd));
+ }
+ 
+ /* Tests ordering of syscall argument checks. */
 
 
