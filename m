@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B080541BD5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D29B6540BEC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377364AbiFGVyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37834 "EHLO
+        id S1351754AbiFGScm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382552AbiFGVve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:51:34 -0400
+        with ESMTP id S1351759AbiFGSaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C400623CF69;
-        Tue,  7 Jun 2022 12:09:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9894B14479F;
+        Tue,  7 Jun 2022 10:55:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F477618D3;
-        Tue,  7 Jun 2022 19:09:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE517C34115;
-        Tue,  7 Jun 2022 19:08:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C84617A6;
+        Tue,  7 Jun 2022 17:55:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3720AC385A5;
+        Tue,  7 Jun 2022 17:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628940;
-        bh=tJbaS2XiW41GrXthoYwhtBy7BU2P4TIZhpW73nfPXUw=;
+        s=korg; t=1654624543;
+        bh=HfeXI4PtLGJsrGQJTZotp4cV6+7UV/Hjb/HFqFPhRFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnMq1UdGyb8xxML1oTzinz3fXZ3XbQVxcn2insHCATp4iPJnXVXPQOIoFPbVNxf9k
-         q9sRl8ZXo/fbTz+aoVATUD9nv5sVa+ForTQjpQ0FvC/aZ7XmuMF3WaCEop7cBtXyVJ
-         viBGxMdtC6lebqsIkmnf02qjkXlFBEBddpbE0f8I=
+        b=g5MCvdkAOx98zhwAgznCWzZdhBOt8t8tUUrAiiOdXN81RiqgR9+FsAwD4eYuxfpce
+         vyd1aKBHuZ/Zy71f4m2hZpftl7wr8jaw7jtEeA51FdXLskFjlkJX5EfVm/DgJE3sYH
+         avB6nRaBi35ap0JX7O1NB+kKozLiytgk3aen4abo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 512/879] amt: fix memory leak for advertisement message
-Date:   Tue,  7 Jun 2022 19:00:30 +0200
-Message-Id: <20220607165017.737618336@linuxfoundation.org>
+Subject: [PATCH 5.15 366/667] hv_netvsc: Fix potential dereference of NULL pointer
+Date:   Tue,  7 Jun 2022 19:00:31 +0200
+Message-Id: <20220607164945.729356032@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-[ Upstream commit fe29794c3585d039fefebaa2b5a4932a627ad4fd ]
+[ Upstream commit eb4c0788964730d12e8dd520bd8f5217ca48321c ]
 
-When a gateway receives an advertisement message, it extracts relay
-information and then it should be freed.
-But the advertisement handler doesn't free it.
-So, memory leak would occur.
+The return value of netvsc_devinfo_get()
+needs to be checked to avoid use of NULL
+pointer in case of an allocation failure.
 
-Fixes: cbc21dc1cfe9 ("amt: add data plane of amt interface")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: 0efeea5fb153 ("hv_netvsc: Add the support of hibernation")
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Link: https://lore.kernel.org/r/1652962188-129281-1-git-send-email-lyz_cs@pku.edu.cn
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/amt.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/hyperv/netvsc_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/amt.c b/drivers/net/amt.c
-index 2b4ce3869f08..de4ea518c793 100644
---- a/drivers/net/amt.c
-+++ b/drivers/net/amt.c
-@@ -2698,9 +2698,8 @@ static int amt_rcv(struct sock *sk, struct sk_buff *skb)
- 				err = true;
- 				goto drop;
- 			}
--			if (amt_advertisement_handler(amt, skb))
--				amt->dev->stats.rx_dropped++;
--			goto out;
-+			err = amt_advertisement_handler(amt, skb);
-+			break;
- 		case AMT_MSG_MULTICAST_DATA:
- 			if (iph->saddr != amt->remote_ip) {
- 				netdev_dbg(amt->dev, "Invalid Relay IP\n");
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index bdfcf75f0827..ae4577731e3e 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -2665,7 +2665,10 @@ static int netvsc_suspend(struct hv_device *dev)
+ 
+ 	/* Save the current config info */
+ 	ndev_ctx->saved_netvsc_dev_info = netvsc_devinfo_get(nvdev);
+-
++	if (!ndev_ctx->saved_netvsc_dev_info) {
++		ret = -ENOMEM;
++		goto out;
++	}
+ 	ret = netvsc_detach(net, nvdev);
+ out:
+ 	rtnl_unlock();
 -- 
 2.35.1
 
