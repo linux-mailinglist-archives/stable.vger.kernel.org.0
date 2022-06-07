@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD494541C1B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804BC54154E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348968AbiFGV4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+        id S1378219AbiFGUfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384228AbiFGVyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:21 -0400
+        with ESMTP id S1359600AbiFGU3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:29:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7684334BA5;
-        Tue,  7 Jun 2022 12:13:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129F91DF103;
+        Tue,  7 Jun 2022 11:34:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CF916190D;
-        Tue,  7 Jun 2022 19:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58BD9C385A2;
-        Tue,  7 Jun 2022 19:13:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F9E961578;
+        Tue,  7 Jun 2022 18:34:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94134C385A2;
+        Tue,  7 Jun 2022 18:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629188;
-        bh=aUkYZA2RdSkilF75ZvUyPDbWjfQsE3ogg5hPbwbWvtk=;
+        s=korg; t=1654626851;
+        bh=UxbhR46gJUd+PJemqjtAXlkwz/NFwLdLTfbOQ5t3pJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmi265/1NwHVJBR4twAQjlfqedz44UMLhlZ4F/XWsXHEty+siQ9bcXjfKDYF/uc9y
-         ZqKQk7lZLqOHIRog7dJXbYftM1WleXqWZxvV0H6EzyhAjOF9J47Bie6DAxGNDKg4w6
-         /8plghkCi6tCpbnRZ9JwhnHqd3Ly70b9bBEm5dwE=
+        b=y8Ro7JHv3GdOf1dZ5B03pqk4sMpyatgK1G2iU8JO1x8wnOqKhh3CLFN6cvZWDGdNM
+         gQzfXhQnMJ09tAtQR7djHewNUAxwRDPZL5sX6zc3gcH8z4k2rXdCOCjb4LxtKcvpPr
+         7zbDoQrlwRba5k0bVslfkA1xhzByLWLNxLkyLGJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 602/879] drm/msm/dpu: fix error check return value of irq_of_parse_and_map()
+Subject: [PATCH 5.17 528/772] module: fix [e_shstrndx].sh_size=0 OOB access
 Date:   Tue,  7 Jun 2022 19:02:00 +0200
-Message-Id: <20220607165020.326178256@linuxfoundation.org>
+Message-Id: <20220607165004.532150453@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 95093595914c17f32e1d6228b4db06fab8cebd35 ]
+[ Upstream commit 391e982bfa632b8315235d8be9c0a81374c6a19c ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return a negative value anyhow, so never enter this conditional branch.
+It is trivial to craft a module to trigger OOB access in this line:
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/483291/
-Link: https://lore.kernel.org/r/20220425090947.3498897-1-lv.ruyi@zte.com.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
+
+BUG: unable to handle page fault for address: ffffc90000aa0fff
+PGD 100000067 P4D 100000067 PUD 100066067 PMD 10436f067 PTE 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 7 PID: 1215 Comm: insmod Not tainted 5.18.0-rc5-00007-g9bf578647087-dirty #10
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
+RIP: 0010:load_module+0x19b/0x2391
+
+Fixes: ec2a29593c83 ("module: harden ELF info handling")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+[rebased patch onto modules-next]
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/module.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-index c8089678f733..c95bacd4f458 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
-@@ -1244,7 +1244,7 @@ static int dpu_bind(struct device *dev, struct device *master, void *data)
- 
- 	priv->kms = &dpu_kms->base;
- 
--	return ret;
-+	return 0;
- }
- 
- static void dpu_unbind(struct device *dev, struct device *master, void *data)
+diff --git a/kernel/module.c b/kernel/module.c
+index 46a5c2ed1928..740323cff545 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3033,6 +3033,10 @@ static int elf_validity_check(struct load_info *info)
+ 	 * strings in the section safe.
+ 	 */
+ 	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
++	if (strhdr->sh_size == 0) {
++		pr_err("empty section name table\n");
++		goto no_exec;
++	}
+ 	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
+ 		pr_err("ELF Spec violation: section name table isn't null terminated\n");
+ 		goto no_exec;
 -- 
 2.35.1
 
