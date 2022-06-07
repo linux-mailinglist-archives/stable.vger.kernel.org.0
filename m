@@ -2,177 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF8253F935
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 11:15:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD3253F949
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 11:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239083AbiFGJPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 05:15:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
+        id S239158AbiFGJQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 05:16:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239071AbiFGJPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 05:15:32 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5023C87A08
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 02:15:29 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id d14so14229864wra.10
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 02:15:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=raspberrypi.com; s=google;
-        h=message-id:date:mime-version:user-agent:subject:to:cc:references
-         :from:in-reply-to:content-transfer-encoding;
-        bh=s+usQNQe61fUNXtftBnDDPOoqNzLMBH21NqyRZq7YLo=;
-        b=QcJFOZkr6N0djzaiBVtwqiI34B4U1YPZDK+qqBxhWRvksqYGTnrdJ2l7ks6TzStesp
-         CLefRAOdeVlWHQFXzog5tGhwMpXNRIK8rxeKr1KewPQnqDMI/TEosM2Oyidtx2FgNDkv
-         heHtFS1yJhRiiNE1d2ZfRmVJmmpFVWPWDGsMQ8KTW/BxHe6NXSsxnEnkGR9y2I+xCAN/
-         lYcVSSYtJoV2uSRZHEGaN8h+805AB5fGDQUfR352OQi25LWIjK+XwZ9DoHNTGmMZxafM
-         rpdEA4LHFHBvqNW58ewZc2pwQN0+fcihCYVyXmOThiBzZpJGeS04EYqcHU9AEy3Vk76M
-         fiZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :to:cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=s+usQNQe61fUNXtftBnDDPOoqNzLMBH21NqyRZq7YLo=;
-        b=al4A5hkNX5kr52JAyYECGBtjTGtdyezZU6qeSTCe24KiFCuLONW/gr9CfOzYPubZEm
-         0ORyl2YncekeAH8y/mXFK5AjiyXYL3HoHZdTvOQA3E8TwFySnvVFLQH9mfyrXMbV81Rx
-         0XLRklIpA0SjiKcP+0ugTX94ac+xaexcV8PxYqGNIBpJXnPiYZGGHhbst8ZW3R5ZJJy+
-         V0+T0TbugoOw8f/3grIX6q7/C3gifUzWjwBLSOjIOMlOgM6qXquY4JwW4Dr5Sen+dcI+
-         MtNrzckQ3gwxH1dvLluH+K0Y4lUB8FnK60Qchbu1aMwoiGLhRblepaJSCmGPfqUKwGqU
-         2bBg==
-X-Gm-Message-State: AOAM533RB6i+S6lI2eupa2Q58MbipZjTrfkLzUhE/sY+3iB4xJTcboSZ
-        nFwWcIIJX9Byn+JkXK4EhHYouA==
-X-Google-Smtp-Source: ABdhPJxHljRDXDB6metlo+Ntzo/NbEmYZujGJW4daxhb1Oxt07a0tqGsmnY141RzHKXAo+xezbaUFw==
-X-Received: by 2002:adf:fe0c:0:b0:218:4312:1230 with SMTP id n12-20020adffe0c000000b0021843121230mr7830352wrr.223.1654593327814;
-        Tue, 07 Jun 2022 02:15:27 -0700 (PDT)
-Received: from ?IPV6:2a00:1098:3142:14:901f:dbcb:c1e4:e4b8? ([2a00:1098:3142:14:901f:dbcb:c1e4:e4b8])
-        by smtp.gmail.com with ESMTPSA id n5-20020a05600c3b8500b0039c4e2ff7cfsm6411598wms.43.2022.06.07.02.15.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jun 2022 02:15:27 -0700 (PDT)
-Message-ID: <8c3fe744-0181-043a-3af9-dd00165a6356@raspberrypi.com>
-Date:   Tue, 7 Jun 2022 10:15:27 +0100
+        with ESMTP id S239198AbiFGJQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 05:16:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD1DDFF79;
+        Tue,  7 Jun 2022 02:16:31 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6103AB81E09;
+        Tue,  7 Jun 2022 09:16:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB17C3411F;
+        Tue,  7 Jun 2022 09:16:28 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="DnYxqIuP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1654593386;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8JxrXr9JI6SCO4Edcm5jD4dlFLfy78aly9kboFioEZ8=;
+        b=DnYxqIuP+4rADUna88H7IsDE+r7H2bsdZDRsM69bEjDnYNgfvMuSeeZ+SfrhmEPKz5kiLo
+        LKHcKm4NVfYGzNv4wjT2xKdWZcktNpmwx5o2bCOG+rr42LHUKAoP8140Tp1T29YIxVUpo+
+        klXZhlzflwr4w7GJlvTZo5KS+i3qAeo=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e5e86f92 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Tue, 7 Jun 2022 09:16:25 +0000 (UTC)
+Received: by mail-yb1-f175.google.com with SMTP id l204so30083034ybf.10;
+        Tue, 07 Jun 2022 02:16:25 -0700 (PDT)
+X-Gm-Message-State: AOAM532sLhpa8hzfpnIWReOikSfeGwyRefxIOvv4G7wB1zRMnTfuco73
+        1D56W/B7c/SRQ8yTv2SVredz151Ii1WAmPV3mFo=
+X-Google-Smtp-Source: ABdhPJyNWSzlwWjTxvo6G7qJuMtryN7Cm9X99MgTvRBPUejF+9jh9gfuzlcoYwg8GImZLDhzOr1cNA4BOcayZFhTCJs=
+X-Received: by 2002:a5b:dcf:0:b0:64a:6923:bbba with SMTP id
+ t15-20020a5b0dcf000000b0064a6923bbbamr30583298ybr.398.1654593384225; Tue, 07
+ Jun 2022 02:16:24 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
+Received: by 2002:a05:7110:6407:b0:181:6914:78f6 with HTTP; Tue, 7 Jun 2022
+ 02:16:23 -0700 (PDT)
+In-Reply-To: <Yp8W68o37X6aAD86@shell.armlinux.org.uk>
+References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
+ <CAHmME9pL=g7Gz9-QOHnTosLHAL9YSPsW+CnE=9=u3iTQaFzomg@mail.gmail.com> <Yp8W68o37X6aAD86@shell.armlinux.org.uk>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Tue, 7 Jun 2022 11:16:23 +0200
+X-Gmail-Original-Message-ID: <CAHmME9r21wP324DCbBSZWd+mFR+=4M4pjgkJ83HdbhZ=prJdpg@mail.gmail.com>
+Message-ID: <CAHmME9r21wP324DCbBSZWd+mFR+=4M4pjgkJ83HdbhZ=prJdpg@mail.gmail.com>
 Subject: Re: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Phil Elwell <phil@raspberrypi.com>,
         linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Stephen Boyd <swboyd@chromium.org>,
         Ard Biesheuvel <ardb@kernel.org>,
         stable <stable@vger.kernel.org>
-References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
- <CAHmME9o6R2RRdwzB9f+464xH+Aw-9wx2dm=ZsQYFbTk_-66yJw@mail.gmail.com>
-From:   Phil Elwell <phil@raspberrypi.com>
-In-Reply-To: <CAHmME9o6R2RRdwzB9f+464xH+Aw-9wx2dm=ZsQYFbTk_-66yJw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/06/2022 09:43, Jason A. Donenfeld wrote:
-> Hi Phil,
-> 
-> On Tue, Jun 7, 2022 at 10:29 AM Phil Elwell <phil@raspberrypi.com> wrote:
+On 6/7/22, Russell King (Oracle) <linux@armlinux.org.uk> wrote:
+> On Tue, Jun 07, 2022 at 10:30:49AM +0200, Jason A. Donenfeld wrote:
+>> Hi Phil,
 >>
->> This patch is fatal for me in the downstream Raspberry Pi kernel - it locks up
->> on boot even before the earlycon output is available. Hacking jump_label_init to
->> skip the jump_entry for "crng_is_ready" allows it to boot, but is likely to have
->> consequences further down the line.
-> 
-> Also, reading this a few times, I'm not 100% sure I understand what
-> you did to hack around this and why that works. Think you could paste
-> your hackpatch just out of interest to the discussion (but obviously
-> not to be applied)?
+>> Thanks for testing this. Can you let me know if v1 of this works?
+>>
+>> https://lore.kernel.org/lkml/20220602212234.344394-1-Jason@zx2c4.com/
+>>
+>> (I'll also fashion a revert for this part of stable.)
+>
+> As the arm32 version hasn't been merged yet, how is it in stable already?
+> If it is in stable, isn't that a yet another violation of the stable
+> kernel rules?
 
-This is the minimal version of my workaround patch that at least allows the 
-board to boot. Bear in mind that it was written with no previous knowledge of 
-jump labels and was arrived at by iteratively bisecting the list of jump_labels 
-until the first dangerous one was found, then later working out that there was 
-only one.
+You misunderstood my ambiguous sentence, sorry. I meant a revert of
+the thing in stable that makes this discussion here a stable
+discussion rather than a 5.19 discussion. No arm32 stuff has been
+committed anywhere.
 
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index b156e152d6b48..7b053521f7216 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -466,6 +466,7 @@ void __init jump_label_init(void)
-         struct jump_entry *iter_stop = __stop___jump_table;
-         struct static_key *key = NULL;
-         struct jump_entry *iter;
-+       int iter_count = 0;
-
-         /*
-          * Since we are initializing the static_key.enabled field with
-@@ -499,7 +500,9 @@ void __init jump_label_init(void)
-                         continue;
-
-                 key = iterk;
--               static_key_set_entries(key, iter);
-+               iter_count++;
-+               if (iter_count != 1083)
-+                       static_key_set_entries(key, iter);
-         }
-         static_key_initialized = true;
-         jump_label_unlock();
-
-I'm sure this could be rewritten in a less fragile manner making reference to 
-crng_is_ready directly, but this is where I got to yesterday.
-
-Ha! I just proved the patch's fragility by switching from a Pi 2 to a Pi 4,
-so the saner version is:
-
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index ca17a658c2147..ca7c8a67b8314 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -79,7 +79,7 @@ static enum {
-         CRNG_EARLY = 1, /* At least POOL_EARLY_BITS collected */
-         CRNG_READY = 2  /* Fully initialized with POOL_READY_BITS collected */
-  } crng_init __read_mostly = CRNG_EMPTY;
--static DEFINE_STATIC_KEY_FALSE(crng_is_ready);
-+DEFINE_STATIC_KEY_FALSE(crng_is_ready);
-  #define crng_ready() (static_branch_likely(&crng_is_ready) || crng_init >= 
-CRNG_READY)
-  /* Various types of waiters for crng_init->CRNG_READY transition. */
-  static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
-
-
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index b156e152d6b48..b79de9da036fd 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -484,6 +484,7 @@ void __init jump_label_init(void)
-         jump_label_sort_entries(iter_start, iter_stop);
-
-         for (iter = iter_start; iter < iter_stop; iter++) {
-+               extern struct static_key_false crng_is_ready;
-                 struct static_key *iterk;
-                 bool in_init;
-
-@@ -499,7 +500,8 @@ void __init jump_label_init(void)
-                         continue;
-
-                 key = iterk;
--               static_key_set_entries(key, iter);
-+               if (key != &crng_is_ready.key)
-+                       static_key_set_entries(key, iter);
-         }
-         static_key_initialized = true;
-         jump_label_unlock();
-
-And to answer your questions from the other thread:
-
-* Without any fixing patches we see the warning messages because we are using 
-rng-seed in DT.
-
-* I've seen the problem on a Pi 2 and a Pi 4 running 32-bit kernels.
-
-Phil
+Jason
