@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0D9540C0E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F281540BF9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351427AbiFGSdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42066 "EHLO
+        id S1351920AbiFGSc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352380AbiFGSa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F2B17B868;
-        Tue,  7 Jun 2022 10:56:03 -0700 (PDT)
+        with ESMTP id S1352457AbiFGSbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0EE1447B7;
+        Tue,  7 Jun 2022 10:56:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71EBD60DBA;
-        Tue,  7 Jun 2022 17:56:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A1AC34119;
-        Tue,  7 Jun 2022 17:56:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 851D4CE2428;
+        Tue,  7 Jun 2022 17:56:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59836C34119;
+        Tue,  7 Jun 2022 17:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624562;
-        bh=Dm+pSfsBakHYWaU8nNyLWuSFRBVN96HgtP82/8JBbYA=;
+        s=korg; t=1654624565;
+        bh=LfXtb9BIPqki57vlgZryGfh41/iH5unsrQDYFPEXBuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEVTrX8nIIey19TTUOGaTgd3VgnuJhzECViXt5PfT/z6rQtCRp5uXlfFUVcRyu8Lx
-         Lzp907J4omcjetmDTqG4QTNUHGoLIahckDoL7Yi7J1fVrkt4XSJbdx27fzjdcHuUI9
-         pgSccRhdQjR6gfBgQQ+gVlPkqf7tsPJiAg8xcYZw=
+        b=zPjqTQZwh0cuwI3TRWlyvrbszJ7fIE3WjKG+Awemv5KqjiM2bZJZInuqCxHK32bhE
+         cwx4DfNSEDTQjP0eErcNjBp3o88KfZ/Q6cPuNbmAMrBbeGXGEdVk11XP5ZYBzJ7Hq6
+         6vtJ1FQNcPi668IkKBiPdOjzfLo54MaMVbZZOLc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 372/667] rxrpc: Fix decision on when to generate an IDLE ACK
-Date:   Tue,  7 Jun 2022 19:00:37 +0200
-Message-Id: <20220607164945.906776249@linuxfoundation.org>
+Subject: [PATCH 5.15 373/667] net: huawei: hinic: Use devm_kcalloc() instead of devm_kzalloc()
+Date:   Tue,  7 Jun 2022 19:00:38 +0200
+Message-Id: <20220607164945.936906842@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -56,168 +56,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit 9a3dedcf18096e8f7f22b8777d78c4acfdea1651 ]
+[ Upstream commit 9d922f5df53844228b9f7c62f2593f4f06c0b69b ]
 
-Fix the decision on when to generate an IDLE ACK by keeping a count of the
-number of packets we've received, but not yet soft-ACK'd, and the number of
-packets we've processed, but not yet hard-ACK'd, rather than trying to keep
-track of which DATA sequence numbers correspond to those points.
+Use 2-factor multiplication argument form devm_kcalloc() instead
+of devm_kzalloc().
 
-We then generate an ACK when either counter exceeds 2.  The counters are
-both cleared when we transcribe the information into any sort of ACK packet
-for transmission.  IDLE and DELAY ACKs are skipped if both counters are 0
-(ie. no change).
-
-Fixes: 805b21b929e2 ("rxrpc: Send an ACK after every few DATA packets we receive")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://github.com/KSPP/linux/issues/162
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20211208040311.GA169838@embeddedor
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h |  2 +-
- net/rxrpc/ar-internal.h      |  4 ++--
- net/rxrpc/input.c            | 11 +++++++++--
- net/rxrpc/output.c           | 18 +++++++++++-------
- net/rxrpc/recvmsg.c          |  8 +++-----
- 5 files changed, 26 insertions(+), 17 deletions(-)
+ .../ethernet/huawei/hinic/hinic_hw_api_cmd.c  |  5 ++--
+ .../net/ethernet/huawei/hinic/hinic_hw_cmdq.c | 10 ++++----
+ .../net/ethernet/huawei/hinic/hinic_hw_dev.c  |  5 ++--
+ .../net/ethernet/huawei/hinic/hinic_hw_eqs.c  |  9 ++++----
+ .../net/ethernet/huawei/hinic/hinic_hw_wq.c   | 23 +++++++++----------
+ .../net/ethernet/huawei/hinic/hinic_main.c    | 10 ++++----
+ drivers/net/ethernet/huawei/hinic/hinic_tx.c  |  9 ++++----
+ 7 files changed, 31 insertions(+), 40 deletions(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index 4a3ab0ed6e06..1c714336b863 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1509,7 +1509,7 @@ TRACE_EVENT(rxrpc_call_reset,
- 		    __entry->call_serial = call->rx_serial;
- 		    __entry->conn_serial = call->conn->hi_serial;
- 		    __entry->tx_seq = call->tx_hard_ack;
--		    __entry->rx_seq = call->ackr_seen;
-+		    __entry->rx_seq = call->rx_hard_ack;
- 			   ),
- 
- 	    TP_printk("c=%08x %08x:%08x r=%08x/%08x tx=%08x rx=%08x",
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 8465985a4cb6..dce056adb78c 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -680,8 +680,8 @@ struct rxrpc_call {
- 	u8			ackr_reason;	/* reason to ACK */
- 	rxrpc_serial_t		ackr_serial;	/* serial of packet being ACK'd */
- 	rxrpc_seq_t		ackr_highest_seq; /* Higest sequence number received */
--	rxrpc_seq_t		ackr_consumed;	/* Highest packet shown consumed */
--	rxrpc_seq_t		ackr_seen;	/* Highest packet shown seen */
-+	atomic_t		ackr_nr_unacked; /* Number of unacked packets */
-+	atomic_t		ackr_nr_consumed; /* Number of packets needing hard ACK */
- 
- 	/* RTT management */
- 	rxrpc_serial_t		rtt_serial[4];	/* Serial number of DATA or PING sent */
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index 680b984ef87f..3521ebd0ee41 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -412,8 +412,8 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_api_cmd.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_api_cmd.c
+index 06586173add7..998717f02136 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_api_cmd.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_api_cmd.c
+@@ -814,7 +814,6 @@ static int api_chain_init(struct hinic_api_cmd_chain *chain,
  {
- 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
- 	enum rxrpc_call_state state;
--	unsigned int j, nr_subpackets;
--	rxrpc_serial_t serial = sp->hdr.serial, ack_serial = 0;
-+	unsigned int j, nr_subpackets, nr_unacked = 0;
-+	rxrpc_serial_t serial = sp->hdr.serial, ack_serial = serial;
- 	rxrpc_seq_t seq0 = sp->hdr.seq, hard_ack;
- 	bool immediate_ack = false, jumbo_bad = false;
- 	u8 ack = 0;
-@@ -569,6 +569,8 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- 			sp = NULL;
- 		}
+ 	struct hinic_hwif *hwif = attr->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
+-	size_t cell_ctxt_size;
  
-+		nr_unacked++;
-+
- 		if (last) {
- 			set_bit(RXRPC_CALL_RX_LAST, &call->flags);
- 			if (!ack) {
-@@ -588,9 +590,14 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
- 			}
- 			call->rx_expect_next = seq + 1;
- 		}
-+		if (!ack)
-+			ack_serial = serial;
- 	}
+ 	chain->hwif = hwif;
+ 	chain->chain_type  = attr->chain_type;
+@@ -826,8 +825,8 @@ static int api_chain_init(struct hinic_api_cmd_chain *chain,
  
- ack:
-+	if (atomic_add_return(nr_unacked, &call->ackr_nr_unacked) > 2 && !ack)
-+		ack = RXRPC_ACK_IDLE;
-+
- 	if (ack)
- 		rxrpc_propose_ACK(call, ack, ack_serial,
- 				  immediate_ack, true,
-diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
-index 46aae9b7006f..9683617db704 100644
---- a/net/rxrpc/output.c
-+++ b/net/rxrpc/output.c
-@@ -74,11 +74,18 @@ static size_t rxrpc_fill_out_ack(struct rxrpc_connection *conn,
- 				 u8 reason)
+ 	sema_init(&chain->sem, 1);
+ 
+-	cell_ctxt_size = chain->num_cells * sizeof(*chain->cell_ctxt);
+-	chain->cell_ctxt = devm_kzalloc(&pdev->dev, cell_ctxt_size, GFP_KERNEL);
++	chain->cell_ctxt = devm_kcalloc(&pdev->dev, chain->num_cells,
++					sizeof(*chain->cell_ctxt), GFP_KERNEL);
+ 	if (!chain->cell_ctxt)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
+index 307a6d4af993..a627237f694b 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
+@@ -796,11 +796,10 @@ static int init_cmdqs_ctxt(struct hinic_hwdev *hwdev,
+ 	struct hinic_cmdq_ctxt *cmdq_ctxts;
+ 	struct pci_dev *pdev = hwif->pdev;
+ 	struct hinic_pfhwdev *pfhwdev;
+-	size_t cmdq_ctxts_size;
+ 	int err;
+ 
+-	cmdq_ctxts_size = HINIC_MAX_CMDQ_TYPES * sizeof(*cmdq_ctxts);
+-	cmdq_ctxts = devm_kzalloc(&pdev->dev, cmdq_ctxts_size, GFP_KERNEL);
++	cmdq_ctxts = devm_kcalloc(&pdev->dev, HINIC_MAX_CMDQ_TYPES,
++				  sizeof(*cmdq_ctxts), GFP_KERNEL);
+ 	if (!cmdq_ctxts)
+ 		return -ENOMEM;
+ 
+@@ -884,7 +883,6 @@ int hinic_init_cmdqs(struct hinic_cmdqs *cmdqs, struct hinic_hwif *hwif,
+ 	struct hinic_func_to_io *func_to_io = cmdqs_to_func_to_io(cmdqs);
+ 	struct pci_dev *pdev = hwif->pdev;
+ 	struct hinic_hwdev *hwdev;
+-	size_t saved_wqs_size;
+ 	u16 max_wqe_size;
+ 	int err;
+ 
+@@ -895,8 +893,8 @@ int hinic_init_cmdqs(struct hinic_cmdqs *cmdqs, struct hinic_hwif *hwif,
+ 	if (!cmdqs->cmdq_buf_pool)
+ 		return -ENOMEM;
+ 
+-	saved_wqs_size = HINIC_MAX_CMDQ_TYPES * sizeof(struct hinic_wq);
+-	cmdqs->saved_wqs = devm_kzalloc(&pdev->dev, saved_wqs_size, GFP_KERNEL);
++	cmdqs->saved_wqs = devm_kcalloc(&pdev->dev, HINIC_MAX_CMDQ_TYPES,
++					sizeof(*cmdqs->saved_wqs), GFP_KERNEL);
+ 	if (!cmdqs->saved_wqs) {
+ 		err = -ENOMEM;
+ 		goto err_saved_wqs;
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
+index 56b6b04e209b..ca76896d9f1c 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
+@@ -162,7 +162,6 @@ static int init_msix(struct hinic_hwdev *hwdev)
+ 	struct hinic_hwif *hwif = hwdev->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
+ 	int nr_irqs, num_aeqs, num_ceqs;
+-	size_t msix_entries_size;
+ 	int i, err;
+ 
+ 	num_aeqs = HINIC_HWIF_NUM_AEQS(hwif);
+@@ -171,8 +170,8 @@ static int init_msix(struct hinic_hwdev *hwdev)
+ 	if (nr_irqs > HINIC_HWIF_NUM_IRQS(hwif))
+ 		nr_irqs = HINIC_HWIF_NUM_IRQS(hwif);
+ 
+-	msix_entries_size = nr_irqs * sizeof(*hwdev->msix_entries);
+-	hwdev->msix_entries = devm_kzalloc(&pdev->dev, msix_entries_size,
++	hwdev->msix_entries = devm_kcalloc(&pdev->dev, nr_irqs,
++					   sizeof(*hwdev->msix_entries),
+ 					   GFP_KERNEL);
+ 	if (!hwdev->msix_entries)
+ 		return -ENOMEM;
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
+index d3fc05a07fdb..045c47786a04 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
+@@ -631,16 +631,15 @@ static int alloc_eq_pages(struct hinic_eq *eq)
+ 	struct hinic_hwif *hwif = eq->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
+ 	u32 init_val, addr, val;
+-	size_t addr_size;
+ 	int err, pg;
+ 
+-	addr_size = eq->num_pages * sizeof(*eq->dma_addr);
+-	eq->dma_addr = devm_kzalloc(&pdev->dev, addr_size, GFP_KERNEL);
++	eq->dma_addr = devm_kcalloc(&pdev->dev, eq->num_pages,
++				    sizeof(*eq->dma_addr), GFP_KERNEL);
+ 	if (!eq->dma_addr)
+ 		return -ENOMEM;
+ 
+-	addr_size = eq->num_pages * sizeof(*eq->virt_addr);
+-	eq->virt_addr = devm_kzalloc(&pdev->dev, addr_size, GFP_KERNEL);
++	eq->virt_addr = devm_kcalloc(&pdev->dev, eq->num_pages,
++				     sizeof(*eq->virt_addr), GFP_KERNEL);
+ 	if (!eq->virt_addr) {
+ 		err = -ENOMEM;
+ 		goto err_virt_addr_alloc;
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
+index 0c1b0a91b1ae..f7dc7d825f63 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
+@@ -193,20 +193,20 @@ static int alloc_page_arrays(struct hinic_wqs *wqs)
  {
- 	rxrpc_serial_t serial;
-+	unsigned int tmp;
- 	rxrpc_seq_t hard_ack, top, seq;
- 	int ix;
- 	u32 mtu, jmax;
- 	u8 *ackp = pkt->acks;
+ 	struct hinic_hwif *hwif = wqs->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
+-	size_t size;
  
-+	tmp = atomic_xchg(&call->ackr_nr_unacked, 0);
-+	tmp |= atomic_xchg(&call->ackr_nr_consumed, 0);
-+	if (!tmp && (reason == RXRPC_ACK_DELAY ||
-+		     reason == RXRPC_ACK_IDLE))
-+		return 0;
-+
- 	/* Barrier against rxrpc_input_data(). */
- 	serial = call->ackr_serial;
- 	hard_ack = READ_ONCE(call->rx_hard_ack);
-@@ -223,6 +230,10 @@ int rxrpc_send_ack_packet(struct rxrpc_call *call, bool ping,
- 	n = rxrpc_fill_out_ack(conn, call, pkt, &hard_ack, &top, reason);
+-	size = wqs->num_pages * sizeof(*wqs->page_paddr);
+-	wqs->page_paddr = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	wqs->page_paddr = devm_kcalloc(&pdev->dev, wqs->num_pages,
++				       sizeof(*wqs->page_paddr), GFP_KERNEL);
+ 	if (!wqs->page_paddr)
+ 		return -ENOMEM;
  
- 	spin_unlock_bh(&call->lock);
-+	if (n == 0) {
-+		kfree(pkt);
-+		return 0;
-+	}
+-	size = wqs->num_pages * sizeof(*wqs->page_vaddr);
+-	wqs->page_vaddr = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	wqs->page_vaddr = devm_kcalloc(&pdev->dev, wqs->num_pages,
++				       sizeof(*wqs->page_vaddr), GFP_KERNEL);
+ 	if (!wqs->page_vaddr)
+ 		goto err_page_vaddr;
  
- 	iov[0].iov_base	= pkt;
- 	iov[0].iov_len	= sizeof(pkt->whdr) + sizeof(pkt->ack) + n;
-@@ -259,13 +270,6 @@ int rxrpc_send_ack_packet(struct rxrpc_call *call, bool ping,
- 					  ntohl(pkt->ack.serial),
- 					  false, true,
- 					  rxrpc_propose_ack_retry_tx);
--		} else {
--			spin_lock_bh(&call->lock);
--			if (after(hard_ack, call->ackr_consumed))
--				call->ackr_consumed = hard_ack;
--			if (after(top, call->ackr_seen))
--				call->ackr_seen = top;
--			spin_unlock_bh(&call->lock);
- 		}
+-	size = wqs->num_pages * sizeof(*wqs->shadow_page_vaddr);
+-	wqs->shadow_page_vaddr = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	wqs->shadow_page_vaddr = devm_kcalloc(&pdev->dev, wqs->num_pages,
++					      sizeof(*wqs->shadow_page_vaddr),
++					      GFP_KERNEL);
+ 	if (!wqs->shadow_page_vaddr)
+ 		goto err_page_shadow_vaddr;
  
- 		rxrpc_set_keepalive(call);
-diff --git a/net/rxrpc/recvmsg.c b/net/rxrpc/recvmsg.c
-index eca6dda26c77..250f23bc1c07 100644
---- a/net/rxrpc/recvmsg.c
-+++ b/net/rxrpc/recvmsg.c
-@@ -260,11 +260,9 @@ static void rxrpc_rotate_rx_window(struct rxrpc_call *call)
- 		rxrpc_end_rx_phase(call, serial);
- 	} else {
- 		/* Check to see if there's an ACK that needs sending. */
--		if (after_eq(hard_ack, call->ackr_consumed + 2) ||
--		    after_eq(top, call->ackr_seen + 2) ||
--		    (hard_ack == top && after(hard_ack, call->ackr_consumed)))
--			rxrpc_propose_ACK(call, RXRPC_ACK_DELAY, serial,
--					  true, true,
-+		if (atomic_inc_return(&call->ackr_nr_consumed) > 2)
-+			rxrpc_propose_ACK(call, RXRPC_ACK_IDLE, serial,
-+					  true, false,
- 					  rxrpc_propose_ack_rotate_rx);
- 		if (call->ackr_reason && call->ackr_reason != RXRPC_ACK_DELAY)
- 			rxrpc_send_ack_packet(call, false, NULL);
+@@ -379,15 +379,14 @@ static int alloc_wqes_shadow(struct hinic_wq *wq)
+ {
+ 	struct hinic_hwif *hwif = wq->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
+-	size_t size;
+ 
+-	size = wq->num_q_pages * wq->max_wqe_size;
+-	wq->shadow_wqe = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	wq->shadow_wqe = devm_kcalloc(&pdev->dev, wq->num_q_pages,
++				      wq->max_wqe_size, GFP_KERNEL);
+ 	if (!wq->shadow_wqe)
+ 		return -ENOMEM;
+ 
+-	size = wq->num_q_pages * sizeof(wq->prod_idx);
+-	wq->shadow_idx = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	wq->shadow_idx = devm_kcalloc(&pdev->dev, wq->num_q_pages,
++				      sizeof(wq->prod_idx), GFP_KERNEL);
+ 	if (!wq->shadow_idx)
+ 		goto err_shadow_idx;
+ 
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_main.c b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+index ae707e305684..f8aa80ec201b 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+@@ -144,13 +144,12 @@ static int create_txqs(struct hinic_dev *nic_dev)
+ {
+ 	int err, i, j, num_txqs = hinic_hwdev_num_qps(nic_dev->hwdev);
+ 	struct net_device *netdev = nic_dev->netdev;
+-	size_t txq_size;
+ 
+ 	if (nic_dev->txqs)
+ 		return -EINVAL;
+ 
+-	txq_size = num_txqs * sizeof(*nic_dev->txqs);
+-	nic_dev->txqs = devm_kzalloc(&netdev->dev, txq_size, GFP_KERNEL);
++	nic_dev->txqs = devm_kcalloc(&netdev->dev, num_txqs,
++				     sizeof(*nic_dev->txqs), GFP_KERNEL);
+ 	if (!nic_dev->txqs)
+ 		return -ENOMEM;
+ 
+@@ -241,13 +240,12 @@ static int create_rxqs(struct hinic_dev *nic_dev)
+ {
+ 	int err, i, j, num_rxqs = hinic_hwdev_num_qps(nic_dev->hwdev);
+ 	struct net_device *netdev = nic_dev->netdev;
+-	size_t rxq_size;
+ 
+ 	if (nic_dev->rxqs)
+ 		return -EINVAL;
+ 
+-	rxq_size = num_rxqs * sizeof(*nic_dev->rxqs);
+-	nic_dev->rxqs = devm_kzalloc(&netdev->dev, rxq_size, GFP_KERNEL);
++	nic_dev->rxqs = devm_kcalloc(&netdev->dev, num_rxqs,
++				     sizeof(*nic_dev->rxqs), GFP_KERNEL);
+ 	if (!nic_dev->rxqs)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_tx.c b/drivers/net/ethernet/huawei/hinic/hinic_tx.c
+index c5bdb0d374ef..a984a7a6dd2e 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_tx.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_tx.c
+@@ -862,7 +862,6 @@ int hinic_init_txq(struct hinic_txq *txq, struct hinic_sq *sq,
+ 	struct hinic_dev *nic_dev = netdev_priv(netdev);
+ 	struct hinic_hwdev *hwdev = nic_dev->hwdev;
+ 	int err, irqname_len;
+-	size_t sges_size;
+ 
+ 	txq->netdev = netdev;
+ 	txq->sq = sq;
+@@ -871,13 +870,13 @@ int hinic_init_txq(struct hinic_txq *txq, struct hinic_sq *sq,
+ 
+ 	txq->max_sges = HINIC_MAX_SQ_BUFDESCS;
+ 
+-	sges_size = txq->max_sges * sizeof(*txq->sges);
+-	txq->sges = devm_kzalloc(&netdev->dev, sges_size, GFP_KERNEL);
++	txq->sges = devm_kcalloc(&netdev->dev, txq->max_sges,
++				 sizeof(*txq->sges), GFP_KERNEL);
+ 	if (!txq->sges)
+ 		return -ENOMEM;
+ 
+-	sges_size = txq->max_sges * sizeof(*txq->free_sges);
+-	txq->free_sges = devm_kzalloc(&netdev->dev, sges_size, GFP_KERNEL);
++	txq->free_sges = devm_kcalloc(&netdev->dev, txq->max_sges,
++				      sizeof(*txq->free_sges), GFP_KERNEL);
+ 	if (!txq->free_sges) {
+ 		err = -ENOMEM;
+ 		goto err_alloc_free_sges;
 -- 
 2.35.1
 
