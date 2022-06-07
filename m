@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A63540BD2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A8B6541479
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351145AbiFGSb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:31:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
+        id S1358741AbiFGUSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:18:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351511AbiFGS3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89221796CC;
-        Tue,  7 Jun 2022 10:55:19 -0700 (PDT)
+        with ESMTP id S1376580AbiFGUQz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FD3C1737FE;
+        Tue,  7 Jun 2022 11:29:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32E5BB82368;
-        Tue,  7 Jun 2022 17:55:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F31C341C0;
-        Tue,  7 Jun 2022 17:55:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78ABBB82340;
+        Tue,  7 Jun 2022 18:29:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0644C385A5;
+        Tue,  7 Jun 2022 18:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624518;
-        bh=Ps4fG3qa7GIYVC/RhRtGNOmc/orT3B9dbi0BNH4mr/Q=;
+        s=korg; t=1654626568;
+        bh=67f+pJyqDPpIlqJNnInLUFS6+P7eNqKYGVkAXursKgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/Ck8vKfV3eJMjkld1oEYAHTZvPOnl5Lm2QYQAh0greGaL6CH3sCFeYRlNUu7IFsz
-         NDtetodq2NNDzmd8mMXowplvKUEv0eO/gZ95SAD42qRqNhxGjYCZVBhjNaZEwILTtZ
-         BB3aM8qiWGlzUsqNo7nvMWUXbXrLrzviOMgYVOXw=
+        b=kpZj6nxE/k1SQuzRCjkMinzQmaNxCpbqyDXYPyyR0wozjdfZrFe9Bm0mz29CFZbHW
+         3x1fRBEvtFbqyFjPT/0Qt9KnMqsgorFmK9gux+hgwZNCp/mUSKjR47VlNy64vZgIBm
+         YNBV4iUUqkbVOGlmgYm/aRldhtvV6Eic1F0yNZoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 349/667] drm/msm: dont free the IRQ if it was not requested
-Date:   Tue,  7 Jun 2022 19:00:14 +0200
-Message-Id: <20220607164945.225297117@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 423/772] bfq: Allow current waker to defend against a tentative one
+Date:   Tue,  7 Jun 2022 19:00:15 +0200
+Message-Id: <20220607165001.469079205@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,118 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 577e2a9dfc8fba7938aaf75db63fae7e328cc3cb ]
+[ Upstream commit c5ac56bb6110e42e79d3106866658376b2e48ab9 ]
 
-As msm_drm_uninit() is called from the msm_drm_init() error path,
-additional care should be necessary as not to call the free_irq() for
-the IRQ that was not requested before (because an error occured earlier
-than the request_irq() call).
+The code in bfq_check_waker() ignores wake up events from the current
+waker. This makes it more likely we select a new tentative waker
+although the current one is generating more wake up events. Treat
+current waker the same way as any other process and allow it to reset
+the waker detection logic.
 
-This fixed the issue reported with the following backtrace:
-
-[    8.571329] Trying to free already-free IRQ 187
-[    8.571339] WARNING: CPU: 0 PID: 76 at kernel/irq/manage.c:1895 free_irq+0x1e0/0x35c
-[    8.588746] Modules linked in: pmic_glink pdr_interface fastrpc qrtr_smd snd_soc_hdmi_codec msm fsa4480 gpu_sched drm_dp_aux_bus qrtr i2c_qcom_geni crct10dif_ce qcom_stats qcom_q6v5_pas drm_display_helper gpi qcom_pil_info drm_kms_helper qcom_q6v5 qcom_sysmon qcom_common qcom_glink_smem qcom_rng mdt_loader qmi_helpers phy_qcom_qmp ufs_qcom typec qnoc_sm8350 socinfo rmtfs_mem fuse drm ipv6
-[    8.624154] CPU: 0 PID: 76 Comm: kworker/u16:2 Not tainted 5.18.0-rc5-next-20220506-00033-g6cee8cab6089-dirty #419
-[    8.624161] Hardware name: Qualcomm Technologies, Inc. SM8350 HDK (DT)
-[    8.641496] Workqueue: events_unbound deferred_probe_work_func
-[    8.647510] pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    8.654681] pc : free_irq+0x1e0/0x35c
-[    8.658454] lr : free_irq+0x1e0/0x35c
-[    8.662228] sp : ffff800008ab3950
-[    8.665642] x29: ffff800008ab3950 x28: 0000000000000000 x27: ffff16350f56a700
-[    8.672994] x26: ffff1635025df080 x25: ffff16350251badc x24: ffff16350251bb90
-[    8.680343] x23: 0000000000000000 x22: 00000000000000bb x21: ffff16350e8f9800
-[    8.687690] x20: ffff16350251ba00 x19: ffff16350cbd5880 x18: ffffffffffffffff
-[    8.695039] x17: 0000000000000000 x16: ffffa2dd12179434 x15: ffffa2dd1431d02d
-[    8.702391] x14: 0000000000000000 x13: ffffa2dd1431d028 x12: 662d79646165726c
-[    8.709740] x11: ffffa2dd13fd2438 x10: 000000000000000a x9 : 00000000000000bb
-[    8.717111] x8 : ffffa2dd13fd23f0 x7 : ffff800008ab3750 x6 : 00000000fffff202
-[    8.724487] x5 : ffff16377e870a18 x4 : 00000000fffff202 x3 : ffff735a6ae1b000
-[    8.731851] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff1635015f8000
-[    8.739217] Call trace:
-[    8.741755]  free_irq+0x1e0/0x35c
-[    8.745198]  msm_drm_uninit.isra.0+0x14c/0x294 [msm]
-[    8.750548]  msm_drm_bind+0x28c/0x5d0 [msm]
-[    8.755081]  try_to_bring_up_aggregate_device+0x164/0x1d0
-[    8.760657]  __component_add+0xa0/0x170
-[    8.764626]  component_add+0x14/0x20
-[    8.768337]  dp_display_probe+0x2a4/0x464 [msm]
-[    8.773242]  platform_probe+0x68/0xe0
-[    8.777043]  really_probe.part.0+0x9c/0x28c
-[    8.781368]  __driver_probe_device+0x98/0x144
-[    8.785871]  driver_probe_device+0x40/0x140
-[    8.790191]  __device_attach_driver+0xb4/0x120
-[    8.794788]  bus_for_each_drv+0x78/0xd0
-[    8.798751]  __device_attach+0xdc/0x184
-[    8.802713]  device_initial_probe+0x14/0x20
-[    8.807031]  bus_probe_device+0x9c/0xa4
-[    8.810991]  deferred_probe_work_func+0x88/0xc0
-[    8.815667]  process_one_work+0x1d0/0x320
-[    8.819809]  worker_thread+0x14c/0x444
-[    8.823688]  kthread+0x10c/0x110
-[    8.827036]  ret_from_fork+0x10/0x20
-
-Reported-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Fixes: f026e431cf86 ("drm/msm: Convert to Linux IRQ interfaces")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/485422/
-Link: https://lore.kernel.org/r/20220507010021.1667700-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: 71217df39dc6 ("block, bfq: make waker-queue detection more robust")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220519105235.31397-2-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 7 ++++++-
- drivers/gpu/drm/msm/msm_kms.h | 1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 28524ea8601f..9712582886aa 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -237,6 +237,8 @@ static int msm_irq_postinstall(struct drm_device *dev)
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 047368c23984..31f430d9023d 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2133,8 +2133,7 @@ static void bfq_check_waker(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (!bfqd->last_completed_rq_bfqq ||
+ 	    bfqd->last_completed_rq_bfqq == bfqq ||
+ 	    bfq_bfqq_has_short_ttime(bfqq) ||
+-	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
+-	    bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
++	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC)
+ 		return;
  
- static int msm_irq_install(struct drm_device *dev, unsigned int irq)
- {
-+	struct msm_drm_private *priv = dev->dev_private;
-+	struct msm_kms *kms = priv->kms;
- 	int ret;
- 
- 	if (irq == IRQ_NOTCONNECTED)
-@@ -248,6 +250,8 @@ static int msm_irq_install(struct drm_device *dev, unsigned int irq)
- 	if (ret)
- 		return ret;
- 
-+	kms->irq_requested = true;
-+
- 	ret = msm_irq_postinstall(dev);
- 	if (ret) {
- 		free_irq(irq, dev);
-@@ -263,7 +267,8 @@ static void msm_irq_uninstall(struct drm_device *dev)
- 	struct msm_kms *kms = priv->kms;
- 
- 	kms->funcs->irq_uninstall(kms);
--	free_irq(kms->irq, dev);
-+	if (kms->irq_requested)
-+		free_irq(kms->irq, dev);
- }
- 
- struct msm_vblank_work {
-diff --git a/drivers/gpu/drm/msm/msm_kms.h b/drivers/gpu/drm/msm/msm_kms.h
-index de2bc3467bb5..afa30e2ba1f1 100644
---- a/drivers/gpu/drm/msm/msm_kms.h
-+++ b/drivers/gpu/drm/msm/msm_kms.h
-@@ -149,6 +149,7 @@ struct msm_kms {
- 
- 	/* irq number to be passed on to msm_irq_install */
- 	int irq;
-+	bool irq_requested;
- 
- 	/* mapper-id used to request GEM buffer mapped for scanout: */
- 	struct msm_gem_address_space *aspace;
+ 	/*
 -- 
 2.35.1
 
