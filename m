@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F895415DA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6CC541C6B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377731AbiFGUnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44714 "EHLO
+        id S1382647AbiFGV7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:59:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377279AbiFGUdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A4D14781D;
-        Tue,  7 Jun 2022 11:34:49 -0700 (PDT)
+        with ESMTP id S239238AbiFGV6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:58:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF0A24D7A9;
+        Tue,  7 Jun 2022 12:13:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A60726157B;
-        Tue,  7 Jun 2022 18:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1557C385A2;
-        Tue,  7 Jun 2022 18:34:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 678DDB82182;
+        Tue,  7 Jun 2022 19:13:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F73C385A2;
+        Tue,  7 Jun 2022 19:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626882;
-        bh=BUUyuJwqsmQ8ppwNkzVju8FLysHPnnjZRg/0W7ctp2w=;
+        s=korg; t=1654629219;
+        bh=cDGXQDzvZnIg4L2nHZB3SGryb9zKYnI5rFK0O1CZtEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y78Z3kvcJKv0TJznatRB2DzaEmmOYa5Ko7OCPuZqCTk0MRyDrrsK/EhQAtMPX2C1/
-         dUEFv5hqQvhJ2SSq0oGeT2qU4wT/i/8hGR/xAizhl/6pra4xZsLBt8InsE3utzYNra
-         GFTnImjVdIbiA7+yX14wfnhKIGHGBf255gL3H/xc=
+        b=FoxGOO/1uiJfNUXWbWH5u9+GCtvOcm43uQDoEZtmw5vk7wzKgTRtpcYdF6TsXs7Cl
+         bcnPJ407aJtYnk7Tb+sAWFWGkvsJdYlq5tte+0T1Qql+TddekpzIubwvrCE1NyNWfW
+         gAYuxCOtU5ydfgu8pFWdA7wB/K6ufh3UsK6zN6M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Badger <ebadger@purestorage.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ashok Raj <ashok.raj@intel.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 538/772] PCI/AER: Clear MULTI_ERR_COR/UNCOR_RCV bits
+Subject: [PATCH 5.18 612/879] ASoC: atmel-pdmic: Remove endianness flag on pdmic component
 Date:   Tue,  7 Jun 2022 19:02:10 +0200
-Message-Id: <20220607165004.819665862@linuxfoundation.org>
+Message-Id: <20220607165020.614363265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,86 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 203926da2bff8e172200a2f11c758987af112d4a ]
+[ Upstream commit 52857c3baa0e5ddeba7b2c84e56bb71c9674e048 ]
 
-When a Root Port or Root Complex Event Collector receives an error Message
-e.g., ERR_COR, it sets PCI_ERR_ROOT_COR_RCV in the Root Error Status
-register and logs the Requester ID in the Error Source Identification
-register.  If it receives a second ERR_COR Message before software clears
-PCI_ERR_ROOT_COR_RCV, hardware sets PCI_ERR_ROOT_MULTI_COR_RCV and the
-Requester ID is lost.
+The endianness flag should have been removed when the driver was
+ported across from having both a CODEC and CPU side component, to
+just having a CPU component and using the dummy for the CODEC. The
+endianness flag is used to indicate that the device is completely
+ambivalent to the endianness of the data, typically due to the
+endianness being lost over the hardware link (ie. the link defines
+bit ordering). It's usage didn't have any effect when the driver
+had both a CPU and CODEC component, since the union of those equals
+the CPU side settings, but now causes the driver to falsely report
+it supports big endian. Correct this by removing the flag.
 
-In the following scenario, PCI_ERR_ROOT_MULTI_COR_RCV was never cleared:
-
-  - hardware receives ERR_COR message
-  - hardware sets PCI_ERR_ROOT_COR_RCV
-  - aer_irq() entered
-  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
-  - aer_irq(): now status == PCI_ERR_ROOT_COR_RCV
-  - hardware receives second ERR_COR message
-  - hardware sets PCI_ERR_ROOT_MULTI_COR_RCV
-  - aer_irq(): pci_write_config_dword(PCI_ERR_ROOT_STATUS, status)
-  - PCI_ERR_ROOT_COR_RCV is cleared; PCI_ERR_ROOT_MULTI_COR_RCV is set
-  - aer_irq() entered again
-  - aer_irq(): status = pci_read_config_dword(PCI_ERR_ROOT_STATUS)
-  - aer_irq(): now status == PCI_ERR_ROOT_MULTI_COR_RCV
-  - aer_irq() exits because PCI_ERR_ROOT_COR_RCV not set
-  - PCI_ERR_ROOT_MULTI_COR_RCV is still set
-
-The same problem occurred with ERR_NONFATAL/ERR_FATAL Messages and
-PCI_ERR_ROOT_UNCOR_RCV and PCI_ERR_ROOT_MULTI_UNCOR_RCV.
-
-Fix the problem by queueing an AER event and clearing the Root Error Status
-bits when any of these bits are set:
-
-  PCI_ERR_ROOT_COR_RCV
-  PCI_ERR_ROOT_UNCOR_RCV
-  PCI_ERR_ROOT_MULTI_COR_RCV
-  PCI_ERR_ROOT_MULTI_UNCOR_RCV
-
-See the bugzilla link for details from Eric about how to reproduce this
-problem.
-
-[bhelgaas: commit log, move repro details to bugzilla]
-Fixes: e167bfcaa4cd ("PCI: aerdrv: remove magical ROOT_ERR_STATUS_MASKS")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215992
-Link: https://lore.kernel.org/r/20220418150237.1021519-1-sathyanarayanan.kuppuswamy@linux.intel.com
-Reported-by: Eric Badger <ebadger@purestorage.com>
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Fixes: f3c668074a04 ("ASoC: atmel-pdmic: remove codec component")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220504170905.332415-3-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aer.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/soc/atmel/atmel-pdmic.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
-index 9fa1f97e5b27..7952e5efd6cf 100644
---- a/drivers/pci/pcie/aer.c
-+++ b/drivers/pci/pcie/aer.c
-@@ -101,6 +101,11 @@ struct aer_stats {
- #define ERR_COR_ID(d)			(d & 0xffff)
- #define ERR_UNCOR_ID(d)			(d >> 16)
+diff --git a/sound/soc/atmel/atmel-pdmic.c b/sound/soc/atmel/atmel-pdmic.c
+index 42117de299e7..ea34efac2fff 100644
+--- a/sound/soc/atmel/atmel-pdmic.c
++++ b/sound/soc/atmel/atmel-pdmic.c
+@@ -481,7 +481,6 @@ static const struct snd_soc_component_driver atmel_pdmic_cpu_dai_component = {
+ 	.num_controls		= ARRAY_SIZE(atmel_pdmic_snd_controls),
+ 	.idle_bias_on		= 1,
+ 	.use_pmdown_time	= 1,
+-	.endianness		= 1,
+ };
  
-+#define AER_ERR_STATUS_MASK		(PCI_ERR_ROOT_UNCOR_RCV |	\
-+					PCI_ERR_ROOT_COR_RCV |		\
-+					PCI_ERR_ROOT_MULTI_COR_RCV |	\
-+					PCI_ERR_ROOT_MULTI_UNCOR_RCV)
-+
- static int pcie_aer_disable;
- static pci_ers_result_t aer_root_reset(struct pci_dev *dev);
- 
-@@ -1196,7 +1201,7 @@ static irqreturn_t aer_irq(int irq, void *context)
- 	struct aer_err_source e_src = {};
- 
- 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_STATUS, &e_src.status);
--	if (!(e_src.status & (PCI_ERR_ROOT_UNCOR_RCV|PCI_ERR_ROOT_COR_RCV)))
-+	if (!(e_src.status & AER_ERR_STATUS_MASK))
- 		return IRQ_NONE;
- 
- 	pci_read_config_dword(rp, aer + PCI_ERR_ROOT_ERR_SRC, &e_src.id);
+ /* ASoC sound card */
 -- 
 2.35.1
 
