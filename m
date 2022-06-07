@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D84540A19
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6B75413AE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350860AbiFGSSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53244 "EHLO
+        id S1353107AbiFGUEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:04:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351330AbiFGSQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54F215D316;
-        Tue,  7 Jun 2022 10:49:24 -0700 (PDT)
+        with ESMTP id S1358116AbiFGUC4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:02:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8962E8B82;
+        Tue,  7 Jun 2022 11:25:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFE156146F;
-        Tue,  7 Jun 2022 17:49:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8BEC34115;
-        Tue,  7 Jun 2022 17:49:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 670BACE2454;
+        Tue,  7 Jun 2022 18:25:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A4FDC385A2;
+        Tue,  7 Jun 2022 18:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624156;
-        bh=KM1DDbnhiGthJd7wcVpd8J57vwvG7lyDnNEYpJczJbQ=;
+        s=korg; t=1654626331;
+        bh=Vs5G6wFhd8zamm2bIJKfK8MZs519RAD42yHSmix/E9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHVNbaChVDxHS4KTncz2d7Kj34aERbGicowJABVlCaKgatIuBYEzUgAuIhSgwn/bA
-         VkheL9jyO2gFm7JMMaUnU7zVbbf9oz8Q2sa76igfpoc8YKGIqZyYlU1hB5zQ5Vsd7K
-         yY6oDAsxAQMpXqQQ162Lzr/sMjwr42mhJmg9a8zY=
+        b=f1IOwyp9u57rVoIVYS8VCIio+ec+12eguQW/ktns7E7JafDwGUZCiKzKF662/SPSx
+         i67QAmCFuqTeG+yxal27SwRv0wB9VtuZYgX3cnI6H5kc9murFCEZVhCOwkf0Xl6IG3
+         pyezsQopubUQKkq1kJZ7q8CmrHN2zlbQs/aqFvjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 226/667] signal: Deliver SIGTRAP on perf event asynchronously if blocked
+Subject: [PATCH 5.17 299/772] drm/msm: properly add and remove internal bridges
 Date:   Tue,  7 Jun 2022 18:58:11 +0200
-Message-Id: <20220607164941.568689782@linuxfoundation.org>
+Message-Id: <20220607164957.835296045@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,290 +56,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 78ed93d72ded679e3caf0758357209887bda885f ]
+[ Upstream commit d28ea556267c4f2ec7264ab49f1b1296834321ec ]
 
-With SIGTRAP on perf events, we have encountered termination of
-processes due to user space attempting to block delivery of SIGTRAP.
-Consider this case:
+Add calls to drm_bridge_add()/drm_bridge_remove() DRM bridges created by
+the driver. This fixes the following warning.
 
-    <set up SIGTRAP on a perf event>
-    ...
-    sigset_t s;
-    sigemptyset(&s);
-    sigaddset(&s, SIGTRAP | <and others>);
-    sigprocmask(SIG_BLOCK, &s, ...);
-    ...
-    <perf event triggers>
+WARNING: CPU: 0 PID: 1 at kernel/locking/mutex.c:579 __mutex_lock+0x840/0x9f4
+DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.18.0-rc1-00002-g3054695a0d27-dirty #55
+Hardware name: Generic DT based system
+ unwind_backtrace from show_stack+0x10/0x14
+ show_stack from dump_stack_lvl+0x58/0x70
+ dump_stack_lvl from __warn+0xc8/0x1e8
+ __warn from warn_slowpath_fmt+0x78/0xa8
+ warn_slowpath_fmt from __mutex_lock+0x840/0x9f4
+ __mutex_lock from mutex_lock_nested+0x1c/0x24
+ mutex_lock_nested from drm_bridge_hpd_enable+0x2c/0x84
+ drm_bridge_hpd_enable from msm_hdmi_modeset_init+0xc0/0x21c
+ msm_hdmi_modeset_init from mdp4_kms_init+0x53c/0x90c
+ mdp4_kms_init from msm_drm_bind+0x514/0x698
+ msm_drm_bind from try_to_bring_up_aggregate_device+0x160/0x1bc
+ try_to_bring_up_aggregate_device from component_master_add_with_match+0xc4/0xf8
+ component_master_add_with_match from msm_pdev_probe+0x274/0x350
+ msm_pdev_probe from platform_probe+0x5c/0xbc
+ platform_probe from really_probe.part.0+0x9c/0x290
+ really_probe.part.0 from __driver_probe_device+0xa8/0x13c
+ __driver_probe_device from driver_probe_device+0x34/0x10c
+ driver_probe_device from __driver_attach+0xbc/0x178
+ __driver_attach from bus_for_each_dev+0x74/0xc0
+ bus_for_each_dev from bus_add_driver+0x160/0x1e4
+ bus_add_driver from driver_register+0x88/0x118
+ driver_register from do_one_initcall+0x6c/0x334
+ do_one_initcall from kernel_init_freeable+0x1bc/0x220
+ kernel_init_freeable from kernel_init+0x18/0x12c
+ kernel_init from ret_from_fork+0x14/0x2c
 
-When the perf event triggers, while SIGTRAP is blocked, force_sig_perf()
-will force the signal, but revert back to the default handler, thus
-terminating the task.
-
-This makes sense for error conditions, but not so much for explicitly
-requested monitoring. However, the expectation is still that signals
-generated by perf events are synchronous, which will no longer be the
-case if the signal is blocked and delivered later.
-
-To give user space the ability to clearly distinguish synchronous from
-asynchronous signals, introduce siginfo_t::si_perf_flags and
-TRAP_PERF_FLAG_ASYNC (opted for flags in case more binary information is
-required in future).
-
-The resolution to the problem is then to (a) no longer force the signal
-(avoiding the terminations), but (b) tell user space via si_perf_flags
-if the signal was synchronous or not, so that such signals can be
-handled differently (e.g. let user space decide to ignore or consider
-the data imprecise).
-
-The alternative of making the kernel ignore SIGTRAP on perf events if
-the signal is blocked may work for some usecases, but likely causes
-issues in others that then have to revert back to interception of
-sigprocmask() (which we want to avoid). [ A concrete example: when using
-breakpoint perf events to track data-flow, in a region of code where
-signals are blocked, data-flow can no longer be tracked accurately.
-When a relevant asynchronous signal is received after unblocking the
-signal, the data-flow tracking logic needs to know its state is
-imprecise. ]
-
-Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Tested-by: Dmitry Vyukov <dvyukov@google.com>
-Link: https://lore.kernel.org/r/20220404111204.935357-1-elver@google.com
+Fixes: 3d3f8b1f8b62 ("drm/bridge: make bridge registration independent of drm flow")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/481778/
+Link: https://lore.kernel.org/r/20220411234953.2425280-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/signal.c           |  1 +
- arch/arm64/kernel/signal.c         |  1 +
- arch/arm64/kernel/signal32.c       |  1 +
- arch/m68k/kernel/signal.c          |  1 +
- arch/sparc/kernel/signal32.c       |  1 +
- arch/sparc/kernel/signal_64.c      |  1 +
- arch/x86/kernel/signal_compat.c    |  2 ++
- include/linux/compat.h             |  1 +
- include/linux/sched/signal.h       |  2 +-
- include/uapi/asm-generic/siginfo.h |  7 +++++++
- kernel/events/core.c               |  4 ++--
- kernel/signal.c                    | 18 ++++++++++++++++--
- 12 files changed, 35 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_drm.c        | 4 ++++
+ drivers/gpu/drm/msm/dsi/dsi_manager.c  | 3 +++
+ drivers/gpu/drm/msm/hdmi/hdmi_bridge.c | 3 +++
+ drivers/gpu/drm/msm/msm_drv.c          | 3 +++
+ 4 files changed, 13 insertions(+)
 
-diff --git a/arch/arm/kernel/signal.c b/arch/arm/kernel/signal.c
-index a41e27ace391..539897ac2828 100644
---- a/arch/arm/kernel/signal.c
-+++ b/arch/arm/kernel/signal.c
-@@ -708,6 +708,7 @@ static_assert(offsetof(siginfo_t, si_upper)	== 0x18);
- static_assert(offsetof(siginfo_t, si_pkey)	== 0x14);
- static_assert(offsetof(siginfo_t, si_perf_data)	== 0x10);
- static_assert(offsetof(siginfo_t, si_perf_type)	== 0x14);
-+static_assert(offsetof(siginfo_t, si_perf_flags) == 0x18);
- static_assert(offsetof(siginfo_t, si_band)	== 0x0c);
- static_assert(offsetof(siginfo_t, si_fd)	== 0x10);
- static_assert(offsetof(siginfo_t, si_call_addr)	== 0x0c);
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 981f0c4157c2..b3e1beccf458 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -1012,6 +1012,7 @@ static_assert(offsetof(siginfo_t, si_upper)	== 0x28);
- static_assert(offsetof(siginfo_t, si_pkey)	== 0x20);
- static_assert(offsetof(siginfo_t, si_perf_data)	== 0x18);
- static_assert(offsetof(siginfo_t, si_perf_type)	== 0x20);
-+static_assert(offsetof(siginfo_t, si_perf_flags) == 0x24);
- static_assert(offsetof(siginfo_t, si_band)	== 0x10);
- static_assert(offsetof(siginfo_t, si_fd)	== 0x18);
- static_assert(offsetof(siginfo_t, si_call_addr)	== 0x10);
-diff --git a/arch/arm64/kernel/signal32.c b/arch/arm64/kernel/signal32.c
-index d984282b979f..4700f8522d27 100644
---- a/arch/arm64/kernel/signal32.c
-+++ b/arch/arm64/kernel/signal32.c
-@@ -487,6 +487,7 @@ static_assert(offsetof(compat_siginfo_t, si_upper)	== 0x18);
- static_assert(offsetof(compat_siginfo_t, si_pkey)	== 0x14);
- static_assert(offsetof(compat_siginfo_t, si_perf_data)	== 0x10);
- static_assert(offsetof(compat_siginfo_t, si_perf_type)	== 0x14);
-+static_assert(offsetof(compat_siginfo_t, si_perf_flags)	== 0x18);
- static_assert(offsetof(compat_siginfo_t, si_band)	== 0x0c);
- static_assert(offsetof(compat_siginfo_t, si_fd)		== 0x10);
- static_assert(offsetof(compat_siginfo_t, si_call_addr)	== 0x0c);
-diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
-index 338817d0cb3f..74ee1e3013d7 100644
---- a/arch/m68k/kernel/signal.c
-+++ b/arch/m68k/kernel/signal.c
-@@ -625,6 +625,7 @@ static inline void siginfo_build_tests(void)
- 	/* _sigfault._perf */
- 	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_data) != 0x10);
- 	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_type) != 0x14);
-+	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_flags) != 0x18);
+diff --git a/drivers/gpu/drm/msm/dp/dp_drm.c b/drivers/gpu/drm/msm/dp/dp_drm.c
+index 26ef41a4c1b6..dca4f9a144e8 100644
+--- a/drivers/gpu/drm/msm/dp/dp_drm.c
++++ b/drivers/gpu/drm/msm/dp/dp_drm.c
+@@ -230,9 +230,13 @@ struct drm_bridge *msm_dp_bridge_init(struct msm_dp *dp_display, struct drm_devi
+ 	bridge->funcs = &dp_bridge_ops;
+ 	bridge->encoder = encoder;
  
- 	/* _sigpoll */
- 	BUILD_BUG_ON(offsetof(siginfo_t, si_band)   != 0x0c);
-diff --git a/arch/sparc/kernel/signal32.c b/arch/sparc/kernel/signal32.c
-index 6cc124a3bb98..90ff7ff94ea7 100644
---- a/arch/sparc/kernel/signal32.c
-+++ b/arch/sparc/kernel/signal32.c
-@@ -780,5 +780,6 @@ static_assert(offsetof(compat_siginfo_t, si_upper)	== 0x18);
- static_assert(offsetof(compat_siginfo_t, si_pkey)	== 0x14);
- static_assert(offsetof(compat_siginfo_t, si_perf_data)	== 0x10);
- static_assert(offsetof(compat_siginfo_t, si_perf_type)	== 0x14);
-+static_assert(offsetof(compat_siginfo_t, si_perf_flags)	== 0x18);
- static_assert(offsetof(compat_siginfo_t, si_band)	== 0x0c);
- static_assert(offsetof(compat_siginfo_t, si_fd)		== 0x10);
-diff --git a/arch/sparc/kernel/signal_64.c b/arch/sparc/kernel/signal_64.c
-index 2a78d2af1265..6eeb766987d1 100644
---- a/arch/sparc/kernel/signal_64.c
-+++ b/arch/sparc/kernel/signal_64.c
-@@ -590,5 +590,6 @@ static_assert(offsetof(siginfo_t, si_upper)	== 0x28);
- static_assert(offsetof(siginfo_t, si_pkey)	== 0x20);
- static_assert(offsetof(siginfo_t, si_perf_data)	== 0x18);
- static_assert(offsetof(siginfo_t, si_perf_type)	== 0x20);
-+static_assert(offsetof(siginfo_t, si_perf_flags) == 0x24);
- static_assert(offsetof(siginfo_t, si_band)	== 0x10);
- static_assert(offsetof(siginfo_t, si_fd)	== 0x14);
-diff --git a/arch/x86/kernel/signal_compat.c b/arch/x86/kernel/signal_compat.c
-index b52407c56000..879ef8c72f5c 100644
---- a/arch/x86/kernel/signal_compat.c
-+++ b/arch/x86/kernel/signal_compat.c
-@@ -149,8 +149,10 @@ static inline void signal_compat_build_tests(void)
- 
- 	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_data) != 0x18);
- 	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_type) != 0x20);
-+	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_flags) != 0x24);
- 	BUILD_BUG_ON(offsetof(compat_siginfo_t, si_perf_data) != 0x10);
- 	BUILD_BUG_ON(offsetof(compat_siginfo_t, si_perf_type) != 0x14);
-+	BUILD_BUG_ON(offsetof(compat_siginfo_t, si_perf_flags) != 0x18);
- 
- 	CHECK_CSI_OFFSET(_sigpoll);
- 	CHECK_CSI_SIZE  (_sigpoll, 2*sizeof(int));
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 1c758b0e0359..01fddf72a81f 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -235,6 +235,7 @@ typedef struct compat_siginfo {
- 				struct {
- 					compat_ulong_t _data;
- 					u32 _type;
-+					u32 _flags;
- 				} _perf;
- 			};
- 		} _sigfault;
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index 9a707b555b0a..5f0e8403e8ce 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -318,7 +318,7 @@ int send_sig_mceerr(int code, void __user *, short, struct task_struct *);
- 
- int force_sig_bnderr(void __user *addr, void __user *lower, void __user *upper);
- int force_sig_pkuerr(void __user *addr, u32 pkey);
--int force_sig_perf(void __user *addr, u32 type, u64 sig_data);
-+int send_sig_perf(void __user *addr, u32 type, u64 sig_data);
- 
- int force_sig_ptrace_errno_trap(int errno, void __user *addr);
- int force_sig_fault_trapno(int sig, int code, void __user *addr, int trapno);
-diff --git a/include/uapi/asm-generic/siginfo.h b/include/uapi/asm-generic/siginfo.h
-index 3ba180f550d7..ffbe4cec9f32 100644
---- a/include/uapi/asm-generic/siginfo.h
-+++ b/include/uapi/asm-generic/siginfo.h
-@@ -99,6 +99,7 @@ union __sifields {
- 			struct {
- 				unsigned long _data;
- 				__u32 _type;
-+				__u32 _flags;
- 			} _perf;
- 		};
- 	} _sigfault;
-@@ -164,6 +165,7 @@ typedef struct siginfo {
- #define si_pkey		_sifields._sigfault._addr_pkey._pkey
- #define si_perf_data	_sifields._sigfault._perf._data
- #define si_perf_type	_sifields._sigfault._perf._type
-+#define si_perf_flags	_sifields._sigfault._perf._flags
- #define si_band		_sifields._sigpoll._band
- #define si_fd		_sifields._sigpoll._fd
- #define si_call_addr	_sifields._sigsys._call_addr
-@@ -270,6 +272,11 @@ typedef struct siginfo {
-  * that are of the form: ((PTRACE_EVENT_XXX << 8) | SIGTRAP)
-  */
- 
-+/*
-+ * Flags for si_perf_flags if SIGTRAP si_code is TRAP_PERF.
-+ */
-+#define TRAP_PERF_FLAG_ASYNC (1u << 0)
++	drm_bridge_add(bridge);
 +
- /*
-  * SIGCHLD si_codes
-  */
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 565910de92e9..d7e05d937560 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6529,8 +6529,8 @@ static void perf_sigtrap(struct perf_event *event)
- 	if (current->flags & PF_EXITING)
- 		return;
+ 	rc = drm_bridge_attach(encoder, bridge, NULL, DRM_BRIDGE_ATTACH_NO_CONNECTOR);
+ 	if (rc) {
+ 		DRM_ERROR("failed to attach bridge, rc=%d\n", rc);
++		drm_bridge_remove(bridge);
++
+ 		return ERR_PTR(rc);
+ 	}
  
--	force_sig_perf((void __user *)event->pending_addr,
--		       event->attr.type, event->attr.sig_data);
-+	send_sig_perf((void __user *)event->pending_addr,
-+		      event->attr.type, event->attr.sig_data);
- }
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+index cd7b41b7d518..d95b2cea14dc 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+@@ -668,6 +668,8 @@ struct drm_bridge *msm_dsi_manager_bridge_init(u8 id)
+ 	bridge = &dsi_bridge->base;
+ 	bridge->funcs = &dsi_mgr_bridge_funcs;
  
- static void perf_pending_event_disable(struct perf_event *event)
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 6e3dbb3d1217..d831f0aec56e 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1802,7 +1802,7 @@ int force_sig_pkuerr(void __user *addr, u32 pkey)
- }
- #endif
++	drm_bridge_add(bridge);
++
+ 	ret = drm_bridge_attach(encoder, bridge, NULL, 0);
+ 	if (ret)
+ 		goto fail;
+@@ -738,6 +740,7 @@ struct drm_connector *msm_dsi_manager_ext_bridge_init(u8 id)
  
--int force_sig_perf(void __user *addr, u32 type, u64 sig_data)
-+int send_sig_perf(void __user *addr, u32 type, u64 sig_data)
+ void msm_dsi_manager_bridge_destroy(struct drm_bridge *bridge)
  {
- 	struct kernel_siginfo info;
- 
-@@ -1814,7 +1814,18 @@ int force_sig_perf(void __user *addr, u32 type, u64 sig_data)
- 	info.si_perf_data = sig_data;
- 	info.si_perf_type = type;
- 
--	return force_sig_info(&info);
-+	/*
-+	 * Signals generated by perf events should not terminate the whole
-+	 * process if SIGTRAP is blocked, however, delivering the signal
-+	 * asynchronously is better than not delivering at all. But tell user
-+	 * space if the signal was asynchronous, so it can clearly be
-+	 * distinguished from normal synchronous ones.
-+	 */
-+	info.si_perf_flags = sigismember(&current->blocked, info.si_signo) ?
-+				     TRAP_PERF_FLAG_ASYNC :
-+				     0;
-+
-+	return send_sig_info(info.si_signo, &info, current);
++	drm_bridge_remove(bridge);
  }
  
- /**
-@@ -3445,6 +3456,7 @@ void copy_siginfo_to_external32(struct compat_siginfo *to,
- 		to->si_addr = ptr_to_compat(from->si_addr);
- 		to->si_perf_data = from->si_perf_data;
- 		to->si_perf_type = from->si_perf_type;
-+		to->si_perf_flags = from->si_perf_flags;
- 		break;
- 	case SIL_CHLD:
- 		to->si_pid = from->si_pid;
-@@ -3522,6 +3534,7 @@ static int post_copy_siginfo_from_user32(kernel_siginfo_t *to,
- 		to->si_addr = compat_ptr(from->si_addr);
- 		to->si_perf_data = from->si_perf_data;
- 		to->si_perf_type = from->si_perf_type;
-+		to->si_perf_flags = from->si_perf_flags;
- 		break;
- 	case SIL_CHLD:
- 		to->si_pid    = from->si_pid;
-@@ -4702,6 +4715,7 @@ static inline void siginfo_buildtime_checks(void)
- 	CHECK_OFFSET(si_pkey);
- 	CHECK_OFFSET(si_perf_data);
- 	CHECK_OFFSET(si_perf_type);
-+	CHECK_OFFSET(si_perf_flags);
+ int msm_dsi_manager_cmd_xfer(int id, const struct mipi_dsi_msg *msg)
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi_bridge.c b/drivers/gpu/drm/msm/hdmi/hdmi_bridge.c
+index 68fba4bf7212..9b1b7608ee6d 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi_bridge.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi_bridge.c
+@@ -15,6 +15,7 @@ void msm_hdmi_bridge_destroy(struct drm_bridge *bridge)
+ 	struct hdmi_bridge *hdmi_bridge = to_hdmi_bridge(bridge);
  
- 	/* sigpoll */
- 	CHECK_OFFSET(si_band);
+ 	msm_hdmi_hpd_disable(hdmi_bridge);
++	drm_bridge_remove(bridge);
+ }
+ 
+ static void msm_hdmi_power_on(struct drm_bridge *bridge)
+@@ -346,6 +347,8 @@ struct drm_bridge *msm_hdmi_bridge_init(struct hdmi *hdmi)
+ 		DRM_BRIDGE_OP_DETECT |
+ 		DRM_BRIDGE_OP_EDID;
+ 
++	drm_bridge_add(bridge);
++
+ 	ret = drm_bridge_attach(hdmi->encoder, bridge, NULL, DRM_BRIDGE_ATTACH_NO_CONNECTOR);
+ 	if (ret)
+ 		goto fail;
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 555666e3f960..ef47bd449b46 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -385,6 +385,9 @@ static int msm_drm_uninit(struct device *dev)
+ 
+ 	drm_mode_config_cleanup(ddev);
+ 
++	for (i = 0; i < priv->num_bridges; i++)
++		drm_bridge_remove(priv->bridges[i]);
++
+ 	pm_runtime_get_sync(dev);
+ 	msm_irq_uninstall(ddev);
+ 	pm_runtime_put_sync(dev);
 -- 
 2.35.1
 
