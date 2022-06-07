@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A87A6541C1E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9500D540660
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349146AbiFGV4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:56:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47074 "EHLO
+        id S1347323AbiFGRes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383303AbiFGVxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F395F5A;
-        Tue,  7 Jun 2022 12:11:17 -0700 (PDT)
+        with ESMTP id S1347763AbiFGRbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B533410656A;
+        Tue,  7 Jun 2022 10:28:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59D10B82182;
-        Tue,  7 Jun 2022 19:11:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF7BDC385A5;
-        Tue,  7 Jun 2022 19:11:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D270B8220B;
+        Tue,  7 Jun 2022 17:28:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA279C3411F;
+        Tue,  7 Jun 2022 17:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629075;
-        bh=F5vc2z5PopVkJ8A8MZC70EPgQB/h1zcxegZ4uIkJRU4=;
+        s=korg; t=1654622897;
+        bh=uvnMnN9uGlszsyZ7DlTNeAo0/Gil1CZqQZ0yF6JsYMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmTdBiNpeqPYixelxqRPqaUQTFP0fKf+8Nb8tJxfhY6DvjHj7vKEj2hrnDc8vvH2u
-         O23J6JweUkYRCWcqJOe84c4CZXSkQqxqRzLaUxbZuSs+LZtxZ99Ckjv8bAGsukuwfV
-         +1sJyaEa2Xz4d0/x3G2dxipQ5KzYTXViQaOxLMr8=
+        b=KWo5CBv0KcsQgpg59pfABrkeSgYOIp9ufDPvoyznNTJTmWWEPpiRW05pJMUqvrNO4
+         3neH45z0bjyRAlz5mKCzpWuErPoCLw8sejE5zyOMvYg3OMYSWatZ+4QwvOPo0Jyizi
+         puwf3BuX9GCVThjRAi7kkDuRxjKxZJeHfY2qsukg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Patrick Delaunay <patrick.delaunay@foss.st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 561/879] ARM: dts: stm32: Fix PHY post-reset delay on Avenger96
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 222/452] nvme: set dma alignment to dword
 Date:   Tue,  7 Jun 2022 19:01:19 +0200
-Message-Id: <20220607165019.146590485@linuxfoundation.org>
+Message-Id: <20220607164915.177254190@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,41 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit ef2d90708883f4025a801feb0ba8411a7a4387e1 ]
+[ Upstream commit 52fde2c07da606f3f120af4f734eadcfb52b04be ]
 
-Per KSZ9031RNX PHY datasheet FIGURE 7-5: POWER-UP/POWER-DOWN/RESET TIMING
-Note 2: After the de-assertion of reset, wait a minimum of 100 μs before
-starting programming on the MIIM (MDC/MDIO) interface.
+The nvme specification only requires qword alignment for segment
+descriptors, and the driver already guarantees that. The spec has always
+allowed user data to be dword aligned, which is what the queue's
+attribute is for, so relax the alignment requirement to that value.
 
-Add 1ms post-reset delay to guarantee this figure.
+While we could allow byte alignment for some controllers when using
+SGLs, we still need to support PRP, and that only allows dword.
 
-Fixes: 010ca9fe500bf ("ARM: dts: stm32: Add missing ethernet PHY reset on AV96")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Fixes: 3b2a1ebceba3 ("nvme: set dma alignment to qword")
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-index 61e17f44ce81..76c54b006d87 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-@@ -141,6 +141,7 @@
- 		compatible = "snps,dwmac-mdio";
- 		reset-gpios = <&gpioz 2 GPIO_ACTIVE_LOW>;
- 		reset-delay-us = <1000>;
-+		reset-post-delay-us = <1000>;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index e73a5c62a858..d301f0280ff6 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2024,7 +2024,7 @@ static void nvme_set_queue_limits(struct nvme_ctrl *ctrl,
+ 		blk_queue_max_segments(q, min_t(u32, max_segments, USHRT_MAX));
+ 	}
+ 	blk_queue_virt_boundary(q, NVME_CTRL_PAGE_SIZE - 1);
+-	blk_queue_dma_alignment(q, 7);
++	blk_queue_dma_alignment(q, 3);
+ 	blk_queue_write_cache(q, vwc, vwc);
+ }
  
- 		phy0: ethernet-phy@7 {
- 			reg = <7>;
 -- 
 2.35.1
 
