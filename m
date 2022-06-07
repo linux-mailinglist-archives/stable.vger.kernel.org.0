@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A5D2541C3C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF635405E3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382471AbiFGV5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47636 "EHLO
+        id S1346857AbiFGRcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383478AbiFGVxO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3937244F66;
-        Tue,  7 Jun 2022 12:11:49 -0700 (PDT)
+        with ESMTP id S1347947AbiFGRbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D42E11CA22;
+        Tue,  7 Jun 2022 10:28:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD8CE612EC;
-        Tue,  7 Jun 2022 19:11:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADE0C385A5;
-        Tue,  7 Jun 2022 19:11:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D779BB82285;
+        Tue,  7 Jun 2022 17:28:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA95C34115;
+        Tue,  7 Jun 2022 17:28:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629108;
-        bh=yRHFUJLE9xSqVhgzgjZ7u51QhzkbKY04Y0WQF2bXGUQ=;
+        s=korg; t=1654622930;
+        bh=DtHJIM0o0kZFOpi+gNqdluDzT/TvC0d1gsK1qWbUl+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ng25k4vZ/GLk4VY8JDxERco6Av8wEzNSqPjpguIn6JZpgcliwM5uFXk6KEl5qZCUu
-         wdfOPCCzcU2Nr6wUQGHd+lExvjWic6GCWlILhBAQ562IC1H9fXdMriZZmtdeeUXbJE
-         B47dlZETzIfO+P8HJP1naZ5fj0hyJmjApjDzbCXw=
+        b=lF7ecVSEAgOf80oJkXLHlGAEAtTfqymtGU1PCYq51C9awWda4RVbqwy6zRbOumUIN
+         GB8anvEtnwkAbXIK7MjAB3PG1gS/KeLnWH8iE19yHGf3bQegWafapFlEtFMYQM69TG
+         vaPY9bPpceYmazS41ZR6Ndd0vyBpFET7j+a9frWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Lukas Czerner <lczerner@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 572/879] hwrng: cn10k - Make check_rng_health() return an error code
+Subject: [PATCH 5.10 233/452] ext4: reject the commit option on ext2 filesystems
 Date:   Tue,  7 Jun 2022 19:01:30 +0200
-Message-Id: <20220607165019.458060752@linuxfoundation.org>
+Message-Id: <20220607164915.505202877@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladis Dronov <vdronov@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 32547a6aedda132907fcd15cdc8271429609f216 ]
+[ Upstream commit cb8435dc8ba33bcafa41cf2aa253794320a3b8df ]
 
-Currently check_rng_health() returns zero unconditionally.
-Make it to output an error code and return it.
+The 'commit' option is only applicable for ext3 and ext4 filesystems,
+and has never been accepted by the ext2 filesystem driver, so the ext4
+driver shouldn't allow it on ext2 filesystems.
 
-Fixes: 38e9791a0209 ("hwrng: cn10k - Add random number generator support")
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This fixes a failure in xfstest ext4/053.
+
+Fixes: 8dc0aa8cf0f7 ("ext4: check incompatible mount options while mounting ext2/3")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Link: https://lore.kernel.org/r/20220510183232.172615-1-ebiggers@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/cn10k-rng.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ fs/ext4/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/hw_random/cn10k-rng.c b/drivers/char/hw_random/cn10k-rng.c
-index dd226630b67d..a01e9307737c 100644
---- a/drivers/char/hw_random/cn10k-rng.c
-+++ b/drivers/char/hw_random/cn10k-rng.c
-@@ -31,26 +31,23 @@ struct cn10k_rng {
- 
- #define PLAT_OCTEONTX_RESET_RNG_EBG_HEALTH_STATE     0xc2000b0f
- 
--static int reset_rng_health_state(struct cn10k_rng *rng)
-+static unsigned long reset_rng_health_state(struct cn10k_rng *rng)
- {
- 	struct arm_smccc_res res;
- 
- 	/* Send SMC service call to reset EBG health state */
- 	arm_smccc_smc(PLAT_OCTEONTX_RESET_RNG_EBG_HEALTH_STATE, 0, 0, 0, 0, 0, 0, 0, &res);
--	if (res.a0 != 0UL)
--		return -EIO;
--
--	return 0;
-+	return res.a0;
- }
- 
- static int check_rng_health(struct cn10k_rng *rng)
- {
- 	u64 status;
--	int err;
-+	unsigned long err;
- 
- 	/* Skip checking health */
- 	if (!rng->reg_base)
--		return 0;
-+		return -ENODEV;
- 
- 	status = readq(rng->reg_base + RNM_PF_EBG_HEALTH);
- 	if (status & BIT_ULL(20)) {
-@@ -58,7 +55,9 @@ static int check_rng_health(struct cn10k_rng *rng)
- 		if (err) {
- 			dev_err(&rng->pdev->dev, "HWRNG: Health test failed (status=%llx)\n",
- 					status);
--			dev_err(&rng->pdev->dev, "HWRNG: error during reset\n");
-+			dev_err(&rng->pdev->dev, "HWRNG: error during reset (error=%lx)\n",
-+					err);
-+			return -EIO;
- 		}
- 	}
- 	return 0;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 3e26edeca8c7..35d990adefc6 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1960,6 +1960,7 @@ static const struct mount_opts {
+ 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
+ 	{Opt_warn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_SET},
+ 	{Opt_nowarn_on_error, EXT4_MOUNT_WARN_ON_ERROR, MOPT_CLEAR},
++	{Opt_commit, 0, MOPT_NO_EXT2},
+ 	{Opt_nojournal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
+ 	 MOPT_EXT4_ONLY | MOPT_CLEAR},
+ 	{Opt_journal_checksum, EXT4_MOUNT_JOURNAL_CHECKSUM,
 -- 
 2.35.1
 
