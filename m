@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4926A541202
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 886CF541990
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356766AbiFGTn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:43:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54794 "EHLO
+        id S1378303AbiFGVWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357852AbiFGTm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35D715AB39;
-        Tue,  7 Jun 2022 11:16:37 -0700 (PDT)
+        with ESMTP id S1380636AbiFGVQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F0B21E333;
+        Tue,  7 Jun 2022 11:55:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E98860C14;
-        Tue,  7 Jun 2022 18:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E877C385A2;
-        Tue,  7 Jun 2022 18:16:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C6FDB81FE1;
+        Tue,  7 Jun 2022 18:55:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82563C385A2;
+        Tue,  7 Jun 2022 18:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625796;
-        bh=rQOzDbigvvxG6jMxeqztHkPaTTETYnr8ntAiHYX1pbw=;
+        s=korg; t=1654628141;
+        bh=yoxhDZYgsb+yYlZZwz5ToNqwGqQPdnkh/B9IKDpd3kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEjshlYmjEvvB7htbl8JANb4R6QYSVioZiIMYNwfzGF1mZN4keZKZ+llFyB82H9Qd
-         18zjpnneVXdUM8aUi/KpbeqMu7QGgUSQTvxXhWs4PfFeX/x0bHF5an/1TPxXlXR24/
-         DLYLdMtKgoqJ5n45pvlHE0b5GHW/TEEWsFZ6Kl/A=
+        b=m6j89rsuKBfCS73Dobnk3iyqkHne8BjH8oioTGHbdeYnv8a7KruXfgFC7L/Xfdnnl
+         HNAKnXyKa+d0D+Gh88AtyaWk85NfaezezS5KlWf2F+UvoQ5xbDuHy4CRT3+7pt9qYJ
+         zopxTejqsWu+FJMc6sNrKOy+KufxvRLbSqjUlPJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Zixuan Fu <r33s3n6@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 147/772] Bluetooth: HCI: Add HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN quirk
+Subject: [PATCH 5.18 221/879] fs: jfs: fix possible NULL pointer dereference in dbFree()
 Date:   Tue,  7 Jun 2022 18:55:39 +0200
-Message-Id: <20220607164953.376068546@linuxfoundation.org>
+Message-Id: <20220607165009.268155164@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-[ Upstream commit 05abad857277dda198063017b00ba5b9fed2c0cb ]
+[ Upstream commit 0d4837fdb796f99369cf7691d33de1b856bcaf1f ]
 
-This adds HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN quirk which can be
-used to mark HCI_Enhanced_Setup_Synchronous_Connection as broken even
-if its support command bit are set since some controller report it as
-supported but the command don't work properly with some configurations
-(e.g. BT_VOICE_TRANSPARENT/mSBC).
+In our fault-injection testing, the variable "nblocks" in dbFree() can be
+zero when kmalloc_array() fails in dtSearch(). In this case, the variable
+ "mp" in dbFree() would be NULL and then it is dereferenced in
+"write_metapage(mp)".
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+The failure log is listed as follows:
+
+[   13.824137] BUG: kernel NULL pointer dereference, address: 0000000000000020
+...
+[   13.827416] RIP: 0010:dbFree+0x5f7/0x910 [jfs]
+[   13.834341] Call Trace:
+[   13.834540]  <TASK>
+[   13.834713]  txFreeMap+0x7b4/0xb10 [jfs]
+[   13.835038]  txUpdateMap+0x311/0x650 [jfs]
+[   13.835375]  jfs_lazycommit+0x5f2/0xc70 [jfs]
+[   13.835726]  ? sched_dynamic_update+0x1b0/0x1b0
+[   13.836092]  kthread+0x3c2/0x4a0
+[   13.836355]  ? txLockFree+0x160/0x160 [jfs]
+[   13.836763]  ? kthread_unuse_mm+0x160/0x160
+[   13.837106]  ret_from_fork+0x1f/0x30
+[   13.837402]  </TASK>
+...
+
+This patch adds a NULL check of "mp" before "write_metapage(mp)" is called.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci.h      | 9 +++++++++
- include/net/bluetooth/hci_core.h | 8 ++++++--
- net/bluetooth/hci_conn.c         | 2 +-
- net/bluetooth/sco.c              | 2 +-
- 4 files changed, 17 insertions(+), 4 deletions(-)
+ fs/jfs/jfs_dmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index 69ef31cea582..62a9bb022aed 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -265,6 +265,15 @@ enum {
- 	 * runtime suspend, because event filtering takes place there.
- 	 */
- 	HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL,
-+
-+	/*
-+	 * When this quirk is set, disables the use of
-+	 * HCI_OP_ENHANCED_SETUP_SYNC_CONN command to setup SCO connections.
-+	 *
-+	 * This quirk can be set before hci_register_dev is called or
-+	 * during the hdev->setup vendor callback.
-+	 */
-+	HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN,
- };
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index d8502f4989d9..e75f31b81d63 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -385,7 +385,8 @@ int dbFree(struct inode *ip, s64 blkno, s64 nblocks)
+ 	}
  
- /* HCI device flags */
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 131514913430..49a88b2f4678 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1483,8 +1483,12 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
- #define privacy_mode_capable(dev) (use_ll_privacy(dev) && \
- 				   (hdev->commands[39] & 0x04))
+ 	/* write the last buffer. */
+-	write_metapage(mp);
++	if (mp)
++		write_metapage(mp);
  
--/* Use enhanced synchronous connection if command is supported */
--#define enhanced_sco_capable(dev) ((dev)->commands[29] & 0x08)
-+/* Use enhanced synchronous connection if command is supported and its quirk
-+ * has not been set.
-+ */
-+#define enhanced_sync_conn_capable(dev) \
-+	(((dev)->commands[29] & 0x08) && \
-+	 !test_bit(HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN, &(dev)->quirks))
+ 	IREAD_UNLOCK(ipbmap);
  
- /* Use ext scanning if set ext scan param and ext scan enable is supported */
- #define use_ext_scan(dev) (((dev)->commands[37] & 0x20) && \
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index 84312c836549..cd51bf2a709b 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -481,7 +481,7 @@ static bool hci_setup_sync_conn(struct hci_conn *conn, __u16 handle)
- 
- bool hci_setup_sync(struct hci_conn *conn, __u16 handle)
- {
--	if (enhanced_sco_capable(conn->hdev))
-+	if (enhanced_sync_conn_capable(conn->hdev))
- 		return hci_enhanced_setup_sync_conn(conn, handle);
- 
- 	return hci_setup_sync_conn(conn, handle);
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 8eabf41b2993..2a58c7d88433 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -885,7 +885,7 @@ static int sco_sock_setsockopt(struct socket *sock, int level, int optname,
- 			err = -EBADFD;
- 			break;
- 		}
--		if (enhanced_sco_capable(hdev) &&
-+		if (enhanced_sync_conn_capable(hdev) &&
- 		    voice.setting == BT_VOICE_TRANSPARENT)
- 			sco_pi(sk)->codec.id = BT_CODEC_TRANSPARENT;
- 		hci_dev_put(hdev);
 -- 
 2.35.1
 
