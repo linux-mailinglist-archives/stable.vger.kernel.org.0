@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4612540CE0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70724540619
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352674AbiFGSlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37568 "EHLO
+        id S1346900AbiFGReH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353346AbiFGSkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:40:45 -0400
+        with ESMTP id S1347936AbiFGRbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:23 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B107C1862A3;
-        Tue,  7 Jun 2022 10:58:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062EB11CB48;
+        Tue,  7 Jun 2022 10:28:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8CDD9CE2428;
-        Tue,  7 Jun 2022 17:58:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967C4C34115;
-        Tue,  7 Jun 2022 17:58:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 75CCDCE23D0;
+        Tue,  7 Jun 2022 17:28:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BB6CC385A5;
+        Tue,  7 Jun 2022 17:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624709;
-        bh=3KKKZtJ4sFeXRC/0k5HsH1u7OtlOH5IUU4Szu7BmfA8=;
+        s=korg; t=1654622927;
+        bh=GZ1iR0fIvOKJSYdWQ6afDonHcNyO9EnM5YTlpgdNY/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uX5Vd64bnezOWYYRdpPDsv1l+aYxXuh2ivkdcWOauO7dWyFDvFuv5WczFfkOyCyA5
-         DOV9DxLhzvGJuI/MtuyQoKzzPsj+ApshhTO57A+jZAZu/wQU8tlB4qvtAYlQ14ge8d
-         uf7ZA/6i2q5eVjFHm8YcnNekPe+ys094BHw3bpmE=
+        b=JWudSFdGuh7gJPaFDNY/Zr5UcBcDP+HcZUtFOApffyBcSDkKrsKSiASnJILkTYU8F
+         z+4UoQwuWqZ8+wnNZKM2wkw7NtljOklnA0C8BP14pa4mlmGKeeKqwr/CKsJD34Tarf
+         45G4k8vqJlGp0LFkp7/6xwkNc+kWr052NBYbhSWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 424/667] arm64: dts: ti: k3-am64-mcu: remove incorrect UART base clock rates
+Subject: [PATCH 5.10 232/452] media: rkvdec: h264: Fix bit depth wrap in pps packet
 Date:   Tue,  7 Jun 2022 19:01:29 +0200
-Message-Id: <20220607164947.447335342@linuxfoundation.org>
+Message-Id: <20220607164915.475815365@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit 439677d416b17dd39964d5f7d64b742a2e51da5b ]
+[ Upstream commit a074aa4760d1dad0bd565c0f66e7250f5f219ab0 ]
 
-We found that (at least some versions of) the sci-fw set the base clock
-rate for UARTs in the MCU domain to 96 MHz instead of the expected 48 MHz,
-leading to incorrect baud rates when used from Linux.
+The luma and chroma bit depth fields in the pps packet are 3 bits wide.
+8 is wrongly added to the bit depth values written to these 3 bit fields.
+Because only the 3 LSB are written, the hardware was configured
+correctly.
 
-As the 8250_omap driver will query the actual clock rate from the clk
-driver when clock-frequency is unset, removing the incorrect property is
-sufficient to fix the baud rate.
+Correct this by not adding 8 to the luma and chroma bit depth value.
 
-Fixes: 8abae9389bdb ("arm64: dts: ti: Add support for AM642 SoC")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20220419075157.189347-1-matthias.schiffer@ew.tq-group.com
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec-h264.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi b/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi
-index 59cc58f7d0c8..93e684bbd66c 100644
---- a/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am64-mcu.dtsi
-@@ -10,7 +10,6 @@
- 		compatible = "ti,am64-uart", "ti,am654-uart";
- 		reg = <0x00 0x04a00000 0x00 0x100>;
- 		interrupts = <GIC_SPI 185 IRQ_TYPE_LEVEL_HIGH>;
--		clock-frequency = <48000000>;
- 		current-speed = <115200>;
- 		power-domains = <&k3_pds 149 TI_SCI_PD_EXCLUSIVE>;
- 		clocks = <&k3_clks 149 0>;
-@@ -21,7 +20,6 @@
- 		compatible = "ti,am64-uart", "ti,am654-uart";
- 		reg = <0x00 0x04a10000 0x00 0x100>;
- 		interrupts = <GIC_SPI 186 IRQ_TYPE_LEVEL_HIGH>;
--		clock-frequency = <48000000>;
- 		current-speed = <115200>;
- 		power-domains = <&k3_pds 160 TI_SCI_PD_EXCLUSIVE>;
- 		clocks = <&k3_clks 160 0>;
+diff --git a/drivers/staging/media/rkvdec/rkvdec-h264.c b/drivers/staging/media/rkvdec/rkvdec-h264.c
+index 52ffa31f08ac..7013f7ce3678 100644
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -662,8 +662,8 @@ static void assemble_hw_pps(struct rkvdec_ctx *ctx,
+ 	WRITE_PPS(0xff, PROFILE_IDC);
+ 	WRITE_PPS(1, CONSTRAINT_SET3_FLAG);
+ 	WRITE_PPS(sps->chroma_format_idc, CHROMA_FORMAT_IDC);
+-	WRITE_PPS(sps->bit_depth_luma_minus8 + 8, BIT_DEPTH_LUMA);
+-	WRITE_PPS(sps->bit_depth_chroma_minus8 + 8, BIT_DEPTH_CHROMA);
++	WRITE_PPS(sps->bit_depth_luma_minus8, BIT_DEPTH_LUMA);
++	WRITE_PPS(sps->bit_depth_chroma_minus8, BIT_DEPTH_CHROMA);
+ 	WRITE_PPS(0, QPPRIME_Y_ZERO_TRANSFORM_BYPASS_FLAG);
+ 	WRITE_PPS(sps->log2_max_frame_num_minus4, LOG2_MAX_FRAME_NUM_MINUS4);
+ 	WRITE_PPS(sps->max_num_ref_frames, MAX_NUM_REF_FRAMES);
 -- 
 2.35.1
 
