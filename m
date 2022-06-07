@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DA154147B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2343C540620
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358758AbiFGUST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:18:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39332 "EHLO
+        id S245004AbiFGReQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376561AbiFGUQy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:16:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB45172C14;
-        Tue,  7 Jun 2022 11:29:29 -0700 (PDT)
+        with ESMTP id S1347234AbiFGRaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C03B107882;
+        Tue,  7 Jun 2022 10:26:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66D21B8237C;
-        Tue,  7 Jun 2022 18:29:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28FFC385A5;
-        Tue,  7 Jun 2022 18:29:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9961D60BC6;
+        Tue,  7 Jun 2022 17:26:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACB5FC385A5;
+        Tue,  7 Jun 2022 17:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626565;
-        bh=3xOZY2rZbOX3Q/5YOONZrsu9wJxQTj1y2E9gwJ19t04=;
+        s=korg; t=1654622763;
+        bh=8ASGapjXqKHLEWJeVOcYtfN2sabWwM7SrPsc7jmLhkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OapB7OXBQu3rmJaaWomxLq/VJA0gNYWEEqMVGP+9QNSlq64LF5KKupyX5aBvQ5UQu
-         /KE852lcqYt7r9Qqsp0TJ2jT00vWEFXIQ6/XFMzPRDe8mv2t1XdXiFOJgrdWRHqA84
-         FN2YTaCpM8H/C1k6mf5K6Ts6oAbohJk9HVuirSaY=
+        b=XRA/ML3Gcwwxjnesmy/bv0esVaglXOb4MrC8lMW8N0pu4B8ZRKIyGDbULkFwNvto9
+         7T7sxuBJLpwDxfvfLY2pqLHPbyGstzgXHSHN9XTd4LLcyLugimVAM0Cy3NmJZZdC5o
+         bFMq+lvourjfg2uHEqZbuPp6zmwmMaJ+9D62/eD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 422/772] bfq: Relax waker detection for shared queues
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Christoph Fritz <chf.fritz@googlemail.com>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 157/452] drm/panel: simple: Add missing bus flags for Innolux G070Y2-L01
 Date:   Tue,  7 Jun 2022 19:00:14 +0200
-Message-Id: <20220607165001.439896878@linuxfoundation.org>
+Message-Id: <20220607164913.238144606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +58,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit f950667356ce90a41b446b726d4595a10cb65415 ]
+[ Upstream commit 0f73a559f916b618c0c05186bd644c90cc9e9695 ]
 
-Currently we look for waker only if current queue has no requests. This
-makes sense for bfq queues with a single process however for shared
-queues when there is a larger number of processes the condition that
-queue has no requests is difficult to meet because often at least one
-process has some request in flight although all the others are waiting
-for the waker to do the work and this harms throughput. Relax the "no
-queued request for bfq queue" condition to "the current task has no
-queued requests yet". For this, we also need to start tracking number of
-requests in flight for each task.
+The DE signal is active high on this display, fill in the missing bus_flags.
+This aligns panel_desc with its display_timing .
 
-This patch (together with the following one) restores the performance
-for dbench with 128 clients that regressed with commit c65e6fd460b4
-("bfq: Do not let waker requests skip proper accounting") because
-this commit makes requests of wakers properly enter BFQ queues and thus
-these queues become ineligible for the old waker detection logic.
-Dbench results:
-
-         Vanilla 5.18-rc3        5.18-rc3 + revert      5.18-rc3 patched
-Mean     1237.36 (   0.00%)      950.16 *  23.21%*      988.35 *  20.12%*
-
-Numbers are time to complete workload so lower is better.
-
-Fixes: c65e6fd460b4 ("bfq: Do not let waker requests skip proper accounting")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220519105235.31397-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: a5d2ade627dca ("drm/panel: simple: Add support for Innolux G070Y2-L01")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Maxime Ripard <maxime@cerno.tech>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220406093627.18011-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 5 +++--
- block/bfq-iosched.h | 1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 963f9f549232..047368c23984 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2133,7 +2133,6 @@ static void bfq_check_waker(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (!bfqd->last_completed_rq_bfqq ||
- 	    bfqd->last_completed_rq_bfqq == bfqq ||
- 	    bfq_bfqq_has_short_ttime(bfqq) ||
--	    bfqq->dispatched > 0 ||
- 	    now_ns - bfqd->last_completion >= 4 * NSEC_PER_MSEC ||
- 	    bfqd->last_completed_rq_bfqq == bfqq->waker_bfqq)
- 		return;
-@@ -2210,7 +2209,7 @@ static void bfq_add_request(struct request *rq)
- 	bfqq->queued[rq_is_sync(rq)]++;
- 	bfqd->queued++;
- 
--	if (RB_EMPTY_ROOT(&bfqq->sort_list) && bfq_bfqq_sync(bfqq)) {
-+	if (bfq_bfqq_sync(bfqq) && RQ_BIC(rq)->requests <= 1) {
- 		bfq_check_waker(bfqd, bfqq, now_ns);
- 
- 		/*
-@@ -6563,6 +6562,7 @@ static void bfq_finish_requeue_request(struct request *rq)
- 		bfq_completed_request(bfqq, bfqd);
- 	}
- 	bfq_finish_requeue_request_body(bfqq);
-+	RQ_BIC(rq)->requests--;
- 	spin_unlock_irqrestore(&bfqd->lock, flags);
- 
- 	/*
-@@ -6796,6 +6796,7 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
- 
- 	bfqq_request_allocated(bfqq);
- 	bfqq->ref++;
-+	bic->requests++;
- 	bfq_log_bfqq(bfqd, bfqq, "get_request %p: bfqq %p, %d",
- 		     rq, bfqq, bfqq->ref);
- 
-diff --git a/block/bfq-iosched.h b/block/bfq-iosched.h
-index 07288b9da389..a1ec70af64c8 100644
---- a/block/bfq-iosched.h
-+++ b/block/bfq-iosched.h
-@@ -469,6 +469,7 @@ struct bfq_io_cq {
- 	struct bfq_queue *stable_merge_bfqq;
- 
- 	bool stably_merged;	/* non splittable if true */
-+	unsigned int requests;	/* Number of requests this process has in flight */
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 959dcbd8a29c..18850439a2ab 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -2144,6 +2144,7 @@ static const struct panel_desc innolux_g070y2_l01 = {
+ 		.unprepare = 800,
+ 	},
+ 	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
++	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
+ 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
  };
  
- /**
 -- 
 2.35.1
 
