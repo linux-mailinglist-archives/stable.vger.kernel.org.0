@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4F1540D91
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D275415DC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346524AbiFGStE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:49:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
+        id S1376336AbiFGUnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354243AbiFGSqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:50 -0400
+        with ESMTP id S1377247AbiFGUdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA871257A7;
-        Tue,  7 Jun 2022 11:00:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D72617EF60;
+        Tue,  7 Jun 2022 11:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 187E1617AE;
-        Tue,  7 Jun 2022 18:00:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2843CC385A5;
-        Tue,  7 Jun 2022 18:00:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C01160906;
+        Tue,  7 Jun 2022 18:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F9DC385A2;
+        Tue,  7 Jun 2022 18:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624825;
-        bh=b2xI1vAuWumL9Pl1KLY/AKMQ4JmYs0MYUQwUJwyOSvA=;
+        s=korg; t=1654626887;
+        bh=hY1OGFaYOAjKahsc3EgeshxdB0vb5pnbnAM/vdL5NOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j++SylZXrUszwSQ2DKZ7080gUTB+YGOHQ5nBhHIuag2DIcmTS8RgXGEDTAzK7wf1y
-         eAObApVEi591S1mr/tE6ujvO2BisITAmqL5BFcCAPTDdGcayyCZP8/F0n6EBc9x8Bo
-         BtAwFSxsE4/F5hL6Nh/PXKRvFnDxLm5rcvpjoR64=
+        b=Zv9p+hNFPs1Y/WGxk7mEEVexEiiobp3jNcDnmJQ5x9j2ZDD2tTVvd7pY8PVtFXySG
+         xUSzno3m42P/3ytbBTk2Rb6i3ja5l2taRZ3e7E8LcBpmfM0c2r68PN/yxgAOQs/foD
+         JfgP5XKCuK+hxZy1YKg8YYs6ShHqZYoF1pfTSaFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Daire McNamara <daire.mcnamara@microchip.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 466/667] macintosh: via-pmu and via-cuda need RTC_LIB
-Date:   Tue,  7 Jun 2022 19:02:11 +0200
-Message-Id: <20220607164948.685062207@linuxfoundation.org>
+Subject: [PATCH 5.17 540/772] PCI: microchip: Fix potential race in interrupt handling
+Date:   Tue,  7 Jun 2022 19:02:12 +0200
+Message-Id: <20220607165004.877411631@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Daire McNamara <daire.mcnamara@microchip.com>
 
-[ Upstream commit 9a9c5ff5fff87eb1a43db0d899473554e408fd7b ]
+[ Upstream commit 7013654af694f6e1a2e699a6450ea50d309dd0e5 ]
 
-Fix build when RTC_LIB is not set/enabled.
-Eliminates these build errors:
+Clear the MSI bit in ISTATUS_LOCAL register after reading it, but
+before reading and handling individual MSI bits from the ISTATUS_MSI
+register. This avoids a potential race where new MSI bits may be set
+on the ISTATUS_MSI register after it was read and be missed when the
+MSI bit in the ISTATUS_LOCAL register is cleared.
 
-m68k-linux-ld: drivers/macintosh/via-pmu.o: in function `pmu_set_rtc_time':
-drivers/macintosh/via-pmu.c:1769: undefined reference to `rtc_tm_to_time64'
-m68k-linux-ld: drivers/macintosh/via-cuda.o: in function `cuda_set_rtc_time':
-drivers/macintosh/via-cuda.c:797: undefined reference to `rtc_tm_to_time64'
+ISTATUS_LOCAL is a read/write/clear register; the register's bits
+are set when the corresponding interrupt source is activated. Each
+source is independent and thus multiple sources may be active
+simultaneously. The processor can monitor and clear status
+bits. If one or more ISTATUS_LOCAL interrupt sources are active,
+the RootPort issues an interrupt towards the processor (on
+the AXI domain). Bit 28 of this register reports an MSI has been
+received by the RootPort.
 
-Fixes: 0792a2c8e0bb ("macintosh: Use common code to access RTC")
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220410161035.592-1-rdunlap@infradead.org
+ISTATUS_MSI is a read/write/clear register. Bits 31-0 are asserted
+when an MSI with message number 31-0 is received by the RootPort.
+The processor must monitor and clear these bits.
+
+Effectively, Bit 28 of ISTATUS_LOCAL informs the processor that
+an MSI has arrived at the RootPort and ISTATUS_MSI informs the
+processor which MSI (in the range 0 - 31) needs handling.
+
+Reported by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/linux-pci/20220127202000.GA126335@bhelgaas/
+
+Link: https://lore.kernel.org/r/20220517141622.145581-1-daire.mcnamara@microchip.com
+Fixes: 6f15a9c9f941 ("PCI: microchip: Add Microchip PolarFire PCIe controller driver")
+Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/controller/pcie-microchip-host.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
-index 3942db15a2b8..539a2ed4e13d 100644
---- a/drivers/macintosh/Kconfig
-+++ b/drivers/macintosh/Kconfig
-@@ -44,6 +44,7 @@ config ADB_IOP
- config ADB_CUDA
- 	bool "Support for Cuda/Egret based Macs and PowerMacs"
- 	depends on (ADB || PPC_PMAC) && !PPC_PMAC64
-+	select RTC_LIB
- 	help
- 	  This provides support for Cuda/Egret based Macintosh and
- 	  Power Macintosh systems. This includes most m68k based Macs,
-@@ -57,6 +58,7 @@ config ADB_CUDA
- config ADB_PMU
- 	bool "Support for PMU based PowerMacs and PowerBooks"
- 	depends on PPC_PMAC || MAC
-+	select RTC_LIB
- 	help
- 	  On PowerBooks, iBooks, and recent iMacs and Power Macintoshes, the
- 	  PMU is an embedded microprocessor whose primary function is to
+diff --git a/drivers/pci/controller/pcie-microchip-host.c b/drivers/pci/controller/pcie-microchip-host.c
+index 8175abed0f05..2c52a8cef726 100644
+--- a/drivers/pci/controller/pcie-microchip-host.c
++++ b/drivers/pci/controller/pcie-microchip-host.c
+@@ -419,6 +419,7 @@ static void mc_handle_msi(struct irq_desc *desc)
+ 
+ 	status = readl_relaxed(bridge_base_addr + ISTATUS_LOCAL);
+ 	if (status & PM_MSI_INT_MSI_MASK) {
++		writel_relaxed(status & PM_MSI_INT_MSI_MASK, bridge_base_addr + ISTATUS_LOCAL);
+ 		status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
+ 		for_each_set_bit(bit, &status, msi->num_vectors) {
+ 			ret = generic_handle_domain_irq(msi->dev_domain, bit);
+@@ -437,13 +438,8 @@ static void mc_msi_bottom_irq_ack(struct irq_data *data)
+ 	void __iomem *bridge_base_addr =
+ 		port->axi_base_addr + MC_PCIE_BRIDGE_ADDR;
+ 	u32 bitpos = data->hwirq;
+-	unsigned long status;
+ 
+ 	writel_relaxed(BIT(bitpos), bridge_base_addr + ISTATUS_MSI);
+-	status = readl_relaxed(bridge_base_addr + ISTATUS_MSI);
+-	if (!status)
+-		writel_relaxed(BIT(PM_MSI_INT_MSI_SHIFT),
+-			       bridge_base_addr + ISTATUS_LOCAL);
+ }
+ 
+ static void mc_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
 -- 
 2.35.1
 
