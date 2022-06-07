@@ -2,117 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 866F953FAD7
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE6853FAEA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240166AbiFGKJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 06:09:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
+        id S240114AbiFGKL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 06:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbiFGKJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:09:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2122584A21;
-        Tue,  7 Jun 2022 03:09:11 -0700 (PDT)
+        with ESMTP id S233342AbiFGKL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:11:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C9AA30AE;
+        Tue,  7 Jun 2022 03:11:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF2C061444;
-        Tue,  7 Jun 2022 10:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 184A2C385A5;
-        Tue,  7 Jun 2022 10:09:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654596550;
-        bh=Xl70ZrJYXQ/z1wrP2I4gx9fjVbu5qC8UmIuY2iI9hq8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPgOnCw+tS8CUR8g9N4w3V+AvcGPeyDSDSkV1X9XuvcfI7IBLAW/cRoVvpgzEYw/K
-         5KR4qz34cqQ++7H0QjdFxUTxAxERQMU3WLCZTKWhJV/CUmiF15Y7DZW4IyCWCnpSNM
-         ygc4WbhrCu/ug5hGPPeBwhb6aQ+SThGHhdh0DWmnME5BBLSewrOzXhG+/4CLLyrafF
-         a7HeyezNlYXl9pY10yhfta5pcZtqBX1RWRLXIRJhaYyjnohocfPwQ5UhLjTFAubztM
-         c7K7BTFlck2lFEfgvzjK0cVj+DCRyurblMkUMn+21MabqBFOiu4/xiZsZOrgC7TAeT
-         cgHiSiemkYSGA==
-From:   Christian Brauner <brauner@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.15.y 2/2] exportfs: support idmapped mounts
-Date:   Tue,  7 Jun 2022 12:08:39 +0200
-Message-Id: <20220607100840.1686673-2-brauner@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <165451869522688@kroah.com>
-References: <20220607100840.1686673-1-brauner@kernel.org>
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0B035CE1FFC;
+        Tue,  7 Jun 2022 10:11:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40607C34115;
+        Tue,  7 Jun 2022 10:11:22 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="X2K0Ykj+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1654596680;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1uLp6S7qDm+prOZPlj1/i8axFvtvjD7FOsjnFuZBDPg=;
+        b=X2K0Ykj+oOpHR3dcG5mP2wE0U/B0IWXZSN2cK6HP/+Z47nOzBdxQe/OTHEAUhC2fHzSOmj
+        jIPDtNllmaacdUUfHN2mDFVOK6uPL/GPUeuIT0uRqMSrNlkRWeR5jz3KgsarDoP6l96LeH
+        h9K8wirp3B1eHUKd32vhgbIkA9q9XMM=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id d13f70d9 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Tue, 7 Jun 2022 10:11:19 +0000 (UTC)
+Date:   Tue, 7 Jun 2022 12:11:14 +0200
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Phil Elwell <phil@raspberrypi.com>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
+Message-ID: <Yp8kQrBgE3WVqqC5@zx2c4.com>
+References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
+ <CAHmME9pL=g7Gz9-QOHnTosLHAL9YSPsW+CnE=9=u3iTQaFzomg@mail.gmail.com>
+ <0f6458d7-037a-fa4d-8387-7de833288fb9@raspberrypi.com>
+ <CAHmME9rJif3ydZuFJcSjPxkGMofZkbu2PXcHBF23OWVgGQ4c+A@mail.gmail.com>
+ <Yp8jQG30OWOG9C4j@arm.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2178; h=from:subject; bh=Xl70ZrJYXQ/z1wrP2I4gx9fjVbu5qC8UmIuY2iI9hq8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMSTNV17onvanYm7oldTny5e5zfZe6sDjaTxxX8jzsyar3vze 9e88Z0cpC4MYF4OsmCKLQ7tJuNxynorNRpkaMHNYmUCGMHBxCsBEWlMY/krPMRC/xbcvesnqm4FVKp svs9p0bTqbpSdgFpcdn1/2/Bcjw0zmLB2v0sS8ExJ171K+cT8rFXibkHjgpZfCLvMNkhfWcAEA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Yp8jQG30OWOG9C4j@arm.com>
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make the two locations where exportfs helpers check permission to lookup
-a given inode idmapped mount aware by switching it to the lookup_one()
-helper. This is a bugfix for the open_by_handle_at() system call which
-doesn't take idmapped mounts into account currently. It's not tied to a
-specific commit so we'll just Cc stable.
+Hi Catalin,
 
-In addition this is required to support idmapped base layers in overlay.
-The overlay filesystem uses exportfs to encode and decode file handles
-for its index=on mount option and when nfs_export=on.
+On Tue, Jun 07, 2022 at 11:06:56AM +0100, Catalin Marinas wrote:
+> Hi Jason,
+> 
+> On Tue, Jun 07, 2022 at 10:51:41AM +0200, Jason A. Donenfeld wrote:
+> > On Tue, Jun 7, 2022 at 10:47 AM Phil Elwell <phil@raspberrypi.com> wrote:
+> > > Thanks for the quick response, but that doesn't work for me either. Let me say
+> > > again that I'm on a downstream kernel (rpi-5.15.y) so this may not be a
+> > > universal problem, but merging either of these fixing patches would be fatal for us.
+> > 
+> > Alright, thanks. And I'm guessing you don't currently have a problem
+> > *without* either of the fixing patches, because your device tree
+> > doesn't use rng-seed. Is that right?
+> > 
+> > In anycase, I sent in a revert to get all the static branch stuff out
+> > of stable -- https://lore.kernel.org/stable/20220607084005.666059-1-Jason@zx2c4.com/
+> > -- so the "urgency" of this should decrease and we can fix this as
+> > normal during the 5.19 cycle.
+> 
+> Since the above revert got queued in -stable, I assume you don't need
+> commit 73e2d827a501 ("arm64: Initialize jump labels before
+> setup_machine_fdt()") in stable either.
 
-Cc: <stable@vger.kernel.org>
-Cc: <linux-fsdevel@vger.kernel.org>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
----
-Hey Greg,
+I made the point here:
+https://lore.kernel.org/stable/Yp8i9DH57dRGfTNf@kroah.com/T/#m8f33bc14b677980abe690e5c7a4909b5902010cc
 
-This was missing a preliminary commit.
-My build machines are currently down so I couldn't do a test build but
-this should build cleanly.
+> Do you plan to fix the crng_ready() static branch differently? If you
+> do, I'd like to revert the corresponding arm64 commit as well. It seems
+> to be harmless but I'd rather not keep it if no longer needed. So please
+> keep me updated whatever you decide.
 
-Thanks!
-Christian
----
- fs/exportfs/expfs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+I sent a "backup commit" for that here: https://lore.kernel.org/all/20220607100210.683136-1-Jason@zx2c4.com/
+But I would like a few days to see if there's some trivial way of not
+needing that on arm32. If it turns out to be easy, then I'd prefer the
+direct fix akin to the arm64 one. If it turns out to be not easy, then
+I'll merge the backup commit. I'll keep you posted (and I assume anyway
+you'll see the arm32 attempts progress or fail here, also).
 
-diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
-index 0106eba46d5a..3ef80d000e13 100644
---- a/fs/exportfs/expfs.c
-+++ b/fs/exportfs/expfs.c
-@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
- 	if (err)
- 		goto out_err;
- 	dprintk("%s: found name: %s\n", __func__, nbuf);
--	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
-+	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
- 	if (IS_ERR(tmp)) {
- 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
- 		err = PTR_ERR(tmp);
-@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *mnt, struct fid *fid, int fh_len,
- 		}
- 
- 		inode_lock(target_dir->d_inode);
--		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
-+		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
-+				     target_dir, strlen(nbuf));
- 		if (!IS_ERR(nresult)) {
- 			if (unlikely(nresult->d_inode != result->d_inode)) {
- 				dput(nresult);
--- 
-2.34.1
-
+Jason
