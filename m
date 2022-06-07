@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2298541D09
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E06625415E2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383681AbiFGWHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40400 "EHLO
+        id S1359751AbiFGUnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383695AbiFGWGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:09 -0400
+        with ESMTP id S1376918AbiFGUks (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:40:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07CCB25225D;
-        Tue,  7 Jun 2022 12:17:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3EE21EEB80;
+        Tue,  7 Jun 2022 11:38:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB9C1B8237B;
-        Tue,  7 Jun 2022 19:17:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12862C385A5;
-        Tue,  7 Jun 2022 19:17:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C481B82182;
+        Tue,  7 Jun 2022 18:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E969C385A2;
+        Tue,  7 Jun 2022 18:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629425;
-        bh=+rr6wQg1UXT8+9VQVPiZnQB4JkYD2ZkKEtekqVIyEF0=;
+        s=korg; t=1654627085;
+        bh=Ef0HGhy+7GGRYGoh67NWrc66shINJ2PSSX4Uj+r6/lM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVaP8LQUeLOISYzQ8HMG9IeH6P9jHE0sj4vT5o7AuEiuXSVIdcOhQZFKxWFzopWV3
-         wZmSwecElJTI/v0gaYuuuNfGuGnMpdCOiPPivDhLogIt15L4IJt/5U4AdEMl88vf3x
-         y5VGPPv05oxSFYf2bl70IFoEScWrEeqnpCno4SKk=
+        b=aWkK8YwFkxH4umQq5rgrmy9AFPj3L5bsv9o5vY+2lYAs4vOUdb85840nr+tzz9gac
+         rJJHBHTjcHogUwp++auWj3lBUDhM5YEnxNip0ZTYbMow84ubkS+JeFBiHtcKxoEwPX
+         iA3ojXmw0v91idsuqX4bXXUWdeyA1c0N/q1Rt7Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "D. Ziegfeld" <dzigg@posteo.de>,
-        =?UTF-8?q?J=C3=B6rg-Volker=20Peetz?= <jvpeetz@web.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 687/879] iommu/amd: Increase timeout waiting for GA log enablement
+        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.17 613/772] f2fs: dont need inode lock for system hidden quota
 Date:   Tue,  7 Jun 2022 19:03:25 +0200
-Message-Id: <20220607165022.791728528@linuxfoundation.org>
+Message-Id: <20220607165007.002611310@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,51 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 42bb5aa043382f09bef2cc33b8431be867c70f8e ]
+commit 6213f5d4d23c50d393a31dc8e351e63a1fd10dbe upstream.
 
-On some systems it can take a long time for the hardware to enable the
-GA log of the AMD IOMMU. The current wait time is only 0.1ms, but
-testing showed that it can take up to 14ms for the GA log to enter
-running state after it has been enabled.
+Let's avoid false-alarmed lockdep warning.
 
-Sometimes the long delay happens when booting the system, sometimes
-only on resume. Adjust the timeout accordingly to not print a warning
-when hardware takes a longer than usual.
+[   58.914674] [T1501146] -> #2 (&sb->s_type->i_mutex_key#20){+.+.}-{3:3}:
+[   58.915975] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.916738] [T1501146] system_server:        f2fs_quota_sync+0x60/0x1a8
+[   58.917563] [T1501146] system_server:        block_operations+0x16c/0x43c
+[   58.918410] [T1501146] system_server:        f2fs_write_checkpoint+0x114/0x318
+[   58.919312] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
+[   58.920214] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.920999] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
+[   58.921862] [T1501146] system_server:        f2fs_sync_file+0x30/0x48
+[   58.922667] [T1501146] system_server:        __arm64_sys_fsync+0x84/0xf8
+[   58.923506] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
+[   58.924604] [T1501146] system_server:        do_el0_svc+0x28/0xa0
+[   58.925366] [T1501146] system_server:        el0_svc+0x24/0x38
+[   58.926094] [T1501146] system_server:        el0_sync_handler+0x88/0xec
+[   58.926920] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
 
-There has already been an attempt to fix this with commit
+[   58.927681] [T1501146] -> #1 (&sbi->cp_global_sem){+.+.}-{3:3}:
+[   58.928889] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.929650] [T1501146] system_server:        f2fs_write_checkpoint+0xbc/0x318
+[   58.930541] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
+[   58.931443] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.932226] [T1501146] system_server:        sync_filesystem+0xac/0x130
+[   58.933053] [T1501146] system_server:        generic_shutdown_super+0x38/0x150
+[   58.933958] [T1501146] system_server:        kill_block_super+0x24/0x58
+[   58.934791] [T1501146] system_server:        kill_f2fs_super+0xcc/0x124
+[   58.935618] [T1501146] system_server:        deactivate_locked_super+0x90/0x120
+[   58.936529] [T1501146] system_server:        deactivate_super+0x74/0xac
+[   58.937356] [T1501146] system_server:        cleanup_mnt+0x128/0x168
+[   58.938150] [T1501146] system_server:        __cleanup_mnt+0x18/0x28
+[   58.938944] [T1501146] system_server:        task_work_run+0xb8/0x14c
+[   58.939749] [T1501146] system_server:        do_notify_resume+0x114/0x1e8
+[   58.940595] [T1501146] system_server:        work_pending+0xc/0x5f0
 
-	9b45a7738eec ("iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()")
+[   58.941375] [T1501146] -> #0 (&sbi->gc_lock){+.+.}-{3:3}:
+[   58.942519] [T1501146] system_server:        __lock_acquire+0x1270/0x2868
+[   58.943366] [T1501146] system_server:        lock_acquire+0x114/0x294
+[   58.944169] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.944930] [T1501146] system_server:        f2fs_issue_checkpoint+0x13c/0x21c
+[   58.945831] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.946614] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
+[   58.947472] [T1501146] system_server:        f2fs_ioc_commit_atomic_write+0xc8/0x14c
+[   58.948439] [T1501146] system_server:        __f2fs_ioctl+0x674/0x154c
+[   58.949253] [T1501146] system_server:        f2fs_ioctl+0x54/0x88
+[   58.950018] [T1501146] system_server:        __arm64_sys_ioctl+0xa8/0x110
+[   58.950865] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
+[   58.951965] [T1501146] system_server:        do_el0_svc+0x28/0xa0
+[   58.952727] [T1501146] system_server:        el0_svc+0x24/0x38
+[   58.953454] [T1501146] system_server:        el0_sync_handler+0x88/0xec
+[   58.954279] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
 
-But that commit was based on some wrong math and did not fix the issue
-in all cases.
-
-Cc: "D. Ziegfeld" <dzigg@posteo.de>
-Cc: Jörg-Volker Peetz <jvpeetz@web.de>
-Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220520102214.12563-1-joro@8bytes.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd/init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/super.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index b4a798c7b347..d8060503ba51 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -84,7 +84,7 @@
- #define ACPI_DEVFLAG_LINT1              0x80
- #define ACPI_DEVFLAG_ATSDIS             0x10000000
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2706,7 +2706,8 @@ int f2fs_quota_sync(struct super_block *
+ 		if (!sb_has_quota_active(sb, cnt))
+ 			continue;
  
--#define LOOP_TIMEOUT	100000
-+#define LOOP_TIMEOUT	2000000
- /*
-  * ACPI table definitions
-  *
--- 
-2.35.1
-
+-		inode_lock(dqopt->files[cnt]);
++		if (!f2fs_sb_has_quota_ino(sbi))
++			inode_lock(dqopt->files[cnt]);
+ 
+ 		/*
+ 		 * do_quotactl
+@@ -2725,7 +2726,8 @@ int f2fs_quota_sync(struct super_block *
+ 		up_read(&sbi->quota_sem);
+ 		f2fs_unlock_op(sbi);
+ 
+-		inode_unlock(dqopt->files[cnt]);
++		if (!f2fs_sb_has_quota_ino(sbi))
++			inode_unlock(dqopt->files[cnt]);
+ 
+ 		if (ret)
+ 			break;
 
 
