@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 214ED541C33
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E65FD541563
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379216AbiFGV5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46012 "EHLO
+        id S1359414AbiFGUfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:35:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384377AbiFGVyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AFE224ACAE;
-        Tue,  7 Jun 2022 12:13:28 -0700 (PDT)
+        with ESMTP id S1377235AbiFGUdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:33:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B8C1E3018;
+        Tue,  7 Jun 2022 11:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A824B8237B;
-        Tue,  7 Jun 2022 19:13:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02177C385A2;
-        Tue,  7 Jun 2022 19:13:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3FA7B8237E;
+        Tue,  7 Jun 2022 18:34:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E967C385A2;
+        Tue,  7 Jun 2022 18:34:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629205;
-        bh=rErfl5eEDB3p0z9t/ZqOeXDL0w1kyG5P6kY7CDdLFXA=;
+        s=korg; t=1654626868;
+        bh=VYBd86LMk5jOSS/MImRpk2S/tWG5Gbn3PLa2ExIOctg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKn97rOcJWRY+c5AeznycFpd6Zk4YVeHoDVdosZRQS7qqCIKL6cvflnIH98c9yWwf
-         Nfhb1IPdpJplEmm3oWorRnYRbn5AThMPeRgQT6m2IpTLTMj5Xrq54H5Q7WzIJ+KSvM
-         gugBtaAPwzBO2Cu9tn2Bvs15KE/N6BHGYhoX0T7c=
+        b=Ol7Ttr1jFFxoInvsx2YmgOx3lkxHk5oOBbt/le8aQjKjnHGOrjImCnH84DN7Hh0ZC
+         XQltW4j9zvIcH9/YQlZx85CVlLrkiRZJAS5A2RCXf+ZuBlPxCQd1WngColrrfOtCCG
+         A5DNVsstAwvK6u1EkRb1kRAqogL3SIbybdYI7OpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Zhbanov <izh1979@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 607/879] powerpc/idle: Fix return value of __setup() handler
+Subject: [PATCH 5.17 533/772] ARM: dts: at91: sama7g5: remove interrupt-parent from gic node
 Date:   Tue,  7 Jun 2022 19:02:05 +0200
-Message-Id: <20220607165020.469487811@linuxfoundation.org>
+Message-Id: <20220607165004.676260230@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit b793a01000122d2bd133ba451a76cc135b5e162c ]
+[ Upstream commit b7e86ef7afd128577ff7bb0db0ae82d27d7ed7ad ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
+interrupt-parent is not to be used as a boolean property.
+It is already present in the DT in the proper way it's supposed to be used:
+interrupt-parent = <&gic>;
 
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) argument or environment
-strings.
+This is also reported by dtbs_check:
+arch/arm/boot/dts/at91-sama7g5ek.dtb: interrupt-controller@e8c11000: interrupt-parent: True is not of type 'array'
+	From schema: /.local/lib/python3.8/site-packages/dtschema/schemas/interrupts.yaml
 
-Also, error return codes don't mean anything to obsolete_checksetup() --
-only non-zero (usually 1) or zero. So return 1 from powersave_off().
-
-Fixes: 302eca184fb8 ("[POWERPC] cell: use ppc_md->power_save instead of cbe_idle_loop")
-Reported-by: Igor Zhbanov <izh1979@gmail.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220502192925.19954-1-rdunlap@infradead.org
+Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220503133127.64320-1-eugen.hristev@microchip.com
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/idle.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/sama7g5.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/idle.c b/arch/powerpc/kernel/idle.c
-index 4ad79eb638c6..77cd4c5a2d63 100644
---- a/arch/powerpc/kernel/idle.c
-+++ b/arch/powerpc/kernel/idle.c
-@@ -37,7 +37,7 @@ static int __init powersave_off(char *arg)
- {
- 	ppc_md.power_save = NULL;
- 	cpuidle_disable = IDLE_POWERSAVE_OFF;
--	return 0;
-+	return 1;
- }
- __setup("powersave=off", powersave_off);
- 
+diff --git a/arch/arm/boot/dts/sama7g5.dtsi b/arch/arm/boot/dts/sama7g5.dtsi
+index 22520cdd37fc..46c96a3d7992 100644
+--- a/arch/arm/boot/dts/sama7g5.dtsi
++++ b/arch/arm/boot/dts/sama7g5.dtsi
+@@ -626,7 +626,6 @@
+ 			#interrupt-cells = <3>;
+ 			#address-cells = <0>;
+ 			interrupt-controller;
+-			interrupt-parent;
+ 			reg = <0xe8c11000 0x1000>,
+ 				<0xe8c12000 0x2000>;
+ 		};
 -- 
 2.35.1
 
