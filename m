@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D58C3540FDD
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF4D5407CF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352193AbiFGTON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:14:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
+        id S1347299AbiFGRw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:52:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354874AbiFGTNm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:13:42 -0400
+        with ESMTP id S1349135AbiFGRud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:33 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E3D41CB36;
-        Tue,  7 Jun 2022 11:07:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1FEBF62;
+        Tue,  7 Jun 2022 10:37:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D3405CE2427;
-        Tue,  7 Jun 2022 18:07:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E83C34115;
-        Tue,  7 Jun 2022 18:07:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E90CDCE23E3;
+        Tue,  7 Jun 2022 17:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 030CFC385A5;
+        Tue,  7 Jun 2022 17:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625236;
-        bh=YIivGeXXRfB6Sue+gelH2WioHvR7o0hxg8DWNPtEYV4=;
+        s=korg; t=1654623453;
+        bh=FqbAfxcxcuXLPn4tKsTqBKMe/aX6rtH9hlkUAjtInLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXY3k5lZlHniP/Ape95liqlv3fWbP99ohfX3twf2wW6AsC/7gCpAf8dvqRW9Rn16g
-         hd5CTruifsIVT/DXiftjMmu8WRnVdeL49giQOHRXlYnxfN198BdpATcMofBF6/UaVH
-         3DROswt8gAMYzRs5pqvqGG7Cm2tpKqeygt29CtSU=
+        b=OGwsx0cqZUFY4hHkKGbVTzlEF7Q/UMw+PYHrpAi2efpSVSaQ6nFrreqPcTr8S6zMx
+         A+T1CYBFWTHBSF0CUeHdM2hh85E47HZzyWXukzdtNWcBNIWuE1/lw1WMaRXPzI0Hha
+         8rIPkU2N+toqxXsAgSuoNao03vbUz5h35ia2Xc88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.15 574/667] landlock: Fix landlock_add_rule(2) documentation
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.10 382/452] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
 Date:   Tue,  7 Jun 2022 19:03:59 +0200
-Message-Id: <20220607164951.909584843@linuxfoundation.org>
+Message-Id: <20220607164919.948327236@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Brian Norris <briannorris@chromium.org>
 
-commit a13e248ff90e81e9322406c0e618cf2168702f4e upstream.
+commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
 
-It is not mandatory to pass a file descriptor obtained with the O_PATH
-flag.  Also, replace rule's accesses with ruleset's accesses.
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-Link: https://lore.kernel.org/r/20220506160820.524344-2-mic@digikod.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Let's get a runtime PM reference, and check that we "see" the panel.
+Don't force any panel power-up, etc., because that can be intrusive, and
+that's not what other drivers do (see
+drivers/gpu/drm/bridge/ti-sn65dsi86.c and
+drivers/gpu/drm/bridge/parade-ps8640.c.)
+
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/landlock.h |    5 +++--
- security/landlock/syscalls.c  |    7 +++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/include/uapi/linux/landlock.h
-+++ b/include/uapi/linux/landlock.h
-@@ -62,8 +62,9 @@ struct landlock_path_beneath_attr {
- 	 */
- 	__u64 allowed_access;
- 	/**
--	 * @parent_fd: File descriptor, open with ``O_PATH``, which identifies
--	 * the parent directory of a file hierarchy, or just a file.
-+	 * @parent_fd: File descriptor, preferably opened with ``O_PATH``,
-+	 * which identifies the parent directory of a file hierarchy, or just a
-+	 * file.
- 	 */
- 	__s32 parent_fd;
- 	/*
---- a/security/landlock/syscalls.c
-+++ b/security/landlock/syscalls.c
-@@ -292,14 +292,13 @@ out_fdput:
-  *
-  * - EOPNOTSUPP: Landlock is supported by the kernel but disabled at boot time;
-  * - EINVAL: @flags is not 0, or inconsistent access in the rule (i.e.
-- *   &landlock_path_beneath_attr.allowed_access is not a subset of the rule's
-- *   accesses);
-+ *   &landlock_path_beneath_attr.allowed_access is not a subset of the
-+ *   ruleset handled accesses);
-  * - ENOMSG: Empty accesses (e.g. &landlock_path_beneath_attr.allowed_access);
-  * - EBADF: @ruleset_fd is not a file descriptor for the current thread, or a
-  *   member of @rule_attr is not a file descriptor as expected;
-  * - EBADFD: @ruleset_fd is not a ruleset file descriptor, or a member of
-- *   @rule_attr is not the expected file descriptor type (e.g. file open
-- *   without O_PATH);
-+ *   @rule_attr is not the expected file descriptor type;
-  * - EPERM: @ruleset_fd has no write access to the underlying ruleset;
-  * - EFAULT: @rule_attr inconsistency.
-  */
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1639,8 +1639,19 @@ static ssize_t analogix_dpaux_transfer(s
+ 				       struct drm_dp_aux_msg *msg)
+ {
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret;
+ 
+-	return analogix_dp_transfer(dp, msg);
++	pm_runtime_get_sync(dp->dev);
++
++	ret = analogix_dp_detect_hpd(dp);
++	if (ret)
++		goto out;
++
++	ret = analogix_dp_transfer(dp, msg);
++out:
++	pm_runtime_put(dp->dev);
++
++	return ret;
+ }
+ 
+ struct analogix_dp_device *
 
 
