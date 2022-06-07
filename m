@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E06625415E2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8565E540EE3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359751AbiFGUnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57296 "EHLO
+        id S1352392AbiFGS6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376918AbiFGUks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:40:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3EE21EEB80;
-        Tue,  7 Jun 2022 11:38:30 -0700 (PDT)
+        with ESMTP id S1353368AbiFGSx7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C01CAEE04;
+        Tue,  7 Jun 2022 11:03:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C481B82182;
-        Tue,  7 Jun 2022 18:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E969C385A2;
-        Tue,  7 Jun 2022 18:38:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61277B82366;
+        Tue,  7 Jun 2022 18:03:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7FDFC34115;
+        Tue,  7 Jun 2022 18:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627085;
-        bh=Ef0HGhy+7GGRYGoh67NWrc66shINJ2PSSX4Uj+r6/lM=;
+        s=korg; t=1654625025;
+        bh=qptCCNF7tECs6dLig/pALoDlTt1Z13L70qEupi7cTaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWkK8YwFkxH4umQq5rgrmy9AFPj3L5bsv9o5vY+2lYAs4vOUdb85840nr+tzz9gac
-         rJJHBHTjcHogUwp++auWj3lBUDhM5YEnxNip0ZTYbMow84ubkS+JeFBiHtcKxoEwPX
-         iA3ojXmw0v91idsuqX4bXXUWdeyA1c0N/q1Rt7Tk=
+        b=Fg8aEktVu4KmA1fita4o/3GP873DcXdNTiWI79K2A+giBIU6vo1n2vtS8FJxc7mgT
+         bsOOgnow1leKkzitEMzgryVx4TliXzmDFZBi1dsZ+B9qwO4hpfKdCYjYXI8IRPhT7e
+         sxfaJpAFghYE10wOOVI23JlCZaRYr+IADJXf1WcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.17 613/772] f2fs: dont need inode lock for system hidden quota
+        stable@vger.kernel.org,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.15 540/667] ext4: mark group as trimmed only if it was fully scanned
 Date:   Tue,  7 Jun 2022 19:03:25 +0200
-Message-Id: <20220607165007.002611310@linuxfoundation.org>
+Message-Id: <20220607164950.895132448@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,90 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
 
-commit 6213f5d4d23c50d393a31dc8e351e63a1fd10dbe upstream.
+commit d63c00ea435a5352f486c259665a4ced60399421 upstream.
 
-Let's avoid false-alarmed lockdep warning.
+Otherwise nonaligned fstrim calls will works inconveniently for iterative
+scanners, for example:
 
-[   58.914674] [T1501146] -> #2 (&sb->s_type->i_mutex_key#20){+.+.}-{3:3}:
-[   58.915975] [T1501146] system_server:        down_write+0x7c/0xe0
-[   58.916738] [T1501146] system_server:        f2fs_quota_sync+0x60/0x1a8
-[   58.917563] [T1501146] system_server:        block_operations+0x16c/0x43c
-[   58.918410] [T1501146] system_server:        f2fs_write_checkpoint+0x114/0x318
-[   58.919312] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
-[   58.920214] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
-[   58.920999] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
-[   58.921862] [T1501146] system_server:        f2fs_sync_file+0x30/0x48
-[   58.922667] [T1501146] system_server:        __arm64_sys_fsync+0x84/0xf8
-[   58.923506] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
-[   58.924604] [T1501146] system_server:        do_el0_svc+0x28/0xa0
-[   58.925366] [T1501146] system_server:        el0_svc+0x24/0x38
-[   58.926094] [T1501146] system_server:        el0_sync_handler+0x88/0xec
-[   58.926920] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
+// trim [0,16MB] for group-1, but mark full group as trimmed
+fstrim  -o $((1024*1024*128)) -l $((1024*1024*16)) ./m
+// handle [16MB,16MB] for group-1, do nothing because group already has the flag.
+fstrim  -o $((1024*1024*144)) -l $((1024*1024*16)) ./m
 
-[   58.927681] [T1501146] -> #1 (&sbi->cp_global_sem){+.+.}-{3:3}:
-[   58.928889] [T1501146] system_server:        down_write+0x7c/0xe0
-[   58.929650] [T1501146] system_server:        f2fs_write_checkpoint+0xbc/0x318
-[   58.930541] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
-[   58.931443] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
-[   58.932226] [T1501146] system_server:        sync_filesystem+0xac/0x130
-[   58.933053] [T1501146] system_server:        generic_shutdown_super+0x38/0x150
-[   58.933958] [T1501146] system_server:        kill_block_super+0x24/0x58
-[   58.934791] [T1501146] system_server:        kill_f2fs_super+0xcc/0x124
-[   58.935618] [T1501146] system_server:        deactivate_locked_super+0x90/0x120
-[   58.936529] [T1501146] system_server:        deactivate_super+0x74/0xac
-[   58.937356] [T1501146] system_server:        cleanup_mnt+0x128/0x168
-[   58.938150] [T1501146] system_server:        __cleanup_mnt+0x18/0x28
-[   58.938944] [T1501146] system_server:        task_work_run+0xb8/0x14c
-[   58.939749] [T1501146] system_server:        do_notify_resume+0x114/0x1e8
-[   58.940595] [T1501146] system_server:        work_pending+0xc/0x5f0
+[ Update function documentation for ext4_trim_all_free -- TYT ]
 
-[   58.941375] [T1501146] -> #0 (&sbi->gc_lock){+.+.}-{3:3}:
-[   58.942519] [T1501146] system_server:        __lock_acquire+0x1270/0x2868
-[   58.943366] [T1501146] system_server:        lock_acquire+0x114/0x294
-[   58.944169] [T1501146] system_server:        down_write+0x7c/0xe0
-[   58.944930] [T1501146] system_server:        f2fs_issue_checkpoint+0x13c/0x21c
-[   58.945831] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
-[   58.946614] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
-[   58.947472] [T1501146] system_server:        f2fs_ioc_commit_atomic_write+0xc8/0x14c
-[   58.948439] [T1501146] system_server:        __f2fs_ioctl+0x674/0x154c
-[   58.949253] [T1501146] system_server:        f2fs_ioctl+0x54/0x88
-[   58.950018] [T1501146] system_server:        __arm64_sys_ioctl+0xa8/0x110
-[   58.950865] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
-[   58.951965] [T1501146] system_server:        do_el0_svc+0x28/0xa0
-[   58.952727] [T1501146] system_server:        el0_svc+0x24/0x38
-[   58.953454] [T1501146] system_server:        el0_sync_handler+0x88/0xec
-[   58.954279] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Link: https://lore.kernel.org/r/1650214995-860245-1-git-send-email-dmtrmonakhov@yandex-team.ru
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/super.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ext4/mballoc.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2706,7 +2706,8 @@ int f2fs_quota_sync(struct super_block *
- 		if (!sb_has_quota_active(sb, cnt))
- 			continue;
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -6378,6 +6378,7 @@ __releases(ext4_group_lock_ptr(sb, e4b->
+  * @start:		first group block to examine
+  * @max:		last group block to examine
+  * @minblocks:		minimum extent block count
++ * @set_trimmed:	set the trimmed flag if at least one block is trimmed
+  *
+  * ext4_trim_all_free walks through group's block bitmap searching for free
+  * extents. When the free extent is found, mark it as used in group buddy
+@@ -6387,7 +6388,7 @@ __releases(ext4_group_lock_ptr(sb, e4b->
+ static ext4_grpblk_t
+ ext4_trim_all_free(struct super_block *sb, ext4_group_t group,
+ 		   ext4_grpblk_t start, ext4_grpblk_t max,
+-		   ext4_grpblk_t minblocks)
++		   ext4_grpblk_t minblocks, bool set_trimmed)
+ {
+ 	struct ext4_buddy e4b;
+ 	int ret;
+@@ -6406,7 +6407,7 @@ ext4_trim_all_free(struct super_block *s
+ 	if (!EXT4_MB_GRP_WAS_TRIMMED(e4b.bd_info) ||
+ 	    minblocks < atomic_read(&EXT4_SB(sb)->s_last_trim_minblks)) {
+ 		ret = ext4_try_to_trim_range(sb, &e4b, start, max, minblocks);
+-		if (ret >= 0)
++		if (ret >= 0 && set_trimmed)
+ 			EXT4_MB_GRP_SET_TRIMMED(e4b.bd_info);
+ 	} else {
+ 		ret = 0;
+@@ -6443,6 +6444,7 @@ int ext4_trim_fs(struct super_block *sb,
+ 	ext4_fsblk_t first_data_blk =
+ 			le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block);
+ 	ext4_fsblk_t max_blks = ext4_blocks_count(EXT4_SB(sb)->s_es);
++	bool whole_group, eof = false;
+ 	int ret = 0;
  
--		inode_lock(dqopt->files[cnt]);
-+		if (!f2fs_sb_has_quota_ino(sbi))
-+			inode_lock(dqopt->files[cnt]);
+ 	start = range->start >> sb->s_blocksize_bits;
+@@ -6461,8 +6463,10 @@ int ext4_trim_fs(struct super_block *sb,
+ 		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
+ 			goto out;
+ 	}
+-	if (end >= max_blks)
++	if (end >= max_blks - 1) {
+ 		end = max_blks - 1;
++		eof = true;
++	}
+ 	if (end <= first_data_blk)
+ 		goto out;
+ 	if (start < first_data_blk)
+@@ -6476,6 +6480,7 @@ int ext4_trim_fs(struct super_block *sb,
  
- 		/*
- 		 * do_quotactl
-@@ -2725,7 +2726,8 @@ int f2fs_quota_sync(struct super_block *
- 		up_read(&sbi->quota_sem);
- 		f2fs_unlock_op(sbi);
+ 	/* end now represents the last cluster to discard in this group */
+ 	end = EXT4_CLUSTERS_PER_GROUP(sb) - 1;
++	whole_group = true;
  
--		inode_unlock(dqopt->files[cnt]);
-+		if (!f2fs_sb_has_quota_ino(sbi))
-+			inode_unlock(dqopt->files[cnt]);
- 
- 		if (ret)
- 			break;
+ 	for (group = first_group; group <= last_group; group++) {
+ 		grp = ext4_get_group_info(sb, group);
+@@ -6492,12 +6497,13 @@ int ext4_trim_fs(struct super_block *sb,
+ 		 * change it for the last group, note that last_cluster is
+ 		 * already computed earlier by ext4_get_group_no_and_offset()
+ 		 */
+-		if (group == last_group)
++		if (group == last_group) {
+ 			end = last_cluster;
+-
++			whole_group = eof ? true : end == EXT4_CLUSTERS_PER_GROUP(sb) - 1;
++		}
+ 		if (grp->bb_free >= minlen) {
+ 			cnt = ext4_trim_all_free(sb, group, first_cluster,
+-						end, minlen);
++						 end, minlen, whole_group);
+ 			if (cnt < 0) {
+ 				ret = cnt;
+ 				break;
 
 
