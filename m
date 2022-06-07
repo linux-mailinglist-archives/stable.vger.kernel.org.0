@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2BD540E36
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4F3541576
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353074AbiFGSxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:53:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
+        id S1376470AbiFGUgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347427AbiFGStJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:49:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D95419034;
-        Tue,  7 Jun 2022 11:03:08 -0700 (PDT)
+        with ESMTP id S1377786AbiFGUeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A35B1E73DE;
+        Tue,  7 Jun 2022 11:35:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DD7BB82182;
-        Tue,  7 Jun 2022 18:03:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD784C34115;
-        Tue,  7 Jun 2022 18:03:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65D3DB8237B;
+        Tue,  7 Jun 2022 18:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D2FC385A2;
+        Tue,  7 Jun 2022 18:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624986;
-        bh=1fnCYEHFdDXiebIMF3JIQlXednadZc3hyC/x3Lsi5wA=;
+        s=korg; t=1654626956;
+        bh=MU2+vNNvD/C4Et7c0mjGwxnPA8RogRxCydOV6Jl+oY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1DZI2QnCiQ0W34YoiTQT4xDeWfqYIxtmJHJGMKFwSCXUL10DcwOuotwbLmRkrIsIx
-         70pD2fyRhCasoMzJaZE0rmW+AiK9lxpKm1z17/j4iUypgbJbiqNq7djg9r95BBFZHk
-         LA82sTFc/rjL46x/SUSukJRMPonmSrK8tTQ0LPfs=
+        b=CzWgxKGChLMGJu3K3KCSgxdPwcCj86nbPlKNcxQCBcHTW88lhD/O8mgy9+Sxc1IrG
+         NCLIf1XRFqj4ynQmY+l0BqJA3+wxE+xvxqYK8p3zTUUtt5f4AsobZnqNkqHyi6OAO3
+         L1Nu/Xmk6MC36nWf4oidvvFPhwhHGGeRnLIyAtpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
-        Yong Wu <yong.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 484/667] iommu/mediatek: Add mutex for m4u_group and m4u_dom in data
-Date:   Tue,  7 Jun 2022 19:02:29 +0200
-Message-Id: <20220607164949.217726478@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 558/772] mailbox: forward the hrtimer if not queued and under a lock
+Date:   Tue,  7 Jun 2022 19:02:30 +0200
+Message-Id: <20220607165005.402323026@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,103 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Björn Ardö <bjorn.ardo@axis.com>
 
-[ Upstream commit 0e5a3f2e630b28e88e018655548212ef8eb4dfcb ]
+[ Upstream commit bca1a1004615efe141fd78f360ecc48c60bc4ad5 ]
 
-Add a mutex to protect the data in the structure mtk_iommu_data,
-like ->"m4u_group" ->"m4u_dom". For the internal data, we should
-protect it in ourselves driver. Add a mutex for this.
-This could be a fix for the multi-groups support.
+This reverts commit c7dacf5b0f32957b24ef29df1207dc2cd8307743,
+"mailbox: avoid timer start from callback"
 
-Fixes: c3045f39244e ("iommu/mediatek: Support for multi domains")
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Link: https://lore.kernel.org/r/20220503071427.2285-8-yong.wu@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The previous commit was reverted since it lead to a race that
+caused the hrtimer to not be started at all. The check for
+hrtimer_active() in msg_submit() will return true if the
+callback function txdone_hrtimer() is currently running. This
+function could return HRTIMER_NORESTART and then the timer
+will not be restarted, and also msg_submit() will not start
+the timer. This will lead to a message actually being submitted
+but no timer will start to check for its compleation.
+
+The original fix that added checking hrtimer_active() was added to
+avoid a warning with hrtimer_forward. Looking in the kernel
+another solution to avoid this warning is to check hrtimer_is_queued()
+before calling hrtimer_forward_now() instead. This however requires a
+lock so the timer is not started by msg_submit() inbetween this check
+and the hrtimer_forward() call.
+
+Fixes: c7dacf5b0f32 ("mailbox: avoid timer start from callback")
+Signed-off-by: Björn Ardö <bjorn.ardo@axis.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 13 +++++++++++--
- drivers/iommu/mtk_iommu.h |  2 ++
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ drivers/mailbox/mailbox.c          | 19 +++++++++++++------
+ include/linux/mailbox_controller.h |  1 +
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index b9d690327eae..9b3ded518f83 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -469,15 +469,16 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
- 		dom->data = data;
+diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
+index 3e7d4b20ab34..4229b9b5da98 100644
+--- a/drivers/mailbox/mailbox.c
++++ b/drivers/mailbox/mailbox.c
+@@ -82,11 +82,11 @@ static void msg_submit(struct mbox_chan *chan)
+ exit:
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+ 
+-	/* kick start the timer immediately to avoid delays */
+ 	if (!err && (chan->txdone_method & TXDONE_BY_POLL)) {
+-		/* but only if not already active */
+-		if (!hrtimer_active(&chan->mbox->poll_hrt))
+-			hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++		/* kick start the timer immediately to avoid delays */
++		spin_lock_irqsave(&chan->mbox->poll_hrt_lock, flags);
++		hrtimer_start(&chan->mbox->poll_hrt, 0, HRTIMER_MODE_REL);
++		spin_unlock_irqrestore(&chan->mbox->poll_hrt_lock, flags);
  	}
+ }
  
-+	mutex_lock(&data->mutex);
- 	if (!data->m4u_dom) { /* Initialize the M4U HW */
- 		ret = pm_runtime_resume_and_get(m4udev);
- 		if (ret < 0)
--			return ret;
-+			goto err_unlock;
+@@ -120,20 +120,26 @@ static enum hrtimer_restart txdone_hrtimer(struct hrtimer *hrtimer)
+ 		container_of(hrtimer, struct mbox_controller, poll_hrt);
+ 	bool txdone, resched = false;
+ 	int i;
++	unsigned long flags;
  
- 		ret = mtk_iommu_hw_init(data);
- 		if (ret) {
- 			pm_runtime_put(m4udev);
--			return ret;
-+			goto err_unlock;
+ 	for (i = 0; i < mbox->num_chans; i++) {
+ 		struct mbox_chan *chan = &mbox->chans[i];
+ 
+ 		if (chan->active_req && chan->cl) {
+-			resched = true;
+ 			txdone = chan->mbox->ops->last_tx_done(chan);
+ 			if (txdone)
+ 				tx_tick(chan, 0);
++			else
++				resched = true;
  		}
- 		data->m4u_dom = dom;
- 		writel(dom->cfg.arm_v7s_cfg.ttbr & MMU_PT_ADDR_MASK,
-@@ -485,9 +486,14 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
- 
- 		pm_runtime_put(m4udev);
  	}
-+	mutex_unlock(&data->mutex);
  
- 	mtk_iommu_config(data, dev, true, domid);
- 	return 0;
+ 	if (resched) {
+-		hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
++		spin_lock_irqsave(&mbox->poll_hrt_lock, flags);
++		if (!hrtimer_is_queued(hrtimer))
++			hrtimer_forward_now(hrtimer, ms_to_ktime(mbox->txpoll_period));
++		spin_unlock_irqrestore(&mbox->poll_hrt_lock, flags);
 +
-+err_unlock:
-+	mutex_unlock(&data->mutex);
-+	return ret;
- }
- 
- static void mtk_iommu_detach_device(struct iommu_domain *domain,
-@@ -627,6 +633,7 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
- 	if (domid < 0)
- 		return ERR_PTR(domid);
- 
-+	mutex_lock(&data->mutex);
- 	group = data->m4u_group[domid];
- 	if (!group) {
- 		group = iommu_group_alloc();
-@@ -635,6 +642,7 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
- 	} else {
- 		iommu_group_ref_get(group);
+ 		return HRTIMER_RESTART;
  	}
-+	mutex_unlock(&data->mutex);
- 	return group;
- }
- 
-@@ -909,6 +917,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 	return HRTIMER_NORESTART;
+@@ -500,6 +506,7 @@ int mbox_controller_register(struct mbox_controller *mbox)
+ 		hrtimer_init(&mbox->poll_hrt, CLOCK_MONOTONIC,
+ 			     HRTIMER_MODE_REL);
+ 		mbox->poll_hrt.function = txdone_hrtimer;
++		spin_lock_init(&mbox->poll_hrt_lock);
  	}
  
- 	platform_set_drvdata(pdev, data);
-+	mutex_init(&data->mutex);
- 
- 	ret = iommu_device_sysfs_add(&data->iommu, dev, NULL,
- 				     "mtk-iommu.%pa", &ioaddr);
-diff --git a/drivers/iommu/mtk_iommu.h b/drivers/iommu/mtk_iommu.h
-index f81fa8862ed0..f413546ac6e5 100644
---- a/drivers/iommu/mtk_iommu.h
-+++ b/drivers/iommu/mtk_iommu.h
-@@ -80,6 +80,8 @@ struct mtk_iommu_data {
- 
- 	struct dma_iommu_mapping	*mapping; /* For mtk_iommu_v1.c */
- 
-+	struct mutex			mutex; /* Protect m4u_group/m4u_dom above */
-+
- 	struct list_head		list;
- 	struct mtk_smi_larb_iommu	larb_imu[MTK_LARB_NR_MAX];
+ 	for (i = 0; i < mbox->num_chans; i++) {
+diff --git a/include/linux/mailbox_controller.h b/include/linux/mailbox_controller.h
+index 36d6ce673503..6fee33cb52f5 100644
+--- a/include/linux/mailbox_controller.h
++++ b/include/linux/mailbox_controller.h
+@@ -83,6 +83,7 @@ struct mbox_controller {
+ 				      const struct of_phandle_args *sp);
+ 	/* Internal to API */
+ 	struct hrtimer poll_hrt;
++	spinlock_t poll_hrt_lock;
+ 	struct list_head node;
  };
+ 
 -- 
 2.35.1
 
