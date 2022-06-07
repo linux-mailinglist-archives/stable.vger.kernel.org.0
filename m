@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2776F541EB1
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6567C541EBF
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381468AbiFGWdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:33:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38642 "EHLO
+        id S1381241AbiFGWdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:33:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380886AbiFGWcT (ORCPT
+        with ESMTP id S1381274AbiFGWcT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:32:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17E027C255;
-        Tue,  7 Jun 2022 12:25:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7E027C25E;
+        Tue,  7 Jun 2022 12:25:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A765608CD;
-        Tue,  7 Jun 2022 19:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36075C385A2;
-        Tue,  7 Jun 2022 19:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC8EC609D0;
+        Tue,  7 Jun 2022 19:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF4BC385A2;
+        Tue,  7 Jun 2022 19:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629932;
-        bh=1ZsatgNjEVp8upoppveFDyy7kk+zXJJA7FqcCTOQW7g=;
+        s=korg; t=1654629935;
+        bh=FxSYe1AzQYvUcxMa1izcvVIzUUdLyz/bSiRT/8U0Heo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rb8GIgED2YmryeMvBquPlutVwj3M3JzcJwd3rz5ht7pLO83ZCbNiXoqzGISjbHqE+
-         FaoqIRmm+IMt3wiNEHOxNL7TtKmzasOJd9K5nLdZFWWVPdXaYAl/x37H0HeY5Nurw1
-         YpRxhlKFxeGnm8fnIOhqyWVNsN1xlkRFVZpiXdhs=
+        b=1LN3yKOphaYNFCyoDhSwWej6+zCi99owfqYUwUBM3l0mHcJF8E4fv8CfrFzeF9dBR
+         leWd0hPBBE7WVbrVEQVNpdFbU34pInOch+eQFxVK0IOit/U8u/jngCi0WZqMfjKhTC
+         5fy7uj2trER11KFvHjQyBqP4fz2RUXA9a6m+9zS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.18 869/879] RDMA/hns: Remove the num_cqc_timer variable
-Date:   Tue,  7 Jun 2022 19:06:27 +0200
-Message-Id: <20220607165028.077895193@linuxfoundation.org>
+Subject: [PATCH 5.18 870/879] RDMA/rxe: Generate a completion for unsupported/invalid opcode
+Date:   Tue,  7 Jun 2022 19:06:28 +0200
+Message-Id: <20220607165028.107351566@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -54,78 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixing Liu <liuyixing1@huawei.com>
+From: Xiao Yang <yangx.jy@fujitsu.com>
 
-commit db5dfbf5b201df65c1f5332c4d9d5e7c2f42396b upstream.
+commit 2f917af777011c88e977b9b9a5d00b280d3a59ce upstream.
 
-The bt number of cqc_timer of HIP09 increases compared with that of HIP08.
-Therefore, cqc_timer_bt_num and num_cqc_timer do not match. As a result,
-the driver may fail to allocate cqc_timer. So the driver needs to uniquely
-uses cqc_timer_bt_num to represent the bt number of cqc_timer.
+Current rxe_requester() doesn't generate a completion when processing an
+unsupported/invalid opcode. If rxe driver doesn't support a new opcode
+(e.g. RDMA Atomic Write) and RDMA library supports it, an application
+using the new opcode can reproduce this issue. Fix the issue by calling
+"goto err;".
 
-Fixes: 0e40dc2f70cd ("RDMA/hns: Add timer allocation support for hip08")
-Link: https://lore.kernel.org/r/20220429093545.58070-1-liangwenpeng@huawei.com
-Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220410113513.27537-1-yangx.jy@fujitsu.com
+Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_device.h |    1 -
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |    3 +--
- drivers/infiniband/hw/hns/hns_roce_hw_v2.h  |    2 +-
- drivers/infiniband/hw/hns/hns_roce_main.c   |    2 +-
- 4 files changed, 3 insertions(+), 5 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_req.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_device.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_device.h
-@@ -731,7 +731,6 @@ struct hns_roce_caps {
- 	u32		num_pi_qps;
- 	u32		reserved_qps;
- 	int		num_qpc_timer;
--	int		num_cqc_timer;
- 	u32		num_srqs;
- 	u32		max_wqes;
- 	u32		max_srq_wrs;
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1965,7 +1965,7 @@ static void set_default_caps(struct hns_
- 	caps->num_mtpts		= HNS_ROCE_V2_MAX_MTPT_NUM;
- 	caps->num_pds		= HNS_ROCE_V2_MAX_PD_NUM;
- 	caps->num_qpc_timer	= HNS_ROCE_V2_MAX_QPC_TIMER_NUM;
--	caps->num_cqc_timer	= HNS_ROCE_V2_MAX_CQC_TIMER_NUM;
-+	caps->cqc_timer_bt_num	= HNS_ROCE_V2_MAX_CQC_TIMER_BT_NUM;
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -661,7 +661,7 @@ next_wqe:
+ 	opcode = next_opcode(qp, wqe, wqe->wr.opcode);
+ 	if (unlikely(opcode < 0)) {
+ 		wqe->status = IB_WC_LOC_QP_OP_ERR;
+-		goto exit;
++		goto err;
+ 	}
  
- 	caps->max_qp_init_rdma	= HNS_ROCE_V2_MAX_QP_INIT_RDMA;
- 	caps->max_qp_dest_rdma	= HNS_ROCE_V2_MAX_QP_DEST_RDMA;
-@@ -2261,7 +2261,6 @@ static int hns_roce_query_pf_caps(struct
- 	caps->max_rq_sg = roundup_pow_of_two(caps->max_rq_sg);
- 	caps->max_extend_sg	     = le32_to_cpu(resp_a->max_extend_sg);
- 	caps->num_qpc_timer	     = le16_to_cpu(resp_a->num_qpc_timer);
--	caps->num_cqc_timer	     = le16_to_cpu(resp_a->num_cqc_timer);
- 	caps->max_srq_sges	     = le16_to_cpu(resp_a->max_srq_sges);
- 	caps->max_srq_sges = roundup_pow_of_two(caps->max_srq_sges);
- 	caps->num_aeq_vectors	     = resp_a->num_aeq_vectors;
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
-@@ -41,7 +41,7 @@
- #define HNS_ROCE_V2_MAX_SRQ_WR			0x8000
- #define HNS_ROCE_V2_MAX_SRQ_SGE			64
- #define HNS_ROCE_V2_MAX_CQ_NUM			0x100000
--#define HNS_ROCE_V2_MAX_CQC_TIMER_NUM		0x100
-+#define HNS_ROCE_V2_MAX_CQC_TIMER_BT_NUM	0x100
- #define HNS_ROCE_V2_MAX_SRQ_NUM			0x100000
- #define HNS_ROCE_V2_MAX_CQE_NUM			0x400000
- #define HNS_ROCE_V2_MAX_RQ_SGE_NUM		64
---- a/drivers/infiniband/hw/hns/hns_roce_main.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_main.c
-@@ -737,7 +737,7 @@ static int hns_roce_init_hem(struct hns_
- 		ret = hns_roce_init_hem_table(hr_dev, &hr_dev->cqc_timer_table,
- 					      HEM_TYPE_CQC_TIMER,
- 					      hr_dev->caps.cqc_timer_entry_sz,
--					      hr_dev->caps.num_cqc_timer, 1);
-+					      hr_dev->caps.cqc_timer_bt_num, 1);
- 		if (ret) {
- 			dev_err(dev,
- 				"Failed to init CQC timer memory, aborting.\n");
+ 	mask = rxe_opcode[opcode].mask;
 
 
