@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C3C540B66
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE0D85405BE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351232AbiFGS2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
+        id S1346838AbiFGR3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:29:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352758AbiFGSVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:21:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B04CDBCEBB;
-        Tue,  7 Jun 2022 10:54:06 -0700 (PDT)
+        with ESMTP id S1346413AbiFGR2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:28:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2B11157F9;
+        Tue,  7 Jun 2022 10:24:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08281B82370;
-        Tue,  7 Jun 2022 17:53:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58670C36AFF;
-        Tue,  7 Jun 2022 17:53:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8191060C7C;
+        Tue,  7 Jun 2022 17:24:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8680AC34119;
+        Tue,  7 Jun 2022 17:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624426;
-        bh=bldrSuRs9w48d/Y14nMxTJiA4/cL+zY0VajW3jAz720=;
+        s=korg; t=1654622666;
+        bh=iYB6LJ0axj8BzdWtlbpeeA22i2OHpc068qkkxc4c3f8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MoC3/hlGXY1IoaSwY40TTD2EKpLV06qQ6RuWvcuMTeRulHeStKKnk45wG61hyPoge
-         KuCtHBxQ182S6jFQXC4yUpgfc5MzaKT3YKrzdzck28l/BfGyi1lFC6u8+ihp06wOjo
-         kVqSmUshk2hUxUJz7zF3nnDd4UlIwFGRZvY8qEEU=
+        b=PLLL/WVZtDQxRYZ04ScKIMmJKCXmRztgVeYeOrvaNeRcjKxplUfoHsrIwwHDNL/vQ
+         UOG5DI8OQO7XtIj0LGt14pn5fV0y4fXziJa3+OMhyvtFLCEDlM9xqyfDYwJYx9ccST
+         9xFgW5CZDHMd3lFXwd2XvfkseUaZ7nr1LHxikw5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Haren Myneni <haren@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 306/667] ASoC: fsl: Fix refcount leak in imx_sgtl5000_probe
+Subject: [PATCH 5.10 114/452] powerpc/powernv/vas: Assign real address to rx_fifo in vas_rx_win_attr
 Date:   Tue,  7 Jun 2022 18:59:31 +0200
-Message-Id: <20220607164943.954438636@linuxfoundation.org>
+Message-Id: <20220607164911.952863316@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Haren Myneni <haren@linux.ibm.com>
 
-[ Upstream commit 41cd312dfe980af869c3503b4d38e62ed20dd3b7 ]
+[ Upstream commit c127d130f6d59fa81701f6b04023cf7cd1972fb3 ]
 
-of_find_i2c_device_by_node() takes a reference,
-In error paths, we should call put_device() to drop
-the reference to aviod refount leak.
+In init_winctx_regs(), __pa() is called on winctx->rx_fifo and this
+function is called to initialize registers for receive and fault
+windows. But the real address is passed in winctx->rx_fifo for
+receive windows and the virtual address for fault windows which
+causes errors with DEBUG_VIRTUAL enabled. Fixes this issue by
+assigning only real address to rx_fifo in vas_rx_win_attr struct
+for both receive and fault windows.
 
-Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20220511065803.3957-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Haren Myneni <haren@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/338e958c7ab8f3b266fa794a1f80f99b9671829e.camel@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-sgtl5000.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/vas.h              | 2 +-
+ arch/powerpc/platforms/powernv/vas-fault.c  | 2 +-
+ arch/powerpc/platforms/powernv/vas-window.c | 4 ++--
+ arch/powerpc/platforms/powernv/vas.h        | 2 +-
+ drivers/crypto/nx/nx-common-powernv.c       | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-index 52bb1844f548..c4e3699ad305 100644
---- a/sound/soc/fsl/imx-sgtl5000.c
-+++ b/sound/soc/fsl/imx-sgtl5000.c
-@@ -120,19 +120,19 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		ret = -ENOMEM;
--		goto fail;
-+		goto put_device;
+diff --git a/arch/powerpc/include/asm/vas.h b/arch/powerpc/include/asm/vas.h
+index e33f80b0ea81..47062b457049 100644
+--- a/arch/powerpc/include/asm/vas.h
++++ b/arch/powerpc/include/asm/vas.h
+@@ -52,7 +52,7 @@ enum vas_cop_type {
+  * Receive window attributes specified by the (in-kernel) owner of window.
+  */
+ struct vas_rx_win_attr {
+-	void *rx_fifo;
++	u64 rx_fifo;
+ 	int rx_fifo_size;
+ 	int wcreds_max;
+ 
+diff --git a/arch/powerpc/platforms/powernv/vas-fault.c b/arch/powerpc/platforms/powernv/vas-fault.c
+index 3d21fce254b7..dd9c23c09781 100644
+--- a/arch/powerpc/platforms/powernv/vas-fault.c
++++ b/arch/powerpc/platforms/powernv/vas-fault.c
+@@ -352,7 +352,7 @@ int vas_setup_fault_window(struct vas_instance *vinst)
+ 	vas_init_rx_win_attr(&attr, VAS_COP_TYPE_FAULT);
+ 
+ 	attr.rx_fifo_size = vinst->fault_fifo_size;
+-	attr.rx_fifo = vinst->fault_fifo;
++	attr.rx_fifo = __pa(vinst->fault_fifo);
+ 
+ 	/*
+ 	 * Max creds is based on number of CRBs can fit in the FIFO.
+diff --git a/arch/powerpc/platforms/powernv/vas-window.c b/arch/powerpc/platforms/powernv/vas-window.c
+index 7ba0840fc3b5..3a86cdd5ae6c 100644
+--- a/arch/powerpc/platforms/powernv/vas-window.c
++++ b/arch/powerpc/platforms/powernv/vas-window.c
+@@ -403,7 +403,7 @@ static void init_winctx_regs(struct vas_window *window,
+ 	 *
+ 	 * See also: Design note in function header.
+ 	 */
+-	val = __pa(winctx->rx_fifo);
++	val = winctx->rx_fifo;
+ 	val = SET_FIELD(VAS_PAGE_MIGRATION_SELECT, val, 0);
+ 	write_hvwc_reg(window, VREG(LFIFO_BAR), val);
+ 
+@@ -737,7 +737,7 @@ static void init_winctx_for_rxwin(struct vas_window *rxwin,
+ 		 */
+ 		winctx->fifo_disable = true;
+ 		winctx->intr_disable = true;
+-		winctx->rx_fifo = NULL;
++		winctx->rx_fifo = 0;
  	}
  
- 	comp = devm_kzalloc(&pdev->dev, 3 * sizeof(*comp), GFP_KERNEL);
- 	if (!comp) {
- 		ret = -ENOMEM;
--		goto fail;
-+		goto put_device;
- 	}
+ 	winctx->lnotify_lpid = rxattr->lnotify_lpid;
+diff --git a/arch/powerpc/platforms/powernv/vas.h b/arch/powerpc/platforms/powernv/vas.h
+index 70f793e8f6cc..1f6e73809205 100644
+--- a/arch/powerpc/platforms/powernv/vas.h
++++ b/arch/powerpc/platforms/powernv/vas.h
+@@ -383,7 +383,7 @@ struct vas_window {
+  * is a container for the register fields in the window context.
+  */
+ struct vas_winctx {
+-	void *rx_fifo;
++	u64 rx_fifo;
+ 	int rx_fifo_size;
+ 	int wcreds_max;
+ 	int rsvd_txbuf_count;
+diff --git a/drivers/crypto/nx/nx-common-powernv.c b/drivers/crypto/nx/nx-common-powernv.c
+index 13c65deda8e9..8a4f10bb3fcd 100644
+--- a/drivers/crypto/nx/nx-common-powernv.c
++++ b/drivers/crypto/nx/nx-common-powernv.c
+@@ -827,7 +827,7 @@ static int __init vas_cfg_coproc_info(struct device_node *dn, int chip_id,
+ 		goto err_out;
  
- 	data->codec_clk = clk_get(&codec_dev->dev, NULL);
- 	if (IS_ERR(data->codec_clk)) {
- 		ret = PTR_ERR(data->codec_clk);
--		goto fail;
-+		goto put_device;
- 	}
- 
- 	data->clk_frequency = clk_get_rate(data->codec_clk);
-@@ -158,10 +158,10 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	data->card.dev = &pdev->dev;
- 	ret = snd_soc_of_parse_card_name(&data->card, "model");
- 	if (ret)
--		goto fail;
-+		goto put_device;
- 	ret = snd_soc_of_parse_audio_routing(&data->card, "audio-routing");
- 	if (ret)
--		goto fail;
-+		goto put_device;
- 	data->card.num_links = 1;
- 	data->card.owner = THIS_MODULE;
- 	data->card.dai_link = &data->dai;
-@@ -174,7 +174,7 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	ret = devm_snd_soc_register_card(&pdev->dev, &data->card);
- 	if (ret) {
- 		dev_err_probe(&pdev->dev, ret, "snd_soc_register_card failed\n");
--		goto fail;
-+		goto put_device;
- 	}
- 
- 	of_node_put(ssi_np);
-@@ -182,6 +182,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+put_device:
-+	put_device(&codec_dev->dev);
- fail:
- 	if (data && !IS_ERR(data->codec_clk))
- 		clk_put(data->codec_clk);
+ 	vas_init_rx_win_attr(&rxattr, coproc->ct);
+-	rxattr.rx_fifo = (void *)rx_fifo;
++	rxattr.rx_fifo = rx_fifo;
+ 	rxattr.rx_fifo_size = fifo_size;
+ 	rxattr.lnotify_lpid = lpid;
+ 	rxattr.lnotify_pid = pid;
 -- 
 2.35.1
 
