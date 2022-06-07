@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1140B540957
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91231541227
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345129AbiFGSHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:07:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
+        id S1357080AbiFGToU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350386AbiFGSA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:00:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29C5B138B45;
-        Tue,  7 Jun 2022 10:43:06 -0700 (PDT)
+        with ESMTP id S1357482AbiFGTmC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E188E1B216B;
+        Tue,  7 Jun 2022 11:15:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A31676146F;
-        Tue,  7 Jun 2022 17:43:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A96C3C385A5;
-        Tue,  7 Jun 2022 17:43:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FF16B8233E;
+        Tue,  7 Jun 2022 18:15:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B381DC385A2;
+        Tue,  7 Jun 2022 18:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623786;
-        bh=rNhPrWpWb5Rkbor0Yta50Ausbw27F01ediVZYvcfL64=;
+        s=korg; t=1654625706;
+        bh=4XChG8Mn9Ckp+o5xpIAJPICimju0Ixs9wovnr8tIqy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuOT6hjBulq34d8XYtlZaz4eOcOQqOivd8w7w5gMQKaaix1YAIUJF1jcpoOb3Hscj
-         EKaWVhCfte3C4dnDkjhaQcnxmTVzi3diZbSnB5r5Ot43Eokd8eKVTUSRi1gCIkBVFe
-         qa1Ai3CbnKHueGwPciYicfDaz1xAIcrMygkIfn9A=
+        b=bkh1ldocEy3Nl2zD422kZ+HNaWJF+9Y8STUhgtsXYhpiRjqPWaRcGH/L4Ms7hqDqT
+         w297t57+u6mt+DBbuP+KmLLVa5UCg7xlO0Jc3eAGdLdBtRI8ec/6rhvpTrCxu+SwBn
+         U6DeiVKy4JzyCVSqLnMUEx5YsnXQILiYGzgqya7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 040/667] btrfs: return correct error number for __extent_writepage_io()
+        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 113/772] mlxsw: spectrum_dcb: Do not warn about priority changes
 Date:   Tue,  7 Jun 2022 18:55:05 +0200
-Message-Id: <20220607164936.002584485@linuxfoundation.org>
+Message-Id: <20220607164952.379123725@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Petr Machata <petrm@nvidia.com>
 
-commit 44e5801fada6925d2bba1987c7b59cbcc9d0d592 upstream.
+[ Upstream commit b6b584562cbe7dc357083459d6dd5b171e12cadb ]
 
-[BUG]
-If we hit an error from submit_extent_page() inside
-__extent_writepage_io(), we could still return 0 to the caller, and
-even trigger the warning in btrfs_page_assert_not_dirty().
+The idea behind the warnings is that the user would get warned in case when
+more than one priority is configured for a given DSCP value on a netdevice.
 
-[CAUSE]
-In __extent_writepage_io(), if we hit an error from
-submit_extent_page(), we will just clean up the range and continue.
+The warning is currently wrong, because dcb_ieee_getapp_mask() returns
+the first matching entry, not all of them, and the warning will then claim
+that some priority is "current", when in fact it is not.
 
-This is completely fine for regular PAGE_SIZE == sectorsize, as we can
-only hit one sector in one page, thus after the error we're ensured to
-exit and @ret will be saved.
+But more importantly, the warning is misleading in general. Consider the
+following commands:
 
-But for subpage case, we may have other dirty subpage range in the page,
-and in the next loop, we may succeeded submitting the next range.
+ # dcb app flush dev swp19 dscp-prio
+ # dcb app add dev swp19 dscp-prio 24:3
+ # dcb app replace dev swp19 dscp-prio 24:2
 
-In that case, @ret will be overwritten, and we return 0 to the caller,
-while we have hit some error.
+The last command will issue the following warning:
 
-[FIX]
-Introduce @has_error and @saved_ret to record the first error we hit, so
-we will never forget what error we hit.
+ mlxsw_spectrum3 0000:07:00.0 swp19: Ignoring new priority 2 for DSCP 24 in favor of current value of 3
 
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reason is that the "replace" command works by first adding the new
+value, and then removing all old values. This is the only way to make the
+replacement without causing the traffic to be prioritized to whatever the
+chip defaults to. The warning is issued in response to adding the new
+priority, and then no warning is shown when the old priority is removed.
+The upshot is that the canonical way to change traffic prioritization
+always produces a warning about ignoring the new priority, but what gets
+configured is in fact what the user intended.
+
+An option to just emit warning every time that the prioritization changes
+just to make it clear that it happened is obviously unsatisfactory.
+
+Therefore, in this patch, remove the warnings.
+
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3902,10 +3902,12 @@ static noinline_for_stack int __extent_w
- 	u64 extent_offset;
- 	u64 block_start;
- 	struct extent_map *em;
-+	int saved_ret = 0;
- 	int ret = 0;
- 	int nr = 0;
- 	u32 opf = REQ_OP_WRITE;
- 	const unsigned int write_flags = wbc_to_write_flags(wbc);
-+	bool has_error = false;
- 	bool compressed;
- 
- 	ret = btrfs_writepage_cow_fixup(page);
-@@ -3956,6 +3958,9 @@ static noinline_for_stack int __extent_w
- 		if (IS_ERR_OR_NULL(em)) {
- 			btrfs_page_set_error(fs_info, page, cur, end - cur + 1);
- 			ret = PTR_ERR_OR_ZERO(em);
-+			has_error = true;
-+			if (!saved_ret)
-+				saved_ret = ret;
- 			break;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
+index 5f92b1691360..aff6d4f35cd2 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_dcb.c
+@@ -168,8 +168,6 @@ static int mlxsw_sp_dcbnl_ieee_setets(struct net_device *dev,
+ static int mlxsw_sp_dcbnl_app_validate(struct net_device *dev,
+ 				       struct dcb_app *app)
+ {
+-	int prio;
+-
+ 	if (app->priority >= IEEE_8021QAZ_MAX_TCS) {
+ 		netdev_err(dev, "APP entry with priority value %u is invalid\n",
+ 			   app->priority);
+@@ -183,17 +181,6 @@ static int mlxsw_sp_dcbnl_app_validate(struct net_device *dev,
+ 				   app->protocol);
+ 			return -EINVAL;
  		}
+-
+-		/* Warn about any DSCP APP entries with the same PID. */
+-		prio = fls(dcb_ieee_getapp_mask(dev, app));
+-		if (prio--) {
+-			if (prio < app->priority)
+-				netdev_warn(dev, "Choosing priority %d for DSCP %d in favor of previously-active value of %d\n",
+-					    app->priority, app->protocol, prio);
+-			else if (prio > app->priority)
+-				netdev_warn(dev, "Ignoring new priority %d for DSCP %d in favor of current value of %d\n",
+-					    app->priority, app->protocol, prio);
+-		}
+ 		break;
  
-@@ -4019,6 +4024,10 @@ static noinline_for_stack int __extent_w
- 					 end_bio_extent_writepage,
- 					 0, 0, false);
- 		if (ret) {
-+			has_error = true;
-+			if (!saved_ret)
-+				saved_ret = ret;
-+
- 			btrfs_page_set_error(fs_info, page, cur, iosize);
- 			if (PageWriteback(page))
- 				btrfs_page_clear_writeback(fs_info, page, cur,
-@@ -4032,8 +4041,10 @@ static noinline_for_stack int __extent_w
- 	 * If we finish without problem, we should not only clear page dirty,
- 	 * but also empty subpage dirty bits
- 	 */
--	if (!ret)
-+	if (!has_error)
- 		btrfs_page_assert_not_dirty(fs_info, page);
-+	else
-+		ret = saved_ret;
- 	*nr_ret = nr;
- 	return ret;
- }
+ 	case IEEE_8021QAZ_APP_SEL_ETHERTYPE:
+-- 
+2.35.1
+
 
 
