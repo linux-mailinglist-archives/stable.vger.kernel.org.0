@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B28825412EF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE5B5419E7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357362AbiFGTzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50018 "EHLO
+        id S1378047AbiFGV1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358630AbiFGTwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B0E34B88;
-        Tue,  7 Jun 2022 11:21:42 -0700 (PDT)
+        with ESMTP id S1378643AbiFGVX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:23:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E06C0227376;
+        Tue,  7 Jun 2022 12:00:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6307AB82239;
-        Tue,  7 Jun 2022 18:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACF31C385A2;
-        Tue,  7 Jun 2022 18:21:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7265261787;
+        Tue,  7 Jun 2022 19:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B07C385A2;
+        Tue,  7 Jun 2022 19:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626099;
-        bh=ctIJdYl0vlNt157giC31wNXX7wsg81SlduRBQ1uUmGs=;
+        s=korg; t=1654628442;
+        bh=TIJngYH102qEmFZnYblf7kWBift6Ih/yHXSL/OiT3Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0gJn3NOcA4CfLawRSehqC6RJM9pezC6o+aj4DnbXlxYy9L+fUlV89DlG+aYVKs6m
-         4o6mkHVkiXz3HWv9QZb90kGdPWl7Bbicf42vFpQfL9K0MDCcAvDwncW7/vucbUUYsL
-         mMjJEVZicH6Ck3m0y/XaMBxI9NZsiO0Pzr7fwLWg=
+        b=izRvNDWc/lqgIR7r8xPDgDeLGD5UuMasr1FmydNExX1gOu3Gn5EPUYF0JZgUMNHbo
+         tZxw9h6ehLY0kzFayx/K2fZoSaaauOBNIDdo9jutRcJys5aLzSIKkRnK8ixee95pb4
+         FiR8BZlBvVRipgLdJ0fwKPNe01xEsWaD0+FWGLec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Yongqiang Sun <yongqiang.sun@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 216/772] powerpc/xics: fix refcount leak in icp_opal_init()
-Date:   Tue,  7 Jun 2022 18:56:48 +0200
-Message-Id: <20220607164955.399195185@linuxfoundation.org>
+Subject: [PATCH 5.18 291/879] drm/amd/amdgpu: Only reserve vram for firmware with vega9 MS_HYPERV host.
+Date:   Tue,  7 Jun 2022 18:56:49 +0200
+Message-Id: <20220607165011.294913080@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Yongqiang Sun <yongqiang.sun@amd.com>
 
-[ Upstream commit 5dd9e27ea4a39f7edd4bf81e9e70208e7ac0b7c9 ]
+[ Upstream commit 49aa98ca30cd186ab33fc5802066e2024d3bfa39 ]
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, use of_node_put() on it when done.
+driver loading failed on VEGA10 SRIOV VF with linux host due to a wide
+range of stolen reserved vram.
+Since VEGA10 SRIOV VF need to reserve vram for firmware with windows
+Hyper_V host specifically, check hypervisor type to only reserve
+memory for it, and the range of the reserved vram can be limited
+to between 5M-7M area.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220402013419.2410298-1-lv.ruyi@zte.com.cn
+Fixes: faad5ccac1eaae ("drm/amdgpu: Add stolen reserved memory for MI25 SRIOV.")
+Signed-off-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xics/icp-opal.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xics/icp-opal.c b/arch/powerpc/sysdev/xics/icp-opal.c
-index bda4c32582d9..4dae624b9f2f 100644
---- a/arch/powerpc/sysdev/xics/icp-opal.c
-+++ b/arch/powerpc/sysdev/xics/icp-opal.c
-@@ -196,6 +196,7 @@ int __init icp_opal_init(void)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.c
+index a66a0881a934..3e9582c245bb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gmc.c
+@@ -25,6 +25,7 @@
+  */
  
- 	printk("XICS: Using OPAL ICP fallbacks\n");
+ #include <linux/io-64-nonatomic-lo-hi.h>
++#include <asm/hypervisor.h>
  
-+	of_node_put(np);
- 	return 0;
- }
- 
+ #include "amdgpu.h"
+ #include "amdgpu_gmc.h"
+@@ -647,11 +648,11 @@ void amdgpu_gmc_get_vbios_allocations(struct amdgpu_device *adev)
+ 	case CHIP_VEGA10:
+ 		adev->mman.keep_stolen_vga_memory = true;
+ 		/*
+-		 * VEGA10 SRIOV VF needs some firmware reserved area.
++		 * VEGA10 SRIOV VF with MS_HYPERV host needs some firmware reserved area.
+ 		 */
+-		if (amdgpu_sriov_vf(adev)) {
+-			adev->mman.stolen_reserved_offset = 0x100000;
+-			adev->mman.stolen_reserved_size = 0x600000;
++		if (amdgpu_sriov_vf(adev) && hypervisor_is_type(X86_HYPER_MS_HYPERV)) {
++			adev->mman.stolen_reserved_offset = 0x500000;
++			adev->mman.stolen_reserved_size = 0x200000;
+ 		}
+ 		break;
+ 	case CHIP_RAVEN:
 -- 
 2.35.1
 
