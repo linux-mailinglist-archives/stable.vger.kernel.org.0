@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4051541868
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A51AF5411D4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349054AbiFGVMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
+        id S1356308AbiFGTjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380117AbiFGVLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C0A2178A4;
-        Tue,  7 Jun 2022 11:53:14 -0700 (PDT)
+        with ESMTP id S1356319AbiFGTix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:38:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE37FB404;
+        Tue,  7 Jun 2022 11:14:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FB2EB81F6D;
-        Tue,  7 Jun 2022 18:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BD70C385A2;
-        Tue,  7 Jun 2022 18:53:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86A49608CD;
+        Tue,  7 Jun 2022 18:14:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92E7DC385A2;
+        Tue,  7 Jun 2022 18:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627991;
-        bh=67f36S+4rjT+JdsrzBc14AqQKTdEkAdczFOtEskmpRI=;
+        s=korg; t=1654625651;
+        bh=djSQlG+ixpoetmhf74mZRZXaD88al5b7zrERb5ILAOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMTP545xExRWOgun2l5fN5CCI5ZJ4mdLF3QRC///R4TslD17sQG0/TcFAPZ0ozlPW
-         097f61iRXIhuY8Cp9gjzO0I9gtf6XIglocR+8XkrUsCoSqC3bVDWO6VRyvSj+FcZLG
-         bX1gF28Ek/j7eSWWelFp5bcdlMKwie7j35QtHXoE=
+        b=civem1bGclkDv8B6xUwiuZrP5OEJaqrZ8NIRAIT3zK/ytGPCJF8iPVkjbnjfsgXyv
+         dRPrO7jfSeny/S1YC9MjkpH6HkhVO9Qpz5KjhhIiNdG154vfPHNSUOxaX4wRrQCdxi
+         JN/vE62rqH6QVtU3r8vR8NomVVYeT+73quOEqJd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Oliver Neukum <oneukum@suse.com>,
-        Martyn Welch <martyn.welch@collabora.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ferry Toth <fntoth@gmail.com>
-Subject: [PATCH 5.18 168/879] usbnet: Run unregister_netdev() before unbind() again
-Date:   Tue,  7 Jun 2022 18:54:46 +0200
-Message-Id: <20220607165007.586261372@linuxfoundation.org>
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 095/772] scsi: megaraid: Fix error check return value of register_chrdev()
+Date:   Tue,  7 Jun 2022 18:54:47 +0200
+Message-Id: <20220607164951.846807447@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,104 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit d1408f6b4dd78fb1b9e26bcf64477984e5f85409 ]
+[ Upstream commit c5acd61dbb32b6bda0f3a354108f2b8dcb788985 ]
 
-Commit 2c9d6c2b871d ("usbnet: run unbind() before unregister_netdev()")
-sought to fix a use-after-free on disconnect of USB Ethernet adapters.
+If major equals 0, register_chrdev() returns an error code when it fails.
+This function dynamically allocates a major and returns its number on
+success, so we should use "< 0" to check it instead of "!".
 
-It turns out that a different fix is necessary to address the issue:
-https://lore.kernel.org/netdev/18b3541e5372bc9b9fc733d422f4e698c089077c.1650177997.git.lukas@wunner.de/
-
-So the commit was not necessary.
-
-The commit made binding and unbinding of USB Ethernet asymmetrical:
-Before, usbnet_probe() first invoked the ->bind() callback and then
-register_netdev().  usbnet_disconnect() mirrored that by first invoking
-unregister_netdev() and then ->unbind().
-
-Since the commit, the order in usbnet_disconnect() is reversed and no
-longer mirrors usbnet_probe().
-
-One consequence is that a PHY disconnected (and stopped) in ->unbind()
-is afterwards stopped once more by unregister_netdev() as it closes the
-netdev before unregistering.  That necessitates a contortion in ->stop()
-because the PHY may only be stopped if it hasn't already been
-disconnected.
-
-Reverting the commit allows making the call to phy_stop() unconditional
-in ->stop().
-
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
-Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Cc: Martyn Welch <martyn.welch@collabora.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220418105755.2558828-1-lv.ruyi@zte.com.cn
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/asix_devices.c | 6 +-----
- drivers/net/usb/smsc95xx.c     | 3 +--
- drivers/net/usb/usbnet.c       | 6 +++---
- 3 files changed, 5 insertions(+), 10 deletions(-)
+ drivers/scsi/megaraid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
-index 38e47a93fb83..5b5eb630c4b7 100644
---- a/drivers/net/usb/asix_devices.c
-+++ b/drivers/net/usb/asix_devices.c
-@@ -795,11 +795,7 @@ static int ax88772_stop(struct usbnet *dev)
- {
- 	struct asix_common_private *priv = dev->driver_priv;
- 
--	/* On unplugged USB, we will get MDIO communication errors and the
--	 * PHY will be set in to PHY_HALTED state.
--	 */
--	if (priv->phydev->state != PHY_HALTED)
--		phy_stop(priv->phydev);
-+	phy_stop(priv->phydev);
- 
- 	return 0;
- }
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 4ef61f6b85df..edf0492ad489 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1243,8 +1243,7 @@ static int smsc95xx_start_phy(struct usbnet *dev)
- 
- static int smsc95xx_stop(struct usbnet *dev)
- {
--	if (dev->net->phydev)
--		phy_stop(dev->net->phydev);
-+	phy_stop(dev->net->phydev);
- 
- 	return 0;
- }
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index 9a6450f796dc..36b24ec11650 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1616,9 +1616,6 @@ void usbnet_disconnect (struct usb_interface *intf)
- 		   xdev->bus->bus_name, xdev->devpath,
- 		   dev->driver_info->description);
- 
--	if (dev->driver_info->unbind)
--		dev->driver_info->unbind(dev, intf);
--
- 	net = dev->net;
- 	unregister_netdev (net);
- 
-@@ -1626,6 +1623,9 @@ void usbnet_disconnect (struct usb_interface *intf)
- 
- 	usb_scuttle_anchored_urbs(&dev->deferred);
- 
-+	if (dev->driver_info->unbind)
-+		dev->driver_info->unbind(dev, intf);
-+
- 	usb_kill_urb(dev->interrupt);
- 	usb_free_urb(dev->interrupt);
- 	kfree(dev->padding_pkt);
+diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+index bf987f3a7f3f..840175f34d1a 100644
+--- a/drivers/scsi/megaraid.c
++++ b/drivers/scsi/megaraid.c
+@@ -4608,7 +4608,7 @@ static int __init megaraid_init(void)
+ 	 * major number allocation.
+ 	 */
+ 	major = register_chrdev(0, "megadev_legacy", &megadev_fops);
+-	if (!major) {
++	if (major < 0) {
+ 		printk(KERN_WARNING
+ 				"megaraid: failed to register char device\n");
+ 	}
 -- 
 2.35.1
 
