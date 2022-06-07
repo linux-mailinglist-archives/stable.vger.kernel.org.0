@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E010540862
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB4754122F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348708AbiFGR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
+        id S1354448AbiFGToe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:44:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348810AbiFGR5g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B313BFB5;
-        Tue,  7 Jun 2022 10:40:34 -0700 (PDT)
+        with ESMTP id S1357190AbiFGTlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:41:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD421B1F46;
+        Tue,  7 Jun 2022 11:14:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CC4CB81F38;
-        Tue,  7 Jun 2022 17:40:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD885C385A5;
-        Tue,  7 Jun 2022 17:40:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1597160B25;
+        Tue,  7 Jun 2022 18:14:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224A7C34115;
+        Tue,  7 Jun 2022 18:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623632;
-        bh=bsTNda9l7crjrlZe3Ff5XFFGKZFrLAbAYQhN31eBlWU=;
+        s=korg; t=1654625689;
+        bh=crdPjxXsbeSThDJ71pyFQjdLwv3x7InzqF9AGJuyQbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YD/1713iUgBzuo6/S/PN+C4Zejd5D91rTVuqvMGoh/W/PzYWq2thRA7a7vWRxR8sZ
-         lypK6JhFvvT7uh1WvDTXUGegZgr6m180XmjoM+85DBZfDEFMf8PM2QG9LHqJdlqyps
-         NBtlvAOa6SNNHQiEUaeg/jukiQ5bfk1gJD28xdWE=
+        b=UON/QWPvY3uONVuEMzsEtfTrenv3WtQlVDS98J/CtoXq0TicMfIG0pikbjlmQInuM
+         S3Ww0Nbo9UzhOsKZ3mz2cRd4SsiQDyv0ZZ10qSD4g4iPneGokdGNAu4kI+H7UhNkiC
+         LqRpxwjMcCgLaXR6gV6BLgz/JbYID1IDVpd5PVYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        Dave Young <dyoung@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 034/667] x86/kexec: fix memory leak of elf header buffer
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 107/772] xtensa: move trace_hardirqs_off call back to entry.S
 Date:   Tue,  7 Jun 2022 18:54:59 +0200
-Message-Id: <20220607164935.818988514@linuxfoundation.org>
+Message-Id: <20220607164952.199691616@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +53,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baoquan He <bhe@redhat.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit b3e34a47f98974d0844444c5121aaff123004e57 upstream.
+[ Upstream commit de4415d0bac91192ee9c74e849bc61429efa9b42 ]
 
-This is reported by kmemleak detector:
+Context tracking call must be done after hardirq tracking call,
+otherwise lockdep_assert_irqs_disabled called from rcu_eqs_exit gives
+a warning. To avoid context tracking logic duplication for IRQ/exception
+entry paths move trace_hardirqs_off call back to common entry code.
 
-unreferenced object 0xffffc900002a9000 (size 4096):
-  comm "kexec", pid 14950, jiffies 4295110793 (age 373.951s)
-  hex dump (first 32 bytes):
-    7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00  .ELF............
-    04 00 3e 00 01 00 00 00 00 00 00 00 00 00 00 00  ..>.............
-  backtrace:
-    [<0000000016a8ef9f>] __vmalloc_node_range+0x101/0x170
-    [<000000002b66b6c0>] __vmalloc_node+0xb4/0x160
-    [<00000000ad40107d>] crash_prepare_elf64_headers+0x8e/0xcd0
-    [<0000000019afff23>] crash_load_segments+0x260/0x470
-    [<0000000019ebe95c>] bzImage64_load+0x814/0xad0
-    [<0000000093e16b05>] arch_kexec_kernel_image_load+0x1be/0x2a0
-    [<000000009ef2fc88>] kimage_file_alloc_init+0x2ec/0x5a0
-    [<0000000038f5a97a>] __do_sys_kexec_file_load+0x28d/0x530
-    [<0000000087c19992>] do_syscall_64+0x3b/0x90
-    [<0000000066e063a4>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-In crash_prepare_elf64_headers(), a buffer is allocated via vmalloc() to
-store elf headers.  While it's not freed back to system correctly when
-kdump kernel is reloaded or unloaded.  Then memory leak is caused.  Fix it
-by introducing x86 specific function arch_kimage_file_post_load_cleanup(),
-and freeing the buffer there.
-
-And also remove the incorrect elf header buffer freeing code.  Before
-calling arch specific kexec_file loading function, the image instance has
-been initialized.  So 'image->elf_headers' must be NULL.  It doesn't make
-sense to free the elf header buffer in the place.
-
-Three different people have reported three bugs about the memory leak on
-x86_64 inside Redhat.
-
-Link: https://lkml.kernel.org/r/20220223113225.63106-2-bhe@redhat.com
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Acked-by: Dave Young <dyoung@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/machine_kexec_64.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/xtensa/kernel/entry.S | 19 +++++++++++++------
+ arch/xtensa/kernel/traps.c | 11 ++---------
+ 2 files changed, 15 insertions(+), 15 deletions(-)
 
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -373,9 +373,6 @@ void machine_kexec(struct kimage *image)
- #ifdef CONFIG_KEXEC_FILE
- void *arch_kexec_kernel_image_load(struct kimage *image)
+diff --git a/arch/xtensa/kernel/entry.S b/arch/xtensa/kernel/entry.S
+index a1029a5b6a1d..ee08238099f4 100644
+--- a/arch/xtensa/kernel/entry.S
++++ b/arch/xtensa/kernel/entry.S
+@@ -442,7 +442,6 @@ KABI_W	or	a3, a3, a0
+ 	moveqz	a3, a0, a2		# a3 = LOCKLEVEL iff interrupt
+ KABI_W	movi	a2, PS_WOE_MASK
+ KABI_W	or	a3, a3, a2
+-	rsr	a2, exccause
+ #endif
+ 
+ 	/* restore return address (or 0 if return to userspace) */
+@@ -469,19 +468,27 @@ KABI_W	or	a3, a3, a2
+ 
+ 	save_xtregs_opt a1 a3 a4 a5 a6 a7 PT_XTREGS_OPT
+ 	
++#ifdef CONFIG_TRACE_IRQFLAGS
++	rsr		abi_tmp0, ps
++	extui		abi_tmp0, abi_tmp0, PS_INTLEVEL_SHIFT, PS_INTLEVEL_WIDTH
++	beqz		abi_tmp0, 1f
++	abi_call	trace_hardirqs_off
++1:
++#endif
++
+ 	/* Go to second-level dispatcher. Set up parameters to pass to the
+ 	 * exception handler and call the exception handler.
+ 	 */
+ 
+-	rsr	a4, excsave1
+-	addx4	a4, a2, a4
+-	l32i	a4, a4, EXC_TABLE_DEFAULT		# load handler
+-	mov	abi_arg1, a2			# pass EXCCAUSE
++	l32i	abi_arg1, a1, PT_EXCCAUSE	# pass EXCCAUSE
++	rsr	abi_tmp0, excsave1
++	addx4	abi_tmp0, abi_arg1, abi_tmp0
++	l32i	abi_tmp0, abi_tmp0, EXC_TABLE_DEFAULT	# load handler
+ 	mov	abi_arg0, a1			# pass stack frame
+ 
+ 	/* Call the second-level handler */
+ 
+-	abi_callx	a4
++	abi_callx	abi_tmp0
+ 
+ 	/* Jump here for exception exit */
+ 	.global common_exception_return
+diff --git a/arch/xtensa/kernel/traps.c b/arch/xtensa/kernel/traps.c
+index 9345007d474d..5f86208c67c8 100644
+--- a/arch/xtensa/kernel/traps.c
++++ b/arch/xtensa/kernel/traps.c
+@@ -242,12 +242,8 @@ DEFINE_PER_CPU(unsigned long, nmi_count);
+ 
+ void do_nmi(struct pt_regs *regs)
  {
--	vfree(image->elf_headers);
--	image->elf_headers = NULL;
+-	struct pt_regs *old_regs;
++	struct pt_regs *old_regs = set_irq_regs(regs);
+ 
+-	if ((regs->ps & PS_INTLEVEL_MASK) < LOCKLEVEL)
+-		trace_hardirqs_off();
 -
- 	if (!image->fops || !image->fops->load)
- 		return ERR_PTR(-ENOEXEC);
+-	old_regs = set_irq_regs(regs);
+ 	nmi_enter();
+ 	++*this_cpu_ptr(&nmi_count);
+ 	check_valid_nmi();
+@@ -269,12 +265,9 @@ void do_interrupt(struct pt_regs *regs)
+ 		XCHAL_INTLEVEL6_MASK,
+ 		XCHAL_INTLEVEL7_MASK,
+ 	};
+-	struct pt_regs *old_regs;
++	struct pt_regs *old_regs = set_irq_regs(regs);
+ 	unsigned unhandled = ~0u;
  
-@@ -511,6 +508,15 @@ overflow:
- 	       (int)ELF64_R_TYPE(rel[i].r_info), value);
- 	return -ENOEXEC;
- }
-+
-+int arch_kimage_file_post_load_cleanup(struct kimage *image)
-+{
-+	vfree(image->elf_headers);
-+	image->elf_headers = NULL;
-+	image->elf_headers_sz = 0;
-+
-+	return kexec_image_post_load_cleanup_default(image);
-+}
- #endif /* CONFIG_KEXEC_FILE */
+-	trace_hardirqs_off();
+-
+-	old_regs = set_irq_regs(regs);
+ 	irq_enter();
  
- static int
+ 	for (;;) {
+-- 
+2.35.1
+
 
 
