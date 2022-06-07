@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CEBB541A77
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5016F540A68
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379867AbiFGVdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:33:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55846 "EHLO
+        id S1351783AbiFGSUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380806AbiFGVbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:31:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A4A22AE6D;
-        Tue,  7 Jun 2022 12:03:30 -0700 (PDT)
+        with ESMTP id S1351941AbiFGSQs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFB919F95;
+        Tue,  7 Jun 2022 10:50:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E199617CC;
-        Tue,  7 Jun 2022 19:03:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F5F5C385A2;
-        Tue,  7 Jun 2022 19:03:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ECFEB8234A;
+        Tue,  7 Jun 2022 17:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B928C385A5;
+        Tue,  7 Jun 2022 17:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628608;
-        bh=n7mdJGl0agHnUCSyXIFfvAF7u5JxOgJlNavYdXtgUdg=;
+        s=korg; t=1654624208;
+        bh=dyUWHoCX8ZiwGXskDcR9+7U5Ap2FdBhASl8Kl6ho7I4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zl2x56pAyqpcOi5S9SW+s87jA5mMl0Jmpk1VPUKriPHxrCctVnXDV/NUPh6i+5LfO
-         LJCqGk8Gx4pDMzOVG8/W6y8BUTMbIZOf0QTEdiY9zAxa1H9I0/HaCfS1NCA8b449RU
-         0m/MDRGyFdBed4uNT4WyWCgSdVmQFrqqIFFDix/4=
+        b=HnuHgnEh1wjRY1wuPEZf9r3YjUBLHw9/n3JPcvLnirjPjs+tx0jaXJFFgcMDPwY8/
+         rmSS1sJckXL0HZcnqtjdRAdlcJXGwSIHsQhN3lLPuyDGTeF7VECbs9FllxTnTJG7GM
+         sUkmQ83yUfCjha5VQ5lf8grorN+2yNXw/xZVNDnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 391/879] arm64: fix types in copy_highpage()
+Subject: [PATCH 5.15 244/667] spi: rockchip: Stop spi slave dma receiver when cs inactive
 Date:   Tue,  7 Jun 2022 18:58:29 +0200
-Message-Id: <20220607165014.214376232@linuxfoundation.org>
+Message-Id: <20220607164942.103315062@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+From: Jon Lin <jon.lin@rock-chips.com>
 
-[ Upstream commit 921d161f15d6b090599f6a8c23f131969edbd1fa ]
+[ Upstream commit 869f2c94db92f0f1d6acd0dff1c1ebb8160f5e29 ]
 
-In copy_highpage() the `kto` and `kfrom` local variables are pointers to
-struct page, but these are used to hold arbitrary pointers to kernel memory
-. Each call to page_address() returns a void pointer to memory associated
-with the relevant page, and copy_page() expects void pointers to this
-memory.
+The spi which's version is higher than ver 2 will automatically
+enable this feature.
 
-This inconsistency was introduced in commit 2563776b41c3 ("arm64: mte:
-Tags-aware copy_{user_,}highpage() implementations") and while this
-doesn't appear to be harmful in practice it is clearly wrong.
+If the length of master transmission is uncertain, the RK spi slave
+is better to automatically stop after cs inactive instead of waiting
+for xfer_completion forever.
 
-Correct this by making `kto` and `kfrom` void pointers.
-
-Fixes: 2563776b41c3 ("arm64: mte: Tags-aware copy_{user_,}highpage() implementations")
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Link: https://lore.kernel.org/r/20220420030418.3189040-3-tongtiangen@huawei.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
+Link: https://lore.kernel.org/r/20220216014028.8123-4-jon.lin@rock-chips.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/copypage.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-rockchip.c | 81 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 73 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
-index b5447e53cd73..0dea80bf6de4 100644
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -16,8 +16,8 @@
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index c6a1bb09be05..5ecd0692cca1 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -133,7 +133,8 @@
+ #define INT_TF_OVERFLOW				(1 << 1)
+ #define INT_RF_UNDERFLOW			(1 << 2)
+ #define INT_RF_OVERFLOW				(1 << 3)
+-#define INT_RF_FULL					(1 << 4)
++#define INT_RF_FULL				(1 << 4)
++#define INT_CS_INACTIVE				(1 << 6)
  
- void copy_highpage(struct page *to, struct page *from)
+ /* Bit fields in ICR, 4bit */
+ #define ICR_MASK					0x0f
+@@ -194,6 +195,8 @@ struct rockchip_spi {
+ 	bool cs_asserted[ROCKCHIP_SPI_MAX_CS_NUM];
+ 
+ 	bool slave_abort;
++	bool cs_inactive; /* spi slave tansmition stop when cs inactive */
++	struct spi_transfer *xfer; /* Store xfer temporarily */
+ };
+ 
+ static inline void spi_enable_chip(struct rockchip_spi *rs, bool enable)
+@@ -343,6 +346,15 @@ static irqreturn_t rockchip_spi_isr(int irq, void *dev_id)
+ 	struct spi_controller *ctlr = dev_id;
+ 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
+ 
++	/* When int_cs_inactive comes, spi slave abort */
++	if (rs->cs_inactive && readl_relaxed(rs->regs + ROCKCHIP_SPI_IMR) & INT_CS_INACTIVE) {
++		ctlr->slave_abort(ctlr);
++		writel_relaxed(0, rs->regs + ROCKCHIP_SPI_IMR);
++		writel_relaxed(0xffffffff, rs->regs + ROCKCHIP_SPI_ICR);
++
++		return IRQ_HANDLED;
++	}
++
+ 	if (rs->tx_left)
+ 		rockchip_spi_pio_writer(rs);
+ 
+@@ -350,6 +362,7 @@ static irqreturn_t rockchip_spi_isr(int irq, void *dev_id)
+ 	if (!rs->rx_left) {
+ 		spi_enable_chip(rs, false);
+ 		writel_relaxed(0, rs->regs + ROCKCHIP_SPI_IMR);
++		writel_relaxed(0xffffffff, rs->regs + ROCKCHIP_SPI_ICR);
+ 		spi_finalize_current_transfer(ctlr);
+ 	}
+ 
+@@ -357,14 +370,18 @@ static irqreturn_t rockchip_spi_isr(int irq, void *dev_id)
+ }
+ 
+ static int rockchip_spi_prepare_irq(struct rockchip_spi *rs,
+-		struct spi_transfer *xfer)
++				    struct spi_controller *ctlr,
++				    struct spi_transfer *xfer)
  {
--	struct page *kto = page_address(to);
--	struct page *kfrom = page_address(from);
-+	void *kto = page_address(to);
-+	void *kfrom = page_address(from);
+ 	rs->tx = xfer->tx_buf;
+ 	rs->rx = xfer->rx_buf;
+ 	rs->tx_left = rs->tx ? xfer->len / rs->n_bytes : 0;
+ 	rs->rx_left = xfer->len / rs->n_bytes;
  
- 	copy_page(kto, kfrom);
+-	writel_relaxed(INT_RF_FULL, rs->regs + ROCKCHIP_SPI_IMR);
++	if (rs->cs_inactive)
++		writel_relaxed(INT_RF_FULL | INT_CS_INACTIVE, rs->regs + ROCKCHIP_SPI_IMR);
++	else
++		writel_relaxed(INT_RF_FULL, rs->regs + ROCKCHIP_SPI_IMR);
+ 	spi_enable_chip(rs, true);
+ 
+ 	if (rs->tx_left)
+@@ -383,6 +400,9 @@ static void rockchip_spi_dma_rxcb(void *data)
+ 	if (state & TXDMA && !rs->slave_abort)
+ 		return;
+ 
++	if (rs->cs_inactive)
++		writel_relaxed(0, rs->regs + ROCKCHIP_SPI_IMR);
++
+ 	spi_enable_chip(rs, false);
+ 	spi_finalize_current_transfer(ctlr);
+ }
+@@ -423,14 +443,16 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
+ 
+ 	atomic_set(&rs->state, 0);
+ 
++	rs->tx = xfer->tx_buf;
++	rs->rx = xfer->rx_buf;
++
+ 	rxdesc = NULL;
+ 	if (xfer->rx_buf) {
+ 		struct dma_slave_config rxconf = {
+ 			.direction = DMA_DEV_TO_MEM,
+ 			.src_addr = rs->dma_addr_rx,
+ 			.src_addr_width = rs->n_bytes,
+-			.src_maxburst = rockchip_spi_calc_burst_size(xfer->len /
+-								     rs->n_bytes),
++			.src_maxburst = rockchip_spi_calc_burst_size(xfer->len / rs->n_bytes),
+ 		};
+ 
+ 		dmaengine_slave_config(ctlr->dma_rx, &rxconf);
+@@ -474,10 +496,13 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
+ 	/* rx must be started before tx due to spi instinct */
+ 	if (rxdesc) {
+ 		atomic_or(RXDMA, &rs->state);
+-		dmaengine_submit(rxdesc);
++		ctlr->dma_rx->cookie = dmaengine_submit(rxdesc);
+ 		dma_async_issue_pending(ctlr->dma_rx);
+ 	}
+ 
++	if (rs->cs_inactive)
++		writel_relaxed(INT_CS_INACTIVE, rs->regs + ROCKCHIP_SPI_IMR);
++
+ 	spi_enable_chip(rs, true);
+ 
+ 	if (txdesc) {
+@@ -584,7 +609,42 @@ static size_t rockchip_spi_max_transfer_size(struct spi_device *spi)
+ static int rockchip_spi_slave_abort(struct spi_controller *ctlr)
+ {
+ 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
++	u32 rx_fifo_left;
++	struct dma_tx_state state;
++	enum dma_status status;
++
++	/* Get current dma rx point */
++	if (atomic_read(&rs->state) & RXDMA) {
++		dmaengine_pause(ctlr->dma_rx);
++		status = dmaengine_tx_status(ctlr->dma_rx, ctlr->dma_rx->cookie, &state);
++		if (status == DMA_ERROR) {
++			rs->rx = rs->xfer->rx_buf;
++			rs->xfer->len = 0;
++			rx_fifo_left = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXFLR);
++			for (; rx_fifo_left; rx_fifo_left--)
++				readl_relaxed(rs->regs + ROCKCHIP_SPI_RXDR);
++			goto out;
++		} else {
++			rs->rx += rs->xfer->len - rs->n_bytes * state.residue;
++		}
++	}
+ 
++	/* Get the valid data left in rx fifo and set rs->xfer->len real rx size */
++	if (rs->rx) {
++		rx_fifo_left = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXFLR);
++		for (; rx_fifo_left; rx_fifo_left--) {
++			u32 rxw = readl_relaxed(rs->regs + ROCKCHIP_SPI_RXDR);
++
++			if (rs->n_bytes == 1)
++				*(u8 *)rs->rx = (u8)rxw;
++			else
++				*(u16 *)rs->rx = (u16)rxw;
++			rs->rx += rs->n_bytes;
++		}
++		rs->xfer->len = (unsigned int)(rs->rx - rs->xfer->rx_buf);
++	}
++
++out:
+ 	if (atomic_read(&rs->state) & RXDMA)
+ 		dmaengine_terminate_sync(ctlr->dma_rx);
+ 	if (atomic_read(&rs->state) & TXDMA)
+@@ -626,7 +686,7 @@ static int rockchip_spi_transfer_one(
+ 	}
+ 
+ 	rs->n_bytes = xfer->bits_per_word <= 8 ? 1 : 2;
+-
++	rs->xfer = xfer;
+ 	use_dma = ctlr->can_dma ? ctlr->can_dma(ctlr, spi, xfer) : false;
+ 
+ 	ret = rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
+@@ -636,7 +696,7 @@ static int rockchip_spi_transfer_one(
+ 	if (use_dma)
+ 		return rockchip_spi_prepare_dma(rs, ctlr, xfer);
+ 
+-	return rockchip_spi_prepare_irq(rs, xfer);
++	return rockchip_spi_prepare_irq(rs, ctlr, xfer);
+ }
+ 
+ static bool rockchip_spi_can_dma(struct spi_controller *ctlr,
+@@ -815,8 +875,13 @@ static int rockchip_spi_probe(struct platform_device *pdev)
+ 	switch (readl_relaxed(rs->regs + ROCKCHIP_SPI_VERSION)) {
+ 	case ROCKCHIP_SPI_VER2_TYPE2:
+ 		ctlr->mode_bits |= SPI_CS_HIGH;
++		if (ctlr->can_dma && slave_mode)
++			rs->cs_inactive = true;
++		else
++			rs->cs_inactive = false;
+ 		break;
+ 	default:
++		rs->cs_inactive = false;
+ 		break;
+ 	}
  
 -- 
 2.35.1
