@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A955412B0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E890E5408FF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356484AbiFGTyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:54:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50000 "EHLO
+        id S1348669AbiFGSEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358356AbiFGTwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B858BB5247;
-        Tue,  7 Jun 2022 11:20:10 -0700 (PDT)
+        with ESMTP id S1351855AbiFGSCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9586810EA55;
+        Tue,  7 Jun 2022 10:45:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B2F0B8237B;
-        Tue,  7 Jun 2022 18:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5110C385A2;
-        Tue,  7 Jun 2022 18:20:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FB43616B1;
+        Tue,  7 Jun 2022 17:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39110C385A5;
+        Tue,  7 Jun 2022 17:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626008;
-        bh=Yu17bTWnDAipM/yrekG0tZcGrmcnun3JTHpLA3isquk=;
+        s=korg; t=1654623954;
+        bh=N/XzIBIPBGsPoprPNyfVNMlSGS0iPcyIc1v+bSiAN8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1ZemdrY7T4HZTONmWILOqAb5cWyKclqggyVomk11nUDu/14PM02dDBvvF25q3dKh
-         25Nz5OiDtZl73CuQL6W2k1PU1ueUvlIirsowLrUwzA5mQKMZHn396qdzYvE3ifXqdc
-         hZBcZ0NOl+yJzukXP3lrdRGlHLoIhIyLHYXuzB78=
+        b=YUgNuPqXwoYR6oDDJBQeZLgVrRzHjYHFRiCRCRYp2v4cc0ymUIg6YJl6tzz+F3jwr
+         KKJfpDrNbR3fur1UBEu84sEaQAtEYeViyMQk19HVxFn6hJYDJO/snCW7Ar8sCeK/Vi
+         unDMrhi3BZkaIUiTGJoXxnSphlFyKUSci+dlMWuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 225/772] drm: fix EDID struct for old ARM OABI format
+Subject: [PATCH 5.15 152/667] arm64: dts: qcom: msm8994: Fix the cont_splash_mem address
 Date:   Tue,  7 Jun 2022 18:56:57 +0200
-Message-Id: <20220607164955.662898488@linuxfoundation.org>
+Message-Id: <20220607164939.376679985@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,112 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
+[ Upstream commit 049c46f31a726bf8d202ff1681661513447fac84 ]
 
-When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
-will force alignment of all structures and unions to a word boundary
-(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
-option if you're a gcc person), even when the members of said structures
-do not want or need said alignment.
+The default memory map places cont_splash_mem at 3401000, which was
+overlooked.. Fix it!
 
-This completely messes up the structure alignment of 'struct edid' on
-those targets, because even though all the embedded structures are
-marked with "__attribute__((packed))", the unions that contain them are
-not.
-
-This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
-and size helpers"), but the bug is pre-existing.  That commit just made
-the structure layout problem cause a build failure due to the addition
-of the
-
-        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
-
-sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
-
-This legacy union alignment should probably not be used in the first
-place, but we can fix the layout by adding the packed attribute to the
-union entries even when each member is already packed and it shouldn't
-matter in a sane build environment.
-
-You can see this issue with a trivial test program:
-
-  union {
-	struct {
-		char c[5];
-	};
-	struct {
-		char d;
-		unsigned e;
-	} __attribute__((packed));
-  } a = { "1234" };
-
-where building this with a normal "gcc -S" will result in the expected
-5-byte size of said union:
-
-	.type	a, @object
-	.size	a, 5
-
-but with an ARM compiler and the old ABI:
-
-    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
-
-you get
-
-	.type	a, %object
-	.size	a, 8
-
-instead, because even though each member of the union is packed, the
-union itself still gets aligned.
-
-This was reported by Sudip for the spear3xx_defconfig target.
-
-Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220319174645.340379-9-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/drm/drm_edid.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
-index 18f6c700f6d0..8c3112f5406d 100644
---- a/include/drm/drm_edid.h
-+++ b/include/drm/drm_edid.h
-@@ -121,7 +121,7 @@ struct detailed_data_monitor_range {
- 			u8 supported_scalings;
- 			u8 preferred_refresh;
- 		} __attribute__((packed)) cvt;
--	} formula;
-+	} __attribute__((packed)) formula;
- } __attribute__((packed));
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index 5a9a5ed0565f..1165269f059e 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -183,8 +183,8 @@
+ 			no-map;
+ 		};
  
- struct detailed_data_wpindex {
-@@ -154,7 +154,7 @@ struct detailed_non_pixel {
- 		struct detailed_data_wpindex color;
- 		struct std_timing timings[6];
- 		struct cvt_timing cvt[4];
--	} data;
-+	} __attribute__((packed)) data;
- } __attribute__((packed));
+-		cont_splash_mem: memory@3800000 {
+-			reg = <0 0x03800000 0 0x2400000>;
++		cont_splash_mem: memory@3401000 {
++			reg = <0 0x03401000 0 0x2200000>;
+ 			no-map;
+ 		};
  
- #define EDID_DETAIL_EST_TIMINGS 0xf7
-@@ -172,7 +172,7 @@ struct detailed_timing {
- 	union {
- 		struct detailed_pixel_timing pixel_data;
- 		struct detailed_non_pixel other_data;
--	} data;
-+	} __attribute__((packed)) data;
- } __attribute__((packed));
- 
- #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
