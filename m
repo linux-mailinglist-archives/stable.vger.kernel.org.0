@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDED541A05
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22DC5412FE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354642AbiFGV2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:28:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39212 "EHLO
+        id S1357550AbiFGTzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:55:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348606AbiFGV1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:27:07 -0400
+        with ESMTP id S1358864AbiFGTxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6476922873A;
-        Tue,  7 Jun 2022 12:01:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2CF25C59;
+        Tue,  7 Jun 2022 11:22:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B41EB617F5;
-        Tue,  7 Jun 2022 19:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A86C36B0A;
-        Tue,  7 Jun 2022 19:01:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD296006F;
+        Tue,  7 Jun 2022 18:22:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD482C34115;
+        Tue,  7 Jun 2022 18:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628515;
-        bh=iO2P/nvW0rLUabYC+vymgQADo7tKPff85CdUNlAwSeg=;
+        s=korg; t=1654626173;
+        bh=1uaTTfwT9pRZAFyjX8pnO9QKdbRItDK/BYxL3WuGbZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v04DR4A2gJuvk7VEvoRQSyKcuhSJkK4OkcWSMdRCN1NJtgoxgKIWH9nYNMDiK67In
-         t2aZEetbRxNRDOx2cEjqOGBtVYJZ4T2lAuEprF5OP6FJ2QN4dt7Zq2WcOU4d+P446g
-         trRBN8fhvtz6UxqDkh+vdCahGvDBMGwW2hjEhv78=
+        b=e53pWkPMz7NOfVF8FTf1KxaRPk69NRIJG+PHYv8TCp81kZjKR8cECAukwwybQ5o2j
+         jktQgHHze+2lbTp+9ZmhPm+1d3Ixyz3ybNEZvrrwNmbapgGeW5VUv+BDNRj/j603ax
+         JNHnbbzpbIwDUcyuOtHfMC3S8JEgrsAu3LG7ji8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 356/879] scsi: ufs: qcom: Fix ufs_qcom_resume()
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        John Ogness <john.ogness@linutronix.de>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 282/772] printk: use atomic updates for klogd work
 Date:   Tue,  7 Jun 2022 18:57:54 +0200
-Message-Id: <20220607165013.196950844@linuxfoundation.org>
+Message-Id: <20220607164957.335498853@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit bee40dc167da159ea5b939c074e1da258610a3d6 ]
+[ Upstream commit 2ba3673d70178bf07fb75ff25c54bc478add4021 ]
 
-Clearing hba->is_sys_suspended if ufs_qcom_resume() succeeds is wrong. That
-variable must only be cleared if all actions involved in a resume succeed.
-Hence remove the statement that clears hba->is_sys_suspended from
-ufs_qcom_resume().
+The per-cpu @printk_pending variable can be updated from
+sleepable contexts, such as:
 
-Link: https://lore.kernel.org/r/20220419225811.4127248-23-bvanassche@acm.org
-Fixes: 81c0fc51b7a7 ("ufs-qcom: add support for Qualcomm Technologies Inc platforms")
-Tested-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  get_random_bytes()
+    warn_unseeded_randomness()
+      printk_deferred()
+        defer_console_output()
+
+and can be updated from interrupt contexts, such as:
+
+  handle_irq_event_percpu()
+    __irq_wake_thread()
+      wake_up_process()
+        try_to_wake_up()
+          select_task_rq()
+            select_fallback_rq()
+              printk_deferred()
+                defer_console_output()
+
+and can be updated from NMI contexts, such as:
+
+  vprintk()
+    if (in_nmi()) defer_console_output()
+
+Therefore the atomic variant of the updating functions must be used.
+
+Replace __this_cpu_xchg() with this_cpu_xchg().
+Replace __this_cpu_or() with this_cpu_or().
+
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/87iltld4ue.fsf@jogness.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-qcom.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ kernel/printk/printk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
-index 586c0e567ff9..e61083d01f6e 100644
---- a/drivers/scsi/ufs/ufs-qcom.c
-+++ b/drivers/scsi/ufs/ufs-qcom.c
-@@ -641,12 +641,7 @@ static int ufs_qcom_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
- 			return err;
- 	}
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 833e407545b8..74c92dd70c80 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -3230,7 +3230,7 @@ static DEFINE_PER_CPU(int, printk_pending);
  
--	err = ufs_qcom_ice_resume(host);
--	if (err)
--		return err;
--
--	hba->is_sys_suspended = false;
--	return 0;
-+	return ufs_qcom_ice_resume(host);
+ static void wake_up_klogd_work_func(struct irq_work *irq_work)
+ {
+-	int pending = __this_cpu_xchg(printk_pending, 0);
++	int pending = this_cpu_xchg(printk_pending, 0);
+ 
+ 	if (pending & PRINTK_PENDING_OUTPUT) {
+ 		/* If trylock fails, someone else is doing the printing */
+@@ -3264,7 +3264,7 @@ void defer_console_output(void)
+ 		return;
+ 
+ 	preempt_disable();
+-	__this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
++	this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
+ 	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
+ 	preempt_enable();
  }
- 
- static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
 -- 
 2.35.1
 
