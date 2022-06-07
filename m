@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F0E540AB5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B73ED54139F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350629AbiFGSXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
+        id S1357975AbiFGUDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:03:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352403AbiFGSRI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D5122294;
-        Tue,  7 Jun 2022 10:51:46 -0700 (PDT)
+        with ESMTP id S1357959AbiFGUCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:02:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E161C14FA;
+        Tue,  7 Jun 2022 11:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5A0E61797;
-        Tue,  7 Jun 2022 17:51:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2377C34115;
-        Tue,  7 Jun 2022 17:51:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA1CE6131C;
+        Tue,  7 Jun 2022 18:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A8EC385A2;
+        Tue,  7 Jun 2022 18:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624305;
-        bh=ryHxilJ0m5kwi2l7DWgR4sLjPCCPqNz0RUdabj2f13g=;
+        s=korg; t=1654626326;
+        bh=ccEUHQQy2f2V9AzPwFK1n2OW3NKEul9X0Jjqw9iaasc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQ5Atw5mrk1xXstMmBg9aEY9M4wlrrwkKMxCjhwI335iAKyLXkW+3ErHPKK4iH6Ky
-         gWxCvBOChhyTH9rOy81USyM9jOxJYBu0z/XcnZgdlSu567YpsNHoE0EZgil1c4BLds
-         Bp6Rdvi4ldg7JOEP7Q4BK4FSUZgI15KRU2hXaj6w=
+        b=ZmEXc3zN5n7/9SqIA+gyenIXZtiiLgX/p8/9CYit0tAMVNcy93zhESWmzEPz3sHgd
+         HHQq7LOEq32eNQ9dG76rMopRxalhXg9iNbx0WMYLU/3Phq+Hxsb6TO1gfCa9M2dYwM
+         GHVmzheFTlrerji3oafl8PcwOnGqaC+F8mTFuj6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 262/667] x86/speculation: Add missing prototype for unpriv_ebpf_notify()
-Date:   Tue,  7 Jun 2022 18:58:47 +0200
-Message-Id: <20220607164942.640860862@linuxfoundation.org>
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 336/772] regulator: core: Fix enable_count imbalance with EXCLUSIVE_GET
+Date:   Tue,  7 Jun 2022 18:58:48 +0200
+Message-Id: <20220607164958.925185033@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-[ Upstream commit 2147c438fde135d6c145a96e373d9348e7076f7f ]
+[ Upstream commit c3e3ca05dae37f8f74bb80358efd540911cbc2c8 ]
 
-Fix the following warnings seen with "make W=1":
+Since the introduction of regulator->enable_count, a driver that did
+an exclusive get on an already-enabled regulator would end up with
+enable_count initialized to 0 but rdev->use_count initialized to 1.
+With that starting point the regulator is effectively stuck enabled,
+because if the driver attempted to disable it it would fail the
+enable_count underflow check in _regulator_handle_consumer_disable().
 
-  kernel/sysctl.c:183:13: warning: no previous prototype for ‘unpriv_ebpf_notify’ [-Wmissing-prototypes]
-    183 | void __weak unpriv_ebpf_notify(int new_state)
-        |             ^~~~~~~~~~~~~~~~~~
+The EXCLUSIVE_GET path in _regulator_get() now initializes
+enable_count along with rdev->use_count so that the regulator can be
+disabled without underflowing the former.
 
-  arch/x86/kernel/cpu/bugs.c:659:6: warning: no previous prototype for ‘unpriv_ebpf_notify’ [-Wmissing-prototypes]
-    659 | void unpriv_ebpf_notify(int new_state)
-        |      ^~~~~~~~~~~~~~~~~~
-
-Fixes: 44a3918c8245 ("x86/speculation: Include unprivileged eBPF status in Spectre v2 mitigation reporting")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/5689d065f739602ececaee1e05e68b8644009608.1650930000.git.jpoimboe@redhat.com
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Fixes: 5451781dadf85 ("regulator: core: Only count load for enabled consumers")
+Link: https://lore.kernel.org/r/20220505043152.12933-1-zev@bewilderbeest.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index c5c4b6f09e23..bb766a0b9b51 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1991,6 +1991,8 @@ void bpf_offload_dev_netdev_unregister(struct bpf_offload_dev *offdev,
- 				       struct net_device *netdev);
- bool bpf_offload_dev_match(struct bpf_prog *prog, struct net_device *netdev);
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index d2553970a67b..c4d844ffad7a 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -2133,10 +2133,13 @@ struct regulator *_regulator_get(struct device *dev, const char *id,
+ 		rdev->exclusive = 1;
  
-+void unpriv_ebpf_notify(int new_state);
-+
- #if defined(CONFIG_NET) && defined(CONFIG_BPF_SYSCALL)
- int bpf_prog_offload_init(struct bpf_prog *prog, union bpf_attr *attr);
+ 		ret = _regulator_is_enabled(rdev);
+-		if (ret > 0)
++		if (ret > 0) {
+ 			rdev->use_count = 1;
+-		else
++			regulator->enable_count = 1;
++		} else {
+ 			rdev->use_count = 0;
++			regulator->enable_count = 0;
++		}
+ 	}
  
+ 	link = device_link_add(dev, &rdev->dev, DL_FLAG_STATELESS);
 -- 
 2.35.1
 
