@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FE6540FAF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E0DF5416E2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351355AbiFGTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58650 "EHLO
+        id S1358379AbiFGU4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354931AbiFGTKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:10:08 -0400
+        with ESMTP id S1377968AbiFGUvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:51:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3175417590;
-        Tue,  7 Jun 2022 11:06:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF76E184869;
+        Tue,  7 Jun 2022 11:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAD32B81F38;
-        Tue,  7 Jun 2022 18:06:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 416B8C385A5;
-        Tue,  7 Jun 2022 18:06:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82092B82182;
+        Tue,  7 Jun 2022 18:41:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7379C385A2;
+        Tue,  7 Jun 2022 18:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625205;
-        bh=RgCuTiD3kozF3mlD2ezwdETxBXaIcFW+5/2P0Urfp64=;
+        s=korg; t=1654627262;
+        bh=YIivGeXXRfB6Sue+gelH2WioHvR7o0hxg8DWNPtEYV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12tFEJCitpKNIU4YPXHNw/3S1Qbsp0qYzXZ1kAWm9NOiRnQd5LWI3JUjGwSS+M/4I
-         m3Drg97rYmG+PQ48vBjk+mw3A2my3ZEm4vRY/otVWiOEfkr/5pk4BCAoTJzW7jl55Q
-         aEaQY9Yecaptz4lEMBrHGdTfqpChRUQWQsBTHYZg=
+        b=o+ycQWLERCsuaMwg8T/t6xrVsKZzlIDtw5Ti7yNz0VLzoJBP68I6dTHP6LSi0Zaxn
+         OH1vZC/DyMcsXkQcjQf9zd03tmWaEJVdJYDtoqrs26VJtfXP2OIOBA2lfeDOFCHuGj
+         OONY3uq8couzEGl1ipre1lyxtQFRJ5LzOMZ90Hl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 602/667] Kconfig: Add option for asm goto w/ tied outputs to workaround clang-13 bug
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.17 675/772] landlock: Fix landlock_add_rule(2) documentation
 Date:   Tue,  7 Jun 2022 19:04:27 +0200
-Message-Id: <20220607164952.734571545@linuxfoundation.org>
+Message-Id: <20220607165008.950089574@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 1aa0e8b144b6474c4914439d232d15bfe883636b upstream.
+commit a13e248ff90e81e9322406c0e618cf2168702f4e upstream.
 
-Add a config option to guard (future) usage of asm_volatile_goto() that
-includes "tied outputs", i.e. "+" constraints that specify both an input
-and output parameter.  clang-13 has a bug[1] that causes compilation of
-such inline asm to fail, and KVM wants to use a "+m" constraint to
-implement a uaccess form of CMPXCHG[2].  E.g. the test code fails with
+It is not mandatory to pass a file descriptor obtained with the O_PATH
+flag.  Also, replace rule's accesses with ruleset's accesses.
 
-  <stdin>:1:29: error: invalid operand in inline asm: '.long (${1:l}) - .'
-  int foo(int *x) { asm goto (".long (%l[bar]) - .\n": "+m"(*x) ::: bar); return *x; bar: return 0; }
-                            ^
-  <stdin>:1:29: error: unknown token in expression
-  <inline asm>:1:9: note: instantiated into assembly here
-          .long () - .
-                 ^
-  2 errors generated.
-
-on clang-13, but passes on gcc (with appropriate asm goto support).  The
-bug is fixed in clang-14, but won't be backported to clang-13 as the
-changes are too invasive/risky.
-
-gcc also had a similar bug[3], fixed in gcc-11, where gcc failed to
-account for its behavior of assigning two numbers to tied outputs (one
-for input, one for output) when evaluating symbolic references.
-
-[1] https://github.com/ClangBuiltLinux/linux/issues/1512
-[2] https://lore.kernel.org/all/YfMruK8%2F1izZ2VHS@google.com
-[3] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98096
-
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20220506160820.524344-2-mic@digikod.net
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220202004945.2540433-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/Kconfig |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/uapi/linux/landlock.h |    5 +++--
+ security/landlock/syscalls.c  |    7 +++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -77,6 +77,11 @@ config CC_HAS_ASM_GOTO_OUTPUT
- 	depends on CC_HAS_ASM_GOTO
- 	def_bool $(success,echo 'int foo(int x) { asm goto ("": "=r"(x) ::: bar); return x; bar: return 0; }' | $(CC) -x c - -c -o /dev/null)
- 
-+config CC_HAS_ASM_GOTO_TIED_OUTPUT
-+	depends on CC_HAS_ASM_GOTO_OUTPUT
-+	# Detect buggy gcc and clang, fixed in gcc-11 clang-14.
-+	def_bool $(success,echo 'int foo(int *x) { asm goto (".long (%l[bar]) - .\n": "+m"(*x) ::: bar); return *x; bar: return 0; }' | $CC -x c - -c -o /dev/null)
-+
- config TOOLS_SUPPORT_RELR
- 	def_bool $(success,env "CC=$(CC)" "LD=$(LD)" "NM=$(NM)" "OBJCOPY=$(OBJCOPY)" $(srctree)/scripts/tools-support-relr.sh)
- 
+--- a/include/uapi/linux/landlock.h
++++ b/include/uapi/linux/landlock.h
+@@ -62,8 +62,9 @@ struct landlock_path_beneath_attr {
+ 	 */
+ 	__u64 allowed_access;
+ 	/**
+-	 * @parent_fd: File descriptor, open with ``O_PATH``, which identifies
+-	 * the parent directory of a file hierarchy, or just a file.
++	 * @parent_fd: File descriptor, preferably opened with ``O_PATH``,
++	 * which identifies the parent directory of a file hierarchy, or just a
++	 * file.
+ 	 */
+ 	__s32 parent_fd;
+ 	/*
+--- a/security/landlock/syscalls.c
++++ b/security/landlock/syscalls.c
+@@ -292,14 +292,13 @@ out_fdput:
+  *
+  * - EOPNOTSUPP: Landlock is supported by the kernel but disabled at boot time;
+  * - EINVAL: @flags is not 0, or inconsistent access in the rule (i.e.
+- *   &landlock_path_beneath_attr.allowed_access is not a subset of the rule's
+- *   accesses);
++ *   &landlock_path_beneath_attr.allowed_access is not a subset of the
++ *   ruleset handled accesses);
+  * - ENOMSG: Empty accesses (e.g. &landlock_path_beneath_attr.allowed_access);
+  * - EBADF: @ruleset_fd is not a file descriptor for the current thread, or a
+  *   member of @rule_attr is not a file descriptor as expected;
+  * - EBADFD: @ruleset_fd is not a ruleset file descriptor, or a member of
+- *   @rule_attr is not the expected file descriptor type (e.g. file open
+- *   without O_PATH);
++ *   @rule_attr is not the expected file descriptor type;
+  * - EPERM: @ruleset_fd has no write access to the underlying ruleset;
+  * - EFAULT: @rule_attr inconsistency.
+  */
 
 
