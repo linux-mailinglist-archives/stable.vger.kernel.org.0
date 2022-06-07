@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42F7C54076F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F7E541634
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348213AbiFGRr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:47:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40510 "EHLO
+        id S1376922AbiFGUrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:47:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348663AbiFGRpx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:45:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3929132A02;
-        Tue,  7 Jun 2022 10:35:39 -0700 (PDT)
+        with ESMTP id S1376737AbiFGUqL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:46:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31671F5749;
+        Tue,  7 Jun 2022 11:39:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B89ECE23D2;
-        Tue,  7 Jun 2022 17:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42C11C34115;
-        Tue,  7 Jun 2022 17:35:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB978612EC;
+        Tue,  7 Jun 2022 18:39:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C11C385A2;
+        Tue,  7 Jun 2022 18:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623335;
-        bh=C8Kxegd4PI5II8y+ubn00uNxU/foHuFO7sI4QL9NruY=;
+        s=korg; t=1654627168;
+        bh=aGyWqYvWyjA/1VAtWXlscfe1t8nAwgekUlQyFJv6zs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMrlG8JuqBhD2aDa3+pRrsdegWYAURTzYEQGoGHrv0reQ8Ybe6gObno57//Rn35f3
-         Gyy7BPb/lZs+QJczR/KsKWcjeGGultPfvqKlC5QLFy+EroFnMc9RuK+Xf5SvvIuJZH
-         6uOmeGXRT0FQa1FdxYWrv/rwVmtPiSdRDk5Gwt9A=
+        b=wIdhD/zy9BpjSq+aGPB7EAFAhLabPgLfS4BLmzjDr0l7GAFeT4ZtwJvaGuRExKCxA
+         s58zA5ucz2WuPcsNeLWmyDSOzjGajsvDOpMAAH23iKDBJDE9UdW1Trc2Z4sKJObJOK
+         NlHat7gX6FcvWLpnP/snTUkM3unkRLh7gnkZl0Ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
-        Tyrone Ting <kfting@nuvoton.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 340/452] i2c: npcm: Handle spurious interrupts
+        stable@vger.kernel.org, Pascal Ernster <dri-devel@hardfalcon.net>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 605/772] video: fbdev: vesafb: Fix a use-after-free due early fb_info cleanup
 Date:   Tue,  7 Jun 2022 19:03:17 +0200
-Message-Id: <20220607164918.688987556@linuxfoundation.org>
+Message-Id: <20220607165006.768209733@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,253 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit e5222d408de2a88e6b206c38217b48d092184553 ]
+[ Upstream commit acde4003efc16480375543638484d8f13f2e99a3 ]
 
-On some platforms in rare cases (1 to 100,000 transactions),
-the i2c gets a spurious interrupt which means that we enter an interrupt
-but in the interrupt handler we don't find any status bit that points to
-the reason we got this interrupt.
+Commit b3c9a924aab6 ("fbdev: vesafb: Cleanup fb_info in .fb_destroy rather
+than .remove") fixed a use-after-free error due the vesafb driver freeing
+the fb_info in the .remove handler instead of doing it in .fb_destroy.
 
-This may be a case of a rare HW issue or signal integrity issue that is
-still under investigation.
+This can happen if the .fb_destroy callback is executed after the .remove
+callback, since the former tries to access a pointer freed by the latter.
 
-In order to overcome this we are doing the following:
-1. Disable incoming interrupts in master mode only when slave mode is not
-   enabled.
-2. Clear end of busy (EOB) after every interrupt.
-3. Clear other status bits (just in case since we found them cleared)
-4. Return correct status during the interrupt that will finish the
-   transaction.
+But that change didn't take into account that another possible scenario is
+that .fb_destroy is called before the .remove callback. For example, if no
+process has the fbdev chardev opened by the time the driver is removed.
 
-On next xmit transaction if the bus is still busy the master will issue a
-recovery process before issuing the new transaction.
+If that's the case, fb_info will be freed when unregister_framebuffer() is
+called, making the fb_info pointer accessed in vesafb_remove() after that
+to no longer be valid.
 
-Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+To prevent that, move the expression containing the info->par to happen
+before the unregister_framebuffer() function call.
+
+Fixes: b3c9a924aab6 ("fbdev: vesafb: Cleanup fb_info in .fb_destroy rather than .remove")
+Reported-by: Pascal Ernster <dri-devel@hardfalcon.net>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Pascal Ernster <dri-devel@hardfalcon.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 91 ++++++++++++++++++++++----------
- 1 file changed, 62 insertions(+), 29 deletions(-)
+ drivers/video/fbdev/vesafb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index cdea7f440a9e..20a2f903b7f6 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -563,6 +563,15 @@ static inline void npcm_i2c_nack(struct npcm_i2c *bus)
- 	iowrite8(val, bus->reg + NPCM_I2CCTL1);
- }
- 
-+static inline void npcm_i2c_clear_master_status(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	/* Clear NEGACK, STASTR and BER bits */
-+	val = NPCM_I2CST_BER | NPCM_I2CST_NEGACK | NPCM_I2CST_STASTR;
-+	iowrite8(val, bus->reg + NPCM_I2CST);
-+}
-+
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- static void npcm_i2c_slave_int_enable(struct npcm_i2c *bus, bool enable)
+diff --git a/drivers/video/fbdev/vesafb.c b/drivers/video/fbdev/vesafb.c
+index e25e8de5ff67..929d4775cb4b 100644
+--- a/drivers/video/fbdev/vesafb.c
++++ b/drivers/video/fbdev/vesafb.c
+@@ -490,11 +490,12 @@ static int vesafb_remove(struct platform_device *pdev)
  {
-@@ -642,8 +651,8 @@ static void npcm_i2c_reset(struct npcm_i2c *bus)
- 	iowrite8(NPCM_I2CCST_BB, bus->reg + NPCM_I2CCST);
- 	iowrite8(0xFF, bus->reg + NPCM_I2CST);
+ 	struct fb_info *info = platform_get_drvdata(pdev);
  
--	/* Clear EOB bit */
--	iowrite8(NPCM_I2CCST3_EO_BUSY, bus->reg + NPCM_I2CCST3);
-+	/* Clear and disable EOB */
-+	npcm_i2c_eob_int(bus, false);
+-	/* vesafb_destroy takes care of info cleanup */
+-	unregister_framebuffer(info);
+ 	if (((struct vesafb_par *)(info->par))->region)
+ 		release_region(0x3c0, 32);
  
- 	/* Clear all fifo bits: */
- 	iowrite8(NPCM_I2CFIF_CTS_CLR_FIFO, bus->reg + NPCM_I2CFIF_CTS);
-@@ -655,6 +664,9 @@ static void npcm_i2c_reset(struct npcm_i2c *bus)
- 	}
- #endif
- 
-+	/* clear status bits for spurious interrupts */
-+	npcm_i2c_clear_master_status(bus);
++	/* vesafb_destroy takes care of info cleanup */
++	unregister_framebuffer(info);
 +
- 	bus->state = I2C_IDLE;
- }
- 
-@@ -815,15 +827,6 @@ static void npcm_i2c_read_fifo(struct npcm_i2c *bus, u8 bytes_in_fifo)
- 	}
- }
- 
--static inline void npcm_i2c_clear_master_status(struct npcm_i2c *bus)
--{
--	u8 val;
--
--	/* Clear NEGACK, STASTR and BER bits */
--	val = NPCM_I2CST_BER | NPCM_I2CST_NEGACK | NPCM_I2CST_STASTR;
--	iowrite8(val, bus->reg + NPCM_I2CST);
--}
--
- static void npcm_i2c_master_abort(struct npcm_i2c *bus)
- {
- 	/* Only current master is allowed to issue a stop condition */
-@@ -1231,7 +1234,16 @@ static irqreturn_t npcm_i2c_int_slave_handler(struct npcm_i2c *bus)
- 		ret = IRQ_HANDLED;
- 	} /* SDAST */
- 
--	return ret;
-+	/*
-+	 * if irq is not one of the above, make sure EOB is disabled and all
-+	 * status bits are cleared.
-+	 */
-+	if (ret == IRQ_NONE) {
-+		npcm_i2c_eob_int(bus, false);
-+		npcm_i2c_clear_master_status(bus);
-+	}
-+
-+	return IRQ_HANDLED;
- }
- 
- static int npcm_i2c_reg_slave(struct i2c_client *client)
-@@ -1467,6 +1479,9 @@ static void npcm_i2c_irq_handle_nack(struct npcm_i2c *bus)
- 		npcm_i2c_eob_int(bus, false);
- 		npcm_i2c_master_stop(bus);
- 
-+		/* Clear SDA Status bit (by reading dummy byte) */
-+		npcm_i2c_rd_byte(bus);
-+
- 		/*
- 		 * The bus is released from stall only after the SW clears
- 		 * NEGACK bit. Then a Stop condition is sent.
-@@ -1474,6 +1489,8 @@ static void npcm_i2c_irq_handle_nack(struct npcm_i2c *bus)
- 		npcm_i2c_clear_master_status(bus);
- 		readx_poll_timeout_atomic(ioread8, bus->reg + NPCM_I2CCST, val,
- 					  !(val & NPCM_I2CCST_BUSY), 10, 200);
-+		/* verify no status bits are still set after bus is released */
-+		npcm_i2c_clear_master_status(bus);
- 	}
- 	bus->state = I2C_IDLE;
- 
-@@ -1672,10 +1689,10 @@ static int npcm_i2c_recovery_tgclk(struct i2c_adapter *_adap)
- 	int              iter = 27;
- 
- 	if ((npcm_i2c_get_SDA(_adap) == 1) && (npcm_i2c_get_SCL(_adap) == 1)) {
--		dev_dbg(bus->dev, "bus%d recovery skipped, bus not stuck",
--			bus->num);
-+		dev_dbg(bus->dev, "bus%d-0x%x recovery skipped, bus not stuck",
-+			bus->num, bus->dest_addr);
- 		npcm_i2c_reset(bus);
--		return status;
-+		return 0;
- 	}
- 
- 	npcm_i2c_int_enable(bus, false);
-@@ -1909,6 +1926,7 @@ static int npcm_i2c_init_module(struct npcm_i2c *bus, enum i2c_mode mode,
- 	    bus_freq_hz < I2C_FREQ_MIN_HZ || bus_freq_hz > I2C_FREQ_MAX_HZ)
- 		return -EINVAL;
- 
-+	npcm_i2c_int_enable(bus, false);
- 	npcm_i2c_disable(bus);
- 
- 	/* Configure FIFO mode : */
-@@ -1937,10 +1955,17 @@ static int npcm_i2c_init_module(struct npcm_i2c *bus, enum i2c_mode mode,
- 	val = (val | NPCM_I2CCTL1_NMINTE) & ~NPCM_I2CCTL1_RWS;
- 	iowrite8(val, bus->reg + NPCM_I2CCTL1);
- 
--	npcm_i2c_int_enable(bus, true);
--
- 	npcm_i2c_reset(bus);
- 
-+	/* check HW is OK: SDA and SCL should be high at this point. */
-+	if ((npcm_i2c_get_SDA(&bus->adap) == 0) || (npcm_i2c_get_SCL(&bus->adap) == 0)) {
-+		dev_err(bus->dev, "I2C%d init fail: lines are low\n", bus->num);
-+		dev_err(bus->dev, "SDA=%d SCL=%d\n", npcm_i2c_get_SDA(&bus->adap),
-+			npcm_i2c_get_SCL(&bus->adap));
-+		return -ENXIO;
-+	}
-+
-+	npcm_i2c_int_enable(bus, true);
  	return 0;
  }
  
-@@ -1988,10 +2013,14 @@ static irqreturn_t npcm_i2c_bus_irq(int irq, void *dev_id)
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	if (bus->slave) {
- 		bus->master_or_slave = I2C_SLAVE;
--		return npcm_i2c_int_slave_handler(bus);
-+		if (npcm_i2c_int_slave_handler(bus))
-+			return IRQ_HANDLED;
- 	}
- #endif
--	return IRQ_NONE;
-+	/* clear status bits for spurious interrupts */
-+	npcm_i2c_clear_master_status(bus);
-+
-+	return IRQ_HANDLED;
- }
- 
- static bool npcm_i2c_master_start_xmit(struct npcm_i2c *bus,
-@@ -2048,7 +2077,6 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	u8 *write_data, *read_data;
- 	u8 slave_addr;
- 	unsigned long timeout;
--	int ret = 0;
- 	bool read_block = false;
- 	bool read_PEC = false;
- 	u8 bus_busy;
-@@ -2138,12 +2166,12 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	bus->read_block_use = read_block;
- 
- 	reinit_completion(&bus->cmd_complete);
--	if (!npcm_i2c_master_start_xmit(bus, slave_addr, nwrite, nread,
--					write_data, read_data, read_PEC,
--					read_block))
--		ret = -EBUSY;
- 
--	if (ret != -EBUSY) {
-+	npcm_i2c_int_enable(bus, true);
-+
-+	if (npcm_i2c_master_start_xmit(bus, slave_addr, nwrite, nread,
-+				       write_data, read_data, read_PEC,
-+				       read_block)) {
- 		time_left = wait_for_completion_timeout(&bus->cmd_complete,
- 							timeout);
- 
-@@ -2157,26 +2185,31 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			}
- 		}
- 	}
--	ret = bus->cmd_err;
- 
- 	/* if there was BER, check if need to recover the bus: */
- 	if (bus->cmd_err == -EAGAIN)
--		ret = i2c_recover_bus(adap);
-+		bus->cmd_err = i2c_recover_bus(adap);
- 
- 	/*
- 	 * After any type of error, check if LAST bit is still set,
- 	 * due to a HW issue.
- 	 * It cannot be cleared without resetting the module.
- 	 */
--	if (bus->cmd_err &&
--	    (NPCM_I2CRXF_CTL_LAST_PEC & ioread8(bus->reg + NPCM_I2CRXF_CTL)))
-+	else if (bus->cmd_err &&
-+		 (NPCM_I2CRXF_CTL_LAST_PEC & ioread8(bus->reg + NPCM_I2CRXF_CTL)))
- 		npcm_i2c_reset(bus);
- 
-+	/* after any xfer, successful or not, stall and EOB must be disabled */
-+	npcm_i2c_stall_after_start(bus, false);
-+	npcm_i2c_eob_int(bus, false);
-+
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	/* reenable slave if it was enabled */
- 	if (bus->slave)
- 		iowrite8((bus->slave->addr & 0x7F) | NPCM_I2CADDR_SAEN,
- 			 bus->reg + NPCM_I2CADDR1);
-+#else
-+	npcm_i2c_int_enable(bus, false);
- #endif
- 	return bus->cmd_err;
- }
 -- 
 2.35.1
 
