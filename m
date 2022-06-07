@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55AED5406AE
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3B2540E3F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347365AbiFGRhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53720 "EHLO
+        id S1352843AbiFGSxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348657AbiFGRgj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46F8465AF;
-        Tue,  7 Jun 2022 10:32:50 -0700 (PDT)
+        with ESMTP id S1354557AbiFGSrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:47:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3EF5A150;
+        Tue,  7 Jun 2022 11:02:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1652ACE23CE;
-        Tue,  7 Jun 2022 17:32:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CA3CC385A5;
-        Tue,  7 Jun 2022 17:32:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8237DB82343;
+        Tue,  7 Jun 2022 18:02:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2841C34115;
+        Tue,  7 Jun 2022 18:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623144;
-        bh=kuJGlq+Dp50ebFzN/dD8Ge6yPh9MXymGfk7L2/1qwBk=;
+        s=korg; t=1654624928;
+        bh=4JI497rn1w5jLXa3fsVUm1N8VcEniotvqADpCf5bPZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMHhzIE1/a/etFS7y7WQDX7QNK6y5ykTWkPIOwTtJmze2q8zCEXyKKdM1Sbq90pf7
-         Y+aEunDjRlcxKQ9MsSNGDr6Wv+sLoP77yn4WmGNWJYVdsmfrPNE04zQvY2cJEiD/Dw
-         b5rGzSVsF/VJT+4EjvcpylStqLasjBNHB0jZjD9Y=
+        b=ZUdihUSYYKT7dqHON1NFeC4ffp73jywxPbv/wLc84bPzk4iWTclhlqR5m152RSXbk
+         iCSC055P7VwKV/VI7lkmb/e7FMeejyauemYB7goRceCkQOwMaN2IKJRexFmD+mY0B4
+         bC9FtOpZJCxr12I/YEHM8aCnfxabisQJNnzZog9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 311/452] powerpc/perf: Fix the threshold compare group constraint for power9
-Date:   Tue,  7 Jun 2022 19:02:48 +0200
-Message-Id: <20220607164917.827166709@linuxfoundation.org>
+        stable@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 504/667] i2c: npcm: Fix timeout calculation
+Date:   Tue,  7 Jun 2022 19:02:49 +0200
+Message-Id: <20220607164949.818395418@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Tali Perry <tali.perry1@gmail.com>
 
-[ Upstream commit ab0cc6bbf0c812731c703ec757fcc3fc3a457a34 ]
+[ Upstream commit 288b204492fddf28889cea6dc95a23976632c7a0 ]
 
-Thresh compare bits for a event is used to program thresh compare
-field in Monitor Mode Control Register A (MMCRA: 9-18 bits for power9).
-When scheduling events as a group, all events in that group should
-match value in threshold bits (like thresh compare, thresh control,
-thresh select). Otherwise event open for the sibling events should fail.
-But in the current code, incase thresh compare bits are not valid,
-we are not failing in group_constraint function which can result
-in invalid group schduling.
+Use adap.timeout for timeout calculation instead of hard-coded
+value of 35ms.
 
-Fix the issue by returning -1 incase event is threshold and threshold
-compare value is not valid.
-
-Thresh control bits in the event code is used to program thresh_ctl
-field in Monitor Mode Control Register A (MMCRA: 48-55). In below example,
-the scheduling of group events PM_MRK_INST_CMPL (873534401e0) and
-PM_THRESH_MET (8734340101ec) is expected to fail as both event
-request different thresh control bits and invalid thresh compare value.
-
-Result before the patch changes:
-
-[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
-
- Performance counter stats for 'sleep 1':
-
-            11,048      r8735340401e0
-             1,967      r8734340101ec
-
-       1.001354036 seconds time elapsed
-
-       0.001421000 seconds user
-       0.000000000 seconds sys
-
-Result after the patch changes:
-
-[command]# perf stat -e "{r8735340401e0,r8734340101ec}" sleep 1
-Error:
-The sys_perf_event_open() syscall returned with 22 (Invalid argument)
-for event (r8735340401e0).
-/bin/dmesg | grep -i perf may provide additional information.
-
-Fixes: 78a16d9fc1206 ("powerpc/perf: Avoid FAB_*_MATCH checks for power9")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220506061015.43916-2-kjain@linux.ibm.com
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index 58448f0e4721..52990becbdfc 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -363,7 +363,8 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
- 		if (event_is_threshold(event) && is_thresh_cmp_valid(event)) {
- 			mask  |= CNST_THRESH_MASK;
- 			value |= CNST_THRESH_VAL(event >> EVENT_THRESH_SHIFT);
--		}
-+		} else if (event_is_threshold(event))
-+			return -1;
- 	} else {
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 2ad166355ec9..92fd88a3f415 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2047,7 +2047,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	u16 nwrite, nread;
+ 	u8 *write_data, *read_data;
+ 	u8 slave_addr;
+-	int timeout;
++	unsigned long timeout;
+ 	int ret = 0;
+ 	bool read_block = false;
+ 	bool read_PEC = false;
+@@ -2099,13 +2099,13 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 * 9: bits per transaction (including the ack/nack)
+ 	 */
+ 	timeout_usec = (2 * 9 * USEC_PER_SEC / bus->bus_freq) * (2 + nread + nwrite);
+-	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
++	timeout = max_t(unsigned long, bus->adap.timeout, usecs_to_jiffies(timeout_usec));
+ 	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
+ 		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
+ 		return -EINVAL;
+ 	}
+ 
+-	time_left = jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
++	time_left = jiffies + timeout + 1;
+ 	do {
  		/*
- 		 * Special case for PM_MRK_FAB_RSP_MATCH and PM_MRK_FAB_RSP_MATCH_CYC,
+ 		 * we must clear slave address immediately when the bus is not
+@@ -2269,7 +2269,7 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+ 	adap = &bus->adap;
+ 	adap->owner = THIS_MODULE;
+ 	adap->retries = 3;
+-	adap->timeout = HZ;
++	adap->timeout = msecs_to_jiffies(35);
+ 	adap->algo = &npcm_i2c_algo;
+ 	adap->quirks = &npcm_i2c_quirks;
+ 	adap->algo_data = bus;
 -- 
 2.35.1
 
