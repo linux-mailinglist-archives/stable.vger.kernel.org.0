@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF488541223
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47DB3540877
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:59:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357052AbiFGToK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54358 "EHLO
+        id S1348799AbiFGR6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:58:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357618AbiFGTmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235B61B587E;
-        Tue,  7 Jun 2022 11:15:32 -0700 (PDT)
+        with ESMTP id S1349093AbiFGR6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:58:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 201935D5CB;
+        Tue,  7 Jun 2022 10:41:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 769786062B;
-        Tue,  7 Jun 2022 18:15:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85ABEC385A5;
-        Tue,  7 Jun 2022 18:15:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB423B80B66;
+        Tue,  7 Jun 2022 17:41:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E40C385A5;
+        Tue,  7 Jun 2022 17:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625730;
-        bh=NZOjF323UZNafxUxjZt3FD7HpP5qouR5J6a9gRbV+4w=;
+        s=korg; t=1654623662;
+        bh=KidPKL7CSKLt/gRwD34Zy5/VxtuEN1OY6TljW2bDPrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MD8C2wik6LxviWXLCIFttZbPfXxizYZeYPEvJHQmac+MTTI9Yksng/jrij4GfhPUS
-         BG9ElmT5cN3AjtymQyqn8xi87+yxY+0+DxlNhz1PnY4TcI5GBEUsQzWIy43zUrFaju
-         R0FaxbeRT5rI//GBIaUcXzKKM3yNNHB3Y4h7gggc=
+        b=v7MEC18iYTV/ZL0f3kBD16y5aGuK4yE3EEs7dCZBto7WJWPxBzYdaAKHhhrAxPvkD
+         4RMoM4L8DGWG8YDdPXainUsZCxIAAS4qeQLYQ+oMzQfz+7YirAY0/hrQ11SVqy67OI
+         tbcPPm5sHQkJ8nEJ4OvyRE5riTyEns5slT9xTTY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maulik Shah <quic_mkshah@quicinc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 082/772] cpuidle: PSCI: Improve support for suspend-to-RAM for PSCI OSI mode
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 009/667] riscv: Move alternative length validation into subsection
 Date:   Tue,  7 Jun 2022 18:54:34 +0200
-Message-Id: <20220607164951.457418670@linuxfoundation.org>
+Message-Id: <20220607164935.064151961@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 171b66e2e2e9d80b93c8cff799e6175074b22297 ]
+commit 61114e734ccb804bc12561ab4020745e02c468c2 upstream.
 
-When PSCI OSI mode is supported the syscore flag is set for the CPU devices
-that becomes attached to their PM domains (genpds). In the suspend-to-idle
-case, we call dev_pm_genpd_suspend|resume() to allow genpd to properly
-manage the power-off/on operations (pick an idlestate and manage the on/off
-notifications).
+After commit 49b290e430d3 ("riscv: prevent compressed instructions in
+alternatives"), builds with LLVM's integrated assembler fail:
 
-For suspend-to-ram, dev_pm_genpd_suspend|resume() is currently not being
-called, which causes a problem that the genpd on/off notifiers do not get
-sent as expected. This prevents the platform-specific operations from being
-executed, typically needed just before/after the boot CPU is being turned
-off/on.
+  In file included from arch/riscv/mm/init.c:10:
+  In file included from ./include/linux/mm.h:29:
+  In file included from ./include/linux/pgtable.h:6:
+  In file included from ./arch/riscv/include/asm/pgtable.h:108:
+  ./arch/riscv/include/asm/tlbflush.h:23:2: error: expected assembly-time absolute expression
+          ALT_FLUSH_TLB_PAGE(__asm__ __volatile__ ("sfence.vma %0" : : "r" (addr) : "memory"));
+          ^
+  ./arch/riscv/include/asm/errata_list.h:33:5: note: expanded from macro 'ALT_FLUSH_TLB_PAGE'
+  asm(ALTERNATIVE("sfence.vma %0", "sfence.vma", SIFIVE_VENDOR_ID,        \
+      ^
+  ./arch/riscv/include/asm/alternative-macros.h:187:2: note: expanded from macro 'ALTERNATIVE'
+          _ALTERNATIVE_CFG(old_content, new_content, vendor_id, errata_id, CONFIG_k)
+          ^
+  ./arch/riscv/include/asm/alternative-macros.h:113:2: note: expanded from macro '_ALTERNATIVE_CFG'
+          __ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, IS_ENABLED(CONFIG_k))
+          ^
+  ./arch/riscv/include/asm/alternative-macros.h:110:2: note: expanded from macro '__ALTERNATIVE_CFG'
+          ALT_NEW_CONTENT(vendor_id, errata_id, enable, new_c)
+          ^
+  ./arch/riscv/include/asm/alternative-macros.h:99:3: note: expanded from macro 'ALT_NEW_CONTENT'
+          ".org   . - (889b - 888b) + (887b - 886b)\n"                    \
+           ^
+  <inline asm>:26:6: note: instantiated into assembly here
+  .org    . - (889b - 888b) + (887b - 886b)
+          ^
 
-To deal with this problem, let's register a syscore ops for cpuidle-psci
-when PSCI OSI mode is being used and call dev_pm_genpd_suspend|resume()
-from them. In this way, genpd regains control of the PM domain topology and
-then sends the on/off notifications when it's appropriate.
+This error happens because LLVM's integrated assembler has a one-pass
+design, which means it cannot figure out the instruction lengths when
+the .org directive is outside of the subsection that contains the
+instructions, which was changed by the .option directives added by the
+above change.
 
-Reported-by: Maulik Shah <quic_mkshah@quicinc.com>
-Suggested-by: Maulik Shah <quic_mkshah@quicinc.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Tested-by: Maulik Shah <quic_mkshah@quicinc.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Move the .org directives before the .previous directive so that these
+directives are always within the same subsection, which resolves the
+failures and does not introduce any new issues with GNU as. This was
+done for arm64 in commit 966a0acce2fc ("arm64/alternatives: move length
+validation inside the subsection") and commit 22315a2296f4 ("arm64:
+alternatives: Move length validation in alternative_{insn, endif}").
+
+While there is no error from the assembly versions of the macro, they
+appear to have the same problem so just make the same change there as
+well so that there are no problems in the future.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1640
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20220516214520.3252074-1-nathan@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpuidle/cpuidle-psci.c | 46 ++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ arch/riscv/include/asm/alternative-macros.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle-psci.c b/drivers/cpuidle/cpuidle-psci.c
-index b51b5df08450..540105ca0781 100644
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -23,6 +23,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/string.h>
-+#include <linux/syscore_ops.h>
+--- a/arch/riscv/include/asm/alternative-macros.h
++++ b/arch/riscv/include/asm/alternative-macros.h
+@@ -23,9 +23,9 @@
+ 888 :
+ 	\new_c
+ 889 :
+-	.previous
+ 	.org    . - (889b - 888b) + (887b - 886b)
+ 	.org    . - (887b - 886b) + (889b - 888b)
++	.previous
+ 	.endif
+ .endm
  
- #include <asm/cpuidle.h>
+@@ -60,9 +60,9 @@
+ 	"888 :\n"							\
+ 	new_c "\n"							\
+ 	"889 :\n"							\
+-	".previous\n"							\
+ 	".org	. - (887b - 886b) + (889b - 888b)\n"			\
+ 	".org	. - (889b - 888b) + (887b - 886b)\n"			\
++	".previous\n"							\
+ 	".endif\n"
  
-@@ -131,6 +132,49 @@ static int psci_idle_cpuhp_down(unsigned int cpu)
- 	return 0;
- }
- 
-+static void psci_idle_syscore_switch(bool suspend)
-+{
-+	bool cleared = false;
-+	struct device *dev;
-+	int cpu;
-+
-+	for_each_possible_cpu(cpu) {
-+		dev = per_cpu_ptr(&psci_cpuidle_data, cpu)->dev;
-+
-+		if (dev && suspend) {
-+			dev_pm_genpd_suspend(dev);
-+		} else if (dev) {
-+			dev_pm_genpd_resume(dev);
-+
-+			/* Account for userspace having offlined a CPU. */
-+			if (pm_runtime_status_suspended(dev))
-+				pm_runtime_set_active(dev);
-+
-+			/* Clear domain state to re-start fresh. */
-+			if (!cleared) {
-+				psci_set_domain_state(0);
-+				cleared = true;
-+			}
-+		}
-+	}
-+}
-+
-+static int psci_idle_syscore_suspend(void)
-+{
-+	psci_idle_syscore_switch(true);
-+	return 0;
-+}
-+
-+static void psci_idle_syscore_resume(void)
-+{
-+	psci_idle_syscore_switch(false);
-+}
-+
-+static struct syscore_ops psci_idle_syscore_ops = {
-+	.suspend = psci_idle_syscore_suspend,
-+	.resume = psci_idle_syscore_resume,
-+};
-+
- static void psci_idle_init_cpuhp(void)
- {
- 	int err;
-@@ -138,6 +182,8 @@ static void psci_idle_init_cpuhp(void)
- 	if (!psci_cpuidle_use_cpuhp)
- 		return;
- 
-+	register_syscore_ops(&psci_idle_syscore_ops);
-+
- 	err = cpuhp_setup_state_nocalls(CPUHP_AP_CPU_PM_STARTING,
- 					"cpuidle/psci:online",
- 					psci_idle_cpuhp_up,
--- 
-2.35.1
-
+ #define __ALTERNATIVE_CFG(old_c, new_c, vendor_id, errata_id, enable) \
 
 
