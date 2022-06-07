@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 653BB541112
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40AEB54187F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355366AbiFGTc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:32:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59642 "EHLO
+        id S1379349AbiFGVMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356585AbiFGTbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:31:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE951A65F0;
-        Tue,  7 Jun 2022 11:12:36 -0700 (PDT)
+        with ESMTP id S1379540AbiFGVKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:19 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7862148AE;
+        Tue,  7 Jun 2022 11:51:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7424060920;
-        Tue,  7 Jun 2022 18:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CDB3C385A2;
-        Tue,  7 Jun 2022 18:12:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D7B82CE2465;
+        Tue,  7 Jun 2022 18:51:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD908C385A2;
+        Tue,  7 Jun 2022 18:51:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625554;
-        bh=gam7VJRU5tQrQ47mhnmERO7Bdx+TDXwHG5e3vtQwqLQ=;
+        s=korg; t=1654627904;
+        bh=bGfe+XYml5vTZnnP/P6GhNopkUPsUwTEgTIBai+RAio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BND6vij9ON04xrMRbkxddk8bDBdKlhyJt9Uhub2Kt/jb1z7rjLat2FNFgm8moWH23
-         YfTP2JUty4MY+xd9Oiy5DK5EgBxItUq3PksrMdCOEeHVP5+hdcYqdJ7bLIXFTbZ9vE
-         PMhPp5iAYaoPIObDHL+bfOv8uI7blz0YLrgxea3I=
+        b=ysbzePnEz80+nMQoYz5vVdhE+Qzihf+G98tDpQ7SXpWWqzQY3jBe5G+ddl2DpwpJk
+         Njmu2JDiD472gaLrNbOKTM9M214Q8RkHpt83WsIoitAu7rFo9VQbYFpc7zqVZZdVL2
+         7eLI5kYzgeB9bsX6iyix+cvi+91CcDn1llLpv3yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 060/772] ipw2x00: Fix potential NULL dereference in libipw_xmit()
-Date:   Tue,  7 Jun 2022 18:54:12 +0200
-Message-Id: <20220607164950.809103592@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 135/879] ice: always check VF VSI pointer values
+Date:   Tue,  7 Jun 2022 18:54:13 +0200
+Message-Id: <20220607165006.621436225@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +56,287 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit e8366bbabe1d207cf7c5b11ae50e223ae6fc278b ]
+[ Upstream commit baeb705fd6a7245cc1fa69ed991a9cffdf44a174 ]
 
-crypt and crypt->ops could be null, so we need to checking null
-before dereference
+The ice_get_vf_vsi function can return NULL in some cases, such as if
+handling messages during a reset where the VSI is being removed and
+recreated.
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648797055-25730-1-git-send-email-baihaowen@meizu.com
+Several places throughout the driver do not bother to check whether this
+VSI pointer is valid. Static analysis tools maybe report issues because
+they detect paths where a potentially NULL pointer could be dereferenced.
+
+Fix this by checking the return value of ice_get_vf_vsi everywhere.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/ipw2x00/libipw_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_devlink.c  |  5 ++-
+ drivers/net/ethernet/intel/ice/ice_repr.c     |  7 +++-
+ drivers/net/ethernet/intel/ice/ice_sriov.c    | 32 +++++++++++++++++--
+ drivers/net/ethernet/intel/ice/ice_vf_lib.c   | 28 +++++++++++++++-
+ drivers/net/ethernet/intel/ice/ice_virtchnl.c |  5 +++
+ .../ethernet/intel/ice/ice_virtchnl_fdir.c    |  7 +++-
+ 6 files changed, 77 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/ipw2x00/libipw_tx.c b/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-index 36d1e6b2568d..4aec1fce1ae2 100644
---- a/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-+++ b/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-@@ -383,7 +383,7 @@ netdev_tx_t libipw_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/drivers/net/ethernet/intel/ice/ice_devlink.c b/drivers/net/ethernet/intel/ice/ice_devlink.c
+index a230edb38466..4a9de59121d8 100644
+--- a/drivers/net/ethernet/intel/ice/ice_devlink.c
++++ b/drivers/net/ethernet/intel/ice/ice_devlink.c
+@@ -753,9 +753,12 @@ int ice_devlink_create_vf_port(struct ice_vf *vf)
  
- 		/* Each fragment may need to have room for encryption
- 		 * pre/postfix */
--		if (host_encrypt)
-+		if (host_encrypt && crypt && crypt->ops)
- 			bytes_per_frag -= crypt->ops->extra_mpdu_prefix_len +
- 			    crypt->ops->extra_mpdu_postfix_len;
+ 	pf = vf->pf;
+ 	dev = ice_pf_to_dev(pf);
+-	vsi = ice_get_vf_vsi(vf);
+ 	devlink_port = &vf->devlink_port;
  
++	vsi = ice_get_vf_vsi(vf);
++	if (!vsi)
++		return -EINVAL;
++
+ 	attrs.flavour = DEVLINK_PORT_FLAVOUR_PCI_VF;
+ 	attrs.pci_vf.pf = pf->hw.bus.func;
+ 	attrs.pci_vf.vf = vf->vf_id;
+diff --git a/drivers/net/ethernet/intel/ice/ice_repr.c b/drivers/net/ethernet/intel/ice/ice_repr.c
+index 848f2adea563..a91b81c3088b 100644
+--- a/drivers/net/ethernet/intel/ice/ice_repr.c
++++ b/drivers/net/ethernet/intel/ice/ice_repr.c
+@@ -293,8 +293,13 @@ static int ice_repr_add(struct ice_vf *vf)
+ 	struct ice_q_vector *q_vector;
+ 	struct ice_netdev_priv *np;
+ 	struct ice_repr *repr;
++	struct ice_vsi *vsi;
+ 	int err;
+ 
++	vsi = ice_get_vf_vsi(vf);
++	if (!vsi)
++		return -EINVAL;
++
+ 	repr = kzalloc(sizeof(*repr), GFP_KERNEL);
+ 	if (!repr)
+ 		return -ENOMEM;
+@@ -313,7 +318,7 @@ static int ice_repr_add(struct ice_vf *vf)
+ 		goto err_alloc;
+ 	}
+ 
+-	repr->src_vsi = ice_get_vf_vsi(vf);
++	repr->src_vsi = vsi;
+ 	repr->vf = vf;
+ 	vf->repr = repr;
+ 	np = netdev_priv(repr->netdev);
+diff --git a/drivers/net/ethernet/intel/ice/ice_sriov.c b/drivers/net/ethernet/intel/ice/ice_sriov.c
+index 0c438219f7a3..bb1721f1321d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_sriov.c
++++ b/drivers/net/ethernet/intel/ice/ice_sriov.c
+@@ -46,7 +46,12 @@ static void ice_free_vf_entries(struct ice_pf *pf)
+  */
+ static void ice_vf_vsi_release(struct ice_vf *vf)
+ {
+-	ice_vsi_release(ice_get_vf_vsi(vf));
++	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
++
++	if (WARN_ON(!vsi))
++		return;
++
++	ice_vsi_release(vsi);
+ 	ice_vf_invalidate_vsi(vf);
+ }
+ 
+@@ -104,6 +109,8 @@ static void ice_dis_vf_mappings(struct ice_vf *vf)
+ 
+ 	hw = &pf->hw;
+ 	vsi = ice_get_vf_vsi(vf);
++	if (WARN_ON(!vsi))
++		return;
+ 
+ 	dev = ice_pf_to_dev(pf);
+ 	wr32(hw, VPINT_ALLOC(vf->vf_id), 0);
+@@ -341,6 +348,9 @@ static void ice_ena_vf_q_mappings(struct ice_vf *vf, u16 max_txq, u16 max_rxq)
+ 	struct ice_hw *hw = &vf->pf->hw;
+ 	u32 reg;
+ 
++	if (WARN_ON(!vsi))
++		return;
++
+ 	/* set regardless of mapping mode */
+ 	wr32(hw, VPLAN_TXQ_MAPENA(vf->vf_id), VPLAN_TXQ_MAPENA_TX_ENA_M);
+ 
+@@ -386,6 +396,9 @@ static void ice_ena_vf_mappings(struct ice_vf *vf)
+ {
+ 	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
+ 
++	if (WARN_ON(!vsi))
++		return;
++
+ 	ice_ena_vf_msix_mappings(vf);
+ 	ice_ena_vf_q_mappings(vf, vsi->alloc_txq, vsi->alloc_rxq);
+ }
+@@ -1128,6 +1141,8 @@ static struct ice_vf *ice_get_vf_from_pfq(struct ice_pf *pf, u16 pfq)
+ 		u16 rxq_idx;
+ 
+ 		vsi = ice_get_vf_vsi(vf);
++		if (!vsi)
++			continue;
+ 
+ 		ice_for_each_rxq(vsi, rxq_idx)
+ 			if (vsi->rxq_map[rxq_idx] == pfq) {
+@@ -1521,8 +1536,15 @@ static int ice_calc_all_vfs_min_tx_rate(struct ice_pf *pf)
+ static bool
+ ice_min_tx_rate_oversubscribed(struct ice_vf *vf, int min_tx_rate)
+ {
+-	int link_speed_mbps = ice_get_link_speed_mbps(ice_get_vf_vsi(vf));
+-	int all_vfs_min_tx_rate = ice_calc_all_vfs_min_tx_rate(vf->pf);
++	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
++	int all_vfs_min_tx_rate;
++	int link_speed_mbps;
++
++	if (WARN_ON(!vsi))
++		return false;
++
++	link_speed_mbps = ice_get_link_speed_mbps(vsi);
++	all_vfs_min_tx_rate = ice_calc_all_vfs_min_tx_rate(vf->pf);
+ 
+ 	/* this VF's previous rate is being overwritten */
+ 	all_vfs_min_tx_rate -= vf->min_tx_rate;
+@@ -1566,6 +1588,10 @@ ice_set_vf_bw(struct net_device *netdev, int vf_id, int min_tx_rate,
+ 		goto out_put_vf;
+ 
+ 	vsi = ice_get_vf_vsi(vf);
++	if (!vsi) {
++		ret = -EINVAL;
++		goto out_put_vf;
++	}
+ 
+ 	/* when max_tx_rate is zero that means no max Tx rate limiting, so only
+ 	 * check if max_tx_rate is non-zero
+diff --git a/drivers/net/ethernet/intel/ice/ice_vf_lib.c b/drivers/net/ethernet/intel/ice/ice_vf_lib.c
+index 6578059d9479..aefd66a4db80 100644
+--- a/drivers/net/ethernet/intel/ice/ice_vf_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_vf_lib.c
+@@ -220,8 +220,10 @@ static void ice_vf_clear_counters(struct ice_vf *vf)
+ {
+ 	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
+ 
++	if (vsi)
++		vsi->num_vlan = 0;
++
+ 	vf->num_mac = 0;
+-	vsi->num_vlan = 0;
+ 	memset(&vf->mdd_tx_events, 0, sizeof(vf->mdd_tx_events));
+ 	memset(&vf->mdd_rx_events, 0, sizeof(vf->mdd_rx_events));
+ }
+@@ -251,6 +253,9 @@ static int ice_vf_rebuild_vsi(struct ice_vf *vf)
+ 	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
+ 	struct ice_pf *pf = vf->pf;
+ 
++	if (WARN_ON(!vsi))
++		return -EINVAL;
++
+ 	if (ice_vsi_rebuild(vsi, true)) {
+ 		dev_err(ice_pf_to_dev(pf), "failed to rebuild VF %d VSI\n",
+ 			vf->vf_id);
+@@ -514,6 +519,10 @@ int ice_reset_vf(struct ice_vf *vf, u32 flags)
+ 	ice_trigger_vf_reset(vf, flags & ICE_VF_RESET_VFLR, false);
+ 
+ 	vsi = ice_get_vf_vsi(vf);
++	if (WARN_ON(!vsi)) {
++		err = -EIO;
++		goto out_unlock;
++	}
+ 
+ 	ice_dis_vf_qs(vf);
+ 
+@@ -572,6 +581,11 @@ int ice_reset_vf(struct ice_vf *vf, u32 flags)
+ 
+ 	vf->vf_ops->post_vsi_rebuild(vf);
+ 	vsi = ice_get_vf_vsi(vf);
++	if (WARN_ON(!vsi)) {
++		err = -EINVAL;
++		goto out_unlock;
++	}
++
+ 	ice_eswitch_update_repr(vsi);
+ 	ice_eswitch_replay_vf_mac_rule(vf);
+ 
+@@ -610,6 +624,9 @@ void ice_dis_vf_qs(struct ice_vf *vf)
+ {
+ 	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
+ 
++	if (WARN_ON(!vsi))
++		return;
++
+ 	ice_vsi_stop_lan_tx_rings(vsi, ICE_NO_RESET, vf->vf_id);
+ 	ice_vsi_stop_all_rx_rings(vsi);
+ 	ice_set_vf_state_qs_dis(vf);
+@@ -790,6 +807,9 @@ static int ice_vf_rebuild_host_mac_cfg(struct ice_vf *vf)
+ 	u8 broadcast[ETH_ALEN];
+ 	int status;
+ 
++	if (WARN_ON(!vsi))
++		return -EINVAL;
++
+ 	if (ice_is_eswitch_mode_switchdev(vf->pf))
+ 		return 0;
+ 
+@@ -875,6 +895,9 @@ static int ice_vf_rebuild_host_tx_rate_cfg(struct ice_vf *vf)
+ 	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
+ 	int err;
+ 
++	if (WARN_ON(!vsi))
++		return -EINVAL;
++
+ 	if (vf->min_tx_rate) {
+ 		err = ice_set_min_bw_limit(vsi, (u64)vf->min_tx_rate * 1000);
+ 		if (err) {
+@@ -938,6 +961,9 @@ void ice_vf_rebuild_host_cfg(struct ice_vf *vf)
+ 	struct device *dev = ice_pf_to_dev(vf->pf);
+ 	struct ice_vsi *vsi = ice_get_vf_vsi(vf);
+ 
++	if (WARN_ON(!vsi))
++		return;
++
+ 	ice_vf_set_host_trust_cfg(vf);
+ 
+ 	if (ice_vf_rebuild_host_mac_cfg(vf))
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl.c b/drivers/net/ethernet/intel/ice/ice_virtchnl.c
+index 2889e050a4c9..5405a0e752cf 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl.c
+@@ -2392,6 +2392,11 @@ static int ice_vc_ena_vlan_stripping(struct ice_vf *vf)
+ 	}
+ 
+ 	vsi = ice_get_vf_vsi(vf);
++	if (!vsi) {
++		v_ret = VIRTCHNL_STATUS_ERR_PARAM;
++		goto error_param;
++	}
++
+ 	if (vsi->inner_vlan_ops.ena_stripping(vsi, ETH_P_8021Q))
+ 		v_ret = VIRTCHNL_STATUS_ERR_PARAM;
+ 
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+index 8e38ee2faf58..b74ccbd1591a 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+@@ -1344,7 +1344,12 @@ static void ice_vf_fdir_dump_info(struct ice_vf *vf)
+ 	pf = vf->pf;
+ 	hw = &pf->hw;
+ 	dev = ice_pf_to_dev(pf);
+-	vf_vsi = pf->vsi[vf->lan_vsi_idx];
++	vf_vsi = ice_get_vf_vsi(vf);
++	if (!vf_vsi) {
++		dev_dbg(dev, "VF %d: invalid VSI pointer\n", vf->vf_id);
++		return;
++	}
++
+ 	vsi_num = ice_get_hw_vsi_num(hw, vf_vsi->idx);
+ 
+ 	fd_size = rd32(hw, VSIQF_FD_SIZE(vsi_num));
 -- 
 2.35.1
 
