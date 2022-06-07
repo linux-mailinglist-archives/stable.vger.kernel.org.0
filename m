@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6799D540708
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD365415E4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242419AbiFGRlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:41:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45616 "EHLO
+        id S1359755AbiFGUnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348549AbiFGRlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A0F1207C9;
-        Tue,  7 Jun 2022 10:34:20 -0700 (PDT)
+        with ESMTP id S1376577AbiFGUir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:38:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDA521842C5;
+        Tue,  7 Jun 2022 11:38:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ADB161407;
-        Tue,  7 Jun 2022 17:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D6A0C3411C;
-        Tue,  7 Jun 2022 17:33:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFD3161677;
+        Tue,  7 Jun 2022 18:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D994FC385A2;
+        Tue,  7 Jun 2022 18:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623238;
-        bh=b02OKA1A1W0ydsM+LzILpcpHVphl9AfihNQsWT2xcDI=;
+        s=korg; t=1654627080;
+        bh=ZarOxv6OC6Lb7v0F8skjQkznp1Vq8KrFhn6FrSySwWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUvjmD107BID/qgNmYdb8OC9lGB+5kB+EczHF7XRYmAPxvFvJ/9UhLCBL0pKhpSfQ
-         bqEaqLne6T0FzNPEGZODIgymGtvRhViWNz3EtN5oVmXV4O3hgToSwBC3oL7yc9PO0M
-         EBRlKafQHTX6B1A6suq2vgj2kdKqQsZbM3181sZs=
+        b=O9jgsEd5wgbB17WnBtVv5Z0JV51pXKBkb0R4GRJ2vwmQOBhpuOvnSkIYPT1ws4+IS
+         jTLcoJFuFOiO08QPsb6LLpHiyOk86duJ2zduXaC+j/y5/a67G5U3xSE+5PPHgRfG8q
+         nSYrvKW1WeSSQ8ixYABYBbjYwJ8hU462t7jrM4JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
         Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 346/452] f2fs: fix to clear dirty inode in f2fs_evict_inode()
+Subject: [PATCH 5.17 611/772] f2fs: fix to clear dirty inode in f2fs_evict_inode()
 Date:   Tue,  7 Jun 2022 19:03:23 +0200
-Message-Id: <20220607164918.867813844@linuxfoundation.org>
+Message-Id: <20220607165006.943979258@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/f2fs/inode.c
 +++ b/fs/f2fs/inode.c
-@@ -757,8 +757,22 @@ retry:
+@@ -796,8 +796,22 @@ retry:
  		f2fs_lock_op(sbi);
  		err = f2fs_remove_inode_page(inode);
  		f2fs_unlock_op(sbi);
