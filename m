@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B03541B2D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0514B540583
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381254AbiFGVmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:42:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40914 "EHLO
+        id S1346253AbiFGR0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381462AbiFGVkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5EA12332D7;
-        Tue,  7 Jun 2022 12:07:00 -0700 (PDT)
+        with ESMTP id S1346973AbiFGRZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:25:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36BD1116DC;
+        Tue,  7 Jun 2022 10:23:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3E766185A;
-        Tue,  7 Jun 2022 19:06:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7B0C3411C;
-        Tue,  7 Jun 2022 19:06:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5844560ADF;
+        Tue,  7 Jun 2022 17:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63539C385A5;
+        Tue,  7 Jun 2022 17:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628819;
-        bh=T6MiXZpB06tcLxMbXmqVOWVYpW3czv+bImNQtA0WiII=;
+        s=korg; t=1654622630;
+        bh=mPjFnB12v9QIjvkloTIVfkJB+ZjteATQWCqedBdGsPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HhuZuvjHe+jteG1pxNqhHNviF0W2q4pEtoG9ilh5KGq1Uvz332LdVYkmiyIHJ6SzT
-         T6S7sOPLfSv0cL4AlhLLPCn8beyLzd/vdIHBzPn47isZCc39f+QFrC+A/0rlzsULVr
-         oKPtWmV9suSwrh9KCaSLRbl/fzRCKDmZBJj5UMc4=
+        b=W+bP50Bo+6ZkaPo9HG+wgnuE0gmy7GucAeLHEri8iCFNS1/i4X8nJXxEqzQNJY/L9
+         qSPq2QGasu5qcU9ZBW5clptPLen80ToCkykewGne8EDF0kuF8FggG1FhYcnBUajGdn
+         adVNJEqljTDgdx09IRi8dIZz8M503tVBP7da8qgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 468/879] sctp: read sk->sk_bound_dev_if once in sctp_rcv()
+        stable@vger.kernel.org, Ammar Faizi <ammarfaizi2@gnuweeb.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 129/452] x86/delay: Fix the wrong asm constraint in delay_loop()
 Date:   Tue,  7 Jun 2022 18:59:46 +0200
-Message-Id: <20220607165016.462618613@linuxfoundation.org>
+Message-Id: <20220607164912.403347404@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-[ Upstream commit a20ea298071f46effa3aaf965bf9bb34c901db3f ]
+[ Upstream commit b86eb74098a92afd789da02699b4b0dd3f73b889 ]
 
-sctp_rcv() reads sk->sk_bound_dev_if twice while the socket
-is not locked. Another cpu could change this field under us.
+The asm constraint does not reflect the fact that the asm statement can
+modify the value of the local variable loops. Which it does.
 
-Fixes: 0fd9a65a76e8 ("[SCTP] Support SO_BINDTODEVICE socket option on incoming packets.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Specifying the wrong constraint may lead to undefined behavior, it may
+clobber random stuff (e.g. local variable, important temporary value in
+regs, etc.). This is especially dangerous when the compiler decides to
+inline the function and since it doesn't know that the value gets
+modified, it might decide to use it from a register directly without
+reloading it.
+
+Change the constraint to "+a" to denote that the first argument is an
+input and an output argument.
+
+  [ bp: Fix typo, massage commit message. ]
+
+Fixes: e01b70ef3eb3 ("x86: fix bug in arch/i386/lib/delay.c file, delay_loop function")
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220329104705.65256-2-ammarfaizi2@gnuweeb.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/lib/delay.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 90e12bafdd48..4f43afa8678f 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -92,6 +92,7 @@ int sctp_rcv(struct sk_buff *skb)
- 	struct sctp_chunk *chunk;
- 	union sctp_addr src;
- 	union sctp_addr dest;
-+	int bound_dev_if;
- 	int family;
- 	struct sctp_af *af;
- 	struct net *net = dev_net(skb->dev);
-@@ -169,7 +170,8 @@ int sctp_rcv(struct sk_buff *skb)
- 	 * If a frame arrives on an interface and the receiving socket is
- 	 * bound to another interface, via SO_BINDTODEVICE, treat it as OOTB
- 	 */
--	if (sk->sk_bound_dev_if && (sk->sk_bound_dev_if != af->skb_iif(skb))) {
-+	bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
-+	if (bound_dev_if && (bound_dev_if != af->skb_iif(skb))) {
- 		if (transport) {
- 			sctp_transport_put(transport);
- 			asoc = NULL;
+diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
+index 65d15df6212d..0e65d00e2339 100644
+--- a/arch/x86/lib/delay.c
++++ b/arch/x86/lib/delay.c
+@@ -54,8 +54,8 @@ static void delay_loop(u64 __loops)
+ 		"	jnz 2b		\n"
+ 		"3:	dec %0		\n"
+ 
+-		: /* we don't need output */
+-		:"a" (loops)
++		: "+a" (loops)
++		:
+ 	);
+ }
+ 
 -- 
 2.35.1
 
