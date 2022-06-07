@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24CB55405F1
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B6D541536
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242827AbiFGRcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39614 "EHLO
+        id S1359609AbiFGU3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:29:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347629AbiFGRaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B94EA100539;
-        Tue,  7 Jun 2022 10:27:44 -0700 (PDT)
+        with ESMTP id S1377042AbiFGU2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B6A1DAE4A;
+        Tue,  7 Jun 2022 11:33:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C0D26137B;
-        Tue,  7 Jun 2022 17:27:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5942DC385A5;
-        Tue,  7 Jun 2022 17:27:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91EC9B81AEC;
+        Tue,  7 Jun 2022 18:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E058BC385A2;
+        Tue,  7 Jun 2022 18:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622863;
-        bh=YgQ6cG9ycguXV3vG1QTl0qpiSjRDeFpJeg9BCSKj0Gs=;
+        s=korg; t=1654626824;
+        bh=n+ic4T+wFs4qD5yYsGfUnByUbXAWt25GtTmkq8wfrr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8TeRNJ4N34Pwio2LXM2PUfdeO2ZhVpHa/G97Pb2B0FvMaKtX73yfMQSkJtJMffO6
-         bXuc9oTSgqQOFg7AK7fp9Ge3nbiHfA2QiiqYrWis3q8IZWV/v6iJSUclO5OEAmGOtI
-         ZrI6c04gfNrHTcX5J/tytJHniw7KVnALkqVJfX28=
+        b=Y+6qQoTSfGpr65qWG6KuQ/rS/T34SpZMtJc5yqA77bdMkig4SpSdcknrtXCIsnFo/
+         /5tnsQk6vmoZllr1OYYFrNfu8AasXVjeiU11eAP+imUqvIkxIs4IqwArh0kMYXFjSU
+         eKbakmevwbn5auNRsctNHbRt3pIuTP4zy1DvLDPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hugues Fruchet <hugues.fruchet@foss.st.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 211/452] media: st-delta: Fix PM disable depth imbalance in delta_probe
+Subject: [PATCH 5.17 476/772] ARM: dts: bcm2835-rpi-zero-w: Fix GPIO line name for Wifi/BT
 Date:   Tue,  7 Jun 2022 19:01:08 +0200
-Message-Id: <20220607164914.850220324@linuxfoundation.org>
+Message-Id: <20220607165003.020125293@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit 94e3dba710fe0afc772172305444250023fc2d30 ]
+[ Upstream commit 2c663e5e5bbf2a5b85e0f76ccb69663f583c3e33 ]
 
-The pm_runtime_enable will decrease power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable().
+The GPIOs 30 to 39 are connected to the Cypress CYW43438 (Wifi/BT).
+So fix the GPIO line names accordingly.
 
-Fixes: f386509e4959 ("[media] st-delta: STiH4xx multi-format video decoder v4l2 driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Hugues Fruchet <hugues.fruchet@foss.st.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 2c7c040c73e9 ("ARM: dts: bcm2835: Add Raspberry Pi Zero W")
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/delta/delta-v4l2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/platform/sti/delta/delta-v4l2.c b/drivers/media/platform/sti/delta/delta-v4l2.c
-index c691b3d81549..5da49a0ab70b 100644
---- a/drivers/media/platform/sti/delta/delta-v4l2.c
-+++ b/drivers/media/platform/sti/delta/delta-v4l2.c
-@@ -1862,7 +1862,7 @@ static int delta_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(delta->dev, "%s failed to initialize firmware ipc channel\n",
- 			DELTA_PREFIX);
--		goto err;
-+		goto err_pm_disable;
- 	}
- 
- 	/* register all available decoders */
-@@ -1876,7 +1876,7 @@ static int delta_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(delta->dev, "%s failed to register V4L2 device\n",
- 			DELTA_PREFIX);
--		goto err;
-+		goto err_pm_disable;
- 	}
- 
- 	delta->work_queue = create_workqueue(DELTA_NAME);
-@@ -1901,6 +1901,8 @@ static int delta_probe(struct platform_device *pdev)
- 	destroy_workqueue(delta->work_queue);
- err_v4l2:
- 	v4l2_device_unregister(&delta->v4l2_dev);
-+err_pm_disable:
-+	pm_runtime_disable(dev);
- err:
- 	return ret;
- }
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+index 243236bc1e00..8b043ab62dc8 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+@@ -74,16 +74,18 @@
+ 			  "GPIO27",
+ 			  "SDA0",
+ 			  "SCL0",
+-			  "NC", /* GPIO30 */
+-			  "NC", /* GPIO31 */
+-			  "NC", /* GPIO32 */
+-			  "NC", /* GPIO33 */
+-			  "NC", /* GPIO34 */
+-			  "NC", /* GPIO35 */
+-			  "NC", /* GPIO36 */
+-			  "NC", /* GPIO37 */
+-			  "NC", /* GPIO38 */
+-			  "NC", /* GPIO39 */
++			  /* Used by BT module */
++			  "CTS0",
++			  "RTS0",
++			  "TXD0",
++			  "RXD0",
++			  /* Used by Wifi */
++			  "SD1_CLK",
++			  "SD1_CMD",
++			  "SD1_DATA0",
++			  "SD1_DATA1",
++			  "SD1_DATA2",
++			  "SD1_DATA3",
+ 			  "CAM_GPIO1", /* GPIO40 */
+ 			  "WL_ON", /* GPIO41 */
+ 			  "NC", /* GPIO42 */
 -- 
 2.35.1
 
