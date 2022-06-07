@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A60540690
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7116541C24
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346702AbiFGRgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:36:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35916 "EHLO
+        id S1350849AbiFGV4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347429AbiFGRfP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F59710EA56;
-        Tue,  7 Jun 2022 10:30:41 -0700 (PDT)
+        with ESMTP id S1384272AbiFGVyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6956124A1F6;
+        Tue,  7 Jun 2022 12:13:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0F457CE23CE;
-        Tue,  7 Jun 2022 17:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15897C34119;
-        Tue,  7 Jun 2022 17:30:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 823D8B823AE;
+        Tue,  7 Jun 2022 19:13:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B95C385A5;
+        Tue,  7 Jun 2022 19:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623019;
-        bh=2jA/GTMKTJHBY2Oc4pOOiy4bZGaqPB82S9nyCCUHw2Y=;
+        s=korg; t=1654629197;
+        bh=Pz1kTw9rpUe1+33wr4J6yxpE185CiEZoGR2AYZS4OiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCMST/s8Bd1+zDcl+tMjmUgNL+UmMvEFPEC1OjLFnHX+NM8X7VW1KWrtSmdlJ22vd
-         3tbxojjYxXZOzUX011uDW+Y/HWlSirESN8GGJTxxQdYpjQkd1F1Jms1M7d9aFVfGL9
-         SAGUCTt8+gV+dpMGgDTJEbv/wkXLSfVuGBCOmeNU=
+        b=oHP2O4rU1p5FH9+6SEdzpEnh3hxsvaMmHN2cQxnUgnGCKG5oyTk2hU/KO+6HG67qY
+         aYWdrEh9nSPcSeCDwiUZ28IXyu1BWJHbp3O+9jtIio4LmBbRqUA5JhfKu5U/fRY/b8
+         uZcN3g0dgUaIE0qqj5mkqct2Br0775wXrHcSh8SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thorsten Scherer <t.scherer@eckelmann.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 266/452] ARM: dts: ci4x10: Adapt to changes in imx6qdl.dtsi regarding fec clocks
+Subject: [PATCH 5.18 605/879] pinctrl: renesas: r8a779f0: Fix GPIO function on I2C-capable pins
 Date:   Tue,  7 Jun 2022 19:02:03 +0200
-Message-Id: <20220607164916.479048330@linuxfoundation.org>
+Message-Id: <20220607165020.412368442@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thorsten Scherer <t.scherer@eckelmann.de>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 3d397a1277853498e8b7b305f2610881357c033f ]
+[ Upstream commit 8bdd369dba7ff2f89cfd723ca3a26602aae4e498 ]
 
-Commit f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk
-support") added another item to the list of clocks for the fec
-device. As imx6dl-eckelmann-ci4x10.dts only overwrites clocks,
-but not clock-names this resulted in an inconsistency with
-clocks having one item more than clock-names.
+Unlike on R-Car Gen3 SoCs, setting a bit to zero in a GPIO / Peripheral
+Function Select Register (GPSRn) on R-Car S4-8 is not always sufficient
+to configure a pin for GPIO.  For I2C-capable pins, the I2C function
+must also be explicitly disabled in the corresponding Module Select
+Register (MODSELn).
 
-Also overwrite clock-names with the same value as in
-imx6qdl.dtsi. This is a no-op today, but prevents similar
-inconsistencies if the soc file will be changed in a similar way
-in the future.
+Add the missing FN_SEL_I2Ci_0 function enums to the pinmux_data[] array
+by temporarily overriding the GP_1_j_FN function enum to expand to two
+enums: the original GP_1_j_FN enum to configure the GPSR register bits,
+and the missing FN_SEL_I2Ci_0 enum to configure the MODSEL register
+bits.
 
-Signed-off-by: Thorsten Scherer <t.scherer@eckelmann.de>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Fixes: f3e7dae323ab ("ARM: dts: imx6qdl: add enet_out clk support")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 030ac6d7eeff81e3 ("pinctrl: renesas: Initial R8A779F0 PFC support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/c12c60ec1058140a37f03650043ab73f730f104f.1650610471.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pinctrl/renesas/pfc-r8a779f0.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-index b4a9523e325b..864dc5018451 100644
---- a/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-+++ b/arch/arm/boot/dts/imx6dl-eckelmann-ci4x10.dts
-@@ -297,7 +297,11 @@
- 	phy-mode = "rmii";
- 	phy-reset-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
- 	phy-handle = <&phy>;
--	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
-+	clocks = <&clks IMX6QDL_CLK_ENET>,
-+		 <&clks IMX6QDL_CLK_ENET>,
-+		 <&rmii_clk>,
-+		 <&clks IMX6QDL_CLK_ENET_REF>;
-+	clock-names = "ipg", "ahb", "ptp", "enet_out";
- 	status = "okay";
+diff --git a/drivers/pinctrl/renesas/pfc-r8a779f0.c b/drivers/pinctrl/renesas/pfc-r8a779f0.c
+index 91860608242c..3b4ca9622bbe 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a779f0.c
++++ b/drivers/pinctrl/renesas/pfc-r8a779f0.c
+@@ -257,7 +257,28 @@ enum {
+ };
  
- 	mdio {
+ static const u16 pinmux_data[] = {
++/* Using GP_1_[0-9] requires disabling I2C in MOD_SEL1 */
++#define GP_1_0_FN	GP_1_0_FN,	FN_SEL_I2C0_0
++#define GP_1_1_FN	GP_1_1_FN,	FN_SEL_I2C0_0
++#define GP_1_2_FN	GP_1_2_FN,	FN_SEL_I2C1_0
++#define GP_1_3_FN	GP_1_3_FN,	FN_SEL_I2C1_0
++#define GP_1_4_FN	GP_1_4_FN,	FN_SEL_I2C2_0
++#define GP_1_5_FN	GP_1_5_FN,	FN_SEL_I2C2_0
++#define GP_1_6_FN	GP_1_6_FN,	FN_SEL_I2C3_0
++#define GP_1_7_FN	GP_1_7_FN,	FN_SEL_I2C3_0
++#define GP_1_8_FN	GP_1_8_FN,	FN_SEL_I2C4_0
++#define GP_1_9_FN	GP_1_9_FN,	FN_SEL_I2C4_0
+ 	PINMUX_DATA_GP_ALL(),
++#undef GP_1_0_FN
++#undef GP_1_1_FN
++#undef GP_1_2_FN
++#undef GP_1_3_FN
++#undef GP_1_4_FN
++#undef GP_1_5_FN
++#undef GP_1_6_FN
++#undef GP_1_7_FN
++#undef GP_1_8_FN
++#undef GP_1_9_FN
+ 
+ 	PINMUX_SINGLE(SD_WP),
+ 	PINMUX_SINGLE(SD_CD),
 -- 
 2.35.1
 
