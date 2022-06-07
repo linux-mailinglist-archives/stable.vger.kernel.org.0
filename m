@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AC4540C0F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B79540C1C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352420AbiFGSdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
+        id S1351679AbiFGSdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352997AbiFGSbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:34 -0400
+        with ESMTP id S1353055AbiFGSbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA04517CE4A;
-        Tue,  7 Jun 2022 10:56:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B4117CE70;
+        Tue,  7 Jun 2022 10:56:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B960561853;
-        Tue,  7 Jun 2022 17:56:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D5BC36B01;
-        Tue,  7 Jun 2022 17:56:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C65B60DBA;
+        Tue,  7 Jun 2022 17:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0526C3411F;
+        Tue,  7 Jun 2022 17:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624600;
-        bh=KPi+PDnXetNqe8k0T50PiyVPHdsSkTnx9m4diIFuL3I=;
+        s=k20201202; t=1654624604;
+        bh=gj5z3X1367W3zXU5Fh98/RQ8THDsI/xx/abArwklA7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0lWwweAUSi5w2DIcEOnr4JosKQpI6jqPtTKv4kQlCc5V+B8JU331ZcBsTaCOWBaj
-         /vSW4pnolOmspVe0beGKs5fjA1V2NA0zSNDpAhoAjrb7z9n1XwUdljmrXH5pzE8RjA
-         wIItbH7vt5Tv062r5VoRjC+sa9dKYGlbIW/cemlcb1WNAqxBXpvHMsvTiwIZ0G0K32
-         g3qWOJg4Q1t5nVgcwFPv9AGoDEvmvNhhvzkl8oIS1uxGDHWe3gOAFWScxqPhQN0lT0
-         qZ+157i4SLzGTIYStD9pzZfAN3CX21x96uSgc5PoMbLLdV1YSeFMGt1F62c0ek398q
-         E8kfQz+0FSs+w==
+        b=FHE5V4W74SP+8iof01wkf6VAqoMKMYllG0IGud/qwhRlfe8HNrocRukh6VBxWig0r
+         +R7Hiw5fz9KT06X2apUo+xpxTUZBarrxQkqhgocIwwW4tSAYK2W3mAOKRVTuS5rKL6
+         1g4oeIQgZcYpsEkoX6rI4VNEpACntnTBJgoqBoGqopUrG4gJsIPMQqhHgjvZJme3B8
+         LFlJk0WMnA0wOzHhreRJEOje4orOQcRarN8l/osRfepznOR5ErJTaOETvEEE/iFa92
+         B8hJIkRZe0UNVdhENJBtk0YnIJhYmKZlVSrYAK7vhdsk5in3Fcb7D9CVLyS6I8NyKz
+         l73GvRWilW7nA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Duoming Zhou <duoming@zju.edu.cn>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/51] drivers: tty: serial: Fix deadlock in sa1100_set_termios()
-Date:   Tue,  7 Jun 2022 13:55:12 -0400
-Message-Id: <20220607175552.479948-13-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, mailhol.vincent@wanadoo.fr,
+        chi.minghao@zte.com.cn, cai.huoqing@linux.dev,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 14/51] drivers: usb: host: Fix deadlock in oxu_bus_suspend()
+Date:   Tue,  7 Jun 2022 13:55:13 -0400
+Message-Id: <20220607175552.479948-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175552.479948-1-sashal@kernel.org>
 References: <20220607175552.479948-1-sashal@kernel.org>
@@ -59,57 +60,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 62b2caef400c1738b6d22f636c628d9f85cd4c4c ]
+[ Upstream commit 4d378f2ae58138d4c55684e1d274e7dd94aa6524 ]
 
-There is a deadlock in sa1100_set_termios(), which is shown
-below:
+There is a deadlock in oxu_bus_suspend(), which is shown below:
 
    (Thread 1)              |      (Thread 2)
-                           | sa1100_enable_ms()
-sa1100_set_termios()       |  mod_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | sa1100_timeout()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
+                           | timer_action()
+oxu_bus_suspend()          |  mod_timer()
+ spin_lock_irq() //(1)     |  (wait a time)
+ ...                       | oxu_watchdog()
+ del_timer_sync()          |  spin_lock_irq() //(2)
  (wait timer to stop)      |  ...
 
-We hold sport->port.lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need sport->port.lock in position (2) of thread 2. As a result,
-sa1100_set_termios() will block forever.
+We hold oxu->lock in position (1) of thread 1, and use
+del_timer_sync() to wait timer to stop, but timer handler
+also need oxu->lock in position (2) of thread 2. As a result,
+oxu_bus_suspend() will block forever.
 
-This patch moves del_timer_sync() before spin_lock_irqsave()
-in order to prevent the deadlock.
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irq(), which could let timer handler to obtain
+the needed lock.
 
 Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220417111626.7802-1-duoming@zju.edu.cn
+Link: https://lore.kernel.org/r/20220417120305.64577-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sa1100.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/oxu210hp-hcd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/sa1100.c b/drivers/tty/serial/sa1100.c
-index 697b6a002a16..4ddcc985621a 100644
---- a/drivers/tty/serial/sa1100.c
-+++ b/drivers/tty/serial/sa1100.c
-@@ -446,6 +446,8 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
- 	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
- 	quot = uart_get_divisor(port, baud);
- 
-+	del_timer_sync(&sport->timer);
-+
- 	spin_lock_irqsave(&sport->port.lock, flags);
- 
- 	sport->port.read_status_mask &= UTSR0_TO_SM(UTSR0_TFS);
-@@ -476,8 +478,6 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
- 				UTSR1_TO_SM(UTSR1_ROR);
+diff --git a/drivers/usb/host/oxu210hp-hcd.c b/drivers/usb/host/oxu210hp-hcd.c
+index 4300326b3730..6be6c5878d08 100644
+--- a/drivers/usb/host/oxu210hp-hcd.c
++++ b/drivers/usb/host/oxu210hp-hcd.c
+@@ -3909,8 +3909,10 @@ static int oxu_bus_suspend(struct usb_hcd *hcd)
+ 		}
  	}
  
--	del_timer_sync(&sport->timer);
--
- 	/*
- 	 * Update the per-port timeout.
- 	 */
++	spin_unlock_irq(&oxu->lock);
+ 	/* turn off now-idle HC */
+ 	del_timer_sync(&oxu->watchdog);
++	spin_lock_irq(&oxu->lock);
+ 	ehci_halt(oxu);
+ 	hcd->state = HC_STATE_SUSPENDED;
+ 
 -- 
 2.35.1
 
