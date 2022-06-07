@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 818EA541A09
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E43541326
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379124AbiFGV1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
+        id S1354516AbiFGT4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379528AbiFGVZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:46 -0400
+        with ESMTP id S1357007AbiFGTx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F5522871B;
-        Tue,  7 Jun 2022 12:01:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D18F58E7A;
+        Tue,  7 Jun 2022 11:23:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 019CAB8220B;
-        Tue,  7 Jun 2022 19:01:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EB63C385A5;
-        Tue,  7 Jun 2022 19:01:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1B47B82340;
+        Tue,  7 Jun 2022 18:23:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A2CC385A2;
+        Tue,  7 Jun 2022 18:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628509;
-        bh=LQq/7blpbZyhfx4zRTEyWiRAUMsgZCLnSCZeVlsS+RE=;
+        s=korg; t=1654626199;
+        bh=iWa3wnCAgdIoE5l9EY4gZ7A1W1mrzog0zZROmXd4v8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+FAD5ANiGV5TI/769ITUsqdpOzN998TTd+wuBzq4jhuNPnEldtpmD21sXL3iXc4k
-         3ZP1pl4ufwAR4FBEhRaHvq3TsgWMY8nsUZHpYLP75gV6G49AM7u+F3OpxFxEYUD4gB
-         e1/ifH3KQXmeQDQMWO491Bo6t658pF8W8nnCx/pY=
+        b=ygSZ9NR1raEgugD/bUHYI0fuXTDkHDGLRk81Pr83I+EJQ8BqseZxogVSSUgSTN6Wo
+         6jiyOIDJEpYClO0FuxexJRkm6khZz/I0iv3giOQFt8wEvJmRsV9ixCvYftjQQ+GSX2
+         yIdDGexMUgh30zEHGxJSpdXJ3NkSvRgLV6jEqok8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Adam Ward <Adam.Ward.Opensource@diasemi.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 328/879] regulator: da9121: Fix uninit-value in da9121_assign_chip_model()
-Date:   Tue,  7 Jun 2022 18:57:26 +0200
-Message-Id: <20220607165012.374554430@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Davide Caratti <dcaratti@redhat.com>
+Subject: [PATCH 5.17 255/772] mptcp: reset the packet scheduler on PRIO change
+Date:   Tue,  7 Jun 2022 18:57:27 +0200
+Message-Id: <20220607164956.538001208@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit bab76514aca36bc513224525d5598da676938218 ]
+[ Upstream commit 0e203c324752e13d22624ab7ffafe934fa06ab50 ]
 
-KASAN report slab-out-of-bounds in __regmap_init as follows:
+Similar to the previous patch, for priority changes
+requested by the local PM.
 
-BUG: KASAN: slab-out-of-bounds in __regmap_init drivers/base/regmap/regmap.c:841
-Read of size 1 at addr ffff88803678cdf1 by task xrun/9137
-
-CPU: 0 PID: 9137 Comm: xrun Tainted: G        W         5.18.0-rc2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x15a lib/dump_stack.c:88
- print_report.cold+0xcd/0x69b mm/kasan/report.c:313
- kasan_report+0x8e/0xc0 mm/kasan/report.c:491
- __regmap_init+0x4540/0x4ba0 drivers/base/regmap/regmap.c:841
- __devm_regmap_init+0x7a/0x100 drivers/base/regmap/regmap.c:1266
- __devm_regmap_init_i2c+0x65/0x80 drivers/base/regmap/regmap-i2c.c:394
- da9121_i2c_probe+0x386/0x6d1 drivers/regulator/da9121-regulator.c:1039
- i2c_device_probe+0x959/0xac0 drivers/i2c/i2c-core-base.c:563
-
-This happend when da9121 device is probe by da9121_i2c_id, but with
-invalid dts. Thus, chip->subvariant_id is set to -EINVAL, and later
-da9121_assign_chip_model() will access 'regmap' without init it.
-
-Fix it by return -EINVAL from da9121_assign_chip_model() if
-'chip->subvariant_id' is invalid.
-
-Fixes: f3fbd5566f6a ("regulator: da9121: Add device variants")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Adam Ward <Adam.Ward.Opensource@diasemi.com>
-Link: https://lore.kernel.org/r/20220421090335.1876149-1-weiyongjun1@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-and-suggested-by: Davide Caratti <dcaratti@redhat.com>
+Fixes: 067065422fcd ("mptcp: add the outgoing MP_PRIO support")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/da9121-regulator.c | 2 ++
+ net/mptcp/pm_netlink.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/regulator/da9121-regulator.c b/drivers/regulator/da9121-regulator.c
-index eb9df485bd8a..76e0e23bf598 100644
---- a/drivers/regulator/da9121-regulator.c
-+++ b/drivers/regulator/da9121-regulator.c
-@@ -1030,6 +1030,8 @@ static int da9121_assign_chip_model(struct i2c_client *i2c,
- 		chip->variant_id = DA9121_TYPE_DA9142;
- 		regmap = &da9121_2ch_regmap_config;
- 		break;
-+	default:
-+		return -EINVAL;
- 	}
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index 4b5d795383cd..3bc778c2d0c2 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -745,6 +745,8 @@ static int mptcp_pm_nl_mp_prio_send_ack(struct mptcp_sock *msk,
+ 		if (!addresses_equal(&local, addr, addr->port))
+ 			continue;
  
- 	/* Set these up for of_regulator_match call which may want .of_map_modes */
++		if (subflow->backup != bkup)
++			msk->last_snd = NULL;
+ 		subflow->backup = bkup;
+ 		subflow->send_mp_prio = 1;
+ 		subflow->request_bkup = bkup;
 -- 
 2.35.1
 
