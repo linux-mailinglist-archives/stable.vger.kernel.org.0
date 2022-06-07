@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9014540A38
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FDC540B54
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348710AbiFGSSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48292 "EHLO
+        id S235334AbiFGS2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351676AbiFGSQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAD1168367;
-        Tue,  7 Jun 2022 10:49:51 -0700 (PDT)
+        with ESMTP id S1351716AbiFGSQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0FE168D1D;
+        Tue,  7 Jun 2022 10:49:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3637B822CD;
-        Tue,  7 Jun 2022 17:49:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9055C3411C;
-        Tue,  7 Jun 2022 17:49:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 206A16146F;
+        Tue,  7 Jun 2022 17:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B171C34119;
+        Tue,  7 Jun 2022 17:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624189;
-        bh=C3p8V+CShGR7nozEVmR7aMQKSLK+SVYLvPNgHctlLf8=;
+        s=k20201202; t=1654624191;
+        bh=naEnH1J6S3lsn0rLEmw7F4V1NJPcViFMClyMQD3Scpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUG3+XhgZgpmffcMbPkC8s2EfFubH3J7+kLOsWCDlrqz0FW8l1RNK/AyTxJ7xqWA5
-         xKnXaCI6KNHrJyJEV/XbLrGqP2ElRwhM0ZatierSYwC4UAXxTUkzFG5dcjthvU5rEL
-         5KudYeoITjMrOwnpqEM6sGzFRBzHkMt4JH1kVDXdjjPnVBy2aXId+skBuxYfLgtQHv
-         h+S4UdxKQ6wIjjfa4jl5ubSPzAXQTtXLxSLWF2zm2TBdp3CjKDohjmzCEM07lfjsVC
-         5BOeGDBX7f8a0ewscUL4CTHEi/GnVz3wgQ8JmATeQYKRSAjEArvAUcSxsSoUJk1LSy
-         BSJy+eFLBNxZw==
+        b=SMxMizv0rDdM0HA8ZC+oPJyrm63aU1OB8T6NIF/hqMztb8/GtqMFYhwr1OInFAP9s
+         Hvf6FDta/Gl3V88yI5I1rylKN6Jj9Gl8CBV7sYvexjyb0nJYSAMMVUWTUNTpJn862n
+         yTJz+r7EMwzUOoIk/foPJPDMg/X+6zPmoEQkWnBMBECo+aibqkplGamo9gg1K6WUqu
+         kYmouv3Dn4Oh4N0YBDssWNu6PBLWTUvfJw9f5vCLuaYjXBipYCuMARtX4fjSU9m2pq
+         wpYalaJBS549gzRnEe32Jsy+G2CWSL/zjL3twtpjRw95YTnx6v1toJYlhtXy6FNBH+
+         1eheONp+2+Z1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Guobin <huangguobin4@huawei.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 09/68] tty: Fix a possible resource leak in icom_probe
-Date:   Tue,  7 Jun 2022 13:47:35 -0400
-Message-Id: <20220607174846.477972-9-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Brad Campbell <lists2009@fnarfbargle.com>,
+        Sasha Levin <sashal@kernel.org>, andreas.noever@gmail.com,
+        michael.jamet@intel.com, YehezkelShB@gmail.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 10/68] thunderbolt: Use different lane for second DisplayPort tunnel
+Date:   Tue,  7 Jun 2022 13:47:36 -0400
+Message-Id: <20220607174846.477972-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -57,35 +58,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Guobin <huangguobin4@huawei.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit ee157a79e7c82b01ae4c25de0ac75899801f322c ]
+[ Upstream commit 9d2d0a5cf0ca063f417681cc33e767ce52615286 ]
 
-When pci_read_config_dword failed, call pci_release_regions() and
-pci_disable_device() to recycle the resource previously allocated.
+Brad reported that on Apple hardware with Light Ridge or Falcon Ridge
+controller, plugging in a chain of Thunderbolt displays (Light Ridge
+based controllers) causes all kinds of tearing and flickering. The
+reason for this is that on Thunderbolt 1 hardware there is no lane
+bonding so we have two independent 10 Gb/s lanes, and currently Linux
+tunnels both displays through the lane 1. This makes the displays to
+share the 10 Gb/s bandwidth which may not be enough for higher
+resolutions.
 
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
-Link: https://lore.kernel.org/r/20220331091005.3290753-1-huangguobin4@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For this reason make the second tunnel go through the lane 0 instead.
+This seems to match what the macOS connection manager is also doing.
+
+Reported-by: Brad Campbell <lists2009@fnarfbargle.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: Brad Campbell <lists2009@fnarfbargle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/icom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thunderbolt/tb.c     | 19 +++++++++++++++++--
+ drivers/thunderbolt/test.c   | 16 ++++++++--------
+ drivers/thunderbolt/tunnel.c | 11 ++++++-----
+ drivers/thunderbolt/tunnel.h |  4 ++--
+ 4 files changed, 33 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/tty/serial/icom.c b/drivers/tty/serial/icom.c
-index 03a2fe9f4c9a..02b375ba2f07 100644
---- a/drivers/tty/serial/icom.c
-+++ b/drivers/tty/serial/icom.c
-@@ -1501,7 +1501,7 @@ static int icom_probe(struct pci_dev *dev,
- 	retval = pci_read_config_dword(dev, PCI_COMMAND, &command_reg);
- 	if (retval) {
- 		dev_err(&dev->dev, "PCI Config read FAILED\n");
--		return retval;
-+		goto probe_exit0;
+diff --git a/drivers/thunderbolt/tb.c b/drivers/thunderbolt/tb.c
+index 9beb47b31c75..44d04b651a8b 100644
+--- a/drivers/thunderbolt/tb.c
++++ b/drivers/thunderbolt/tb.c
+@@ -867,7 +867,7 @@ static struct tb_port *tb_find_dp_out(struct tb *tb, struct tb_port *in)
+ 
+ static void tb_tunnel_dp(struct tb *tb)
+ {
+-	int available_up, available_down, ret;
++	int available_up, available_down, ret, link_nr;
+ 	struct tb_cm *tcm = tb_priv(tb);
+ 	struct tb_port *port, *in, *out;
+ 	struct tb_tunnel *tunnel;
+@@ -912,6 +912,20 @@ static void tb_tunnel_dp(struct tb *tb)
+ 		return;
  	}
  
- 	pci_write_config_dword(dev, PCI_COMMAND,
++	/*
++	 * This is only applicable to links that are not bonded (so
++	 * when Thunderbolt 1 hardware is involved somewhere in the
++	 * topology). For these try to share the DP bandwidth between
++	 * the two lanes.
++	 */
++	link_nr = 1;
++	list_for_each_entry(tunnel, &tcm->tunnel_list, list) {
++		if (tb_tunnel_is_dp(tunnel)) {
++			link_nr = 0;
++			break;
++		}
++	}
++
+ 	/*
+ 	 * DP stream needs the domain to be active so runtime resume
+ 	 * both ends of the tunnel.
+@@ -943,7 +957,8 @@ static void tb_tunnel_dp(struct tb *tb)
+ 	tb_dbg(tb, "available bandwidth for new DP tunnel %u/%u Mb/s\n",
+ 	       available_up, available_down);
+ 
+-	tunnel = tb_tunnel_alloc_dp(tb, in, out, available_up, available_down);
++	tunnel = tb_tunnel_alloc_dp(tb, in, out, link_nr, available_up,
++				    available_down);
+ 	if (!tunnel) {
+ 		tb_port_dbg(out, "could not allocate DP tunnel\n");
+ 		goto err_reclaim;
+diff --git a/drivers/thunderbolt/test.c b/drivers/thunderbolt/test.c
+index 1f69bab236ee..66b6e665e96f 100644
+--- a/drivers/thunderbolt/test.c
++++ b/drivers/thunderbolt/test.c
+@@ -1348,7 +1348,7 @@ static void tb_test_tunnel_dp(struct kunit *test)
+ 	in = &host->ports[5];
+ 	out = &dev->ports[13];
+ 
+-	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
+ 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
+ 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
+@@ -1394,7 +1394,7 @@ static void tb_test_tunnel_dp_chain(struct kunit *test)
+ 	in = &host->ports[5];
+ 	out = &dev4->ports[14];
+ 
+-	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
+ 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
+ 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
+@@ -1444,7 +1444,7 @@ static void tb_test_tunnel_dp_tree(struct kunit *test)
+ 	in = &dev2->ports[13];
+ 	out = &dev5->ports[13];
+ 
+-	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
+ 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
+ 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
+@@ -1509,7 +1509,7 @@ static void tb_test_tunnel_dp_max_length(struct kunit *test)
+ 	in = &dev6->ports[13];
+ 	out = &dev12->ports[13];
+ 
+-	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
+ 	KUNIT_EXPECT_EQ(test, tunnel->type, TB_TUNNEL_DP);
+ 	KUNIT_EXPECT_PTR_EQ(test, tunnel->src_port, in);
+@@ -1627,7 +1627,7 @@ static void tb_test_tunnel_port_on_path(struct kunit *test)
+ 	in = &dev2->ports[13];
+ 	out = &dev5->ports[13];
+ 
+-	dp_tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	dp_tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, dp_tunnel != NULL);
+ 
+ 	KUNIT_EXPECT_TRUE(test, tb_tunnel_port_on_path(dp_tunnel, in));
+@@ -2009,7 +2009,7 @@ static void tb_test_credit_alloc_dp(struct kunit *test)
+ 	in = &host->ports[5];
+ 	out = &dev->ports[14];
+ 
+-	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	tunnel = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, tunnel != NULL);
+ 	KUNIT_ASSERT_EQ(test, tunnel->npaths, (size_t)3);
+ 
+@@ -2245,7 +2245,7 @@ static struct tb_tunnel *TB_TEST_DP_TUNNEL1(struct kunit *test,
+ 
+ 	in = &host->ports[5];
+ 	out = &dev->ports[13];
+-	dp_tunnel1 = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	dp_tunnel1 = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, dp_tunnel1 != NULL);
+ 	KUNIT_ASSERT_EQ(test, dp_tunnel1->npaths, (size_t)3);
+ 
+@@ -2282,7 +2282,7 @@ static struct tb_tunnel *TB_TEST_DP_TUNNEL2(struct kunit *test,
+ 
+ 	in = &host->ports[6];
+ 	out = &dev->ports[14];
+-	dp_tunnel2 = tb_tunnel_alloc_dp(NULL, in, out, 0, 0);
++	dp_tunnel2 = tb_tunnel_alloc_dp(NULL, in, out, 1, 0, 0);
+ 	KUNIT_ASSERT_TRUE(test, dp_tunnel2 != NULL);
+ 	KUNIT_ASSERT_EQ(test, dp_tunnel2->npaths, (size_t)3);
+ 
+diff --git a/drivers/thunderbolt/tunnel.c b/drivers/thunderbolt/tunnel.c
+index 118742ec93ed..8ccd70920b6a 100644
+--- a/drivers/thunderbolt/tunnel.c
++++ b/drivers/thunderbolt/tunnel.c
+@@ -858,6 +858,7 @@ struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in,
+  * @tb: Pointer to the domain structure
+  * @in: DP in adapter port
+  * @out: DP out adapter port
++ * @link_nr: Preferred lane adapter when the link is not bonded
+  * @max_up: Maximum available upstream bandwidth for the DP tunnel (%0
+  *	    if not limited)
+  * @max_down: Maximum available downstream bandwidth for the DP tunnel
+@@ -869,8 +870,8 @@ struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in,
+  * Return: Returns a tb_tunnel on success or NULL on failure.
+  */
+ struct tb_tunnel *tb_tunnel_alloc_dp(struct tb *tb, struct tb_port *in,
+-				     struct tb_port *out, int max_up,
+-				     int max_down)
++				     struct tb_port *out, int link_nr,
++				     int max_up, int max_down)
+ {
+ 	struct tb_tunnel *tunnel;
+ 	struct tb_path **paths;
+@@ -894,21 +895,21 @@ struct tb_tunnel *tb_tunnel_alloc_dp(struct tb *tb, struct tb_port *in,
+ 	paths = tunnel->paths;
+ 
+ 	path = tb_path_alloc(tb, in, TB_DP_VIDEO_HOPID, out, TB_DP_VIDEO_HOPID,
+-			     1, "Video");
++			     link_nr, "Video");
+ 	if (!path)
+ 		goto err_free;
+ 	tb_dp_init_video_path(path);
+ 	paths[TB_DP_VIDEO_PATH_OUT] = path;
+ 
+ 	path = tb_path_alloc(tb, in, TB_DP_AUX_TX_HOPID, out,
+-			     TB_DP_AUX_TX_HOPID, 1, "AUX TX");
++			     TB_DP_AUX_TX_HOPID, link_nr, "AUX TX");
+ 	if (!path)
+ 		goto err_free;
+ 	tb_dp_init_aux_path(path);
+ 	paths[TB_DP_AUX_PATH_OUT] = path;
+ 
+ 	path = tb_path_alloc(tb, out, TB_DP_AUX_RX_HOPID, in,
+-			     TB_DP_AUX_RX_HOPID, 1, "AUX RX");
++			     TB_DP_AUX_RX_HOPID, link_nr, "AUX RX");
+ 	if (!path)
+ 		goto err_free;
+ 	tb_dp_init_aux_path(path);
+diff --git a/drivers/thunderbolt/tunnel.h b/drivers/thunderbolt/tunnel.h
+index 03e56076b5bc..bb4d1f1d6d0b 100644
+--- a/drivers/thunderbolt/tunnel.h
++++ b/drivers/thunderbolt/tunnel.h
+@@ -71,8 +71,8 @@ struct tb_tunnel *tb_tunnel_alloc_pci(struct tb *tb, struct tb_port *up,
+ struct tb_tunnel *tb_tunnel_discover_dp(struct tb *tb, struct tb_port *in,
+ 					bool alloc_hopid);
+ struct tb_tunnel *tb_tunnel_alloc_dp(struct tb *tb, struct tb_port *in,
+-				     struct tb_port *out, int max_up,
+-				     int max_down);
++				     struct tb_port *out, int link_nr,
++				     int max_up, int max_down);
+ struct tb_tunnel *tb_tunnel_alloc_dma(struct tb *tb, struct tb_port *nhi,
+ 				      struct tb_port *dst, int transmit_path,
+ 				      int transmit_ring, int receive_path,
 -- 
 2.35.1
 
