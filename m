@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7B254155D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E63541C27
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359327AbiFGUfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:35:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60202 "EHLO
+        id S1355515AbiFGV4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:56:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376551AbiFGUbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:31:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1484A1E04BF;
-        Tue,  7 Jun 2022 11:34:25 -0700 (PDT)
+        with ESMTP id S1384262AbiFGVyX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:54:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07BF024930E;
+        Tue,  7 Jun 2022 12:13:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B01E0B82349;
-        Tue,  7 Jun 2022 18:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BE0CC385A5;
-        Tue,  7 Jun 2022 18:34:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E60796190F;
+        Tue,  7 Jun 2022 19:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2190C385A5;
+        Tue,  7 Jun 2022 19:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626857;
-        bh=doRABoW4tgNfRfhu2aDY35gvGWM6ReAS5XSiyNI3iSk=;
+        s=korg; t=1654629194;
+        bh=kTuuIhu96E1JbLgYMI5icr8Uk1Mf1n+2XCYfUEibknw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQMW7K08O0PKIKa50wAwTOh37OSijuYQvoyNFqcOAlB/fDyDdznflncK1QNOXfJNz
-         t4ZisGMpXthyufw5zl2XcHg0/dFG4/j2x9elsAqUCnxkF9LGf8m1dddp6Bokg0gq4I
-         HNQzmHHt8GUlx+nZ2hTHm8mqOkjBrBYiHibuyCiQ=
+        b=MFgCQfoomCqXklc+WvgVYDgzUySBsICDhCHcn3VA+hRgon0DeIUnvoHilQGaA9IkZ
+         nmsQwzUC98EJZMaFZaSaXong5Ohi7J9gkSuJRCevFsw03eW+U6Yyr2Riwni5HYGVjF
+         smDIDuJEOflyEmxlaiavmV5j7G/CYI9hKUE8w5rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 530/772] crypto: sun8i-ss - rework handling of IV
+Subject: [PATCH 5.18 604/879] pinctrl: renesas: r8a779a0: Fix GPIO function on I2C-capable pins
 Date:   Tue,  7 Jun 2022 19:02:02 +0200
-Message-Id: <20220607165004.591043463@linuxfoundation.org>
+Message-Id: <20220607165020.382879639@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,294 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 359e893e8af456be2fefabe851716237df289cbf ]
+[ Upstream commit 4288caed9a6319b766dc0adf605c7b401180db34 ]
 
-sun8i-ss fail handling IVs when doing decryption of multiple SGs in-place.
-It should backup the last block of each SG source for using it later as
-IVs.
-In the same time remove allocation on requests path for storing all
-IVs.
+Unlike on R-Car Gen3 SoCs, setting a bit to zero in a GPIO / Peripheral
+Function Select Register (GPSRn) on R-Car V3U is not always sufficient
+to configure a pin for GPIO.  For I2C-capable pins, the I2C function
+must also be explicitly disabled in the corresponding Module Select
+Register (MODSELn).
 
-Fixes: f08fcced6d00 ("crypto: allwinner - Add sun8i-ss cryptographic offloader")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Add the missing FN_SEL_I2Ci_0 function enums to the pinmux_data[] array
+by temporarily overriding the GP_2_j_FN function enum to expand to two
+enums: the original GP_2_j_FN enum to configure the GSPR register bits,
+and the missing FN_SEL_I2Ci_0 enum to configure the MODSEL register
+bits.
+
+Fixes: 741a7370fc3b8b54 ("pinctrl: renesas: Initial R8A779A0 (V3U) PFC support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/4611e29e7b105513883084c1d6dc39c3ac8b525c.1650610471.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../allwinner/sun8i-ss/sun8i-ss-cipher.c      | 115 ++++++++++++------
- .../crypto/allwinner/sun8i-ss/sun8i-ss-core.c |  30 +++--
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h  |  14 ++-
- 3 files changed, 107 insertions(+), 52 deletions(-)
+ drivers/pinctrl/renesas/pfc-r8a779a0.c | 29 ++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-index 554e400d41ca..70e2e6e37389 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-@@ -93,6 +93,68 @@ static int sun8i_ss_cipher_fallback(struct skcipher_request *areq)
- 	return err;
- }
- 
-+static int sun8i_ss_setup_ivs(struct skcipher_request *areq)
-+{
-+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(areq);
-+	struct sun8i_cipher_tfm_ctx *op = crypto_skcipher_ctx(tfm);
-+	struct sun8i_ss_dev *ss = op->ss;
-+	struct sun8i_cipher_req_ctx *rctx = skcipher_request_ctx(areq);
-+	struct scatterlist *sg = areq->src;
-+	unsigned int todo, offset;
-+	unsigned int len = areq->cryptlen;
-+	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
-+	struct sun8i_ss_flow *sf = &ss->flows[rctx->flow];
-+	int i = 0;
-+	u32 a;
-+	int err;
-+
-+	rctx->ivlen = ivsize;
-+	if (rctx->op_dir & SS_DECRYPTION) {
-+		offset = areq->cryptlen - ivsize;
-+		scatterwalk_map_and_copy(sf->biv, areq->src, offset,
-+					 ivsize, 0);
-+	}
-+
-+	/* we need to copy all IVs from source in case DMA is bi-directionnal */
-+	while (sg && len) {
-+		if (sg_dma_len(sg) == 0) {
-+			sg = sg_next(sg);
-+			continue;
-+		}
-+		if (i == 0)
-+			memcpy(sf->iv[0], areq->iv, ivsize);
-+		a = dma_map_single(ss->dev, sf->iv[i], ivsize, DMA_TO_DEVICE);
-+		if (dma_mapping_error(ss->dev, a)) {
-+			memzero_explicit(sf->iv[i], ivsize);
-+			dev_err(ss->dev, "Cannot DMA MAP IV\n");
-+			err = -EFAULT;
-+			goto dma_iv_error;
-+		}
-+		rctx->p_iv[i] = a;
-+		/* we need to setup all others IVs only in the decrypt way */
-+		if (rctx->op_dir & SS_ENCRYPTION)
-+			return 0;
-+		todo = min(len, sg_dma_len(sg));
-+		len -= todo;
-+		i++;
-+		if (i < MAX_SG) {
-+			offset = sg->length - ivsize;
-+			scatterwalk_map_and_copy(sf->iv[i], sg, offset, ivsize, 0);
-+		}
-+		rctx->niv = i;
-+		sg = sg_next(sg);
-+	}
-+
-+	return 0;
-+dma_iv_error:
-+	i--;
-+	while (i >= 0) {
-+		dma_unmap_single(ss->dev, rctx->p_iv[i], ivsize, DMA_TO_DEVICE);
-+		memzero_explicit(sf->iv[i], ivsize);
-+	}
-+	return err;
-+}
-+
- static int sun8i_ss_cipher(struct skcipher_request *areq)
- {
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(areq);
-@@ -101,9 +163,9 @@ static int sun8i_ss_cipher(struct skcipher_request *areq)
- 	struct sun8i_cipher_req_ctx *rctx = skcipher_request_ctx(areq);
- 	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
- 	struct sun8i_ss_alg_template *algt;
-+	struct sun8i_ss_flow *sf = &ss->flows[rctx->flow];
- 	struct scatterlist *sg;
- 	unsigned int todo, len, offset, ivsize;
--	void *backup_iv = NULL;
- 	int nr_sgs = 0;
- 	int nr_sgd = 0;
- 	int err = 0;
-@@ -134,30 +196,9 @@ static int sun8i_ss_cipher(struct skcipher_request *areq)
- 
- 	ivsize = crypto_skcipher_ivsize(tfm);
- 	if (areq->iv && crypto_skcipher_ivsize(tfm) > 0) {
--		rctx->ivlen = ivsize;
--		rctx->biv = kzalloc(ivsize, GFP_KERNEL | GFP_DMA);
--		if (!rctx->biv) {
--			err = -ENOMEM;
-+		err = sun8i_ss_setup_ivs(areq);
-+		if (err)
- 			goto theend_key;
--		}
--		if (rctx->op_dir & SS_DECRYPTION) {
--			backup_iv = kzalloc(ivsize, GFP_KERNEL);
--			if (!backup_iv) {
--				err = -ENOMEM;
--				goto theend_key;
--			}
--			offset = areq->cryptlen - ivsize;
--			scatterwalk_map_and_copy(backup_iv, areq->src, offset,
--						 ivsize, 0);
--		}
--		memcpy(rctx->biv, areq->iv, ivsize);
--		rctx->p_iv = dma_map_single(ss->dev, rctx->biv, rctx->ivlen,
--					    DMA_TO_DEVICE);
--		if (dma_mapping_error(ss->dev, rctx->p_iv)) {
--			dev_err(ss->dev, "Cannot DMA MAP IV\n");
--			err = -ENOMEM;
--			goto theend_iv;
--		}
- 	}
- 	if (areq->src == areq->dst) {
- 		nr_sgs = dma_map_sg(ss->dev, areq->src, sg_nents(areq->src),
-@@ -243,21 +284,19 @@ static int sun8i_ss_cipher(struct skcipher_request *areq)
- 	}
- 
- theend_iv:
--	if (rctx->p_iv)
--		dma_unmap_single(ss->dev, rctx->p_iv, rctx->ivlen,
--				 DMA_TO_DEVICE);
--
- 	if (areq->iv && ivsize > 0) {
--		if (rctx->biv) {
--			offset = areq->cryptlen - ivsize;
--			if (rctx->op_dir & SS_DECRYPTION) {
--				memcpy(areq->iv, backup_iv, ivsize);
--				kfree_sensitive(backup_iv);
--			} else {
--				scatterwalk_map_and_copy(areq->iv, areq->dst, offset,
--							 ivsize, 0);
--			}
--			kfree(rctx->biv);
-+		for (i = 0; i < rctx->niv; i++) {
-+			dma_unmap_single(ss->dev, rctx->p_iv[i], ivsize, DMA_TO_DEVICE);
-+			memzero_explicit(sf->iv[i], ivsize);
-+		}
-+
-+		offset = areq->cryptlen - ivsize;
-+		if (rctx->op_dir & SS_DECRYPTION) {
-+			memcpy(areq->iv, sf->biv, ivsize);
-+			memzero_explicit(sf->biv, ivsize);
-+		} else {
-+			scatterwalk_map_and_copy(areq->iv, areq->dst, offset,
-+					ivsize, 0);
- 		}
- 	}
- 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-index 319fe3279a71..657530578643 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-@@ -66,6 +66,7 @@ int sun8i_ss_run_task(struct sun8i_ss_dev *ss, struct sun8i_cipher_req_ctx *rctx
- 		      const char *name)
- {
- 	int flow = rctx->flow;
-+	unsigned int ivlen = rctx->ivlen;
- 	u32 v = SS_START;
- 	int i;
- 
-@@ -104,15 +105,14 @@ int sun8i_ss_run_task(struct sun8i_ss_dev *ss, struct sun8i_cipher_req_ctx *rctx
- 		mutex_lock(&ss->mlock);
- 		writel(rctx->p_key, ss->base + SS_KEY_ADR_REG);
- 
--		if (i == 0) {
--			if (rctx->p_iv)
--				writel(rctx->p_iv, ss->base + SS_IV_ADR_REG);
--		} else {
--			if (rctx->biv) {
--				if (rctx->op_dir == SS_ENCRYPTION)
--					writel(rctx->t_dst[i - 1].addr + rctx->t_dst[i - 1].len * 4 - rctx->ivlen, ss->base + SS_IV_ADR_REG);
-+		if (ivlen) {
-+			if (rctx->op_dir == SS_ENCRYPTION) {
-+				if (i == 0)
-+					writel(rctx->p_iv[0], ss->base + SS_IV_ADR_REG);
- 				else
--					writel(rctx->t_src[i - 1].addr + rctx->t_src[i - 1].len * 4 - rctx->ivlen, ss->base + SS_IV_ADR_REG);
-+					writel(rctx->t_dst[i - 1].addr + rctx->t_dst[i - 1].len * 4 - ivlen, ss->base + SS_IV_ADR_REG);
-+			} else {
-+				writel(rctx->p_iv[i], ss->base + SS_IV_ADR_REG);
- 			}
- 		}
- 
-@@ -464,7 +464,7 @@ static void sun8i_ss_free_flows(struct sun8i_ss_dev *ss, int i)
-  */
- static int allocate_flows(struct sun8i_ss_dev *ss)
- {
--	int i, err;
-+	int i, j, err;
- 
- 	ss->flows = devm_kcalloc(ss->dev, MAXFLOW, sizeof(struct sun8i_ss_flow),
- 				 GFP_KERNEL);
-@@ -474,6 +474,18 @@ static int allocate_flows(struct sun8i_ss_dev *ss)
- 	for (i = 0; i < MAXFLOW; i++) {
- 		init_completion(&ss->flows[i].complete);
- 
-+		ss->flows[i].biv = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
-+						GFP_KERNEL | GFP_DMA);
-+		if (!ss->flows[i].biv)
-+			goto error_engine;
-+
-+		for (j = 0; j < MAX_SG; j++) {
-+			ss->flows[i].iv[j] = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
-+							  GFP_KERNEL | GFP_DMA);
-+			if (!ss->flows[i].iv[j])
-+				goto error_engine;
-+		}
-+
- 		ss->flows[i].engine = crypto_engine_alloc_init(ss->dev, true);
- 		if (!ss->flows[i].engine) {
- 			dev_err(ss->dev, "Cannot allocate engine\n");
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h
-index 28188685b910..57ada8653855 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss.h
-@@ -121,11 +121,15 @@ struct sginfo {
-  * @complete:	completion for the current task on this flow
-  * @status:	set to 1 by interrupt if task is done
-  * @stat_req:	number of request done by this flow
-+ * @iv:		list of IV to use for each step
-+ * @biv:	buffer which contain the backuped IV
-  */
- struct sun8i_ss_flow {
- 	struct crypto_engine *engine;
- 	struct completion complete;
- 	int status;
-+	u8 *iv[MAX_SG];
-+	u8 *biv;
- #ifdef CONFIG_CRYPTO_DEV_SUN8I_SS_DEBUG
- 	unsigned long stat_req;
- #endif
-@@ -164,28 +168,28 @@ struct sun8i_ss_dev {
-  * @t_src:		list of mapped SGs with their size
-  * @t_dst:		list of mapped SGs with their size
-  * @p_key:		DMA address of the key
-- * @p_iv:		DMA address of the IV
-+ * @p_iv:		DMA address of the IVs
-+ * @niv:		Number of IVs DMA mapped
-  * @method:		current algorithm for this request
-  * @op_mode:		op_mode for this request
-  * @op_dir:		direction (encrypt vs decrypt) for this request
-  * @flow:		the flow to use for this request
-- * @ivlen:		size of biv
-+ * @ivlen:		size of IVs
-  * @keylen:		keylen for this request
-- * @biv:		buffer which contain the IV
-  * @fallback_req:	request struct for invoking the fallback skcipher TFM
-  */
- struct sun8i_cipher_req_ctx {
- 	struct sginfo t_src[MAX_SG];
- 	struct sginfo t_dst[MAX_SG];
- 	u32 p_key;
--	u32 p_iv;
-+	u32 p_iv[MAX_SG];
-+	int niv;
- 	u32 method;
- 	u32 op_mode;
- 	u32 op_dir;
- 	int flow;
- 	unsigned int ivlen;
- 	unsigned int keylen;
--	void *biv;
- 	struct skcipher_request fallback_req;   // keep at the end
+diff --git a/drivers/pinctrl/renesas/pfc-r8a779a0.c b/drivers/pinctrl/renesas/pfc-r8a779a0.c
+index 4a668a04b7ca..0c26e95ba7db 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a779a0.c
++++ b/drivers/pinctrl/renesas/pfc-r8a779a0.c
+@@ -629,7 +629,36 @@ enum {
  };
  
+ static const u16 pinmux_data[] = {
++/* Using GP_2_[2-15] requires disabling I2C in MOD_SEL2 */
++#define GP_2_2_FN	GP_2_2_FN,	FN_SEL_I2C0_0
++#define GP_2_3_FN	GP_2_3_FN,	FN_SEL_I2C0_0
++#define GP_2_4_FN	GP_2_4_FN,	FN_SEL_I2C1_0
++#define GP_2_5_FN	GP_2_5_FN,	FN_SEL_I2C1_0
++#define GP_2_6_FN	GP_2_6_FN,	FN_SEL_I2C2_0
++#define GP_2_7_FN	GP_2_7_FN,	FN_SEL_I2C2_0
++#define GP_2_8_FN	GP_2_8_FN,	FN_SEL_I2C3_0
++#define GP_2_9_FN	GP_2_9_FN,	FN_SEL_I2C3_0
++#define GP_2_10_FN	GP_2_10_FN,	FN_SEL_I2C4_0
++#define GP_2_11_FN	GP_2_11_FN,	FN_SEL_I2C4_0
++#define GP_2_12_FN	GP_2_12_FN,	FN_SEL_I2C5_0
++#define GP_2_13_FN	GP_2_13_FN,	FN_SEL_I2C5_0
++#define GP_2_14_FN	GP_2_14_FN,	FN_SEL_I2C6_0
++#define GP_2_15_FN	GP_2_15_FN,	FN_SEL_I2C6_0
+ 	PINMUX_DATA_GP_ALL(),
++#undef GP_2_2_FN
++#undef GP_2_3_FN
++#undef GP_2_4_FN
++#undef GP_2_5_FN
++#undef GP_2_6_FN
++#undef GP_2_7_FN
++#undef GP_2_8_FN
++#undef GP_2_9_FN
++#undef GP_2_10_FN
++#undef GP_2_11_FN
++#undef GP_2_12_FN
++#undef GP_2_13_FN
++#undef GP_2_14_FN
++#undef GP_2_15_FN
+ 
+ 	PINMUX_SINGLE(MMC_D7),
+ 	PINMUX_SINGLE(MMC_D6),
 -- 
 2.35.1
 
