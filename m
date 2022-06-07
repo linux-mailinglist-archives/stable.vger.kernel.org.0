@@ -2,82 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDEB53FAD2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B3DA53FAD4
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240069AbiFGKHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 06:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44888 "EHLO
+        id S239925AbiFGKHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 06:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233877AbiFGKHE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:07:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69218EACD7;
-        Tue,  7 Jun 2022 03:07:03 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04495611E8;
-        Tue,  7 Jun 2022 10:07:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84B2EC385A5;
-        Tue,  7 Jun 2022 10:07:00 +0000 (UTC)
-Date:   Tue, 7 Jun 2022 11:06:56 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Phil Elwell <phil@raspberrypi.com>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
-Message-ID: <Yp8jQG30OWOG9C4j@arm.com>
-References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
- <CAHmME9pL=g7Gz9-QOHnTosLHAL9YSPsW+CnE=9=u3iTQaFzomg@mail.gmail.com>
- <0f6458d7-037a-fa4d-8387-7de833288fb9@raspberrypi.com>
- <CAHmME9rJif3ydZuFJcSjPxkGMofZkbu2PXcHBF23OWVgGQ4c+A@mail.gmail.com>
+        with ESMTP id S240640AbiFGKHV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:07:21 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C8626F2
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 03:07:17 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nyW7H-0003y7-Pb; Tue, 07 Jun 2022 12:07:15 +0200
+Message-ID: <cad76252-ec94-779e-aa31-b487526a2154@leemhuis.info>
+Date:   Tue, 7 Jun 2022 12:07:12 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHmME9rJif3ydZuFJcSjPxkGMofZkbu2PXcHBF23OWVgGQ4c+A@mail.gmail.com>
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Content-Language: en-US
+To:     Eric Schikschneit <eric.schikschneit@novatechautomation.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "rmk+kernel@armlinux.org.uk" <rmk+kernel@armlinux.org.uk>,
+        "grygorii.strashko@ti.com" <grygorii.strashko@ti.com>,
+        "tony@atomide.com" <tony@atomide.com>,
+        "linus.walleij@linaro.org" <linus.walleij@linaro.org>
+References: <CY1PR07MB2700E81609B0967127D0773381DF9@CY1PR07MB2700.namprd07.prod.outlook.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: [REGRESSION] gpio: omap: ensure irq is enabled before wakeup
+In-Reply-To: <CY1PR07MB2700E81609B0967127D0773381DF9@CY1PR07MB2700.namprd07.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1654596438;91c99077;
+X-HE-SMSGID: 1nyW7H-0003y7-Pb
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jason,
+Hi, this is your Linux kernel regression tracker.
 
-On Tue, Jun 07, 2022 at 10:51:41AM +0200, Jason A. Donenfeld wrote:
-> On Tue, Jun 7, 2022 at 10:47 AM Phil Elwell <phil@raspberrypi.com> wrote:
-> > Thanks for the quick response, but that doesn't work for me either. Let me say
-> > again that I'm on a downstream kernel (rpi-5.15.y) so this may not be a
-> > universal problem, but merging either of these fixing patches would be fatal for us.
+On 01.06.22 17:56, Eric Schikschneit wrote:
+> Summary: OMAP patch causes SPI bus transaction failure on TI CPU 
+> Commit: c859e0d479b3b4f6132fc12637c51e01492f31f6 Kernel version:
+> 5.10.87
 > 
-> Alright, thanks. And I'm guessing you don't currently have a problem
-> *without* either of the fixing patches, because your device tree
-> doesn't use rng-seed. Is that right?
+> The detailed description:
 > 
-> In anycase, I sent in a revert to get all the static branch stuff out
-> of stable -- https://lore.kernel.org/stable/20220607084005.666059-1-Jason@zx2c4.com/
-> -- so the "urgency" of this should decrease and we can fix this as
-> normal during the 5.19 cycle.
+> I know this is a old commit at this point,
 
-Since the above revert got queued in -stable, I assume you don't need
-commit 73e2d827a501 ("arm64: Initialize jump labels before
-setup_machine_fdt()") in stable either.
+That shouldn't be a problem at all, but it raises one question that
+would be good to get answered: does this problem still occur with the
+latest code? This issue for example might have been fixed in between,
+but maybe the fix was to complex to get backported or something like
+that. Hence it would be ideal if you could quickly give 5.19-rc1 a shot;
+5.18.y is not ideal, but will do as well.
 
-Do you plan to fix the crng_ready() static branch differently? If you
-do, I'd like to revert the corresponding arm64 commit as well. It seems
-to be harmless but I'd rather not keep it if no longer needed. So please
-keep me updated whatever you decide.
+> but we have observed a
+> regression caused by this commit. It causes improper toggle during a
+> SPI transaction with a microcontroller. The CPU in use is Texas
+> Instruments AM3352BZCZA80. The microcontroller in use is a PIC based
+> micro. I have logic capture images available to show the signal
+> difference that is causing confusion on the SPI bus.
 
-Thanks.
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
--- 
-Catalin
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
