@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA5754065A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0084C541BF5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344600AbiFGRem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
+        id S1382138AbiFGVzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:55:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347967AbiFGRb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C248311CB55;
-        Tue,  7 Jun 2022 10:28:58 -0700 (PDT)
+        with ESMTP id S1383558AbiFGVxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:53:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBB02E6B0;
+        Tue,  7 Jun 2022 12:11:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A851B822B0;
-        Tue,  7 Jun 2022 17:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFBBC385A5;
-        Tue,  7 Jun 2022 17:28:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 350A2618E2;
+        Tue,  7 Jun 2022 19:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4103BC385A5;
+        Tue,  7 Jun 2022 19:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622936;
-        bh=2j7o75Snrv7Dgn8DW99eVATPtDQZVnpiMo3Wkpu2h+M=;
+        s=korg; t=1654629116;
+        bh=p64XoYKsCewnEP25aozt6DMdmueR/3Rv9fpOXREktKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TkxP9h2pVqObs+2aOi/q7pcMy5/vbNuujNH45b+baRtqY/pTX+ptKP1BO6Z5tDeUq
-         +q227GMNB3irO3AYgqOhs6d/T1OzUQTueYI5FLl1O9RfqEoSuex5qvbcZMN3TG9a7M
-         RKBVStEGcEyR0Mlg6rkx3hImMb9a4e6k7d0zM59Y=
+        b=tb6B1ZG848OjVJQTFlCiimSmMse0Vp7PhNF5g9AFh7VDno5VRQdRs/yn8ABfGTuYh
+         yxEJN5BxUMp2cNmk+qQcxcikGv5Y0yogN0D14yJEJ//j/AOu7dqwZehAJ1j2AXcWNp
+         3Q9x0wf7+yfRO/YAA4ebkYPv0O2vKlH7h4NUp0VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 235/452] drm: msm: fix possible memory leak in mdp5_crtc_cursor_set()
+Subject: [PATCH 5.18 574/879] gpiolib: of: Introduce hook for missing gpio-ranges
 Date:   Tue,  7 Jun 2022 19:01:32 +0200
-Message-Id: <20220607164915.563387026@linuxfoundation.org>
+Message-Id: <20220607165019.516657451@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 947a844bb3ebff0f4736d244d792ce129f6700d7 ]
+[ Upstream commit 3550bba25d5587a701e6edf20e20984d2ee72c78 ]
 
-drm_gem_object_lookup will call drm_gem_object_get inside. So cursor_bo
-needs to be put when msm_gem_get_and_pin_iova fails.
+Since commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
+the device tree nodes of GPIO controller need the gpio-ranges property to
+handle gpio-hogs. Unfortunately it's impossible to guarantee that every new
+kernel is shipped with an updated device tree binary.
 
-Fixes: e172d10a9c4a ("drm/msm/mdp5: Add hardware cursor support")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220509061125.18585-1-hbh25y@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+In order to provide backward compatibility with those older DTB, we need a
+callback within of_gpiochip_add_pin_range() so the relevant platform driver
+can handle this case.
+
+Fixes: 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Link: https://lore.kernel.org/r/20220409095129.45786-2-stefan.wahren@i2se.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpio/gpiolib-of.c   |  5 +++++
+ include/linux/gpio/driver.h | 12 ++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-index 06f19ef5dbf3..ff4f207cbdea 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-@@ -983,8 +983,10 @@ static int mdp5_crtc_cursor_set(struct drm_crtc *crtc,
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index 7e5e51d49d09..6dec81b1f24b 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -931,6 +931,11 @@ static int of_gpiochip_add_pin_range(struct gpio_chip *chip)
+ 	if (!np)
+ 		return 0;
  
- 	ret = msm_gem_get_and_pin_iova(cursor_bo, kms->aspace,
- 			&mdp5_crtc->cursor.iova);
--	if (ret)
-+	if (ret) {
-+		drm_gem_object_put(cursor_bo);
- 		return -EINVAL;
++	if (!of_property_read_bool(np, "gpio-ranges") &&
++	    chip->of_gpio_ranges_fallback) {
++		return chip->of_gpio_ranges_fallback(chip, np);
 +	}
++
+ 	group_names = of_find_property(np, group_names_propname, NULL);
  
- 	pm_runtime_get_sync(&pdev->dev);
+ 	for (;; index++) {
+diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
+index 874aabd270c9..48d03eb4e5d8 100644
+--- a/include/linux/gpio/driver.h
++++ b/include/linux/gpio/driver.h
+@@ -501,6 +501,18 @@ struct gpio_chip {
+ 	 */
+ 	int (*of_xlate)(struct gpio_chip *gc,
+ 			const struct of_phandle_args *gpiospec, u32 *flags);
++
++	/**
++	 * @of_gpio_ranges_fallback:
++	 *
++	 * Optional hook for the case that no gpio-ranges property is defined
++	 * within the device tree node "np" (usually DT before introduction
++	 * of gpio-ranges). So this callback is helpful to provide the
++	 * necessary backward compatibility for the pin ranges.
++	 */
++	int (*of_gpio_ranges_fallback)(struct gpio_chip *gc,
++				       struct device_node *np);
++
+ #endif /* CONFIG_OF_GPIO */
+ };
  
 -- 
 2.35.1
