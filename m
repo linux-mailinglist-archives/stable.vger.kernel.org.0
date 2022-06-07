@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C10D25417F8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F0D5410A0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378695AbiFGVHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45618 "EHLO
+        id S1352049AbiFGT2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378784AbiFGVBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B9120ED4A;
-        Tue,  7 Jun 2022 11:45:37 -0700 (PDT)
+        with ESMTP id S1355955AbiFGT0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:26:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06ED819F040;
+        Tue,  7 Jun 2022 11:09:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72C32B81FE1;
-        Tue,  7 Jun 2022 18:45:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC305C385A2;
-        Tue,  7 Jun 2022 18:45:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57CD9B82354;
+        Tue,  7 Jun 2022 18:09:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A50F4C385A2;
+        Tue,  7 Jun 2022 18:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627535;
-        bh=/nt2azIDU63waHlYWHq5Z5MohAVPxSo0yJVmg3AdC48=;
+        s=korg; t=1654625375;
+        bh=K0bdUzOfeyMkxgs4pOZ4/dubG5F1GljN0qv8FWivZ/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ot1tANJ1Wsn5zbTEfXM5NttQ9KsdlgnnXLpA3bTpc0AhgylxbJ09AqD50jYawKoAv
-         6mbn/y//zQPMjV7/nf2cwzaUjEirGLPOtCziwXN2XeBQ17IEQmAe8M6O986Sov1Lwr
-         dR6U7+VTMbZ62l1oXtIrVWVyhpohMy6JCqAOJYcs=
+        b=vFSvHudnWn9LKIgcdiLVgXjdK1seMq28YmaNw6M1loFuaa+wRSLYHRrtMPX1coS+R
+         Tc9CSenlWtSLWjYKSEp2s1uTvnTnOIzshAZqj+3biQIOosuQcsVIUb1r/jgpaaGMox
+         toNgsGzN/26Zo7T6pqSslz0eKkrlZmlbpoaX0yqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.17 737/772] serial: pch: dont overwrite xmit->buf[0] by x_char
-Date:   Tue,  7 Jun 2022 19:05:29 +0200
-Message-Id: <20220607165010.754152605@linuxfoundation.org>
+        stable@vger.kernel.org, Fine Fan <ffan@redhat.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.15 665/667] md: Dont set mddev private to NULL in raid0 pers->free
+Date:   Tue,  7 Jun 2022 19:05:30 +0200
+Message-Id: <20220607164954.585737970@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,79 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Xiao Ni <xni@redhat.com>
 
-commit d9f3af4fbb1d955bbaf872d9e76502f6e3e803cb upstream.
+commit 0f2571ad7a30ff6b33cde142439f9378669f8b4f upstream.
 
-When x_char is to be sent, the TX path overwrites whatever is in the
-circular buffer at offset 0 with x_char and sends it using
-pch_uart_hal_write(). I don't understand how this was supposed to work
-if xmit->buf[0] already contained some character. It must have been
-lost.
+In normal stop process, it does like this:
+   do_md_stop
+      |
+   __md_stop (pers->free(); mddev->private=NULL)
+      |
+   md_free (free mddev)
+__md_stop sets mddev->private to NULL after pers->free. The raid device
+will be stopped and mddev memory is free. But in reshape, it doesn't
+free the mddev and mddev will still be used in new raid.
 
-Remove this whole pop_tx_x() concept and do the work directly in the
-callers. (Without printing anything using dev_dbg().)
+In reshape, it first sets mddev->private to new_pers and then runs
+old_pers->free(). Now raid0 sets mddev->private to NULL in raid0_free.
+The new raid can't work anymore. It will panic when dereference
+mddev->private because of NULL pointer dereference.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 3c6a483275f4 (Serial: EG20T: add PCH_UART driver)
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220503080808.28332-1-jslaby@suse.cz
+It can panic like this:
+[63010.814972] kernel BUG at drivers/md/raid10.c:928!
+[63010.819778] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+[63010.825011] CPU: 3 PID: 44437 Comm: md0_resync Kdump: loaded Not tainted 5.14.0-86.el9.x86_64 #1
+[63010.833789] Hardware name: Dell Inc. PowerEdge R6415/07YXFK, BIOS 1.15.0 09/11/2020
+[63010.841440] RIP: 0010:raise_barrier+0x161/0x170 [raid10]
+[63010.865508] RSP: 0018:ffffc312408bbc10 EFLAGS: 00010246
+[63010.870734] RAX: 0000000000000000 RBX: ffffa00bf7d39800 RCX: 0000000000000000
+[63010.877866] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffffa00bf7d39800
+[63010.884999] RBP: 0000000000000000 R08: fffffa4945e74400 R09: 0000000000000000
+[63010.892132] R10: ffffa00eed02f798 R11: 0000000000000000 R12: ffffa00bbc435200
+[63010.899266] R13: ffffa00bf7d39800 R14: 0000000000000400 R15: 0000000000000003
+[63010.906399] FS:  0000000000000000(0000) GS:ffffa00eed000000(0000) knlGS:0000000000000000
+[63010.914485] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[63010.920229] CR2: 00007f5cfbe99828 CR3: 0000000105efe000 CR4: 00000000003506e0
+[63010.927363] Call Trace:
+[63010.929822]  ? bio_reset+0xe/0x40
+[63010.933144]  ? raid10_alloc_init_r10buf+0x60/0xa0 [raid10]
+[63010.938629]  raid10_sync_request+0x756/0x1610 [raid10]
+[63010.943770]  md_do_sync.cold+0x3e4/0x94c
+[63010.947698]  md_thread+0xab/0x160
+[63010.951024]  ? md_write_inc+0x50/0x50
+[63010.954688]  kthread+0x149/0x170
+[63010.957923]  ? set_kthread_struct+0x40/0x40
+[63010.962107]  ret_from_fork+0x22/0x30
+
+Removing the code that sets mddev->private to NULL in raid0 can fix
+problem.
+
+Fixes: 0c031fd37f69 (md: Move alloc/free acct bioset in to personality)
+Reported-by: Fine Fan <ffan@redhat.com>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/pch_uart.c |   27 +++++++--------------------
- 1 file changed, 7 insertions(+), 20 deletions(-)
+ drivers/md/raid0.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -624,22 +624,6 @@ static int push_rx(struct eg20t_port *pr
- 	return 0;
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -361,7 +361,6 @@ static void free_conf(struct mddev *mdde
+ 	kfree(conf->strip_zone);
+ 	kfree(conf->devlist);
+ 	kfree(conf);
+-	mddev->private = NULL;
  }
  
--static int pop_tx_x(struct eg20t_port *priv, unsigned char *buf)
--{
--	int ret = 0;
--	struct uart_port *port = &priv->port;
--
--	if (port->x_char) {
--		dev_dbg(priv->port.dev, "%s:X character send %02x (%lu)\n",
--			__func__, port->x_char, jiffies);
--		buf[0] = port->x_char;
--		port->x_char = 0;
--		ret = 1;
--	}
--
--	return ret;
--}
--
- static int dma_push_rx(struct eg20t_port *priv, int size)
- {
- 	int room;
-@@ -889,9 +873,10 @@ static unsigned int handle_tx(struct eg2
- 
- 	fifo_size = max(priv->fifo_size, 1);
- 	tx_empty = 1;
--	if (pop_tx_x(priv, xmit->buf)) {
--		pch_uart_hal_write(priv, xmit->buf, 1);
-+	if (port->x_char) {
-+		pch_uart_hal_write(priv, &port->x_char, 1);
- 		port->icount.tx++;
-+		port->x_char = 0;
- 		tx_empty = 0;
- 		fifo_size--;
- 	}
-@@ -946,9 +931,11 @@ static unsigned int dma_handle_tx(struct
- 	}
- 
- 	fifo_size = max(priv->fifo_size, 1);
--	if (pop_tx_x(priv, xmit->buf)) {
--		pch_uart_hal_write(priv, xmit->buf, 1);
-+
-+	if (port->x_char) {
-+		pch_uart_hal_write(priv, &port->x_char, 1);
- 		port->icount.tx++;
-+		port->x_char = 0;
- 		fifo_size--;
- 	}
- 
+ static void raid0_free(struct mddev *mddev, void *priv)
 
 
