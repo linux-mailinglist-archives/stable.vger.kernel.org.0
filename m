@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51154541E9C
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BE55416C8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381682AbiFGWcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35094 "EHLO
+        id S1358356AbiFGUym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385498AbiFGWbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA3A27B481;
-        Tue,  7 Jun 2022 12:24:56 -0700 (PDT)
+        with ESMTP id S1351409AbiFGUwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABB067D15;
+        Tue,  7 Jun 2022 11:43:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBE16B8220B;
-        Tue,  7 Jun 2022 19:24:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42AEAC385A5;
-        Tue,  7 Jun 2022 19:24:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A6760B3D;
+        Tue,  7 Jun 2022 18:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1D9C385A2;
+        Tue,  7 Jun 2022 18:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629893;
-        bh=mTdIDoujXMOK+HqZWo1bcLLznZ0mfsHSUpSPn8Lcwd8=;
+        s=korg; t=1654627416;
+        bh=NSpYyGGJXBbVhvCEmdzTJ3lzz03ll/lczQXkZqe5C3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIgU3Sl1XyqfPvoe0kgesTJ2zlUTctwMd0IcJWYagOw/r0s7/jlIUhRZUp07BIJWd
-         l+b+AA8d6jI3T34FyotoMOFsDIfaOxCJ9ZJe5+9vRZfhNmCkf2OVahRdNadEiWyRBG
-         EHH6KdY3nLBI4b8QiiCoMym42APo+KKrt7Ny9ufQ=
+        b=ynG/xfkcRsrGNhzK1BCuetXl8vW1UdWO/BenL6UGzOaSVQsWRoZdp/68Y0krdN0Hz
+         edoVasqOUAERWOsf54SnglZpIdj/XcgDMqi/gdw7Ljkzc2WlUcD+t1qt0+089XNAeA
+         RbULsvZ+VFKXqXN6iOYbe0GYQ/DgxsZfBZ5Y6OLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, GUO Zihua <guozihua@huawei.com>,
-        Stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.18 804/879] ima: remove the IMA_TEMPLATE Kconfig option
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.17 730/772] ASoC: rt5514: Fix event generation for "DSP Voice Wake Up" control
 Date:   Tue,  7 Jun 2022 19:05:22 +0200
-Message-Id: <20220607165026.196094150@linuxfoundation.org>
+Message-Id: <20220607165010.551632719@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 891163adf180bc369b2f11c9dfce6d2758d2a5bd upstream.
+commit 4213ff556740bb45e2d9ff0f50d056c4e7dd0921 upstream.
 
-The original 'ima' measurement list template contains a hash, defined
-as 20 bytes, and a null terminated pathname, limited to 255
-characters.  Other measurement list templates permit both larger hashes
-and longer pathnames.  When the "ima" template is configured as the
-default, a new measurement list template (ima_template=) must be
-specified before specifying a larger hash algorithm (ima_hash=) on the
-boot command line.
+The driver has a custom put function for "DSP Voice Wake Up" which does
+not generate event notifications on change, instead returning 0. Since we
+already exit early in the case that there is no change this can be fixed
+by unconditionally returning 1 at the end of the function.
 
-To avoid this boot command line ordering issue, remove the legacy "ima"
-template configuration option, allowing it to still be specified on the
-boot command line.
-
-The root cause of this issue is that during the processing of ima_hash,
-we would try to check whether the hash algorithm is compatible with the
-template. If the template is not set at the moment we do the check, we
-check the algorithm against the configured default template. If the
-default template is "ima", then we reject any hash algorithm other than
-sha1 and md5.
-
-For example, if the compiled default template is "ima", and the default
-algorithm is sha1 (which is the current default). In the cmdline, we put
-in "ima_hash=sha256 ima_template=ima-ng". The expected behavior would be
-that ima starts with ima-ng as the template and sha256 as the hash
-algorithm. However, during the processing of "ima_hash=",
-"ima_template=" has not been processed yet, and hash_setup would check
-the configured hash algorithm against the compiled default: ima, and
-reject sha256. So at the end, the hash algorithm that is actually used
-will be sha1.
-
-With template "ima" removed from the configured default, we ensure that
-the default tempalte would at least be "ima-ng" which allows for
-basically any hash algorithm.
-
-This change would not break the algorithm compatibility checks for IMA.
-
-Fixes: 4286587dccd43 ("ima: add Kconfig default measurement list template")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220428162444.3883147-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/Kconfig |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ sound/soc/codecs/rt5514.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -69,10 +69,9 @@ choice
- 	  hash, defined as 20 bytes, and a null terminated pathname,
- 	  limited to 255 characters.  The 'ima-ng' measurement list
- 	  template permits both larger hash digests and longer
--	  pathnames.
-+	  pathnames. The configured default template can be replaced
-+	  by specifying "ima_template=" on the boot command line.
+--- a/sound/soc/codecs/rt5514.c
++++ b/sound/soc/codecs/rt5514.c
+@@ -419,7 +419,7 @@ static int rt5514_dsp_voice_wake_up_put(
+ 		}
+ 	}
  
--	config IMA_TEMPLATE
--		bool "ima"
- 	config IMA_NG_TEMPLATE
- 		bool "ima-ng (default)"
- 	config IMA_SIG_TEMPLATE
-@@ -82,7 +81,6 @@ endchoice
- config IMA_DEFAULT_TEMPLATE
- 	string
- 	depends on IMA
--	default "ima" if IMA_TEMPLATE
- 	default "ima-ng" if IMA_NG_TEMPLATE
- 	default "ima-sig" if IMA_SIG_TEMPLATE
+-	return 0;
++	return 1;
+ }
  
-@@ -102,19 +100,19 @@ choice
- 
- 	config IMA_DEFAULT_HASH_SHA256
- 		bool "SHA256"
--		depends on CRYPTO_SHA256=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SHA256=y
- 
- 	config IMA_DEFAULT_HASH_SHA512
- 		bool "SHA512"
--		depends on CRYPTO_SHA512=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SHA512=y
- 
- 	config IMA_DEFAULT_HASH_WP512
- 		bool "WP512"
--		depends on CRYPTO_WP512=y && !IMA_TEMPLATE
-+		depends on CRYPTO_WP512=y
- 
- 	config IMA_DEFAULT_HASH_SM3
- 		bool "SM3"
--		depends on CRYPTO_SM3=y && !IMA_TEMPLATE
-+		depends on CRYPTO_SM3=y
- endchoice
- 
- config IMA_DEFAULT_HASH
+ static const struct snd_kcontrol_new rt5514_snd_controls[] = {
 
 
