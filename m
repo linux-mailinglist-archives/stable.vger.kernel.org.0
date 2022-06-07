@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEEEF541847
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 964A1541177
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357507AbiFGVLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:11:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43842 "EHLO
+        id S1355945AbiFGThz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:37:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379872AbiFGVLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829D012B006;
-        Tue,  7 Jun 2022 11:52:19 -0700 (PDT)
+        with ESMTP id S1356504AbiFGTgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:36:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174EB1ACE62;
+        Tue,  7 Jun 2022 11:13:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1389FB81FE1;
-        Tue,  7 Jun 2022 18:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C6CEC385A2;
-        Tue,  7 Jun 2022 18:52:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CED43B822C0;
+        Tue,  7 Jun 2022 18:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC9EC385A2;
+        Tue,  7 Jun 2022 18:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627936;
-        bh=g7XB8B2hXhx0t6vm3lGhWMstRlw7oJH8/lHkhtWU6kk=;
+        s=korg; t=1654625595;
+        bh=ejuhZEKzsLw6h/Md1QV3clFX/3mpYTU9ecrvIYpDi1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRT0vJ+c/XgHqfFioQALDmDfPJpEYcoO34K63Knr5Z0lKOV/L2dqkv5f8ooku/pO1
-         QcWxiPXHLoOkN1STlmnmf8Ee8Jmt3uYXptWaBkuiXEQWOtX5t4K+xOTFzZc7v9h0Hq
-         RpG1QIqNzSWsSzeXdVQTbRoLtdi+ZvQowG6iZTGI=
+        b=pa9C6FcGxNJqrRc7ij4qsc20ZME1QywT8AL6ndRU40oafzkxa/CcaAuFxgkibFsmY
+         oQhENAzQt7L5V7GToseOr3ooUugwap9DznuI6kjIBHlmSms2wFNWACeja9WATfBcS4
+         P3m+22DHSKkTqR+o42pphdH9xSmyf5d1aIDRV7GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 146/879] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
+Subject: [PATCH 5.17 072/772] sfc: ef10: Fix assigning negative value to unsigned variable
 Date:   Tue,  7 Jun 2022 18:54:24 +0200
-Message-Id: <20220607165006.941950313@linuxfoundation.org>
+Message-Id: <20220607164951.163043645@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Haowen Bai <baihaowen@meizu.com>
 
-[ Upstream commit 63678eecec57fc51b778be3da35a397931287170 ]
+[ Upstream commit b8ff3395fbdf3b79a99d0ef410fc34c51044121e ]
 
-gcc 12 does not (always) optimize away code that should only be generated
-if parameters are constant and within in a certain range. This depends on
-various obscure kernel config options, however in particular
-PROFILE_ALL_BRANCHES can trigger this compile error:
+fix warning reported by smatch:
+251 drivers/net/ethernet/sfc/ef10.c:2259 efx_ef10_tx_tso_desc()
+warn: assigning (-208) to unsigned variable 'ip_tot_len'
 
-In function ‘__atomic_add_const’,
-    inlined from ‘__preempt_count_add.part.0’ at ./arch/s390/include/asm/preempt.h:50:3:
-./arch/s390/include/asm/atomic_ops.h:80:9: error: impossible constraint in ‘asm’
-   80 |         asm volatile(                                                   \
-      |         ^~~
-
-Workaround this by simply disabling the optimization for
-PROFILE_ALL_BRANCHES, since the kernel will be so slow, that this
-optimization won't matter at all.
-
-Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/1649640757-30041-1-git-send-email-baihaowen@meizu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/preempt.h | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sfc/ef10.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
-index d9d5350cc3ec..bf15da0fedbc 100644
---- a/arch/s390/include/asm/preempt.h
-+++ b/arch/s390/include/asm/preempt.h
-@@ -46,10 +46,17 @@ static inline bool test_preempt_need_resched(void)
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index 1ab725d554a5..e50dea0e3859 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -2256,7 +2256,7 @@ int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue, struct sk_buff *skb,
+ 	 * guaranteed to satisfy the second as we only attempt TSO if
+ 	 * inner_network_header <= 208.
+ 	 */
+-	ip_tot_len = -EFX_TSO2_MAX_HDRLEN;
++	ip_tot_len = 0x10000 - EFX_TSO2_MAX_HDRLEN;
+ 	EFX_WARN_ON_ONCE_PARANOID(mss + EFX_TSO2_MAX_HDRLEN +
+ 				  (tcp->doff << 2u) > ip_tot_len);
  
- static inline void __preempt_count_add(int val)
- {
--	if (__builtin_constant_p(val) && (val >= -128) && (val <= 127))
--		__atomic_add_const(val, &S390_lowcore.preempt_count);
--	else
--		__atomic_add(val, &S390_lowcore.preempt_count);
-+	/*
-+	 * With some obscure config options and CONFIG_PROFILE_ALL_BRANCHES
-+	 * enabled, gcc 12 fails to handle __builtin_constant_p().
-+	 */
-+	if (!IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES)) {
-+		if (__builtin_constant_p(val) && (val >= -128) && (val <= 127)) {
-+			__atomic_add_const(val, &S390_lowcore.preempt_count);
-+			return;
-+		}
-+	}
-+	__atomic_add(val, &S390_lowcore.preempt_count);
- }
- 
- static inline void __preempt_count_sub(int val)
 -- 
 2.35.1
 
