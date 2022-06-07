@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F03BC5416BB
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DFC54101D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377609AbiFGUya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+        id S1351397AbiFGTSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:18:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378982AbiFGUwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:46 -0400
+        with ESMTP id S1355482AbiFGTQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:16:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D90B5DD18;
-        Tue,  7 Jun 2022 11:43:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A533196A9F;
+        Tue,  7 Jun 2022 11:07:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDDA4B82018;
-        Tue,  7 Jun 2022 18:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A11AC385A5;
-        Tue,  7 Jun 2022 18:43:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC3EFB82349;
+        Tue,  7 Jun 2022 18:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65F4C385A5;
+        Tue,  7 Jun 2022 18:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627408;
-        bh=MLkY1OvX2VTXtWkd4B2hKU9SxPB0F0RJYdX5ADWhvgw=;
+        s=korg; t=1654625250;
+        bh=NC3/9I5CrW1I+k0hMZefr0X4gn8kFk31fzUXfvgDPhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MESPoffPnVZJv0vEZT4cstW9C2cbGwnmDYkftCm3STc9zfQlWHu/8kpEO7hV36SKc
-         s12LtS92pUQcQ1dzJSBh5FF3JMtxDeqobAHyxA4GC7l4DRdFo+s61RXInh08DzCfei
-         YZyWuplz2AArz9Z6GDOEgt6IX//TPRa29GRJJSrw=
+        b=zCk0Vh9R7yamtX87PYSauQ2MmPvuUB0tR7uAy7LWkFY4lOJjBh7yIlUq9t8u5bcty
+         pw/0YkYwj0dLhU8zWhTWyiC2qgj+34U4pUeWnh0Br5KrPKFIgCVnmM1qRqwAC0OllU
+         wE9sjEoSt9lf2gkvsi2uO2vE2P7rhf4pmQheAYK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.17 692/772] drm/nouveau/clk: Fix an incorrect NULL check on list iterator
-Date:   Tue,  7 Jun 2022 19:04:44 +0200
-Message-Id: <20220607165009.444085967@linuxfoundation.org>
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>, Jan Kara <jack@suse.cz>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 620/667] mm/page_alloc: always attempt to allocate at least one page during bulk allocation
+Date:   Tue,  7 Jun 2022 19:04:45 +0200
+Message-Id: <20220607164953.265458711@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +58,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit 1c3b2a27def609473ed13b1cd668cb10deab49b4 upstream.
+commit c572e4888ad1be123c1516ec577ad30a700bbec4 upstream.
 
-The bug is here:
-	if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
-		return cstate;
+Peter Pavlisko reported the following problem on kernel bugzilla 216007.
 
-The list iterator value 'cstate' will *always* be set and non-NULL
-by list_for_each_entry_from_reverse(), so it is incorrect to assume
-that the iterator value will be unchanged if the list is empty or no
-element is found (In fact, it will be a bogus pointer to an invalid
-structure object containing the HEAD). Also it missed a NULL check
-at callsite and may lead to invalid memory access after that.
+	When I try to extract an uncompressed tar archive (2.6 milion
+	files, 760.3 GiB in size) on newly created (empty) XFS file system,
+	after first low tens of gigabytes extracted the process hangs in
+	iowait indefinitely. One CPU core is 100% occupied with iowait,
+	the other CPU core is idle (on 2-core Intel Celeron G1610T).
 
-To fix this bug, just return 'encoder' when found, otherwise return
-NULL. And add the NULL check.
+It was bisected to c9fa563072e1 ("xfs: use alloc_pages_bulk_array() for
+buffers") but XFS is only the messenger.  The problem is that nothing is
+waking kswapd to reclaim some pages at a time the PCP lists cannot be
+refilled until some reclaim happens.  The bulk allocator checks that there
+are some pages in the array and the original intent was that a bulk
+allocator did not necessarily need all the requested pages and it was best
+to return as quickly as possible.
 
-Cc: stable@vger.kernel.org
-Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in nvkm_cstate_prog")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327075824.11806-1-xiam0nd.tong@gmail.com
+This was fine for the first user of the API but both NFS and XFS require
+the requested number of pages be available before making progress.  Both
+could be adjusted to call the page allocator directly if a bulk allocation
+fails but it puts a burden on users of the API.  Adjust the semantics to
+attempt at least one allocation via __alloc_pages() before returning so
+kswapd is woken if necessary.
+
+It was reported via bugzilla that the patch addressed the problem and that
+the tar extraction completed successfully.  This may also address bug
+215975 but has yet to be confirmed.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216007
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215975
+Link: https://lkml.kernel.org/r/20220526091210.GC3441@techsingularity.net
+Fixes: 387ba26fb1cb ("mm/page_alloc: add a bulk page allocator")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: "Darrick J. Wong" <djwong@kernel.org>
+Cc: Dave Chinner <dchinner@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+Cc: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>	[5.13+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/page_alloc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
-@@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *c
- 
- 	list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
- 		if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
--			break;
-+			return cstate;
- 	}
- 
--	return cstate;
-+	return NULL;
- }
- 
- static struct nvkm_cstate *
-@@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, s
- 	if (!list_empty(&pstate->list)) {
- 		cstate = nvkm_cstate_get(clk, pstate, cstatei);
- 		cstate = nvkm_cstate_find_best(clk, pstate, cstate);
-+		if (!cstate)
-+			return -EINVAL;
- 	} else {
- 		cstate = &pstate->base;
- 	}
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5299,8 +5299,8 @@ unsigned long __alloc_pages_bulk(gfp_t g
+ 		page = __rmqueue_pcplist(zone, 0, ac.migratetype, alloc_flags,
+ 								pcp, pcp_list);
+ 		if (unlikely(!page)) {
+-			/* Try and get at least one page */
+-			if (!nr_populated)
++			/* Try and allocate at least one page */
++			if (!nr_account)
+ 				goto failed_irq;
+ 			break;
+ 		}
 
 
