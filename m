@@ -2,201 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3A7540222
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 17:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75C354022D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 17:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244929AbiFGPJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 11:09:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57374 "EHLO
+        id S243884AbiFGPNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 11:13:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234569AbiFGPJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 11:09:42 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CC36C0442
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 08:09:41 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id kq6so22796795ejb.11
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 08:09:41 -0700 (PDT)
+        with ESMTP id S239925AbiFGPNv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 11:13:51 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C271E3E4
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 08:13:49 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id gl15so21990478ejb.4
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 08:13:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wWh4qt2Tou6AuW2Lo8VafMuYjv5z/qFbleS7hC0bCQc=;
-        b=PxPk6sAPYV/f1XEe24CgwGcCoqTphYw00e7W/1tzX5oPCfrBFHfDjPmLcO60S8+TRc
-         N/k71OSr7O/zpuLSP7VHyfMHqhnaZxDz25VsO5CUPCx5PkFXyCL2jTA+eCZB59FU49hz
-         v74We946ODsklSH+CgMF9NRCDguaJTdHXr0TdTCSWcWUqQq0p4H0+WI3h/QC8Flx+LRA
-         J/W4rwUzSps2GuzmJMkdXWaG7UjNTczKQKK/TPjPLu0c4C9u+yMCudH80b7byam9wkS1
-         t5agLdC49e9+SgWLl25KmN2HRCMHwGpS5kzD1uwkZ/7dzr8zL1pMb5QKFIzFUfeQla7A
-         YShA==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=i/SuxAwOXiJzhOAxxc15cveCQd5XdNrs1UZ5Tv+sksg=;
+        b=lXngIvipO/ffeeE2v3H7QXpdeAGMxQkii9RTqv1RAt1Ds2zrA0ma+F9OLYSuN9YmTk
+         qQs52oZydFWaDzFgGgX6FVfBSqyf6ztYo3dRtkMMEiqF1qeq9aHyNjsbg88AqxlpDoZm
+         CR2xs0pMR0zZzSBw+jXMp04urQsRv7O3xe5aLFkdVICm80GHdcJ5oiUkiTfWe6Yj8a53
+         8gyNSpc8b+foAF6Qtb4qjwZ+D8IeZqXLU2lAO7ZEXN5ksySszg2coRdPF7M9RsxW/NWI
+         YqC+pNroRcli7phEI/GQrMD55nMq6FgRzVtzyITW0T77eUlQHXO6xW2KE7s2yO3dJVU9
+         vpSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wWh4qt2Tou6AuW2Lo8VafMuYjv5z/qFbleS7hC0bCQc=;
-        b=y79rVog6UcTBcixh7jOkAmAlSNmdQG31nb/8fV+or4JooeeXv6mZ2PYDC0N89HbZL+
-         uyb5UJpFvTRMZn4upIjhGF1wIKFLceMayrt40Ym7JNlHFg/5aI3J4uY2D4uQJNNxUalO
-         Q0TVPJjfbUE/pRjSoLNo2kH8SlqwusINApAO96keRMsoXdm49sj2c/6OCKfXKqOImcA/
-         PsInu4W/Z0lXiyD5Ka1z5u1kRbUgeHzlYyNIj3n72FCl75ElAFjp7FPk22EsVzbD/nsp
-         pNTfOma/PYh6wqnKl5CF+1c0bIXVSWGosD0z7Mshn3UVWuicUX1Imvd437Ky6vg96ERC
-         xJDg==
-X-Gm-Message-State: AOAM531Ln7I05MaboMtlOU1WuoliLWtm+r2tpWTFh7BNzigQJ0jm1Wya
-        osr4FvgjU0PHVoMAumVlMt1XtDVGFqY3icJqZZZiNg==
-X-Google-Smtp-Source: ABdhPJyJBZaCJ49kEXRW4ZROuflIkxzehJrYShZNW4TLvepnxZFoxezapSzDryQXv0lAFsxSRBo+8nZmgpxZTDm/Nn4=
-X-Received: by 2002:a17:907:8689:b0:6fe:e525:ea9c with SMTP id
- qa9-20020a170907868900b006fee525ea9cmr27389504ejc.720.1654614579475; Tue, 07
- Jun 2022 08:09:39 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=i/SuxAwOXiJzhOAxxc15cveCQd5XdNrs1UZ5Tv+sksg=;
+        b=QK9430jqHBSYzUC1qYESGOnDgsc6B40qDJguWHGyekt+MHNd1S942IPiQLDRNxKYzl
+         YpxV43+b66bdqWMxQb2MLFEXbhGlKyJa7CsBqyOY915vPerp3zmDNB97bax7J/nW305a
+         ZgPtcwTOySnRzh12vkDGB88V7p1vzVh/LEx12TFkMY+jopu8DkE6oM4t4HpaMBoUKK8r
+         y8opl29ZfELgYd7UNx/7OimaeEUT/Ith8Nb+ILG5ARW8fMmVjNevI1KaO3Kgr9lxlXKu
+         dbKFT/HNVqe/HEf/2M/fPjhU2ybz2J/DSRubHSRiPx/QglSkCJg/9Pl4oVirZNNf/R49
+         CFpA==
+X-Gm-Message-State: AOAM5333cg6nJoUBBlBX1kt4xfbQlMat0jdfF71/Jei0yeH7IkR4k+Rp
+        TqkmIA1MyUXgES/H1jpB5Izq+abkwUwcv6WxgAs=
+X-Google-Smtp-Source: ABdhPJxCM6WKugmHlr+78KpSUPgBYE0MXPX7C8caTnaJu0SCIfgEOdEOJWYqmlTWzCe1T5Hn4l9SI7FijJA3BvKIJNU=
+X-Received: by 2002:a17:907:7fa5:b0:711:c8e2:2f4c with SMTP id
+ qk37-20020a1709077fa500b00711c8e22f4cmr12294756ejc.49.1654614827315; Tue, 07
+ Jun 2022 08:13:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220607025729.1673212-1-mfaltesek@google.com> <20220607025729.1673212-4-mfaltesek@google.com>
-In-Reply-To: <20220607025729.1673212-4-mfaltesek@google.com>
-From:   Guenter Roeck <groeck@google.com>
-Date:   Tue, 7 Jun 2022 08:09:28 -0700
-Message-ID: <CABXOdTcZWtoGzqqRWN4MWXh2se=rB=xtuMbSNe598-R0Mt=peg@mail.gmail.com>
-Subject: Re: [PATCH net v3 3/3] nfc: st21nfca: fix incorrect sizing
- calculations in EVT_TRANSACTION
-To:     Martin Faltesek <mfaltesek@google.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>, krzysztof.kozlowski@linaro.org,
-        christophe.ricard@gmail.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        jordy@pwning.systems, Krzysztof Kozlowski <krzk@kernel.org>,
-        martin.faltesek@gmail.com, netdev <netdev@vger.kernel.org>,
-        linux-nfc@lists.01.org, sameo@linux.intel.com,
-        William K Lin <wklin@google.com>, theflamefire89@gmail.com,
-        "# v4 . 10+" <stable@vger.kernel.org>
+Received: by 2002:a17:907:1c23:0:0:0:0 with HTTP; Tue, 7 Jun 2022 08:13:45
+ -0700 (PDT)
+Reply-To: jesspayne72@gmail.com
+From:   Jess Payne <pw5105644@gmail.com>
+Date:   Tue, 7 Jun 2022 16:13:45 +0100
+Message-ID: <CAOvk-TuMqSmS_Hm6S2UupAOMscHpcL8hShxhq8EOXf6V0pSUFQ@mail.gmail.com>
+Subject: =?UTF-8?B?5oiR6ZyA6KaB5L2g55qE5biu5Yqp44CC?=
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+Content-Transfer-Encoding: base64
+X-Spam-Status: Yes, score=7.3 required=5.0 tests=BAYES_99,BAYES_999,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:633 listed in]
+        [list.dnswl.org]
+        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 1.0000]
+        *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
+        *      [score: 1.0000]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [pw5105644[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [pw5105644[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [jesspayne72[at]gmail.com]
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  2.3 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 6, 2022 at 7:57 PM Martin Faltesek <mfaltesek@google.com> wrote:
->
-> The transaction buffer is allocated by using the size of the packet buf,
-> and subtracting two which seem intended to remove the two tags which are
-> not present in the target structure. This calculation leads to under
-> counting memory because of differences between the packet contents and the
-> target structure. The aid_len field is a u8 in the packet, but a u32 in
-> the structure, resulting in at least 3 bytes always being under counted.
-> Further, the aid data is a variable length field in the packet, but fixed
-> in the structure, so if this field is less than the max, the difference is
-> added to the under counting.
->
-> The last validation check for transaction->params_len is also incorrect
-> since it employs the same accounting error.
->
-> To fix, perform validation checks progressively to safely reach the
-> next field, to determine the size of both buffers and verify both tags.
-> Once all validation checks pass, allocate the buffer and copy the data.
-> This eliminates freeing memory on the error path, as those checks are
-> moved ahead of memory allocation.
->
-> Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-> Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-
-> ---
->  drivers/nfc/st21nfca/se.c | 60 +++++++++++++++++++--------------------
->  1 file changed, 30 insertions(+), 30 deletions(-)
->
-> diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
-> index 8e1113ce139b..df8d27cf2956 100644
-> --- a/drivers/nfc/st21nfca/se.c
-> +++ b/drivers/nfc/st21nfca/se.c
-> @@ -300,6 +300,8 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
->         int r = 0;
->         struct device *dev = &hdev->ndev->dev;
->         struct nfc_evt_transaction *transaction;
-> +       u32 aid_len;
-> +       u8 params_len;
->
->         pr_debug("connectivity gate event: %x\n", event);
->
-> @@ -308,50 +310,48 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
->                 r = nfc_se_connectivity(hdev->ndev, host);
->         break;
->         case ST21NFCA_EVT_TRANSACTION:
-> -               /*
-> -                * According to specification etsi 102 622
-> +               /* According to specification etsi 102 622
->                  * 11.2.2.4 EVT_TRANSACTION Table 52
->                  * Description  Tag     Length
->                  * AID          81      5 to 16
->                  * PARAMETERS   82      0 to 255
-> +                *
-> +                * The key differences are aid storage length is variably sized
-> +                * in the packet, but fixed in nfc_evt_transaction, and that the aid_len
-> +                * is u8 in the packet, but u32 in the structure, and the tags in
-> +                * the packet are not included in nfc_evt_transaction.
-> +                *
-> +                * size in bytes: 1          1       5-16 1             1           0-255
-> +                * offset:        0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
-> +                * member name:   aid_tag(M) aid_len aid  params_tag(M) params_len  params
-> +                * example:       0x81       5-16    X    0x82 0-255    X
->                  */
-> -               if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
-> -                   skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
-> +               if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
->                         return -EPROTO;
->
-> -               transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
-> -               if (!transaction)
-> -                       return -ENOMEM;
-> -
-> -               transaction->aid_len = skb->data[1];
-> +               aid_len = skb->data[1];
->
-> -               /* Checking if the length of the AID is valid */
-> -               if (transaction->aid_len > sizeof(transaction->aid)) {
-> -                       devm_kfree(dev, transaction);
-> -                       return -EINVAL;
-> -               }
-> +               if (skb->len < aid_len + 4 || aid_len > sizeof(transaction->aid))
-> +                       return -EPROTO;
->
-> -               memcpy(transaction->aid, &skb->data[2],
-> -                      transaction->aid_len);
-> +               params_len = skb->data[aid_len + 3];
->
-> -               /* Check next byte is PARAMETERS tag (82) */
-> -               if (skb->data[transaction->aid_len + 2] !=
-> -                   NFC_EVT_TRANSACTION_PARAMS_TAG) {
-> -                       devm_kfree(dev, transaction);
-> +               /* Verify PARAMETERS tag is (82), and final check that there is enough
-> +                * space in the packet to read everything.
-> +                */
-> +               if ((skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG) ||
-> +                   (skb->len < aid_len + 4 + params_len))
->                         return -EPROTO;
-> -               }
->
-> -               transaction->params_len = skb->data[transaction->aid_len + 3];
-> +               transaction = devm_kzalloc(dev, sizeof(*transaction) + params_len, GFP_KERNEL);
-> +               if (!transaction)
-> +                       return -ENOMEM;
->
-> -               /* Total size is allocated (skb->len - 2) minus fixed array members */
-> -               if (transaction->params_len > ((skb->len - 2) -
-> -                   sizeof(struct nfc_evt_transaction))) {
-> -                       devm_kfree(dev, transaction);
-> -                       return -EINVAL;
-> -               }
-> +               transaction->aid_len = aid_len;
-> +               transaction->params_len = params_len;
->
-> -               memcpy(transaction->params, skb->data +
-> -                      transaction->aid_len + 4, transaction->params_len);
-> +               memcpy(transaction->aid, &skb->data[2], aid_len);
-> +               memcpy(transaction->params, &skb->data[aid_len + 4], params_len);
->
->                 r = nfc_se_transaction(hdev->ndev, host, transaction);
->         break;
-> --
-> 2.36.1.255.ge46751e96f-goog
->
+5oiR5biM5pyb5L2g6IO955CG6Kej6L+Z5p2h5L+h5oGv77yM5Zug5Li65oiR5q2j5Zyo5L2/55So
+57+76K+R57uZ5L2g5YaZ5L+h44CCDQoNCuaIkeaYr+adsOilv8K35L2p5oGp5Lit5aOr5aSr5Lq6
+44CCDQoNCuWcqOe+juWbvemZhuWGm+eahOWGm+S6i+mDqOmXqOOAgue+juWbve+8jOS4gOWQjeS4
+reWjq++8jDMyIOWyge+8jOaIkeWNlei6q++8jOadpeiHque+juWbveeUsOe6s+ilv+W3nuWFi+WI
+qeWkq+WFsOW4gu+8jOebruWJjeS4juaIkeeahOWQjOS6i+WcqOWIqeavlOS6muePreWKoOilv+aJ
+p+ihjOS4gOmhueeJueauiuS7u+WKoeOAgg0KDQrmiJHmmK/kuIDkuKrlhYXmu6HniLHlv4PjgIHo
+r5rlrp7lkozmt7Hmg4XnmoTkurrvvIzlhbfmnInoia/lpb3nmoTlub3pu5jmhJ/vvIzmiJHllpzm
+rKLnu5Por4bmlrDmnIvlj4vlubbkuobop6Pku5bku6znmoTnlJ/mtLvmlrnlvI/vvIzmiJHllpzm
+rKLnnIvliLDlpKfmtbfnmoTms6LmtpvlkozlsbHohInnmoTnvo7kuL3ku6Xlj4rlpKfoh6rnhLbm
+iYDmi6XmnInnmoTkuIDliIfmj5DkvpvjgILlvojpq5jlhbTog73mm7TlpJrlnLDkuobop6Pmgqjv
+vIzmiJHorqTkuLrmiJHku6zlj6/ku6Xlu7rnq4voia/lpb3nmoTllYbkuJrlj4vosIrjgIINCg0K
+5oiR5LiA55u05b6I5LiN5byA5b+D77yM5Zug5Li65Yeg5bm05p2l55Sf5rS75a+55oiR5LiN5YWs
+5bmz77yb5oiR5ZyoIDIxDQrlsoHml7blpLHljrvkuobniLbmr43jgILmiJHniLbkurLnmoTlkI3l
+rZfmmK/luJXnibnph4zmlq/kvanmganlkozmiJHnmoTmr43kurLnjpvkuL3kvanmganjgILmsqHm
+nInkurrluK7liqnmiJHvvIzkvYbmiJHlvojpq5jlhbTmiJHnu4jkuo7lnKjnvo7lhpvkuK3mib7l
+iLDkuoboh6rlt7HjgIINCg0K5oiR57uT5ama55Sf5LqG5LiA5Liq5a2p5a2Q77yM5L2G5LuW5Y67
+5LiW5LqG77yM5Zyo5oiR5LiI5aSr5byA5aeL6IOM5Y+b5oiR5ZCO5LiN5LmF77yM5oiR5LiN5b6X
+5LiN5pS+5byD5ama5ae744CCDQoNCuaIkeS5n+W+iOW5uOi/kOWcqOaIkeeahOWbveWutue+juWb
+veWSjOWIqeavlOS6muePreWKoOilv+i/memHjOaLpeacieaIkeeUn+a0u+S4remcgOimgeeahOS4
+gOWIh++8jOS9huayoeacieS6uue7meaIkeW7uuiuruOAguaIkemcgOimgeS4gOS4quivmuWunuea
+hOS6uuadpeS/oeS7u++8jOS7luS5n+S8muW7uuiuruaIkeWmguS9leaKlei1hOaIkeeahOmSseOA
+guWboOS4uuaIkeaYr+aIkeeItuavjeWcqOS7luS7rOatu+WJjeeUn+S4i+eahOWUr+S4gOS4gOS4
+quWls+WtqeOAgg0KDQrmiJHkuI3orqTor4bkvaDvvIzkvYbmiJHorqTkuLrmnInkuIDkuKrlj6/k
+u6Xkv6Hku7vnmoTlpb3kurrvvIzlj6/ku6Xlu7rnq4vnnJ/mraPnmoTkv6Hku7vlkozoia/lpb3n
+moTllYbkuJrlj4vosIrvvIzlpoLmnpzkvaDnnJ/nmoTmnInkuIDkuKror5rlrp7nmoTlkI3lrZfv
+vIzmiJHkuZ/mnInkuIDkupvkuovmg4XopoHlkozkvaDliIbkuqvnm7jkv6HjgILlnKjkvaDouqvk
+uIrvvIzlm6DkuLrmiJHpnIDopoHkvaDnmoTluK7liqnjgILmiJHmi6XmnInmiJHlnKjliKnmr5Tk
+uprnj63liqDopb/otZrliLDnmoTmgLvpop3vvIg0NzANCuS4h+e+juWFg++8ieOAguaIkeWwhuWc
+qOS4i+S4gOWwgeeUteWtkOmCruS7tuS4reWRiuivieS9oOaIkeaYr+WmguS9leWBmuWIsOeahO+8
+jOS4jeimgeaDiuaFjO+8jOWug+S7rOaYr+aXoOmjjumZqeeahO+8jOaIkei/mOWcqOS4jiBSZWQN
+CuacieiBlOezu+eahOS6uumBk+S4u+S5ieWMu+eUn+eahOW4ruWKqeS4i+Wwhui/meeslOmSseWt
+mOWFpeS6huS4gOWutumTtuihjOOAguaIkeW4jOacm+S9oOS7peaIkeeahOWPl+ebiuS6uui6q+S7
+veaOpeWPl+WfuumHke+8jOW5tuWcqOaIkeWcqOi/memHjOWujOaIkOWQjuWmpeWWhOS/neeuoeWu
+g++8jOW5tuiOt+W+l+aIkeeahOWGm+S6i+mAmuihjOivge+8jOS7peS+v+WcqOS9oOeahOWbveWu
+tuS4juS9oOS8mumdou+8m+S4jeimgeWus+aAlemTtuihjOS8mumAmui/h+eUteaxh+Wwhui1hOmH
+kei9rOe7meaCqO+8jOi/meWvueaIkeS7rOadpeivtOWuieWFqOS4lOW/q+aNt+OAgg0KDQrnrJTo
+rrA75oiR5LiN55+l6YGT5oiR5Lus6KaB5Zyo6L+Z6YeM5b6F5aSa5LmF5ZKM5oiR55qE5ZG96L+Q
+77yM5Zug5Li65oiR5Zyo6L+Z6YeM5bm45YWN5LqO5Lik5qyh54K45by56KKt5Ye777yM6L+Z5a+8
+6Ie05oiR5a+75om+5LiA5Liq5YC85b6X5L+h6LWW55qE5Lq65p2l5biu5Yqp5oiR5o6l5pS25ZKM
+5oqV6LWE5Z+66YeR77yM5Zug5Li65oiR5bCG5p2l5Yiw5L2g55qE5Zu95a625Ye66Lqr5oqV6LWE
+77yM5byA5aeL5paw55Sf5rS777yM5LiN5YaN5b2T5YW144CCDQoNCuWmguaenOaCqOaEv+aEj+iw
+qOaFjuWkhOeQhu+8jOivt+WbnuWkjeaIkeOAguaIkeS8muWRiuivieS9oOaOpeS4i+adpeeahOa1
+geeoi++8jOW5tue7meS9oOWPkemAgeabtOWkmuWFs+S6juWfuumHkeWtmOWFpemTtuihjOeahOS/
+oeaBr+OAguS7peWPiumTtuihjOWwhuWmguS9leW4ruWKqeaIkeS7rOmAmui/h+eUteaxh+Wwhui1
+hOmHkei9rOenu+WIsOaCqOeahOWbveWutu+8jOeUteaxh+S5n+aYr+mTtuihjOWIsOmTtuihjOea
+hOi9rOW4kOOAguiLpeacieWFtOi2o+ivt+iBlOezu+acrOS6uuOAgg0K
