@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0486354196A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A955412B0
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377216AbiFGVWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56080 "EHLO
+        id S1356484AbiFGTyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378479AbiFGVTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:19:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E818322445B;
-        Tue,  7 Jun 2022 11:59:31 -0700 (PDT)
+        with ESMTP id S1358356AbiFGTwY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B858BB5247;
+        Tue,  7 Jun 2022 11:20:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6552CCE247C;
-        Tue,  7 Jun 2022 18:59:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B74AC34115;
-        Tue,  7 Jun 2022 18:59:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B2F0B8237B;
+        Tue,  7 Jun 2022 18:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5110C385A2;
+        Tue,  7 Jun 2022 18:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628349;
-        bh=xTzq9ap8H1ICIVQA5jMVvngsvaOqHvDOplS/ac4gl0k=;
+        s=korg; t=1654626008;
+        bh=Yu17bTWnDAipM/yrekG0tZcGrmcnun3JTHpLA3isquk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIM32K0rdFBwyTgb5Il7mZYdtZemxx93fo0MSthl6NB9n4IkvI4pf5kTSfbtzEgIJ
-         86XUgObFJALV+I2/nDmyNyN6sNfxHEjmopO/bxSLululXf6f7VAwiSysAnQTDYHkq0
-         X3qfCfhTo3t+qN04NcmoXB5+efQk/1yZ3XSWCIcM=
+        b=t1ZemdrY7T4HZTONmWILOqAb5cWyKclqggyVomk11nUDu/14PM02dDBvvF25q3dKh
+         25Nz5OiDtZl73CuQL6W2k1PU1ueUvlIirsowLrUwzA5mQKMZHn396qdzYvE3ifXqdc
+         hZBcZ0NOl+yJzukXP3lrdRGlHLoIhIyLHYXuzB78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 298/879] mptcp: reset the packet scheduler on incoming MP_PRIO
-Date:   Tue,  7 Jun 2022 18:56:56 +0200
-Message-Id: <20220607165011.497008039@linuxfoundation.org>
+Subject: [PATCH 5.17 225/772] drm: fix EDID struct for old ARM OABI format
+Date:   Tue,  7 Jun 2022 18:56:57 +0200
+Message-Id: <20220607164955.662898488@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +61,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 43f5b111d1ff16161ce60e19aeddb999cb6f0b01 ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-When an incoming MP_PRIO option changes the backup
-status of any subflow, we need to reset the packet
-scheduler status, or the next send could keep using
-the previously selected subflow, without taking in account
-the new priorities.
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-Reported-by: Davide Caratti <dcaratti@redhat.com>
-Fixes: 40453a5c61f4 ("mptcp: add the incoming MP_PRIO support")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
+
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
+
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm.c       | 19 +++++++++++++++----
- net/mptcp/protocol.c |  2 ++
- net/mptcp/protocol.h |  1 +
- 3 files changed, 18 insertions(+), 4 deletions(-)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/mptcp/pm.c b/net/mptcp/pm.c
-index aa51b100e033..4d6a61acc487 100644
---- a/net/mptcp/pm.c
-+++ b/net/mptcp/pm.c
-@@ -261,14 +261,25 @@ void mptcp_pm_rm_addr_received(struct mptcp_sock *msk,
- 	spin_unlock_bh(&pm->lock);
- }
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index 18f6c700f6d0..8c3112f5406d 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -121,7 +121,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
  
--void mptcp_pm_mp_prio_received(struct sock *sk, u8 bkup)
-+void mptcp_pm_mp_prio_received(struct sock *ssk, u8 bkup)
- {
--	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
-+	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
-+	struct sock *sk = subflow->conn;
-+	struct mptcp_sock *msk;
+ struct detailed_data_wpindex {
+@@ -154,7 +154,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
  
- 	pr_debug("subflow->backup=%d, bkup=%d\n", subflow->backup, bkup);
--	subflow->backup = bkup;
-+	msk = mptcp_sk(sk);
-+	if (subflow->backup != bkup) {
-+		subflow->backup = bkup;
-+		mptcp_data_lock(sk);
-+		if (!sock_owned_by_user(sk))
-+			msk->last_snd = NULL;
-+		else
-+			__set_bit(MPTCP_RESET_SCHEDULER,  &msk->cb_flags);
-+		mptcp_data_unlock(sk);
-+	}
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -172,7 +172,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
  
--	mptcp_event(MPTCP_EVENT_SUB_PRIORITY, mptcp_sk(subflow->conn), sk, GFP_ATOMIC);
-+	mptcp_event(MPTCP_EVENT_SUB_PRIORITY, msk, ssk, GFP_ATOMIC);
- }
- 
- void mptcp_pm_mp_fail_received(struct sock *sk, u64 fail_seq)
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 2a9335ce5df1..8f54293c1d88 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -3102,6 +3102,8 @@ static void mptcp_release_cb(struct sock *sk)
- 			__mptcp_set_connected(sk);
- 		if (__test_and_clear_bit(MPTCP_ERROR_REPORT, &msk->cb_flags))
- 			__mptcp_error_report(sk);
-+		if (__test_and_clear_bit(MPTCP_RESET_SCHEDULER, &msk->cb_flags))
-+			msk->last_snd = NULL;
- 	}
- 
- 	__mptcp_update_rmem(sk);
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 5655a63aa6a8..9ac63fa4866e 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -124,6 +124,7 @@
- #define MPTCP_RETRANSMIT	4
- #define MPTCP_FLUSH_JOIN_LIST	5
- #define MPTCP_CONNECTED		6
-+#define MPTCP_RESET_SCHEDULER	7
- 
- static inline bool before64(__u64 seq1, __u64 seq2)
- {
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
