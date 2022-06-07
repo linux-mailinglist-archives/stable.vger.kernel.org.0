@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CFE3541A35
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D63A541322
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234229AbiFGVcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51630 "EHLO
+        id S1353786AbiFGT4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376813AbiFGV2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:28:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B56911C1C;
-        Tue,  7 Jun 2022 12:02:17 -0700 (PDT)
+        with ESMTP id S1356213AbiFGTxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927E8483AC;
+        Tue,  7 Jun 2022 11:23:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4589B822C0;
-        Tue,  7 Jun 2022 19:02:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E8C7C385A2;
-        Tue,  7 Jun 2022 19:02:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 884AA61237;
+        Tue,  7 Jun 2022 18:23:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94410C385A5;
+        Tue,  7 Jun 2022 18:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628534;
-        bh=CnLwyclVVSbwC4oc11KchLvc8sUbiTu2u0ilES9Syzo=;
+        s=korg; t=1654626194;
+        bh=EfPs1aGS94F/ACXA3BACqoNf6nkVPT8Kw7Zh2+Z113E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHUfoxGAsCjfP6h4lpKaDRrTEGrhS3oTaP3q2eIjRh7G1DScf+PZ3gEjEFBaipIgX
-         F45uAshu7JcbUuvdw83e1pPfXNCVWYLaZunb7Wz3B79F43DtmH0b/3r2U70KnFfcJ5
-         Z1aIFfe+img/qqD90pfKsFAgdWW/JRQ4zhZXROd0=
+        b=c9DHR5oM8fKHpIyOest0JHNXV5LkWH25kFYcbyavvihG2uhap1QYDxYCjBgG8+caE
+         HV6t0Klw4lM2uGsTLGDTl584/TfcnLOHWWFn9KafBB1mlLofRDfB1DogqnQMNVom2k
+         jSrTExHvgn5O2dbQ/Q2KBjcu5rMM3lwfUb5xs1bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Christoph Fritz <chf.fritz@googlemail.com>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 363/879] mtd: rawnand: cadence: fix possible null-ptr-deref in cadence_nand_dt_probe()
+Subject: [PATCH 5.17 289/772] drm/panel: simple: Add missing bus flags for Innolux G070Y2-L01
 Date:   Tue,  7 Jun 2022 18:58:01 +0200
-Message-Id: <20220607165013.398131827@linuxfoundation.org>
+Message-Id: <20220607164957.541224096@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +58,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit a28ed09dafee20da51eb26452950839633afd824 ]
+[ Upstream commit 0f73a559f916b618c0c05186bd644c90cc9e9695 ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+The DE signal is active high on this display, fill in the missing bus_flags.
+This aligns panel_desc with its display_timing .
 
-Fixes: ec4ba01e894d ("mtd: rawnand: Add new Cadence NAND driver to MTD subsystem")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220426084913.4021868-1-yangyingliang@huawei.com
+Fixes: a5d2ade627dca ("drm/panel: simple: Add support for Innolux G070Y2-L01")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Maxime Ripard <maxime@cerno.tech>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220406093627.18011-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/cadence-nand-controller.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mtd/nand/raw/cadence-nand-controller.c b/drivers/mtd/nand/raw/cadence-nand-controller.c
-index 7eec60ea9056..0d72672f8b64 100644
---- a/drivers/mtd/nand/raw/cadence-nand-controller.c
-+++ b/drivers/mtd/nand/raw/cadence-nand-controller.c
-@@ -2983,11 +2983,10 @@ static int cadence_nand_dt_probe(struct platform_device *ofdev)
- 	if (IS_ERR(cdns_ctrl->reg))
- 		return PTR_ERR(cdns_ctrl->reg);
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index b42c1d816e79..7598824ea848 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -2029,6 +2029,7 @@ static const struct panel_desc innolux_g070y2_l01 = {
+ 		.unprepare = 800,
+ 	},
+ 	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
++	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
+ 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
+ };
  
--	res = platform_get_resource(ofdev, IORESOURCE_MEM, 1);
--	cdns_ctrl->io.dma = res->start;
--	cdns_ctrl->io.virt = devm_ioremap_resource(&ofdev->dev, res);
-+	cdns_ctrl->io.virt = devm_platform_get_and_ioremap_resource(ofdev, 1, &res);
- 	if (IS_ERR(cdns_ctrl->io.virt))
- 		return PTR_ERR(cdns_ctrl->io.virt);
-+	cdns_ctrl->io.dma = res->start;
- 
- 	dt->clk = devm_clk_get(cdns_ctrl->dev, "nf_clk");
- 	if (IS_ERR(dt->clk))
 -- 
 2.35.1
 
