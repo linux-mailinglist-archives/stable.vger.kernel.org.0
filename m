@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F08854122E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5991E54085D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357179AbiFGTob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
+        id S1347805AbiFGR54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:57:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357197AbiFGTl0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:41:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044EF1B1CD6;
-        Tue,  7 Jun 2022 11:14:49 -0700 (PDT)
+        with ESMTP id S1348594AbiFGR5e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:57:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC372CC82;
+        Tue,  7 Jun 2022 10:40:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAD2FB82349;
-        Tue,  7 Jun 2022 18:14:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6222BC385A5;
-        Tue,  7 Jun 2022 18:14:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBDF861499;
+        Tue,  7 Jun 2022 17:40:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB416C385A5;
+        Tue,  7 Jun 2022 17:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625686;
-        bh=4gfnBQ3XOz9VePixJCdNt32X4yT6vHAJVKBKYUU2f0w=;
+        s=korg; t=1654623629;
+        bh=o1eTgFr8QpuxGLZwcL8lmc3ZuwWti26EM0NowvLlMx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwAA3Y7FMnLGpW2JuNcwZe31SLlN93ULbgkCOU5dARvuXPk6+xJLCj+GHGT84qrr7
-         Hn2bY2sUk88wGXvBcyby56qWD8B+gqnx+DhhmoNpoiorff3gHdDMC0kp+dKKguF8Fu
-         rrcOArhAB7H7HrHkzXJeLPQyKaxDd+OMMJ72Q4EQ=
+        b=zfQV7XnLh1nI6hqtIczbM2WyoAZKGGCzhEHftwq+53gBLswQ29+/oX8bnDSwsnVll
+         8RWQRgozNTjr8N/kweI608Zc4gI8EgkjS/9rNYk9p7d5+yMmQvMLCEhc0CwqpTVOsS
+         1y73Ov0Ald15taAC9vKDwyFAVT7kIp8Owd4veras=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Jessica Zhang <quic_jesszhan@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 106/772] drm/msm/dpu: Clean up CRC debug logs
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.15 033/667] perf/x86/intel: Fix event constraints for ICL
 Date:   Tue,  7 Jun 2022 18:54:58 +0200
-Message-Id: <20220607164952.168575211@linuxfoundation.org>
+Message-Id: <20220607164935.790375161@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Zhang <quic_jesszhan@quicinc.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 3ce8bdca394fc606b55e7c5ed779d171aaae5d09 ]
+commit 86dca369075b3e310c3c0adb0f81e513c562b5e4 upstream.
 
-Currently, dpu_hw_lm_collect_misr returns EINVAL if CRC is disabled.
-This causes a lot of spam in the DRM debug logs as it's called for every
-vblank.
+According to the latest event list, the event encoding 0x55
+INST_DECODED.DECODERS and 0x56 UOPS_DECODED.DEC0 are only available on
+the first 4 counters. Add them into the event constraints table.
 
-Instead of returning EINVAL when CRC is disabled in
-dpu_hw_lm_collect_misr, let's return ENODATA and add an extra ENODATA check
-before the debug log in dpu_crtc_get_crc.
-
-Changes since V1:
-- Added reported-by and suggested-by tags
-
-Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Suggested-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Tested-by: Jessica Zhang <quic_jesszhan@quicinc.com> # RB5  (qrb5165)
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/484274/
-Link: https://lore.kernel.org/r/20220430005210.339-1-quic_jesszhan@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220525133952.1660658-1-kan.liang@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c  | 3 ++-
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index e7c9fe1a250f..0a857f222982 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -204,7 +204,8 @@ static int dpu_crtc_get_crc(struct drm_crtc *crtc)
- 		rc = m->hw_lm->ops.collect_misr(m->hw_lm, &crcs[i]);
- 
- 		if (rc) {
--			DRM_DEBUG_DRIVER("MISR read failed\n");
-+			if (rc != -ENODATA)
-+				DRM_DEBUG_DRIVER("MISR read failed\n");
- 			return rc;
- 		}
- 	}
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c
-index 86363c0ec834..462f5082099e 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c
-@@ -138,7 +138,7 @@ static int dpu_hw_lm_collect_misr(struct dpu_hw_mixer *ctx, u32 *misr_value)
- 	ctrl = DPU_REG_READ(c, LM_MISR_CTRL);
- 
- 	if (!(ctrl & LM_MISR_CTRL_ENABLE))
--		return -EINVAL;
-+		return -ENODATA;
- 
- 	if (!(ctrl & LM_MISR_CTRL_STATUS))
- 		return -EINVAL;
--- 
-2.35.1
-
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -255,7 +255,7 @@ static struct event_constraint intel_icl
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x03, 0x0a, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x1f, 0x28, 0xf),
+ 	INTEL_EVENT_CONSTRAINT(0x32, 0xf),	/* SW_PREFETCH_ACCESS.* */
+-	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x54, 0xf),
++	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x56, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x60, 0x8b, 0xf),
+ 	INTEL_UEVENT_CONSTRAINT(0x04a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_TOTAL */
+ 	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.CYCLES_MEM_ANY */
 
 
