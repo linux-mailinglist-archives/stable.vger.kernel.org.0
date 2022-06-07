@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 086265406B8
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF355415B3
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347505AbiFGRh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45580 "EHLO
+        id S1359488AbiFGUhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348720AbiFGRgn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:36:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5807B11825;
-        Tue,  7 Jun 2022 10:33:04 -0700 (PDT)
+        with ESMTP id S1377901AbiFGUej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:34:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70A56F598;
+        Tue,  7 Jun 2022 11:36:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35618B822B3;
-        Tue,  7 Jun 2022 17:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E8BAC385A5;
-        Tue,  7 Jun 2022 17:32:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C14F612EC;
+        Tue,  7 Jun 2022 18:36:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E0AC385A5;
+        Tue,  7 Jun 2022 18:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623153;
-        bh=7C4cWSV1faZyhZGcY7GBV07+JeoEX0fJB6r7GfbLyME=;
+        s=korg; t=1654626997;
+        bh=Bua9aLZZH7SUoVf9SCFW+Tiuh87eEEB4dY13YHj6wVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJHxzeuTTkxxE0t0nvEOPDsTy6Eh5tdPei1aRGQsMIWKFCIMV5UfDraQrs9x6Le6A
-         LocASjJwETTmvb0ZXc4F3SnoXVMjx76epFo81RhLX7d+qrZH7RAfuV4gC88XUeWUbt
-         3QHLJFgMNhLDvp5tJDnBnINPniBjDMDmHrn1UJec=
+        b=R3taOkwQDj6wcu9oDpCdM3t2Un1s1Sn3EgEyxx3BSPkuBKB1csMSmPoUnFDc1sGN0
+         HskcVJk/PI/qxdv68roXY4Z4TUn0sBc+oFiNIEaXOAXqOT/pVj7dWM5MTrwrObO4Sh
+         aZiup+0P7ZVpLvVsue760h5kYUjdE7j0clupJm7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 314/452] mfd: davinci_voicecodec: Fix possible null-ptr-deref davinci_vc_probe()
-Date:   Tue,  7 Jun 2022 19:02:51 +0200
-Message-Id: <20220607164917.916652073@linuxfoundation.org>
+Subject: [PATCH 5.17 580/772] NFS: Do not report EINTR/ERESTARTSYS as mapping errors
+Date:   Tue,  7 Jun 2022 19:02:52 +0200
+Message-Id: <20220607165006.040465532@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 311242c7703df0da14c206260b7e855f69cb0264 ]
+[ Upstream commit cea9ba7239dcc84175041174304c6cdeae3226e5 ]
 
-It will cause null-ptr-deref when using 'res', if platform_get_resource()
-returns NULL, so move using 'res' after devm_ioremap_resource() that
-will check it to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+If the attempt to flush data was interrupted due to a local signal, then
+just requeue the writes back for I/O.
 
-Fixes: b5e29aa880be ("mfd: davinci_voicecodec: Remove pointless #include")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220426030857.3539336-1-yangyingliang@huawei.com
+Fixes: 6fbda89b257f ("NFS: Replace custom error reporting mechanism with generic one")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/davinci_voicecodec.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nfs/write.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/davinci_voicecodec.c b/drivers/mfd/davinci_voicecodec.c
-index e5c8bc998eb4..965820481f1e 100644
---- a/drivers/mfd/davinci_voicecodec.c
-+++ b/drivers/mfd/davinci_voicecodec.c
-@@ -46,14 +46,12 @@ static int __init davinci_vc_probe(struct platform_device *pdev)
- 	}
- 	clk_enable(davinci_vc->clk);
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--
--	fifo_base = (dma_addr_t)res->start;
--	davinci_vc->base = devm_ioremap_resource(&pdev->dev, res);
-+	davinci_vc->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(davinci_vc->base)) {
- 		ret = PTR_ERR(davinci_vc->base);
- 		goto fail;
- 	}
-+	fifo_base = (dma_addr_t)res->start;
- 
- 	davinci_vc->regmap = devm_regmap_init_mmio(&pdev->dev,
- 						   davinci_vc->base,
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 938850303099..3cb948f13902 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1436,7 +1436,7 @@ static void nfs_async_write_error(struct list_head *head, int error)
+ 	while (!list_empty(head)) {
+ 		req = nfs_list_entry(head->next);
+ 		nfs_list_remove_request(req);
+-		if (nfs_error_is_fatal(error))
++		if (nfs_error_is_fatal_on_server(error))
+ 			nfs_write_error(req, error);
+ 		else
+ 			nfs_redirty_request(req);
 -- 
 2.35.1
 
