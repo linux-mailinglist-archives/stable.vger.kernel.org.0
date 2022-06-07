@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74CE4540C1F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30565405E1
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351486AbiFGSds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38790 "EHLO
+        id S1346898AbiFGRcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:32:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352489AbiFGSbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E1AF1451CD;
-        Tue,  7 Jun 2022 10:56:14 -0700 (PDT)
+        with ESMTP id S1347367AbiFGRal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1AF110998;
+        Tue,  7 Jun 2022 10:26:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA27FB8234A;
-        Tue,  7 Jun 2022 17:56:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF889C3411F;
-        Tue,  7 Jun 2022 17:56:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC396127C;
+        Tue,  7 Jun 2022 17:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1CD6C34115;
+        Tue,  7 Jun 2022 17:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624571;
-        bh=SIjLdiZEQvxzZ/OkoXP2cni+kJBnPY++4VsCx3A22Lk=;
+        s=korg; t=1654622788;
+        bh=dR/THZNtWL+NiVqBxd1fBR0kBiqITc3LcBx/INTW/dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdsJZiZ7Oz8iWVASdRbNxoy9dLQB4oxpYYQa1YzWQ5iFJ/mKh4/2UU43vQqZEJb2i
-         EAjkvooMSkxEwiJrlm1kUpTFi3UsfEdotB1uhlM5COT4fj7B/NppfXoQsujGje+vZv
-         uP6gsoih/mJd2eQxHeDvZvp/wd1FBZSrADoOYqjM=
+        b=rjMY/2dVLIqPI7seJS3hcW7TUaKnzZQAP25WLAJcVMP0AKXdzOZdmK3QB1+dhFLgj
+         c4ti72yNfCe/Hgu1wFoxHQjs7GQr9yyYp+ux95UylLH/UQBz/E1J1taw1MlTeUjidV
+         McOZU7o/iMyMqnGcZC/4BqMpqjlOvBKKxOf0OIfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mans Rullgard <mans@mansr.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 375/667] net: dsa: restrict SMSC_LAN9303_I2C kconfig
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 183/452] virtio_blk: fix the discard_granularity and discard_alignment queue limits
 Date:   Tue,  7 Jun 2022 19:00:40 +0200
-Message-Id: <20220607164945.996818189@linuxfoundation.org>
+Message-Id: <20220607164914.013469070@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,72 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 0a3ad7d323686fbaae8688326cc5ea0d185c6fca ]
+[ Upstream commit 62952cc5bccd89b76d710de1d0b43244af0f2903 ]
 
-Since kconfig 'select' does not follow dependency chains, if symbol KSA
-selects KSB, then KSA should also depend on the same symbols that KSB
-depends on, in order to prevent Kconfig warnings and possible build
-errors.
+The discard_alignment queue limit is named a bit misleading means the
+offset into the block device at which the discard granularity starts.
 
-Change NET_DSA_SMSC_LAN9303_I2C and NET_DSA_SMSC_LAN9303_MDIO so that
-they are limited to VLAN_8021Q if the latter is enabled. This prevents
-the Kconfig warning:
+On the other hand the discard_sector_alignment from the virtio 1.1 looks
+similar to what Linux uses as discard granularity (even if not very well
+described):
 
-WARNING: unmet direct dependencies detected for NET_DSA_SMSC_LAN9303
-  Depends on [m]: NETDEVICES [=y] && NET_DSA [=y] && (VLAN_8021Q [=m] || VLAN_8021Q [=m]=n)
-  Selected by [y]:
-  - NET_DSA_SMSC_LAN9303_I2C [=y] && NETDEVICES [=y] && NET_DSA [=y] && I2C [=y]
+  "discard_sector_alignment can be used by OS when splitting a request
+   based on alignment. "
 
-Fixes: 430065e26719 ("net: dsa: lan9303: add VLAN IDs to master device")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Vivien Didelot <vivien.didelot@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Vladimir Oltean <olteanv@gmail.com>
-Cc: Juergen Borleis <jbe@pengutronix.de>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Mans Rullgard <mans@mansr.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+And at least qemu does set it to the discard granularity.
+
+So stop setting the discard_alignment and use the virtio
+discard_sector_alignment to set the discard granularity.
+
+Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20220418045314.360785-5-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
-index 9428aac4a686..6117d4537f88 100644
---- a/drivers/net/dsa/Kconfig
-+++ b/drivers/net/dsa/Kconfig
-@@ -81,7 +81,6 @@ config NET_DSA_REALTEK_SMI
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 02e2056780ad..9b54eec9b17e 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -865,11 +865,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
  
- config NET_DSA_SMSC_LAN9303
- 	tristate
--	depends on VLAN_8021Q || VLAN_8021Q=n
- 	select NET_DSA_TAG_LAN9303
- 	select REGMAP
- 	help
-@@ -91,6 +90,7 @@ config NET_DSA_SMSC_LAN9303
- config NET_DSA_SMSC_LAN9303_I2C
- 	tristate "SMSC/Microchip LAN9303 3-ports 10/100 ethernet switch in I2C managed mode"
- 	depends on I2C
-+	depends on VLAN_8021Q || VLAN_8021Q=n
- 	select NET_DSA_SMSC_LAN9303
- 	select REGMAP_I2C
- 	help
-@@ -100,6 +100,7 @@ config NET_DSA_SMSC_LAN9303_I2C
- config NET_DSA_SMSC_LAN9303_MDIO
- 	tristate "SMSC/Microchip LAN9303 3-ports 10/100 ethernet switch in MDIO managed mode"
- 	select NET_DSA_SMSC_LAN9303
-+	depends on VLAN_8021Q || VLAN_8021Q=n
- 	help
- 	  Enable access functions if the SMSC/Microchip LAN9303 is configured
- 	  for MDIO managed mode.
+ 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
+-		q->limits.discard_granularity = blk_size;
+-
+ 		virtio_cread(vdev, struct virtio_blk_config,
+ 			     discard_sector_alignment, &v);
+-		q->limits.discard_alignment = v ? v << SECTOR_SHIFT : 0;
++		if (v)
++			q->limits.discard_granularity = v << SECTOR_SHIFT;
++		else
++			q->limits.discard_granularity = blk_size;
+ 
+ 		virtio_cread(vdev, struct virtio_blk_config,
+ 			     max_discard_sectors, &v);
 -- 
 2.35.1
 
