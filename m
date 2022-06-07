@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BCC5414B6
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6CE4540C05
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356853AbiFGUVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39296 "EHLO
+        id S1351890AbiFGScz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359059AbiFGUUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:20:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DE11796CC;
-        Tue,  7 Jun 2022 11:30:23 -0700 (PDT)
+        with ESMTP id S1352381AbiFGSa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:30:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B1817B860;
+        Tue,  7 Jun 2022 10:56:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D66DD614D7;
-        Tue,  7 Jun 2022 18:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7170C385A5;
-        Tue,  7 Jun 2022 18:30:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C91CB82368;
+        Tue,  7 Jun 2022 17:56:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9462C385A5;
+        Tue,  7 Jun 2022 17:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626615;
-        bh=iasyDf3C8+XgFrEDFoVVMOvzOcKHCYOqMTpYsSEiVDM=;
+        s=korg; t=1654624560;
+        bh=s94jmMXWkkh4w8m1TyTXIlqdOH6AqDe8fb8VIYlApNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlU0QOPauuhnFwPOSJO7iTeYskw10WN0LpbfAtXm59UOSCP3HabfZ3Jl7NwzuUOdX
-         tHb8crO/gWXaYt4BoHDXQkW0TxE7voS0AIPqqd62lU41zM2ex9o7h3DLPEV1ybYxTl
-         oh3c0ykKcYzU1Ppj3jz7NSSyqppgQhYy8rB+15CQ=
+        b=ieiUJLfwy7Lazwej6fZYpcxhGwm2F+M4bOPaCwvqKa5uyO0UrnrBYihsUKGDphBBs
+         k8JSbT3WxCKDFgiAGAfvBbxtEqW61PNHoFmxhkdse5PRXvqDNoPaWRAmwvDDJ0IHh5
+         BoQ5XqK+TNqj7FvwWRD42LodRJWQDYavkVuAgdh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 443/772] hinic: Avoid some over memory allocation
-Date:   Tue,  7 Jun 2022 19:00:35 +0200
-Message-Id: <20220607165002.054909624@linuxfoundation.org>
+Subject: [PATCH 5.15 371/667] rxrpc: Dont let ack.previousPacket regress
+Date:   Tue,  7 Jun 2022 19:00:36 +0200
+Message-Id: <20220607164945.876848016@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 15d221d0c345b76947911a3ac91897ffe2f1cc4e ]
+[ Upstream commit 81524b6312535897707f2942695da1d359a5e56b ]
 
-'prod_idx' (atomic_t) is larger than 'shadow_idx' (u16), so some memory is
-over-allocated.
+The previousPacket field in the rx ACK packet should never go backwards -
+it's now the highest DATA sequence number received, not the last on
+received (it used to be used for out of sequence detection).
 
-Fixes: b15a9f37be2b ("net-next/hinic: Add wq")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 248f219cb8bc ("rxrpc: Rewrite the data and ack handling code")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/ar-internal.h | 4 ++--
+ net/rxrpc/input.c       | 4 +++-
+ net/rxrpc/output.c      | 2 +-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-index f7dc7d825f63..4daf6bf291ec 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-@@ -386,7 +386,7 @@ static int alloc_wqes_shadow(struct hinic_wq *wq)
- 		return -ENOMEM;
+diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
+index 9a9688c41d4d..8465985a4cb6 100644
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -679,7 +679,7 @@ struct rxrpc_call {
+ 	/* Receive-phase ACK management (ACKs we send). */
+ 	u8			ackr_reason;	/* reason to ACK */
+ 	rxrpc_serial_t		ackr_serial;	/* serial of packet being ACK'd */
+-	rxrpc_seq_t		ackr_prev_seq;	/* previous sequence number received */
++	rxrpc_seq_t		ackr_highest_seq; /* Higest sequence number received */
+ 	rxrpc_seq_t		ackr_consumed;	/* Highest packet shown consumed */
+ 	rxrpc_seq_t		ackr_seen;	/* Highest packet shown seen */
  
- 	wq->shadow_idx = devm_kcalloc(&pdev->dev, wq->num_q_pages,
--				      sizeof(wq->prod_idx), GFP_KERNEL);
-+				      sizeof(*wq->shadow_idx), GFP_KERNEL);
- 	if (!wq->shadow_idx)
- 		goto err_shadow_idx;
+@@ -694,7 +694,7 @@ struct rxrpc_call {
+ 	/* Transmission-phase ACK management (ACKs we've received). */
+ 	ktime_t			acks_latest_ts;	/* Timestamp of latest ACK received */
+ 	rxrpc_seq_t		acks_first_seq;	/* first sequence number received */
+-	rxrpc_seq_t		acks_prev_seq;	/* previous sequence number received */
++	rxrpc_seq_t		acks_prev_seq;	/* Highest previousPacket received */
+ 	rxrpc_seq_t		acks_lowest_nak; /* Lowest NACK in the buffer (or ==tx_hard_ack) */
+ 	rxrpc_seq_t		acks_lost_top;	/* tx_top at the time lost-ack ping sent */
+ 	rxrpc_serial_t		acks_lost_ping;	/* Serial number of probe ACK */
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index 3da33b5c13b2..680b984ef87f 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -453,7 +453,6 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
+ 	    !rxrpc_receiving_reply(call))
+ 		goto unlock;
  
+-	call->ackr_prev_seq = seq0;
+ 	hard_ack = READ_ONCE(call->rx_hard_ack);
+ 
+ 	nr_subpackets = sp->nr_subpackets;
+@@ -534,6 +533,9 @@ static void rxrpc_input_data(struct rxrpc_call *call, struct sk_buff *skb)
+ 			ack_serial = serial;
+ 		}
+ 
++		if (after(seq0, call->ackr_highest_seq))
++			call->ackr_highest_seq = seq0;
++
+ 		/* Queue the packet.  We use a couple of memory barriers here as need
+ 		 * to make sure that rx_top is perceived to be set after the buffer
+ 		 * pointer and that the buffer pointer is set after the annotation and
+diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
+index a45c83f22236..46aae9b7006f 100644
+--- a/net/rxrpc/output.c
++++ b/net/rxrpc/output.c
+@@ -89,7 +89,7 @@ static size_t rxrpc_fill_out_ack(struct rxrpc_connection *conn,
+ 	pkt->ack.bufferSpace	= htons(8);
+ 	pkt->ack.maxSkew	= htons(0);
+ 	pkt->ack.firstPacket	= htonl(hard_ack + 1);
+-	pkt->ack.previousPacket	= htonl(call->ackr_prev_seq);
++	pkt->ack.previousPacket	= htonl(call->ackr_highest_seq);
+ 	pkt->ack.serial		= htonl(serial);
+ 	pkt->ack.reason		= reason;
+ 	pkt->ack.nAcks		= top - hard_ack;
 -- 
 2.35.1
 
