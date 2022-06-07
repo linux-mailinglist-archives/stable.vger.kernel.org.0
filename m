@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4E7540A9F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7797540AA9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:23:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348810AbiFGSW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42296 "EHLO
+        id S1350801AbiFGSXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352654AbiFGSRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA82E13AF2F;
+        with ESMTP id S1352634AbiFGSRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5F913AF2C;
         Tue,  7 Jun 2022 10:52:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3240AB8236F;
-        Tue,  7 Jun 2022 17:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 190E0C341C5;
-        Tue,  7 Jun 2022 17:52:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 132BE617C3;
+        Tue,  7 Jun 2022 17:52:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60BBFC385A5;
+        Tue,  7 Jun 2022 17:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624344;
-        bh=4YAS2hxdgSWEjTSJ+tXksYA0mkYVnKdZ8x4YsHB7YBo=;
+        s=k20201202; t=1654624346;
+        bh=j3uNHWslQx2TMq4plPlTP9lh0uFCqJRr0z3ou4Fl1Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXVBr1EX8u5F6xqeYyZEc38IDm7Nz+TvxSCQJ7bYrOyTIpgT44zswDrblnbJ4EnoD
-         YbzXi54h5UPT+33UDpusmD7zK9Y1hvg/ZZs5ykzmFg8h4ZyYNHdo+ZwZkIaGw6C8uF
-         W6BVuWHsuHzFeYFR0CAQNxGkuzFZct45ZOwUeuG79bjbMPDryZiUSIyBSUjouRTj8r
-         yEbunTuPjwDhVpH5tQGX45V4oj5+yfAqcyeh74HnffExZF1dWRjF5WB1zlagQ4dxbB
-         CnMdrNIffmydMQkEMzM6Zcko3yCEAZPz5zjTfVOuU6aaoEw21mxJqoqZa17ejgWwtE
-         oE+zRxHt6DZGg==
+        b=I+Nn2ut0W7CqlXeze/AoCN1AiZ7Tfh3dKZfFw2wEVUF6RdN2miM/1pTzpFed8YKnL
+         mBIRywyQBmVMDMkaG2ZlwlG17zqYChYfHBEvXoh5r+RTEp+3S5/ESYDrrKW/KUkKL8
+         qgKQVIqQrt3hpd7DHg55NqwomFvSC8avfpeG79RiUTSq+F+Rn+NwWEhReuKy61gxVU
+         SSzQ4NG5dFZ1HecvpGjLBreaE3YJ2+CpZ7IbBtL/UiBzyRmkeoHBmwAZkuEV/nryGm
+         LCDY1KUmkXO0G4D9wcm76vOu0MpTE1toZgEQ9jC+b/s8TxaN5wu1cCtBmu8LAFHysM
+         NRHup8QzaYdxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, jpoimboe@kernel.org,
-        jbaron@akamai.com
-Subject: [PATCH AUTOSEL 5.18 55/68] jump_label,noinstr: Avoid instrumentation for JUMP_LABEL=n builds
-Date:   Tue,  7 Jun 2022 13:48:21 -0400
-Message-Id: <20220607174846.477972-55-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hou Tao <houtao1@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 5.18 56/68] nbd: call genl_unregister_family() first in nbd_cleanup()
+Date:   Tue,  7 Jun 2022 13:48:22 -0400
+Message-Id: <20220607174846.477972-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
 References: <20220607174846.477972-1-sashal@kernel.org>
@@ -57,42 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 656d054e0a15ec327bd82801ccd58201e59f6896 ]
+[ Upstream commit 06c4da89c24e7023ea448cadf8e9daf06a0aae6e ]
 
-When building x86_64 with JUMP_LABEL=n it's possible for
-instrumentation to sneak into noinstr:
+Otherwise there may be race between module removal and the handling of
+netlink command, which can lead to the oops as shown below:
 
-vmlinux.o: warning: objtool: exit_to_user_mode+0x14: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: syscall_exit_to_user_mode+0x2d: call to static_key_count.constprop.0() leaves .noinstr.text section
-vmlinux.o: warning: objtool: irqentry_exit_to_user_mode+0x1b: call to static_key_count.constprop.0() leaves .noinstr.text section
+  BUG: kernel NULL pointer dereference, address: 0000000000000098
+  Oops: 0002 [#1] SMP PTI
+  CPU: 1 PID: 31299 Comm: nbd-client Tainted: G            E     5.14.0-rc4
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:down_write+0x1a/0x50
+  Call Trace:
+   start_creating+0x89/0x130
+   debugfs_create_dir+0x1b/0x130
+   nbd_start_device+0x13d/0x390 [nbd]
+   nbd_genl_connect+0x42f/0x748 [nbd]
+   genl_family_rcv_msg_doit.isra.0+0xec/0x150
+   genl_rcv_msg+0xe5/0x1e0
+   netlink_rcv_skb+0x55/0x100
+   genl_rcv+0x29/0x40
+   netlink_unicast+0x1a8/0x250
+   netlink_sendmsg+0x21b/0x430
+   ____sys_sendmsg+0x2a4/0x2d0
+   ___sys_sendmsg+0x81/0xc0
+   __sys_sendmsg+0x62/0xb0
+   __x64_sys_sendmsg+0x1f/0x30
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  Modules linked in: nbd(E-)
 
-Switch to arch_ prefixed atomic to avoid the explicit instrumentation.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220521073749.3146892-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/jump_label.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/nbd.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
-index 107751cc047b..bf1eef337a07 100644
---- a/include/linux/jump_label.h
-+++ b/include/linux/jump_label.h
-@@ -256,9 +256,9 @@ extern void static_key_disable_cpuslocked(struct static_key *key);
- #include <linux/atomic.h>
- #include <linux/bug.h>
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 5a1f98494ddd..9dc27f9e9ddc 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -2529,6 +2529,12 @@ static void __exit nbd_cleanup(void)
+ 	struct nbd_device *nbd;
+ 	LIST_HEAD(del_list);
  
--static inline int static_key_count(struct static_key *key)
-+static __always_inline int static_key_count(struct static_key *key)
- {
--	return atomic_read(&key->enabled);
-+	return arch_atomic_read(&key->enabled);
++	/*
++	 * Unregister netlink interface prior to waiting
++	 * for the completion of netlink commands.
++	 */
++	genl_unregister_family(&nbd_genl_family);
++
+ 	nbd_dbg_close();
+ 
+ 	mutex_lock(&nbd_index_mutex);
+@@ -2547,7 +2553,6 @@ static void __exit nbd_cleanup(void)
+ 	destroy_workqueue(nbd_del_wq);
+ 
+ 	idr_destroy(&nbd_index_idr);
+-	genl_unregister_family(&nbd_genl_family);
+ 	unregister_blkdev(NBD_MAJOR, "nbd");
  }
  
- static __always_inline void jump_label_init(void)
 -- 
 2.35.1
 
