@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6456D5406BF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F18BA541D22
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347581AbiFGRiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:38:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53298 "EHLO
+        id S1379550AbiFGWIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:08:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347836AbiFGRfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:50 -0400
+        with ESMTP id S1379863AbiFGWG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31609110991;
-        Tue,  7 Jun 2022 10:31:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC4E2534C7;
+        Tue,  7 Jun 2022 12:16:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1FAC60BC6;
-        Tue,  7 Jun 2022 17:31:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28D6C385A5;
-        Tue,  7 Jun 2022 17:31:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4697961922;
+        Tue,  7 Jun 2022 19:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B733C385A2;
+        Tue,  7 Jun 2022 19:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623111;
-        bh=hpHZm2hdq6YzSfFDfUFKjf/mbBCahDRKcsLFaCrwalA=;
+        s=korg; t=1654629405;
+        bh=90hcqqTDbuainC8u75Jns7z4qyyeclpWRSFDaglmv18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QhukTvsRjjvbyYiltIoLEmp+9McpjyjR1f+fWwD1hO8VYX4RtNv5BJnfPDzEwvYLF
-         sRIgztnrwcvdF5aon2AZglDhQ8ob/PmMTV9X6A14YMk89czA3NTUl1UhiasC6ZH50N
-         j5wW1YCJ940KF9VhoptQN7y0iCJHqMkApY53/DuI=
+        b=sw5SAKsAMQQlmiIFtn/PojJkkR9aK8Mnc5+Xf4W3ZpstcoYRJK9B1J/8qqj24xF5a
+         JWS/V6/IRGVjufXL68f03mS6G3pv/8Z22g+bS1G7rzOC3187tIk1kdUOgmlxrsJ4dr
+         kkZvsJBCghbT/PH4iG/JbittfecUdjow25TbFWNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        hui li <juanfengpy@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Russell Currey <ruscur@russell.cc>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 300/452] proc: fix dentry/inode overinstantiating under /proc/${pid}/net
+Subject: [PATCH 5.18 639/879] powerpc/powernv: Get L1D flush requirements from device-tree
 Date:   Tue,  7 Jun 2022 19:02:37 +0200
-Message-Id: <20220607164917.497853904@linuxfoundation.org>
+Message-Id: <20220607165021.395499836@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Russell Currey <ruscur@russell.cc>
 
-[ Upstream commit 7055197705709c59b8ab77e6a5c7d46d61edd96e ]
+[ Upstream commit 2efee6adb56159288bce9d1ab51fc9056d7007d4 ]
 
-When a process exits, /proc/${pid}, and /proc/${pid}/net dentries are
-flushed.  However some leaf dentries like /proc/${pid}/net/arp_cache
-aren't.  That's because respective PDEs have proc_misc_d_revalidate() hook
-which returns 1 and leaves dentries/inodes in the LRU.
+The device-tree properties no-need-l1d-flush-msr-pr-1-to-0 and
+no-need-l1d-flush-kernel-on-user-access are the equivalents of
+H_CPU_BEHAV_NO_L1D_FLUSH_ENTRY and H_CPU_BEHAV_NO_L1D_FLUSH_UACCESS
+from the H_GET_CPU_CHARACTERISTICS hcall on pseries respectively.
 
-Force revalidation/lookup on everything under /proc/${pid}/net by
-inheriting proc_net_dentry_ops.
+In commit d02fa40d759f ("powerpc/powernv: Remove POWER9 PVR version
+check for entry and uaccess flushes") the condition for disabling the
+L1D flush on kernel entry and user access was changed from any non-P9
+CPU to only checking P7 and P8.  Without the appropriate device-tree
+checks for newer processors on powernv, these flushes are unnecessarily
+enabled on those systems.  This patch corrects this.
 
-[akpm@linux-foundation.org: coding-style cleanups]
-Link: https://lkml.kernel.org/r/YjdVHgildbWO7diJ@localhost.localdomain
-Fixes: c6c75deda813 ("proc: fix lookup in /proc/net subdirectories after setns(2)")
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Reported-by: hui li <juanfengpy@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: d02fa40d759f ("powerpc/powernv: Remove POWER9 PVR version check for entry and uaccess flushes")
+Reported-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Russell Currey <ruscur@russell.cc>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220404101536.104794-1-ruscur@russell.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/generic.c  | 3 +++
- fs/proc/proc_net.c | 3 +++
- 2 files changed, 6 insertions(+)
+ arch/powerpc/platforms/powernv/setup.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 09e4d8a499a3..5898761698c2 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -453,6 +453,9 @@ static struct proc_dir_entry *__proc_create(struct proc_dir_entry **parent,
- 	proc_set_user(ent, (*parent)->uid, (*parent)->gid);
+diff --git a/arch/powerpc/platforms/powernv/setup.c b/arch/powerpc/platforms/powernv/setup.c
+index 105d889abd51..378f7e5f18d2 100644
+--- a/arch/powerpc/platforms/powernv/setup.c
++++ b/arch/powerpc/platforms/powernv/setup.c
+@@ -96,6 +96,12 @@ static void __init init_fw_feat_flags(struct device_node *np)
  
- 	ent->proc_dops = &proc_misc_dentry_ops;
-+	/* Revalidate everything under /proc/${pid}/net */
-+	if ((*parent)->proc_dops == &proc_net_dentry_ops)
-+		pde_force_lookup(ent);
- 
- out:
- 	return ent;
-diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
-index 1aa9236bf1af..707477e27f83 100644
---- a/fs/proc/proc_net.c
-+++ b/fs/proc/proc_net.c
-@@ -362,6 +362,9 @@ static __net_init int proc_net_ns_init(struct net *net)
- 
- 	proc_set_user(netd, uid, gid);
- 
-+	/* Seed dentry revalidation for /proc/${pid}/net */
-+	pde_force_lookup(netd);
+ 	if (fw_feature_is("disabled", "needs-spec-barrier-for-bound-checks", np))
+ 		security_ftr_clear(SEC_FTR_BNDS_CHK_SPEC_BAR);
 +
- 	err = -EEXIST;
- 	net_statd = proc_net_mkdir(net, "stat", netd);
- 	if (!net_statd)
++	if (fw_feature_is("enabled", "no-need-l1d-flush-msr-pr-1-to-0", np))
++		security_ftr_clear(SEC_FTR_L1D_FLUSH_ENTRY);
++
++	if (fw_feature_is("enabled", "no-need-l1d-flush-kernel-on-user-access", np))
++		security_ftr_clear(SEC_FTR_L1D_FLUSH_UACCESS);
+ }
+ 
+ static void __init pnv_setup_security_mitigations(void)
 -- 
 2.35.1
 
