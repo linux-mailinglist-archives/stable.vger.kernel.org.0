@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3BF54198D
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8765A5411B8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378319AbiFGVWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
+        id S1354539AbiFGTm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:42:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380665AbiFGVQk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:16:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457A721F992;
-        Tue,  7 Jun 2022 11:55:55 -0700 (PDT)
+        with ESMTP id S1357879AbiFGTma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:42:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 766191157F7;
+        Tue,  7 Jun 2022 11:16:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D158DB81FE1;
-        Tue,  7 Jun 2022 18:55:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B612C385A2;
-        Tue,  7 Jun 2022 18:55:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32348B8236B;
+        Tue,  7 Jun 2022 18:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D53EC385A2;
+        Tue,  7 Jun 2022 18:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628152;
-        bh=2JYU5DuEm+BMLnrJLtWoA5OKIcB5KezmZmgoLCAFNSc=;
+        s=korg; t=1654625807;
+        bh=HfOrDTLhdUzR7V2uVaro7XE7vKpON/b5Tcu5bw6pI6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIdpKwlcGaP4GgDQQdbll3YZ+uPVBjxXkKyyYzM8Xr/+IWl4VorMLlrIlT4J6jUrv
-         YOR8vqPpEAZk6J5OHbdfu/dCQUp4h7xnqkvnFMu0s60bUuNsL/ptXs+HxVJ2IYfp2z
-         ahT/FH/p0arQVMzzA1jhUX4c/E4Nj3OwX319GPWo=
+        b=dqg6nZZsz/RX77H4Wcw+N+UWRhPbO02JHOlIk4JDAeg6PA1GtT/w22oumMFG+x/Zf
+         rcH++7wJ2OhKCnZ3cZv7BvjyerFkA7vnCElugmpCdLjMSNQ9zXLh9uy29D02fhXaLD
+         CzgHwtn8Wv2jiOOl9pzUA2SJRdaoat2PwlEwRyWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 224/879] ALSA: usb-audio: Move generic implicit fb quirk entries into quirks.c
+Subject: [PATCH 5.17 150/772] openrisc: start CPU timer early in boot
 Date:   Tue,  7 Jun 2022 18:55:42 +0200
-Message-Id: <20220607165009.355896372@linuxfoundation.org>
+Message-Id: <20220607164953.463274742@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 67d64069bc0867e52e73a1e255b17462005ca9b4 ]
+[ Upstream commit 516dd4aacd67a0f27da94f3fe63fe0f4dbab6e2b ]
 
-Use the new quirk bits to manage the generic implicit fb quirk
-entries.  This makes easier to compare with other devices.
+In order to measure the boot process, the timer should be switched on as
+early in boot as possible. As well, the commit defines the get_cycles
+macro, like the previous patches in this series, so that generic code is
+aware that it's implemented by the platform, as is done on other archs.
 
-Link: https://lore.kernel.org/r/20220421064101.12456-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Acked-by: Stafford Horne <shorne@gmail.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/implicit.c | 5 -----
- sound/usb/quirks.c   | 6 ++++++
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ arch/openrisc/include/asm/timex.h | 1 +
+ arch/openrisc/kernel/head.S       | 9 +++++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/sound/usb/implicit.c b/sound/usb/implicit.c
-index 1fd087128538..e1bf1b5da423 100644
---- a/sound/usb/implicit.c
-+++ b/sound/usb/implicit.c
-@@ -45,11 +45,6 @@ struct snd_usb_implicit_fb_match {
+diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
+index d52b4e536e3f..5487fa93dd9b 100644
+--- a/arch/openrisc/include/asm/timex.h
++++ b/arch/openrisc/include/asm/timex.h
+@@ -23,6 +23,7 @@ static inline cycles_t get_cycles(void)
+ {
+ 	return mfspr(SPR_TTCR);
+ }
++#define get_cycles get_cycles
  
- /* Implicit feedback quirk table for playback */
- static const struct snd_usb_implicit_fb_match playback_implicit_fb_quirks[] = {
--	/* Generic matching */
--	IMPLICIT_FB_GENERIC_DEV(0x0499, 0x1509), /* Steinberg UR22 */
--	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2030), /* M-Audio Fast Track C400 */
--	IMPLICIT_FB_GENERIC_DEV(0x0763, 0x2031), /* M-Audio Fast Track C600 */
--
- 	/* Fixed EP */
- 	/* FIXME: check the availability of generic matching */
- 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2080, 0x81, 2), /* M-Audio FastTrack Ultra */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index fbbe59054c3f..e8468f9b007d 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1793,6 +1793,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x046d, 0x09a4, /* Logitech QuickCam E 3500 */
- 		   QUIRK_FLAG_CTL_MSG_DELAY_1M | QUIRK_FLAG_IGNORE_CTL_ERROR),
-+	DEVICE_FLG(0x0499, 0x1509, /* Steinberg UR22 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x04d8, 0xfeea, /* Benchmark DAC1 Pre */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x04e8, 0xa051, /* Samsung USBC Headset (AKG) */
-@@ -1826,6 +1828,10 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x0763, 0x2030, /* M-Audio Fast Track C400 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x0763, 0x2031, /* M-Audio Fast Track C600 */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x0951, 0x16ad, /* Kingston HyperX */
+ /* This isn't really used any more */
+ #define CLOCK_TICK_RATE 1000
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 15f1b38dfe03..871f4c858859 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -521,6 +521,15 @@ _start:
+ 	l.ori	r3,r0,0x1
+ 	l.mtspr	r0,r3,SPR_SR
+ 
++	/*
++	 * Start the TTCR as early as possible, so that the RNG can make use of
++	 * measurements of boot time from the earliest opportunity. Especially
++	 * important is that the TTCR does not return zero by the time we reach
++	 * rand_initialize().
++	 */
++	l.movhi r3,hi(SPR_TTMR_CR)
++	l.mtspr r0,r3,SPR_TTMR
++
+ 	CLEAR_GPR(r1)
+ 	CLEAR_GPR(r2)
+ 	CLEAR_GPR(r3)
 -- 
 2.35.1
 
