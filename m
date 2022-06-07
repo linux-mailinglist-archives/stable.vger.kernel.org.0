@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F9F5407D3
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CE0A540FDF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:14:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347546AbiFGRwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
+        id S1354843AbiFGTOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:14:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349083AbiFGRu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:50:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3130139CB1;
-        Tue,  7 Jun 2022 10:37:46 -0700 (PDT)
+        with ESMTP id S1354276AbiFGTMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:12:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A8D019476F;
+        Tue,  7 Jun 2022 11:07:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02192B81F38;
-        Tue,  7 Jun 2022 17:37:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC14C385A5;
-        Tue,  7 Jun 2022 17:37:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AC8DB82349;
+        Tue,  7 Jun 2022 18:07:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF451C3411C;
+        Tue,  7 Jun 2022 18:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623450;
-        bh=fh98o9JfXKscxLcEWhWjcFhLkDzvvPrMBrnCd4wQVg4=;
+        s=korg; t=1654625233;
+        bh=a4eiVjuiMdl5Kk9U/T8ygeO3MRd4Li27yrcvZKUmnlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKuR0AMfA3jyt7RwK4TNfuhc68zYiTZ9VButqQidiYb+vDXtn7yHFmocCPs25LEFL
-         G4vwLmALVwEvDp7mmj1S1tm0xUutbUA0k96qp1yK1udoRK/lsx3kUj2+HjMamx2j+e
-         8rbZn/qLAA8BiWprymFD/YA0YtwTA8eZk9igobYg=
+        b=JPMhphDH+ysDMF4aNnoh6D3bDZ8fQgoocDNxu5C09bNRBez9FLE/y9AdbAHfXOHF/
+         vEsEtgXvIiqDMrAttwFgecGbGGrEXcrMP3rqz3lcAZ2nz5gtqiSyrhu1/iRte+5dxf
+         aSLPOMag/7RNrIQ/mKVY8Hdja2nPzMkyIeRlf2b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.10 381/452] drm/nouveau/kms/nv50-: atom: fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 573/667] samples/landlock: Format with clang-format
 Date:   Tue,  7 Jun 2022 19:03:58 +0200
-Message-Id: <20220607164919.918256440@linuxfoundation.org>
+Message-Id: <20220607164951.879851988@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 6ce4431c7ba7954c4fa6a96ce16ca1b2943e1a83 upstream.
+commit 81709f3dccacf4104a4bc2daa80bdd767a9c4c54 upstream.
 
-The bug is here:
-	return encoder;
+Let's follow a consistent and documented coding style.  Everything may
+not be to our liking but it is better than tacit knowledge.  Moreover,
+this will help maintain style consistency between different developers.
 
-The list iterator value 'encoder' will *always* be set and non-NULL
-by drm_for_each_encoder_mask(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element found.
-Otherwise it will bypass some NULL checks and lead to invalid memory
-access passing the check.
+This contains only whitespace changes.
 
-To fix this bug, just return 'encoder' when found, otherwise return
-NULL.
+Automatically formatted with:
+clang-format-14 -i samples/landlock/*.[ch]
 
+Link: https://lore.kernel.org/r/20220506160513.523257-8-mic@digikod.net
 Cc: stable@vger.kernel.org
-Fixes: 12885ecbfe62d ("drm/nouveau/kms/nvd9-: Add CRC support")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-[Changed commit title]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220327073925.11121-1-xiam0nd.tong@gmail.com
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/atom.h |    6 +++---
- drivers/gpu/drm/nouveau/dispnv50/crc.c  |   27 ++++++++++++++++++++++-----
- 2 files changed, 25 insertions(+), 8 deletions(-)
+ samples/landlock/sandboxer.c |   96 +++++++++++++++++++++++--------------------
+ 1 file changed, 52 insertions(+), 44 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/dispnv50/atom.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/atom.h
-@@ -160,14 +160,14 @@ nv50_head_atom_get(struct drm_atomic_sta
- static inline struct drm_encoder *
- nv50_head_atom_get_encoder(struct nv50_head_atom *atom)
+--- a/samples/landlock/sandboxer.c
++++ b/samples/landlock/sandboxer.c
+@@ -22,9 +22,9 @@
+ #include <unistd.h>
+ 
+ #ifndef landlock_create_ruleset
+-static inline int landlock_create_ruleset(
+-		const struct landlock_ruleset_attr *const attr,
+-		const size_t size, const __u32 flags)
++static inline int
++landlock_create_ruleset(const struct landlock_ruleset_attr *const attr,
++			const size_t size, const __u32 flags)
  {
--	struct drm_encoder *encoder = NULL;
-+	struct drm_encoder *encoder;
- 
- 	/* We only ever have a single encoder */
- 	drm_for_each_encoder_mask(encoder, atom->state.crtc->dev,
- 				  atom->state.encoder_mask)
--		break;
-+		return encoder;
- 
--	return encoder;
-+	return NULL;
+ 	return syscall(__NR_landlock_create_ruleset, attr, size, flags);
  }
+@@ -32,17 +32,18 @@ static inline int landlock_create_rulese
  
- #define nv50_wndw_atom(p) container_of((p), struct nv50_wndw_atom, state)
---- a/drivers/gpu/drm/nouveau/dispnv50/crc.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/crc.c
-@@ -411,9 +411,18 @@ void nv50_crc_atomic_check_outp(struct n
- 		struct nv50_head_atom *armh = nv50_head_atom(old_crtc_state);
- 		struct nv50_head_atom *asyh = nv50_head_atom(new_crtc_state);
- 		struct nv50_outp_atom *outp_atom;
--		struct nouveau_encoder *outp =
--			nv50_real_outp(nv50_head_atom_get_encoder(armh));
--		struct drm_encoder *encoder = &outp->base.base;
-+		struct nouveau_encoder *outp;
-+		struct drm_encoder *encoder, *enc;
-+
-+		enc = nv50_head_atom_get_encoder(armh);
-+		if (!enc)
-+			continue;
-+
-+		outp = nv50_real_outp(enc);
-+		if (!outp)
-+			continue;
-+
-+		encoder = &outp->base.base;
+ #ifndef landlock_add_rule
+ static inline int landlock_add_rule(const int ruleset_fd,
+-		const enum landlock_rule_type rule_type,
+-		const void *const rule_attr, const __u32 flags)
++				    const enum landlock_rule_type rule_type,
++				    const void *const rule_attr,
++				    const __u32 flags)
+ {
+-	return syscall(__NR_landlock_add_rule, ruleset_fd, rule_type,
+-			rule_attr, flags);
++	return syscall(__NR_landlock_add_rule, ruleset_fd, rule_type, rule_attr,
++		       flags);
+ }
+ #endif
  
- 		if (!asyh->clr.crc)
- 			continue;
-@@ -464,8 +473,16 @@ void nv50_crc_atomic_set(struct nv50_hea
- 	struct drm_device *dev = crtc->dev;
- 	struct nv50_crc *crc = &head->crc;
- 	const struct nv50_crc_func *func = nv50_disp(dev)->core->func->crc;
--	struct nouveau_encoder *outp =
--		nv50_real_outp(nv50_head_atom_get_encoder(asyh));
-+	struct nouveau_encoder *outp;
-+	struct drm_encoder *encoder;
-+
-+	encoder = nv50_head_atom_get_encoder(asyh);
-+	if (!encoder)
-+		return;
-+
-+	outp = nv50_real_outp(encoder);
-+	if (!outp)
-+		return;
+ #ifndef landlock_restrict_self
+ static inline int landlock_restrict_self(const int ruleset_fd,
+-		const __u32 flags)
++					 const __u32 flags)
+ {
+ 	return syscall(__NR_landlock_restrict_self, ruleset_fd, flags);
+ }
+@@ -79,9 +80,8 @@ static int parse_path(char *env_path, co
  
- 	func->set_src(head, outp->or,
- 		      nv50_crc_source_type(outp, asyh->crc.src),
+ /* clang-format on */
+ 
+-static int populate_ruleset(
+-		const char *const env_var, const int ruleset_fd,
+-		const __u64 allowed_access)
++static int populate_ruleset(const char *const env_var, const int ruleset_fd,
++			    const __u64 allowed_access)
+ {
+ 	int num_paths, i, ret = 1;
+ 	char *env_path_name;
+@@ -111,12 +111,10 @@ static int populate_ruleset(
+ 	for (i = 0; i < num_paths; i++) {
+ 		struct stat statbuf;
+ 
+-		path_beneath.parent_fd = open(path_list[i], O_PATH |
+-				O_CLOEXEC);
++		path_beneath.parent_fd = open(path_list[i], O_PATH | O_CLOEXEC);
+ 		if (path_beneath.parent_fd < 0) {
+ 			fprintf(stderr, "Failed to open \"%s\": %s\n",
+-					path_list[i],
+-					strerror(errno));
++				path_list[i], strerror(errno));
+ 			goto out_free_name;
+ 		}
+ 		if (fstat(path_beneath.parent_fd, &statbuf)) {
+@@ -127,9 +125,10 @@ static int populate_ruleset(
+ 		if (!S_ISDIR(statbuf.st_mode))
+ 			path_beneath.allowed_access &= ACCESS_FILE;
+ 		if (landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+-					&path_beneath, 0)) {
+-			fprintf(stderr, "Failed to update the ruleset with \"%s\": %s\n",
+-					path_list[i], strerror(errno));
++				      &path_beneath, 0)) {
++			fprintf(stderr,
++				"Failed to update the ruleset with \"%s\": %s\n",
++				path_list[i], strerror(errno));
+ 			close(path_beneath.parent_fd);
+ 			goto out_free_name;
+ 		}
+@@ -171,55 +170,64 @@ int main(const int argc, char *const arg
+ 	int ruleset_fd;
+ 	struct landlock_ruleset_attr ruleset_attr = {
+ 		.handled_access_fs = ACCESS_FS_ROUGHLY_READ |
+-			ACCESS_FS_ROUGHLY_WRITE,
++				     ACCESS_FS_ROUGHLY_WRITE,
+ 	};
+ 
+ 	if (argc < 2) {
+-		fprintf(stderr, "usage: %s=\"...\" %s=\"...\" %s <cmd> [args]...\n\n",
+-				ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
+-		fprintf(stderr, "Launch a command in a restricted environment.\n\n");
++		fprintf(stderr,
++			"usage: %s=\"...\" %s=\"...\" %s <cmd> [args]...\n\n",
++			ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
++		fprintf(stderr,
++			"Launch a command in a restricted environment.\n\n");
+ 		fprintf(stderr, "Environment variables containing paths, "
+ 				"each separated by a colon:\n");
+-		fprintf(stderr, "* %s: list of paths allowed to be used in a read-only way.\n",
+-				ENV_FS_RO_NAME);
+-		fprintf(stderr, "* %s: list of paths allowed to be used in a read-write way.\n",
+-				ENV_FS_RW_NAME);
+-		fprintf(stderr, "\nexample:\n"
+-				"%s=\"/bin:/lib:/usr:/proc:/etc:/dev/urandom\" "
+-				"%s=\"/dev/null:/dev/full:/dev/zero:/dev/pts:/tmp\" "
+-				"%s bash -i\n",
+-				ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
++		fprintf(stderr,
++			"* %s: list of paths allowed to be used in a read-only way.\n",
++			ENV_FS_RO_NAME);
++		fprintf(stderr,
++			"* %s: list of paths allowed to be used in a read-write way.\n",
++			ENV_FS_RW_NAME);
++		fprintf(stderr,
++			"\nexample:\n"
++			"%s=\"/bin:/lib:/usr:/proc:/etc:/dev/urandom\" "
++			"%s=\"/dev/null:/dev/full:/dev/zero:/dev/pts:/tmp\" "
++			"%s bash -i\n",
++			ENV_FS_RO_NAME, ENV_FS_RW_NAME, argv[0]);
+ 		return 1;
+ 	}
+ 
+-	ruleset_fd = landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
++	ruleset_fd =
++		landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+ 	if (ruleset_fd < 0) {
+ 		const int err = errno;
+ 
+ 		perror("Failed to create a ruleset");
+ 		switch (err) {
+ 		case ENOSYS:
+-			fprintf(stderr, "Hint: Landlock is not supported by the current kernel. "
+-					"To support it, build the kernel with "
+-					"CONFIG_SECURITY_LANDLOCK=y and prepend "
+-					"\"landlock,\" to the content of CONFIG_LSM.\n");
++			fprintf(stderr,
++				"Hint: Landlock is not supported by the current kernel. "
++				"To support it, build the kernel with "
++				"CONFIG_SECURITY_LANDLOCK=y and prepend "
++				"\"landlock,\" to the content of CONFIG_LSM.\n");
+ 			break;
+ 		case EOPNOTSUPP:
+-			fprintf(stderr, "Hint: Landlock is currently disabled. "
+-					"It can be enabled in the kernel configuration by "
+-					"prepending \"landlock,\" to the content of CONFIG_LSM, "
+-					"or at boot time by setting the same content to the "
+-					"\"lsm\" kernel parameter.\n");
++			fprintf(stderr,
++				"Hint: Landlock is currently disabled. "
++				"It can be enabled in the kernel configuration by "
++				"prepending \"landlock,\" to the content of CONFIG_LSM, "
++				"or at boot time by setting the same content to the "
++				"\"lsm\" kernel parameter.\n");
+ 			break;
+ 		}
+ 		return 1;
+ 	}
+ 	if (populate_ruleset(ENV_FS_RO_NAME, ruleset_fd,
+-				ACCESS_FS_ROUGHLY_READ)) {
++			     ACCESS_FS_ROUGHLY_READ)) {
+ 		goto err_close_ruleset;
+ 	}
+ 	if (populate_ruleset(ENV_FS_RW_NAME, ruleset_fd,
+-				ACCESS_FS_ROUGHLY_READ | ACCESS_FS_ROUGHLY_WRITE)) {
++			     ACCESS_FS_ROUGHLY_READ |
++				     ACCESS_FS_ROUGHLY_WRITE)) {
+ 		goto err_close_ruleset;
+ 	}
+ 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+@@ -236,7 +244,7 @@ int main(const int argc, char *const arg
+ 	cmd_argv = argv + 1;
+ 	execvpe(cmd_path, cmd_argv, envp);
+ 	fprintf(stderr, "Failed to execute \"%s\": %s\n", cmd_path,
+-			strerror(errno));
++		strerror(errno));
+ 	fprintf(stderr, "Hint: access to the binary, the interpreter or "
+ 			"shared libraries may be denied.\n");
+ 	return 1;
 
 
