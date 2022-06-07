@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDBB5540975
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F5065419F7
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:27:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349558AbiFGSIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:08:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
+        id S1378541AbiFGV10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:27:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349054AbiFGSGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:06:48 -0400
+        with ESMTP id S1378812AbiFGVZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:25:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5404D1EAD0;
-        Tue,  7 Jun 2022 10:47:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59D32150A2B;
+        Tue,  7 Jun 2022 12:01:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24042616B6;
-        Tue,  7 Jun 2022 17:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E8D7C385A5;
-        Tue,  7 Jun 2022 17:47:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B785D61787;
+        Tue,  7 Jun 2022 19:01:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1FFCC385A2;
+        Tue,  7 Jun 2022 19:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624076;
-        bh=8WCFGA2VJEpCJtdMXqgC4paTvH7glqiBPPpo4OjQHIY=;
+        s=korg; t=1654628476;
+        bh=YYntbBxSmHLpv4WdmEm/Uq7d1DT6K8VOfuhEt88cfHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbxcqYee8IImulWVUQFfIiIf2fqWA5CI6a1tItqXrnXYG3jVfpYTqPlzAp5hCoCei
-         +wg2Mg0/+LVe3Awom35DsByvoawUii3ttwN98ZAbyj4TtfeVxLm65VwzCfcLPj3MEh
-         OlmbvvRX3WgtGFBXIHI9bl8WH5ckdT4/tbf2WNcQ=
+        b=IUcRw+EngNipYMwYKoKAx4D8PFsvyQncR8ml2xx0PZ2vPG82E0j0xcLQsWUW1IIS6
+         x4PElYis39kYqbf7BIf8DJC/SO0EPZxGmynIKM+U45eUfC6FnR3ljkJllAuYpMIQEk
+         rnJDbvB3O1rl9ygDJtAVhJzZAs56/kg4FZ8hwzxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 196/667] ASoC: mediatek: Fix missing of_node_put in mt2701_wm8960_machine_probe
-Date:   Tue,  7 Jun 2022 18:57:41 +0200
-Message-Id: <20220607164940.679603937@linuxfoundation.org>
+Subject: [PATCH 5.18 344/879] media: imx: imx-mipi-csis: Fix active format initialization on source pad
+Date:   Tue,  7 Jun 2022 18:57:42 +0200
+Message-Id: <20220607165012.845606488@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 05654431a18fe24e5e46a375d98904134628a102 ]
+[ Upstream commit fe14b546d6e57542dbd4f5ccdb5a382904d26c5a ]
 
-This node pointer is returned by of_parse_phandle() with
-refcount incremented in this function.
-Calling of_node_put() to avoid the refcount leak.
+Commit 5c0701a0e791 ("media: imx: csis: Store pads format separately")
+broke initialization of the active format on the source pad, as it
+forgot to update the .init_cfg() handler. Fix it.
 
-Fixes: 8625c1dbd876 ("ASoC: mediatek: Add mt2701-wm8960 machine driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220404093526.30004-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 5c0701a0e791 ("media: imx: csis: Store pads format separately")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt2701/mt2701-wm8960.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/media/platform/nxp/imx-mipi-csis.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt2701/mt2701-wm8960.c b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-index 414e422c0eba..70e494fb3da8 100644
---- a/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-+++ b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-@@ -129,7 +129,8 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	if (!codec_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	for_each_card_prelinks(card, i, dai_link) {
- 		if (dai_link->codecs->name)
-@@ -140,7 +141,7 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	ret = snd_soc_of_parse_audio_routing(card, "audio-routing");
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to parse audio-routing: %d\n", ret);
--		return ret;
-+		goto put_codec_node;
- 	}
+diff --git a/drivers/media/platform/nxp/imx-mipi-csis.c b/drivers/media/platform/nxp/imx-mipi-csis.c
+index d9719d0b2f0a..e0e345fbb00f 100644
+--- a/drivers/media/platform/nxp/imx-mipi-csis.c
++++ b/drivers/media/platform/nxp/imx-mipi-csis.c
+@@ -994,14 +994,6 @@ static int mipi_csis_init_cfg(struct v4l2_subdev *sd,
+ 		V4L2_MAP_QUANTIZATION_DEFAULT(false, fmt_sink->colorspace,
+ 					      fmt_sink->ycbcr_enc);
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
-@@ -148,6 +149,10 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
- 
-+put_codec_node:
-+	of_node_put(codec_node);
-+put_platform_node:
-+	of_node_put(platform_node);
- 	return ret;
- }
- 
+-	/*
+-	 * When called from mipi_csis_subdev_init() to initialize the active
+-	 * configuration, cfg is NULL, which indicates there's no source pad
+-	 * configuration to set.
+-	 */
+-	if (!sd_state)
+-		return 0;
+-
+ 	fmt_source = mipi_csis_get_format(csis, sd_state, which,
+ 					  CSIS_PAD_SOURCE);
+ 	*fmt_source = *fmt_sink;
 -- 
 2.35.1
 
