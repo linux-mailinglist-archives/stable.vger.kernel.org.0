@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FDC541D41
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E242F540F81
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384460AbiFGWLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:11:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54958 "EHLO
+        id S1352774AbiFGTIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383966AbiFGWJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:09:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F0625912A;
-        Tue,  7 Jun 2022 12:18:56 -0700 (PDT)
+        with ESMTP id S1354821AbiFGTGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:06:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522711900FD;
+        Tue,  7 Jun 2022 11:05:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E873161934;
-        Tue,  7 Jun 2022 19:18:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0387AC385A5;
-        Tue,  7 Jun 2022 19:18:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7811B82348;
+        Tue,  7 Jun 2022 18:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12575C385A5;
+        Tue,  7 Jun 2022 18:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629535;
-        bh=3fJBXA6aZhNR9OxaZMqECk/6L42UqcFz58XWHO9nFVY=;
+        s=korg; t=1654625137;
+        bh=GmrMzbqcZ2nl6Mbbuu93Fv32BUR3uWJx+cJ6lsJTsWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCSB28CEehtIUjRecJ+ys2uPs3vSdQlnfXj3yYfhpqd+ZO2uBeRGCsOU1naVzBRF5
-         /f3IBN0jxFfkl8dGiaqVio5wMs/C5xDngWpYvX979fn6YBabkllZpmJKAeC3WMYpzD
-         LzVv3WRVaBNUn/s4sH1sW/KuDSNRjQ/p2Aec4Fjc=
+        b=O+rwyXL0pprG1ddxKrcyz+OBpaYT918y5DeFphzgIA7KzvVF655gVoBfv2XNQuAq+
+         QUcRdXASWR0D/grvKSRblZHnn+p7DU3KMQ7I+Veg0Wn4Ed1I4JoYzpDeseBkAT+6+i
+         By9I9+cJWLqhHKZi4jwPDwQiYzzl2bEnR7udfN8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 727/879] bfq: Avoid false marking of bic as stably merged
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.15 580/667] selftests/landlock: Add tests for O_PATH
 Date:   Tue,  7 Jun 2022 19:04:05 +0200
-Message-Id: <20220607165023.958429325@linuxfoundation.org>
+Message-Id: <20220607164952.083017313@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 70456e5210f40ffdb8f6d905acfdcec5bd5fad9e upstream.
+commit d1788ad990874734341b05ab8ccb6448c09c6422 upstream.
 
-bfq_setup_cooperator() can mark bic as stably merged even though it
-decides to not merge its bfqqs (when bfq_setup_merge() returns NULL).
-Make sure to mark bic as stably merged only if we are really going to
-merge bfqqs.
+The O_PATH flag is currently not handled by Landlock.  Let's make sure
+this behavior will remain consistent with the same ruleset over time.
 
-CC: stable@vger.kernel.org
-Tested-by: "yukuai (C)" <yukuai3@huawei.com>
-Fixes: 430a67f9d616 ("block, bfq: merge bursts of newly-created queues")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220401102752.8599-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-8-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ tools/testing/selftests/landlock/fs_test.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2899,9 +2899,12 @@ bfq_setup_cooperator(struct bfq_data *bf
- 				struct bfq_queue *new_bfqq =
- 					bfq_setup_merge(bfqq, stable_merge_bfqq);
+--- a/tools/testing/selftests/landlock/fs_test.c
++++ b/tools/testing/selftests/landlock/fs_test.c
+@@ -654,17 +654,23 @@ TEST_F_FORK(layout1, effective_access)
+ 	enforce_ruleset(_metadata, ruleset_fd);
+ 	ASSERT_EQ(0, close(ruleset_fd));
  
--				bic->stably_merged = true;
--				if (new_bfqq && new_bfqq->bic)
--					new_bfqq->bic->stably_merged = true;
-+				if (new_bfqq) {
-+					bic->stably_merged = true;
-+					if (new_bfqq->bic)
-+						new_bfqq->bic->stably_merged =
-+									true;
-+				}
- 				return new_bfqq;
- 			} else
- 				return NULL;
+-	/* Tests on a directory. */
++	/* Tests on a directory (with or without O_PATH). */
+ 	ASSERT_EQ(EACCES, test_open("/", O_RDONLY));
++	ASSERT_EQ(0, test_open("/", O_RDONLY | O_PATH));
+ 	ASSERT_EQ(EACCES, test_open(dir_s1d1, O_RDONLY));
++	ASSERT_EQ(0, test_open(dir_s1d1, O_RDONLY | O_PATH));
+ 	ASSERT_EQ(EACCES, test_open(file1_s1d1, O_RDONLY));
++	ASSERT_EQ(0, test_open(file1_s1d1, O_RDONLY | O_PATH));
++
+ 	ASSERT_EQ(0, test_open(dir_s1d2, O_RDONLY));
+ 	ASSERT_EQ(0, test_open(file1_s1d2, O_RDONLY));
+ 	ASSERT_EQ(0, test_open(dir_s1d3, O_RDONLY));
+ 	ASSERT_EQ(0, test_open(file1_s1d3, O_RDONLY));
+ 
+-	/* Tests on a file. */
++	/* Tests on a file (with or without O_PATH). */
+ 	ASSERT_EQ(EACCES, test_open(dir_s2d2, O_RDONLY));
++	ASSERT_EQ(0, test_open(dir_s2d2, O_RDONLY | O_PATH));
++
+ 	ASSERT_EQ(0, test_open(file1_s2d2, O_RDONLY));
+ 
+ 	/* Checks effective read and write actions. */
 
 
