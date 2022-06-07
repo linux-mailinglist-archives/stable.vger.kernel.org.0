@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF16540E9E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C84541CA0
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354084AbiFGSzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38364 "EHLO
+        id S1382435AbiFGWC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353731AbiFGSp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:45:59 -0400
+        with ESMTP id S1382418AbiFGWCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:02:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D737B188EB3;
-        Tue,  7 Jun 2022 10:59:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D49128144;
+        Tue,  7 Jun 2022 12:14:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B75617A7;
-        Tue,  7 Jun 2022 17:59:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1B13C385A5;
-        Tue,  7 Jun 2022 17:59:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1B8D61807;
+        Tue,  7 Jun 2022 19:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB038C385A2;
+        Tue,  7 Jun 2022 19:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624764;
-        bh=zbZoZDXyPQtH/CA9+JLIhXQbldowgqpgV7bnTEcHvuQ=;
+        s=korg; t=1654629280;
+        bh=conex0sFGgB/DV350k7ij59++tfMZbwt9/zyaSY9Pe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkNj3luq54rCZv26jmPawKPeO68FksYz7jDlEzArPM4uxJAsKxBvj2tJmuAcjJnq8
-         rhaJkdON/aHmmEeHHUAw8t9xqb5NiwYVidyK8Pcog3mx11yPbcad2BvwWWY1XQl2GK
-         G9wZBx/r9q2zG48gjNBRzdLlEtLKmkYpVaxCQtn0=
+        b=GUnPt7cNXgGjXoZBZFj3OpHKLd6gkdIEe3LKbmqugKRUybbfX5PBIMgiga7CHN6Tz
+         KLd9sb/c/AyFUhQopBn67JdQlGCTsJZrP0P4XWUzE/o/iJ259Nn982vXndm0uxn6SN
+         tTDa3UjeEZr0m2TfeAZDwE4fqOxLhnLZDx6clYqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robert.marko@sartura.hr>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 446/667] arm64: dts: marvell: espressobin-ultra: fix SPI-NOR config
+Subject: [PATCH 5.18 593/879] pinctrl: mvebu: Fix irq_of_parse_and_map() return value
 Date:   Tue,  7 Jun 2022 19:01:51 +0200
-Message-Id: <20220607164948.094904802@linuxfoundation.org>
+Message-Id: <20220607165020.065562054@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robert.marko@sartura.hr>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 5202f4c3816b42e989f9cad49a73c7e88fba89f4 ]
+[ Upstream commit 71bc7cf3be65bab441e03667cf215c557712976c ]
 
-SPI config for the SPI-NOR is incorrect and completely breaking
-reading/writing to the onboard SPI-NOR.
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-SPI-NOR is connected in the single(x1) IO mode and not in the quad
-(x4) mode.
-Also, there is no need to override the max frequency from the DTSI
-as the mx25u3235f that is used supports 104Mhz.
-
-Fixes: 3404fe15a60f ("arm64: dts: marvell: add DT for ESPRESSObin-Ultra")
-Signed-off-by: Robert Marko <robert.marko@sartura.hr>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 2f227605394b ("pinctrl: armada-37xx: Add irqchip support")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220422105339.78810-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-espressobin-ultra.dts | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-ultra.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-ultra.dts
-index c5eb3604dd5b..610ff6f385c7 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin-ultra.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin-ultra.dts
-@@ -71,10 +71,6 @@
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index 08cad14042e2..adccf03b3e5a 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -773,7 +773,7 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
+ 	for (i = 0; i < nr_irq_parent; i++) {
+ 		int irq = irq_of_parse_and_map(np, i);
  
- &spi0 {
- 	flash@0 {
--		spi-max-frequency = <108000000>;
--		spi-rx-bus-width = <4>;
--		spi-tx-bus-width = <4>;
--
- 		partitions {
- 			compatible = "fixed-partitions";
- 			#address-cells = <1>;
+-		if (irq < 0)
++		if (!irq)
+ 			continue;
+ 		girq->parents[i] = irq;
+ 	}
 -- 
 2.35.1
 
