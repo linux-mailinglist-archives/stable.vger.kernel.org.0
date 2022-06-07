@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F01E1540BEF
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CF0540C08
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351844AbiFGScv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:32:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
+        id S1351886AbiFGScy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:32:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351540AbiFGS3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113FD17A8AF;
+        with ESMTP id S1351539AbiFGS3z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:29:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C06817B849;
         Tue,  7 Jun 2022 10:55:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9F12B82368;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEBB4617A6;
+        Tue,  7 Jun 2022 17:55:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E24FC34115;
         Tue,  7 Jun 2022 17:55:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E653C3411C;
-        Tue,  7 Jun 2022 17:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624532;
-        bh=VTvq0DoklwJ8cuV8EuXnfHoOTTTgZ4Wt5bHyoeuOH9w=;
+        s=k20201202; t=1654624534;
+        bh=VAG+3uL6h5kOCfu6AuzyUB7t+yIhbm19oEA/UYTLcX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqeA2gCojmtZ2oVbJ8hkDe6Npu1NLXEKDCr0ZDWZJhL0TSe7LkzJBocgdjBW/JZXK
-         dqeYjImC5HxTVaYUSgHHgsINWwyz5VUh4wD6fK1uYY6C1/K2kp1NluJ1NaYTFHbkWK
-         L34OMUzSz8YUXhhihiAe2CLcy8rZLW3kIurDMT6bhegdHN1VIdCp+BmoWXF34sTDkU
-         jNLzvA7+3R3tWUlvN+6u6t2YU9cMXJYzWAZGAKemRnsyASLm1ehJOdgmPdf+lFAOjo
-         5Rm/pXt2vCSWa25YadvytmIcfGkGZWb/zYnp9TbcQmJxpYS0Sbdiu4KGzeAJkLKuJo
-         nLCMnxEbET6Sw==
+        b=ZZDOB/q6nznt3YUijwQSwlc06wih5Wp7PhT5BzmKW4328letOO8kidVILErW1slta
+         Ccy628lAHeCJ6MmVJx4rw62i6CqLXOmEqgDM/3BiRIyZsoCT/DVFkM0O57/0Fyra+4
+         v+xYxwj3KSsSl0HdP+5qq66CC3R59Xf14j4ill+k2irBoPolKpEjc48FEaKDMmDkBC
+         djqzmEGjvYLLP2iKg6K5MvQXM1KR/sS8jV7FyZ3tscXpWd+MP3Rn6CshAomNtSsKIk
+         +XZkq9HlvNLLJPpIz7MrvWvNlPxf77ILCo5uUsDgGomNRCQSQqH4B6fxCLHbR4FH5L
+         0kLX7WBGEkGkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bjorn Helgaas <bhelgaas@google.com>,
         Cyril Brulebois <kibi@debian.org>,
-        Sasha Levin <sashal@kernel.org>, nsaenz@kernel.org,
-        jim2101024@gmail.com, f.fainelli@gmail.com, lpieralisi@kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 55/60] Revert "PCI: brcmstb: Add mechanism to turn on subdev regulators"
-Date:   Tue,  7 Jun 2022 13:52:52 -0400
-Message-Id: <20220607175259.478835-55-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jim2101024@gmail.com,
+        nsaenz@kernel.org, f.fainelli@gmail.com, lpieralisi@kernel.org,
+        linux-pci@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 56/60] Revert "PCI: brcmstb: Split brcm_pcie_setup() into two funcs"
+Date:   Tue,  7 Jun 2022 13:52:53 -0400
+Message-Id: <20220607175259.478835-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220607175259.478835-1-sashal@kernel.org>
 References: <20220607175259.478835-1-sashal@kernel.org>
@@ -61,9 +61,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit 420be2f7ebe60c9ba3e332f5290017cd168e2bf8 ]
+[ Upstream commit f4fd559de3434c44bed1d2912bd0c75cfa42898b ]
 
-This reverts commit 67211aadcb4b968d0fdc57bc27240fa71500c2d4.
+This reverts commit 830aa6f29f07a4e2f1a947dfa72b3ccddb46dd21.
 
 This is part of a revert of the following commits:
 
@@ -81,122 +81,113 @@ screen on HDMI and no output on the serial console.
 This does not seem to affect the Raspberry Pi 4 B.
 
 Link: https://bugzilla.kernel.org/show_bug.cgi?id=215925
-Link: https://lore.kernel.org/r/20220511201856.808690-4-helgaas@kernel.org
+Link: https://lore.kernel.org/r/20220511201856.808690-5-helgaas@kernel.org
 Reported-by: Cyril Brulebois <kibi@debian.org>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 76 ---------------------------
- 1 file changed, 76 deletions(-)
+ drivers/pci/controller/pcie-brcmstb.c | 65 +++++++++++----------------
+ 1 file changed, 26 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index fd464d38fecb..0e8346114a8d 100644
+index 0e8346114a8d..e61058e13818 100644
 --- a/drivers/pci/controller/pcie-brcmstb.c
 +++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -24,7 +24,6 @@
- #include <linux/pci.h>
- #include <linux/pci-ecam.h>
- #include <linux/printk.h>
--#include <linux/regulator/consumer.h>
- #include <linux/reset.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
-@@ -284,14 +283,6 @@ static const struct pcie_cfg_data bcm2711_cfg = {
- 	.bridge_sw_init_set = brcm_pcie_bridge_sw_init_set_generic,
- };
+@@ -926,9 +926,16 @@ static inline int brcm_pcie_get_rc_bar2_size_and_offset(struct brcm_pcie *pcie,
  
--struct subdev_regulators {
--	unsigned int num_supplies;
--	struct regulator_bulk_data supplies[];
--};
--
--static int pci_subdev_regulators_add_bus(struct pci_bus *bus);
--static void pci_subdev_regulators_remove_bus(struct pci_bus *bus);
--
- struct brcm_msi {
- 	struct device		*dev;
- 	void __iomem		*base;
-@@ -445,71 +436,6 @@ static int brcm_pcie_set_ssc(struct brcm_pcie *pcie)
- 	return ssc && pll ? 0 : -EIO;
- }
+ static int brcm_pcie_setup(struct brcm_pcie *pcie)
+ {
++	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
+ 	u64 rc_bar2_offset, rc_bar2_size;
+ 	void __iomem *base = pcie->base;
+-	int ret, memc;
++	struct device *dev = pcie->dev;
++	struct resource_entry *entry;
++	bool ssc_good = false;
++	struct resource *res;
++	int num_out_wins = 0;
++	u16 nlw, cls, lnksta;
++	int i, ret, memc;
+ 	u32 tmp, burst, aspm_support;
  
--static void *alloc_subdev_regulators(struct device *dev)
--{
--	static const char * const supplies[] = {
--		"vpcie3v3",
--		"vpcie3v3aux",
--		"vpcie12v",
--	};
--	const size_t size = sizeof(struct subdev_regulators)
--		+ sizeof(struct regulator_bulk_data) * ARRAY_SIZE(supplies);
--	struct subdev_regulators *sr;
--	int i;
+ 	/* Reset the bridge */
+@@ -1018,40 +1025,6 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
+ 	if (pcie->gen)
+ 		brcm_pcie_set_gen(pcie, pcie->gen);
+ 
+-	/* Don't advertise L0s capability if 'aspm-no-l0s' */
+-	aspm_support = PCIE_LINK_STATE_L1;
+-	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
+-		aspm_support |= PCIE_LINK_STATE_L0S;
+-	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
+-	u32p_replace_bits(&tmp, aspm_support,
+-		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
+-	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
 -
--	sr = devm_kzalloc(dev, size, GFP_KERNEL);
--	if (sr) {
--		sr->num_supplies = ARRAY_SIZE(supplies);
--		for (i = 0; i < ARRAY_SIZE(supplies); i++)
--			sr->supplies[i].supply = supplies[i];
--	}
--
--	return sr;
--}
--
--static int pci_subdev_regulators_add_bus(struct pci_bus *bus)
--{
--	struct device *dev = &bus->dev;
--	struct subdev_regulators *sr;
--	int ret;
--
--	if (!dev->of_node || !bus->parent || !pci_is_root_bus(bus->parent))
--		return 0;
--
--	if (dev->driver_data)
--		dev_err(dev, "dev.driver_data unexpectedly non-NULL\n");
--
--	sr = alloc_subdev_regulators(dev);
--	if (!sr)
--		return -ENOMEM;
--
--	dev->driver_data = sr;
--	ret = regulator_bulk_get(dev, sr->num_supplies, sr->supplies);
--	if (ret)
--		return ret;
--
--	ret = regulator_bulk_enable(sr->num_supplies, sr->supplies);
--	if (ret) {
--		dev_err(dev, "failed to enable regulators for downstream device\n");
--		return ret;
--	}
+-	/*
+-	 * For config space accesses on the RC, show the right class for
+-	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
+-	 */
+-	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
+-	u32p_replace_bits(&tmp, 0x060400,
+-			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
+-	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
 -
 -	return 0;
 -}
 -
--static void pci_subdev_regulators_remove_bus(struct pci_bus *bus)
+-static int brcm_pcie_linkup(struct brcm_pcie *pcie)
 -{
--	struct device *dev = &bus->dev;
--	struct subdev_regulators *sr = dev->driver_data;
+-	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
+-	struct device *dev = pcie->dev;
+-	void __iomem *base = pcie->base;
+-	struct resource_entry *entry;
+-	struct resource *res;
+-	int num_out_wins = 0;
+-	u16 nlw, cls, lnksta;
+-	bool ssc_good = false;
+-	u32 tmp;
+-	int ret, i;
 -
--	if (!sr || !bus->parent || !pci_is_root_bus(bus->parent))
--		return;
--
--	if (regulator_bulk_disable(sr->num_supplies, sr->supplies))
--		dev_err(dev, "failed to disable regulators for downstream device\n");
--	dev->driver_data = NULL;
--}
--
- /* Limits operation to a specific generation (1, 2, or 3) */
- static void brcm_pcie_set_gen(struct brcm_pcie *pcie, int gen)
- {
-@@ -853,8 +779,6 @@ static struct pci_ops brcm_pcie_ops = {
- 	.map_bus = brcm_pcie_map_conf,
- 	.read = pci_generic_config_read,
- 	.write = pci_generic_config_write,
--	.add_bus = pci_subdev_regulators_add_bus,
--	.remove_bus = pci_subdev_regulators_remove_bus,
- };
+ 	/* Unassert the fundamental reset */
+ 	pcie->perst_set(pcie, 0);
  
- static struct pci_ops brcm_pcie_ops32 = {
+@@ -1102,6 +1075,24 @@ static int brcm_pcie_linkup(struct brcm_pcie *pcie)
+ 		num_out_wins++;
+ 	}
+ 
++	/* Don't advertise L0s capability if 'aspm-no-l0s' */
++	aspm_support = PCIE_LINK_STATE_L1;
++	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
++		aspm_support |= PCIE_LINK_STATE_L0S;
++	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
++	u32p_replace_bits(&tmp, aspm_support,
++		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
++	writel(tmp, base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
++
++	/*
++	 * For config space accesses on the RC, show the right class for
++	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
++	 */
++	tmp = readl(base + PCIE_RC_CFG_PRIV1_ID_VAL3);
++	u32p_replace_bits(&tmp, 0x060400,
++			  PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK);
++	writel(tmp, base + PCIE_RC_CFG_PRIV1_ID_VAL3);
++
+ 	if (pcie->ssc) {
+ 		ret = brcm_pcie_set_ssc(pcie);
+ 		if (ret == 0)
+@@ -1290,10 +1281,6 @@ static int brcm_pcie_resume(struct device *dev)
+ 	if (ret)
+ 		goto err_reset;
+ 
+-	ret = brcm_pcie_linkup(pcie);
+-	if (ret)
+-		goto err_reset;
+-
+ 	if (pcie->msi)
+ 		brcm_msi_set_regs(pcie->msi);
+ 
 -- 
 2.35.1
 
