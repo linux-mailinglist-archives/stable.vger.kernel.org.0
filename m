@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA9653FA63
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 11:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E5353FA6B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 11:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239661AbiFGJxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 05:53:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
+        id S229974AbiFGJzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 05:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240237AbiFGJw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 05:52:59 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC6563B1
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 02:52:25 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nyVst-0006cU-Nr; Tue, 07 Jun 2022 11:52:23 +0200
-Message-ID: <a9a68c68-8830-2aa0-acbe-d5d3bb04968f@leemhuis.info>
-Date:   Tue, 7 Jun 2022 11:52:22 +0200
+        with ESMTP id S233223AbiFGJxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 05:53:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37952443C2;
+        Tue,  7 Jun 2022 02:53:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4275B81E7A;
+        Tue,  7 Jun 2022 09:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20CFFC385A5;
+        Tue,  7 Jun 2022 09:53:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654595595;
+        bh=rJi6JVdPD/Vt/We2v1o6pGUM/NCh4V1zqrJdX8XVc70=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=e0wyeJe4RRlXeal6Z+sLvUSf07W46/lpY6YL0a8z4AiDNG4AmZk72dxRJO5pXe/nH
+         rcokZ7hkDqXoV8wvVobZNFkL+0PDaWy/E63G54sg5t3Oe8gDxuK6GdR797fW1f6q7A
+         nHZfl7A88UZu+l/wLic1uX2Eh7/kX5snYFBNc6Wo=
+Date:   Tue, 7 Jun 2022 11:53:09 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ajay Kaher <akaher@vmware.com>
+Cc:     stable@vger.kernel.org, pablo@netfilter.org, kadlec@netfilter.org,
+        fw@strlen.de, davem@davemloft.net, netfilter-devel@vger.kernel.org,
+        srivatsab@vmware.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        anishs@vmware.com, vsirnapalli@vmware.com, er.ajay.kaher@gmail.com
+Subject: Re: [PATCH v4.9.y] netfilter: nf_tables: disallow non-stateful
+ expression in sets earlier
+Message-ID: <Yp8gBchJD3gQvUM7@kroah.com>
+References: <1654575921-2590-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: boot loop since 5.17.6
-Content-Language: en-US
-To:     Thomas Sattler <sattler@med.uni-frankfurt.de>,
-        Nathan Chancellor <nathan@kernel.org>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-References: <11495172-41dd-5c44-3ef6-8d3ff3ebd1b2@med.uni-frankfurt.de>
- <c3b370a8-193e-329b-c73a-1371bd62edf3@med.uni-frankfurt.de>
- <181a6369-e373-b020-2059-33fb5161d8d3@med.uni-frankfurt.de>
- <YpksflOG2Y1Xng89@dev-arch.thelio-3990X>
- <1f8a4bec-53bd-aaaa-49a7-b5ed4fc5ae34@med.uni-frankfurt.de>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <1f8a4bec-53bd-aaaa-49a7-b5ed4fc5ae34@med.uni-frankfurt.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1654595545;dbc47cd4;
-X-HE-SMSGID: 1nyVst-0006cU-Nr
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1654575921-2590-1-git-send-email-akaher@vmware.com>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -47,46 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker. Sorry, I'm behind mail.
-
-On 03.06.22 00:44, Thomas Sattler wrote:
-> Am 02.06.22 um 23:32 schrieb Nathan Chancellor:
->>> Am 02.06.22 um 18:42 schrieb Thomas Sattler:
->>>>
->>>> I tried to compile 5.17.6 without the three mentioned diffs which
->>>> modify the following files:
->>>>
->>>>      tools/objtool/check.c   and
->>>>      tools/objtool/elf.c      and
->>>>      tools/objtool/include/objtool/elf.h
->>>>
->>>> and was then able to successfully boot 5.17.6.
->>
->> 5.17.6 has commit 60d2b0b1018a ("objtool: Fix code relocs vs weak
->> symbols"),
-
-FWIW, that is 4abff6d48dbc in mainline
-
->> which has a known issue that is fixed with commit
->> ead165fa1042 ("objtool: Fix symbol creation"). If you apply ead165fa1042
->> on 5.17.6 or newer, does that resolve your issue?
+On Tue, Jun 07, 2022 at 09:55:21AM +0530, Ajay Kaher wrote:
+> From: Pablo Neira Ayuso <pablo@netfilter.org>
 > 
-> I applied ead165fa1042 ontop of 5.17.12, but that did not make
-> my system boot that kernel.
+> commit 520778042ccca019f3ffa136dd0ca565c486cedd upstream.
+> 
+> Since 3e135cd499bf ("netfilter: nft_dynset: dynamic stateful expression
+> instantiation"), it is possible to attach stateful expressions to set
+> elements.
+> 
+> cd5125d8f518 ("netfilter: nf_tables: split set destruction in deactivate
+> and destroy phase") introduces conditional destruction on the object to
+> accomodate transaction semantics.
+> 
+> nft_expr_init() calls expr->ops->init() first, then check for
+> NFT_STATEFUL_EXPR, this stills allows to initialize a non-stateful
+> lookup expressions which points to a set, which might lead to UAF since
+> the set is not properly detached from the set->binding for this case.
+> Anyway, this combination is non-sense from nf_tables perspective.
+> 
+> This patch fixes this problem by checking for NFT_STATEFUL_EXPR before
+> expr->ops->init() is called.
+> 
+> The reporter provides a KASAN splat and a poc reproducer (similar to
+> those autogenerated by syzbot to report use-after-free errors). It is
+> unknown to me if they are using syzbot or if they use similar automated
+> tool to locate the bug that they are reporting.
+> 
+> For the record, this is the KASAN splat.
+> 
+> [   85.431824] ==================================================================
+> [   85.432901] BUG: KASAN: use-after-free in nf_tables_bind_set+0x81b/0xa20
+> [   85.433825] Write of size 8 at addr ffff8880286f0e98 by task poc/776
+> [   85.434756]
+> [   85.434999] CPU: 1 PID: 776 Comm: poc Tainted: G        W         5.18.0+ #2
+> [   85.436023] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+> 
+> Fixes: 0b2d8a7b638b ("netfilter: nf_tables: add helper functions for expression handling")
+> Reported-and-tested-by: Aaron Adams <edg-e@nccgroup.com>
+> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+> [Ajay: Regenerated the patch for v4.9.y]
+> Signed-off-by: Ajay Kaher <akaher@vmware.com>
 
-Was there any progress to get down to this? Peter, who authored
-4abff6d48dbc, is not even CCed yet to this thread yet afaics.
+Both now queued up, thanks.
 
-BTW, 5.17 will likely be EOL in a week or two. Thomas, maybe it might be
-the best to give 5.19-rc1 a shot and in case the regression is still
-there start a new thread about this that focuses on the regression in
-mainline. That makes things less confusing and the regression needs to
-be fixed in mainline first anyway before it can be fixed in the stable
-trees.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
+greg k-h
