@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B48E541526
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7C754062B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238586AbiFGU3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:29:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56524 "EHLO
+        id S1346756AbiFGRdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376766AbiFGU2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:28:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264E71D80A7;
-        Tue,  7 Jun 2022 11:33:11 -0700 (PDT)
+        with ESMTP id S1348031AbiFGRb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:31:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0872B11E1E5;
+        Tue,  7 Jun 2022 10:29:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C148B8237C;
-        Tue,  7 Jun 2022 18:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F2CC385A5;
-        Tue,  7 Jun 2022 18:33:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D788B80B66;
+        Tue,  7 Jun 2022 17:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE3CC34115;
+        Tue,  7 Jun 2022 17:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626788;
-        bh=conex0sFGgB/DV350k7ij59++tfMZbwt9/zyaSY9Pe8=;
+        s=korg; t=1654622944;
+        bh=xBv6tJDlch4Q+R44u/yc6uFBFpYzdy9GWDdo29+6hIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANm4+MV++tW8/oFp+QcZfR7UEZlTy1GX1EuLpuv4cFDwKJrk4w8Qdc+GbX/1duQv4
-         0SwFHXGc/kBVEAGcYG/P1kH8Qr0LuO+Bb70yelD+rOMlEl50VNgQglvTPUFpy9J/rE
-         YGsXfA1o7aTpGRXtnRya6a9jNmgW7nOddPhZP9Yc=
+        b=uJ+FPFha2qY8pYXtiz//cffG9Qe/InT0kLtKWaX+onCcDUfVCn4DACyoiP/1x4zM/
+         k4UgSWtkHQEHZ53YM1Rp5VUudZlaBUPkVspHdK3Dm6Qt56ODiaUkZzthNWLrU1P0TS
+         85y7R5du0tDvpy7irRa5lGd7uUWvgngIyMUdUX3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 503/772] pinctrl: mvebu: Fix irq_of_parse_and_map() return value
+Subject: [PATCH 5.10 238/452] drm/i915: Fix CFI violation with show_dynamic_id()
 Date:   Tue,  7 Jun 2022 19:01:35 +0200
-Message-Id: <20220607165003.801604637@linuxfoundation.org>
+Message-Id: <20220607164915.652871599@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 71bc7cf3be65bab441e03667cf215c557712976c ]
+[ Upstream commit 58606220a2f1407a7516c547f09a1ba7b4350a73 ]
 
-The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
+When an attribute group is created with sysfs_create_group(), the
+->sysfs_ops() callback is set to kobj_sysfs_ops, which sets the ->show()
+callback to kobj_attr_show(). kobj_attr_show() uses container_of() to
+get the ->show() callback from the attribute it was passed, meaning the
+->show() callback needs to be the same type as the ->show() callback in
+'struct kobj_attribute'.
 
-Fixes: 2f227605394b ("pinctrl: armada-37xx: Add irqchip support")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220422105339.78810-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+However, show_dynamic_id() has the type of the ->show() callback in
+'struct device_attribute', which causes a CFI violation when opening the
+'id' sysfs node under drm/card0/metrics. This happens to work because
+the layout of 'struct kobj_attribute' and 'struct device_attribute' are
+the same, so the container_of() cast happens to allow the ->show()
+callback to still work.
+
+Change the type of show_dynamic_id() to match the ->show() callback in
+'struct kobj_attributes' and update the type of sysfs_metric_id to
+match, which resolves the CFI violation.
+
+Fixes: f89823c21224 ("drm/i915/perf: Implement I915_PERF_ADD/REMOVE_CONFIG interface")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220513075136.1027007-1-tvrtko.ursulin@linux.intel.com
+(cherry picked from commit 18fb42db05a0b93ab5dd5eab5315e50eaa3ca620)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_perf.c       | 4 ++--
+ drivers/gpu/drm/i915/i915_perf_types.h | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 08cad14042e2..adccf03b3e5a 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -773,7 +773,7 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
- 	for (i = 0; i < nr_irq_parent; i++) {
- 		int irq = irq_of_parse_and_map(np, i);
+diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+index 74e66dea5708..5e670aace59f 100644
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -3964,8 +3964,8 @@ static struct i915_oa_reg *alloc_oa_regs(struct i915_perf *perf,
+ 	return ERR_PTR(err);
+ }
  
--		if (irq < 0)
-+		if (!irq)
- 			continue;
- 		girq->parents[i] = irq;
- 	}
+-static ssize_t show_dynamic_id(struct device *dev,
+-			       struct device_attribute *attr,
++static ssize_t show_dynamic_id(struct kobject *kobj,
++			       struct kobj_attribute *attr,
+ 			       char *buf)
+ {
+ 	struct i915_oa_config *oa_config =
+diff --git a/drivers/gpu/drm/i915/i915_perf_types.h b/drivers/gpu/drm/i915/i915_perf_types.h
+index a36a455ae336..534951ff38bb 100644
+--- a/drivers/gpu/drm/i915/i915_perf_types.h
++++ b/drivers/gpu/drm/i915/i915_perf_types.h
+@@ -54,7 +54,7 @@ struct i915_oa_config {
+ 
+ 	struct attribute_group sysfs_metric;
+ 	struct attribute *attrs[2];
+-	struct device_attribute sysfs_metric_id;
++	struct kobj_attribute sysfs_metric_id;
+ 
+ 	struct kref ref;
+ 	struct rcu_head rcu;
 -- 
 2.35.1
 
