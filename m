@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DDF5410DA
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D074D541800
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355382AbiFGT3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49446 "EHLO
+        id S1378745AbiFGVHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:07:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356811AbiFGT2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DFB1A1951;
-        Tue,  7 Jun 2022 11:10:55 -0700 (PDT)
+        with ESMTP id S1379825AbiFGVG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:06:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF34211A80;
+        Tue,  7 Jun 2022 11:50:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE309B8233E;
-        Tue,  7 Jun 2022 18:10:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 489A6C385A5;
-        Tue,  7 Jun 2022 18:10:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E4C8616A9;
+        Tue,  7 Jun 2022 18:50:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C32AC385A2;
+        Tue,  7 Jun 2022 18:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625452;
-        bh=qO2K96LJDhbirD99gp0YVHECVMdEPs1haKCeGlOd7O0=;
+        s=korg; t=1654627808;
+        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOYltGspLBHE2liFTe5hNgTW/Ax/k6osF93gt4bB8W/4+arbbL8K5GviU6BNWokEH
-         DKu8S4TwCw0Z5hRM3CT27v4pPbWXVaQzT7ptqzAU5xkzMbZlEgWcllC3K74nZamjUY
-         +DCUuMYbf0bhzeUNblb7WDjS9YsELD0K+ZAktSNs=
+        b=ZmE07VN8UPkiWpueXcvUsKI4TgS622TAMhIhGVE6QJ1AeJfai3SJTy/UQRoERJ/42
+         TuueJ9K+SjRUSsW793geBcfibrSHfYxy+V4j7aWIbuCqQ/bGohxY0GPSJwDw4dd0cT
+         YsYxEz1T6TNQwdTNCD467/1nPVsIC8yeq3FD5M1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.17 024/772] fs/ntfs3: In function ntfs_set_acl_ex do not change inode->i_mode if called from function ntfs_init_acl
-Date:   Tue,  7 Jun 2022 18:53:36 +0200
-Message-Id: <20220607164949.726810942@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
+        Felix Fietkau <nbd@nbd.name>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 099/879] ath9k: fix QCA9561 PA bias level
+Date:   Tue,  7 Jun 2022 18:53:37 +0200
+Message-Id: <20220607165005.569010385@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
 
-commit 9186d472ee780fabf74424756c4c00545166157e upstream.
+[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
 
-ntfs_init_acl sets mode. ntfs_init_acl calls ntfs_set_acl_ex.
-ntfs_set_acl_ex must not change this mode.
-Fixes xfstest generic/444
-Fixes: be71b5cba2e6 ("fs/ntfs3: Add attrib operations")
+This patch fixes an invalid TX PA DC bias level on QCA9561, which
+results in a very low output power and very low throughput as devices
+are further away from the AP (compared to other 2.4GHz APs).
 
-Reviewed-by: Joe Perches <joe@perches.com>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch was suggested by Felix Fietkau, who noted[1]:
+"The value written to that register is wrong, because while the mask
+definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
+shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
+wrong for 9561."
+
+In real life testing, without this patch the 2.4GHz throughput on
+Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
+practical maximum with the patch applied.
+
+[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
+
+Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+Acked-by: Felix Fietkau <nbd@nbd.name>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/xattr.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ntfs3/xattr.c
-+++ b/fs/ntfs3/xattr.c
-@@ -541,7 +541,7 @@ struct posix_acl *ntfs_get_acl(struct in
+diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+index a171dbb29fbb..ad949eb02f3d 100644
+--- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+@@ -720,7 +720,7 @@
+ #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
+ 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
+ #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
+-#define AR_CH0_TOP2_XPABIASLVL_S	12
++#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
  
- static noinline int ntfs_set_acl_ex(struct user_namespace *mnt_userns,
- 				    struct inode *inode, struct posix_acl *acl,
--				    int type)
-+				    int type, bool init_acl)
- {
- 	const char *name;
- 	size_t size, name_len;
-@@ -554,8 +554,9 @@ static noinline int ntfs_set_acl_ex(stru
- 
- 	switch (type) {
- 	case ACL_TYPE_ACCESS:
--		if (acl) {
--			umode_t mode = inode->i_mode;
-+		/* Do not change i_mode if we are in init_acl */
-+		if (acl && !init_acl) {
-+			umode_t mode;
- 
- 			err = posix_acl_update_mode(mnt_userns, inode, &mode,
- 						    &acl);
-@@ -616,7 +617,7 @@ out:
- int ntfs_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
- 		 struct posix_acl *acl, int type)
- {
--	return ntfs_set_acl_ex(mnt_userns, inode, acl, type);
-+	return ntfs_set_acl_ex(mnt_userns, inode, acl, type, false);
- }
- 
- /*
-@@ -636,7 +637,7 @@ int ntfs_init_acl(struct user_namespace
- 
- 	if (default_acl) {
- 		err = ntfs_set_acl_ex(mnt_userns, inode, default_acl,
--				      ACL_TYPE_DEFAULT);
-+				      ACL_TYPE_DEFAULT, true);
- 		posix_acl_release(default_acl);
- 	} else {
- 		inode->i_default_acl = NULL;
-@@ -647,7 +648,7 @@ int ntfs_init_acl(struct user_namespace
- 	else {
- 		if (!err)
- 			err = ntfs_set_acl_ex(mnt_userns, inode, acl,
--					      ACL_TYPE_ACCESS);
-+					      ACL_TYPE_ACCESS, true);
- 		posix_acl_release(acl);
- 	}
- 
+ #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
+ 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
+-- 
+2.35.1
+
 
 
