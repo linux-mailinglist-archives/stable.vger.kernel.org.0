@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE92754188B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A785411CE
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379857AbiFGVMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43478 "EHLO
+        id S1354257AbiFGTml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380237AbiFGVLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A004218ABF;
-        Tue,  7 Jun 2022 11:53:37 -0700 (PDT)
+        with ESMTP id S1356910AbiFGTkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:40:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D88F1AFAF0;
+        Tue,  7 Jun 2022 11:14:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76C8AB81FE1;
-        Tue,  7 Jun 2022 18:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B12C385A2;
-        Tue,  7 Jun 2022 18:53:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E3EF6062B;
+        Tue,  7 Jun 2022 18:14:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91DBAC341C0;
+        Tue,  7 Jun 2022 18:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628014;
-        bh=pVUNEsiwiqNBZBI/yNccmCzF3JEyW8mOd+NKkwpJvhc=;
+        s=korg; t=1654625672;
+        bh=AmtNEIONDz4TR6XNEOBdkvo95XyT+gqj55BrSboz7xA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6phl+6lcMWZCurZbo/KvzCUGofqbF13XEPGhATsPgBfekAkqbEMORz4Pv19/JNhb
-         DqM5E5FAce0DYz0yyQk64uLVoEt0uucp6ppcplzpDVsA2f/FQ/x4BBnJG8ELHukTth
-         kkMBx4ev6jsY0bQcLAGmoQBGqBNWE85d3WGS0fVE=
+        b=kahkxBYEJntq/T9iJNl0tpryhx+8Wz1UEUfOOLRySy4xs4wfT5cGy2M3VN2njlsc6
+         p7BwUsiEgod4xwzSCX18nRLFJ3/T0EGyODL9Q7Bl/rXFmDsRItsNhB0RvXAPFqxbo+
+         +U2zmpCiZ8M1Erk5sZ4EiZH9YqHfHClTjkDLCJDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Smith <kyles@hpe.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 175/879] nvme-pci: fix a NULL pointer dereference in nvme_alloc_admin_tags
-Date:   Tue,  7 Jun 2022 18:54:53 +0200
-Message-Id: <20220607165007.921805103@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 102/772] drm/amd/pm: fix the compile warning
+Date:   Tue,  7 Jun 2022 18:54:54 +0200
+Message-Id: <20220607164952.052369606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smith, Kyle Miller (Nimble Kernel) <kyles@hpe.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit da42761181627e9bdc37d18368b827948a583929 ]
+[ Upstream commit 555238d92ac32dbad2d77ad2bafc48d17391990c ]
 
-In nvme_alloc_admin_tags, the admin_q can be set to an error (typically
--ENOMEM) if the blk_mq_init_queue call fails to set up the queue, which
-is checked immediately after the call. However, when we return the error
-message up the stack, to nvme_reset_work the error takes us to
-nvme_remove_dead_ctrl()
-  nvme_dev_disable()
-   nvme_suspend_queue(&dev->queues[0]).
+Fix the compile warning below:
+drivers/gpu/drm/amd/amdgpu/../pm/legacy-dpm/kv_dpm.c:1641
+kv_get_acp_boot_level() warn: always true condition '(table->entries[i]->clk >= 0) => (0-u32max >= 0)'
 
-Here, we only check that the admin_q is non-NULL, rather than not
-an error or NULL, and begin quiescing a queue that never existed, leading
-to bad / NULL pointer dereference.
-
-Signed-off-by: Kyle Smith <kyles@hpe.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: kernel test robot <lkp@intel.com>
+CC: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/pm/powerplay/kv_dpm.c | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 3aacf1c0d5a5..17aeb7d5c485 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1775,6 +1775,7 @@ static int nvme_alloc_admin_tags(struct nvme_dev *dev)
- 		dev->ctrl.admin_q = blk_mq_init_queue(&dev->admin_tagset);
- 		if (IS_ERR(dev->ctrl.admin_q)) {
- 			blk_mq_free_tag_set(&dev->admin_tagset);
-+			dev->ctrl.admin_q = NULL;
- 			return -ENOMEM;
- 		}
- 		if (!blk_get_queue(dev->ctrl.admin_q)) {
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/kv_dpm.c b/drivers/gpu/drm/amd/pm/powerplay/kv_dpm.c
+index bcae42cef374..6ba4c2ae69a6 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/kv_dpm.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/kv_dpm.c
+@@ -1609,19 +1609,7 @@ static int kv_update_samu_dpm(struct amdgpu_device *adev, bool gate)
+ 
+ static u8 kv_get_acp_boot_level(struct amdgpu_device *adev)
+ {
+-	u8 i;
+-	struct amdgpu_clock_voltage_dependency_table *table =
+-		&adev->pm.dpm.dyn_state.acp_clock_voltage_dependency_table;
+-
+-	for (i = 0; i < table->count; i++) {
+-		if (table->entries[i].clk >= 0) /* XXX */
+-			break;
+-	}
+-
+-	if (i >= table->count)
+-		i = table->count - 1;
+-
+-	return i;
++	return 0;
+ }
+ 
+ static void kv_update_acp_boot_level(struct amdgpu_device *adev)
 -- 
 2.35.1
 
