@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E849540A65
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA333541B28
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:43:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351747AbiFGSU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:20:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44898 "EHLO
+        id S1381001AbiFGVmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352949AbiFGSRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:17:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEFDB13F432;
-        Tue,  7 Jun 2022 10:52:50 -0700 (PDT)
+        with ESMTP id S1381283AbiFGVkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C101826558;
+        Tue,  7 Jun 2022 12:06:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE431617B4;
-        Tue,  7 Jun 2022 17:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B96A8C385A5;
-        Tue,  7 Jun 2022 17:52:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B30D617DA;
+        Tue,  7 Jun 2022 19:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC3CC385A2;
+        Tue,  7 Jun 2022 19:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624369;
-        bh=4FWVvpGIVHGySV3NM6oA2OJC61WladjaOASJ3N08TN0=;
+        s=korg; t=1654628766;
+        bh=q41phyPIPeloQ6si3/G89TZ9tn96bErSYBQJUnEKDZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RR8pgZcK1C5Y3Hf7xZQqaWOCwoxv/rt/NToXOAFIHaie6LUVM4mc3cQ8tvgYX+9H1
-         1iX8ieRTMRSD5Bh+aeL72vUMP0Zt28bk0CL7vWCAh4jY0oifpdRshGa9QKwgNaX2l5
-         cUh30Jp1ps8R7vxijuIeU/z65eoSbDy93Nxvq59c=
+        b=zEI4SX8gci3zKW/N8O+UpsengUMnExeiuCLCtLKv1fYh1uq3q6V1BTOOsopQipeFt
+         1Z4Czv6PD1Y0tHcb7YO9nNRnjQCUERUEMSR+Z9RtBVfMx9ZP8Jy7I7Jx3b7CKJrnY3
+         0QcOtD42VBESDxX2qDvQpt0HbcTOkPopet5FKygM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 300/667] perf/amd/ibs: Use interrupt regs ip for stack unwinding
+Subject: [PATCH 5.18 447/879] media: make RADIO_ADAPTERS tristate
 Date:   Tue,  7 Jun 2022 18:59:25 +0200
-Message-Id: <20220607164943.775825567@linuxfoundation.org>
+Message-Id: <20220607165015.845592042@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@amd.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 3d47083b9ff46863e8374ad3bb5edb5e464c75f8 ]
+[ Upstream commit 215d49a41709610b9e82a49b27269cfaff1ef0b6 ]
 
-IbsOpRip is recorded when IBS interrupt is triggered. But there is
-a skid from the time IBS interrupt gets triggered to the time the
-interrupt is presented to the core. Meanwhile processor would have
-moved ahead and thus IbsOpRip will be inconsistent with rsp and rbp
-recorded as part of the interrupt regs. This causes issues while
-unwinding stack using the ORC unwinder as it needs consistent rip,
-rsp and rbp. Fix this by using rip from interrupt regs instead of
-IbsOpRip for stack unwinding.
+Fix build errors when RADIO_TEA575X=y, VIDEO_BT848=m, and VIDEO_DEV=m.
 
-Fixes: ee9f8fce99640 ("x86/unwind: Add the ORC unwinder")
-Reported-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220429051441.14251-1-ravi.bangoria@amd.com
+The build errors occur due to [in drivers/media/Makefile]:
+obj-$(CONFIG_VIDEO_DEV) += radio/
+so the (would be) builtin tea575x.o is not being built.
+
+This is also due to drivers/media/radio/Kconfig declaring a bool
+Kconfig symbol (RADIO_ADAPTERS) that depends on a tristate (VIDEO_DEV),
+so when VIDEO_DEV=m, RADIO_ADAPTERS becomes =y, and then the drivers
+that depend on RADIO_ADPATERS can be configured as builtin (=y) or
+as loadable modules (=m).
+
+Fix this by converting RADIO_ADAPTERS to a tristate symbol instead
+of a bool symbol.
+
+Fixes these build errors:
+
+ERROR: modpost: "snd_tea575x_hw_init" [drivers/media/pci/bt8xx/bttv.ko] undefined!
+ERROR: modpost: "snd_tea575x_set_freq" [drivers/media/pci/bt8xx/bttv.ko] undefined!
+ERROR: modpost: "snd_tea575x_s_hw_freq_seek" [drivers/media/pci/bt8xx/bttv.ko] undefined!
+ERROR: modpost: "snd_tea575x_enum_freq_bands" [drivers/media/pci/bt8xx/bttv.ko] undefined!
+ERROR: modpost: "snd_tea575x_g_tuner" [drivers/media/pci/bt8xx/bttv.ko] undefined!
+
+Link: lore.kernel.org/r/202204191711.IKJJFjgU-lkp@intel.com
+
+Fixes: 9958d30f38b9 ("media: Kconfig: cleanup VIDEO_DEV dependencies")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/media/radio/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
-index 367ca899e6e8..2704ec1e42a3 100644
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -304,6 +304,16 @@ static int perf_ibs_init(struct perf_event *event)
- 	hwc->config_base = perf_ibs->msr;
- 	hwc->config = config;
+diff --git a/drivers/media/radio/Kconfig b/drivers/media/radio/Kconfig
+index cca03bd2cc42..616a38feb641 100644
+--- a/drivers/media/radio/Kconfig
++++ b/drivers/media/radio/Kconfig
+@@ -4,10 +4,10 @@
+ #
  
-+	/*
-+	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
-+	 * recorded as part of interrupt regs. Thus we need to use rip from
-+	 * interrupt regs while unwinding call stack. Setting _EARLY flag
-+	 * makes sure we unwind call-stack before perf sample rip is set to
-+	 * IbsOpRip.
-+	 */
-+	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+		event->attr.sample_type |= __PERF_SAMPLE_CALLCHAIN_EARLY;
-+
- 	return 0;
- }
+ menuconfig RADIO_ADAPTERS
+-	bool "Radio Adapters"
++	tristate "Radio Adapters"
+ 	depends on VIDEO_DEV
+ 	depends on MEDIA_RADIO_SUPPORT
+-	default y
++	default VIDEO_DEV
+ 	help
+ 	  Say Y here to enable selecting AM/FM radio adapters.
  
-@@ -687,6 +697,14 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
- 		data.raw = &raw;
- 	}
- 
-+	/*
-+	 * rip recorded by IbsOpRip will not be consistent with rsp and rbp
-+	 * recorded as part of interrupt regs. Thus we need to use rip from
-+	 * interrupt regs while unwinding call stack.
-+	 */
-+	if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+		data.callchain = perf_callchain(event, iregs);
-+
- 	throttle = perf_event_overflow(event, &data, &regs);
- out:
- 	if (throttle) {
 -- 
 2.35.1
 
