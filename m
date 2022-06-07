@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A629541137
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA49054183D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355671AbiFGTei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:34:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59958 "EHLO
+        id S1379209AbiFGVLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:11:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355668AbiFGTdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:33:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718B51AA164;
-        Tue,  7 Jun 2022 11:12:59 -0700 (PDT)
+        with ESMTP id S1379682AbiFGVKt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:10:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47721565D;
+        Tue,  7 Jun 2022 11:51:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 148EEB80B66;
-        Tue,  7 Jun 2022 18:12:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B46C385A2;
-        Tue,  7 Jun 2022 18:12:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4888617A4;
+        Tue,  7 Jun 2022 18:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F74C341C7;
+        Tue,  7 Jun 2022 18:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625568;
-        bh=RsqfcE3Vlaza98kvhQkeITROjqKHS5OvbTROZhct/dA=;
+        s=korg; t=1654627915;
+        bh=31HpYQaWeWqtZN+AGWXO2osKlfGZ7/fW6vbdG5g5fus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Usl9rcon5j6AGVerpFbjjXb/17UghqpPaJOJuo+wSsKXlJCfR8zY7oAm1KWiH9hOT
-         TmqAfog2raGzPVEgxf3BLyAR+geRNGWMhI8o4OVz6M0URWtsD6v2V6VxqrmC5AQtb2
-         4c1AUGWfc+DCd+AKK2eJL4/B76BaUW1iZkRRgeno=
+        b=koQnRJnnVWWo5kDwuDW4MZxhZl4XbuCBe0t7hyQC5PUhRhXmyQlVZt2b+hnOKJ139
+         TpWKa4T1nullHKoMKS2XK/3e6nrP8mikClaqf/4CI55K5+Xx9vjDC+rpgwWWulvvmK
+         NFBff4JPPO1D5efzdRW5V0uZ2NytP7ZrcFgjVmNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Rob Herring <robh@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 064/772] ACPICA: Avoid cache flush inside virtual machines
+Subject: [PATCH 5.18 138/879] of: Support more than one crash kernel regions for kexec -s
 Date:   Tue,  7 Jun 2022 18:54:16 +0200
-Message-Id: <20220607164950.925917985@linuxfoundation.org>
+Message-Id: <20220607165006.711247089@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,69 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
+[ Upstream commit 8af6b91f58341325bf74ecb0389ddc0039091d84 ]
 
-While running inside virtual machine, the kernel can bypass cache
-flushing. Changing sleep state in a virtual machine doesn't affect the
-host system sleep state and cannot lead to data loss.
+When "crashkernel=X,high" is used, there may be two crash regions:
+high=crashk_res and low=crashk_low_res. But now the syscall
+kexec_file_load() only add crashk_res into "linux,usable-memory-range",
+this may cause the second kernel to have no available dma memory.
 
-Before entering sleep states, the ACPI code flushes caches to prevent
-data loss using the WBINVD instruction.  This mechanism is required on
-bare metal.
+Fix it like kexec-tools does for option -c, add both 'high' and 'low'
+regions into the dtb.
 
-But, any use WBINVD inside of a guest is worthless.  Changing sleep
-state in a virtual machine doesn't affect the host system sleep state
-and cannot lead to data loss, so most hypervisors simply ignore it.
-Despite this, the ACPI code calls WBINVD unconditionally anyway.
-It's useless, but also normally harmless.
-
-In TDX guests, though, WBINVD stops being harmless; it triggers a
-virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
-were left in place, TDX guests would need handling to recover from
-the exception.
-
-Avoid using WBINVD whenever running under a hypervisor.  This both
-removes the useless WBINVDs and saves TDX from implementing WBINVD
-handling.
-
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Baoquan He <bhe@redhat.com>
+Link: https://lore.kernel.org/r/20220506114402.365-6-thunder.leizhen@huawei.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/acenv.h | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/of/kexec.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
-index 9aff97f0de7f..d937c55e717e 100644
---- a/arch/x86/include/asm/acenv.h
-+++ b/arch/x86/include/asm/acenv.h
-@@ -13,7 +13,19 @@
+diff --git a/drivers/of/kexec.c b/drivers/of/kexec.c
+index b9bd1cff1793..8d374cc552be 100644
+--- a/drivers/of/kexec.c
++++ b/drivers/of/kexec.c
+@@ -386,6 +386,15 @@ void *of_kexec_alloc_and_setup_fdt(const struct kimage *image,
+ 				crashk_res.end - crashk_res.start + 1);
+ 		if (ret)
+ 			goto out;
++
++		if (crashk_low_res.end) {
++			ret = fdt_appendprop_addrrange(fdt, 0, chosen_node,
++					"linux,usable-memory-range",
++					crashk_low_res.start,
++					crashk_low_res.end - crashk_low_res.start + 1);
++			if (ret)
++				goto out;
++		}
+ 	}
  
- /* Asm macros */
- 
--#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
-+/*
-+ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
-+ * It is required to prevent data loss.
-+ *
-+ * While running inside virtual machine, the kernel can bypass cache flushing.
-+ * Changing sleep state in a virtual machine doesn't affect the host system
-+ * sleep state and cannot lead to data loss.
-+ */
-+#define ACPI_FLUSH_CPU_CACHE()					\
-+do {								\
-+	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
-+		wbinvd();					\
-+} while (0)
- 
- int __acpi_acquire_global_lock(unsigned int *lock);
- int __acpi_release_global_lock(unsigned int *lock);
+ 	/* add bootargs */
 -- 
 2.35.1
 
