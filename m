@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 337E8540834
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A98195411AF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348772AbiFGR42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:56:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
+        id S1356438AbiFGTjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348710AbiFGRyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:54:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 051161447B7;
-        Tue,  7 Jun 2022 10:39:56 -0700 (PDT)
+        with ESMTP id S1356696AbiFGTiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:38:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A037F8E7A;
+        Tue,  7 Jun 2022 11:14:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89640B822B3;
-        Tue,  7 Jun 2022 17:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 042BEC385A5;
-        Tue,  7 Jun 2022 17:39:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BBF43CE243A;
+        Tue,  7 Jun 2022 18:14:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3030C385A2;
+        Tue,  7 Jun 2022 18:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623593;
-        bh=EDfiEudIZu9zvUw34ntLxy+KuAi9Pz0BPsPElTT9fvI=;
+        s=korg; t=1654625648;
+        bh=3os4nm//VWdtnukH4DMduEp3AKayG5T+pbN7X5F8Egs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AeVJfrYFH39sLcRK7tNZy3Aa0qHJ0gjMScbpUeo5jtLTXDUuxVnd/BWfPXqiYQLbk
-         UQOdL8BdhrbRPq/6Yn70FUcGj59grsYvAA853XNfUZCHSfCb9Bdc0Mdo8ByA54Jfbt
-         udmOSUpKd3q7QDKFVS9G6UckF6rzRoqOZlwciYW0=
+        b=yyIUYaGfTYs8YJKhUmrVl/7J0rHW+gyWRfT6OFHMkt3J3UlreeuoXP16bua9lN7B+
+         bNSaYkEWNocOsZjLbUfLmwhXUn4/FWVffUV6FukMpsHD3ryW6o+7P1ZGSyAE/0Fv4e
+         bCdU+xdaRfL8/1NO/Afvapz2ZPmCXhPQI/CME9Jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.15 021/667] fs/ntfs3: Fix fiemap + fix shrink file size (to remove preallocated space)
+        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 094/772] drivers: mmc: sdhci_am654: Add the quirk to set TESTCD bit
 Date:   Tue,  7 Jun 2022 18:54:46 +0200
-Message-Id: <20220607164935.431857829@linuxfoundation.org>
+Message-Id: <20220607164951.816594826@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-commit 3880f2b816a7e4ca889b7e8a42e6c62c5706ed36 upstream.
+[ Upstream commit c7666240ec76422cb7546bd07cc8ae80dc0ccdd2 ]
 
-Two problems:
-1. ntfs3_setattr can't truncate preallocated space;
-2. if allocated fragment "cross" valid size, then fragment splits into two parts:
-- normal part;
-- unwritten part (here we must return FIEMAP_EXTENT_LAST).
-Before this commit we returned FIEMAP_EXTENT_LAST for whole fragment.
-Fixes xfstest generic/092
-Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
+The ARASAN MMC controller on Keystone 3 class of devices need the SDCD
+line to be connected for proper functioning. Similar to the issue pointed
+out in sdhci-of-arasan.c driver, commit 3794c542641f ("mmc:
+sdhci-of-arasan: Set controller to test mode when no CD bit").
 
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In cases where this can't be connected, add a quirk to force the
+controller into test mode and set the TESTCD bit. Use the flag
+"ti,fails-without-test-cd", to implement this above quirk when required.
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20220425063120.10135-3-a-govindraju@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/file.c    |    2 +-
- fs/ntfs3/frecord.c |   10 +++++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci_am654.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/fs/ntfs3/file.c
-+++ b/fs/ntfs3/file.c
-@@ -761,7 +761,7 @@ int ntfs3_setattr(struct user_namespace
- 		}
- 		inode_dio_wait(inode);
- 
--		if (attr->ia_size < oldsize)
-+		if (attr->ia_size <= oldsize)
- 			err = ntfs_truncate(inode, attr->ia_size);
- 		else if (attr->ia_size > oldsize)
- 			err = ntfs_extend(inode, attr->ia_size, 0, NULL);
---- a/fs/ntfs3/frecord.c
-+++ b/fs/ntfs3/frecord.c
-@@ -1964,10 +1964,8 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 
- 		vcn += clen;
- 
--		if (vbo + bytes >= end) {
-+		if (vbo + bytes >= end)
- 			bytes = end - vbo;
--			flags |= FIEMAP_EXTENT_LAST;
--		}
- 
- 		if (vbo + bytes <= valid) {
- 			;
-@@ -1977,6 +1975,9 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 			/* vbo < valid && valid < vbo + bytes */
- 			u64 dlen = valid - vbo;
- 
-+			if (vbo + dlen >= end)
-+				flags |= FIEMAP_EXTENT_LAST;
+diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
+index b4891bb26648..a3e62e212631 100644
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -147,6 +147,9 @@ struct sdhci_am654_data {
+ 	int drv_strength;
+ 	int strb_sel;
+ 	u32 flags;
++	u32 quirks;
 +
- 			err = fiemap_fill_next_extent(fieinfo, vbo, lbo, dlen,
- 						      flags);
- 			if (err < 0)
-@@ -1995,6 +1996,9 @@ int ni_fiemap(struct ntfs_inode *ni, str
- 			flags |= FIEMAP_EXTENT_UNWRITTEN;
- 		}
++#define SDHCI_AM654_QUIRK_FORCE_CDTEST BIT(0)
+ };
  
-+		if (vbo + bytes >= end)
-+			flags |= FIEMAP_EXTENT_LAST;
+ struct sdhci_am654_driver_data {
+@@ -369,6 +372,21 @@ static void sdhci_am654_write_b(struct sdhci_host *host, u8 val, int reg)
+ 	}
+ }
+ 
++static void sdhci_am654_reset(struct sdhci_host *host, u8 mask)
++{
++	u8 ctrl;
++	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
++	struct sdhci_am654_data *sdhci_am654 = sdhci_pltfm_priv(pltfm_host);
 +
- 		err = fiemap_fill_next_extent(fieinfo, vbo, lbo, bytes, flags);
- 		if (err < 0)
- 			break;
++	sdhci_reset(host, mask);
++
++	if (sdhci_am654->quirks & SDHCI_AM654_QUIRK_FORCE_CDTEST) {
++		ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
++		ctrl |= SDHCI_CTRL_CDTEST_INS | SDHCI_CTRL_CDTEST_EN;
++		sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
++	}
++}
++
+ static int sdhci_am654_execute_tuning(struct mmc_host *mmc, u32 opcode)
+ {
+ 	struct sdhci_host *host = mmc_priv(mmc);
+@@ -500,7 +518,7 @@ static struct sdhci_ops sdhci_j721e_4bit_ops = {
+ 	.set_clock = sdhci_j721e_4bit_set_clock,
+ 	.write_b = sdhci_am654_write_b,
+ 	.irq = sdhci_am654_cqhci_irq,
+-	.reset = sdhci_reset,
++	.reset = sdhci_am654_reset,
+ };
+ 
+ static const struct sdhci_pltfm_data sdhci_j721e_4bit_pdata = {
+@@ -719,6 +737,9 @@ static int sdhci_am654_get_of_property(struct platform_device *pdev,
+ 	device_property_read_u32(dev, "ti,clkbuf-sel",
+ 				 &sdhci_am654->clkbuf_sel);
+ 
++	if (device_property_read_bool(dev, "ti,fails-without-test-cd"))
++		sdhci_am654->quirks |= SDHCI_AM654_QUIRK_FORCE_CDTEST;
++
+ 	sdhci_get_of_property(pdev);
+ 
+ 	return 0;
+-- 
+2.35.1
+
 
 
