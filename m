@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DEA5541765
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5AB541EA9
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358374AbiFGVCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:02:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
+        id S1353740AbiFGWcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:32:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378599AbiFGVBh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D914520E51C;
-        Tue,  7 Jun 2022 11:45:19 -0700 (PDT)
+        with ESMTP id S1384755AbiFGWbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:31:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E79527850D;
+        Tue,  7 Jun 2022 12:24:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B7556168E;
-        Tue,  7 Jun 2022 18:45:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BAB1C385A2;
-        Tue,  7 Jun 2022 18:45:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76ADBB823CA;
+        Tue,  7 Jun 2022 19:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96A1C385A2;
+        Tue,  7 Jun 2022 19:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627518;
-        bh=i2aBAC+nkmqctlRSusmxse0DlTK5H314CzgX7Q94to0=;
+        s=korg; t=1654629863;
+        bh=/nt2azIDU63waHlYWHq5Z5MohAVPxSo0yJVmg3AdC48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7TgNigqKwN4zhMOESj8alpMaCFpLpIUymz8g2rN/dBuDpGKf0Jw1YDTSmBdLGigt
-         59zjjFJkh8RKGYZ/SR8cysP4RTfSTWq/BEfh1famxTlYy/W6Qk2cpf2b6f1WDZgEaP
-         rgj5Nk1TCAi4/BhyLyjBc7cJ/5UcoAiGGbNNhkdc=
+        b=wd5FZwfPbNWtO5tuZr+YbNztPwtFB41T8SVMCxqZfciK+hHWcuQ3ic0UP9SwOTBGM
+         SKeCHVJKJ3H7wYQ666Srx6rc2JsQZrwnXk0OyXzA9Qbr6iQVPl0Sy45DK+VofpTWjz
+         YPJKxotda+72OwcosKvxWOgmumAx4dqhjyA0tTEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerald Lee <sundaywind2004@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Subject: [PATCH 5.17 768/772] fs/ntfs3: Fix invalid free in log_replay
-Date:   Tue,  7 Jun 2022 19:06:00 +0200
-Message-Id: <20220607165011.652474523@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.18 843/879] serial: pch: dont overwrite xmit->buf[0] by x_char
+Date:   Tue,  7 Jun 2022 19:06:01 +0200
+Message-Id: <20220607165027.320975559@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +52,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit f26967b9f7a830e228bb13fb41bd516ddd9d789d upstream.
+commit d9f3af4fbb1d955bbaf872d9e76502f6e3e803cb upstream.
 
-log_read_rst() returns ENOMEM error when there is not enough memory.
-In this case, if info is returned without initialization,
-it attempts to kfree the uninitialized info->r_page pointer. This patch
-moves the memset initialization code to before log_read_rst() is called.
+When x_char is to be sent, the TX path overwrites whatever is in the
+circular buffer at offset 0 with x_char and sends it using
+pch_uart_hal_write(). I don't understand how this was supposed to work
+if xmit->buf[0] already contained some character. It must have been
+lost.
 
-Reported-by: Gerald Lee <sundaywind2004@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Remove this whole pop_tx_x() concept and do the work directly in the
+callers. (Without printing anything using dev_dbg().)
+
+Cc: <stable@vger.kernel.org>
+Fixes: 3c6a483275f4 (Serial: EG20T: add PCH_UART driver)
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220503080808.28332-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs3/fslog.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/serial/pch_uart.c |   27 +++++++--------------------
+ 1 file changed, 7 insertions(+), 20 deletions(-)
 
---- a/fs/ntfs3/fslog.c
-+++ b/fs/ntfs3/fslog.c
-@@ -1185,8 +1185,6 @@ static int log_read_rst(struct ntfs_log
- 	if (!r_page)
- 		return -ENOMEM;
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -624,22 +624,6 @@ static int push_rx(struct eg20t_port *pr
+ 	return 0;
+ }
  
--	memset(info, 0, sizeof(struct restart_info));
+-static int pop_tx_x(struct eg20t_port *priv, unsigned char *buf)
+-{
+-	int ret = 0;
+-	struct uart_port *port = &priv->port;
 -
- 	/* Determine which restart area we are looking for. */
- 	if (first) {
- 		vbo = 0;
-@@ -3791,10 +3789,11 @@ int log_replay(struct ntfs_inode *ni, bo
- 	if (!log)
- 		return -ENOMEM;
+-	if (port->x_char) {
+-		dev_dbg(priv->port.dev, "%s:X character send %02x (%lu)\n",
+-			__func__, port->x_char, jiffies);
+-		buf[0] = port->x_char;
+-		port->x_char = 0;
+-		ret = 1;
+-	}
+-
+-	return ret;
+-}
+-
+ static int dma_push_rx(struct eg20t_port *priv, int size)
+ {
+ 	int room;
+@@ -889,9 +873,10 @@ static unsigned int handle_tx(struct eg2
  
-+	memset(&rst_info, 0, sizeof(struct restart_info));
+ 	fifo_size = max(priv->fifo_size, 1);
+ 	tx_empty = 1;
+-	if (pop_tx_x(priv, xmit->buf)) {
+-		pch_uart_hal_write(priv, xmit->buf, 1);
++	if (port->x_char) {
++		pch_uart_hal_write(priv, &port->x_char, 1);
+ 		port->icount.tx++;
++		port->x_char = 0;
+ 		tx_empty = 0;
+ 		fifo_size--;
+ 	}
+@@ -946,9 +931,11 @@ static unsigned int dma_handle_tx(struct
+ 	}
+ 
+ 	fifo_size = max(priv->fifo_size, 1);
+-	if (pop_tx_x(priv, xmit->buf)) {
+-		pch_uart_hal_write(priv, xmit->buf, 1);
 +
- 	log->ni = ni;
- 	log->l_size = l_size;
- 	log->one_page_buf = kmalloc(page_size, GFP_NOFS);
--
- 	if (!log->one_page_buf) {
- 		err = -ENOMEM;
- 		goto out;
-@@ -3842,6 +3841,7 @@ int log_replay(struct ntfs_inode *ni, bo
- 	if (rst_info.vbo)
- 		goto check_restart_area;
++	if (port->x_char) {
++		pch_uart_hal_write(priv, &port->x_char, 1);
+ 		port->icount.tx++;
++		port->x_char = 0;
+ 		fifo_size--;
+ 	}
  
-+	memset(&rst_info2, 0, sizeof(struct restart_info));
- 	err = log_read_rst(log, l_size, false, &rst_info2);
- 
- 	/* Determine which restart area to use. */
 
 
