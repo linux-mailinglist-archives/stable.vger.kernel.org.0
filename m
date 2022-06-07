@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC175406A2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 086B1541CA5
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242617AbiFGRhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:37:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
+        id S1382484AbiFGWCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:02:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347701AbiFGRfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:35:44 -0400
+        with ESMTP id S1382702AbiFGV7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:59:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D860F5061;
-        Tue,  7 Jun 2022 10:31:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267EF24E009;
+        Tue,  7 Jun 2022 12:14:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72A76614AE;
-        Tue,  7 Jun 2022 17:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8566FC385A5;
-        Tue,  7 Jun 2022 17:31:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3E056187F;
+        Tue,  7 Jun 2022 19:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A428C385A2;
+        Tue,  7 Jun 2022 19:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623060;
-        bh=UXT6frlTpLfQse3nCoBzL5EmELwi+AfmgLZ/R0K0RmU=;
+        s=korg; t=1654629241;
+        bh=5NVwfizFJYa+rVoBcHgPIn0dLHQ3kWh10mrNptlL5ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLKvSrbK8aU8JYNiyDT1LdUKQSgwGcq5t5K9YQcDUKYTzP+ykM0yOUDENlSyhdyYR
-         zNJDwx0uFA/wmtGLL6I2i0v7eWNRxojbcKOkCIcIYAgcVQXC4UaJfxGCXCfFRUL7yp
-         h3SkIcQdDPAS5Wy4Hr0csUKWQC7xkwjAIAaOoknM=
+        b=puvmC65iLdPQEPaDzBB6WZ+9hwWLdiYexgbeKbCiT8CQNA3n/olqlt3DcsogJQYQl
+         g0dlelLIFyj9EE2Zins/eJJ2CtCYGjsg+nd3HDxNpQd31q4AMk3D3c53s2D8i9Kxy6
+         YpvP/fKtAs9Hp5Idre44q0LRsIjN9LhCS9dBnM18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 280/452] crypto: marvell/cesa - ECB does not IV
+Subject: [PATCH 5.18 619/879] module: fix [e_shstrndx].sh_size=0 OOB access
 Date:   Tue,  7 Jun 2022 19:02:17 +0200
-Message-Id: <20220607164916.893543938@linuxfoundation.org>
+Message-Id: <20220607165020.817539600@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 4ffa1763622ae5752961499588f3f8874315f974 ]
+[ Upstream commit 391e982bfa632b8315235d8be9c0a81374c6a19c ]
 
-The DES3 ECB has an IV size set but ECB does not need one.
+It is trivial to craft a module to trigger OOB access in this line:
 
-Fixes: 4ada483978237 ("crypto: marvell/cesa - add Triple-DES support")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
+
+BUG: unable to handle page fault for address: ffffc90000aa0fff
+PGD 100000067 P4D 100000067 PUD 100066067 PMD 10436f067 PTE 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 7 PID: 1215 Comm: insmod Not tainted 5.18.0-rc5-00007-g9bf578647087-dirty #10
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
+RIP: 0010:load_module+0x19b/0x2391
+
+Fixes: ec2a29593c83 ("module: harden ELF info handling")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+[rebased patch onto modules-next]
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/marvell/cesa/cipher.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/module.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/crypto/marvell/cesa/cipher.c b/drivers/crypto/marvell/cesa/cipher.c
-index b4a6ff9dd6d5..596a8c74e40a 100644
---- a/drivers/crypto/marvell/cesa/cipher.c
-+++ b/drivers/crypto/marvell/cesa/cipher.c
-@@ -614,7 +614,6 @@ struct skcipher_alg mv_cesa_ecb_des3_ede_alg = {
- 	.decrypt = mv_cesa_ecb_des3_ede_decrypt,
- 	.min_keysize = DES3_EDE_KEY_SIZE,
- 	.max_keysize = DES3_EDE_KEY_SIZE,
--	.ivsize = DES3_EDE_BLOCK_SIZE,
- 	.base = {
- 		.cra_name = "ecb(des3_ede)",
- 		.cra_driver_name = "mv-ecb-des3-ede",
+diff --git a/kernel/module.c b/kernel/module.c
+index 6cea788fd965..6529c84c536f 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3033,6 +3033,10 @@ static int elf_validity_check(struct load_info *info)
+ 	 * strings in the section safe.
+ 	 */
+ 	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
++	if (strhdr->sh_size == 0) {
++		pr_err("empty section name table\n");
++		goto no_exec;
++	}
+ 	if (info->secstrings[strhdr->sh_size - 1] != '\0') {
+ 		pr_err("ELF Spec violation: section name table isn't null terminated\n");
+ 		goto no_exec;
 -- 
 2.35.1
 
