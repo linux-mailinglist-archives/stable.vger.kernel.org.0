@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C79A65412FC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1B65412FF
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357540AbiFGTz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50080 "EHLO
+        id S1357546AbiFGTzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:55:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358850AbiFGTxR (ORCPT
+        with ESMTP id S1358848AbiFGTxR (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F3DAE4D;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D807665;
         Tue,  7 Jun 2022 11:22:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C6C1DCE2424;
-        Tue,  7 Jun 2022 18:22:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE3BC385A2;
-        Tue,  7 Jun 2022 18:22:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DAA260DDF;
+        Tue,  7 Jun 2022 18:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E346C385A2;
+        Tue,  7 Jun 2022 18:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626160;
-        bh=i0e136J9ViTHcA4OXA4kR6SgTxHZK4UV/2VaZhZrrnE=;
+        s=korg; t=1654626162;
+        bh=nlbDq5Qtba23p9Q/PwoqIirCVA439fgQBmugmYl66yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b265UFbh86mbqL57M6Jpa/7EZ4E2TieKFoYjbgiuIX5Al+XhTZqQPej2WCSReVPwt
-         yBmLM4HxQhR+VV/JBp5/9FbLw/pZlmlD2yr7zC6KVxYIeB86z3Nl2lYcqn51mh+qG8
-         8GBitLzu2koxL7ObjuhRGeU3PeP9ombjGHOYVPvI=
+        b=R493w+vop2eldwY+HcqLAjHL5HWYmfY1rPZp7qtBai4mlxciUNCx7gLGohjmC14ah
+         xSJAzkpc2D7nv51gSX6RD+7bjkzXflL48NCkPPzv17txttI1hgMSUCEaB/9MAdsWQS
+         usQVBmkpgjzXp0VE7N1IDrz8jLs1YdX7zSxDEfrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Steigerwald <Martin.Steigerwald@proact.de>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 279/772] sched/psi: report zeroes for CPU full at the system level
-Date:   Tue,  7 Jun 2022 18:57:51 +0200
-Message-Id: <20220607164957.247110666@linuxfoundation.org>
+Subject: [PATCH 5.17 280/772] spi: img-spfi: Fix pm_runtime_get_sync() error checking
+Date:   Tue,  7 Jun 2022 18:57:52 +0200
+Message-Id: <20220607164957.276544222@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -57,102 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Zhou <zhouchengming@bytedance.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 890d550d7dbac7a31ecaa78732aa22be282bb6b8 ]
+[ Upstream commit cc470d55343056d6b2a5c32e10e0aad06f324078 ]
 
-Martin find it confusing when look at the /proc/pressure/cpu output,
-and found no hint about that CPU "full" line in psi Documentation.
+If the device is already in a runtime PM enabled state
+pm_runtime_get_sync() will return 1, so a test for negative
+value should be used to check for errors.
 
-% cat /proc/pressure/cpu
-some avg10=0.92 avg60=0.91 avg300=0.73 total=933490489
-full avg10=0.22 avg60=0.23 avg300=0.16 total=358783277
-
-The PSI_CPU_FULL state is introduced by commit e7fcd7622823
-("psi: Add PSI_CPU_FULL state"), which mainly for cgroup level,
-but also counted at the system level as a side effect.
-
-Naturally, the FULL state doesn't exist for the CPU resource at
-the system level. These "full" numbers can come from CPU idle
-schedule latency. For example, t1 is the time when task wakeup
-on an idle CPU, t2 is the time when CPU pick and switch to it.
-The delta of (t2 - t1) will be in CPU_FULL state.
-
-Another case all processes can be stalled is when all cgroups
-have been throttled at the same time, which unlikely to happen.
-
-Anyway, CPU_FULL metric is meaningless and confusing at the
-system level. So this patch will report zeroes for CPU full
-at the system level, and update psi Documentation accordingly.
-
-Fixes: e7fcd7622823 ("psi: Add PSI_CPU_FULL state")
-Reported-by: Martin Steigerwald <Martin.Steigerwald@proact.de>
-Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Link: https://lore.kernel.org/r/20220408121914.82855-1-zhouchengming@bytedance.com
+Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Link: https://lore.kernel.org/r/20220422062641.10486-1-zhengyongjun3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/accounting/psi.rst |  9 ++++-----
- kernel/sched/psi.c               | 15 +++++++++------
- 2 files changed, 13 insertions(+), 11 deletions(-)
+ drivers/spi/spi-img-spfi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/accounting/psi.rst b/Documentation/accounting/psi.rst
-index 860fe651d645..5e40b3f437f9 100644
---- a/Documentation/accounting/psi.rst
-+++ b/Documentation/accounting/psi.rst
-@@ -37,11 +37,7 @@ Pressure interface
- Pressure information for each resource is exported through the
- respective file in /proc/pressure/ -- cpu, memory, and io.
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index 5f05d519fbbd..71376b6df89d 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -731,7 +731,7 @@ static int img_spfi_resume(struct device *dev)
+ 	int ret;
  
--The format for CPU is as such::
--
--	some avg10=0.00 avg60=0.00 avg300=0.00 total=0
--
--and for memory and IO::
-+The format is as such::
- 
- 	some avg10=0.00 avg60=0.00 avg300=0.00 total=0
- 	full avg10=0.00 avg60=0.00 avg300=0.00 total=0
-@@ -58,6 +54,9 @@ situation from a state where some tasks are stalled but the CPU is
- still doing productive work. As such, time spent in this subset of the
- stall state is tracked separately and exported in the "full" averages.
- 
-+CPU full is undefined at the system level, but has been reported
-+since 5.13, so it is set to zero for backward compatibility.
-+
- The ratios (in %) are tracked as recent trends over ten, sixty, and
- three hundred second windows, which gives insight into short term events
- as well as medium and long term trends. The total absolute stall time
-diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index e14358178849..97fd85c5143c 100644
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -1062,14 +1062,17 @@ int psi_show(struct seq_file *m, struct psi_group *group, enum psi_res res)
- 	mutex_unlock(&group->avgs_lock);
- 
- 	for (full = 0; full < 2; full++) {
--		unsigned long avg[3];
--		u64 total;
-+		unsigned long avg[3] = { 0, };
-+		u64 total = 0;
- 		int w;
- 
--		for (w = 0; w < 3; w++)
--			avg[w] = group->avg[res * 2 + full][w];
--		total = div_u64(group->total[PSI_AVGS][res * 2 + full],
--				NSEC_PER_USEC);
-+		/* CPU FULL is undefined at the system level */
-+		if (!(group == &psi_system && res == PSI_CPU && full)) {
-+			for (w = 0; w < 3; w++)
-+				avg[w] = group->avg[res * 2 + full][w];
-+			total = div_u64(group->total[PSI_AVGS][res * 2 + full],
-+					NSEC_PER_USEC);
-+		}
- 
- 		seq_printf(m, "%s avg10=%lu.%02lu avg60=%lu.%02lu avg300=%lu.%02lu total=%llu\n",
- 			   full ? "full" : "some",
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret) {
++	if (ret < 0) {
+ 		pm_runtime_put_noidle(dev);
+ 		return ret;
+ 	}
 -- 
 2.35.1
 
