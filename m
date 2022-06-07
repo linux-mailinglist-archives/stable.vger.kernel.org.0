@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DE1540C1A
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15FB354061B
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236951AbiFGSd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
+        id S1346903AbiFGReG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353078AbiFGSbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF85217CC83;
-        Tue,  7 Jun 2022 10:56:47 -0700 (PDT)
+        with ESMTP id S1347478AbiFGRas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1247B111B94;
+        Tue,  7 Jun 2022 10:27:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2835B82374;
-        Tue,  7 Jun 2022 17:56:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33DD9C34115;
-        Tue,  7 Jun 2022 17:56:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9939B6127C;
+        Tue,  7 Jun 2022 17:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0988C385A5;
+        Tue,  7 Jun 2022 17:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624604;
-        bh=mbM4lFYWufa3Mlp5ZMoSuDYbE+24tQdhs04k3HMjwxU=;
+        s=korg; t=1654622822;
+        bh=M25JXcvDykKqIPIZeQD3S3WaYhxCDWlKyqcnmgUM6WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zy9iVEmDTwztjQZCG3C5nIJTeBspZs5UjHhxfR8TCC9ALIbJWn7i9jmQzzZlEGCeA
-         HPnJhec/EPtbJYNYPpkDORQhxh23vu9jOVgxQ0FUsU/JUoxkkFbZJIhSONzFLwyOQp
-         sGdyg4MzOAZF1bbpLF9jkJ6sviwaok89WCgSSONE=
+        b=KGNS18jwW1+h43HNTQjwicbqHMzm+uMrgNVNa9HSewJslCIPHfxri2Nby0fxYtEjD
+         hwbCEQARs7WPCj+GfW0ZqLcIS66mkHf6qcf/rLM4XxF71nmI3hBwdpTyQe4y6yQOa8
+         Av0d3qO015wSEo0KKIeWQ91GITq/FovNPWAob3eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 386/667] ARM: dts: BCM5301X: Update pin controller node name
+Subject: [PATCH 5.10 194/452] drm/msm: return an error pointer in msm_gem_prime_get_sg_table()
 Date:   Tue,  7 Jun 2022 19:00:51 +0200
-Message-Id: <20220607164946.324831466@linuxfoundation.org>
+Message-Id: <20220607164914.345654338@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 130b5e32ba9d2d2313e39cf3f6d0729bff02b76a ]
+[ Upstream commit cf575e31611eb6dccf08fad02e57e35b2187704d ]
 
-This fixes:
-arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dtb: cru-bus@100: 'pin-controller@1c0' does not match any of the regexes: '^clock-controller@[a-f0-9]+$', '^phy@[a-f0-9]+$', '^pinctrl@[a-f0-9]+$', '^syscon@[a-f0-9]+$', '^thermal@[a-f0-9]+$'
-        From schema: Documentation/devicetree/bindings/mfd/brcm,cru.yaml
-arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dtb: pin-controller@1c0: $nodename:0: 'pin-controller@1c0' does not match '^(pinctrl|pinmux)(@[0-9a-f]+)?$'
-        From schema: Documentation/devicetree/bindings/pinctrl/brcm,ns-pinmux.yaml
+The msm_gem_prime_get_sg_table() needs to return error pointers on
+error.  This is called from drm_gem_map_dma_buf() and returning a
+NULL will lead to a crash in that function.
 
-Ref: e7391b021e3f ("dt-bindings: mfd: brcm,cru: Rename pinctrl node")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: ac45146733b0 ("drm/msm: fix msm_gem_prime_get_sg_table()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/485023/
+Link: https://lore.kernel.org/r/YnOmtS5tfENywR9m@kili
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 2 +-
+ drivers/gpu/drm/msm/msm_gem_prime.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index db8c3f684786..30217948ef82 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -455,7 +455,7 @@
- 				reg = <0x180 0x4>;
- 			};
+diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
+index 515ef80816a0..8c64ce7288f1 100644
+--- a/drivers/gpu/drm/msm/msm_gem_prime.c
++++ b/drivers/gpu/drm/msm/msm_gem_prime.c
+@@ -17,7 +17,7 @@ struct sg_table *msm_gem_prime_get_sg_table(struct drm_gem_object *obj)
+ 	int npages = obj->size >> PAGE_SHIFT;
  
--			pinctrl: pin-controller@1c0 {
-+			pinctrl: pinctrl@1c0 {
- 				compatible = "brcm,bcm4708-pinmux";
- 				reg = <0x1c0 0x24>;
- 				reg-names = "cru_gpio_control";
+ 	if (WARN_ON(!msm_obj->pages))  /* should have already pinned! */
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	return drm_prime_pages_to_sg(obj->dev, msm_obj->pages, npages);
+ }
 -- 
 2.35.1
 
