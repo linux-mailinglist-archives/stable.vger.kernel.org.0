@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5C25409D0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:14:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C5C5404B2
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350795AbiFGSO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48248 "EHLO
+        id S1345598AbiFGRSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:18:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348770AbiFGSMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:12:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE98132A07;
-        Tue,  7 Jun 2022 10:48:57 -0700 (PDT)
+        with ESMTP id S1345561AbiFGRSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:18:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 951DC1053C8;
+        Tue,  7 Jun 2022 10:18:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 729C7616A3;
-        Tue,  7 Jun 2022 17:48:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B408C34119;
-        Tue,  7 Jun 2022 17:48:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24AC0618D8;
+        Tue,  7 Jun 2022 17:18:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C12C34115;
+        Tue,  7 Jun 2022 17:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624117;
-        bh=5HXEquSx+6XgksZqZLBYyVj8yyh/LjzyzFSCCpQ5/f8=;
+        s=korg; t=1654622320;
+        bh=CbUsvNR3s0cWSACttV2qXEDUc5y5b81+X5wgAXf/l6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0g9bBzAtIeXPrwwFP+F7yUegzixXeEOKHZWSI1yHH/h+a/ZLOYgzi4pJ7grKNy8P
-         Tq8LWSjLTxR0i7OA697mKwONYHiT8VfF+edchRI1v9WZN9jLvcaiqZ6Lwn9k37yXLZ
-         kUQBBLl5MEnJCry9TyGWdq5Ib8ltvfQO9+e2C22k=
+        b=cmfkNmeC21DM+XVmWWa9Hx0nVQIwqlJU8RLK1WRJtWAuxjebKFs1QAp1KRN3BDptW
+         LjdmAg+JotmEIFO3wU2RtYwlv6iZLOuallz1w0xmKKXfhVWajftfqigf4DGi81AVlH
+         t2yhuDhdSAmmFme+lha/OqLarrcqFDIdHZZQ/E4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 210/667] scftorture: Fix distribution of short handler delays
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.10 018/452] perf/x86/intel: Fix event constraints for ICL
 Date:   Tue,  7 Jun 2022 18:57:55 +0200
-Message-Id: <20220607164941.095950734@linuxfoundation.org>
+Message-Id: <20220607164909.084573325@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 8106bddbab5f0ba180e6d693c7c1fc6926d57caa ]
+commit 86dca369075b3e310c3c0adb0f81e513c562b5e4 upstream.
 
-The scftorture test module's scf_handler() function is supposed to provide
-three different distributions of short delays (including "no delay") and
-one distribution of long delays, if specified by the scftorture.longwait
-module parameter.  However, the second of the two non-zero-wait short delays
-is disabled due to the first such delay's "goto out" not being enclosed in
-the "then" clause with the "udelay()".
+According to the latest event list, the event encoding 0x55
+INST_DECODED.DECODERS and 0x56 UOPS_DECODED.DEC0 are only available on
+the first 4 counters. Add them into the event constraints table.
 
-This commit therefore adjusts the code to provide the intended set of
-delays.
-
-Fixes: e9d338a0b179 ("scftorture: Add smp_call_function() torture test")
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220525133952.1660658-1-kan.liang@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/scftorture.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/scftorture.c b/kernel/scftorture.c
-index 64a08288b1a6..27286d99e0c2 100644
---- a/kernel/scftorture.c
-+++ b/kernel/scftorture.c
-@@ -271,9 +271,10 @@ static void scf_handler(void *scfc_in)
- 	}
- 	this_cpu_inc(scf_invoked_count);
- 	if (longwait <= 0) {
--		if (!(r & 0xffc0))
-+		if (!(r & 0xffc0)) {
- 			udelay(r & 0x3f);
--		goto out;
-+			goto out;
-+		}
- 	}
- 	if (r & 0xfff)
- 		goto out;
--- 
-2.35.1
-
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -254,7 +254,7 @@ static struct event_constraint intel_icl
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x03, 0x0a, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x1f, 0x28, 0xf),
+ 	INTEL_EVENT_CONSTRAINT(0x32, 0xf),	/* SW_PREFETCH_ACCESS.* */
+-	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x54, 0xf),
++	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x56, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x60, 0x8b, 0xf),
+ 	INTEL_UEVENT_CONSTRAINT(0x04a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_TOTAL */
+ 	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.CYCLES_MEM_ANY */
 
 
