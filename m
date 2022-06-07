@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9C4540FC2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:12:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80CA75410CA
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353953AbiFGTM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:12:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44144 "EHLO
+        id S1353945AbiFGT3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 15:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354830AbiFGTLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:11:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25384194262;
-        Tue,  7 Jun 2022 11:07:09 -0700 (PDT)
+        with ESMTP id S1355759AbiFGTZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:25:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1124019F042;
+        Tue,  7 Jun 2022 11:09:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BE86171C;
-        Tue,  7 Jun 2022 18:07:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E51AC34115;
-        Tue,  7 Jun 2022 18:07:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30384B82340;
+        Tue,  7 Jun 2022 18:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 825D3C385A2;
+        Tue,  7 Jun 2022 18:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625227;
-        bh=nXntMZVpla3NklUfK6+iMj4hlV8xeBF+Xq/mDF1C6kg=;
+        s=korg; t=1654625366;
+        bh=17Ri7RaW54DNnuOE3bzfEoXvHE2DBf0eBzZRTgFQTEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yy2/r4yIWfzzK5bpX0VCoHWBxbmUZkDxXMDhNZIZFzVVeLEkhDyo7FEIZal0Mju2d
-         ebPNfZp6ntBZUd1AaOYlEL2bU2nVE+e1Tj4QpoJXZR44VpyMLNpykqWD4h2kgsYIP5
-         sobd9Hq9t5oMDUtNGVKziACVRFZZjTl2KXljwzJc=
+        b=UFpbkYqPQVKTlfLJKf8GGclHubSSH5vQxLzTdjBv2tLOWpljyLyeSQktBeSod6HOZ
+         bM1Kdbu5UBPWj1JCsLyCEodL6jXcs3nD0PuTS0R08cNkuYL6UgtLV+HWPFuxzb6BUn
+         65KkkHTryvAfuqim47uloWCCZ38LPBsoqfRWI27U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        stable@vger.kernel.org, Catrinel Catrinescu <cc@80211.de>,
+        Felix Fietkau <nbd@nbd.name>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 609/667] cfg80211: declare MODULE_FIRMWARE for regulatory.db
-Date:   Tue,  7 Jun 2022 19:04:34 +0200
-Message-Id: <20220607164952.940551650@linuxfoundation.org>
+Subject: [PATCH 5.15 610/667] mac80211: upgrade passive scan to active scan on DFS channels after beacon rx
+Date:   Tue,  7 Jun 2022 19:04:35 +0200
+Message-Id: <20220607164952.969992007@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -54,42 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 7bc7981eeebe1b8e603ad2ffc5e84f4df76920dd upstream.
+commit b041b7b9de6e1d4362de855ab90f9d03ef323edd upstream.
 
-Add MODULE_FIRMWARE declarations for regulatory.db and
-regulatory.db.p7s such that userspace tooling can discover and include
-these files.
+In client mode, we can't connect to hidden SSID APs or SSIDs not advertised
+in beacons on DFS channels, since we're forced to passive scan. Fix this by
+sending out a probe request immediately after the first beacon, if active
+scan was requested by the user.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Link: https://lore.kernel.org/r/20220414125004.267819-1-dimitri.ledkov@canonical.com
+Reported-by: Catrinel Catrinescu <cc@80211.de>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20220420104907.36275-1-nbd@nbd.name
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/reg.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/mac80211/ieee80211_i.h |    5 +++++
+ net/mac80211/scan.c        |   20 ++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -806,6 +806,8 @@ static int __init load_builtin_regdb_key
- 	return 0;
- }
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1129,6 +1129,9 @@ struct tpt_led_trigger {
+  *	a scan complete for an aborted scan.
+  * @SCAN_HW_CANCELLED: Set for our scan work function when the scan is being
+  *	cancelled.
++ * @SCAN_BEACON_WAIT: Set whenever we're passive scanning because of radar/no-IR
++ *	and could send a probe request after receiving a beacon.
++ * @SCAN_BEACON_DONE: Beacon received, we can now send a probe request
+  */
+ enum {
+ 	SCAN_SW_SCANNING,
+@@ -1137,6 +1140,8 @@ enum {
+ 	SCAN_COMPLETED,
+ 	SCAN_ABORTED,
+ 	SCAN_HW_CANCELLED,
++	SCAN_BEACON_WAIT,
++	SCAN_BEACON_DONE,
+ };
  
-+MODULE_FIRMWARE("regulatory.db.p7s");
-+
- static bool regdb_has_valid_signature(const u8 *data, unsigned int size)
- {
- 	const struct firmware *sig;
-@@ -1077,6 +1079,8 @@ static void regdb_fw_cb(const struct fir
- 	release_firmware(fw);
- }
+ /**
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -277,6 +277,16 @@ void ieee80211_scan_rx(struct ieee80211_
+ 	if (likely(!sdata1 && !sdata2))
+ 		return;
  
-+MODULE_FIRMWARE("regulatory.db");
++	if (test_and_clear_bit(SCAN_BEACON_WAIT, &local->scanning)) {
++		/*
++		 * we were passive scanning because of radar/no-IR, but
++		 * the beacon/proberesp rx gives us an opportunity to upgrade
++		 * to active scan
++		 */
++		 set_bit(SCAN_BEACON_DONE, &local->scanning);
++		 ieee80211_queue_delayed_work(&local->hw, &local->scan_work, 0);
++	}
 +
- static int query_regdb_file(const char *alpha2)
- {
- 	ASSERT_RTNL();
+ 	if (ieee80211_is_probe_resp(mgmt->frame_control)) {
+ 		struct cfg80211_scan_request *scan_req;
+ 		struct cfg80211_sched_scan_request *sched_scan_req;
+@@ -783,6 +793,8 @@ static int __ieee80211_start_scan(struct
+ 						IEEE80211_CHAN_RADAR)) ||
+ 		    !req->n_ssids) {
+ 			next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
++			if (req->n_ssids)
++				set_bit(SCAN_BEACON_WAIT, &local->scanning);
+ 		} else {
+ 			ieee80211_scan_state_send_probe(local, &next_delay);
+ 			next_delay = IEEE80211_CHANNEL_TIME;
+@@ -994,6 +1006,8 @@ set_channel:
+ 	    !scan_req->n_ssids) {
+ 		*next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
+ 		local->next_scan_state = SCAN_DECISION;
++		if (scan_req->n_ssids)
++			set_bit(SCAN_BEACON_WAIT, &local->scanning);
+ 		return;
+ 	}
+ 
+@@ -1086,6 +1100,8 @@ void ieee80211_scan_work(struct work_str
+ 			goto out;
+ 	}
+ 
++	clear_bit(SCAN_BEACON_WAIT, &local->scanning);
++
+ 	/*
+ 	 * as long as no delay is required advance immediately
+ 	 * without scheduling a new work
+@@ -1096,6 +1112,10 @@ void ieee80211_scan_work(struct work_str
+ 			goto out_complete;
+ 		}
+ 
++		if (test_and_clear_bit(SCAN_BEACON_DONE, &local->scanning) &&
++		    local->next_scan_state == SCAN_DECISION)
++			local->next_scan_state = SCAN_SEND_PROBE;
++
+ 		switch (local->next_scan_state) {
+ 		case SCAN_DECISION:
+ 			/* if no more bands/channels left, complete scan */
 
 
