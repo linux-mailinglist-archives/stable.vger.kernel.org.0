@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91862541E4D
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:28:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12376541709
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381775AbiFGW2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:28:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35130 "EHLO
+        id S1356449AbiFGU5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385281AbiFGW0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:26:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB0927043B;
-        Tue,  7 Jun 2022 12:23:09 -0700 (PDT)
+        with ESMTP id S1378197AbiFGUzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93ED812D159;
+        Tue,  7 Jun 2022 11:44:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CC8A60B01;
-        Tue,  7 Jun 2022 19:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78837C385A2;
-        Tue,  7 Jun 2022 19:23:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8E8B82182;
+        Tue,  7 Jun 2022 18:44:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D106AC385A2;
+        Tue,  7 Jun 2022 18:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629788;
-        bh=yBMfBMsenoejD3SJApeyaIR+DRPPPmmkDIHXMUaPI6E=;
+        s=korg; t=1654627447;
+        bh=92uU6VQZ8vRHI63+qTv3k7gUUiysfrjpvmX9xY6PYjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3dAg5pVbhizNsaW6/3KjHNsEyInK3GJ1O7sx827T+WK+HWKJI9XHLjDrBbGvVsbP
-         pB2tn9Sr6YpGgGu/FSi/HbfVWBKYM5tw/NG7j1VUNwDjX/2TljJu1tBj2HSb3Qq6ah
-         sj8rrRtOW6bsQu1/J1kKdi9b/gw0i4fXQ/7WSzhw=
+        b=TG/IN8F7iN1yRE9scQ/oRW0f7QpHv4AUczYG8d7zYrCqhbw7qGU43GHDkTg3cfy1a
+         rEoNKzbY66Qpl/KosObMfjNe3jJ1jf6xNJBy4e+nnbxe+kx3WTD00NWSXWxwp/ErWo
+         jnBB4msNGA0Rv5hvMphA+RxT1BrOhKYpv1OmoSoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.18 818/879] um: chan_user: Fix winch_tramp() return value
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 5.17 744/772] ARM: dts: s5pv210: Remove spi-cs-high on panel in Aries
 Date:   Tue,  7 Jun 2022 19:05:36 +0200
-Message-Id: <20220607165026.597219329@linuxfoundation.org>
+Message-Id: <20220607165010.955362760@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-commit 57ae0b67b747031bc41fb44643aa5344ab58607e upstream.
+commit 096f58507374e1293a9e9cff8a1ccd5f37780a20 upstream.
 
-The previous fix here was only partially correct, it did
-result in returning a proper error value in case of error,
-but it also clobbered the pid that we need to return from
-this function (not just zero for success).
+Since commit 766c6b63aa04 ("spi: fix client driver breakages when using
+GPIO descriptors"), the panel has been blank due to an inverted CS GPIO.
+In order to correct this, drop the spi-cs-high from the panel SPI device.
 
-As a result, it returned 0 here, but later this is treated
-as a pid and used to kill the process, but since it's now
-0 we kill(0, SIGKILL), which makes UML kill itself rather
-than just the helper thread.
-
-Fix that and make it more obvious by using a separate
-variable for the pid.
-
-Fixes: ccf1236ecac4 ("um: fix error return code in winch_tramp()")
-Reported-and-tested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/CY4PR04MB05670C771062570E911AF3B4CB1C9@CY4PR04MB0567.namprd04.prod.outlook.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/drivers/chan_user.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/s5pv210-aries.dtsi |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/um/drivers/chan_user.c
-+++ b/arch/um/drivers/chan_user.c
-@@ -220,7 +220,7 @@ static int winch_tramp(int fd, struct tt
- 		       unsigned long *stack_out)
- {
- 	struct winch_data data;
--	int fds[2], n, err;
-+	int fds[2], n, err, pid;
- 	char c;
+--- a/arch/arm/boot/dts/s5pv210-aries.dtsi
++++ b/arch/arm/boot/dts/s5pv210-aries.dtsi
+@@ -564,7 +564,6 @@
+ 			reset-gpios = <&mp05 5 GPIO_ACTIVE_LOW>;
+ 			vdd3-supply = <&ldo7_reg>;
+ 			vci-supply = <&ldo17_reg>;
+-			spi-cs-high;
+ 			spi-max-frequency = <1200000>;
  
- 	err = os_pipe(fds, 1, 1);
-@@ -238,8 +238,9 @@ static int winch_tramp(int fd, struct tt
- 	 * problem with /dev/net/tun, which if held open by this
- 	 * thread, prevents the TUN/TAP device from being reused.
- 	 */
--	err = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
--	if (err < 0) {
-+	pid = run_helper_thread(winch_thread, &data, CLONE_FILES, stack_out);
-+	if (pid < 0) {
-+		err = pid;
- 		printk(UM_KERN_ERR "fork of winch_thread failed - errno = %d\n",
- 		       -err);
- 		goto out_close;
-@@ -263,7 +264,7 @@ static int winch_tramp(int fd, struct tt
- 		goto out_close;
- 	}
- 
--	return err;
-+	return pid;
- 
-  out_close:
- 	close(fds[1]);
+ 			pinctrl-names = "default";
 
 
