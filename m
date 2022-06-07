@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B550B541699
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80255416BC
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347165AbiFGUxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51732 "EHLO
+        id S1377642AbiFGUyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378935AbiFGUwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:43 -0400
+        with ESMTP id S1378985AbiFGUwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BDA755350;
-        Tue,  7 Jun 2022 11:43:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF6D5EBFC;
+        Tue,  7 Jun 2022 11:43:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54D5A61697;
-        Tue,  7 Jun 2022 18:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62487C385A5;
-        Tue,  7 Jun 2022 18:43:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3DE660B3D;
+        Tue,  7 Jun 2022 18:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C8BC385A2;
+        Tue,  7 Jun 2022 18:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627405;
-        bh=cxkgyz5ngDMy1ODpbhcnH3iBNlL8t+oI6nD2WIle9i8=;
+        s=korg; t=1654627411;
+        bh=e5c3CxGrpbc0Jirl6dkEelSrmn2mfAXYagN8IL4SVRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vux6LqTMLTBeQRYWQNq8QTr6cTotjkXvt75Hgln4BL9f9uUFrrdc8zo/9dk35kBPG
-         gZqggqlxVBfM52oz8l5Iol4UDkKgM/IN84d6kqle2JQLDcZ/4ywW6hu5DRWejlp1U7
-         KsBMobrxTX41ahsgHCOsiG/Xi0564YEXCDeBYmIE=
+        b=NfaRmVWzwfrr0QrA9e6B7hPzcwkQgLlXgieHvScPps5yhKCbUIaGbZgZ2HWLVbjNR
+         4RuoHm3EFkcdhtRDwq/BRw5TOV0m6va2554GkN2KRpfoZOOZAGFJW3cXM1v4dVNgOm
+         tpvGGRQxaxq4fzrsso8P5VH6RocbdzRJS2sIfTz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.17 727/772] mm/memremap: fix missing call to untrack_pfn() in pagemap_range()
-Date:   Tue,  7 Jun 2022 19:05:19 +0200
-Message-Id: <20220607165010.465006463@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Yang <yiyang13@huawei.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.17 728/772] xtensa/simdisk: fix proc_read_simdisk()
+Date:   Tue,  7 Jun 2022 19:05:20 +0200
+Message-Id: <20220607165010.493623154@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -57,37 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Yi Yang <yiyang13@huawei.com>
 
-commit a04e1928e2ead144dc2f369768bc0a0f3110af89 upstream.
+commit b011946d039d66bbc7102137e98cc67e1356aa87 upstream.
 
-We forget to call untrack_pfn() to pair with track_pfn_remap() when range
-is not allowed to hotplug.  Fix it by jump err_kasan.
+The commit a69755b18774 ("xtensa simdisk: switch to proc_create_data()")
+split read operation into two parts, first retrieving the path when it's
+non-null and second retrieving the trailing '\n'. However when the path
+is non-null the first simple_read_from_buffer updates ppos, and the
+second simple_read_from_buffer returns 0 if ppos is greater than 1 (i.e.
+almost always). As a result reading from that proc file is almost always
+empty.
 
-Link: https://lkml.kernel.org/r/20220531122643.25249-1-linmiaohe@huawei.com
-Fixes: bca3feaa0764 ("mm/memory_hotplug: prevalidate the address range being added with platform")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fix it by making a temporary copy of the path with the trailing '\n' and
+using simple_read_from_buffer on that copy.
+
+Cc: stable@vger.kernel.org
+Fixes: a69755b18774 ("xtensa simdisk: switch to proc_create_data()")
+Signed-off-by: Yi Yang <yiyang13@huawei.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memremap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/platforms/iss/simdisk.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -228,7 +228,7 @@ static int pagemap_range(struct dev_page
- 
- 	if (!mhp_range_allowed(range->start, range_len(range), !is_private)) {
- 		error = -EINVAL;
--		goto err_pfn_remap;
-+		goto err_kasan;
+--- a/arch/xtensa/platforms/iss/simdisk.c
++++ b/arch/xtensa/platforms/iss/simdisk.c
+@@ -211,12 +211,18 @@ static ssize_t proc_read_simdisk(struct
+ 	struct simdisk *dev = pde_data(file_inode(file));
+ 	const char *s = dev->filename;
+ 	if (s) {
+-		ssize_t n = simple_read_from_buffer(buf, size, ppos,
+-							s, strlen(s));
+-		if (n < 0)
+-			return n;
+-		buf += n;
+-		size -= n;
++		ssize_t len = strlen(s);
++		char *temp = kmalloc(len + 2, GFP_KERNEL);
++
++		if (!temp)
++			return -ENOMEM;
++
++		len = scnprintf(temp, len + 2, "%s\n", s);
++		len = simple_read_from_buffer(buf, size, ppos,
++					      temp, len);
++
++		kfree(temp);
++		return len;
  	}
- 
- 	mem_hotplug_begin();
+ 	return simple_read_from_buffer(buf, size, ppos, "\n", 1);
+ }
 
 
