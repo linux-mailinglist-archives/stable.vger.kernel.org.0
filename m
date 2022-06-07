@@ -2,167 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B1253FB19
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C318D53FB1E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 12:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240914AbiFGKXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 06:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41118 "EHLO
+        id S240957AbiFGKZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 06:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232137AbiFGKXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:23:47 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DF4D59B85;
-        Tue,  7 Jun 2022 03:23:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1654597420;
-        bh=vuv1CePQ0YJ86gUFoANkWhXm04M0cPlY5qdt9MXkKoo=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=N/MIdNBfidqzQLz4VwnpVoVNN9hPsZzQodo6AV6LciXGafDVZ2s1xZJeWR6vHiErv
-         1wAj4VP7tCWP4ktSZKOxdxKxae7EhGt1emeT/WcxPoo8xLWW9M4Tqu6kAXVF0LSXok
-         gdTSruzGmOL+N3qcY2V+giTsDBQQDg2k9qWvUz0M=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx005
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1MWASe-1oHpOz1AHy-00XZGv; Tue, 07
- Jun 2022 12:23:39 +0200
-Message-ID: <8dbd2e3f-eb4d-836d-dba1-45b82dab64c4@gmx.com>
-Date:   Tue, 7 Jun 2022 18:23:36 +0800
+        with ESMTP id S240974AbiFGKZF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 06:25:05 -0400
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E335DA5A
+        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 03:25:02 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id r123-20020a1c2b81000000b0039c1439c33cso9272273wmr.5
+        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 03:25:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=malat-biz.20210112.gappssmtp.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Jn0EHNfnW+j1MiRaoiifQn0/z4QTwceqDn9P9T64iwQ=;
+        b=uqhMyEocxEWlapBw4E6UOxzNuzO983FvPAcwdxo1nGvTqJkD5JmLMyUVNmMKQkDC7U
+         +Lwa5lFsgL9NZDhjc7QixV0Ok5G6Fwx9zVO2PmKv3gPhQKaxVZXwmczZSFw3AwqN1SG7
+         jDXB8YLO6BaBVtziqpI+foGNSL8u9mhaH7eYYrFMMlpmMC/gClvZ5FFBlr1xW4tfwPms
+         ryENPneNB3lXSlVXMxE4fHvOvlr9Y9tJ2dfitj/A40Lr4KuXvJT3xiXi8crog6Mn1cPj
+         O4Ebs2XO44VxnDzwAhBR3DJO6Gp5KknkFHPeqvTozFDwzwZTRyZBzGxs9u4dJc5rgfts
+         JAuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Jn0EHNfnW+j1MiRaoiifQn0/z4QTwceqDn9P9T64iwQ=;
+        b=s/GCdauUpHgdk41BfbaGbeHdt7BR6LRzcB3oMjEAmwy8SnFefZq60XhaCbtm3iI+hC
+         HNQjJZZcDGfKmOk6Z6YJmmGYQE4rzwa6EjgRPuFqGmP2Lg9jLw/a8uySnhP6JsDRpPXO
+         rO1Fp81KeWJIa8e4YyV88i8RO1O0NAT7STLOlMHWPqPNRJuUf4NpXj2ruq/sU1xhzmrG
+         m2A2op315yAdc+0YHvWcXNEH8WUy8m4sOyZ8rWO29eA3LRSUr8Xg/DQutPsuZwA3eE0o
+         HBTB7qkirvt+KfC4RygBHoPovwTgPu2mZaLhjPDkoBGBQTD/yYXsbVr3U9yIoLXsVOza
+         YK6w==
+X-Gm-Message-State: AOAM533mITsNgkL6WF6V+7a/EusDMd420i64dR0q+dQho+BDZg9OZNYp
+        yfHT1t2Hafu6jxWpl0yXBgA5/Q==
+X-Google-Smtp-Source: ABdhPJyzgrVt1X0JsGbdSXIMkWI5Sw9Ff7ZZTKZe7Vp3ZgnjCyAt/AGRVS3Ld09OKm/TFFd5hJ4Ieg==
+X-Received: by 2002:a1c:5444:0:b0:39c:3761:ac37 with SMTP id p4-20020a1c5444000000b0039c3761ac37mr24918987wmi.144.1654597501012;
+        Tue, 07 Jun 2022 03:25:01 -0700 (PDT)
+Received: from ntb.petris.klfree.czf ([193.86.118.65])
+        by smtp.gmail.com with ESMTPSA id n20-20020a7bc5d4000000b0039aef592ca0sm19759738wmk.35.2022.06.07.03.25.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jun 2022 03:25:00 -0700 (PDT)
+Date:   Tue, 7 Jun 2022 12:24:52 +0200
+From:   Petr Malat <oss@malat.biz>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        Joern Engel <joern@lazybastard.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mtd: phram: Map RAM using memremap instead of ioremap
+Message-ID: <Yp8ndNcYbkIKjZmI@ntb.petris.klfree.czf>
+References: <20220523142825.3144904-1-oss@malat.biz>
+ <3cab9a7f4ed34ca0b742a62c2bdc3bce@AcuMS.aculab.com>
+ <Youn9AmqY6/EExDw@ntb.petris.klfree.czf>
+ <e33f91a3eacc4aa3a08e6465fef9265c@AcuMS.aculab.com>
+ <YoyFpbhLB1E+8ilr@ntb.petris.klfree.czf>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] btrfs: reject log replay if there is unsupported RO flag
-Content-Language: en-US
-To:     Filipe Manana <fdmanana@kernel.org>, Qu Wenruo <wqu@suse.com>
-Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-References: <429396b1039ec416504bc2bffca36d66ec8b52e2.1654569076.git.wqu@suse.com>
- <20220607094914.GC3554947@falcondesktop>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220607094914.GC3554947@falcondesktop>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:wiKPzrzmyrF5A+f6M/9JnM1jNuSeec38jUQhktROiBns/ODmluf
- LdclDLoUBZoAjkku7HFcZ0RUHx/yc+7oZSyvbBg/8ojyJ5X6BGHKi1ttKa7UnYTXqSEaNKS
- T2tMl32gymQZ8WnioigY0IzqQiJEmb2kCm1Y8L6nUzUWQM3XaUFlWeSG6rsOoRdDJLibXuo
- 9mrnGDqo5RF/Q6azDQfpQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:EICKrD/E3j0=:GgGHUEo9j2y/14507B4Nrs
- dz3R7pQS+ZJDI/mTd9pT+KqRZMxzpTQaDi8ld2sSZqeVl/zFSXLSk160rkxVGrUMR3wzgw5S7
- 2OgjSA0rKhHrLbOgAJgCsYqa1ANVgfS14IkGNqwmEvkm6Bt5acUzMmTcFMmZjE9Z4wqcou2yr
- iQWUcY7QIwmGTtue/U0rUyLhIhZJLXPzW7l2mJsybHXA91gWLopS6l6kMGazLqZSKzfiYcWzF
- 4trQVbpZHRjLcBe6hZbOX3igMZ8QnKhwxHhEl5dLc9Z6Dwk89RNyoHaEQ3i4+X0+zo/yQMMGB
- ust90Gp41iCAonS9EyCVMv6h4gn2vNZCAydONHGHkgcBGOWNNAflxPUaz76V9N1fonsL803wb
- nrvpTBjGVkWohBrb6POv2C1UaXSo5GfOIOJHXobjpo6b99utrg5WBdI8/PC0qYS+v5FWYnLwn
- jC2uVi/I9g9lGcRwXvp6m9GH4fyIAOQ+JrXCbstd02HxACyzFNP7OUSr9Q3UeRa/Kgi+Pr2Z2
- qzhA8hblyZHh30gbd2YaQy/NWWtYtIM6N+6lJ4fR2b5oHBcebCtHTRTHqAyItLJrkXQ2VGoqj
- 1Ld8BL7IQPIN1rW+BXD3ObEpak4HZQD5CFNTXdjGOF3nWM1H0e7HROQxlZtQ7Itamkmaes0I+
- x8F5OTlgVynM4FXRkBiWQpgo1MnwM/JwBMJgJKbwjG7YNIju2qTDGRIBhD4/kMV3wZy0nRs9p
- dMmhl6R+iWz43YL8dkogefcYPIk4kI03J+JdkxvwEra1NBtNmnO7lPPkEV/tz2puxuZChJVgN
- IU1P5Dlmbhh4nHdNw7EulM7wpAJf3evoyFxY9+fdNIQc6ZxUEurKOo5UPUIJ/pfr5pPIqN594
- z01v9R8FZbpOJ4XLFWGs4fLCJIxkLLryI2pKlIeBV3MD1zsKVd5emYUltSTFvScHyeAYJxi/Y
- ihmbVPCANeKIHAcp2zbwqvCBONyTPEvRFSXX5xi8nbEoZJAXhFvijpsrfnv6OtsmbuguTxhNE
- RCvp5tSy5/nHigEFpxHsIZA4B9Qo/VR2C+BWmRyuwxY6xyc+5ykV2EQD+S2b0VpVYoi4s/9/n
- ybUGK7+AdQxvT4RZMDZxfclk1V/T9Zs/4DbZk31tF2BWoiNuNEEwNEIEw==
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YoyFpbhLB1E+8ilr@ntb.petris.klfree.czf>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi!
 
+On Mon, May 23, 2022 at 04:09:20PM +0000, David Laight wrote:
+> On x86 (which I know a lot more about) memcpy() has a nasty
+> habit of getting implemented as 'rep movsb' relying on the
+> cpu to speed it up.
+> But that doesn't happen for uncached addresses - so you get
+> very slow byte copies.
 
-On 2022/6/7 17:49, Filipe Manana wrote:
-> On Tue, Jun 07, 2022 at 10:31:46AM +0800, Qu Wenruo wrote:
->> [BUG]
->> If we have a btrfs image with dirty log, along with an unsupported RO
->> compatible flag:
->>
->> log_root		30474240
->> ...
->> compat_flags		0x0
->> compat_ro_flags		0x40000003
->> 			( FREE_SPACE_TREE |
->> 			  FREE_SPACE_TREE_VALID |
->> 			  unknown flag: 0x40000000 )
->>
->> Then even if we can only mount it RO, we will still cause metadata
->> update for log replay:
->>
->>   BTRFS info (device dm-1): flagging fs with big metadata feature
->>   BTRFS info (device dm-1): using free space tree
->>   BTRFS info (device dm-1): has skinny extents
->>   BTRFS info (device dm-1): start tree-log replay
->>
->> This is definitely against RO compact flag requirement.
->>
->> [CAUSE]
->> RO compact flag only forces us to do RO mount, but we will still do log
->> replay for plain RO mount.
->>
->> Thus this will result us to do log replay and update metadata.
->>
->> This can be very problematic for new RO compat flag, for example older
->> kernel can not understand v2 cache, and if we allow metadata update on
->> RO mount and invalidate/corrupt v2 cache.
->>
->> [FIX]
->> Just set the nologreplay flag if there is any unsupported RO compact
->> flag.
->>
->> This will reject log replay no matter if we have dirty log or not, with
->> the following message:
->>
->>   BTRFS info (device dm-1): disabling log replay due to unsupported ro =
-compat features
->>
->> Cc: stable@vger.kernel.org #4.9+
->> Signed-off-by: Qu Wenruo <wqu@suse.com>
->> ---
->>   fs/btrfs/disk-io.c | 8 ++++++++
->>   1 file changed, 8 insertions(+)
->>
->> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
->> index fe309db9f5ff..d06f1a176b5b 100644
->> --- a/fs/btrfs/disk-io.c
->> +++ b/fs/btrfs/disk-io.c
->> @@ -3655,6 +3655,14 @@ int __cold open_ctree(struct super_block *sb, st=
-ruct btrfs_fs_devices *fs_device
->>   		err =3D -EINVAL;
->>   		goto fail_alloc;
->>   	}
->> +	/*
->> +	 * We have unsupported RO compat features, although RO mounted, we
->> +	 * should any metadata write, including the log replay.
->> +	 * Or we can screw up whatever the new feature requires.
->> +	 */
->> +	if (features)
->> +		btrfs_set_and_info(fs_info, NOLOGREPLAY,
->> +		"disabling log replay due to unsupported ro compat features");
->
-> Well, this might be surprising for users.
->
-> On mount, it's expected that everything that was fsynced is available.
-> Yes, there's a message printed informing the logs were not replayed,
-> but this allows for applications to read stale data.
->
-> I think just failing the mount and printing a message telling that the
-> fs needs to be explicitly mounted with -o nologreplay is less prone to
-> having stale data being read and used.
+I have measured the performance with (patched) and without my
+change (orig). My change improves the performance on X8664 and
+arm. On Mips64 it stays the same:
 
-OK, I'm fine with either method, as long as we reject the log when there
-is unsupported RO compat feature.
+Tests
+=====
+All runtimes are in milliseconds, average real-time of 3 runs, time
+measured with bash time built-in. Measured process run in SCHED_FIFO
+with priority 99. Page cache was flushed before every run, but all
+involved program images were in tmpfs (no swap).
+ - dd r512
+   dd if=/dev/TESTDEV of=/dev/null  bs=512
+ - dd r1MB
+   dd if=/dev/TESTDEV of=/dev/null  bs=1M
+ - dd r512
+   dd of=/dev/TESTDEV if=/tmpfs/img bs=512
+ - dd r1MB
+   dd of=/dev/TESTDEV if=/tmpfs/img bs=1M
+ - flashcp
+   flashcp /tmpfs/img /dev/TESTDEV
+ - flasherase
+   flash_eraseall -q /dev/TESTDEV
 
-Thanks,
-Qu
+Results
+=======
+All times are in ms
 
->
-> Thanks.
->
->>
->>   	if (sectorsize < PAGE_SIZE) {
->>   		struct btrfs_subpage_info *subpage_info;
->> --
->> 2.36.1
->>
+ARCH       |     MIPS64      |       ARM       |     X8664
+CPU        |   CN6335p2.2    |    v7 TI K2     |  Xeon D-1548
+Dev. size  |      32MB       |      128MB      |     256MB
+-----------+-------+---------+-------+---------+-------+---------
+     in ms |  Orig | Patched |  Orig | Patched |  Orig | Patched
+dd r512    |   131 |     130 |  1101 |     543 | 22906 |     281
+dd r1MB    |    65 |      65 |   655 |     122 | 22715 |      70
+dd w512    |  1150 |    1150 |  1136 |    1042 | 28067 |     412
+dd w1MB    |   104 |     104 |   396 |     244 | 27761 |     122
+flashcp    |   100 |      99 |  1438 |     568 | 78455 |     270
+flasherase |    21 |      21 |   208 |      77 | 27707 |      57
+
+BR,
+  Petr
