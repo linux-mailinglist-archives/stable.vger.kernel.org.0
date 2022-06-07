@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA224541C9D
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D78EF540DC5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356764AbiFGWCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        id S1354025AbiFGSuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:50:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383363AbiFGWBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:01:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733F21BE86;
-        Tue,  7 Jun 2022 12:14:31 -0700 (PDT)
+        with ESMTP id S1354399AbiFGSq7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:46:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F5231525;
+        Tue,  7 Jun 2022 11:01:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E9F4B823AE;
-        Tue,  7 Jun 2022 19:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E102C385A5;
-        Tue,  7 Jun 2022 19:14:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA7BBB82182;
+        Tue,  7 Jun 2022 18:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F4DC34115;
+        Tue,  7 Jun 2022 18:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629258;
-        bh=/ntqIvYDdF2s30nMF1oZWhYOlujzI0rSlTDP7s02PiQ=;
+        s=korg; t=1654624861;
+        bh=qnJP0T1+bmEA74l/tgyI47/F2KVHUGm3HiAnzF8iaI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g17p92NAUX9LA5FxqNlFRgik/HsuRYyPc5mWjCqoiWuLlRzM/BkvTsvVN/PJIZcRl
-         qdUHI7SwCeskBcbfM9OU0AyNUi3ceukOHwXKHcdBwEv2x1R3gpK5Cpqv8BkZQwQZ/D
-         5bD6ciskTnvRGZG2KVMPflYaMj5U24OOwScdBcn8=
+        b=h/IYkSfjl4npnTWCci2oMpjeisycSum5mpoCs3pLsuThVXFt4rQVyVYcHA/1bCYJC
+         KTIZX63gmQvYp98hhp+LURYeaKZh3pBwEK3dArhStU1Ax1MZPANRpW+9rTdRJLHihL
+         AfuMHiBYXuXsefSmDKo3V3fay1xaluuOsNpkZFSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 625/879] ARM: dts: lan966x: swap dma channels for crypto node
+Subject: [PATCH 5.15 478/667] f2fs: fix to do sanity check on inline_dots inode
 Date:   Tue,  7 Jun 2022 19:02:23 +0200
-Message-Id: <20220607165020.990852785@linuxfoundation.org>
+Message-Id: <20220607164949.037518863@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 8b4092fd0c1a0aaa985413c43b027f87dd457207 ]
+[ Upstream commit 12662d19467b391b5b509ac5e9ab4f583c6dde16 ]
 
-The YAML binding (crypto/atmel,at91sam9g46-aes.yaml) mandates the order
-of the channels. Swap them to pass devicetree validation.
+As Wenqing reported in bugzilla:
 
-Fixes: 290deaa10c50 ("ARM: dts: add DT for lan966 SoC and 2-port board pcb8291")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Tested-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220502224127.2604333-2-michael@walle.cc
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=215765
+
+It will cause a kernel panic with steps:
+- mkdir mnt
+- mount tmp40.img mnt
+- ls mnt
+
+folio_mark_dirty+0x33/0x50
+f2fs_add_regular_entry+0x541/0xad0 [f2fs]
+f2fs_add_dentry+0x6c/0xb0 [f2fs]
+f2fs_do_add_link+0x182/0x230 [f2fs]
+__recover_dot_dentries+0x2d6/0x470 [f2fs]
+f2fs_lookup+0x5af/0x6a0 [f2fs]
+__lookup_slow+0xac/0x200
+lookup_slow+0x45/0x70
+walk_component+0x16c/0x250
+path_lookupat+0x8b/0x1f0
+filename_lookup+0xef/0x250
+user_path_at_empty+0x46/0x70
+vfs_statx+0x98/0x190
+__do_sys_newlstat+0x41/0x90
+__x64_sys_newlstat+0x1a/0x30
+do_syscall_64+0x37/0xb0
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is for special file: e.g. character, block, fifo or
+socket file, f2fs doesn't assign address space operations pointer array
+for mapping->a_ops field, so, in a fuzzed image, if inline_dots flag was
+tagged in special file, during lookup(), when f2fs runs into
+__recover_dot_dentries(), it will cause NULL pointer access once
+f2fs_add_regular_entry() calls a_ops->set_dirty_page().
+
+Fixes: 510022a85839 ("f2fs: add F2FS_INLINE_DOTS to recover missing dot dentries")
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/lan966x.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/f2fs/namei.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/lan966x.dtsi b/arch/arm/boot/dts/lan966x.dtsi
-index 7d2869648050..5e9cbc8cdcbc 100644
---- a/arch/arm/boot/dts/lan966x.dtsi
-+++ b/arch/arm/boot/dts/lan966x.dtsi
-@@ -114,9 +114,9 @@
- 			compatible = "atmel,at91sam9g46-aes";
- 			reg = <0xe004c000 0x100>;
- 			interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;
--			dmas = <&dma0 AT91_XDMAC_DT_PERID(13)>,
--			       <&dma0 AT91_XDMAC_DT_PERID(12)>;
--			dma-names = "rx", "tx";
-+			dmas = <&dma0 AT91_XDMAC_DT_PERID(12)>,
-+			       <&dma0 AT91_XDMAC_DT_PERID(13)>;
-+			dma-names = "tx", "rx";
- 			clocks = <&nic_clk>;
- 			clock-names = "aes_clk";
- 		};
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index a728a0af9ce0..e4b25ef871b3 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -460,6 +460,13 @@ static int __recover_dot_dentries(struct inode *dir, nid_t pino)
+ 		return 0;
+ 	}
+ 
++	if (!S_ISDIR(dir->i_mode)) {
++		f2fs_err(sbi, "inconsistent inode status, skip recovering inline_dots inode (ino:%lu, i_mode:%u, pino:%u)",
++			  dir->i_ino, dir->i_mode, pino);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return -ENOTDIR;
++	}
++
+ 	err = f2fs_dquot_initialize(dir);
+ 	if (err)
+ 		return err;
 -- 
 2.35.1
 
