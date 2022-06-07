@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2655417B0
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D565F54177D
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377168AbiFGVE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
+        id S1377258AbiFGVDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:03:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378939AbiFGVB4 (ORCPT
+        with ESMTP id S1378949AbiFGVB4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:01:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D9311045E;
-        Tue,  7 Jun 2022 11:46:02 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC41187C03;
+        Tue,  7 Jun 2022 11:46:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D29F7B82182;
-        Tue,  7 Jun 2022 18:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463C9C385A5;
-        Tue,  7 Jun 2022 18:45:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09FE161295;
+        Tue,  7 Jun 2022 18:46:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F2EC385A2;
+        Tue,  7 Jun 2022 18:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627559;
-        bh=QMG3R1mvrOBvB2v3vbuMnUg8mhkaroJLdlZ6oZ9ggBM=;
+        s=korg; t=1654627562;
+        bh=xXLFWftSkAvr+ult2Lpc9PstGpW7d7BWajMASz5VVno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/GajD8B5ebR+Vh5Ek//jULAdbL1lK/W6Aqj87ddvkFP0TmNulNHQPEdlRRcH1aIE
-         aZm4VFTRpD/3392/Pd19bLP5UBnKHKflITHG86KZjdewene6uV2msGLhma3f37MW0E
-         hyZzs9hLE+ua6mbeeHoS3Y4dQWxH402nV9cg6XdU=
+        b=C6TZwA+/Z9RrzDv3rV7nkiTePH+aY+xJfdf+wHoOdLcDZf4nEpFQptBVKZMaGTyJM
+         5oGeRYf2MxCidS4THEC5+fUfGB4JSXoOSKIb8MnFJO4cYsouBDmPQuOFHuI+LHBDN8
+         T+2J2dFv8fB3fklKPZ4t1PneRmh/jtWQmXMG4250=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van der Kemp <rik@upto11.nl>,
+        stable@vger.kernel.org,
+        Marios Levogiannis <marios.levogiannis@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 012/879] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9520 laptop
-Date:   Tue,  7 Jun 2022 18:52:10 +0200
-Message-Id: <20220607165003.027607750@linuxfoundation.org>
+Subject: [PATCH 5.18 013/879] ALSA: hda/realtek - Fix microphone noise on ASUS TUF B550M-PLUS
+Date:   Tue,  7 Jun 2022 18:52:11 +0200
+Message-Id: <20220607165003.056508330@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
 References: <20220607165002.659942637@linuxfoundation.org>
@@ -53,35 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van der Kemp <rik@upto11.nl>
+From: Marios Levogiannis <marios.levogiannis@gmail.com>
 
-commit 15dad62f4bdb5dc0f0efde8181d680db9963544c upstream.
+commit 9bfa7b36343c7d84370bc61c9ed774635b05e4eb upstream.
 
-The 2022-model XPS 15 appears to use the same 4-speakers-on-ALC289
-audio setup as the Dell XPS 15 9510, so requires the same quirk to
-enable woofer output. Tested on my own 9520.
+Set microphone pins 0x18 (rear) and 0x19 (front) to VREF_50 to fix the
+microphone noise on ASUS TUF B550M-PLUS which uses the ALCS1200A codec.
+The initial value was VREF_80.
 
-[ Move the entry to the right position in the SSID order -- tiwai ]
+The same issue is also present on Windows using both the default Windows
+driver and all tested Realtek drivers before version 6.0.9049.1. Comparing
+Realtek driver 6.0.9049.1 (the first one without the microphone noise) to
+Realtek driver 6.0.9047.1 (the last one with the microphone noise)
+revealed that the fix is the result of setting pins 0x18 and 0x19 to
+VREF_50.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216035
+This fix may also work for other boards that have been reported to have
+the same microphone issue and use the ALC1150 and ALCS1200A codecs, since
+these codecs are similar and the fix in the Realtek driver on Windows is
+common for both. However, it is currently enabled only for ASUS TUF
+B550M-PLUS as this is the only board that could be tested.
+
+Signed-off-by: Marios Levogiannis <marios.levogiannis@gmail.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Rik van der Kemp <rik@upto11.nl>
-Link: https://lore.kernel.org/r/181056a137b.d14baf90133058.8425453735588429828@upto11.nl
+Link: https://lore.kernel.org/r/20220530074131.12258-1-marios.levogiannis@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8957,6 +8957,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1028, 0x0a62, "Dell Precision 5560", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x0a9d, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x0a9e, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1028, 0x0b19, "Dell XPS 15 9520", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+@@ -1981,6 +1981,7 @@ enum {
+ 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
+ 	ALC887_FIXUP_ASUS_AUDIO,
+ 	ALC887_FIXUP_ASUS_HMIC,
++	ALCS1200A_FIXUP_MIC_VREF,
+ };
+ 
+ static void alc889_fixup_coef(struct hda_codec *codec,
+@@ -2526,6 +2527,14 @@ static const struct hda_fixup alc882_fix
+ 		.chained = true,
+ 		.chain_id = ALC887_FIXUP_ASUS_AUDIO,
+ 	},
++	[ALCS1200A_FIXUP_MIC_VREF] = {
++		.type = HDA_FIXUP_PINCTLS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x18, PIN_VREF50 }, /* rear mic */
++			{ 0x19, PIN_VREF50 }, /* front mic */
++			{}
++		}
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
+@@ -2563,6 +2572,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
+ 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
+ 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
++	SND_PCI_QUIRK(0x1043, 0x8797, "ASUS TUF B550M-PLUS", ALCS1200A_FIXUP_MIC_VREF),
+ 	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
 
 
