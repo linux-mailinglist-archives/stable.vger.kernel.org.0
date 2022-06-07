@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB4754122F
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ADD2541894
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354448AbiFGToe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43630 "EHLO
+        id S1379893AbiFGVMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357190AbiFGTlZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:41:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD421B1F46;
-        Tue,  7 Jun 2022 11:14:50 -0700 (PDT)
+        with ESMTP id S1349467AbiFGVLs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA372194CE;
+        Tue,  7 Jun 2022 11:53:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1597160B25;
-        Tue,  7 Jun 2022 18:14:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224A7C34115;
-        Tue,  7 Jun 2022 18:14:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C82361724;
+        Tue,  7 Jun 2022 18:53:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78AAEC36B00;
+        Tue,  7 Jun 2022 18:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625689;
-        bh=crdPjxXsbeSThDJ71pyFQjdLwv3x7InzqF9AGJuyQbo=;
+        s=korg; t=1654628033;
+        bh=A3CivUUyS2UHd9YX6XuOP1Gz13QUVPcNKCp/bvnCo6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UON/QWPvY3uONVuEMzsEtfTrenv3WtQlVDS98J/CtoXq0TicMfIG0pikbjlmQInuM
-         S3Ww0Nbo9UzhOsKZ3mz2cRd4SsiQDyv0ZZ10qSD4g4iPneGokdGNAu4kI+H7UhNkiC
-         LqRpxwjMcCgLaXR6gV6BLgz/JbYID1IDVpd5PVYg=
+        b=lGlrZbV26dQ/cgfo9TCiqJ0qnwwQtFovdRHJ/quTQGBzkcqb2sXMs4Hpnm14CqmIo
+         qfobOPyRikBnIwIL1FWDXfiM9+t+j12VNIei+m+eX8ooDWBa1JgrsgoVJUH7Hu2UDv
+         9FRFGhIPs5+oZR1I8aV29xNuQfoDzMFyTmhah/ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org,
+        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
+        Omar Sandoval <osandov@fb.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 107/772] xtensa: move trace_hardirqs_off call back to entry.S
+Subject: [PATCH 5.18 181/879] btrfs: fix anon_dev leak in create_subvol()
 Date:   Tue,  7 Jun 2022 18:54:59 +0200
-Message-Id: <20220607164952.199691616@linuxfoundation.org>
+Message-Id: <20220607165008.093753515@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +56,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit de4415d0bac91192ee9c74e849bc61429efa9b42 ]
+[ Upstream commit 2256e901f5bddc56e24089c96f27b77da932dfcc ]
 
-Context tracking call must be done after hardirq tracking call,
-otherwise lockdep_assert_irqs_disabled called from rcu_eqs_exit gives
-a warning. To avoid context tracking logic duplication for IRQ/exception
-entry paths move trace_hardirqs_off call back to common entry code.
+When btrfs_qgroup_inherit(), btrfs_alloc_tree_block, or
+btrfs_insert_root() fail in create_subvol(), we return without freeing
+anon_dev. Reorganize the error handling in create_subvol() to fix this.
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/entry.S | 19 +++++++++++++------
- arch/xtensa/kernel/traps.c | 11 ++---------
- 2 files changed, 15 insertions(+), 15 deletions(-)
+ fs/btrfs/ioctl.c | 49 +++++++++++++++++++++++-------------------------
+ 1 file changed, 23 insertions(+), 26 deletions(-)
 
-diff --git a/arch/xtensa/kernel/entry.S b/arch/xtensa/kernel/entry.S
-index a1029a5b6a1d..ee08238099f4 100644
---- a/arch/xtensa/kernel/entry.S
-+++ b/arch/xtensa/kernel/entry.S
-@@ -442,7 +442,6 @@ KABI_W	or	a3, a3, a0
- 	moveqz	a3, a0, a2		# a3 = LOCKLEVEL iff interrupt
- KABI_W	movi	a2, PS_WOE_MASK
- KABI_W	or	a3, a3, a2
--	rsr	a2, exccause
- #endif
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index be6c24577dbe..777801902511 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -561,7 +561,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	struct timespec64 cur_time = current_time(dir);
+ 	struct inode *inode;
+ 	int ret;
+-	dev_t anon_dev = 0;
++	dev_t anon_dev;
+ 	u64 objectid;
+ 	u64 index = 0;
  
- 	/* restore return address (or 0 if return to userspace) */
-@@ -469,19 +468,27 @@ KABI_W	or	a3, a3, a2
+@@ -571,11 +571,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
  
- 	save_xtregs_opt a1 a3 a4 a5 a6 a7 PT_XTREGS_OPT
- 	
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	rsr		abi_tmp0, ps
-+	extui		abi_tmp0, abi_tmp0, PS_INTLEVEL_SHIFT, PS_INTLEVEL_WIDTH
-+	beqz		abi_tmp0, 1f
-+	abi_call	trace_hardirqs_off
-+1:
-+#endif
-+
- 	/* Go to second-level dispatcher. Set up parameters to pass to the
- 	 * exception handler and call the exception handler.
+ 	ret = btrfs_get_free_objectid(fs_info->tree_root, &objectid);
+ 	if (ret)
+-		goto fail_free;
+-
+-	ret = get_anon_bdev(&anon_dev);
+-	if (ret < 0)
+-		goto fail_free;
++		goto out_root_item;
+ 
+ 	/*
+ 	 * Don't create subvolume whose level is not zero. Or qgroup will be
+@@ -583,9 +579,13 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
  	 */
+ 	if (btrfs_qgroup_level(objectid)) {
+ 		ret = -ENOSPC;
+-		goto fail_free;
++		goto out_root_item;
+ 	}
  
--	rsr	a4, excsave1
--	addx4	a4, a2, a4
--	l32i	a4, a4, EXC_TABLE_DEFAULT		# load handler
--	mov	abi_arg1, a2			# pass EXCCAUSE
-+	l32i	abi_arg1, a1, PT_EXCCAUSE	# pass EXCCAUSE
-+	rsr	abi_tmp0, excsave1
-+	addx4	abi_tmp0, abi_arg1, abi_tmp0
-+	l32i	abi_tmp0, abi_tmp0, EXC_TABLE_DEFAULT	# load handler
- 	mov	abi_arg0, a1			# pass stack frame
++	ret = get_anon_bdev(&anon_dev);
++	if (ret < 0)
++		goto out_root_item;
++
+ 	btrfs_init_block_rsv(&block_rsv, BTRFS_BLOCK_RSV_TEMP);
+ 	/*
+ 	 * The same as the snapshot creation, please see the comment
+@@ -593,26 +593,26 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	 */
+ 	ret = btrfs_subvolume_reserve_metadata(root, &block_rsv, 8, false);
+ 	if (ret)
+-		goto fail_free;
++		goto out_anon_dev;
  
- 	/* Call the second-level handler */
+ 	trans = btrfs_start_transaction(root, 0);
+ 	if (IS_ERR(trans)) {
+ 		ret = PTR_ERR(trans);
+ 		btrfs_subvolume_release_metadata(root, &block_rsv);
+-		goto fail_free;
++		goto out_anon_dev;
+ 	}
+ 	trans->block_rsv = &block_rsv;
+ 	trans->bytes_reserved = block_rsv.size;
  
--	abi_callx	a4
-+	abi_callx	abi_tmp0
+ 	ret = btrfs_qgroup_inherit(trans, 0, objectid, inherit);
+ 	if (ret)
+-		goto fail;
++		goto out;
  
- 	/* Jump here for exception exit */
- 	.global common_exception_return
-diff --git a/arch/xtensa/kernel/traps.c b/arch/xtensa/kernel/traps.c
-index 9345007d474d..5f86208c67c8 100644
---- a/arch/xtensa/kernel/traps.c
-+++ b/arch/xtensa/kernel/traps.c
-@@ -242,12 +242,8 @@ DEFINE_PER_CPU(unsigned long, nmi_count);
+ 	leaf = btrfs_alloc_tree_block(trans, root, 0, objectid, NULL, 0, 0, 0,
+ 				      BTRFS_NESTING_NORMAL);
+ 	if (IS_ERR(leaf)) {
+ 		ret = PTR_ERR(leaf);
+-		goto fail;
++		goto out;
+ 	}
  
- void do_nmi(struct pt_regs *regs)
- {
--	struct pt_regs *old_regs;
-+	struct pt_regs *old_regs = set_irq_regs(regs);
+ 	btrfs_mark_buffer_dirty(leaf);
+@@ -667,7 +667,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 		btrfs_tree_unlock(leaf);
+ 		btrfs_free_tree_block(trans, objectid, leaf, 0, 1);
+ 		free_extent_buffer(leaf);
+-		goto fail;
++		goto out;
+ 	}
  
--	if ((regs->ps & PS_INTLEVEL_MASK) < LOCKLEVEL)
--		trace_hardirqs_off();
+ 	free_extent_buffer(leaf);
+@@ -676,19 +676,18 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	key.offset = (u64)-1;
+ 	new_root = btrfs_get_new_fs_root(fs_info, objectid, anon_dev);
+ 	if (IS_ERR(new_root)) {
+-		free_anon_bdev(anon_dev);
+ 		ret = PTR_ERR(new_root);
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+-	/* Freeing will be done in btrfs_put_root() of new_root */
++	/* anon_dev is owned by new_root now. */
+ 	anon_dev = 0;
+ 
+ 	ret = btrfs_record_root_in_trans(trans, new_root);
+ 	if (ret) {
+ 		btrfs_put_root(new_root);
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_create_subvol_root(trans, new_root, root, mnt_userns);
+@@ -696,7 +695,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	if (ret) {
+ 		/* We potentially lose an unused inode item here */
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -705,28 +704,28 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	ret = btrfs_set_inode_index(BTRFS_I(dir), &index);
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_insert_dir_item(trans, name, namelen, BTRFS_I(dir), &key,
+ 				    BTRFS_FT_DIR, index);
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	btrfs_i_size_write(BTRFS_I(dir), dir->i_size + namelen * 2);
+ 	ret = btrfs_update_inode(trans, root, BTRFS_I(dir));
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_add_root_ref(trans, objectid, root->root_key.objectid,
+ 				 btrfs_ino(BTRFS_I(dir)), index, name, namelen);
+ 	if (ret) {
+ 		btrfs_abort_transaction(trans, ret);
+-		goto fail;
++		goto out;
+ 	}
+ 
+ 	ret = btrfs_uuid_tree_add(trans, root_item->uuid,
+@@ -734,8 +733,7 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 	if (ret)
+ 		btrfs_abort_transaction(trans, ret);
+ 
+-fail:
+-	kfree(root_item);
++out:
+ 	trans->block_rsv = NULL;
+ 	trans->bytes_reserved = 0;
+ 	btrfs_subvolume_release_metadata(root, &block_rsv);
+@@ -751,11 +749,10 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 			return PTR_ERR(inode);
+ 		d_instantiate(dentry, inode);
+ 	}
+-	return ret;
 -
--	old_regs = set_irq_regs(regs);
- 	nmi_enter();
- 	++*this_cpu_ptr(&nmi_count);
- 	check_valid_nmi();
-@@ -269,12 +265,9 @@ void do_interrupt(struct pt_regs *regs)
- 		XCHAL_INTLEVEL6_MASK,
- 		XCHAL_INTLEVEL7_MASK,
- 	};
--	struct pt_regs *old_regs;
-+	struct pt_regs *old_regs = set_irq_regs(regs);
- 	unsigned unhandled = ~0u;
- 
--	trace_hardirqs_off();
--
--	old_regs = set_irq_regs(regs);
- 	irq_enter();
- 
- 	for (;;) {
+-fail_free:
++out_anon_dev:
+ 	if (anon_dev)
+ 		free_anon_bdev(anon_dev);
++out_root_item:
+ 	kfree(root_item);
+ 	return ret;
+ }
 -- 
 2.35.1
 
