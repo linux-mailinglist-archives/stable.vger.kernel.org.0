@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C34541D03
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B24CF54070E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383568AbiFGWHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:07:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
+        id S1347697AbiFGRl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:41:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383735AbiFGWGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:06:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA00A2534CB;
-        Tue,  7 Jun 2022 12:17:27 -0700 (PDT)
+        with ESMTP id S1348586AbiFGRlL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:41:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3926212089F;
+        Tue,  7 Jun 2022 10:34:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6282CCE246B;
-        Tue,  7 Jun 2022 19:17:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C78BC385A2;
-        Tue,  7 Jun 2022 19:17:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 149D661579;
+        Tue,  7 Jun 2022 17:34:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24711C385A5;
+        Tue,  7 Jun 2022 17:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629444;
-        bh=RAJ3x2ZhfBQAjh19mcMTVM1NJu9fP1fRaAIm4q3mR/c=;
+        s=korg; t=1654623263;
+        bh=SV0IECVPnc9/xR8YY8B9n2LFgv4bXGrudOLScsdWmN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1eDloyQLOMLvFN1s2BXMC32cJO5kUc0kno6gEp+gz4pAkHWJr6jwSKzbj4v67xiC
-         Kb/hMBAx5NKOXVyhu6id+7a/PTFaiPUAkD3mmHc2qrdGof6iZgaAimE5ukgxloH78r
-         9AUa4XcPzLi7rKpZD9Z/U9ncG73DhxJdtAM5NeU8=
+        b=11Wj4nI7tZAiWsNEFD0/G3xyOYgBojWVaBLu9LhhiYAsnMDyjuVMzkQ+Y2QPQl55a
+         n4bvNzUiocY/KLmiwPKeorlJbaTTQuYMI4PWGwQh3mlX74MUyI8zfWPEydYsHZHf80
+         euSuI7fJo9oU6cXNoFtYBKahj7dwanFpxgUhPd6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 693/879] RISC-V: Split out the XIP fixups into their own file
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: =?UTF-8?q?=5BPATCH=205=2E10=20354/452=5D=20fs-writeback=3A=20writeback=5Fsb=5Finodes=EF=BC=9ARecalculate=20wrote=20according=20skipped=20pages?=
 Date:   Tue,  7 Jun 2022 19:03:31 +0200
-Message-Id: <20220607165022.963428462@linuxfoundation.org>
+Message-Id: <20220607164919.109947445@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,128 +54,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit e7681beba992d5a196476d5d79dfcb48f2a2c477 ]
+commit 68f4c6eba70df70a720188bce95c85570ddfcc87 upstream.
 
-This was broken by the original refactoring (as the XIP definitions
-depend on <asm/pgtable.h>) and then more broken by the merge (as I
-accidentally took the old version).  This fixes both breakages, while
-also pulling this out of <asm/asm.h> to avoid polluting most assembly
-files with the XIP fixups.
+Commit 505a666ee3fc ("writeback: plug writeback in wb_writeback() and
+writeback_inodes_wb()") has us holding a plug during wb_writeback, which
+may cause a potential ABBA dead lock:
 
-Fixes: bee7fbc38579 ("RISC-V CPU Idle Support")
-Fixes: 63b13e64a829 ("RISC-V: Add arch functions for non-retentive suspend entry/exit")
-Link: https://lore.kernel.org/r/20220420184056.7886-4-palmer@rivosinc.com
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    wb_writeback		fat_file_fsync
+blk_start_plug(&plug)
+for (;;) {
+  iter i-1: some reqs have been added into plug->mq_list  // LOCK A
+  iter i:
+    progress = __writeback_inodes_wb(wb, work)
+    . writeback_sb_inodes // fat's bdev
+    .   __writeback_single_inode
+    .   . generic_writepages
+    .   .   __block_write_full_page
+    .   .   . . 	    __generic_file_fsync
+    .   .   . . 	      sync_inode_metadata
+    .   .   . . 	        writeback_single_inode
+    .   .   . . 		  __writeback_single_inode
+    .   .   . . 		    fat_write_inode
+    .   .   . . 		      __fat_write_inode
+    .   .   . . 		        sync_dirty_buffer	// fat's bdev
+    .   .   . . 			  lock_buffer(bh)	// LOCK B
+    .   .   . . 			    submit_bh
+    .   .   . . 			      blk_mq_get_tag	// LOCK A
+    .   .   . trylock_buffer(bh)  // LOCK B
+    .   .   .   redirty_page_for_writepage
+    .   .   .     wbc->pages_skipped++
+    .   .   --wbc->nr_to_write
+    .   wrote += write_chunk - wbc.nr_to_write  // wrote > 0
+    .   requeue_inode
+    .     redirty_tail_locked
+    if (progress)    // progress > 0
+      continue;
+  iter i+1:
+      queue_io
+      // similar process with iter i, infinite for-loop !
+}
+blk_finish_plug(&plug)   // flush plug won't be called
+
+Above process triggers a hungtask like:
+[  399.044861] INFO: task bb:2607 blocked for more than 30 seconds.
+[  399.046824]       Not tainted 5.18.0-rc1-00005-gefae4d9eb6a2-dirty
+[  399.051539] task:bb              state:D stack:    0 pid: 2607 ppid:
+2426 flags:0x00004000
+[  399.051556] Call Trace:
+[  399.051570]  __schedule+0x480/0x1050
+[  399.051592]  schedule+0x92/0x1a0
+[  399.051602]  io_schedule+0x22/0x50
+[  399.051613]  blk_mq_get_tag+0x1d3/0x3c0
+[  399.051640]  __blk_mq_alloc_requests+0x21d/0x3f0
+[  399.051657]  blk_mq_submit_bio+0x68d/0xca0
+[  399.051674]  __submit_bio+0x1b5/0x2d0
+[  399.051708]  submit_bio_noacct+0x34e/0x720
+[  399.051718]  submit_bio+0x3b/0x150
+[  399.051725]  submit_bh_wbc+0x161/0x230
+[  399.051734]  __sync_dirty_buffer+0xd1/0x420
+[  399.051744]  sync_dirty_buffer+0x17/0x20
+[  399.051750]  __fat_write_inode+0x289/0x310
+[  399.051766]  fat_write_inode+0x2a/0xa0
+[  399.051783]  __writeback_single_inode+0x53c/0x6f0
+[  399.051795]  writeback_single_inode+0x145/0x200
+[  399.051803]  sync_inode_metadata+0x45/0x70
+[  399.051856]  __generic_file_fsync+0xa3/0x150
+[  399.051880]  fat_file_fsync+0x1d/0x80
+[  399.051895]  vfs_fsync_range+0x40/0xb0
+[  399.051929]  __x64_sys_fsync+0x18/0x30
+
+In my test, 'need_resched()' (which is imported by 590dca3a71 "fs-writeback:
+unplug before cond_resched in writeback_sb_inodes") in function
+'writeback_sb_inodes()' seldom comes true, unless cond_resched() is deleted
+from write_cache_pages().
+
+Fix it by correcting wrote number according number of skipped pages
+in writeback_sb_inodes().
+
+Goto Link to find a reproducer.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215837
+Cc: stable@vger.kernel.org # v4.3
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220510133805.1988292-1-chengzhihao1@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/asm.h       | 26 -------------------------
- arch/riscv/include/asm/xip_fixup.h | 31 ++++++++++++++++++++++++++++++
- arch/riscv/kernel/head.S           |  1 +
- arch/riscv/kernel/suspend_entry.S  |  1 +
- 4 files changed, 33 insertions(+), 26 deletions(-)
- create mode 100644 arch/riscv/include/asm/xip_fixup.h
+ fs/fs-writeback.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/include/asm/asm.h b/arch/riscv/include/asm/asm.h
-index 8c2549b16ac0..618d7c5af1a2 100644
---- a/arch/riscv/include/asm/asm.h
-+++ b/arch/riscv/include/asm/asm.h
-@@ -67,30 +67,4 @@
- #error "Unexpected __SIZEOF_SHORT__"
- #endif
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -1650,11 +1650,12 @@ static long writeback_sb_inodes(struct s
+ 	};
+ 	unsigned long start_time = jiffies;
+ 	long write_chunk;
+-	long wrote = 0;  /* count both pages and inodes */
++	long total_wrote = 0;  /* count both pages and inodes */
  
--#ifdef __ASSEMBLY__
--
--/* Common assembly source macros */
--
--#ifdef CONFIG_XIP_KERNEL
--.macro XIP_FIXUP_OFFSET reg
--	REG_L t0, _xip_fixup
--	add \reg, \reg, t0
--.endm
--.macro XIP_FIXUP_FLASH_OFFSET reg
--	la t1, __data_loc
--	REG_L t1, _xip_phys_offset
--	sub \reg, \reg, t1
--	add \reg, \reg, t0
--.endm
--_xip_fixup: .dword CONFIG_PHYS_RAM_BASE - CONFIG_XIP_PHYS_ADDR - XIP_OFFSET
--_xip_phys_offset: .dword CONFIG_XIP_PHYS_ADDR + XIP_OFFSET
--#else
--.macro XIP_FIXUP_OFFSET reg
--.endm
--.macro XIP_FIXUP_FLASH_OFFSET reg
--.endm
--#endif /* CONFIG_XIP_KERNEL */
--
--#endif /* __ASSEMBLY__ */
--
- #endif /* _ASM_RISCV_ASM_H */
-diff --git a/arch/riscv/include/asm/xip_fixup.h b/arch/riscv/include/asm/xip_fixup.h
-new file mode 100644
-index 000000000000..d4ffc3c37649
---- /dev/null
-+++ b/arch/riscv/include/asm/xip_fixup.h
-@@ -0,0 +1,31 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * XIP fixup macros, only useful in assembly.
-+ */
-+#ifndef _ASM_RISCV_XIP_FIXUP_H
-+#define _ASM_RISCV_XIP_FIXUP_H
-+
-+#include <linux/pgtable.h>
-+
-+#ifdef CONFIG_XIP_KERNEL
-+.macro XIP_FIXUP_OFFSET reg
-+        REG_L t0, _xip_fixup
-+        add \reg, \reg, t0
-+.endm
-+.macro XIP_FIXUP_FLASH_OFFSET reg
-+	la t1, __data_loc
-+	REG_L t1, _xip_phys_offset
-+	sub \reg, \reg, t1
-+	add \reg, \reg, t0
-+.endm
-+
-+_xip_fixup: .dword CONFIG_PHYS_RAM_BASE - CONFIG_XIP_PHYS_ADDR - XIP_OFFSET
-+_xip_phys_offset: .dword CONFIG_XIP_PHYS_ADDR + XIP_OFFSET
-+#else
-+.macro XIP_FIXUP_OFFSET reg
-+.endm
-+.macro XIP_FIXUP_FLASH_OFFSET reg
-+.endm
-+#endif /* CONFIG_XIP_KERNEL */
-+
-+#endif
-diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
-index b605fb1e6a9c..b865046e4dbb 100644
---- a/arch/riscv/kernel/head.S
-+++ b/arch/riscv/kernel/head.S
-@@ -14,6 +14,7 @@
- #include <asm/cpu_ops_sbi.h>
- #include <asm/hwcap.h>
- #include <asm/image.h>
-+#include <asm/xip_fixup.h>
- #include "efi-header.S"
+ 	while (!list_empty(&wb->b_io)) {
+ 		struct inode *inode = wb_inode(wb->b_io.prev);
+ 		struct bdi_writeback *tmp_wb;
++		long wrote;
  
- __HEAD
-diff --git a/arch/riscv/kernel/suspend_entry.S b/arch/riscv/kernel/suspend_entry.S
-index 4b07b809a2b8..aafcca58c19d 100644
---- a/arch/riscv/kernel/suspend_entry.S
-+++ b/arch/riscv/kernel/suspend_entry.S
-@@ -8,6 +8,7 @@
- #include <asm/asm.h>
- #include <asm/asm-offsets.h>
- #include <asm/csr.h>
-+#include <asm/xip_fixup.h>
+ 		if (inode->i_sb != sb) {
+ 			if (work->sb) {
+@@ -1730,7 +1731,9 @@ static long writeback_sb_inodes(struct s
  
- 	.text
- 	.altmacro
--- 
-2.35.1
-
+ 		wbc_detach_inode(&wbc);
+ 		work->nr_pages -= write_chunk - wbc.nr_to_write;
+-		wrote += write_chunk - wbc.nr_to_write;
++		wrote = write_chunk - wbc.nr_to_write - wbc.pages_skipped;
++		wrote = wrote < 0 ? 0 : wrote;
++		total_wrote += wrote;
+ 
+ 		if (need_resched()) {
+ 			/*
+@@ -1752,7 +1755,7 @@ static long writeback_sb_inodes(struct s
+ 		tmp_wb = inode_to_wb_and_lock_list(inode);
+ 		spin_lock(&inode->i_lock);
+ 		if (!(inode->i_state & I_DIRTY_ALL))
+-			wrote++;
++			total_wrote++;
+ 		requeue_inode(inode, tmp_wb, &wbc);
+ 		inode_sync_complete(inode);
+ 		spin_unlock(&inode->i_lock);
+@@ -1766,14 +1769,14 @@ static long writeback_sb_inodes(struct s
+ 		 * bail out to wb_writeback() often enough to check
+ 		 * background threshold and other termination conditions.
+ 		 */
+-		if (wrote) {
++		if (total_wrote) {
+ 			if (time_is_before_jiffies(start_time + HZ / 10UL))
+ 				break;
+ 			if (work->nr_pages <= 0)
+ 				break;
+ 		}
+ 	}
+-	return wrote;
++	return total_wrote;
+ }
+ 
+ static long __writeback_inodes_wb(struct bdi_writeback *wb,
 
 
