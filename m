@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D176154105E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31D9D541E31
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352535AbiFGTXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:23:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34218 "EHLO
+        id S1382841AbiFGWYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355059AbiFGTWG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:22:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B838D49F81;
-        Tue,  7 Jun 2022 11:08:58 -0700 (PDT)
+        with ESMTP id S1382957AbiFGWWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:22:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C0826D242;
+        Tue,  7 Jun 2022 12:22:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 492AFB82340;
-        Tue,  7 Jun 2022 18:08:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD6BC385A5;
-        Tue,  7 Jun 2022 18:08:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A81DEB823CC;
+        Tue,  7 Jun 2022 19:22:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086E4C385A5;
+        Tue,  7 Jun 2022 19:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625336;
-        bh=t3hrAwWBwsBzAgzMagjHfQFc8tnCTd0Z2UGGpiYnyUE=;
+        s=korg; t=1654629733;
+        bh=HplrpNmY7M+tguF3+6EkcKSnhuhXimBvQS/rGeEEEww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEbmHm0SFW1t5FHXevpK6wmsqPX6R2NYUVyz6wQLL+lff6cZRQKAyW3cXV4naFjo/
-         4e3J5oqlt6UXRNgmQjI8Y42hrnNtbF7qwURL5ZZ3u7bVZyDwQAw/I6mbx4ggd9lBjj
-         spJrj1GunVizn+GaRDuMo+w1268PL8ZmbIbPSOAU=
+        b=Il8VDtjZSYUi7aJ7RhxZEziTmzVupytHUIDUp8a0LuG+VAhcRijDOuFlxA3dc4es/
+         KqdnOocdtrxTPtpwpU511Li6qkk1j8Rd2+0emjrX0OriIsPbJGzpLqHG4I0bQXb8yP
+         TbP03tdhcZT4Jvud3dO7AG0KGRaSzcN17WaPEiXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 649/667] net: ipa: fix page free in ipa_endpoint_trans_release()
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.18 796/879] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
 Date:   Tue,  7 Jun 2022 19:05:14 +0200
-Message-Id: <20220607164954.118180898@linuxfoundation.org>
+Message-Id: <20220607165025.966692713@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 155c0c90bca918de6e4327275dfc1d97fd604115 upstream.
+commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
 
-Currently the (possibly compound) page used for receive buffers are
-freed using __free_pages().  But according to this comment above the
-definition of that function, that's wrong:
-    If you want to use the page's reference count to decide when
-    to free the allocation, you should allocate a compound page,
-    and use put_page() instead of __free_pages().
+If the display is not enable()d, then we aren't holding a runtime PM
+reference here. Thus, it's easy to accidentally cause a hang, if user
+space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
 
-Convert the call to __free_pages() in ipa_endpoint_trans_release()
-to use put_page() instead.
+Let's get a runtime PM reference, and check that we "see" the panel.
+Don't force any panel power-up, etc., because that can be intrusive, and
+that's not what other drivers do (see
+drivers/gpu/drm/bridge/ti-sn65dsi86.c and
+drivers/gpu/drm/bridge/parade-ps8640.c.)
 
-Fixes: ed23f02680caa ("net: ipa: define per-endpoint receive buffer size")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
+Cc: <stable@vger.kernel.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_endpoint.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1389,7 +1389,7 @@ void ipa_endpoint_trans_release(struct i
- 		struct page *page = trans->data;
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1632,8 +1632,19 @@ static ssize_t analogix_dpaux_transfer(s
+ 				       struct drm_dp_aux_msg *msg)
+ {
+ 	struct analogix_dp_device *dp = to_dp(aux);
++	int ret;
  
- 		if (page)
--			__free_pages(page, get_order(IPA_RX_BUFFER_SIZE));
-+			put_page(page);
- 	}
+-	return analogix_dp_transfer(dp, msg);
++	pm_runtime_get_sync(dp->dev);
++
++	ret = analogix_dp_detect_hpd(dp);
++	if (ret)
++		goto out;
++
++	ret = analogix_dp_transfer(dp, msg);
++out:
++	pm_runtime_put(dp->dev);
++
++	return ret;
  }
  
+ struct analogix_dp_device *
 
 
