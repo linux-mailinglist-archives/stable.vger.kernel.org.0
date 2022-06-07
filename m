@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74005407DC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28F4541DF6
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344228AbiFGRwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
+        id S1380728AbiFGWXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:23:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349955AbiFGRvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:51:43 -0400
+        with ESMTP id S1385335AbiFGWVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8693E13F432;
-        Tue,  7 Jun 2022 10:39:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9674319948A;
+        Tue,  7 Jun 2022 12:21:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFD4D615A7;
-        Tue,  7 Jun 2022 17:38:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B992EC34119;
-        Tue,  7 Jun 2022 17:38:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF25D60A21;
+        Tue,  7 Jun 2022 19:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02756C385A2;
+        Tue,  7 Jun 2022 19:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623500;
-        bh=n5oISyk83ja9vB3obx7iI76Zu1CIB14AI1E3u+TdMDw=;
+        s=korg; t=1654629680;
+        bh=sFYoKH3ur13xudM/5aKhDJvPwSJ1dZo6go0R0tMxJR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nS0vzueQ+bYn0P+JldB6r1ULiyExhkZ87VAygqjB6Up6r/683D/gn7qbFl6r5ujqF
-         +73xEG61S/zU8ThWUuySeQ/shkcJh+4+knf/8nmAFs1YT6zMXwL4XR1kTmpwn8uQgW
-         y1Ev9SyVz+eadHWSx4QKUoUWwBosVKPF/IVNrUbM=
+        b=0n1rA8QAs0gSntiWvi7IcXcN2OgsUqmEU3Q6D0vMM/q7zqCH8UP7YTPif0l1mufZG
+         ElGE2HPU2M0vwh7xe7SH5w2W0nPkNKtx4H9QfPUeKoiHXAey0QQmAjvix8nBGNbIDm
+         k/9RufZDiwDMwA0rWryuWucUbN0lxZkHMDcA5BmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.10 440/452] thermal/core: Fix memory leak in the error path
+        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.18 779/879] selftests/landlock: Extend tests for minimal valid attribute size
 Date:   Tue,  7 Jun 2022 19:04:57 +0200
-Message-Id: <20220607164921.674881284@linuxfoundation.org>
+Message-Id: <20220607165025.482010559@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit d44616c6cc3e35eea03ecfe9040edfa2b486a059 upstream.
+commit 291865bd7e8bb4b4033d341fa02dafa728e6378c upstream.
 
-Fix the following error:
+This might be useful when the struct landlock_ruleset_attr will get more
+fields.
 
- smatch warnings:
- drivers/thermal/thermal_core.c:1020 __thermal_cooling_device_register() warn: possible memory leak of 'cdev'
-
-by freeing the cdev when exiting the function in the error path.
-
-Fixes: 584837618100 ("thermal/drivers/core: Use a char pointer for the cooling device name")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210319202257.890848-1-daniel.lezcano@linaro.org
+Cc: Shuah Khan <shuah@kernel.org>
+Link: https://lore.kernel.org/r/20220506160820.524344-4-mic@digikod.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/thermal_core.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/landlock/base_test.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -1152,6 +1152,7 @@ out_kfree_type:
- out_ida_remove:
- 	ida_simple_remove(&thermal_cdev_ida, id);
- out_kfree_cdev:
-+	kfree(cdev);
- 	return ERR_PTR(ret);
- }
+--- a/tools/testing/selftests/landlock/base_test.c
++++ b/tools/testing/selftests/landlock/base_test.c
+@@ -35,6 +35,8 @@ TEST(inconsistent_attr)
+ 	ASSERT_EQ(EINVAL, errno);
+ 	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 1, 0));
+ 	ASSERT_EQ(EINVAL, errno);
++	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 7, 0));
++	ASSERT_EQ(EINVAL, errno);
  
+ 	ASSERT_EQ(-1, landlock_create_ruleset(NULL, 1, 0));
+ 	/* The size if less than sizeof(struct landlock_attr_enforce). */
+@@ -47,6 +49,9 @@ TEST(inconsistent_attr)
+ 	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, page_size + 1, 0));
+ 	ASSERT_EQ(E2BIG, errno);
+ 
++	/* Checks minimal valid attribute size. */
++	ASSERT_EQ(-1, landlock_create_ruleset(ruleset_attr, 8, 0));
++	ASSERT_EQ(ENOMSG, errno);
+ 	ASSERT_EQ(-1, landlock_create_ruleset(
+ 			      ruleset_attr,
+ 			      sizeof(struct landlock_ruleset_attr), 0));
 
 
