@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7029554066C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6BDF541B09
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:42:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347351AbiFGRe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40338 "EHLO
+        id S1380939AbiFGVmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346696AbiFGR3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:29:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D27118D3B;
-        Tue,  7 Jun 2022 10:24:58 -0700 (PDT)
+        with ESMTP id S1381302AbiFGVk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:40:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B272218B7;
+        Tue,  7 Jun 2022 12:06:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48BF560906;
-        Tue,  7 Jun 2022 17:24:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F04C385A5;
-        Tue,  7 Jun 2022 17:24:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5360B822C0;
+        Tue,  7 Jun 2022 19:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01947C385A2;
+        Tue,  7 Jun 2022 19:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622697;
-        bh=tiyZ3eOGweBf18A/dadGgQ0sLxVwdPM+W/Agj24C7+w=;
+        s=korg; t=1654628788;
+        bh=ij/4hImqJWkFdktGF0byICBrtQSl52EtTpSPV326/W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J51Q6Zac4j4PPEY+PILYzAKzKf185xO4zsE80s8sMkQ4ANuqA5hck+1OZ/tk3Pv4o
-         fMuG7Pmi1AZzBAdA/64fSo/qWV/1WkW1ymvIZMOgq4YOjnBMfPvrgGEKHmiiBhA4Pv
-         OM+1SQn+otGAMMjaHXlh0LEMlU0WYDD2pt2QxNyY=
+        b=pbD0MHilah+LAGYx7JEivV/ObuZZUWUDrGOclS35aeiXjDddj6vQHEdtxxb1JtpT5
+         OD47yjfyxWVZTwGnX/PuTonTP8BIk0biuFtqFXOaq4MKeXqs82X6u5JFlo+ghBEEQf
+         6h0acvOj8de4+jdk4EB3v9ua9OexPCsvnGLG8vAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/452] powerpc/xics: fix refcount leak in icp_opal_init()
+Subject: [PATCH 5.18 454/879] Bluetooth: use hdev lock for accept_list and reject_list in conn req
 Date:   Tue,  7 Jun 2022 18:59:32 +0200
-Message-Id: <20220607164911.982184998@linuxfoundation.org>
+Message-Id: <20220607165016.048605042@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 5dd9e27ea4a39f7edd4bf81e9e70208e7ac0b7c9 ]
+[ Upstream commit fb048cae51bacdfbbda2954af3c213fdb1d484f4 ]
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, use of_node_put() on it when done.
+All accesses (both reads and modifications) to
+hdev->{accept,reject}_list are protected by hdev lock,
+except the ones in hci_conn_request_evt. This can cause a race
+condition in the form of a list corruption.
+The solution is to protect these lists in hci_conn_request_evt as well.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220402013419.2410298-1-lv.ruyi@zte.com.cn
+I was unable to find the exact commit that introduced the issue for the
+reject list, I was only able to find it for the accept list.
+
+Fixes: a55bd29d5227 ("Bluetooth: Add white list lookup for incoming connection requests")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xics/icp-opal.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/hci_event.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xics/icp-opal.c b/arch/powerpc/sysdev/xics/icp-opal.c
-index 68fd2540b093..7fa520efcefa 100644
---- a/arch/powerpc/sysdev/xics/icp-opal.c
-+++ b/arch/powerpc/sysdev/xics/icp-opal.c
-@@ -195,6 +195,7 @@ int icp_opal_init(void)
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 66451661283c..a835ce6f8430 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -3225,10 +3225,12 @@ static void hci_conn_request_evt(struct hci_dev *hdev, void *data,
+ 		return;
+ 	}
  
- 	printk("XICS: Using OPAL ICP fallbacks\n");
++	hci_dev_lock(hdev);
++
+ 	if (hci_bdaddr_list_lookup(&hdev->reject_list, &ev->bdaddr,
+ 				   BDADDR_BREDR)) {
+ 		hci_reject_conn(hdev, &ev->bdaddr);
+-		return;
++		goto unlock;
+ 	}
  
-+	of_node_put(np);
- 	return 0;
+ 	/* Require HCI_CONNECTABLE or an accept list entry to accept the
+@@ -3240,13 +3242,11 @@ static void hci_conn_request_evt(struct hci_dev *hdev, void *data,
+ 	    !hci_bdaddr_list_lookup_with_flags(&hdev->accept_list, &ev->bdaddr,
+ 					       BDADDR_BREDR)) {
+ 		hci_reject_conn(hdev, &ev->bdaddr);
+-		return;
++		goto unlock;
+ 	}
+ 
+ 	/* Connection accepted */
+ 
+-	hci_dev_lock(hdev);
+-
+ 	ie = hci_inquiry_cache_lookup(hdev, &ev->bdaddr);
+ 	if (ie)
+ 		memcpy(ie->data.dev_class, ev->dev_class, 3);
+@@ -3258,8 +3258,7 @@ static void hci_conn_request_evt(struct hci_dev *hdev, void *data,
+ 				    HCI_ROLE_SLAVE);
+ 		if (!conn) {
+ 			bt_dev_err(hdev, "no memory for new connection");
+-			hci_dev_unlock(hdev);
+-			return;
++			goto unlock;
+ 		}
+ 	}
+ 
+@@ -3299,6 +3298,10 @@ static void hci_conn_request_evt(struct hci_dev *hdev, void *data,
+ 		conn->state = BT_CONNECT2;
+ 		hci_connect_cfm(conn, 0);
+ 	}
++
++	return;
++unlock:
++	hci_dev_unlock(hdev);
  }
  
+ static u8 hci_to_mgmt_reason(u8 err)
 -- 
 2.35.1
 
