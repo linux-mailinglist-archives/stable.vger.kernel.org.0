@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC015416C2
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8B9541DFE
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358317AbiFGUyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49008 "EHLO
+        id S1380300AbiFGWXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:23:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378682AbiFGUwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:52:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E33F15A17;
-        Tue,  7 Jun 2022 11:42:47 -0700 (PDT)
+        with ESMTP id S1385453AbiFGWVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:21:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665B426A092;
+        Tue,  7 Jun 2022 12:21:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8C14B82018;
-        Tue,  7 Jun 2022 18:42:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D12BC385A2;
-        Tue,  7 Jun 2022 18:42:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 982EBB82182;
+        Tue,  7 Jun 2022 19:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05FF2C385A2;
+        Tue,  7 Jun 2022 19:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627364;
-        bh=ky2CKWepQbNbVV7XwcZQYn/5gAFmeJhM5i3r1Xbv73o=;
+        s=korg; t=1654629705;
+        bh=XP3Mb+1/rM2xKkSYEbOakwN+wCNqt6xuKKFApfb3IVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7v0cn0wjLsQ+N3QdUM8Cft+bu4Qtyh2COzB4Xc02OVP68ICwFtqSoEpUuLe3aCZl
-         M9UxtgL7za6pfeX3p3M/DNmj0S9ydMB+XCocCxppCAgPOUk3tlMgEEK5uj2zsR8Uuz
-         KRzeMqGDkcMKlJAP7SMb5tNcgthKoczh90N/yLYw=
+        b=wkSBYn1ItcbpKpiMwRRwA0jyeA7PQTWl1PShCK5dRR4yrEvt3sXl3HsZ5WDmNlzss
+         S5akdo8LxpJgWf14onJ5uEPPaU9yC5+Cn7XssjwTT5CkyCruXzg/2QESIu87pUGMEr
+         TMvdyo7eaSskKE77L0U+cpWGzEf84UBcnrAQSToA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catrinel Catrinescu <cc@80211.de>,
-        Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.17 713/772] mac80211: upgrade passive scan to active scan on DFS channels after beacon rx
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.18 787/879] landlock: Define access_mask_t to enforce a consistent access mask size
 Date:   Tue,  7 Jun 2022 19:05:05 +0200
-Message-Id: <20220607165010.055746370@linuxfoundation.org>
+Message-Id: <20220607165025.710938021@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +53,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit b041b7b9de6e1d4362de855ab90f9d03ef323edd upstream.
+commit 5f2ff33e10843ef51275c8611bdb7b49537aba5d upstream.
 
-In client mode, we can't connect to hidden SSID APs or SSIDs not advertised
-in beacons on DFS channels, since we're forced to passive scan. Fix this by
-sending out a probe request immediately after the first beacon, if active
-scan was requested by the user.
+Create and use the access_mask_t typedef to enforce a consistent access
+mask size and uniformly use a 16-bits type.  This will helps transition
+to a 32-bits value one day.
 
+Add a build check to make sure all (filesystem) access rights fit in.
+This will be extended with a following commit.
+
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/20220506161102.525323-2-mic@digikod.net
 Cc: stable@vger.kernel.org
-Reported-by: Catrinel Catrinescu <cc@80211.de>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20220420104907.36275-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/ieee80211_i.h |    5 +++++
- net/mac80211/scan.c        |   20 ++++++++++++++++++++
- 2 files changed, 25 insertions(+)
+ security/landlock/fs.c      |   19 +++++++++++--------
+ security/landlock/fs.h      |    2 +-
+ security/landlock/limits.h  |    2 ++
+ security/landlock/ruleset.c |    6 ++++--
+ security/landlock/ruleset.h |   16 ++++++++++++----
+ 5 files changed, 30 insertions(+), 15 deletions(-)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1128,6 +1128,9 @@ struct tpt_led_trigger {
-  *	a scan complete for an aborted scan.
-  * @SCAN_HW_CANCELLED: Set for our scan work function when the scan is being
-  *	cancelled.
-+ * @SCAN_BEACON_WAIT: Set whenever we're passive scanning because of radar/no-IR
-+ *	and could send a probe request after receiving a beacon.
-+ * @SCAN_BEACON_DONE: Beacon received, we can now send a probe request
+--- a/security/landlock/fs.c
++++ b/security/landlock/fs.c
+@@ -152,7 +152,8 @@ retry:
+  * @path: Should have been checked by get_path_from_fd().
   */
- enum {
- 	SCAN_SW_SCANNING,
-@@ -1136,6 +1139,8 @@ enum {
- 	SCAN_COMPLETED,
- 	SCAN_ABORTED,
- 	SCAN_HW_CANCELLED,
-+	SCAN_BEACON_WAIT,
-+	SCAN_BEACON_DONE,
+ int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
+-			    const struct path *const path, u32 access_rights)
++			    const struct path *const path,
++			    access_mask_t access_rights)
+ {
+ 	int err;
+ 	struct landlock_object *object;
+@@ -184,7 +185,8 @@ int landlock_append_fs_rule(struct landl
+ 
+ static inline u64 unmask_layers(const struct landlock_ruleset *const domain,
+ 				const struct path *const path,
+-				const u32 access_request, u64 layer_mask)
++				const access_mask_t access_request,
++				u64 layer_mask)
+ {
+ 	const struct landlock_rule *rule;
+ 	const struct inode *inode;
+@@ -224,7 +226,8 @@ static inline u64 unmask_layers(const st
+ }
+ 
+ static int check_access_path(const struct landlock_ruleset *const domain,
+-			     const struct path *const path, u32 access_request)
++			     const struct path *const path,
++			     const access_mask_t access_request)
+ {
+ 	bool allowed = false;
+ 	struct path walker_path;
+@@ -309,7 +312,7 @@ jump_up:
+ }
+ 
+ static inline int current_check_access_path(const struct path *const path,
+-					    const u32 access_request)
++					    const access_mask_t access_request)
+ {
+ 	const struct landlock_ruleset *const dom =
+ 		landlock_get_current_domain();
+@@ -512,7 +515,7 @@ static int hook_sb_pivotroot(const struc
+ 
+ /* Path hooks */
+ 
+-static inline u32 get_mode_access(const umode_t mode)
++static inline access_mask_t get_mode_access(const umode_t mode)
+ {
+ 	switch (mode & S_IFMT) {
+ 	case S_IFLNK:
+@@ -565,7 +568,7 @@ static int hook_path_link(struct dentry
+ 		get_mode_access(d_backing_inode(old_dentry)->i_mode));
+ }
+ 
+-static inline u32 maybe_remove(const struct dentry *const dentry)
++static inline access_mask_t maybe_remove(const struct dentry *const dentry)
+ {
+ 	if (d_is_negative(dentry))
+ 		return 0;
+@@ -635,9 +638,9 @@ static int hook_path_rmdir(const struct
+ 
+ /* File hooks */
+ 
+-static inline u32 get_file_access(const struct file *const file)
++static inline access_mask_t get_file_access(const struct file *const file)
+ {
+-	u32 access = 0;
++	access_mask_t access = 0;
+ 
+ 	if (file->f_mode & FMODE_READ) {
+ 		/* A directory can only be opened in read mode. */
+--- a/security/landlock/fs.h
++++ b/security/landlock/fs.h
+@@ -66,6 +66,6 @@ __init void landlock_add_fs_hooks(void);
+ 
+ int landlock_append_fs_rule(struct landlock_ruleset *const ruleset,
+ 			    const struct path *const path,
+-			    u32 access_hierarchy);
++			    access_mask_t access_hierarchy);
+ 
+ #endif /* _SECURITY_LANDLOCK_FS_H */
+--- a/security/landlock/limits.h
++++ b/security/landlock/limits.h
+@@ -9,6 +9,7 @@
+ #ifndef _SECURITY_LANDLOCK_LIMITS_H
+ #define _SECURITY_LANDLOCK_LIMITS_H
+ 
++#include <linux/bitops.h>
+ #include <linux/limits.h>
+ #include <uapi/linux/landlock.h>
+ 
+@@ -19,6 +20,7 @@
+ 
+ #define LANDLOCK_LAST_ACCESS_FS		LANDLOCK_ACCESS_FS_MAKE_SYM
+ #define LANDLOCK_MASK_ACCESS_FS		((LANDLOCK_LAST_ACCESS_FS << 1) - 1)
++#define LANDLOCK_NUM_ACCESS_FS		__const_hweight64(LANDLOCK_MASK_ACCESS_FS)
+ 
+ /* clang-format on */
+ 
+--- a/security/landlock/ruleset.c
++++ b/security/landlock/ruleset.c
+@@ -45,7 +45,8 @@ static struct landlock_ruleset *create_r
+ 	return new_ruleset;
+ }
+ 
+-struct landlock_ruleset *landlock_create_ruleset(const u32 fs_access_mask)
++struct landlock_ruleset *
++landlock_create_ruleset(const access_mask_t fs_access_mask)
+ {
+ 	struct landlock_ruleset *new_ruleset;
+ 
+@@ -228,7 +229,8 @@ static void build_check_layer(void)
+ 
+ /* @ruleset must be locked by the caller. */
+ int landlock_insert_rule(struct landlock_ruleset *const ruleset,
+-			 struct landlock_object *const object, const u32 access)
++			 struct landlock_object *const object,
++			 const access_mask_t access)
+ {
+ 	struct landlock_layer layers[] = { {
+ 		.access = access,
+--- a/security/landlock/ruleset.h
++++ b/security/landlock/ruleset.h
+@@ -9,13 +9,20 @@
+ #ifndef _SECURITY_LANDLOCK_RULESET_H
+ #define _SECURITY_LANDLOCK_RULESET_H
+ 
++#include <linux/bitops.h>
++#include <linux/build_bug.h>
+ #include <linux/mutex.h>
+ #include <linux/rbtree.h>
+ #include <linux/refcount.h>
+ #include <linux/workqueue.h>
+ 
++#include "limits.h"
+ #include "object.h"
+ 
++typedef u16 access_mask_t;
++/* Makes sure all filesystem access rights can be stored. */
++static_assert(BITS_PER_TYPE(access_mask_t) >= LANDLOCK_NUM_ACCESS_FS);
++
+ /**
+  * struct landlock_layer - Access rights for a given layer
+  */
+@@ -28,7 +35,7 @@ struct landlock_layer {
+ 	 * @access: Bitfield of allowed actions on the kernel object.  They are
+ 	 * relative to the object type (e.g. %LANDLOCK_ACTION_FS_READ).
+ 	 */
+-	u16 access;
++	access_mask_t access;
  };
  
  /**
---- a/net/mac80211/scan.c
-+++ b/net/mac80211/scan.c
-@@ -281,6 +281,16 @@ void ieee80211_scan_rx(struct ieee80211_
- 	if (likely(!sdata1 && !sdata2))
- 		return;
+@@ -135,19 +142,20 @@ struct landlock_ruleset {
+ 			 * layers are set once and never changed for the
+ 			 * lifetime of the ruleset.
+ 			 */
+-			u16 fs_access_masks[];
++			access_mask_t fs_access_masks[];
+ 		};
+ 	};
+ };
  
-+	if (test_and_clear_bit(SCAN_BEACON_WAIT, &local->scanning)) {
-+		/*
-+		 * we were passive scanning because of radar/no-IR, but
-+		 * the beacon/proberesp rx gives us an opportunity to upgrade
-+		 * to active scan
-+		 */
-+		 set_bit(SCAN_BEACON_DONE, &local->scanning);
-+		 ieee80211_queue_delayed_work(&local->hw, &local->scan_work, 0);
-+	}
-+
- 	if (ieee80211_is_probe_resp(mgmt->frame_control)) {
- 		struct cfg80211_scan_request *scan_req;
- 		struct cfg80211_sched_scan_request *sched_scan_req;
-@@ -787,6 +797,8 @@ static int __ieee80211_start_scan(struct
- 						IEEE80211_CHAN_RADAR)) ||
- 		    !req->n_ssids) {
- 			next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
-+			if (req->n_ssids)
-+				set_bit(SCAN_BEACON_WAIT, &local->scanning);
- 		} else {
- 			ieee80211_scan_state_send_probe(local, &next_delay);
- 			next_delay = IEEE80211_CHANNEL_TIME;
-@@ -998,6 +1010,8 @@ set_channel:
- 	    !scan_req->n_ssids) {
- 		*next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
- 		local->next_scan_state = SCAN_DECISION;
-+		if (scan_req->n_ssids)
-+			set_bit(SCAN_BEACON_WAIT, &local->scanning);
- 		return;
- 	}
+-struct landlock_ruleset *landlock_create_ruleset(const u32 fs_access_mask);
++struct landlock_ruleset *
++landlock_create_ruleset(const access_mask_t fs_access_mask);
  
-@@ -1090,6 +1104,8 @@ void ieee80211_scan_work(struct work_str
- 			goto out;
- 	}
+ void landlock_put_ruleset(struct landlock_ruleset *const ruleset);
+ void landlock_put_ruleset_deferred(struct landlock_ruleset *const ruleset);
  
-+	clear_bit(SCAN_BEACON_WAIT, &local->scanning);
-+
- 	/*
- 	 * as long as no delay is required advance immediately
- 	 * without scheduling a new work
-@@ -1100,6 +1116,10 @@ void ieee80211_scan_work(struct work_str
- 			goto out_complete;
- 		}
+ int landlock_insert_rule(struct landlock_ruleset *const ruleset,
+ 			 struct landlock_object *const object,
+-			 const u32 access);
++			 const access_mask_t access);
  
-+		if (test_and_clear_bit(SCAN_BEACON_DONE, &local->scanning) &&
-+		    local->next_scan_state == SCAN_DECISION)
-+			local->next_scan_state = SCAN_SEND_PROBE;
-+
- 		switch (local->next_scan_state) {
- 		case SCAN_DECISION:
- 			/* if no more bands/channels left, complete scan */
+ struct landlock_ruleset *
+ landlock_merge_ruleset(struct landlock_ruleset *const parent,
 
 
