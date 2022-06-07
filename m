@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BBB9541319
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0F95408F9
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357927AbiFGT4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39630 "EHLO
+        id S1345073AbiFGSEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358236AbiFGTwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:13 -0400
+        with ESMTP id S1351819AbiFGSCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5334F954A4;
-        Tue,  7 Jun 2022 11:19:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B573F1312A2;
+        Tue,  7 Jun 2022 10:45:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96A9AB8237C;
-        Tue,  7 Jun 2022 18:19:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8C7C36B00;
-        Tue,  7 Jun 2022 18:19:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 699AAB8232C;
+        Tue,  7 Jun 2022 17:45:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C47D5C34115;
+        Tue,  7 Jun 2022 17:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625991;
-        bh=nDm+GwDgvJjU1T4VnyQabcgcfISjgZ8P6P4og/v0WJM=;
+        s=korg; t=1654623935;
+        bh=HwjH44pS8984mw7Nh4lKusX1l8RJWXNJDc+xlPI7FLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAeheFJt8jFOCynUgme5bFnINAhkLBSSTzpSla4A13KHRYd/7BwGHYUTwnH+YJ1oT
-         K0dZru2V94l5pxO5C+4OMEa0zbt469IwP25iDPRj9baZrcsDXWQeSXqySU8T0M0Vgk
-         EXlX/w5gvFk7O12CnV9l9rb683C4BCBt1CUCfkmQ=
+        b=fcCIL58CyXE6U0nHbiOpP5c/A2hJb2AOTuH0XI0Z5FBhYhjB/SZmx8erOMjWbHqIw
+         P8FMU7eoxi52k1Tgb4Qo25LZsYItWWAcV4XhueoHAXXrcXnFo40P3wXIF2REviEm41
+         p7QWP2QLahbGK9+XxhMXDaRUF6h5EupDODNLBe1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Wu <wupeng58@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 219/772] powerpc/iommu: Add missing of_node_put in iommu_init_early_dart
+Subject: [PATCH 5.15 146/667] gfs2: use i_lock spin_lock for inode qadata
 Date:   Tue,  7 Jun 2022 18:56:51 +0200
-Message-Id: <20220607164955.486544300@linuxfoundation.org>
+Message-Id: <20220607164939.197755194@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Wu <wupeng58@huawei.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 57b742a5b8945118022973e6416b71351df512fb ]
+[ Upstream commit 5fcff61eea9efd1f4b60e89d2d686b5feaea100f ]
 
-The device_node pointer is returned by of_find_compatible_node
-with refcount incremented. We should use of_node_put() to avoid
-the refcount leak.
+Before this patch, functions gfs2_qa_get and _put used the i_rw_mutex to
+prevent simultaneous access to its i_qadata. But i_rw_mutex is now used
+for many other things, including iomap_begin and end, which causes a
+conflict according to lockdep. We cannot just remove the lock since
+simultaneous opens (gfs2_open -> gfs2_open_common -> gfs2_qa_get) can
+then stomp on each others values for i_qadata.
 
-Signed-off-by: Peng Wu <wupeng58@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220425081245.21705-1-wupeng58@huawei.com
+This patch solves the conflict by using the i_lock spin_lock in the inode
+to prevent simultaneous access.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dart_iommu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/gfs2/quota.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
-index be6b99b1b352..9a02aed886a0 100644
---- a/arch/powerpc/sysdev/dart_iommu.c
-+++ b/arch/powerpc/sysdev/dart_iommu.c
-@@ -404,9 +404,10 @@ void __init iommu_init_early_dart(struct pci_controller_ops *controller_ops)
+diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
+index be0997e24d60..dc77080a82bb 100644
+--- a/fs/gfs2/quota.c
++++ b/fs/gfs2/quota.c
+@@ -531,34 +531,42 @@ static void qdsb_put(struct gfs2_quota_data *qd)
+  */
+ int gfs2_qa_get(struct gfs2_inode *ip)
+ {
+-	int error = 0;
+ 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
++	struct inode *inode = &ip->i_inode;
+ 
+ 	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
+ 		return 0;
+ 
+-	down_write(&ip->i_rw_mutex);
++	spin_lock(&inode->i_lock);
+ 	if (ip->i_qadata == NULL) {
+-		ip->i_qadata = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
+-		if (!ip->i_qadata) {
+-			error = -ENOMEM;
+-			goto out;
+-		}
++		struct gfs2_qadata *tmp;
++
++		spin_unlock(&inode->i_lock);
++		tmp = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
++		if (!tmp)
++			return -ENOMEM;
++
++		spin_lock(&inode->i_lock);
++		if (ip->i_qadata == NULL)
++			ip->i_qadata = tmp;
++		else
++			kmem_cache_free(gfs2_qadata_cachep, tmp);
  	}
- 
- 	/* Initialize the DART HW */
--	if (dart_init(dn) != 0)
-+	if (dart_init(dn) != 0) {
-+		of_node_put(dn);
- 		return;
--
-+	}
- 	/*
- 	 * U4 supports a DART bypass, we use it for 64-bit capable devices to
- 	 * improve performance.  However, that only works for devices connected
-@@ -419,6 +420,7 @@ void __init iommu_init_early_dart(struct pci_controller_ops *controller_ops)
- 
- 	/* Setup pci_dma ops */
- 	set_pci_dma_ops(&dma_iommu_ops);
-+	of_node_put(dn);
+ 	ip->i_qadata->qa_ref++;
+-out:
+-	up_write(&ip->i_rw_mutex);
+-	return error;
++	spin_unlock(&inode->i_lock);
++	return 0;
  }
  
- #ifdef CONFIG_PM
+ void gfs2_qa_put(struct gfs2_inode *ip)
+ {
+-	down_write(&ip->i_rw_mutex);
++	struct inode *inode = &ip->i_inode;
++
++	spin_lock(&inode->i_lock);
+ 	if (ip->i_qadata && --ip->i_qadata->qa_ref == 0) {
+ 		kmem_cache_free(gfs2_qadata_cachep, ip->i_qadata);
+ 		ip->i_qadata = NULL;
+ 	}
+-	up_write(&ip->i_rw_mutex);
++	spin_unlock(&inode->i_lock);
+ }
+ 
+ int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
 -- 
 2.35.1
 
