@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5199854132E
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A87540966
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357319AbiFGT4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:56:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49250 "EHLO
+        id S1349935AbiFGSIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:08:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357740AbiFGTzr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:55:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B575A980B5;
-        Tue,  7 Jun 2022 11:23:47 -0700 (PDT)
+        with ESMTP id S1351061AbiFGSGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:06:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1719483AB;
+        Tue,  7 Jun 2022 10:47:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94C3FB82383;
-        Tue,  7 Jun 2022 18:23:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED17CC36B02;
-        Tue,  7 Jun 2022 18:23:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85A516171A;
+        Tue,  7 Jun 2022 17:47:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E52C385A5;
+        Tue,  7 Jun 2022 17:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626221;
-        bh=3LvubQ/oMd98qexprLQfHhASSsUZesS2fEQgpHx095c=;
+        s=korg; t=1654624049;
+        bh=+8F/Tet6mZM8QNlTLNyZ2Z7lnuWP8SnBe/1jqtVQNrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hW1KW84Ha9ORsKCz9P/zSgF9wM3/q0VqYFzUr49NeJQUWRbWGncAgXLuZKfLd6iXH
-         +baIKLdoLT/BV+lqdGgT1xdoxExGb/1HIQEEgT6R0Ysm8C2IiW4aVF5QIxx44L0tBL
-         wAd6j2GSEjG6QFYbwwXSDx5NnrHF1YbzFIEKjSAk=
+        b=IIWuMpRjCIUl7+RFvF486QkfyGc+3772W6PG/NWDPyKUL1ciSpl+4u3BOCKRZt1AF
+         0LP3GFUYcYNHAxlJ0ZSZp1KDU6ycw1U32ANasHsdKOGCYGEW30lUundoGBiyrxGi9e
+         yFn8H7lK0xZ7HjGvaACfikr/IWMBGck3wK/yJy+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Nicolas Belin <nbelin@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 260/772] scftorture: Fix distribution of short handler delays
+Subject: [PATCH 5.15 187/667] drm: bridge: it66121: Fix the register page length
 Date:   Tue,  7 Jun 2022 18:57:32 +0200
-Message-Id: <20220607164956.683962777@linuxfoundation.org>
+Message-Id: <20220607164940.413596716@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Nicolas Belin <nbelin@baylibre.com>
 
-[ Upstream commit 8106bddbab5f0ba180e6d693c7c1fc6926d57caa ]
+[ Upstream commit 003a1bd6a2a55c16cb2451153533dbedb12bebec ]
 
-The scftorture test module's scf_handler() function is supposed to provide
-three different distributions of short delays (including "no delay") and
-one distribution of long delays, if specified by the scftorture.longwait
-module parameter.  However, the second of the two non-zero-wait short delays
-is disabled due to the first such delay's "goto out" not being enclosed in
-the "then" clause with the "udelay()".
+Set the register page length or window length to
+0x100 according to the documentation.
 
-This commit therefore adjusts the code to provide the intended set of
-delays.
-
-Fixes: e9d338a0b179 ("scftorture: Add smp_call_function() torture test")
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
+Signed-off-by: Nicolas Belin <nbelin@baylibre.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220316135733.173950-3-nbelin@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/scftorture.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/ite-it66121.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/scftorture.c b/kernel/scftorture.c
-index dcb0410950e4..5d113aa59e77 100644
---- a/kernel/scftorture.c
-+++ b/kernel/scftorture.c
-@@ -267,9 +267,10 @@ static void scf_handler(void *scfc_in)
- 	}
- 	this_cpu_inc(scf_invoked_count);
- 	if (longwait <= 0) {
--		if (!(r & 0xffc0))
-+		if (!(r & 0xffc0)) {
- 			udelay(r & 0x3f);
--		goto out;
-+			goto out;
-+		}
- 	}
- 	if (r & 0xfff)
- 		goto out;
+diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
+index 06b59b422c69..64912b770086 100644
+--- a/drivers/gpu/drm/bridge/ite-it66121.c
++++ b/drivers/gpu/drm/bridge/ite-it66121.c
+@@ -227,7 +227,7 @@ static const struct regmap_range_cfg it66121_regmap_banks[] = {
+ 		.selector_mask = 0x1,
+ 		.selector_shift = 0,
+ 		.window_start = 0x00,
+-		.window_len = 0x130,
++		.window_len = 0x100,
+ 	},
+ };
+ 
 -- 
 2.35.1
 
