@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA943540A14
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2BB541393
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238732AbiFGSS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53166 "EHLO
+        id S1354859AbiFGUCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:02:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351961AbiFGSQt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05D0D1339D2;
-        Tue,  7 Jun 2022 10:50:14 -0700 (PDT)
+        with ESMTP id S1358524AbiFGUBa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:01:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2BE1BFEE8;
+        Tue,  7 Jun 2022 11:25:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF32BB822CD;
-        Tue,  7 Jun 2022 17:50:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2453BC385A5;
-        Tue,  7 Jun 2022 17:50:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BA63611F3;
+        Tue,  7 Jun 2022 18:24:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156EFC34115;
+        Tue,  7 Jun 2022 18:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624211;
-        bh=TY/+PwTvpEYxQkMo3I5D4CqBoTzcVkJcSgad3CTPxNg=;
+        s=korg; t=1654626273;
+        bh=y8K22HlUZzFY2D++dPIwaw10yzNWRo2Ms21xUoJuNjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xc1d2RqEdlTuI88ckuFWW19X5ffSUXkqpGJg65wKNh8cw1iwO7OZCFwc/1V9MMqk6
-         WFX027Lvg5/MOoLoHdnARHno+vg2tepFM0Vazcz7CXLmX9RODSzZNsgjQBVAmeP7bP
-         VDnZbUM1p/q7rX8q0g8ia2HMpdI4JjeJETxTZG4E=
+        b=dgavX+49QDWFWTfKpyJE2TR3Omqvh8J8BXJ+PBuptkpjb1w+R9zlTf+tMLtEJgfr8
+         3sFU0UZ9+/+BAL7yXC+aNoMTFgCHOqb4mU7GsTgQdOxrwVK12uFhV0mejaX8A+68Vr
+         nimvgfQbfiac7uM62Aw/mN2zCUMfSryLbXtZthRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Lin <jon.lin@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 245/667] spi: rockchip: Preset cs-high and clk polarity in setup progress
-Date:   Tue,  7 Jun 2022 18:58:30 +0200
-Message-Id: <20220607164942.132820239@linuxfoundation.org>
+Subject: [PATCH 5.17 319/772] drm/msm/dsi: fix error checks and return values for DSI xmit functions
+Date:   Tue,  7 Jun 2022 18:58:31 +0200
+Message-Id: <20220607164958.425058543@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
+References: <20220607164948.980838585@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Lin <jon.lin@rock-chips.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 3a4bf922d42efa4e9a3dc803d1fd786d43e8a501 ]
+[ Upstream commit f0e7e9ed379c012c4d6b09a09b868accc426223c ]
 
-After power up, the cs and clock is in default status, and the cs-high
-and clock polarity dts property configuration will take no effect until
-the calling of rockchip_spi_config in the first transmission.
-So preset them to make sure a correct voltage before the first
-transmission coming.
+As noticed by Dan ([1] an the followup thread) there are multiple issues
+with the return values for MSM DSI command transmission callback. In
+the error case it can easily return a positive value when it should
+have returned a proper error code.
 
-Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
-Link: https://lore.kernel.org/r/20220216014028.8123-5-jon.lin@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This commits attempts to fix these issues both in TX and in RX paths.
+
+[1]: https://lore.kernel.org/linux-arm-msm/20211001123617.GH2283@kili/
+
+Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Tested-by: Marijn Suijten <marijn.suijten@somainline.org>
+Patchwork: https://patchwork.freedesktop.org/patch/480501/
+Link: https://lore.kernel.org/r/20220401231104.967193-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 5ecd0692cca1..83da8fdb3c02 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -713,6 +713,29 @@ static bool rockchip_spi_can_dma(struct spi_controller *ctlr,
- 	return xfer->len / bytes_per_word >= rs->fifo_len;
- }
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 3a3f53f0c8ae..9ea07bd541c4 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1337,10 +1337,10 @@ static int dsi_cmds2buf_tx(struct msm_dsi_host *msm_host,
+ 			dsi_get_bpp(msm_host->format) / 8;
  
-+static int rockchip_spi_setup(struct spi_device *spi)
-+{
-+	struct rockchip_spi *rs = spi_controller_get_devdata(spi->controller);
-+	u32 cr0;
-+
-+	pm_runtime_get_sync(rs->dev);
-+
-+	cr0 = readl_relaxed(rs->regs + ROCKCHIP_SPI_CTRLR0);
-+
-+	cr0 &= ~(0x3 << CR0_SCPH_OFFSET);
-+	cr0 |= ((spi->mode & 0x3) << CR0_SCPH_OFFSET);
-+	if (spi->mode & SPI_CS_HIGH && spi->chip_select <= 1)
-+		cr0 |= BIT(spi->chip_select) << CR0_SOI_OFFSET;
-+	else if (spi->chip_select <= 1)
-+		cr0 &= ~(BIT(spi->chip_select) << CR0_SOI_OFFSET);
-+
-+	writel_relaxed(cr0, rs->regs + ROCKCHIP_SPI_CTRLR0);
-+
-+	pm_runtime_put(rs->dev);
-+
-+	return 0;
-+}
-+
- static int rockchip_spi_probe(struct platform_device *pdev)
- {
- 	int ret;
-@@ -840,6 +863,7 @@ static int rockchip_spi_probe(struct platform_device *pdev)
- 	ctlr->min_speed_hz = rs->freq / BAUDR_SCKDV_MAX;
- 	ctlr->max_speed_hz = min(rs->freq / BAUDR_SCKDV_MIN, MAX_SCLK_OUT);
+ 	len = dsi_cmd_dma_add(msm_host, msg);
+-	if (!len) {
++	if (len < 0) {
+ 		pr_err("%s: failed to add cmd type = 0x%x\n",
+ 			__func__,  msg->type);
+-		return -EINVAL;
++		return len;
+ 	}
  
-+	ctlr->setup = rockchip_spi_setup;
- 	ctlr->set_cs = rockchip_spi_set_cs;
- 	ctlr->transfer_one = rockchip_spi_transfer_one;
- 	ctlr->max_transfer_size = rockchip_spi_max_transfer_size;
+ 	/* for video mode, do not send cmds more than
+@@ -1359,10 +1359,14 @@ static int dsi_cmds2buf_tx(struct msm_dsi_host *msm_host,
+ 	}
+ 
+ 	ret = dsi_cmd_dma_tx(msm_host, len);
+-	if (ret < len) {
+-		pr_err("%s: cmd dma tx failed, type=0x%x, data0=0x%x, len=%d\n",
+-			__func__, msg->type, (*(u8 *)(msg->tx_buf)), len);
+-		return -ECOMM;
++	if (ret < 0) {
++		pr_err("%s: cmd dma tx failed, type=0x%x, data0=0x%x, len=%d, ret=%d\n",
++			__func__, msg->type, (*(u8 *)(msg->tx_buf)), len, ret);
++		return ret;
++	} else if (ret < len) {
++		pr_err("%s: cmd dma tx failed, type=0x%x, data0=0x%x, ret=%d len=%d\n",
++			__func__, msg->type, (*(u8 *)(msg->tx_buf)), ret, len);
++		return -EIO;
+ 	}
+ 
+ 	return len;
+@@ -2088,9 +2092,12 @@ int msm_dsi_host_cmd_rx(struct mipi_dsi_host *host,
+ 		}
+ 
+ 		ret = dsi_cmds2buf_tx(msm_host, msg);
+-		if (ret < msg->tx_len) {
++		if (ret < 0) {
+ 			pr_err("%s: Read cmd Tx failed, %d\n", __func__, ret);
+ 			return ret;
++		} else if (ret < msg->tx_len) {
++			pr_err("%s: Read cmd Tx failed, too short: %d\n", __func__, ret);
++			return -ECOMM;
+ 		}
+ 
+ 		/*
 -- 
 2.35.1
 
