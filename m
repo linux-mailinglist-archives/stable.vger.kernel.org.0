@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 911F4541A57
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33C5F540A3C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:20:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379301AbiFGVcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58110 "EHLO
+        id S1350941AbiFGSSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:18:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380536AbiFGVa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:30:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3883151FDA;
-        Tue,  7 Jun 2022 12:03:01 -0700 (PDT)
+        with ESMTP id S1351557AbiFGSQ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:16:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D491660A8;
+        Tue,  7 Jun 2022 10:49:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE0C61807;
-        Tue,  7 Jun 2022 19:03:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B6B1C385A2;
-        Tue,  7 Jun 2022 19:03:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2020061732;
+        Tue,  7 Jun 2022 17:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED78C385A5;
+        Tue,  7 Jun 2022 17:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628580;
-        bh=BFZKz5xscFkMcMKHrpURvUb4ugumPfNKU9oSRL3Q35Y=;
+        s=korg; t=1654624181;
+        bh=6dAOYreJ7WHqoN0E30JPou5RoconiYs6xnWg+lEaCmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LmpQr728yhxvf4kKeugcuJz89Z3Xu8E/zm2GqSboLlPQHVVWwByXW2H+MwVK83INJ
-         t/wSIr7eriAQllsyqVqrrRgMW1z7nEpT7D/NVsDgdEf1+Qz5qgmK5kNcJ+aIoDZ1Iz
-         iDX6HCHJ0mH+MLO7Ztxtc8+nRuhwMOONSclhWye4=
+        b=VEk1g0akvPPGO858kRsEHBMfxjKfxa1bNUJmAqDlBfjWKlnNfI4u5n3RTPgr1xwCZ
+         T/c9bLxg+05/o6vDa6mPqyc6G725jB7+lq3MstNoNA46AGGU7pI5cKTWR79eBYtlg2
+         NlmARSU0oJLzWCPzUuK/bTN0SGCYETaZ5NbyuWqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Ian Abbott <abbotti@mev.co.uk>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "Niklas S \ xF6derlund" <niklas.soderlund+renesas@ragnatech.se>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 382/879] spi: cadence-quadspi: fix Direct Access Mode disable for SoCFPGA
+Subject: [PATCH 5.15 235/667] media: i2c: max9286: Use dev_err_probe() helper
 Date:   Tue,  7 Jun 2022 18:58:20 +0200
-Message-Id: <20220607165013.955885929@linuxfoundation.org>
+Message-Id: <20220607164941.833728558@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit f724c296f2f2cc3f9342b0fc26239635cbed856e ]
+[ Upstream commit df78b858e773967112b4444400fb7bb5bd7a9d8a ]
 
-The Cadence QSPI compatible string required for the SoCFPGA platform
-changed from the default "cdns,qspi-nor" to "intel,socfpga-qspi" with
-the introduction of an additional quirk in
-commit 98d948eb8331 ("spi: cadence-quadspi: fix write completion support").
-However, that change did not preserve the previously used
-quirk for this platform.  Reinstate the `CQSPI_DISABLE_DAC_MODE` quirk
-for the SoCFPGA platform.
+Use the dev_err_probe() helper, instead of open-coding the same
+operation. While at it retrieve the error once and use it from
+'ret' instead of retrieving it twice.
 
-Fixes: 98d948eb8331 ("spi: cadence-quadspi: fix write completion support")
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20220427153446.10113-1-abbotti@mev.co.uk
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/linux-media/20211208121756.3051565-1-niklas.soderlund+renesas@ragnatech.se
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Niklas S\xF6derlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-cadence-quadspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/max9286.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
-index 19686fb47bb3..ec53b807909e 100644
---- a/drivers/spi/spi-cadence-quadspi.c
-+++ b/drivers/spi/spi-cadence-quadspi.c
-@@ -1865,7 +1865,7 @@ static const struct cqspi_driver_platdata intel_lgm_qspi = {
- };
+diff --git a/drivers/media/i2c/max9286.c b/drivers/media/i2c/max9286.c
+index 1aa2c58fd38c..1bbcc46fffd5 100644
+--- a/drivers/media/i2c/max9286.c
++++ b/drivers/media/i2c/max9286.c
+@@ -1296,11 +1296,9 @@ static int max9286_probe(struct i2c_client *client)
  
- static const struct cqspi_driver_platdata socfpga_qspi = {
--	.quirks = CQSPI_NO_SUPPORT_WR_COMPLETION,
-+	.quirks = CQSPI_DISABLE_DAC_MODE | CQSPI_NO_SUPPORT_WR_COMPLETION,
- };
+ 	priv->regulator = devm_regulator_get(&client->dev, "poc");
+ 	if (IS_ERR(priv->regulator)) {
+-		if (PTR_ERR(priv->regulator) != -EPROBE_DEFER)
+-			dev_err(&client->dev,
+-				"Unable to get PoC regulator (%ld)\n",
+-				PTR_ERR(priv->regulator));
+ 		ret = PTR_ERR(priv->regulator);
++		dev_err_probe(&client->dev, ret,
++			      "Unable to get PoC regulator\n");
+ 		goto err_powerdown;
+ 	}
  
- static const struct cqspi_driver_platdata versal_ospi = {
 -- 
 2.35.1
 
