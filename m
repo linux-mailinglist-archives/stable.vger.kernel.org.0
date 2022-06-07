@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41CD54130C
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D82B25419A6
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:23:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357684AbiFGTzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49962 "EHLO
+        id S235969AbiFGVXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:23:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358526AbiFGTwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:52:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB55169E23;
-        Tue,  7 Jun 2022 11:20:58 -0700 (PDT)
+        with ESMTP id S1378213AbiFGVWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:22:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA974133269;
+        Tue,  7 Jun 2022 12:00:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1564660DDF;
-        Tue,  7 Jun 2022 18:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FA8C385A2;
-        Tue,  7 Jun 2022 18:20:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 939E1617DA;
+        Tue,  7 Jun 2022 19:00:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3658C385A5;
+        Tue,  7 Jun 2022 19:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626057;
-        bh=g8nzPa7JapSk0M9r9c1N9ngg8LkaT/SpLFWBhIgeGHc=;
+        s=korg; t=1654628402;
+        bh=58lJsLP5IalNjhnV2OFb+wisSpm/oUI8y24iln421mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4hl4jiOKMQ5bbxLbGU4TbKni5H1dQoQQWPhiihCZBaTaQzHX5NEAapnYZ2N/LhOc
-         OzZae8By2P77+KiTfT1ofGqiMtgLEGdr9xL5181eoUjsE/hbVcRJTrggF29dCQvDa5
-         0KtGlqnu6t2tVCFzFOduZwn5n2Q2NXlPh+HODJGs=
+        b=g51XDyPCOASv1tUZNxx1sSRp3BtWiBq/kMEXGUKZvoiauNajvdPzC0wiCstLtinsO
+         j0I4dTexYmsXddEPRjqaiLhOn0Ve5OdyEecQ6GUKhiCShGideNJcoXKowSIzvn9cAG
+         7Bzv5IuCPxoTE5o01DqFIys+twAJjDM3t4juJxKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 241/772] ASoC: mediatek: Fix missing of_node_put in mt2701_wm8960_machine_probe
+Subject: [PATCH 5.18 315/879] net: dsa: qca8k: correctly handle mdio read error
 Date:   Tue,  7 Jun 2022 18:57:13 +0200
-Message-Id: <20220607164956.130684396@linuxfoundation.org>
+Message-Id: <20220607165011.991520585@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 05654431a18fe24e5e46a375d98904134628a102 ]
+[ Upstream commit 6cfc03b602200c5cbbd8d906fd905547814e83df ]
 
-This node pointer is returned by of_parse_phandle() with
-refcount incremented in this function.
-Calling of_node_put() to avoid the refcount leak.
+Restore original way to handle mdio read error by returning 0xffff.
+This was wrongly changed when the internal_mdio_read was introduced,
+now that both legacy and internal use the same function, make sure that
+they behave the same way.
 
-Fixes: 8625c1dbd876 ("ASoC: mediatek: Add mt2701-wm8960 machine driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220404093526.30004-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ce062a0adbfe ("net: dsa: qca8k: fix kernel panic with legacy mdio mapping")
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt2701/mt2701-wm8960.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/dsa/qca8k.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/mediatek/mt2701/mt2701-wm8960.c b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-index f56de1b918bf..0cdf2ae36243 100644
---- a/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-+++ b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
-@@ -129,7 +129,8 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	if (!codec_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	for_each_card_prelinks(card, i, dai_link) {
- 		if (dai_link->codecs->name)
-@@ -140,7 +141,7 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 	ret = snd_soc_of_parse_audio_routing(card, "audio-routing");
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to parse audio-routing: %d\n", ret);
--		return ret;
-+		goto put_codec_node;
- 	}
+diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
+index d3ed0a7f8077..22b328bd7cd5 100644
+--- a/drivers/net/dsa/qca8k.c
++++ b/drivers/net/dsa/qca8k.c
+@@ -1287,7 +1287,12 @@ qca8k_internal_mdio_read(struct mii_bus *slave_bus, int phy, int regnum)
+ 	if (ret >= 0)
+ 		return ret;
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
-@@ -148,6 +149,10 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
- 
-+put_codec_node:
-+	of_node_put(codec_node);
-+put_platform_node:
-+	of_node_put(platform_node);
- 	return ret;
+-	return qca8k_mdio_read(priv, phy, regnum);
++	ret = qca8k_mdio_read(priv, phy, regnum);
++
++	if (ret < 0)
++		return 0xffff;
++
++	return ret;
  }
  
+ static int
 -- 
 2.35.1
 
