@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4B05410D5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA6E5417F5
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:07:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346830AbiFGT3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48148 "EHLO
+        id S1378662AbiFGVHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:07:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356756AbiFGT2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:28:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4736BFE8;
-        Tue,  7 Jun 2022 11:10:40 -0700 (PDT)
+        with ESMTP id S1378838AbiFGVEc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:04:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C7BB2EAB;
+        Tue,  7 Jun 2022 11:48:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 936E361903;
-        Tue,  7 Jun 2022 18:10:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EA4DC385A2;
-        Tue,  7 Jun 2022 18:10:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CA916156D;
+        Tue,  7 Jun 2022 18:48:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 142C4C36B0C;
+        Tue,  7 Jun 2022 18:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625439;
-        bh=c8rwA1Oweo9bfbt0j50bLlPx4QGY8fStSX1TOc23Wtw=;
+        s=korg; t=1654627738;
+        bh=cz7EaM8E2HHkUwPlijx0Xy7QFc9ala/dWiZQqSjozhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSXQXjWLW4kfpldo4+L26Y5mS7a4tXdaK4i39Qmzsro3zrA74EtKurHMBwegvLzax
-         W72I3rdZXwImbOFV25e74ImWUh4j6VNsKofMjqP8P6HGbOxNtqlk82Ri6nQTiCQguX
-         i/vkodpsz7xAILC1e5PYrikyGoZEdsSEenBqVeTw=
+        b=R0hYTOhIkPRpolN+KjXM/JowZCtGVpu9vam4TcjRAnsMLXUYW3UhSk2k4GiE2onPJ
+         CM1/xjri7hrGi87tzk4G5UJGPfIFpC3MWG62Ds2I3PCPwigaZxLR/ofWZKJMlRvtjr
+         3nxEEgxX1LqRsGNCYRWy6QUZzF0ih8sHUn+z13BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.17 002/772] binfmt_flat: do not stop relocating GOT entries prematurely on riscv
+        stable@vger.kernel.org, Eric Yang <Eric.Yang2@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Saaem Rizvi <syerizvi@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 076/879] drm/amd/display: Disabling Z10 on DCN31
 Date:   Tue,  7 Jun 2022 18:53:14 +0200
-Message-Id: <20220607164949.061048601@linuxfoundation.org>
+Message-Id: <20220607165004.896958794@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Saaem Rizvi <syerizvi@amd.com>
 
-commit 6045ab5fea4c849153ebeb0acb532da5f29d69c4 upstream.
+[ Upstream commit 5d5af34072c8b11f60960c3bea57ff9de5877791 ]
 
-bFLT binaries are usually created using elf2flt.
+[WHY]
+Z10 is should not be enabled by default on DCN31.
 
-The linker script used by elf2flt has defined the .data section like the
-following for the last 19 years:
+[HOW]
+Using DC debug flags to disable Z10 by default on DCN31.
 
-.data : {
-	_sdata = . ;
-	__data_start = . ;
-	data_start = . ;
-	*(.got.plt)
-	*(.got)
-	FILL(0) ;
-	. = ALIGN(0x20) ;
-	LONG(-1)
-	. = ALIGN(0x20) ;
-	...
-}
-
-It places the .got.plt input section before the .got input section.
-The same is true for the default linker script (ld --verbose) on most
-architectures except x86/x86-64.
-
-The binfmt_flat loader should relocate all GOT entries until it encounters
-a -1 (the LONG(-1) in the linker script).
-
-The problem is that the .got.plt input section starts with a GOTPLT header
-(which has size 16 bytes on elf64-riscv and 8 bytes on elf32-riscv), where
-the first word is set to -1. See the binutils implementation for riscv [1].
-
-This causes the binfmt_flat loader to stop relocating GOT entries
-prematurely and thus causes the application to crash when running.
-
-Fix this by skipping the whole GOTPLT header, since the whole GOTPLT header
-is reserved for the dynamic linker.
-
-The GOTPLT header will only be skipped for bFLT binaries with flag
-FLAT_FLAG_GOTPIC set. This flag is unconditionally set by elf2flt if the
-supplied ELF binary has the symbol _GLOBAL_OFFSET_TABLE_ defined.
-ELF binaries without a .got input section should thus remain unaffected.
-
-Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
-
-[1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Link: https://lore.kernel.org/r/20220414091018.896737-1-niklas.cassel@wdc.com
-Fixed-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202204182333.OIUOotK8-lkp@intel.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Saaem Rizvi <syerizvi@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_flat.c |   27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/binfmt_flat.c
-+++ b/fs/binfmt_flat.c
-@@ -433,6 +433,30 @@ static void old_reloc(unsigned long rl)
- 
- /****************************************************************************/
- 
-+static inline u32 __user *skip_got_header(u32 __user *rp)
-+{
-+	if (IS_ENABLED(CONFIG_RISCV)) {
-+		/*
-+		 * RISC-V has a 16 byte GOT PLT header for elf64-riscv
-+		 * and 8 byte GOT PLT header for elf32-riscv.
-+		 * Skip the whole GOT PLT header, since it is reserved
-+		 * for the dynamic linker (ld.so).
-+		 */
-+		u32 rp_val0, rp_val1;
-+
-+		if (get_user(rp_val0, rp))
-+			return rp;
-+		if (get_user(rp_val1, rp + 1))
-+			return rp;
-+
-+		if (rp_val0 == 0xffffffff && rp_val1 == 0xffffffff)
-+			rp += 4;
-+		else if (rp_val0 == 0xffffffff)
-+			rp += 2;
-+	}
-+	return rp;
-+}
-+
- static int load_flat_file(struct linux_binprm *bprm,
- 		struct lib_info *libinfo, int id, unsigned long *extra_stack)
- {
-@@ -782,7 +806,8 @@ static int load_flat_file(struct linux_b
- 	 * image.
- 	 */
- 	if (flags & FLAT_FLAG_GOTPIC) {
--		for (rp = (u32 __user *)datapos; ; rp++) {
-+		rp = skip_got_header((u32 __user *) datapos);
-+		for (; ; rp++) {
- 			u32 addr, rp_val;
- 			if (get_user(rp_val, rp))
- 				return -EFAULT;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+index 63934ecf6be8..d71e625cc476 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+@@ -1030,6 +1030,7 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 			.afmt = true,
+ 		}
+ 	},
++	.disable_z10 = true,
+ 	.optimize_edp_link_rate = true,
+ 	.enable_sw_cntl_psr = true,
+ 	.apply_vendor_specific_lttpr_wa = true,
+-- 
+2.35.1
+
 
 
