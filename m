@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7015254170B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4374B541713
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377127AbiFGU5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:57:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34922 "EHLO
+        id S1377345AbiFGU6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 16:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378195AbiFGUzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:55:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 951C91E1758;
-        Tue,  7 Jun 2022 11:44:15 -0700 (PDT)
+        with ESMTP id S1378316AbiFGU4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:56:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 254E62010C7;
+        Tue,  7 Jun 2022 11:44:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C501DB8237F;
-        Tue,  7 Jun 2022 18:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C3EC385A2;
-        Tue,  7 Jun 2022 18:44:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D92096157F;
+        Tue,  7 Jun 2022 18:44:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C25AC385A2;
+        Tue,  7 Jun 2022 18:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627452;
-        bh=xhwKDY0+F7XerJFPHVZJ/ecf6Vn4nsvoLVtrRM3144o=;
+        s=korg; t=1654627455;
+        bh=2b3EwAxT/IxY3yiIFVjw+wSEWXH1+Ouo/kRi/T0Wbxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJTrn3BrAayToj+j8iXh36uAHsd3QQg1XYGZCn1as59vGlxqBVgmu7xH74IUwR5SG
-         uZDCcfWJ+/k1qpzw+wEAjCzDj4NrrhSb8hSv2AGipwzXwIMM81j2OvA7WhY0XiNcAO
-         w2IpVrxEUdjfqdnnsiCdxdQ6EKDehtRGrw7gUBrE=
+        b=o8BOvujUb628fV2yrIc+s0O5aZxa4CYC2MF6HD8ihVTP1ZaDSvmCYG1MFZ6KoeDLQ
+         DrCsfXNRP3gzwNKfRFkdBoAyZuJkFPWTJbcnEbOtVZC/If2gDrvD73pER1Prwgjw9a
+         zGyUyt9/Tk/N6mVnBWtr1NU7l/91EY/piuvBYMgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.17 746/772] ceph: fix decoding of client session messages flags
-Date:   Tue,  7 Jun 2022 19:05:38 +0200
-Message-Id: <20220607165011.012168594@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Hubsch <ohubsch@purestorage.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.17 747/772] SMB3: EBADF/EIO errors in rename/open caused by race condition in smb2_compound_op
+Date:   Tue,  7 Jun 2022 19:05:39 +0200
+Message-Id: <20220607165011.041254831@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
 References: <20220607164948.980838585@linuxfoundation.org>
@@ -55,54 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luís Henriques <lhenriques@suse.de>
+From: Steve French <stfrench@microsoft.com>
 
-commit ea16567f11018e2f58e72b667b0c803ff92b8153 upstream.
+commit 0a55cf74ffb5d004b93647e4389096880ce37d6b upstream.
 
-The cephfs kernel client started to show  the message:
+There is  a race condition in smb2_compound_op:
 
- ceph: mds0 session blocklisted
+after_close:
+	num_rqst++;
 
-when mounting a filesystem.  This is due to the fact that the session
-messages are being incorrectly decoded: the skip needs to take into
-account the 'len'.
+	if (cfile) {
+		cifsFileInfo_put(cfile); // sends SMB2_CLOSE to the server
+		cfile = NULL;
 
-While there, fixed some whitespaces too.
+This is triggered by smb2_query_path_info operation that happens during
+revalidate_dentry. In smb2_query_path_info, get_readable_path is called to
+load the cfile, increasing the reference counter. If in the meantime, this
+reference becomes the very last, this call to cifsFileInfo_put(cfile) will
+trigger a SMB2_CLOSE request sent to the server just before sending this compound
+request – and so then the compound request fails either with EBADF/EIO depending
+on the timing at the server, because the handle is already closed.
+
+In the first scenario, the race seems to be happening between smb2_query_path_info
+triggered by the rename operation, and between “cleanup” of asynchronous writes – while
+fsync(fd) likely waits for the asynchronous writes to complete, releasing the writeback
+structures can happen after the close(fd) call. So the EBADF/EIO errors will pop up if
+the timing is such that:
+1) There are still outstanding references after close(fd) in the writeback structures
+2) smb2_query_path_info successfully fetches the cfile, increasing the refcounter by 1
+3) All writeback structures release the same cfile, reducing refcounter to 1
+4) smb2_compound_op is called with that cfile
+
+In the second scenario, the race seems to be similar – here open triggers the
+smb2_query_path_info operation, and if all other threads in the meantime decrease the
+refcounter to 1 similarly to the first scenario, again SMB2_CLOSE will be sent to the
+server just before issuing the compound request. This case is harder to reproduce.
+
+See https://bugzilla.samba.org/show_bug.cgi?id=15051
 
 Cc: stable@vger.kernel.org
-Fixes: e1c9788cb397 ("ceph: don't rely on error_string to validate blocklisted session.")
-Signed-off-by: Luís Henriques <lhenriques@suse.de>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 8de9e86c67ba ("cifs: create a helper to find a writeable handle by path name")
+Signed-off-by: Ondrej Hubsch <ohubsch@purestorage.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/mds_client.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ fs/cifs/smb2inode.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3378,13 +3378,17 @@ static void handle_session(struct ceph_m
- 	}
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -362,8 +362,6 @@ smb2_compound_op(const unsigned int xid,
+ 	num_rqst++;
  
- 	if (msg_version >= 5) {
--		u32 flags;
--		/* version >= 4, struct_v, struct_cv, len, metric_spec */
--	        ceph_decode_skip_n(&p, end, 2 + sizeof(u32) * 2, bad);
-+		u32 flags, len;
-+
-+		/* version >= 4 */
-+		ceph_decode_skip_16(&p, end, bad); /* struct_v, struct_cv */
-+		ceph_decode_32_safe(&p, end, len, bad); /* len */
-+		ceph_decode_skip_n(&p, end, len, bad); /* metric_spec */
-+
- 		/* version >= 5, flags   */
--                ceph_decode_32_safe(&p, end, flags, bad);
-+		ceph_decode_32_safe(&p, end, flags, bad);
- 		if (flags & CEPH_SESSION_BLOCKLISTED) {
--		        pr_warn("mds%d session blocklisted\n", session->s_mds);
-+			pr_warn("mds%d session blocklisted\n", session->s_mds);
- 			blocklisted = true;
- 		}
- 	}
+ 	if (cfile) {
+-		cifsFileInfo_put(cfile);
+-		cfile = NULL;
+ 		rc = compound_send_recv(xid, ses, server,
+ 					flags, num_rqst - 2,
+ 					&rqst[1], &resp_buftype[1],
 
 
