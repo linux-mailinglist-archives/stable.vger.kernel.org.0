@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE618541167
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:37:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEEEF541847
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352305AbiFGThK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:37:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58482 "EHLO
+        id S1357507AbiFGVLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:11:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355765AbiFGTew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:34:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991FC1ABFA5;
-        Tue,  7 Jun 2022 11:13:18 -0700 (PDT)
+        with ESMTP id S1379872AbiFGVLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829D012B006;
+        Tue,  7 Jun 2022 11:52:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADDF560B26;
-        Tue,  7 Jun 2022 18:13:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9E69C385A2;
-        Tue,  7 Jun 2022 18:13:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1389FB81FE1;
+        Tue,  7 Jun 2022 18:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C6CEC385A2;
+        Tue,  7 Jun 2022 18:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625588;
-        bh=/bRe3fMWLujieOuRXkmsKWSwKCr2pPGcp3HWPp9ylT8=;
+        s=korg; t=1654627936;
+        bh=g7XB8B2hXhx0t6vm3lGhWMstRlw7oJH8/lHkhtWU6kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHypOqKkTRmfQddo2St5g9wNTCyhZ0MvrA/69+OIBkiMr+PzFLA/M4YbOZLfkRyNs
-         TdyqlQ3CzpcBchuSKiIVK5bXYVQgJGoAbdNocDfzp4q3z4lvNK5u85wNAukWGZFFrz
-         ZG26D5BzfTI0iiEzDXs0BMtO8djZcuHNJ2KrJ0KI=
+        b=rRT0vJ+c/XgHqfFioQALDmDfPJpEYcoO34K63Knr5Z0lKOV/L2dqkv5f8ooku/pO1
+         QcWxiPXHLoOkN1STlmnmf8Ee8Jmt3uYXptWaBkuiXEQWOtX5t4K+xOTFzZc7v9h0Hq
+         RpG1QIqNzSWsSzeXdVQTbRoLtdi+ZvQowG6iZTGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 071/772] rcu: Make TASKS_RUDE_RCU select IRQ_WORK
-Date:   Tue,  7 Jun 2022 18:54:23 +0200
-Message-Id: <20220607164951.133727498@linuxfoundation.org>
+Subject: [PATCH 5.18 146/879] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
+Date:   Tue,  7 Jun 2022 18:54:24 +0200
+Message-Id: <20220607165006.941950313@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 46e861be589881e0905b9ade3d8439883858721c ]
+[ Upstream commit 63678eecec57fc51b778be3da35a397931287170 ]
 
-The TASKS_RUDE_RCU does not select IRQ_WORK, which can result in build
-failures for kernels that do not otherwise select IRQ_WORK.  This commit
-therefore causes the TASKS_RUDE_RCU Kconfig option to select IRQ_WORK.
+gcc 12 does not (always) optimize away code that should only be generated
+if parameters are constant and within in a certain range. This depends on
+various obscure kernel config options, however in particular
+PROFILE_ALL_BRANCHES can trigger this compile error:
 
-Reported-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+In function ‘__atomic_add_const’,
+    inlined from ‘__preempt_count_add.part.0’ at ./arch/s390/include/asm/preempt.h:50:3:
+./arch/s390/include/asm/atomic_ops.h:80:9: error: impossible constraint in ‘asm’
+   80 |         asm volatile(                                                   \
+      |         ^~~
+
+Workaround this by simply disabling the optimization for
+PROFILE_ALL_BRANCHES, since the kernel will be so slow, that this
+optimization won't matter at all.
+
+Reported-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/include/asm/preempt.h | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/rcu/Kconfig b/kernel/rcu/Kconfig
-index bf8e341e75b4..f559870fbf8b 100644
---- a/kernel/rcu/Kconfig
-+++ b/kernel/rcu/Kconfig
-@@ -86,6 +86,7 @@ config TASKS_RCU
+diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
+index d9d5350cc3ec..bf15da0fedbc 100644
+--- a/arch/s390/include/asm/preempt.h
++++ b/arch/s390/include/asm/preempt.h
+@@ -46,10 +46,17 @@ static inline bool test_preempt_need_resched(void)
  
- config TASKS_RUDE_RCU
- 	def_bool 0
-+	select IRQ_WORK
- 	help
- 	  This option enables a task-based RCU implementation that uses
- 	  only context switch (including preemption) and user-mode
+ static inline void __preempt_count_add(int val)
+ {
+-	if (__builtin_constant_p(val) && (val >= -128) && (val <= 127))
+-		__atomic_add_const(val, &S390_lowcore.preempt_count);
+-	else
+-		__atomic_add(val, &S390_lowcore.preempt_count);
++	/*
++	 * With some obscure config options and CONFIG_PROFILE_ALL_BRANCHES
++	 * enabled, gcc 12 fails to handle __builtin_constant_p().
++	 */
++	if (!IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES)) {
++		if (__builtin_constant_p(val) && (val >= -128) && (val <= 127)) {
++			__atomic_add_const(val, &S390_lowcore.preempt_count);
++			return;
++		}
++	}
++	__atomic_add(val, &S390_lowcore.preempt_count);
+ }
+ 
+ static inline void __preempt_count_sub(int val)
 -- 
 2.35.1
 
