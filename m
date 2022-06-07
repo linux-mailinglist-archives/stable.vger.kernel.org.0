@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF5D540FD9
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E4E541DA0
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:18:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354890AbiFGTNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:13:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42808 "EHLO
+        id S1351159AbiFGWR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:17:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354965AbiFGTL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:11:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89EAAE5E;
-        Tue,  7 Jun 2022 11:07:11 -0700 (PDT)
+        with ESMTP id S1384265AbiFGWO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:14:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21A725F406;
+        Tue,  7 Jun 2022 12:19:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BDEC617B4;
-        Tue,  7 Jun 2022 18:07:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3162AC385A5;
-        Tue,  7 Jun 2022 18:07:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB646194C;
+        Tue,  7 Jun 2022 19:19:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849E4C385A2;
+        Tue,  7 Jun 2022 19:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625230;
-        bh=Xj4t98qVdkLPZQTS7OXQAoSx8M/pu0ePvUGCBZ8pXgU=;
+        s=korg; t=1654629562;
+        bh=yNqqrwcWOyAH/kGSkz7R0fA0Xe+z0OmTr3r1WJlJDIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDbfrtwUheLwm2zJzHTQSg8QWlV7Ur7sjjtvD84OOh6pARzwEdEp7qFbh3i40QdNH
-         0qL8RYU1UiuqSg1RQAFswPUhuZb1I8RFxjW5xP6PK5GIwk7dmSA1EYYeD+jdddMkb7
-         JmvEFnAqgjw5AOsWOdVKl7zKPfWbN9zjOMzXQqKE=
+        b=hq7YNUXEd/5e7OVD2AcVU8ck8RAHRbOfkq+l1L9e0ihmbqVFh8XHZP99seawFQPzj
+         weuO/oHn9Q4ZEkQoPq0Icw8J3xVsASzoG1ICBHeJsJQkQf6A+OZEMRFxe7RdxcSTfl
+         70VjnkMK+FuY3x+Pg0qhTTpJux+VArfJosIj159Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.15 572/667] samples/landlock: Add clang-format exceptions
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.18 719/879] wifi: mac80211: fix use-after-free in chanctx code
 Date:   Tue,  7 Jun 2022 19:03:57 +0200
-Message-Id: <20220607164951.849348590@linuxfoundation.org>
+Message-Id: <20220607165023.723872092@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 9805a722db071e1772b80e6e0ff33f35355639ac upstream.
+commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
 
-In preparation to a following commit, add clang-format on and
-clang-format off stanzas around constant definitions.  This enables to
-keep aligned values, which is much more readable than packed
-definitions.
+In ieee80211_vif_use_reserved_context(), when we have an
+old context and the new context's replace_state is set to
+IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
+in ieee80211_vif_use_reserved_reassign(). Therefore, we
+cannot check the old_ctx anymore, so we should set it to
+NULL after this point.
 
-Link: https://lore.kernel.org/r/20220506160513.523257-7-mic@digikod.net
+However, since the new_ctx replace state is clearly not
+IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
+anything else in this function and can just return to
+avoid accessing the freed old_ctx.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- samples/landlock/sandboxer.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/mac80211/chan.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/samples/landlock/sandboxer.c
-+++ b/samples/landlock/sandboxer.c
-@@ -70,11 +70,15 @@ static int parse_path(char *env_path, co
- 	return num_paths;
- }
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -1749,12 +1749,9 @@ int ieee80211_vif_use_reserved_context(s
  
-+/* clang-format off */
-+
- #define ACCESS_FILE ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_WRITE_FILE | \
- 	LANDLOCK_ACCESS_FS_READ_FILE)
+ 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
+ 		if (old_ctx)
+-			err = ieee80211_vif_use_reserved_reassign(sdata);
+-		else
+-			err = ieee80211_vif_use_reserved_assign(sdata);
++			return ieee80211_vif_use_reserved_reassign(sdata);
  
-+/* clang-format on */
-+
- static int populate_ruleset(
- 		const char *const env_var, const int ruleset_fd,
- 		const __u64 allowed_access)
-@@ -139,6 +143,8 @@ out_free_name:
- 	return ret;
- }
+-		if (err)
+-			return err;
++		return ieee80211_vif_use_reserved_assign(sdata);
+ 	}
  
-+/* clang-format off */
-+
- #define ACCESS_FS_ROUGHLY_READ ( \
- 	LANDLOCK_ACCESS_FS_EXECUTE | \
- 	LANDLOCK_ACCESS_FS_READ_FILE | \
-@@ -156,6 +162,8 @@ out_free_name:
- 	LANDLOCK_ACCESS_FS_MAKE_BLOCK | \
- 	LANDLOCK_ACCESS_FS_MAKE_SYM)
- 
-+/* clang-format on */
-+
- int main(const int argc, char *const argv[], char *const *const envp)
- {
- 	const char *cmd_path;
+ 	/*
 
 
