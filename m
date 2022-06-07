@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F752540C0B
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CE4540C1F
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347924AbiFGSd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 14:33:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42068 "EHLO
+        id S1351486AbiFGSds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352462AbiFGSbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C175717B86F;
-        Tue,  7 Jun 2022 10:56:09 -0700 (PDT)
+        with ESMTP id S1352489AbiFGSbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E1AF1451CD;
+        Tue,  7 Jun 2022 10:56:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 510DB617A6;
-        Tue,  7 Jun 2022 17:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5679AC385A5;
-        Tue,  7 Jun 2022 17:56:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA27FB8234A;
+        Tue,  7 Jun 2022 17:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF889C3411F;
+        Tue,  7 Jun 2022 17:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654624568;
-        bh=iasyDf3C8+XgFrEDFoVVMOvzOcKHCYOqMTpYsSEiVDM=;
+        s=korg; t=1654624571;
+        bh=SIjLdiZEQvxzZ/OkoXP2cni+kJBnPY++4VsCx3A22Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTyJ93EkvB6gNlsKth4sq7Ka1C27wV/yVU1NPsgeV+wXU9YTnYXdX0dARwPsMmA2I
-         aGZfLHkMXV1Ot7v6zHExss284iLL08uMwL8hNLD8aCUAIBaPuZk/OIbCsmb7UINHWW
-         mHRopDzyq33T2PiaLCjKaMeG0yrNWPuBh5xhOq7s=
+        b=DdsJZiZ7Oz8iWVASdRbNxoy9dLQB4oxpYYQa1YzWQ5iFJ/mKh4/2UU43vQqZEJb2i
+         EAjkvooMSkxEwiJrlm1kUpTFi3UsfEdotB1uhlM5COT4fj7B/NppfXoQsujGje+vZv
+         uP6gsoih/mJd2eQxHeDvZvp/wd1FBZSrADoOYqjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Juergen Borleis <jbe@pengutronix.de>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 374/667] hinic: Avoid some over memory allocation
-Date:   Tue,  7 Jun 2022 19:00:39 +0200
-Message-Id: <20220607164945.966755906@linuxfoundation.org>
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mans Rullgard <mans@mansr.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 375/667] net: dsa: restrict SMSC_LAN9303_I2C kconfig
+Date:   Tue,  7 Jun 2022 19:00:40 +0200
+Message-Id: <20220607164945.996818189@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
 References: <20220607164934.766888869@linuxfoundation.org>
@@ -55,34 +62,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 15d221d0c345b76947911a3ac91897ffe2f1cc4e ]
+[ Upstream commit 0a3ad7d323686fbaae8688326cc5ea0d185c6fca ]
 
-'prod_idx' (atomic_t) is larger than 'shadow_idx' (u16), so some memory is
-over-allocated.
+Since kconfig 'select' does not follow dependency chains, if symbol KSA
+selects KSB, then KSA should also depend on the same symbols that KSB
+depends on, in order to prevent Kconfig warnings and possible build
+errors.
 
-Fixes: b15a9f37be2b ("net-next/hinic: Add wq")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Change NET_DSA_SMSC_LAN9303_I2C and NET_DSA_SMSC_LAN9303_MDIO so that
+they are limited to VLAN_8021Q if the latter is enabled. This prevents
+the Kconfig warning:
+
+WARNING: unmet direct dependencies detected for NET_DSA_SMSC_LAN9303
+  Depends on [m]: NETDEVICES [=y] && NET_DSA [=y] && (VLAN_8021Q [=m] || VLAN_8021Q [=m]=n)
+  Selected by [y]:
+  - NET_DSA_SMSC_LAN9303_I2C [=y] && NETDEVICES [=y] && NET_DSA [=y] && I2C [=y]
+
+Fixes: 430065e26719 ("net: dsa: lan9303: add VLAN IDs to master device")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Vivien Didelot <vivien.didelot@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Vladimir Oltean <olteanv@gmail.com>
+Cc: Juergen Borleis <jbe@pengutronix.de>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-index f7dc7d825f63..4daf6bf291ec 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-@@ -386,7 +386,7 @@ static int alloc_wqes_shadow(struct hinic_wq *wq)
- 		return -ENOMEM;
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index 9428aac4a686..6117d4537f88 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -81,7 +81,6 @@ config NET_DSA_REALTEK_SMI
  
- 	wq->shadow_idx = devm_kcalloc(&pdev->dev, wq->num_q_pages,
--				      sizeof(wq->prod_idx), GFP_KERNEL);
-+				      sizeof(*wq->shadow_idx), GFP_KERNEL);
- 	if (!wq->shadow_idx)
- 		goto err_shadow_idx;
- 
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
+-	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_TAG_LAN9303
+ 	select REGMAP
+ 	help
+@@ -91,6 +90,7 @@ config NET_DSA_SMSC_LAN9303
+ config NET_DSA_SMSC_LAN9303_I2C
+ 	tristate "SMSC/Microchip LAN9303 3-ports 10/100 ethernet switch in I2C managed mode"
+ 	depends on I2C
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_SMSC_LAN9303
+ 	select REGMAP_I2C
+ 	help
+@@ -100,6 +100,7 @@ config NET_DSA_SMSC_LAN9303_I2C
+ config NET_DSA_SMSC_LAN9303_MDIO
+ 	tristate "SMSC/Microchip LAN9303 3-ports 10/100 ethernet switch in MDIO managed mode"
+ 	select NET_DSA_SMSC_LAN9303
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	help
+ 	  Enable access functions if the SMSC/Microchip LAN9303 is configured
+ 	  for MDIO managed mode.
 -- 
 2.35.1
 
