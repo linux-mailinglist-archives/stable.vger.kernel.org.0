@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF950541318
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDBB5540975
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357908AbiFGTz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
+        id S1349558AbiFGSIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:08:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358703AbiFGTxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:53:05 -0400
+        with ESMTP id S1349054AbiFGSGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:06:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFED26554;
-        Tue,  7 Jun 2022 11:22:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5404D1EAD0;
+        Tue,  7 Jun 2022 10:47:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE72A60DDF;
-        Tue,  7 Jun 2022 18:22:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA59C385A2;
-        Tue,  7 Jun 2022 18:22:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24042616B6;
+        Tue,  7 Jun 2022 17:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E8D7C385A5;
+        Tue,  7 Jun 2022 17:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626129;
-        bh=7QQ5grX8R7fbK834V+H9zWsoK0HdlbCrvTqdcW37FDI=;
+        s=korg; t=1654624076;
+        bh=8WCFGA2VJEpCJtdMXqgC4paTvH7glqiBPPpo4OjQHIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NCNYoc1A6dH/JTx8AS0Y4W+qLj5XGMrFzV0csTqRTQKA936HFpD+Vyd5QX0ptSsb6
-         1qyXbiXigVegEM3p6f4Z8vAPBuNLBq9kY1fkV7xAHi3VGPNUPNI+mNYX+mwDPE9Wag
-         3tJtzc8bioYoDMkxf11+bwsniy9vFft6h/0uZgkY=
+        b=YbxcqYee8IImulWVUQFfIiIf2fqWA5CI6a1tItqXrnXYG3jVfpYTqPlzAp5hCoCei
+         +wg2Mg0/+LVe3Awom35DsByvoawUii3ttwN98ZAbyj4TtfeVxLm65VwzCfcLPj3MEh
+         OlmbvvRX3WgtGFBXIHI9bl8WH5ckdT4/tbf2WNcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sinan Kaya <okaya@kernel.org>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 269/772] EDAC/dmc520: Dont print an error for each unconfigured interrupt line
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 196/667] ASoC: mediatek: Fix missing of_node_put in mt2701_wm8960_machine_probe
 Date:   Tue,  7 Jun 2022 18:57:41 +0200
-Message-Id: <20220607164956.951769630@linuxfoundation.org>
+Message-Id: <20220607164940.679603937@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit ad2df24732e8956a45a00894d2163c4ee8fb0e1f ]
+[ Upstream commit 05654431a18fe24e5e46a375d98904134628a102 ]
 
-The dmc520 driver requires that at least one interrupt line, out of the
-ten possible, is configured. The driver prints an error and returns
--EINVAL from its .probe function if there are no interrupt lines
-configured.
+This node pointer is returned by of_parse_phandle() with
+refcount incremented in this function.
+Calling of_node_put() to avoid the refcount leak.
 
-Don't print a KERN_ERR level message for each interrupt line that's
-unconfigured as that can confuse users into thinking that there is an
-error condition.
-
-Before this change, the following KERN_ERR level messages would be
-reported if only dram_ecc_errc and dram_ecc_errd were configured in the
-device tree:
-
-  dmc520 68000000.dmc: IRQ ram_ecc_errc not found
-  dmc520 68000000.dmc: IRQ ram_ecc_errd not found
-  dmc520 68000000.dmc: IRQ failed_access not found
-  dmc520 68000000.dmc: IRQ failed_prog not found
-  dmc520 68000000.dmc: IRQ link_err not
-  dmc520 68000000.dmc: IRQ temperature_event not found
-  dmc520 68000000.dmc: IRQ arch_fsm not found
-  dmc520 68000000.dmc: IRQ phy_request not found
-
-Fixes: 1088750d7839 ("EDAC: Add EDAC driver for DMC520")
-Reported-by: Sinan Kaya <okaya@kernel.org>
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220111163800.22362-1-tyhicks@linux.microsoft.com
+Fixes: 8625c1dbd876 ("ASoC: mediatek: Add mt2701-wm8960 machine driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220404093526.30004-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/dmc520_edac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/mediatek/mt2701/mt2701-wm8960.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/edac/dmc520_edac.c b/drivers/edac/dmc520_edac.c
-index b8a7d9594afd..1fa5ca57e9ec 100644
---- a/drivers/edac/dmc520_edac.c
-+++ b/drivers/edac/dmc520_edac.c
-@@ -489,7 +489,7 @@ static int dmc520_edac_probe(struct platform_device *pdev)
- 	dev = &pdev->dev;
+diff --git a/sound/soc/mediatek/mt2701/mt2701-wm8960.c b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
+index 414e422c0eba..70e494fb3da8 100644
+--- a/sound/soc/mediatek/mt2701/mt2701-wm8960.c
++++ b/sound/soc/mediatek/mt2701/mt2701-wm8960.c
+@@ -129,7 +129,8 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
+ 	if (!codec_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_platform_node;
+ 	}
+ 	for_each_card_prelinks(card, i, dai_link) {
+ 		if (dai_link->codecs->name)
+@@ -140,7 +141,7 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
+ 	ret = snd_soc_of_parse_audio_routing(card, "audio-routing");
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to parse audio-routing: %d\n", ret);
+-		return ret;
++		goto put_codec_node;
+ 	}
  
- 	for (idx = 0; idx < NUMBER_OF_IRQS; idx++) {
--		irq = platform_get_irq_byname(pdev, dmc520_irq_configs[idx].name);
-+		irq = platform_get_irq_byname_optional(pdev, dmc520_irq_configs[idx].name);
- 		irqs[idx] = irq;
- 		masks[idx] = dmc520_irq_configs[idx].mask;
- 		if (irq >= 0) {
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+@@ -148,6 +149,10 @@ static int mt2701_wm8960_machine_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
+ 
++put_codec_node:
++	of_node_put(codec_node);
++put_platform_node:
++	of_node_put(platform_node);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
