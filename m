@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF83A5411F5
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 21:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB832540850
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356710AbiFGTnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 15:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
+        id S1348833AbiFGR5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:57:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356776AbiFGTjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 15:39:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98B7FF583;
-        Tue,  7 Jun 2022 11:14:28 -0700 (PDT)
+        with ESMTP id S1348852AbiFGR4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:56:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DAC1483CE;
+        Tue,  7 Jun 2022 10:40:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EA060C1B;
-        Tue,  7 Jun 2022 18:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36F7CC385A2;
-        Tue,  7 Jun 2022 18:14:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 650F26146F;
+        Tue,  7 Jun 2022 17:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75227C385A5;
+        Tue,  7 Jun 2022 17:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654625667;
-        bh=AblWjtA8CPTC3IoqQWt8yq7oRCv0iVKowhnhrwAHlr8=;
+        s=korg; t=1654623612;
+        bh=Ug2iDgnAtpoUE8P9c9MZInvHRwl5cstezlbysnMVdkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5znlLxSlTxhax7qU6lMxhLNa1AoRL41xOcBGQowaNyAlBJgn4cIz+CU/6J3rnkhF
-         jry+RQiHm2zj4dovc9CQ0B8hU+04eaPNL3er9ukBv5aYukvXzelxELsaS7lqXY5NzC
-         YbOY8V0/B217Ewsc9cG7WRSNcCA4cdJInkxAUHZY=
+        b=ElTsZCbXRPS5/uGF2glaEQg0nlYWAc1+5frJCDmr7IbPXpRg0AVewOXJRZ9iheNve
+         T9UuVmEr6foFBSkR/bgl9bIThPmMHuBFWMaWplBqkZ9bc3HcIzNK+FOh2JlkT/f1e4
+         iEZ57kDtWZS8+lXU0KcITLlANE87AjC3HGdRpbfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 100/772] ASoC: Intel: bytcr_rt5640: Add quirk for the HP Pro Tablet 408
-Date:   Tue,  7 Jun 2022 18:54:52 +0200
-Message-Id: <20220607164951.995428749@linuxfoundation.org>
+        stable@vger.kernel.org, Roberto Bergantinos <rbergant@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 028/667] cifs: fix potential double free during failed mount
+Date:   Tue,  7 Jun 2022 18:54:53 +0200
+Message-Id: <20220607164935.640274400@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit ce216cfa84a4e1c23b105e652c550bdeaac9e922 ]
+commit 8378a51e3f8140f60901fb27208cc7a6e47047b5 upstream.
 
-Add a quirk for the HP Pro Tablet 408, this BYTCR tablet has no CHAN
-package in its ACPI tables and uses SSP0-AIF1 rather then SSP0-AIF2 which
-is the default for BYTCR devices.
+RHBZ: https://bugzilla.redhat.com/show_bug.cgi?id=2088799
 
-It also uses DMIC1 for the internal mic rather then the default IN3
-and it uses JD2 rather then the default JD1 for jack-detect.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211485
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220427134918.527381-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Roberto Bergantinos <rbergant@redhat.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ fs/cifs/cifsfs.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 2ace32c03ec9..b5ac226c59e1 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -773,6 +773,18 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_OVCD_SF_0P75 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* HP Pro Tablet 408 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pro Tablet 408"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_DMIC1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_1500UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{	/* HP Stream 7 */
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--- 
-2.35.1
-
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -826,7 +826,7 @@ cifs_smb3_do_mount(struct file_system_ty
+ 	      int flags, struct smb3_fs_context *old_ctx)
+ {
+ 	int rc;
+-	struct super_block *sb;
++	struct super_block *sb = NULL;
+ 	struct cifs_sb_info *cifs_sb = NULL;
+ 	struct cifs_mnt_data mnt_data;
+ 	struct dentry *root;
+@@ -922,9 +922,11 @@ out_super:
+ 	return root;
+ out:
+ 	if (cifs_sb) {
+-		kfree(cifs_sb->prepath);
+-		smb3_cleanup_fs_context(cifs_sb->ctx);
+-		kfree(cifs_sb);
++		if (!sb || IS_ERR(sb)) {  /* otherwise kill_sb will handle */
++			kfree(cifs_sb->prepath);
++			smb3_cleanup_fs_context(cifs_sb->ctx);
++			kfree(cifs_sb);
++		}
+ 	}
+ 	return root;
+ }
 
 
