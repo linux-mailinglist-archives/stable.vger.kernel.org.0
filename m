@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD282540626
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE75540C2C
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347098AbiFGRdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:33:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+        id S1352143AbiFGSeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347556AbiFGRav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:30:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2054222B2;
-        Tue,  7 Jun 2022 10:27:19 -0700 (PDT)
+        with ESMTP id S1353129AbiFGSbo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA69917D3BF;
+        Tue,  7 Jun 2022 10:56:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A1061281;
-        Tue,  7 Jun 2022 17:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D45C385A5;
-        Tue,  7 Jun 2022 17:27:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 160F6CE240C;
+        Tue,  7 Jun 2022 17:56:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F36C3411C;
+        Tue,  7 Jun 2022 17:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622838;
-        bh=zzLjHQn9lB2pijnSi35CskEX2ppSihB6gIvtUPCZ9ys=;
+        s=korg; t=1654624610;
+        bh=pVh9UWybB1ldcicV5sxsnYbqp9zGofqG9Fr531vTWW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGWTm7T5b88AxU+/wjVoApapmamr1jouQTN3Fjcxrw3WLbTkgQxypR9TmKEdPZWrI
-         dmGeI4qNgWOPXAU3VSKDHHOTvE/aUt9MhuLf/YyG5LlSkRp8UTkupJd0CxHC20a+pu
-         Pqc9qIVzdTh0MvPNHEp4yusOvBYlYjiLvL6qZxgA=
+        b=ZVXcKAYcsbJhiEAZzzAxdFDQFSZSbVXH32n00/TEVLntookB3D/YvSqyb+LixEeYW
+         M+g8b/Ym6vLCgLhGleaBMPr2VhkNOrO5698HCAc+qDhugP2HjLBHdZa3foBuKQ2zBR
+         IuGeEGjwFkjdh9810ppA8zGmQ5wvhyn7OPQZN06c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 160/452] fsnotify: fix wrong lockdep annotations
+Subject: [PATCH 5.15 352/667] drm/i915: Fix CFI violation with show_dynamic_id()
 Date:   Tue,  7 Jun 2022 19:00:17 +0200
-Message-Id: <20220607164913.329714310@linuxfoundation.org>
+Message-Id: <20220607164945.315526976@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 623af4f538b5df9b416e1b82f720af7371b4c771 ]
+[ Upstream commit 58606220a2f1407a7516c547f09a1ba7b4350a73 ]
 
-Commit 6960b0d909cd ("fsnotify: change locking order") changed some
-of the mark_mutex locks in direct reclaim path to use:
-  mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
+When an attribute group is created with sysfs_create_group(), the
+->sysfs_ops() callback is set to kobj_sysfs_ops, which sets the ->show()
+callback to kobj_attr_show(). kobj_attr_show() uses container_of() to
+get the ->show() callback from the attribute it was passed, meaning the
+->show() callback needs to be the same type as the ->show() callback in
+'struct kobj_attribute'.
 
-This change is explained:
- "...It uses nested locking to avoid deadlock in case we do the final
-  iput() on an inode which still holds marks and thus would take the
-  mutex again when calling fsnotify_inode_delete() in destroy_inode()."
+However, show_dynamic_id() has the type of the ->show() callback in
+'struct device_attribute', which causes a CFI violation when opening the
+'id' sysfs node under drm/card0/metrics. This happens to work because
+the layout of 'struct kobj_attribute' and 'struct device_attribute' are
+the same, so the container_of() cast happens to allow the ->show()
+callback to still work.
 
-The problem is that the mutex_lock_nested() is not a nested lock at
-all. In fact, it has the opposite effect of preventing lockdep from
-warning about a very possible deadlock.
+Change the type of show_dynamic_id() to match the ->show() callback in
+'struct kobj_attributes' and update the type of sysfs_metric_id to
+match, which resolves the CFI violation.
 
-Due to these wrong annotations, a deadlock that was introduced with
-nfsd filecache in kernel v5.4 went unnoticed in v5.4.y for over two
-years until it was reported recently by Khazhismel Kumykov, only to
-find out that the deadlock was already fixed in kernel v5.5.
-
-Fix the wrong lockdep annotations.
-
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Fixes: 6960b0d909cd ("fsnotify: change locking order")
-Link: https://lore.kernel.org/r/20220321112310.vpr7oxro2xkz5llh@quack3.lan/
-Link: https://lore.kernel.org/r/20220422120327.3459282-4-amir73il@gmail.com
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: f89823c21224 ("drm/i915/perf: Implement I915_PERF_ADD/REMOVE_CONFIG interface")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220513075136.1027007-1-tvrtko.ursulin@linux.intel.com
+(cherry picked from commit 18fb42db05a0b93ab5dd5eab5315e50eaa3ca620)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/notify/mark.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/i915_perf.c       | 4 ++--
+ drivers/gpu/drm/i915/i915_perf_types.h | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 8387937b9d01..5b44be5f93dd 100644
---- a/fs/notify/mark.c
-+++ b/fs/notify/mark.c
-@@ -430,7 +430,7 @@ void fsnotify_free_mark(struct fsnotify_mark *mark)
- void fsnotify_destroy_mark(struct fsnotify_mark *mark,
- 			   struct fsnotify_group *group)
- {
--	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock(&group->mark_mutex);
- 	fsnotify_detach_mark(mark);
- 	mutex_unlock(&group->mark_mutex);
- 	fsnotify_free_mark(mark);
-@@ -742,7 +742,7 @@ void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
- 	 * move marks to free to to_free list in one go and then free marks in
- 	 * to_free list one by one.
- 	 */
--	mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock(&group->mark_mutex);
- 	list_for_each_entry_safe(mark, lmark, &group->marks_list, g_list) {
- 		if ((1U << mark->connector->type) & type_mask)
- 			list_move(&mark->g_list, &to_free);
-@@ -751,7 +751,7 @@ void fsnotify_clear_marks_by_group(struct fsnotify_group *group,
+diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+index 2f01b8c0284c..f3c8f87d25ae 100644
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -4008,8 +4008,8 @@ static struct i915_oa_reg *alloc_oa_regs(struct i915_perf *perf,
+ 	return ERR_PTR(err);
+ }
  
- clear:
- 	while (1) {
--		mutex_lock_nested(&group->mark_mutex, SINGLE_DEPTH_NESTING);
-+		mutex_lock(&group->mark_mutex);
- 		if (list_empty(head)) {
- 			mutex_unlock(&group->mark_mutex);
- 			break;
+-static ssize_t show_dynamic_id(struct device *dev,
+-			       struct device_attribute *attr,
++static ssize_t show_dynamic_id(struct kobject *kobj,
++			       struct kobj_attribute *attr,
+ 			       char *buf)
+ {
+ 	struct i915_oa_config *oa_config =
+diff --git a/drivers/gpu/drm/i915/i915_perf_types.h b/drivers/gpu/drm/i915/i915_perf_types.h
+index aa14354a5120..f682c7a6474d 100644
+--- a/drivers/gpu/drm/i915/i915_perf_types.h
++++ b/drivers/gpu/drm/i915/i915_perf_types.h
+@@ -55,7 +55,7 @@ struct i915_oa_config {
+ 
+ 	struct attribute_group sysfs_metric;
+ 	struct attribute *attrs[2];
+-	struct device_attribute sysfs_metric_id;
++	struct kobj_attribute sysfs_metric_id;
+ 
+ 	struct kref ref;
+ 	struct rcu_head rcu;
 -- 
 2.35.1
 
