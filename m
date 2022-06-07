@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 306C6541690
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B630D541D5F
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377118AbiFGUxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:53:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48200 "EHLO
+        id S1383646AbiFGWNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 18:13:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377418AbiFGUuk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:50:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E511F98C6;
-        Tue,  7 Jun 2022 11:40:14 -0700 (PDT)
+        with ESMTP id S1383959AbiFGWMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:12:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C6225A827;
+        Tue,  7 Jun 2022 12:19:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEBA6B8237B;
-        Tue,  7 Jun 2022 18:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37393C385A5;
-        Tue,  7 Jun 2022 18:40:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2D5D61956;
+        Tue,  7 Jun 2022 19:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B444CC385A2;
+        Tue,  7 Jun 2022 19:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654627212;
-        bh=9E8DLy1jXcYjYN0wqF0KZRXbQUMR5XhMKZCP7s2JCPY=;
+        s=korg; t=1654629552;
+        bh=7z/LJZ+JUfk/CoOc11G3rJSu0+44RrtrKYssjymRpGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnqTMJiCy2Dk4KYgPFXNwkIbEYWsGUTkvfovoAFpgQy60lMTlLoiQW7RRRZRwlhd1
-         RcWj1DSUx645vo130REmwgzYbeJMRvYAYlYP4zGXmwXK0xM0DwaTwQ1eIE5Ukc//Tf
-         9gp4p7W8DqbxXnLMnxS3muvZTN481Mk57jt2pp2o=
+        b=xxrvjCEfky61S5wGXrSFy/zuNQHnzuMKkClXDg5ypuBnJDxI4d+1xPARz8SCExzt4
+         P7srWfX+sPW1Lu0YDBx1ARLtuZax6AJ67NbT4KkaRDLM8AiBnJf333o7zKv/OzxtIB
+         JwGQF8S/d5UlkTQlAZRcrqhhj9oV4j5c+ACWgxMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Subject: [PATCH 5.17 659/772] s390/perf: obtain sie_block from the right address
+        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.18 733/879] bfq: Track whether bfq_group is still online
 Date:   Tue,  7 Jun 2022 19:04:11 +0200
-Message-Id: <20220607165008.479850822@linuxfoundation.org>
+Message-Id: <20220607165024.133157498@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nico Boehr <nrb@linux.ibm.com>
+From: Jan Kara <jack@suse.cz>
 
-commit c9bfb460c3e4da2462e16b0f0b200990b36b1dd2 upstream.
+commit 09f871868080c33992cd6a9b72a5ca49582578fa upstream.
 
-Since commit 1179f170b6f0 ("s390: fix fpu restore in entry.S"), the
-sie_block pointer is located at empty1[1], but in sie_block() it was
-taken from empty1[0].
+Track whether bfq_group is still online. We cannot rely on
+blkcg_gq->online because that gets cleared only after all policies are
+offlined and we need something that gets updated already under
+bfqd->lock when we are cleaning up our bfq_group to be able to guarantee
+that when we see online bfq_group, it will stay online while we are
+holding bfqd->lock lock.
 
-This leads to a random pointer being dereferenced, possibly causing
-system crash.
-
-This problem can be observed when running a simple guest with an endless
-loop and recording the cpu-clock event:
-
-  sudo perf kvm --guestvmlinux=<guestkernel> --guest top -e cpu-clock
-
-With this fix, the correct guest address is shown.
-
-Fixes: 1179f170b6f0 ("s390: fix fpu restore in entry.S")
-Cc: stable@vger.kernel.org
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+CC: stable@vger.kernel.org
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-7-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/perf_event.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/bfq-cgroup.c  |    3 ++-
+ block/bfq-iosched.h |    2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/s390/kernel/perf_event.c
-+++ b/arch/s390/kernel/perf_event.c
-@@ -30,7 +30,7 @@ static struct kvm_s390_sie_block *sie_bl
- 	if (!stack)
- 		return NULL;
- 
--	return (struct kvm_s390_sie_block *) stack->empty1[0];
-+	return (struct kvm_s390_sie_block *)stack->empty1[1];
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -557,6 +557,7 @@ static void bfq_pd_init(struct blkg_poli
+ 				   */
+ 	bfqg->bfqd = bfqd;
+ 	bfqg->active_entities = 0;
++	bfqg->online = true;
+ 	bfqg->rq_pos_tree = RB_ROOT;
  }
  
- static bool is_in_guest(struct pt_regs *regs)
+@@ -603,7 +604,6 @@ struct bfq_group *bfq_find_set_group(str
+ 	struct bfq_entity *entity;
+ 
+ 	bfqg = bfq_lookup_bfqg(bfqd, blkcg);
+-
+ 	if (unlikely(!bfqg))
+ 		return NULL;
+ 
+@@ -979,6 +979,7 @@ static void bfq_pd_offline(struct blkg_p
+ 
+ put_async_queues:
+ 	bfq_put_async_queues(bfqd, bfqg);
++	bfqg->online = false;
+ 
+ 	spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	/*
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -929,6 +929,8 @@ struct bfq_group {
+ 
+ 	/* reference counter (see comments in bfq_bic_update_cgroup) */
+ 	int ref;
++	/* Is bfq_group still online? */
++	bool online;
+ 
+ 	struct bfq_entity entity;
+ 	struct bfq_sched_data sched_data;
 
 
