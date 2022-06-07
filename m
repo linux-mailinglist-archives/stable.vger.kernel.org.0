@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CAE4541E3D
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 00:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD88540825
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379970AbiFGW1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 18:27:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49782 "EHLO
+        id S1348577AbiFGR4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 13:56:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382490AbiFGWYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 18:24:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F07F226D37B;
-        Tue,  7 Jun 2022 12:22:39 -0700 (PDT)
+        with ESMTP id S1348713AbiFGRxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:53:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585B31447B8;
+        Tue,  7 Jun 2022 10:39:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F10FB60A1D;
-        Tue,  7 Jun 2022 19:22:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05AF5C385A2;
-        Tue,  7 Jun 2022 19:22:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC843615F5;
+        Tue,  7 Jun 2022 17:39:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25E7C385A5;
+        Tue,  7 Jun 2022 17:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654629758;
-        bh=+DFhx/+zMYy9AJgFEs5i0jMWEHc2bLU2fzKwpiStgNA=;
+        s=korg; t=1654623552;
+        bh=5YfO6wYxuI36GuaW0/gD8NPiHcmgmSRqF/dYT+hzzsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Qkh6MafUN658oH/PBRmdKIptxqnb37TVVPiskiOg3wU5x9WgnEwnc8zJ2hbFNW+V
-         57iTv7w4W9EarY4df/8VAUyaaFXkqMUQHshJp3a6GO2W4zs2eMTWuFcK1+yJeXvLxM
-         woAgunQ9wubFbtKuqGg2vSG/U9Jv9U9/Z1rDG+mM=
+        b=M0thlZnn2GL2r8Sl+Q38fQyvPRNes+8+NBBW8ohJO03/zy0PxlpSq/AskQsMvxmDa
+         /tlKBixFmgV0cEnAT7hF8Dv9Z2h1qbFgKL+dW75WohJ7aZCOLZo51XMOtKJwsOPSo7
+         NqRqgxFv+k/dIYMua9UmeexEgD/U42sufV5Sjc9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>
-Subject: [PATCH 5.18 766/879] dlm: fix missing lkb refcount handling
+        stable@vger.kernel.org, Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 427/452] phy: qcom-qmp: fix reset-controller leak on probe errors
 Date:   Tue,  7 Jun 2022 19:04:44 +0200
-Message-Id: <20220607165025.097431083@linuxfoundation.org>
+Message-Id: <20220607164921.279200824@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
+References: <20220607164908.521895282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 1689c169134f4b5a39156122d799b7dca76d8ddb upstream.
+commit 4d2900f20edfe541f75756a00deeb2ffe7c66bc1 upstream.
 
-We always call hold_lkb(lkb) if we increment lkb->lkb_wait_count.
-So, we always need to call unhold_lkb(lkb) if we decrement
-lkb->lkb_wait_count. This patch will add missing unhold_lkb(lkb) if we
-decrement lkb->lkb_wait_count. In case of setting lkb->lkb_wait_count to
-zero we need to countdown until reaching zero and call unhold_lkb(lkb).
-The waiters list unhold_lkb(lkb) can be removed because it's done for
-the last lkb_wait_count decrement iteration as it's done in
-_remove_from_waiters().
+Make sure to release the lane reset controller in case of a late probe
+error (e.g. probe deferral).
 
-This issue was discovered by a dlm gfs2 test case which use excessively
-dlm_unlock(LKF_CANCEL) feature. Probably the lkb->lkb_wait_count value
-never reached above 1 if this feature isn't used and so it was not
-discovered before.
+Note that due to the reset controller being defined in devicetree in
+"lane" child nodes, devm_reset_control_get_exclusive() cannot be used
+directly.
 
-The testcase ended in a rsb on the rsb keep data structure with a
-refcount of 1 but no lkb was associated with it, which is itself
-an invalid behaviour. A side effect of that was a condition in which
-the dlm was sending remove messages in a looping behaviour. With this
-patch that has not been reproduced.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220427063243.32576-3-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/lock.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -1559,6 +1559,7 @@ static int _remove_from_waiters(struct d
- 		lkb->lkb_wait_type = 0;
- 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
- 		lkb->lkb_wait_count--;
-+		unhold_lkb(lkb);
- 		goto out_del;
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -3717,6 +3717,11 @@ static const struct phy_ops qcom_qmp_pci
+ 	.owner		= THIS_MODULE,
+ };
+ 
++static void qcom_qmp_reset_control_put(void *data)
++{
++	reset_control_put(data);
++}
++
+ static
+ int qcom_qmp_phy_create(struct device *dev, struct device_node *np, int id,
+ 			void __iomem *serdes, const struct qmp_phy_cfg *cfg)
+@@ -3811,6 +3816,10 @@ int qcom_qmp_phy_create(struct device *d
+ 			dev_err(dev, "failed to get lane%d reset\n", id);
+ 			return PTR_ERR(qphy->lane_rst);
+ 		}
++		ret = devm_add_action_or_reset(dev, qcom_qmp_reset_control_put,
++					       qphy->lane_rst);
++		if (ret)
++			return ret;
  	}
  
-@@ -1585,6 +1586,7 @@ static int _remove_from_waiters(struct d
- 		log_error(ls, "remwait error %x reply %d wait_type %d overlap",
- 			  lkb->lkb_id, mstype, lkb->lkb_wait_type);
- 		lkb->lkb_wait_count--;
-+		unhold_lkb(lkb);
- 		lkb->lkb_wait_type = 0;
- 	}
- 
-@@ -5331,11 +5333,16 @@ int dlm_recover_waiters_post(struct dlm_
- 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_UNLOCK;
- 		lkb->lkb_flags &= ~DLM_IFL_OVERLAP_CANCEL;
- 		lkb->lkb_wait_type = 0;
--		lkb->lkb_wait_count = 0;
-+		/* drop all wait_count references we still
-+		 * hold a reference for this iteration.
-+		 */
-+		while (lkb->lkb_wait_count) {
-+			lkb->lkb_wait_count--;
-+			unhold_lkb(lkb);
-+		}
- 		mutex_lock(&ls->ls_waiters_mutex);
- 		list_del_init(&lkb->lkb_wait_reply);
- 		mutex_unlock(&ls->ls_waiters_mutex);
--		unhold_lkb(lkb); /* for waiters list */
- 
- 		if (oc || ou) {
- 			/* do an unlock or cancel instead of resending */
+ 	if (cfg->type == PHY_TYPE_UFS || cfg->type == PHY_TYPE_PCIE)
 
 
