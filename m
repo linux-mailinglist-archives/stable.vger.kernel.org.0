@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DE6540712
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52C5540E7E
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348018AbiFGRmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:42:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
+        id S1347768AbiFGS54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:57:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348449AbiFGRku (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:40:50 -0400
+        with ESMTP id S1353690AbiFGSxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:53:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C757B11E1F9;
-        Tue,  7 Jun 2022 10:34:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11C014AA4C;
+        Tue,  7 Jun 2022 11:03:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B505761529;
-        Tue,  7 Jun 2022 17:33:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5395C34115;
-        Tue,  7 Jun 2022 17:33:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C11A761883;
+        Tue,  7 Jun 2022 18:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC56C34115;
+        Tue,  7 Jun 2022 18:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623233;
-        bh=vnwChNBOdh6tUryNRu/r5Jb4hlIvjwDrBDcGwOI4arg=;
+        s=korg; t=1654625014;
+        bh=4u7SjdlJyw6xkUuz/qbrSn/2WRJCTAhLEKrs6zEwYwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RIG0H6w16Znh74AHSoW1tChc0ap2nr7rmPYtUY7hEk9lzB0aQ+6m21tNWkOtC2AX
-         6ROIQNKRnSi4XffC+o0MUeO5Wz5ugqW1JY+pMba6P2REWyOMLKs49AlyvDQSgBQo9i
-         s0M4oOVd7pjxN3pJQcTLoNuBhYhm8o0YwzCcbeh0=
+        b=cu0780Pdjo4H+q/ORwQdn/+qI3bRnCQXLtSdKzSrolQ14YbSSrl4U941jZTiZozoi
+         wad7St8H8/Kv0geLTvrYt5kWPcf7aJB6onLrr8DoXwuNUK9Ic9WjxjOiCpZy16Hfbw
+         u14FAS0UpTU0KrRke1MIe2lqlP0ojcN/UV9pmGeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 344/452] f2fs: fix to avoid f2fs_bug_on() in dec_valid_node_count()
+        stable@vger.kernel.org, "yukuai (C)" <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 536/667] bfq: Remove pointless bfq_init_rq() calls
 Date:   Tue,  7 Jun 2022 19:03:21 +0200
-Message-Id: <20220607164918.808580445@linuxfoundation.org>
+Message-Id: <20220607164950.777019914@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 4d17e6fe9293d57081ffdc11e1cf313e25e8fd9e upstream.
+commit 5f550ede5edf846ecc0067be1ba80514e6fe7f8e upstream.
 
-As Yanming reported in bugzilla:
+We call bfq_init_rq() from request merging functions where requests we
+get should have already gone through bfq_init_rq() during insert and
+anyway we want to do anything only if the request is already tracked by
+BFQ. So replace calls to bfq_init_rq() with RQ_BFQQ() instead to simply
+skip requests untracked by BFQ. We move bfq_init_rq() call in
+bfq_insert_request() a bit earlier to cover request merging and thus
+can transfer FIFO position in case of a merge.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215897
-
-I have encountered a bug in F2FS file system in kernel v5.17.
-
-The kernel should enable CONFIG_KASAN=y and CONFIG_KASAN_INLINE=y. You can
-reproduce the bug by running the following commands:
-
-The kernel message is shown below:
-
-kernel BUG at fs/f2fs/f2fs.h:2511!
-Call Trace:
- f2fs_remove_inode_page+0x2a2/0x830
- f2fs_evict_inode+0x9b7/0x1510
- evict+0x282/0x4e0
- do_unlinkat+0x33a/0x540
- __x64_sys_unlinkat+0x8e/0xd0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is: .total_valid_block_count or .total_valid_node_count
-could fuzzed to zero, then once dec_valid_node_count() was called, it
-will cause BUG_ON(), this patch fixes to print warning info and set
-SBI_NEED_FSCK into CP instead of panic.
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+CC: stable@vger.kernel.org
+Tested-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220401102752.8599-6-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/f2fs.h |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ block/bfq-iosched.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2284,11 +2284,17 @@ static inline void dec_valid_node_count(
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2375,8 +2375,6 @@ static int bfq_request_merge(struct requ
+ 	return ELEVATOR_NO_MERGE;
+ }
+ 
+-static struct bfq_queue *bfq_init_rq(struct request *rq);
+-
+ static void bfq_request_merged(struct request_queue *q, struct request *req,
+ 			       enum elv_merge type)
  {
- 	spin_lock(&sbi->stat_lock);
+@@ -2385,7 +2383,7 @@ static void bfq_request_merged(struct re
+ 	    blk_rq_pos(req) <
+ 	    blk_rq_pos(container_of(rb_prev(&req->rb_node),
+ 				    struct request, rb_node))) {
+-		struct bfq_queue *bfqq = bfq_init_rq(req);
++		struct bfq_queue *bfqq = RQ_BFQQ(req);
+ 		struct bfq_data *bfqd;
+ 		struct request *prev, *next_rq;
  
--	f2fs_bug_on(sbi, !sbi->total_valid_block_count);
--	f2fs_bug_on(sbi, !sbi->total_valid_node_count);
-+	if (unlikely(!sbi->total_valid_block_count ||
-+			!sbi->total_valid_node_count)) {
-+		f2fs_warn(sbi, "dec_valid_node_count: inconsistent block counts, total_valid_block:%u, total_valid_node:%u",
-+			  sbi->total_valid_block_count,
-+			  sbi->total_valid_node_count);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+	} else {
-+		sbi->total_valid_block_count--;
-+		sbi->total_valid_node_count--;
-+	}
+@@ -2437,8 +2435,8 @@ static void bfq_request_merged(struct re
+ static void bfq_requests_merged(struct request_queue *q, struct request *rq,
+ 				struct request *next)
+ {
+-	struct bfq_queue *bfqq = bfq_init_rq(rq),
+-		*next_bfqq = bfq_init_rq(next);
++	struct bfq_queue *bfqq = RQ_BFQQ(rq),
++		*next_bfqq = RQ_BFQQ(next);
  
--	sbi->total_valid_node_count--;
--	sbi->total_valid_block_count--;
- 	if (sbi->reserved_blocks &&
- 		sbi->current_reserved_blocks < sbi->reserved_blocks)
- 		sbi->current_reserved_blocks++;
+ 	if (!bfqq)
+ 		goto remove;
+@@ -5991,6 +5989,8 @@ static inline void bfq_update_insert_sta
+ 					   unsigned int cmd_flags) {}
+ #endif /* CONFIG_BFQ_CGROUP_DEBUG */
+ 
++static struct bfq_queue *bfq_init_rq(struct request *rq);
++
+ static void bfq_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
+ 			       bool at_head)
+ {
+@@ -6006,6 +6006,7 @@ static void bfq_insert_request(struct bl
+ 		bfqg_stats_update_legacy_io(q, rq);
+ #endif
+ 	spin_lock_irq(&bfqd->lock);
++	bfqq = bfq_init_rq(rq);
+ 	if (blk_mq_sched_try_insert_merge(q, rq, &free)) {
+ 		spin_unlock_irq(&bfqd->lock);
+ 		blk_mq_free_requests(&free);
+@@ -6014,7 +6015,6 @@ static void bfq_insert_request(struct bl
+ 
+ 	trace_block_rq_insert(rq);
+ 
+-	bfqq = bfq_init_rq(rq);
+ 	if (!bfqq || at_head) {
+ 		if (at_head)
+ 			list_add(&rq->queuelist, &bfqd->dispatch);
 
 
