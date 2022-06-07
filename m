@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E74FB540811
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09DE0541874
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:12:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244513AbiFGRya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48622 "EHLO
+        id S1359515AbiFGVMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:12:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348718AbiFGRxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:53:17 -0400
+        with ESMTP id S1380083AbiFGVL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:11:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6723F2CC92;
-        Tue,  7 Jun 2022 10:39:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408F621761E;
+        Tue,  7 Jun 2022 11:53:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BCB860DB5;
-        Tue,  7 Jun 2022 17:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27789C385A5;
-        Tue,  7 Jun 2022 17:39:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FFBE6156D;
+        Tue,  7 Jun 2022 18:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622B5C385A2;
+        Tue,  7 Jun 2022 18:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654623582;
-        bh=4vDXe7hh1Fi4IBxD4whfYOLUf22H6V0/WrIBhzNAJq8=;
+        s=korg; t=1654627983;
+        bh=iKlBYoUEHHSKLj/FQ6yF2o4GA7+S+LJ6Nw0AmRb3NAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/8wBwX+ZECtWXIObKV7HT8T7GAXc7f8HHq0y1gPzFTNMEHSAa65YmTdCOce9aeEK
-         TBqlVzzs8niMvyjcSV/tGOheOfNzp0zmkoCGaBzyx9+Gi+qwSDaQFS/pKNPqvNu4H8
-         Q7snQXcfaU492ZFFRcDEKqZA2RvhKXS7nknLU1ss=
+        b=ERuyAXOkq3tLSqDl7WOzpH515lSIcCOJ4aA3U7ijzCGT9WkndADUpkPkdB8r3bLBz
+         7L2zOlflLPU/Xt7A3BbY+RdRThD5oUaE+6Jn6i75HQTwBW9yNCMrfjEUPirSirBVFA
+         F2nDo+/j/VienaKkixB8+KRSaPvrTFPEU5uRRPf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Albert Wang <albertccwang@google.com>
-Subject: [PATCH 5.15 018/667] usb: dwc3: gadget: Move null pinter check to proper place
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 165/879] media: ccs-core.c: fix failure to call clk_disable_unprepare
 Date:   Tue,  7 Jun 2022 18:54:43 +0200
-Message-Id: <20220607164935.339910991@linuxfoundation.org>
+Message-Id: <20220607165007.498129095@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
-References: <20220607164934.766888869@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Albert Wang <albertccwang@google.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 3c5880745b4439ac64eccdb040e37fc1cc4c5406 upstream.
+[ Upstream commit eca89cf60b040ee2cae693ea72a0364284f3084c ]
 
-When dwc3_gadget_ep_cleanup_completed_requests() called to
-dwc3_gadget_giveback() where the dwc3 lock is released, other thread is
-able to execute. In this situation, usb_ep_disable() gets the chance to
-clear endpoint descriptor pointer which leds to the null pointer
-dereference problem. So needs to move the null pointer check to a proper
-place.
+Fixes smatch warning:
 
-Example call stack:
+drivers/media/i2c/ccs/ccs-core.c:1676 ccs_power_on() warn: 'sensor->ext_clk' from clk_prepare_enable() not released on lines: 1606.
 
-Thread#1:
-dwc3_thread_interrupt()
-  spin_lock
-  -> dwc3_process_event_buf()
-   -> dwc3_process_event_entry()
-    -> dwc3_endpoint_interrupt()
-     -> dwc3_gadget_endpoint_trbs_complete()
-      -> dwc3_gadget_ep_cleanup_completed_requests()
-       ...
-       -> dwc3_giveback()
-          spin_unlock
-          Thread#2 executes
-
-Thread#2:
-configfs_composite_disconnect()
-  -> __composite_disconnect()
-   -> ffs_func_disable()
-    -> ffs_func_set_alt()
-     -> ffs_func_eps_disable()
-      -> usb_ep_disable()
-         wait for dwc3 spin_lock
-         Thread#1 released lock
-         clear endpoint.desc
-
-Fixes: 26288448120b ("usb: dwc3: gadget: Fix null pointer exception")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Albert Wang <albertccwang@google.com>
-Link: https://lore.kernel.org/r/20220518061315.3359198-1-albertccwang@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ccs/ccs-core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3305,14 +3305,14 @@ static bool dwc3_gadget_endpoint_trbs_co
- 	struct dwc3		*dwc = dep->dwc;
- 	bool			no_started_trb = true;
+diff --git a/drivers/media/i2c/ccs/ccs-core.c b/drivers/media/i2c/ccs/ccs-core.c
+index 03e841b8443f..7ae469caf990 100644
+--- a/drivers/media/i2c/ccs/ccs-core.c
++++ b/drivers/media/i2c/ccs/ccs-core.c
+@@ -1602,8 +1602,11 @@ static int ccs_power_on(struct device *dev)
+ 			usleep_range(1000, 2000);
+ 		} while (--retry);
  
--	if (!dep->endpoint.desc)
--		return no_started_trb;
--
- 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+-		if (!reset)
+-			return -EIO;
++		if (!reset) {
++			dev_err(dev, "software reset failed\n");
++			rval = -EIO;
++			goto out_cci_addr_fail;
++		}
+ 	}
  
- 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
- 		goto out;
- 
-+	if (!dep->endpoint.desc)
-+		return no_started_trb;
-+
- 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
- 		list_empty(&dep->started_list) &&
- 		(list_empty(&dep->pending_list) || status == -EXDEV))
+ 	if (sensor->hwcfg.i2c_addr_alt) {
+-- 
+2.35.1
+
 
 
