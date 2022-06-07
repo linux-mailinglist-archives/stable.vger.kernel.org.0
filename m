@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E6825414CC
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 22:22:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF002540C23
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359361AbiFGUWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 16:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45648 "EHLO
+        id S1351792AbiFGSd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:33:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376303AbiFGUVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 16:21:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC2342E6A7;
-        Tue,  7 Jun 2022 11:31:06 -0700 (PDT)
+        with ESMTP id S1353100AbiFGSbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:31:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF35617D39D;
+        Tue,  7 Jun 2022 10:56:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4794760DDA;
-        Tue,  7 Jun 2022 18:31:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B22EC385A5;
-        Tue,  7 Jun 2022 18:31:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 822C0B82239;
+        Tue,  7 Jun 2022 17:56:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A17C34115;
+        Tue,  7 Jun 2022 17:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654626665;
-        bh=qXt8HYzvC389/LYL+hw9trysoaLCoG40Dj9ZAx+tflY=;
+        s=korg; t=1654624607;
+        bh=liNhd+rQWFOn1syJrUOicb3uykE30jaLc4TMIIZdHug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUh0YgAgNe9/tUTeTm8vlDeXlUd9poMtlzrzWkQ8OlLFUDxvX2YV4yeRtE7eMe1Ld
-         lBVZpyax0SPtqulz/t75I15PjI2uo38V/c0Moi1/rcg3FFZ0f4BGN8aQ1+nGluX9uL
-         I/Ymeafu1fQC2pCy0fTsyksXUBp5qX0wNGcELZL0=
+        b=QPvhItYyA76Vp8tQ5AkDAEWo3DffTrTsRlxPKHYYKquprWaYtzafonPSg0Z/o66Fj
+         xeQ6aLBEimjjAFF77j4K8lNE9tx1vLppqDkCBRZtidt4EjAz7vTr1wYRoErv329HC2
+         MOttVN+BBv5EXRwUPHD8Rxpqvi6amidW/0nDzX3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 459/772] PCI: cadence: Fix find_first_zero_bit() limit
-Date:   Tue,  7 Jun 2022 19:00:51 +0200
-Message-Id: <20220607165002.528297592@linuxfoundation.org>
+Subject: [PATCH 5.15 387/667] ARM: dts: suniv: F1C100: fix watchdog compatible
+Date:   Tue,  7 Jun 2022 19:00:52 +0200
+Message-Id: <20220607164946.354739860@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164948.980838585@linuxfoundation.org>
-References: <20220607164948.980838585@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 0aa3a0937feeb91a0e4e438c3c063b749b194192 ]
+[ Upstream commit 01a850ee61cbf0ab77dcbf26bb133fec2dd640d6 ]
 
-The ep->ob_region_map bitmap is a long and it has BITS_PER_LONG bits.
+The F1C100 series of SoCs actually have their watchdog IP being
+compatible with the newer Allwinner generation, not the older one.
 
-Link: https://lore.kernel.org/r/20220315065829.GA13572@kili
-Fixes: 37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+The currently described sun4i-a10-wdt actually does not work, neither
+the watchdog functionality (just never fires), nor the reset part
+(reboot hangs).
+
+Replace the compatible string with the one used by the newer generation.
+Verified to work with both the watchdog and reboot functionality on a
+LicheePi Nano.
+
+Also add the missing interrupt line and clock source, to make it binding
+compliant.
+
+Fixes: 4ba16d17efdd ("ARM: dts: suniv: add initial DTSI file for F1C100s")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220317162349.739636-4-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pcie-cadence-ep.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/boot/dts/suniv-f1c100s.dtsi | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-ep.c b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-index 4b1c4bc4e003..b8b655d4047e 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-ep.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-ep.c
-@@ -187,8 +187,7 @@ static int cdns_pcie_ep_map_addr(struct pci_epc *epc, u8 fn, u8 vfn,
- 	struct cdns_pcie *pcie = &ep->pcie;
- 	u32 r;
+diff --git a/arch/arm/boot/dts/suniv-f1c100s.dtsi b/arch/arm/boot/dts/suniv-f1c100s.dtsi
+index 6100d3b75f61..def830101448 100644
+--- a/arch/arm/boot/dts/suniv-f1c100s.dtsi
++++ b/arch/arm/boot/dts/suniv-f1c100s.dtsi
+@@ -104,8 +104,10 @@
  
--	r = find_first_zero_bit(&ep->ob_region_map,
--				sizeof(ep->ob_region_map) * BITS_PER_LONG);
-+	r = find_first_zero_bit(&ep->ob_region_map, BITS_PER_LONG);
- 	if (r >= ep->max_regions - 1) {
- 		dev_err(&epc->dev, "no free outbound region\n");
- 		return -EINVAL;
+ 		wdt: watchdog@1c20ca0 {
+ 			compatible = "allwinner,suniv-f1c100s-wdt",
+-				     "allwinner,sun4i-a10-wdt";
++				     "allwinner,sun6i-a31-wdt";
+ 			reg = <0x01c20ca0 0x20>;
++			interrupts = <16>;
++			clocks = <&osc32k>;
+ 		};
+ 
+ 		uart0: serial@1c25000 {
 -- 
 2.35.1
 
