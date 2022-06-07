@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DD2540513
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 19:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4236D541A71
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345840AbiFGRVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 13:21:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44910 "EHLO
+        id S1379791AbiFGVdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 17:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345746AbiFGRU4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 13:20:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0F41059D8;
-        Tue,  7 Jun 2022 10:20:46 -0700 (PDT)
+        with ESMTP id S1381012AbiFGVbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:31:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EB7322C4B9;
+        Tue,  7 Jun 2022 12:03:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B21E16009B;
-        Tue,  7 Jun 2022 17:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB682C36B02;
-        Tue,  7 Jun 2022 17:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8109617DA;
+        Tue,  7 Jun 2022 19:03:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2AFBC385A2;
+        Tue,  7 Jun 2022 19:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654622445;
-        bh=Bkhb4rW4Fm9ts+xqlLpF0mtthv9kANdaPO//zit9f0E=;
+        s=korg; t=1654628634;
+        bh=qW/Z142EkSTf8b2VZLz+a4hXdjAZN4WuHOZt+Y4BaMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEEko9lLmCnsJ6v+BepOwo4XfZK69ilz9Ina2vR9kmWxsoyEP4jHXi1UtI1w2tbo1
-         DuT/Ld7z95G77BtzKgIMyHtix6tikypIIX/J2bvIXOIUCxLt9kF+nXBcm0RFfXANfB
-         AEThEpulj5OYhUFpZ/1UVSgUeI3en49jnfqwphTU=
+        b=FkpMPwD/81BWzAPNyYKbZ+50/XZzvDQnVF/vBOx5a6lzC4KDJ3GgrQ0nThvrun7q+
+         uoo+Ya6RKrrFLh4E2AbcuVjS19jhUPVr6wg6NHnO07Dj7kcEujmwGvfzpx1bYVpEM4
+         kai6Tc+Y1waSu3u8TBlpQOTUpNOi+Z1anGw5v4RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jianghaoran <jianghaoran@kylinos.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Jessica Zhang <quic_jesszhan@quicinc.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/452] ipv6: Dont send rs packets to the interface of ARPHRD_TUNNEL
+Subject: [PATCH 5.18 399/879] drm/msm/mdp5: Return error code in mdp5_pipe_release when deadlock is detected
 Date:   Tue,  7 Jun 2022 18:58:37 +0200
-Message-Id: <20220607164910.336194841@linuxfoundation.org>
+Message-Id: <20220607165014.445374136@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-References: <20220607164908.521895282@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+References: <20220607165002.659942637@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +56,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jianghaoran <jianghaoran@kylinos.cn>
+From: Jessica Zhang <quic_jesszhan@quicinc.com>
 
-[ Upstream commit b52e1cce31ca721e937d517411179f9196ee6135 ]
+[ Upstream commit d59be579fa932c46b908f37509f319cbd4ca9a68 ]
 
-ARPHRD_TUNNEL interface can't process rs packets
-and will generate TX errors
+mdp5_get_global_state runs the risk of hitting a -EDEADLK when acquiring
+the modeset lock, but currently mdp5_pipe_release doesn't check for if
+an error is returned. Because of this, there is a possibility of
+mdp5_pipe_release hitting a NULL dereference error.
 
-ex:
-ip tunnel add ethn mode ipip local 192.168.1.1 remote 192.168.1.2
-ifconfig ethn x.x.x.x
+To avoid this, let's have mdp5_pipe_release check if
+mdp5_get_global_state returns an error and propogate that error.
 
-ethn: flags=209<UP,POINTOPOINT,RUNNING,NOARP>  mtu 1480
-	inet x.x.x.x  netmask 255.255.255.255  destination x.x.x.x
-	inet6 fe80::5efe:ac1e:3cdb  prefixlen 64  scopeid 0x20<link>
-	tunnel   txqueuelen 1000  (IPIP Tunnel)
-	RX packets 0  bytes 0 (0.0 B)
-	RX errors 0  dropped 0  overruns 0  frame 0
-	TX packets 0  bytes 0 (0.0 B)
-	TX errors 3  dropped 0 overruns 0  carrier 0  collisions 0
+Changes since v1:
+- Separated declaration and initialization of *new_state to avoid
+  compiler warning
+- Fixed some spelling mistakes in commit message
 
-Signed-off-by: jianghaoran <jianghaoran@kylinos.cn>
-Link: https://lore.kernel.org/r/20220429053802.246681-1-jianghaoran@kylinos.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Changes since v2:
+- Return 0 in case where hwpipe is NULL as this is considered normal
+  behavior
+- Added 2nd patch in series to fix a similar NULL dereference issue in
+  mdp5_mixer_release
+
+Reported-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
+Fixes: 7907a0d77cb4 ("drm/msm/mdp5: Use the new private_obj state")
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/485179/
+Link: https://lore.kernel.org/r/20220505214051.155-1-quic_jesszhan@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c  | 15 +++++++++++----
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h  |  2 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 20 ++++++++++++++++----
+ 3 files changed, 28 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 4584bb50960b..0562fb321959 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -4200,7 +4200,8 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id,
- 	send_rs = send_mld &&
- 		  ipv6_accept_ra(ifp->idev) &&
- 		  ifp->idev->cnf.rtr_solicits != 0 &&
--		  (dev->flags&IFF_LOOPBACK) == 0;
-+		  (dev->flags & IFF_LOOPBACK) == 0 &&
-+		  (dev->type != ARPHRD_TUNNEL);
- 	read_unlock_bh(&ifp->idev->lock);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
+index ba6695963aa6..a4f5cb90f3e8 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.c
+@@ -119,18 +119,23 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 	return 0;
+ }
  
- 	/* While dad is in progress mld report's source address is in6_addrany.
+-void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
++int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
+ {
+ 	struct msm_drm_private *priv = s->dev->dev_private;
+ 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(priv->kms));
+ 	struct mdp5_global_state *state = mdp5_get_global_state(s);
+-	struct mdp5_hw_pipe_state *new_state = &state->hwpipe;
++	struct mdp5_hw_pipe_state *new_state;
+ 
+ 	if (!hwpipe)
+-		return;
++		return 0;
++
++	if (IS_ERR(state))
++		return PTR_ERR(state);
++
++	new_state = &state->hwpipe;
+ 
+ 	if (WARN_ON(!new_state->hwpipe_to_plane[hwpipe->idx]))
+-		return;
++		return -EINVAL;
+ 
+ 	DBG("%s: release from plane %s", hwpipe->name,
+ 		new_state->hwpipe_to_plane[hwpipe->idx]->name);
+@@ -141,6 +146,8 @@ void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe)
+ 	}
+ 
+ 	new_state->hwpipe_to_plane[hwpipe->idx] = NULL;
++
++	return 0;
+ }
+ 
+ void mdp5_pipe_destroy(struct mdp5_hw_pipe *hwpipe)
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
+index 9b26d0761bd4..cca67938cab2 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_pipe.h
+@@ -37,7 +37,7 @@ int mdp5_pipe_assign(struct drm_atomic_state *s, struct drm_plane *plane,
+ 		     uint32_t caps, uint32_t blkcfg,
+ 		     struct mdp5_hw_pipe **hwpipe,
+ 		     struct mdp5_hw_pipe **r_hwpipe);
+-void mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
++int mdp5_pipe_release(struct drm_atomic_state *s, struct mdp5_hw_pipe *hwpipe);
+ 
+ struct mdp5_hw_pipe *mdp5_pipe_init(enum mdp5_pipe pipe,
+ 		uint32_t reg_offset, uint32_t caps);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+index c478d25f7825..f2d72497467b 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+@@ -314,12 +314,24 @@ static int mdp5_plane_atomic_check_with_state(struct drm_crtc_state *crtc_state,
+ 				mdp5_state->r_hwpipe = NULL;
+ 
+ 
+-			mdp5_pipe_release(state->state, old_hwpipe);
+-			mdp5_pipe_release(state->state, old_right_hwpipe);
++			ret = mdp5_pipe_release(state->state, old_hwpipe);
++			if (ret)
++				return ret;
++
++			ret = mdp5_pipe_release(state->state, old_right_hwpipe);
++			if (ret)
++				return ret;
++
+ 		}
+ 	} else {
+-		mdp5_pipe_release(state->state, mdp5_state->hwpipe);
+-		mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
++		ret = mdp5_pipe_release(state->state, mdp5_state->hwpipe);
++		if (ret)
++			return ret;
++
++		ret = mdp5_pipe_release(state->state, mdp5_state->r_hwpipe);
++		if (ret)
++			return ret;
++
+ 		mdp5_state->hwpipe = mdp5_state->r_hwpipe = NULL;
+ 	}
+ 
 -- 
 2.35.1
 
