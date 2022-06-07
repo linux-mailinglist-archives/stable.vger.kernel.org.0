@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7F3541969
-	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 23:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13575408F8
+	for <lists+stable@lfdr.de>; Tue,  7 Jun 2022 20:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377197AbiFGVWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jun 2022 17:22:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55246 "EHLO
+        id S1349207AbiFGSEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jun 2022 14:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381077AbiFGVRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 17:17:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4263BC1EC8;
-        Tue,  7 Jun 2022 11:58:19 -0700 (PDT)
+        with ESMTP id S1351833AbiFGSCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jun 2022 14:02:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AB4158943;
+        Tue,  7 Jun 2022 10:45:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A1D261768;
-        Tue,  7 Jun 2022 18:58:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17749C34115;
-        Tue,  7 Jun 2022 18:58:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 612EC616A3;
+        Tue,  7 Jun 2022 17:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 706CFC385A5;
+        Tue,  7 Jun 2022 17:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654628297;
-        bh=Chb73ZYLXdHRVkDpmNtakm3BbqknUBSfsjD/jO4aXgc=;
+        s=korg; t=1654623940;
+        bh=CTn9HCUjXYHSwA99rQmy+i5tCftAg7PvxJaOxRnYJjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rppU1N1vDvpJw41lWxSmD+jRDZw8Gy8Neuz1+0qdEsbfORJanTcG1JKKtKPtqDQEa
-         gt4pjyaY7R0tCdIt6PMi5AVMnvZjiuy+TQ7NoUbHpZhrJfABsF2Ed9iJGUIGfKnNfM
-         YM+FzVBVJ4WZ6WlndDUbH/e1J3CY2u7B+RfUydCA=
+        b=wSZlWFNhUKJMe9Xvnj2Wb8AGeySsqykX7W2SlQM0EnqYsUqRScUbpHYdONBJ64Blm
+         nVuobse9j3vO2F+R/dVnvy4PeEk7lmpubxxUqtvCslf6LPUrYFKuat5c+mo7I6tpct
+         n79QDqHQd+XM+zPh6XI8Lf+TlRbn2Ejl7kRjHjus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kwanghoon Son <k.son@samsung.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 277/879] mtd: spinand: gigadevice: fix Quad IO for GD5F1GQ5UExxG
+Subject: [PATCH 5.15 130/667] media: exynos4-is: Fix compile warning
 Date:   Tue,  7 Jun 2022 18:56:35 +0200
-Message-Id: <20220607165010.889114213@linuxfoundation.org>
+Message-Id: <20220607164938.723276775@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607164934.766888869@linuxfoundation.org>
+References: <20220607164934.766888869@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuanhong Guo <gch981213@gmail.com>
+From: Kwanghoon Son <k.son@samsung.com>
 
-[ Upstream commit a4f9dd55c5e1bb951db6f1dee20e62e0103f3438 ]
+[ Upstream commit e080f5c1f2b6d02c02ee5d674e0e392ccf63bbaf ]
 
-Read From Cache Quad IO (EBH) uses 2 dummy bytes on this chip according
-to page 23 of the datasheet[0].
+Declare static on function 'fimc_isp_video_device_unregister'.
 
-[0]: https://www.gigadevice.com/datasheet/gd5f1gq5xexxg/
+When VIDEO_EXYNOS4_ISP_DMA_CAPTURE=n, compiler warns about
+warning: no previous prototype for function [-Wmissing-prototypes]
 
-Fixes: 469b99248985 ("mtd: spinand: gigadevice: Support GD5F1GQ5UExxG")
-Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220320100001.247905-2-gch981213@gmail.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Kwanghoon Son <k.son@samsung.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/gigadevice.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/fimc-isp-video.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/spi/gigadevice.c b/drivers/mtd/nand/spi/gigadevice.c
-index 1dd1c5898093..da77ab20296e 100644
---- a/drivers/mtd/nand/spi/gigadevice.c
-+++ b/drivers/mtd/nand/spi/gigadevice.c
-@@ -39,6 +39,14 @@ static SPINAND_OP_VARIANTS(read_cache_variants_f,
- 		SPINAND_PAGE_READ_FROM_CACHE_OP_3A(true, 0, 1, NULL, 0),
- 		SPINAND_PAGE_READ_FROM_CACHE_OP_3A(false, 0, 0, NULL, 0));
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.h b/drivers/media/platform/exynos4-is/fimc-isp-video.h
+index edcb3a5e3cb9..2dd4ddbc748a 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp-video.h
++++ b/drivers/media/platform/exynos4-is/fimc-isp-video.h
+@@ -32,7 +32,7 @@ static inline int fimc_isp_video_device_register(struct fimc_isp *isp,
+ 	return 0;
+ }
  
-+static SPINAND_OP_VARIANTS(read_cache_variants_1gq5,
-+		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 2, NULL, 0),
-+		SPINAND_PAGE_READ_FROM_CACHE_X4_OP(0, 1, NULL, 0),
-+		SPINAND_PAGE_READ_FROM_CACHE_DUALIO_OP(0, 1, NULL, 0),
-+		SPINAND_PAGE_READ_FROM_CACHE_X2_OP(0, 1, NULL, 0),
-+		SPINAND_PAGE_READ_FROM_CACHE_OP(true, 0, 1, NULL, 0),
-+		SPINAND_PAGE_READ_FROM_CACHE_OP(false, 0, 1, NULL, 0));
-+
- static SPINAND_OP_VARIANTS(write_cache_variants,
- 		SPINAND_PROG_LOAD_X4(true, 0, NULL, 0),
- 		SPINAND_PROG_LOAD(true, 0, NULL, 0));
-@@ -339,7 +347,7 @@ static const struct spinand_info gigadevice_spinand_table[] = {
- 		     SPINAND_ID(SPINAND_READID_METHOD_OPCODE_DUMMY, 0x51),
- 		     NAND_MEMORG(1, 2048, 128, 64, 1024, 20, 1, 1, 1),
- 		     NAND_ECCREQ(4, 512),
--		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
-+		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants_1gq5,
- 					      &write_cache_variants,
- 					      &update_cache_variants),
- 		     SPINAND_HAS_QE_BIT,
+-void fimc_isp_video_device_unregister(struct fimc_isp *isp,
++static inline void fimc_isp_video_device_unregister(struct fimc_isp *isp,
+ 				enum v4l2_buf_type type)
+ {
+ }
 -- 
 2.35.1
 
