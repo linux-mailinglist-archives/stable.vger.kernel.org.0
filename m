@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF431542BE3
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 11:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42703542BEE
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 11:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235283AbiFHJry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 05:47:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42850 "EHLO
+        id S235288AbiFHJs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 05:48:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235393AbiFHJre (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 05:47:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944B61742AE;
-        Wed,  8 Jun 2022 02:14:17 -0700 (PDT)
+        with ESMTP id S235351AbiFHJsn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 05:48:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C7E1EA84B;
+        Wed,  8 Jun 2022 02:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C2596193C;
-        Wed,  8 Jun 2022 09:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6751FC34116;
-        Wed,  8 Jun 2022 09:14:14 +0000 (UTC)
-Date:   Wed, 8 Jun 2022 10:14:10 +0100
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C46856194A;
+        Wed,  8 Jun 2022 09:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59954C34116;
+        Wed,  8 Jun 2022 09:16:20 +0000 (UTC)
+Date:   Wed, 8 Jun 2022 10:16:16 +0100
 From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Phil Elwell <phil@raspberrypi.com>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Ard Biesheuvel <ardb@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: Re: [PATCH 5.15 001/667] arm64: Initialize jump labels before
- setup_machine_fdt()
-Message-ID: <YqBoYsOi7/Beyuhy@arm.com>
-References: <20220607164934.766888869@linuxfoundation.org>
- <20220607164934.818059668@linuxfoundation.org>
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] ARM: initialize jump labels before setup_machine_fdt()
+Message-ID: <YqBo4LfSmL7A5eM1@arm.com>
+References: <8cc7ebe4-442b-a24b-9bb0-fce6e0425ee6@raspberrypi.com>
+ <CAHmME9pL=g7Gz9-QOHnTosLHAL9YSPsW+CnE=9=u3iTQaFzomg@mail.gmail.com>
+ <0f6458d7-037a-fa4d-8387-7de833288fb9@raspberrypi.com>
+ <CAHmME9rJif3ydZuFJcSjPxkGMofZkbu2PXcHBF23OWVgGQ4c+A@mail.gmail.com>
+ <Yp8jQG30OWOG9C4j@arm.com>
+ <CAHmME9p+FxQhTQYKWKkxkGiYxErP6NHuvSiFEat7ts1XgsM6YA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220607164934.818059668@linuxfoundation.org>
+In-Reply-To: <CAHmME9p+FxQhTQYKWKkxkGiYxErP6NHuvSiFEat7ts1XgsM6YA@mail.gmail.com>
 X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
         HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
@@ -50,71 +53,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 07, 2022 at 06:54:26PM +0200, Greg Kroah-Hartman wrote:
-> From: Stephen Boyd <swboyd@chromium.org>
-> 
-> commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
-> 
-> A static key warning splat appears during early boot on arm64 systems
-> that credit randomness from devicetrees that contain an "rng-seed"
-> property. This is because setup_machine_fdt() is called before
-> jump_label_init() during setup_arch(). Let's swap the order of these two
-> calls so that jump labels are initialized before the devicetree is
-> unflattened and the rng seed is credited.
-> 
->  static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
->  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
->  Modules linked in:
->  CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
->  pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
->  pc : static_key_enable_cpuslocked+0xb0/0xb8
->  lr : static_key_enable_cpuslocked+0xb0/0xb8
->  sp : ffffffe51c393cf0
->  x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
->  x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
->  x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
->  x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
->  x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
->  x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
->  x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
->  x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
->  x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
->  x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
->  Call trace:
->   static_key_enable_cpuslocked+0xb0/0xb8
->   static_key_enable+0x2c/0x40
->   crng_set_ready+0x24/0x30
->   execute_in_process_context+0x80/0x90
->   _credit_init_bits+0x100/0x154
->   add_bootloader_randomness+0x64/0x78
->   early_init_dt_scan_chosen+0x140/0x184
->   early_init_dt_scan_nodes+0x28/0x4c
->   early_init_dt_scan+0x40/0x44
->   setup_machine_fdt+0x7c/0x120
->   setup_arch+0x74/0x1d8
->   start_kernel+0x84/0x44c
->   __primary_switched+0xc0/0xc8
->  ---[ end trace 0000000000000000 ]---
->  random: crng init done
->  Machine model: Google Lazor (rev1 - 2) with LTE
-> 
-> Cc: Hsin-Yi Wang <hsinyi@chromium.org>
-> Cc: Douglas Anderson <dianders@chromium.org>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
-> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-> Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hi Jason,
 
-Same as with the others, please also drop it from 5.15.
+On Wed, Jun 08, 2022 at 10:20:21AM +0200, Jason A. Donenfeld wrote:
+> On Tue, Jun 7, 2022 at 12:07 PM Catalin Marinas <catalin.marinas@arm.com> wrote:
+> > Do you plan to fix the crng_ready() static branch differently? If you
+> > do, I'd like to revert the corresponding arm64 commit as well. It seems
+> > to be harmless but I'd rather not keep it if no longer needed. So please
+> > keep me updated whatever you decide.
+> 
+> Feel free to revert. I'm aborting this line of inquiry and will just
+> fix it downstream in random.c.
 
-Thanks.
+Thanks for the update.
 
 -- 
 Catalin
