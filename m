@@ -2,170 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D70542780
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 09:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D970B542885
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 09:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235518AbiFHHFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 03:05:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        id S231598AbiFHHvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 03:51:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354724AbiFHGTp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 02:19:45 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E8F1032
-        for <stable@vger.kernel.org>; Tue,  7 Jun 2022 23:16:32 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id b5so16752730plx.10
-        for <stable@vger.kernel.org>; Tue, 07 Jun 2022 23:16:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0GkOJYaCBXzCBlsyOneMd8LfwcYju+gEnp6ihxGcLqU=;
-        b=ZEM+AYoLWGB38NftvKyW5jwq5m68EAQ1WKB6Cst/eteulMx6kFLpoj5DnDGaXjClFt
-         ArVw/0LKIRkClQTnBXaMeVdSkgBbaYWIHZzI+PiLoZLXxRCE2guB78Zs0NxEpaF97lJQ
-         q5c4AKn05scOqA6I6//CsUqk3Sz4R2KqckwdS0SFXTjbdzP178Vinr15YubzO6mXB18n
-         iBxAKth0ole2fpvmmy/kRasbvkXFQR2fkR0Qi2Zw5kwyfVmtHDUWzjT+lN799sry98Ij
-         iadw41eOo10kqcmXn/RzE+rjuMVb1m3YoYouvD5EwZ1PGJ4BE7uQ11YSONaB0JSxbnGS
-         JtMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0GkOJYaCBXzCBlsyOneMd8LfwcYju+gEnp6ihxGcLqU=;
-        b=LWdHX+UiEoH65xEQF0NwRLJWLKDAKrUXRcDPVy74j/CSmiCtRfoKX9oQh4LJkOFA8V
-         /gwgvJ1Jgeev+TaMoFW0vPdpQWosfr8vd+n5J2JhZjlMiaK/914SOAIeyVkX4Zq0t0ls
-         HEe3TLvJ/xidiZjZ7e/iJOlEv1jmHD/i7otSpVYcLTIdiVRPhYx3Ib0iBObMjAydWvF8
-         FT0DoUEsPab59VXLIWCMD1QlEZqOwg7EDEhSOwObxpSLyRKn1UNDJgmW/tfyThHsOHTx
-         8oKpoxPvMnGxGBNYeyu9A/+ePWRwNMwK98lZWi6myyjxnn+gyqZH2zCooW1zsniWH5CX
-         WeSQ==
-X-Gm-Message-State: AOAM530CUKUwAPVjphUltoece2E45FDMC7xT1fWB6/z+v56w8GVBi5xL
-        HFkPspnLOxLAfi8cs1HjAyDBtpfXmqXT/SscglU=
-X-Google-Smtp-Source: ABdhPJyMr0uyTO6nc9uf4VKrm1CDyBnM3vF2BQFGWNaeJ1ciQw2uJsU/NXGOyJbqDpW1DEh1gca+/g==
-X-Received: by 2002:a17:90b:3506:b0:1e8:8449:6acb with SMTP id ls6-20020a17090b350600b001e884496acbmr14839780pjb.27.1654668992002;
-        Tue, 07 Jun 2022 23:16:32 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t3-20020a170902e84300b00161e50e2245sm13771232plg.178.2022.06.07.23.16.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 23:16:31 -0700 (PDT)
-Message-ID: <62a03ebf.1c69fb81.b5c5a.e0f4@mx.google.com>
-Date:   Tue, 07 Jun 2022 23:16:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231888AbiFHHvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 03:51:16 -0400
+X-Greylist: delayed 1386 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Jun 2022 00:17:47 PDT
+Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAE9F5061
+        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 00:17:47 -0700 (PDT)
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id 379CF8028F79
+        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 06:54:31 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id A2B9410047BB8
+        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 06:54:26 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id ypaEnRCzqX35IypaEnCz19; Wed, 08 Jun 2022 06:54:26 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=LPCj/La9 c=1 sm=1 tr=0 ts=62a047a2
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=JPEYwPQDsx4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=8xn-XnASv_xJIdzKHaYA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=5dfKONdblHjdBslHU2mah9l5cXjLql8ZtrIBSDMIHQ8=; b=qfjunzTQN13EAJJoBuxwpTqpBr
+        EJylvvdftqLlq9SzxSo9VB25CYzZDIvwxG3ZNRruMosfs0RRIkQLS1UDLGKJsUOLC+KqQcajxqo60
+        1Sbvm6z5Mp66tyUpRYHq1X1+NfxPDCG9havqum7qs50Gy9nYg2yeu0ekALJJiNzgWrPO1fE7MPW4x
+        2o669sCndCiKjzd5FpA6K190X/QnTgusMW1QzlrsOmHZCiQEg2fXDsW/7NW0PJ236rGZpEkaTdpVY
+        CHTlp16lCTY5lxv/MXIkgLk5ia9UyeOqEZiUV8LBiPP+hfjVgXdfIbR8I1dnTdrcshr9hmDFKCWRx
+        wKQ2B5vA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:54284 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1nypaD-000JhA-6O;
+        Wed, 08 Jun 2022 00:54:25 -0600
+Subject: Re: [PATCH 5.18 000/879] 5.18.3-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220607165002.659942637@linuxfoundation.org>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <d5bfd615-cd17-03a0-ee2a-83ce9acd8b91@w6rz.net>
+Date:   Tue, 7 Jun 2022 23:54:23 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.45-667-g99a55c4a9ecc0
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 142 runs,
- 2 regressions (v5.15.45-667-g99a55c4a9ecc0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nypaD-000JhA-6O
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:54284
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 142 runs, 2 regressions (v5.15.45-667-g99a55=
-c4a9ecc0)
+On 6/7/22 9:51 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.3 release.
+> There are 879 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 09 Jun 2022 16:48:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.3-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Regressions Summary
--------------------
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-rk3288-veyron-jaq       | arm   | lab-collabora | gcc-10   | multi_v7_defco=
-nfig | 1          =
+Tested-by: Ron Economos <re@w6rz.net>
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.45-667-g99a55c4a9ecc0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.45-667-g99a55c4a9ecc0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      99a55c4a9ecc0e88865a30403e66c12673e6ffd3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-rk3288-veyron-jaq       | arm   | lab-collabora | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a0291d8b38397597a39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g99a55c4a9ecc0/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
-288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g99a55c4a9ecc0/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
-288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a0291d8b38397597a39=
-bce
-        failing since 1 day (last pass: v5.15.43-212-g8b5c4320ffac2, first =
-fail: v5.15.45-652-g938d073d082af) =
-
- =
-
-
-
-platform                | arch  | lab           | compiler | defconfig     =
-     | regressions
-------------------------+-------+---------------+----------+---------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe    | gcc-10   | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62a009d59744a826f2a39be1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g99a55c4a9ecc0/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
-nanapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.45-=
-667-g99a55c4a9ecc0/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
-nanapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220603.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62a009d59744a826f2a39=
-be2
-        new failure (last pass: v5.15.45-667-g6f48aa0f6b54d) =
-
- =20
