@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 140A2542F92
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 13:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7C7542F89
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 13:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238380AbiFHL6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 07:58:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
+        id S238501AbiFHL7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 07:59:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238412AbiFHL6T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 07:58:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57375158F23;
-        Wed,  8 Jun 2022 04:58:17 -0700 (PDT)
+        with ESMTP id S238525AbiFHL7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 07:59:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DDC24E1C2;
+        Wed,  8 Jun 2022 04:59:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07C03B826EE;
-        Wed,  8 Jun 2022 11:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AF4C34116;
-        Wed,  8 Jun 2022 11:58:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE9B617BA;
+        Wed,  8 Jun 2022 11:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA5CC34116;
+        Wed,  8 Jun 2022 11:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654689494;
-        bh=yvf54zhWOdO7ReqUNGg8+TnBRZrtCkQ7zzqtx2twBdg=;
+        s=korg; t=1654689571;
+        bh=Yf86xlWhblkjwes7kpIuQErBLfl8qFaJ5/DrHlgUCss=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Z/cRfWBucs63n4noglBMogTxZr58IotR+8ozkXrq+4WK8L651fisT6H4zhyaJL23z
-         9x/qEsou8zn0SiPFIgF6i3pYDRJ5o36M06JpjQD31WOk01CLUVZeGyV7e16ZfraHN8
-         oNIaOMDpNhKurfMBNjHwc+n0EuT5X+cpbN90pk7A=
-Date:   Wed, 8 Jun 2022 13:58:11 +0200
+        b=aH8npcjlsr4rUhvuQjtqiRsp60ipAohdpclxEvPI3wEsSuTu1sPLdPQSHYlj27M19
+         O4frsjpoiOdvKgK2sTeHqC04NVbhfSx0vM0LX0pfsZh7soc7pJO68ucV09qmYgEAKG
+         orFeAo2xafyllLuIUPIkBaShoq+DrG5GeEZgZo0c=
+Date:   Wed, 8 Jun 2022 13:59:29 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
+To:     Pavel Machek <pavel@denx.de>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: Re: [PATCH 5.18 001/879] arm64: Initialize jump labels before
- setup_machine_fdt()
-Message-ID: <YqCO0533IQytsG5L@kroah.com>
-References: <20220607165002.659942637@linuxfoundation.org>
- <20220607165002.710523116@linuxfoundation.org>
- <YqBnyVAvrK54r3yo@arm.com>
+        Nikolay Borisov <nborisov@suse.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 026/452] selftests/bpf: Fix vfs_link kprobe
+ definition
+Message-ID: <YqCPIc+ZJDWQnTyH@kroah.com>
+References: <20220607164908.521895282@linuxfoundation.org>
+ <20220607164909.326145660@linuxfoundation.org>
+ <20220608113842.GB9333@duo.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YqBnyVAvrK54r3yo@arm.com>
+In-Reply-To: <20220608113842.GB9333@duo.ucw.cz>
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,73 +55,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 10:11:37AM +0100, Catalin Marinas wrote:
-> On Tue, Jun 07, 2022 at 06:51:59PM +0200, Greg Kroah-Hartman wrote:
-> > From: Stephen Boyd <swboyd@chromium.org>
-> > 
-> > commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
-> > 
-> > A static key warning splat appears during early boot on arm64 systems
-> > that credit randomness from devicetrees that contain an "rng-seed"
-> > property. This is because setup_machine_fdt() is called before
-> > jump_label_init() during setup_arch(). Let's swap the order of these two
-> > calls so that jump labels are initialized before the devicetree is
-> > unflattened and the rng seed is credited.
-> > 
-> >  static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
-> >  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
-> >  Modules linked in:
-> >  CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
-> >  pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> >  pc : static_key_enable_cpuslocked+0xb0/0xb8
-> >  lr : static_key_enable_cpuslocked+0xb0/0xb8
-> >  sp : ffffffe51c393cf0
-> >  x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
-> >  x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
-> >  x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
-> >  x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
-> >  x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
-> >  x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
-> >  x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
-> >  x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
-> >  x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
-> >  x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
-> >  Call trace:
-> >   static_key_enable_cpuslocked+0xb0/0xb8
-> >   static_key_enable+0x2c/0x40
-> >   crng_set_ready+0x24/0x30
-> >   execute_in_process_context+0x80/0x90
-> >   _credit_init_bits+0x100/0x154
-> >   add_bootloader_randomness+0x64/0x78
-> >   early_init_dt_scan_chosen+0x140/0x184
-> >   early_init_dt_scan_nodes+0x28/0x4c
-> >   early_init_dt_scan+0x40/0x44
-> >   setup_machine_fdt+0x7c/0x120
-> >   setup_arch+0x74/0x1d8
-> >   start_kernel+0x84/0x44c
-> >   __primary_switched+0xc0/0xc8
-> >  ---[ end trace 0000000000000000 ]---
-> >  random: crng init done
-> >  Machine model: Google Lazor (rev1 - 2) with LTE
-> > 
-> > Cc: Hsin-Yi Wang <hsinyi@chromium.org>
-> > Cc: Douglas Anderson <dianders@chromium.org>
-> > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > Cc: Steven Rostedt <rostedt@goodmis.org>
-> > Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-> > Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> > Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
-> > Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-> > Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
-> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Wed, Jun 08, 2022 at 01:38:42PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Please drop this patch from 5.18 stable (I think I gave the details on
-> the 5.10 reply).
+> > [ Upstream commit e299bcd4d16ff86f46c48df1062c8aae0eca1ed8 ]
+> > 
+> > Since commit 6521f8917082 ("namei: prepare for idmapped mounts")
+> > vfs_link's prototype was changed, the kprobe definition in
+> > profiler selftest in turn wasn't updated. The result is that all
+> > argument after the first are now stored in different registers. This
+> > means that self-test has been broken ever since. Fix it by updating the
+> > kprobe definition accordingly.
 > 
+> I don't see 6521f8917082 ("namei: prepare for idmapped mounts") in
+> 5.10-stable tree. In 5.10, we still have:
+> 
+> include/linux/fs.h:extern int vfs_link(struct dentry *, struct inode *, struct dentry *, struct inode **);
+> 
+> I believe that means we should not have this one, either.
 
-Dropped from all stable queues now, thanks.
+Good point, will go drop this, thanks.
 
 greg k-h
