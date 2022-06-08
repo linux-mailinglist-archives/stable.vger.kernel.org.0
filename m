@@ -2,110 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04231542855
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 09:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D645428CD
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 10:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbiFHHrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 03:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35944 "EHLO
+        id S229837AbiFHH72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 03:59:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234760AbiFHHqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 03:46:01 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 547E5288C24
-        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 00:09:59 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id c2so25788447edf.5
-        for <stable@vger.kernel.org>; Wed, 08 Jun 2022 00:09:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=4VhB2e/ltpu1xO6FxebSIJdavw/FcgMQSIeYIdUzE8E=;
-        b=LB8glNF1OZD8rR7O+PhXb+revMGeyvo2TrVT9fhvVjTttyEoABo26rnt0n/EjhhSxT
-         gN3sLTTgCcsakc/Vkd2HAoa793GrCgXy+ybkcUfkL3hJ5M3/ciuvSp4INRP9MLSB+Jtg
-         jsFQVBHwyqqrjqdLSXWImg0nbS5Hgf5fW3/Wtw9T32lYnJeJ/AiA0WTuxAkiCJtEPTkV
-         2K3x6A/JhFBgdFWLf97Ez7n5yiN7bhSf+wHfh6YsahQ8QrYh6bMYvNOPTCGHX8sqFVkz
-         z3v/tn0QCMmB3w5iFGVHqFl4jgd9XFzGAXh9QQgRdttu5dXck1LPPY19NitDuEMCMc9G
-         YV4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=4VhB2e/ltpu1xO6FxebSIJdavw/FcgMQSIeYIdUzE8E=;
-        b=r/4dyH+Cvzj0X6jrlEHvd4hR9a8U38Bl5R/tXOhiHTvH3xa1bRHRD6ddGGqUkCnjx0
-         erp3OZNpzMoLW657lfkmbZFTtWNrPvOJ6V0CUiK7CQapOINDrmJ9S5MM7vQVT39o4mvb
-         rFBBMZcySDTdN8So9W8lvlDLDZVcweYGXOCjt9dPOK9ycQEoNV+ml2HlfpM6E0ifclac
-         7dVBkuiaImdLiXJdjR/1JEU2tJTTPegFoeyv2B1i8UeVvUezxjRBvnU+SSfqxDJtMWUK
-         qwTzeqkaUH/82M5S2U2d86FOhx/1sEV1eWaZGPTGHfc7mx5rPiPAiPD16oRZHiMRcu3U
-         7j8Q==
-X-Gm-Message-State: AOAM530TdHz9N+2gJF70NRgkZRxDt65jcHEmM8Okrd8g0YZhpwvsZ/57
-        Bo/5NaVFVIvdK58y/D2M6OfQxA==
-X-Google-Smtp-Source: ABdhPJyHF7hM8V6O84F0LFPlhTciyOv7byFP2rtEm5inGFYWa9ZRBeTODiIowgOO0jIDtMk+cgWVvA==
-X-Received: by 2002:aa7:d9d9:0:b0:42d:f9e4:49e0 with SMTP id v25-20020aa7d9d9000000b0042df9e449e0mr37174658eds.299.1654672197861;
-        Wed, 08 Jun 2022 00:09:57 -0700 (PDT)
-Received: from [192.168.0.188] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
-        by smtp.gmail.com with ESMTPSA id m11-20020a056402050b00b0042dd7e13391sm11673670edv.45.2022.06.08.00.09.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Jun 2022 00:09:57 -0700 (PDT)
-Message-ID: <9d387882-3c9a-5056-9ee3-81ab6ea0a9a6@linaro.org>
-Date:   Wed, 8 Jun 2022 09:09:55 +0200
+        with ESMTP id S232853AbiFHH6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 03:58:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400071E224B;
+        Wed,  8 Jun 2022 00:26:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C022B81B34;
+        Wed,  8 Jun 2022 07:26:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D5CC34116;
+        Wed,  8 Jun 2022 07:26:52 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="i5WuCreL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1654673210;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=xy/dSaTkB1MEzXO6teAWxD6nuIOwQZ+wyMxL9CGuVac=;
+        b=i5WuCreLPX3OvDS2aEN0rSVqXMlyM18E2T2/oSjh8PeGqrBpUNWEJUKqDd0GcOLd5f6hUS
+        twxqhGLvtzSibXZ2pRzCXW0caczJn6gP0TCrZlX6jVGYsQPrWy7SI8JxJx0a8Z1MA3MNuK
+        QQxS/QoGzxQTWT3A/S6qaMBDJ6YH/cs=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id fb4e7973 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Wed, 8 Jun 2022 07:26:50 +0000 (UTC)
+Received: by mail-yb1-f177.google.com with SMTP id p13so35051300ybm.1;
+        Wed, 08 Jun 2022 00:26:49 -0700 (PDT)
+X-Gm-Message-State: AOAM533J+z71AWgV+wqGVw+NhwyhZsFRFzdp/6MIxila6K7m8Rbj7eSK
+        wGcz6AOlkklEUy/aF1trBbNP6Y58Euru0Ix6/hI=
+X-Google-Smtp-Source: ABdhPJzmhFBMe6ueh331IGLDLj115e3CDB7Nh/74/+y0XiaEwrEsF3wXXxEAbW6hUVjApDax3EVT2qwT/s19uRgRHJw=
+X-Received: by 2002:a25:4017:0:b0:664:524:210b with SMTP id
+ n23-20020a254017000000b006640524210bmr1410230yba.235.1654673208978; Wed, 08
+ Jun 2022 00:26:48 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH net v3 3/3] nfc: st21nfca: fix incorrect sizing
- calculations in EVT_TRANSACTION
-Content-Language: en-US
-To:     Martin Faltesek <mfaltesek@google.com>, kuba@kernel.org
-Cc:     christophe.ricard@gmail.com, gregkh@linuxfoundation.org,
-        groeck@google.com, jordy@pwning.systems, krzk@kernel.org,
-        martin.faltesek@gmail.com, netdev@vger.kernel.org,
-        linux-nfc@lists.01.org, sameo@linux.intel.com, wklin@google.com,
-        theflamefire89@gmail.com, stable@vger.kernel.org
-References: <20220607025729.1673212-1-mfaltesek@google.com>
- <20220607025729.1673212-4-mfaltesek@google.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220607025729.1673212-4-mfaltesek@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220607164908.521895282@linuxfoundation.org> <20220607164908.572141803@linuxfoundation.org>
+ <Yp+KxkkTctBDLJTA@arm.com> <CAMj1kXEtFVWgTgKh+vV2oi-mgqfzVJnqJpTneM9mwTEC3+Nasg@mail.gmail.com>
+In-Reply-To: <CAMj1kXEtFVWgTgKh+vV2oi-mgqfzVJnqJpTneM9mwTEC3+Nasg@mail.gmail.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Wed, 8 Jun 2022 09:26:38 +0200
+X-Gmail-Original-Message-ID: <CAHmME9p1k0-veubZD1647_35WA7PwhVbP8gCmgSRKCP-GJqANg@mail.gmail.com>
+Message-ID: <CAHmME9p1k0-veubZD1647_35WA7PwhVbP8gCmgSRKCP-GJqANg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 001/452] arm64: Initialize jump labels before setup_machine_fdt()
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Stephen Boyd <swboyd@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/06/2022 04:57, Martin Faltesek wrote:
-> The transaction buffer is allocated by using the size of the packet buf,
-> and subtracting two which seem intended to remove the two tags which are
-> not present in the target structure. This calculation leads to under
-> counting memory because of differences between the packet contents and the
-> target structure. The aid_len field is a u8 in the packet, but a u32 in
-> the structure, resulting in at least 3 bytes always being under counted.
-> Further, the aid data is a variable length field in the packet, but fixed
-> in the structure, so if this field is less than the max, the difference is
-> added to the under counting.
-> 
-> The last validation check for transaction->params_len is also incorrect
-> since it employs the same accounting error.
-> 
-> To fix, perform validation checks progressively to safely reach the
-> next field, to determine the size of both buffers and verify both tags.
-> Once all validation checks pass, allocate the buffer and copy the data.
-> This eliminates freeing memory on the error path, as those checks are
-> moved ahead of memory allocation.
-> 
-> Fixes: 26fc6c7f02cb ("NFC: st21nfca: Add HCI transaction event support")
-> Fixes: 4fbcc1a4cb20 ("nfc: st21nfca: Fix potential buffer overflows in EVT_TRANSACTION")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-> ---
+Hi Ard,
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+This thread here is about stable review. Catalin mentioned to Greg
+that the arm64 patch isn't required any more. I also mentioned the
+same to Greg yesterday when it was in queue. Either way, what happens
+in 5.19 no longer has any effect on stable any more, since it's been
+reverted in stable. Therefore, I kindly ask you not to start yet
+*another* thread about the same topic we've been discussing over the
+last day. There are already 7 discussions about exactly the same
+thing; no need to make another. Let's resume working on this all
+today.
 
-
-Best regards,
-Krzysztof
+Jason
