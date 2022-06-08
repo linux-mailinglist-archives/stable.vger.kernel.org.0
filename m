@@ -2,83 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 532AE543012
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 14:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C1054309A
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 14:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238560AbiFHMP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 08:15:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48060 "EHLO
+        id S239451AbiFHMjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 08:39:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238971AbiFHMPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 08:15:25 -0400
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE2082E9D5
-        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 05:15:24 -0700 (PDT)
-Received: by mail-il1-x134.google.com with SMTP id f12so16423147ilj.1
-        for <stable@vger.kernel.org>; Wed, 08 Jun 2022 05:15:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=RqvhwLxpoWsPOdPHLQ+kBu2OEWvgdFg9DMc+/a8ko9E=;
-        b=aEYMPkyI8YMDlve7F66cWtFTfgfkST7aCIZq8oq9xUWhneMPDwgTZtPVn7h5vSqRll
-         zf2rPY5EPKvvvEy2yl6KUO0yYociz0QSed2xmisdcf2xQ4smPLucJ9uGUs+t7+FZnPFe
-         mAWJ4wF2kkfbIrF9l8BylMi1zVspDE2wlQOnEXWQ+3XVGZz3Mkio8V4qi2AEqefUZrNB
-         vlKO6GAHwQvKf6XcuMBP7H+mU2lC5+arIcIwUep173+7dkzV/KTBQ6zYEKI6afKu4Q8P
-         RdfgNHznhwFFCd6h3f/bSRcidXIwLBIRDkloDPQbFWXf+BhF5ehc+LtfQXj/7oyD7vwV
-         ejwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=RqvhwLxpoWsPOdPHLQ+kBu2OEWvgdFg9DMc+/a8ko9E=;
-        b=uGd8Tj4akRyOEBFH6L2B+aRW1eDqp4wxPDiWcoQD68kKdcpsafvBLvowaQRew8djty
-         zyoNtZam+6zpSSQjX19vAS6B/DHN3LjaGx6MG8CAN0E60PetvlW8YQeegEEkhIBTgXZa
-         tfx+zXavDw5RTWB/d0v7C1u7owBOckdwS1qPlPKc5EYL+oWXemDE/6cyaPZP/RWg0ToG
-         ML5a8o/EZqbKnoKgM+C8pLLwIvSUebd2IO/y1O9M1uKoZDYHdguqCkqPjnYHAYivnffS
-         mVpYVHOI3/jUz2r0zEnhBUSwRNvCwzTyQEFh0OXKbRz6mTiC2nAigc8o/p5UO0x3D0/B
-         vlqQ==
-X-Gm-Message-State: AOAM533OuO506d7M4P+mMXwZ/ExPGee6BejuEGBFtEmo8m10QBJD1xYm
-        TS60gdyMTFzA9qccU1IO9uN8JCX4heC2oyRyc+s=
-X-Google-Smtp-Source: ABdhPJze9spJtiyfdLXyPBPKZ2+KTl/vxWWUL5KaU4BYYN2LRaJl7ZFrAHUaOtWO7eSIlhpKQRSWs9GKA8Dt4JzFHOQ=
-X-Received: by 2002:a05:6e02:18c5:b0:2d3:f02a:aba0 with SMTP id
- s5-20020a056e0218c500b002d3f02aaba0mr16933407ilu.196.1654690523390; Wed, 08
- Jun 2022 05:15:23 -0700 (PDT)
+        with ESMTP id S239345AbiFHMjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 08:39:05 -0400
+Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B777C2CDB2E;
+        Wed,  8 Jun 2022 05:39:03 -0700 (PDT)
+Received: from sslproxy01.your-server.de ([78.46.139.224])
+        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1nyuxS-0008jR-SU; Wed, 08 Jun 2022 14:38:46 +0200
+Received: from [85.1.206.226] (helo=linux.home)
+        by sslproxy01.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1nyuxR-000O0f-W8; Wed, 08 Jun 2022 14:38:46 +0200
+Subject: Re: [PATCH] tracing/kprobes: Check whether get_kretprobe() returns
+ NULL in kretprobe_dispatcher()
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Yonghong Song <yhs@fb.com>,
+        bpf <bpf@vger.kernel.org>, Kernel Team <kernel-team@fb.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <165366693881.797669.16926184644089588731.stgit@devnote2>
+ <0204f480-cdb0-e49f-9034-602eced02966@iogearbox.net>
+ <7619DB57-C39B-4A49-808C-7ACF12D58592@goodmis.org>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <d28e1548-98fb-a533-4fdc-ae4f4568fb75@iogearbox.net>
+Date:   Wed, 8 Jun 2022 14:38:39 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Sender: lucassophia770@gmail.com
-Received: by 2002:a4f:8603:0:0:0:0:0 with HTTP; Wed, 8 Jun 2022 05:15:22 -0700 (PDT)
-From:   Sophia Erick <sdltdkggl3455@gmail.com>
-Date:   Wed, 8 Jun 2022 14:15:22 +0200
-X-Google-Sender-Auth: giCT70VEktbouUChvFddfdBFiIc
-Message-ID: <CADgTK4k3zXzkT_Rd8b9JtMjdoc7zB-fai-6Ks+X5GJdagwdoWA@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=2.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FROM_LOCAL_NOVOWEL,HK_RANDOM_FROM,LOTS_OF_MONEY,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_MONEY_PERCENT,
-        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: **
+In-Reply-To: <7619DB57-C39B-4A49-808C-7ACF12D58592@goodmis.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.6/26566/Wed Jun  8 10:05:45 2022)
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello ,
+On 5/31/22 12:00 AM, Steven Rostedt wrote:
+> On May 30, 2022 9:33:23 PM GMT+02:00, Daniel Borkmann <daniel@iogearbox.net> wrote:
+>> On 5/27/22 5:55 PM, Masami Hiramatsu (Google) wrote:
+>>> From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+>>>
+>>> There is a small chance that get_kretprobe(ri) returns NULL in
+>>> kretprobe_dispatcher() when another CPU unregisters the kretprobe
+>>> right after __kretprobe_trampoline_handler().
+>>>
+>>> To avoid this issue, kretprobe_dispatcher() checks the get_kretprobe()
+>>> return value again. And if it is NULL, it returns soon because that
+>>> kretprobe is under unregistering process.
+>>>
+>>> This issue has been introduced when the kretprobe is decoupled
+>>> from the struct kretprobe_instance by commit d741bf41d7c7
+>>> ("kprobes: Remove kretprobe hash"). Before that commit, the
+>>> struct kretprob_instance::rp directly points the kretprobe
+>>> and it is never be NULL.
+>>>
+>>> Reported-by: Yonghong Song <yhs@fb.com>
+>>> Fixes: d741bf41d7c7 ("kprobes: Remove kretprobe hash")
+>>> Cc: stable@vger.kernel.org
+>>> Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+>>
+>> Steven, I presume you'll pick this fix up?
+> 
+> I'm currently at Embedded/Kernel Recipes, but yeah, I'll take a look at it. (Just need to finish my slides first ;-)
 
-It is my pleasure to communicate with you, I know that this message
-will be a surprise to you my name is Mrs. Sophia Erick, I am diagnosed
-with ovarian cancer which my doctor have confirmed that I have only
-some weeks to live so I have decided you handover the sum of( Eleven
-Million Dollars) through I decided handover the money in my account to
-you for help of the orphanage homes and the needy once
-
-Please   kindly reply me here as soon as possible to enable me give
-you more information but before handing over my details to you please
-assure me that you will only take 30%  of the money and share the rest
-to the poor orphanage home and the needy once, thank you am waiting to
-hear from you
-
-Mrs Sophia Erick.
+Ok, thanks. If I don't hear back I presume you'll pick it up then.
