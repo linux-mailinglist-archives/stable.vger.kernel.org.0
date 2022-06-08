@@ -2,147 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC6C543C60
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 21:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 919A5543CA7
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 21:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235498AbiFHTHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 15:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48730 "EHLO
+        id S235290AbiFHTRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 15:17:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235651AbiFHTHB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 15:07:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FAEC50037;
-        Wed,  8 Jun 2022 12:04:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E10060C21;
-        Wed,  8 Jun 2022 19:04:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E573C3411E;
-        Wed,  8 Jun 2022 19:04:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1654715091;
-        bh=0lDBrCuZKSz8rWNkIdI4A7fJ98xuGVzlWVM5B1Nc7Tg=;
-        h=Date:To:From:Subject:From;
-        b=mgKi2J/DVewQeqRSqcBrjQWlYds/hQf2AQbGGy7WGxh5bIx2WSkaYMhxRW5imP/A0
-         TElWevNk771iSUMP6tVUTxvP9rJ43xhZCV5KhZckKgm6GyvKpH79nmLKBakCTg/ZKZ
-         OIGolJzQwTCW3PmNCGNx/OR0aMdewuAt0dsSB4Xk=
-Date:   Wed, 08 Jun 2022 12:04:50 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        naoya.horiguchi@nec.com, david@redhat.com, pizhenwei@bytedance.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [to-be-updated] mm-memory-failure-dont-allow-to-unpoison-hw-corrupted-page.patch removed from -mm tree
-Message-Id: <20220608190451.8E573C3411E@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S234646AbiFHTRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 15:17:00 -0400
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518A153C72;
+        Wed,  8 Jun 2022 12:16:55 -0700 (PDT)
+Received: by mail-il1-x12d.google.com with SMTP id v7so17293443ilo.3;
+        Wed, 08 Jun 2022 12:16:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=vMA4yROB5vytB/Y5xXRxGeGfQYPAkveG/uAMgEmsPmM=;
+        b=MIHLqfrpFd/XJ2it0B5YupLAuImBMt8+0EUz3a4Svqhevb5vNX6GJxru2jlo1N3lFQ
+         Aex/cbgjl19UXrOIlGYkx+3gts9Kq4U1il6ENsoVL6895gBmLfngDb/A+dyJ/59/WF0b
+         SUkSK39BVmocjNXspM5/ieUzgqWShQMp4Isv5uwJ44ANKgQyniMqtxW2F+yA9Sm+f7rE
+         QZLwLrEXXSDYJZL2rbu6BcIfEcTqvJwr7x6xZdWNNpOfXA4G15R9hti/z/J453TSA8Rt
+         jdAIncolXMOJwGVjvpUtMGsz9wUTYDZvTkS1I2Qrgo6+QvKk6MWdw7d45whQagGZNtW9
+         bFZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=vMA4yROB5vytB/Y5xXRxGeGfQYPAkveG/uAMgEmsPmM=;
+        b=2/Xcm7ozIUY8jvpz+olSDA4GMQ2KFoPnfj4EK8NEkPQHKbUvvrf0aI5W2WBpPVWCQR
+         dHGvxNjtZ0FVI0CQBLVV1nXsDCG2kS4/gCB0wBOpTcaelHfpumlkhyOWSh2teiioKl47
+         CnZyH1ccYckh9ZLi7vQwxw92g+DfkU5G3pvoFMY/MTtr2CrReIhNh83vGnasjZI9giqL
+         Bh2VH0tuM3QFEhfO89nt268OylJLRJ055CZciEHoPmv5DRSwc2YunTjK/PR33wdOHBU9
+         xx5k8plWr/h/qhvrhMeU5bMjz3WD1LUlgUrAv8MmTSZZrS2v/co4Cw0Wq1JH0fWPK+Ak
+         nBxQ==
+X-Gm-Message-State: AOAM533Z84cCROC5klsKXL3aiTBAya392iGC6PujhE9OdMHMnh+8/6oI
+        UD8scpp42AWKo7cWaFLvmBMoWLlz8iEdpQEQA3I=
+X-Google-Smtp-Source: ABdhPJzFIxILrJBrN3hhP7AyYTY/Kk16RW0cXpnMWxxKwNt0/3UEiPr9qQdg5fxpB9LjZX3ShZ/7vg==
+X-Received: by 2002:a05:6e02:1564:b0:2d6:5b63:80ec with SMTP id k4-20020a056e02156400b002d65b6380ecmr3166326ilu.46.1654715814278;
+        Wed, 08 Jun 2022 12:16:54 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id p3-20020a0566380e8300b0032b74686763sm8451217jas.76.2022.06.08.12.16.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jun 2022 12:16:53 -0700 (PDT)
+Message-ID: <62a0f5a5.1c69fb81.2112a.286f@mx.google.com>
+Date:   Wed, 08 Jun 2022 12:16:53 -0700 (PDT)
+X-Google-Original-Date: Wed, 08 Jun 2022 19:16:52 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
+Subject: RE: [PATCH 5.18 000/879] 5.18.3-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue,  7 Jun 2022 18:51:58 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.18.3 release.
+> There are 879 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 09 Jun 2022 16:48:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.3-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-The quilt patch titled
-     Subject: mm/memory-failure: don't allow to unpoison hw corrupted page
-has been removed from the -mm tree.  Its filename was
-     mm-memory-failure-dont-allow-to-unpoison-hw-corrupted-page.patch
-
-This patch was dropped because an updated version will be merged
-
-------------------------------------------------------
-From: zhenwei pi <pizhenwei@bytedance.com>
-Subject: mm/memory-failure: don't allow to unpoison hw corrupted page
-Date: Sat, 4 Jun 2022 18:32:29 +0800
-
-Currently unpoison_memory(unsigned long pfn) is designed for soft
-poison(hwpoison-inject) only.  Unpoisoning a hardware corrupted page puts
-page back buddy only, this leads BUG during accessing on the corrupted
-KPTE.
-
-Do not allow to unpoison hardware corrupted page in unpoison_memory() to
-avoid BUG like this:
-
- Unpoison: Software-unpoisoned page 0x61234
- BUG: unable to handle page fault for address: ffff888061234000
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 2c01067 P4D 2c01067 PUD 107267063 PMD 10382b063 PTE 800fffff9edcb062
- Oops: 0002 [#1] PREEMPT SMP NOPTI
- CPU: 4 PID: 26551 Comm: stress Kdump: loaded Tainted: G   M       OE     5.18.0.bm.1-amd64 #7
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996) ...
- RIP: 0010:clear_page_erms+0x7/0x10
- Code: ...
- RSP: 0000:ffffc90001107bc8 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000000000000901 RCX: 0000000000001000
- RDX: ffffea0001848d00 RSI: ffffea0001848d40 RDI: ffff888061234000
- RBP: ffffea0001848d00 R08: 0000000000000901 R09: 0000000000001276
- R10: 0000000000000003 R11: 0000000000000000 R12: 0000000000000001
- R13: 0000000000000000 R14: 0000000000140dca R15: 0000000000000001
- FS:  00007fd8b2333740(0000) GS:ffff88813fd00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: ffff888061234000 CR3: 00000001023d2005 CR4: 0000000000770ee0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- PKRU: 55555554
- Call Trace:
-  <TASK>
-  prep_new_page+0x151/0x170
-  get_page_from_freelist+0xca0/0xe20
-  ? sysvec_apic_timer_interrupt+0xab/0xc0
-  ? asm_sysvec_apic_timer_interrupt+0x1b/0x20
-  __alloc_pages+0x17e/0x340
-  __folio_alloc+0x17/0x40
-  vma_alloc_folio+0x84/0x280
-  __handle_mm_fault+0x8d4/0xeb0
-  handle_mm_fault+0xd5/0x2a0
-  do_user_addr_fault+0x1d0/0x680
-  ? kvm_read_and_reset_apf_flags+0x3b/0x50
-  exc_page_fault+0x78/0x170
-  asm_exc_page_fault+0x27/0x30
-
-Link: https://lkml.kernel.org/r/20220604103229.3378591-1-pizhenwei@bytedance.com
-Fixes: 847ce401df392 ("HWPOISON: Add unpoisoning support")
-Fixes: 17fae1294ad9d ("x86/{mce,mm}: Unmap the entire page if the whole page is affected and poisoned")
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memory-failure.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/mm/memory-failure.c~mm-memory-failure-dont-allow-to-unpoison-hw-corrupted-page
-+++ a/mm/memory-failure.c
-@@ -2090,6 +2090,7 @@ int unpoison_memory(unsigned long pfn)
- {
- 	struct page *page;
- 	struct page *p;
-+	pte_t *kpte;
- 	int ret = -EBUSY;
- 	int freeit = 0;
- 	static DEFINE_RATELIMIT_STATE(unpoison_rs, DEFAULT_RATELIMIT_INTERVAL,
-@@ -2101,6 +2102,13 @@ int unpoison_memory(unsigned long pfn)
- 	p = pfn_to_page(pfn);
- 	page = compound_head(p);
- 
-+	kpte = virt_to_kpte((unsigned long)page_to_virt(p));
-+	if (kpte && !pte_present(*kpte)) {
-+		unpoison_pr_info("Unpoison: Page was hardware poisoned %#lx\n",
-+				 pfn, &unpoison_rs);
-+		return -EPERM;
-+	}
-+
- 	mutex_lock(&mf_mutex);
- 
- 	if (!PageHWPoison(p)) {
-_
-
-Patches currently in -mm which might be from pizhenwei@bytedance.com are
-
+5.18.3-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
