@@ -2,97 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2DA554315B
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 15:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367375431EE
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 15:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240312AbiFHN3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 09:29:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45952 "EHLO
+        id S240884AbiFHNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 09:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240310AbiFHN3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 09:29:39 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E20AC6E4E;
-        Wed,  8 Jun 2022 06:29:31 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id h8so454497iof.11;
-        Wed, 08 Jun 2022 06:29:31 -0700 (PDT)
+        with ESMTP id S240883AbiFHNvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 09:51:09 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE5F60B81;
+        Wed,  8 Jun 2022 06:51:08 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id l9-20020a056830268900b006054381dd35so15149508otu.4;
+        Wed, 08 Jun 2022 06:51:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=nN7RyI2WSz8Sv8vnEOKXCUHUoIMDKd6ExQvrKjutgMs=;
-        b=Dr94thrM6bKZQOQ/0Dk51VcgjcMvlbjgzhAnIdWiqnSmvaDRQiclPalfq/qn1cALhs
-         zmsOGhhhDl4a+pz5gZOaUgeAySXKikeovmUiN3WHDFR6rjWfZVx1DAalhUsZ09jddDbV
-         +Qog2ZCKEvuTgiKbU0DEJm/oG09gKWrd99/xc0xL5uAvWGvODL12JyRhrgF2LzPlrCnN
-         +5xsdWh7B8K3EIzImy39CzpKZKQSm9rqfnSaOWJ472C16jaLyJ7ZNkwPFCQC30abCDPq
-         vWZq4w6BLCsdSEUJjW4QMpbuAz+pQYt2NQiabc/xwyvA7w1jKRMCdDbGiMxD3ocqOTEb
-         clhA==
+        h=sender:message-id:date:mime-version:user-agent:content-language:to
+         :cc:references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=wHbY50ZTzu8/ZmvcBIt4klKz62u58DeLSPRJmz7e5BU=;
+        b=pHRYhZ0lV/NG3MMMx2RE5SbK5r+JpQyMMEwrMqpfyPjIhXhcpI7UfcuhUC1MYAz2xO
+         wNqFMFUb+6VxxcHf9m4eUfwZqRimnP6M34t8RTg6toc3BmFP025k3LPHqzihhN8wZqvV
+         XEWBOlxygZhbXSeLNJQxxMU0Ey+C5CTy0nOO+yrPqk42TntRIjiqKywtfwU22YkQUBcS
+         2F7Jex3ljrpCx5cdUjIylSJJFzCSDOWoyVwVRBglcUPk87OxEaAsBjzqc1AccFSblHTs
+         EVoGPZS8KF6OPHmAxBqpfZf6Hln5/NB1MO9LZo6m+O8R9U7lk1Fm/TScY2Icjq2gin3l
+         2YKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
          :content-transfer-encoding;
-        bh=nN7RyI2WSz8Sv8vnEOKXCUHUoIMDKd6ExQvrKjutgMs=;
-        b=eJsUYes7wInYKS7UgmZaI0Ttr/pgA1NvuoHzi4LpT/BYvNVR1f/fdxlcrpZP9iJR+U
-         Qkpzwk4t7t4ONDM8ox1QGapPgM3dFSlgIg0xepxIWLM/n6eedZtIwRl0++ynJcHNoOwI
-         dN/M6vNdv1sf56xC/ixlR4MoRYxOAkRnnl+3FLi4bc/RovkNZFRI2gefDlOymsO6xdDW
-         MrFbD08qsHFKBo72cU8U6WLeguOdAlC2Mx9kp31YKHg0xVQJMs73BNfmxZDFoEyOs31V
-         15+/0+YndxUmRpdl9l2C/GqXLbXL98piess8wMGji0VTTZhxOCuIbDo5HEtfKN6tlDfX
-         KHow==
-X-Gm-Message-State: AOAM532lDr8AgK5/qBhkqNnn5Hsc8czdsITitgQalxEevXRoEHeUAxvn
-        yY194FIsKDccCuVDG2wXTnwqEGqUj7Rzm5ztgpQ=
-X-Google-Smtp-Source: ABdhPJwRg3zFmkgVuDjCSWkNIJHL2v/IuBdOgmadXmKOgsqGxgEXuj//139cYxN24+KFIWHkCTuoLw==
-X-Received: by 2002:a05:6638:1a0e:b0:331:9a26:57c3 with SMTP id cd14-20020a0566381a0e00b003319a2657c3mr10551701jab.310.1654694970378;
-        Wed, 08 Jun 2022 06:29:30 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id bc11-20020a0566383ccb00b0032e798bc927sm5646672jab.133.2022.06.08.06.29.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jun 2022 06:29:30 -0700 (PDT)
-Message-ID: <62a0a43a.1c69fb81.3bb10.aebb@mx.google.com>
-Date:   Wed, 08 Jun 2022 06:29:30 -0700 (PDT)
-X-Google-Original-Date: Wed, 08 Jun 2022 13:29:28 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220607164908.521895282@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/452] 5.10.121-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
+        bh=wHbY50ZTzu8/ZmvcBIt4klKz62u58DeLSPRJmz7e5BU=;
+        b=Onvqvk2Uyx7kZTE5615SlfAjGe1IVBSRMF77WjTf+Xkh5QyqumijVnj7a05wtJYKKZ
+         nTJgUWD7yFD93txQrtZlYT2MFV96lWSoowdST2sEcmDHF5FUew/URHynWhGlYMa2/TN6
+         u81fmFv6T9Oz8GwYKwbp9AEBzgitz5czkj46fClKTIzJG9OrMA4BjnMfpQsuEKmymlWt
+         W+XtRtZndLn6HVGQx9JaLQgJ477PCLXhezU963+3r1n0SBY+VXGLG9trGzG+S873Ksyi
+         Nt4meU8LqmSxU/S84rq8SLFXhqDAbi+r3qFj0hRVTUe3L0VNORx7pK+AAa0nwxanF5WH
+         TT3w==
+X-Gm-Message-State: AOAM533AHrtaL3ZIz8QlsC4LaT9tmSOIkphzWADXIZfzPRfIJvBfJQvp
+        T7YMniR+wSP9wkf08wzP/qg=
+X-Google-Smtp-Source: ABdhPJyNg71Vl5cWr4WG02/OelvT5mL9X4GgO9FOkzRYxSfVb5GncqTkDx5cf0QzCYEMzlrPrUtjqA==
+X-Received: by 2002:a05:6830:3152:b0:60b:830e:2683 with SMTP id c18-20020a056830315200b0060b830e2683mr14613653ots.263.1654696268036;
+        Wed, 08 Jun 2022 06:51:08 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id m11-20020a4aedcb000000b00415a9971cfcsm10879646ooh.38.2022.06.08.06.51.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jun 2022 06:51:07 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <078a7fab-2dec-2cde-f530-794156b57d7d@roeck-us.net>
+Date:   Wed, 8 Jun 2022 06:51:05 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Content-Language: en-US
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+References: <20220607164934.766888869@linuxfoundation.org>
+ <YqB1e83SqynwHqQZ@debian>
+ <CADVatmNFdgXpD+fJq6Yu-7877WPbPcsg4aD0vppLPj_hCJ9Ngw@mail.gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 5.15 000/667] 5.15.46-rc1 review
+In-Reply-To: <CADVatmNFdgXpD+fJq6Yu-7877WPbPcsg4aD0vppLPj_hCJ9Ngw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue,  7 Jun 2022 18:57:37 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.121 release.
-> There are 452 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 6/8/22 04:11, Sudip Mukherjee wrote:
+> Hi Greg,
 > 
-> Responses should be made by Thu, 09 Jun 2022 16:48:02 +0000.
-> Anything received after that time might be too late.
+> On Wed, Jun 8, 2022 at 11:10 AM Sudip Mukherjee
+> <sudipm.mukherjee@gmail.com> wrote:
+>>
+>> Hi Greg,
+>>
+>> On Tue, Jun 07, 2022 at 06:54:25PM +0200, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.15.46 release.
+>>> There are 667 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Thu, 09 Jun 2022 16:48:02 +0000.
+>>> Anything received after that time might be too late.
+>>
+>> Build test (gcc version 11.3.1 20220606):
+>> mips: 62 configs -> no failure
+>> arm: 99 configs -> no failure
+>> arm64: 3 configs -> no failure
+>> x86_64: 4 configs -> no failure
+>> alpha allmodconfig -> no failure
+>> csky allmodconfig -> no failure
+>> riscv allmodconfig -> no failure
+>> s390 allmodconfig -> no failure
+>> xtensa allmodconfig -> no failure
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.121-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> I did not mention powerpc allmodconfig failed to build as I have just
+> started building that arch and I did not have a good build to know if
+> its a new failure or not.
 > 
 
-5.10.121-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+It is not new with gcc 11.3 and binutils 2.38. I currently use gcc 11.2.0
+combined with binutils 2.36.1 for building powerpc images (binutils 2.37
+won't work, at least not with gcc 11.2).
 
+Guenter
+
+> But It failed with the error:
+> {standard input}: Assembler messages:
+> {standard input}:255: Error: unrecognized opcode: `dssall'
+> make[2]: *** [scripts/Makefile.build:288: arch/powerpc/mm/mmu_context.o] Error 1
+> 
+> and will need - d51f86cfd8e3 ("powerpc/mm: Switch obsolete dssall to .long")
+> 
+
+With this patch applied, at least the affected file builds with gcc 11.3 /
+binutils 2.38. I have not tried to build the entire image, though, with that
+combination.
+
+Guenter
