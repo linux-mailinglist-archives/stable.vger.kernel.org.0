@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAB0542BC5
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 11:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CA0542BE7
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 11:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235299AbiFHJpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 05:45:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49910 "EHLO
+        id S235414AbiFHJrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 05:47:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235243AbiFHJol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 05:44:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5EC1C5D6E;
-        Wed,  8 Jun 2022 02:11:44 -0700 (PDT)
+        with ESMTP id S235263AbiFHJqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 05:46:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A1FB1CF93C;
+        Wed,  8 Jun 2022 02:13:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04E7A618E8;
-        Wed,  8 Jun 2022 09:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ADE9C34116;
-        Wed,  8 Jun 2022 09:11:41 +0000 (UTC)
-Date:   Wed, 8 Jun 2022 10:11:37 +0100
+        by sin.source.kernel.org (Postfix) with ESMTPS id DBBF0CE26ED;
+        Wed,  8 Jun 2022 09:13:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D71F0C34116;
+        Wed,  8 Jun 2022 09:13:08 +0000 (UTC)
+Date:   Wed, 8 Jun 2022 10:13:05 +0100
 From:   Catalin Marinas <catalin.marinas@arm.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -32,15 +32,15 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         Stephen Boyd <swboyd@chromium.org>
-Subject: Re: [PATCH 5.18 001/879] arm64: Initialize jump labels before
+Subject: Re: [PATCH 5.17 001/772] arm64: Initialize jump labels before
  setup_machine_fdt()
-Message-ID: <YqBnyVAvrK54r3yo@arm.com>
-References: <20220607165002.659942637@linuxfoundation.org>
- <20220607165002.710523116@linuxfoundation.org>
+Message-ID: <YqBoIblCa2kqayG3@arm.com>
+References: <20220607164948.980838585@linuxfoundation.org>
+ <20220607164949.031154328@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220607165002.710523116@linuxfoundation.org>
+In-Reply-To: <20220607164949.031154328@linuxfoundation.org>
 X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
         HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
@@ -50,7 +50,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 07, 2022 at 06:51:59PM +0200, Greg Kroah-Hartman wrote:
+On Tue, Jun 07, 2022 at 06:53:13PM +0200, Greg Kroah-Hartman wrote:
 > From: Stephen Boyd <swboyd@chromium.org>
 > 
 > commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
@@ -112,12 +112,7 @@ On Tue, Jun 07, 2022 at 06:51:59PM +0200, Greg Kroah-Hartman wrote:
 > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Please drop this patch from 5.18 stable (I think I gave the details on
-the 5.10 reply).
+Please drop this from 5.17 as no longer needed. Thanks.
 
-Thanks.
-
--- 
-Catalin
 -- 
 Catalin
