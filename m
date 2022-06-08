@@ -2,43 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFB05429ED
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 10:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F5F5429EF
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 10:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbiFHIvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 04:51:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53036 "EHLO
+        id S232615AbiFHIw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 04:52:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230143AbiFHIum (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 04:50:42 -0400
-X-Greylist: delayed 529 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Jun 2022 01:07:43 PDT
-Received: from mail.olerise.pl (mail.olerise.pl [46.183.184.59])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0910936B4E
-        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 01:07:42 -0700 (PDT)
-Received: by mail.olerise.pl (Postfix, from userid 1001)
-        id 5787D20D43; Wed,  8 Jun 2022 09:56:44 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=olerise.pl; s=mail;
-        t=1654675042; bh=FDuFY3XQoq0gMX1b2gxgT7Py2p4Sxl0PJZYZ4NVaPho=;
-        h=Date:From:To:Subject:From;
-        b=MEofrhsbT6z6KV4rTLrAYPKFMBJgfata07LrXjm33rNhqA0UZwUP4mZgy2zBZXkHs
-         p+fzlsCfrNUAyfp/Z805gd3R4iNu8rWLUAGMGk0IZKEPkk3oQFB0WWxmSQkkRMTHH1
-         8ih5o5CsRiVmgfslheW38Q1iyjDRqsImp/2OjFQPwRZikfDYUBglj+w7MdGItdRxt1
-         UiDmhR+hIemGsPbThBXmYZ1Cc9Na6cXEYYlDoswpCObyf2UMEZyQ/gQBqch1azayEN
-         DYSb3gn6TegMqFGMh0pqGRml+ynZ8uwpZk/M3w9b3M3wnJdEGNQ4YrfXKle5LWe+OI
-         YbdByvz0DsMxw==
-Received: by mail.olerise.pl for <stable@vger.kernel.org>; Wed,  8 Jun 2022 07:56:24 GMT
-Message-ID: <20220608084500-0.1.a.41yj.0.k6q5qrp2xo@olerise.pl>
-Date:   Wed,  8 Jun 2022 07:56:24 GMT
-From:   =?UTF-8?Q? "Przemys=C5=82aw_Wr=C3=B3blewski" ?= 
-        <przemyslaw.wroblewski@olerise.pl>
-To:     <stable@vger.kernel.org>
-Subject: Wycena paneli fotowoltaicznych
-X-Mailer: mail.olerise.pl
+        with ESMTP id S229980AbiFHIwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 04:52:08 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF009270427
+        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 01:09:59 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id u26so31277753lfd.8
+        for <stable@vger.kernel.org>; Wed, 08 Jun 2022 01:09:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=DCTOHlnn9bgmau2O5B11dgpXKkwCcv7DNwv92J7STCs=;
+        b=GOCuOTC1NYvg7hmPeNabbPm7yiBZto/raJc/qx+su0G8DOJwva27DBkcmL3GmsiSBB
+         g2/zNkxqB5bBw99IA3M3lSdumLoT0Qtlj8Ys9GzVx2klvVlFKygYCVgjNHkjZytUrVGD
+         hoXZSzKltsNKzIqC4iy0sIaCUfZXKDjCfnUyCXT+JoH0vHvrAe09YwkSnMjzB3V5H/yh
+         1c5bstjAik6LpO5SVzamMYOkHLSC4ZGpUouUXZnPP9I1JZMglcGkTk5NFdkSLrZhv9Hc
+         5paew0dm2nQav3GHoPgyOxWLriqIRxmZ1w2uXpqE+Y/FybnivWVCk2vRFr6/L2EP4A7P
+         FKZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=DCTOHlnn9bgmau2O5B11dgpXKkwCcv7DNwv92J7STCs=;
+        b=Yaf6Py2ShUefdu9GddLT21SnxEqYpBtpHFrRqTczzQjx9dQRiCtQDNrSLZk1Yu70An
+         oiRYhwBISKrFsZ3qrHBEPCkHTb5/NRuo016t7Ta1KWw1lzkK10ggYPYW/gBzixa7LTgg
+         TrskPCd2kESsf63F+clfilI6ylhoBI+aueGiQhSix1etZlOnQu97iZqoRaKMHbLwfIAe
+         9NLIj5WW+wXf8nFKmUlU/HEMh1R2l1mfruMxFDcPPSfu82LkI/vWskPJ3xcZjtBlL2ac
+         c+vAN1wipHGnPLkNzyOdkphYhdkUb0mAPEMuaHi0WipSQTfiUX61Eko7WJ9NB5zI8tWu
+         jRzQ==
+X-Gm-Message-State: AOAM531hJYeKyTv4e3+aMk+IC+JXvqaQfsACKajVQUsE+Ws/C1eyeDY7
+        Uo1QrMgmJ89FWul68wxioCZjCOcfCpPCV66xAjk=
+X-Google-Smtp-Source: ABdhPJxeMGqW3oWbQMPqEYbRGmwPYdrgawIbsAYiY5PQaZX6RS3cOmoIk5imaCmTu4qxYI0gHYqN84vZspOVQXF4EXs=
+X-Received: by 2002:a05:6512:3f91:b0:479:6402:1131 with SMTP id
+ x17-20020a0565123f9100b0047964021131mr4358591lfa.213.1654675798137; Wed, 08
+ Jun 2022 01:09:58 -0700 (PDT)
 MIME-Version: 1.0
+Sender: onyekachi612@gmail.com
+Received: by 2002:ab2:51dd:0:b0:141:c553:50ed with HTTP; Wed, 8 Jun 2022
+ 01:09:56 -0700 (PDT)
+From:   Kayla Manthey <sgtkaylamanthey612@gmail.com>
+Date:   Wed, 8 Jun 2022 08:09:56 +0000
+X-Google-Sender-Auth: bIrzNZiJAoF0KtU0idQexaTx2qM
+Message-ID: <CAL9XvekF-AVZA7FrDA3sKHt6ihW-0bA5mNm_Oht8=K4OgB3GRQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-0.2 required=5.0 tests=BAYES_20,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,17 +64,5 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dzie=C5=84 dobry,
-
-dostrzegam mo=C5=BCliwo=C5=9B=C4=87 wsp=C3=B3=C5=82pracy z Pa=C5=84stwa f=
-irm=C4=85.
-
-=C5=9Awiadczymy kompleksow=C4=85 obs=C5=82ug=C4=99 inwestycji w fotowolta=
-ik=C4=99, kt=C3=B3ra obni=C5=BCa koszty energii elektrycznej nawet o 90%.
-
-Czy s=C4=85 Pa=C5=84stwo zainteresowani weryfikacj=C4=85 wst=C4=99pnych p=
-ropozycji?
-
-
-Pozdrawiam,
-Przemys=C5=82aw Wr=C3=B3blewski
+Hi, how have you been? I'm yet to receive a reply from you in regards
+to my two previous emails, please check and get back to me.
