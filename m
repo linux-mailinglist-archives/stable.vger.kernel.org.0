@@ -2,112 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA255542F66
-	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 13:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 140A2542F92
+	for <lists+stable@lfdr.de>; Wed,  8 Jun 2022 13:59:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238324AbiFHLpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jun 2022 07:45:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36958 "EHLO
+        id S238380AbiFHL6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jun 2022 07:58:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230231AbiFHLpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 07:45:42 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3DEBED3EB;
-        Wed,  8 Jun 2022 04:45:41 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 6FC9C1F8B9;
-        Wed,  8 Jun 2022 11:45:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1654688740; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=1CMpBQOn5+cUgJcRoMuI6TTAPLMaD/dLPWWB26C6/PM=;
-        b=B1HIlHC4Mocvg3xaqd0ckpmHOhzcQu+JR5sKOMXZ8MVy9T09a/gnWBsG0SPUhIcNPegHy8
-        +RwwCLqFg1kP+eGfof2TnG16nss5rb1i1LS6DUz5dvYvKA7CMWQwYkOfGIDLHdeHOdUGvn
-        bpPVVaSYzCQWjtzQFzXDh/3Sv8zZslI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1654688740;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=1CMpBQOn5+cUgJcRoMuI6TTAPLMaD/dLPWWB26C6/PM=;
-        b=OiYWnUUfkt3tMhq1joWRtiHucYJuZ731RQ+zIwo4pjJvLHGGOmLvIaED7itryhHmwYIQH3
-        9oLTB3PXGPh2qRDA==
-Received: from quack3.suse.cz (unknown [10.163.28.18])
+        with ESMTP id S238412AbiFHL6T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jun 2022 07:58:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57375158F23;
+        Wed,  8 Jun 2022 04:58:17 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 596A32C141;
-        Wed,  8 Jun 2022 11:45:40 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id EBF6BA06E2; Wed,  8 Jun 2022 13:45:39 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     stable@vger.kernel.org
-Cc:     <linux-block@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Jan Kara <jack@suse.cz>, Logan Gunthorpe <logang@deltatee.com>,
-        Donald Buczek <buczek@molgen.mpg.de>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH] block: fix bio_clone_blkg_association() to associate with proper blkcg_gq
-Date:   Wed,  8 Jun 2022 13:45:28 +0200
-Message-Id: <20220608114528.15611-1-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07C03B826EE;
+        Wed,  8 Jun 2022 11:58:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AF4C34116;
+        Wed,  8 Jun 2022 11:58:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654689494;
+        bh=yvf54zhWOdO7ReqUNGg8+TnBRZrtCkQ7zzqtx2twBdg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z/cRfWBucs63n4noglBMogTxZr58IotR+8ozkXrq+4WK8L651fisT6H4zhyaJL23z
+         9x/qEsou8zn0SiPFIgF6i3pYDRJ5o36M06JpjQD31WOk01CLUVZeGyV7e16ZfraHN8
+         oNIaOMDpNhKurfMBNjHwc+n0EuT5X+cpbN90pk7A=
+Date:   Wed, 8 Jun 2022 13:58:11 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: Re: [PATCH 5.18 001/879] arm64: Initialize jump labels before
+ setup_machine_fdt()
+Message-ID: <YqCO0533IQytsG5L@kroah.com>
+References: <20220607165002.659942637@linuxfoundation.org>
+ <20220607165002.710523116@linuxfoundation.org>
+ <YqBnyVAvrK54r3yo@arm.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1937; h=from:subject; bh=B2CGxiFWrNxMSNFjp2FGVowXPDbamcFvKyJboulNsEo=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBioIvF9+He+4B/yY/KFaMHdWI8THP5m4lrjpNVJ5tp USp+Ev+JATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYqCLxQAKCRCcnaoHP2RA2cwKB/ 49dQ6pQuFwFR+Z1fzK2Gd7tP/JhR9yBXCJ7IH1xzfvu6+MFSomukIL6gtobuBFeIUfNny7uvRiXIml ykmwoJ7LVqGYwWukKi8QM08FZPIyCV7H1f6jlAkliuNfHUZAv7vL0uCvUKpxZOATTC9u3JD/wRUTba Tu5GZd5NW4hSLa8Dl9V9gpxy4VNiepRlOUGTlGkr9DlPHZDexCCOwqUdkMDwCPUnY8leVMVX6XLsba VDADrVRiXsthPGOlynQLEHS7OLD4T+2iuvSMZbZBybirrr+e/oLzH3M5/1guTt0D69MVdSkO3SuEPT x32oPJiWsztpXlsGu19fa/bcNpPC7M
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YqBnyVAvrK54r3yo@arm.com>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 22b106e5355d6e7a9c3b5cb5ed4ef22ae585ea94 upstream.
+On Wed, Jun 08, 2022 at 10:11:37AM +0100, Catalin Marinas wrote:
+> On Tue, Jun 07, 2022 at 06:51:59PM +0200, Greg Kroah-Hartman wrote:
+> > From: Stephen Boyd <swboyd@chromium.org>
+> > 
+> > commit 73e2d827a501d48dceeb5b9b267a4cd283d6b1ae upstream.
+> > 
+> > A static key warning splat appears during early boot on arm64 systems
+> > that credit randomness from devicetrees that contain an "rng-seed"
+> > property. This is because setup_machine_fdt() is called before
+> > jump_label_init() during setup_arch(). Let's swap the order of these two
+> > calls so that jump labels are initialized before the devicetree is
+> > unflattened and the rng seed is credited.
+> > 
+> >  static_key_enable_cpuslocked(): static key '0xffffffe51c6fcfc0' used before call to jump_label_init()
+> >  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xb0/0xb8
+> >  Modules linked in:
+> >  CPU: 0 PID: 0 Comm: swapper Not tainted 5.18.0+ #224 44b43e377bfc84bc99bb5ab885ff694984ee09ff
+> >  pstate: 600001c9 (nZCv dAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> >  pc : static_key_enable_cpuslocked+0xb0/0xb8
+> >  lr : static_key_enable_cpuslocked+0xb0/0xb8
+> >  sp : ffffffe51c393cf0
+> >  x29: ffffffe51c393cf0 x28: 000000008185054c x27: 00000000f1042f10
+> >  x26: 0000000000000000 x25: 00000000f10302b2 x24: 0000002513200000
+> >  x23: 0000002513200000 x22: ffffffe51c1c9000 x21: fffffffdfdc00000
+> >  x20: ffffffe51c2f0831 x19: ffffffe51c6fcfc0 x18: 00000000ffff1020
+> >  x17: 00000000e1e2ac90 x16: 00000000000000e0 x15: ffffffe51b710708
+> >  x14: 0000000000000066 x13: 0000000000000018 x12: 0000000000000000
+> >  x11: 0000000000000000 x10: 00000000ffffffff x9 : 0000000000000000
+> >  x8 : 0000000000000000 x7 : 61632065726f6665 x6 : 6220646573752027
+> >  x5 : ffffffe51c641d25 x4 : ffffffe51c13142c x3 : ffff0a00ffffff05
+> >  x2 : 40000000ffffe003 x1 : 00000000000001c0 x0 : 0000000000000065
+> >  Call trace:
+> >   static_key_enable_cpuslocked+0xb0/0xb8
+> >   static_key_enable+0x2c/0x40
+> >   crng_set_ready+0x24/0x30
+> >   execute_in_process_context+0x80/0x90
+> >   _credit_init_bits+0x100/0x154
+> >   add_bootloader_randomness+0x64/0x78
+> >   early_init_dt_scan_chosen+0x140/0x184
+> >   early_init_dt_scan_nodes+0x28/0x4c
+> >   early_init_dt_scan+0x40/0x44
+> >   setup_machine_fdt+0x7c/0x120
+> >   setup_arch+0x74/0x1d8
+> >   start_kernel+0x84/0x44c
+> >   __primary_switched+0xc0/0xc8
+> >  ---[ end trace 0000000000000000 ]---
+> >  random: crng init done
+> >  Machine model: Google Lazor (rev1 - 2) with LTE
+> > 
+> > Cc: Hsin-Yi Wang <hsinyi@chromium.org>
+> > Cc: Douglas Anderson <dianders@chromium.org>
+> > Cc: Ard Biesheuvel <ardb@kernel.org>
+> > Cc: Steven Rostedt <rostedt@goodmis.org>
+> > Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+> > Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+> > Fixes: f5bda35fba61 ("random: use static branch for crng_ready()")
+> > Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> > Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> > Link: https://lore.kernel.org/r/20220602022109.780348-1-swboyd@chromium.org
+> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> Please drop this patch from 5.18 stable (I think I gave the details on
+> the 5.10 reply).
+> 
 
-Commit d92c370a16cb ("block: really clone the block cgroup in
-bio_clone_blkg_association") changed bio_clone_blkg_association() to
-just clone bio->bi_blkg reference from source to destination bio. This
-is however wrong if the source and destination bios are against
-different block devices because struct blkcg_gq is different for each
-bdev-blkcg pair. This will result in IOs being accounted (and throttled
-as a result) multiple times against the same device (src bdev) while
-throttling of the other device (dst bdev) is ignored. In case of BFQ the
-inconsistency can even result in crashes in bfq_bic_update_cgroup().
-Fix the problem by looking up correct blkcg_gq for the cloned bio.
+Dropped from all stable queues now, thanks.
 
-Reported-by: Logan Gunthorpe <logang@deltatee.com>
-Reported-and-tested-by: Donald Buczek <buczek@molgen.mpg.de>
-Fixes: d92c370a16cb ("block: really clone the block cgroup in bio_clone_blkg_association")
-CC: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220602081242.7731-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- block/blk-cgroup.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
-This patch should be a backport for 5.15, 5.17, and 5.18 stable branches.
-
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 07a2524e6efd..ce5858dadca5 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1886,12 +1886,8 @@ EXPORT_SYMBOL_GPL(bio_associate_blkg);
-  */
- void bio_clone_blkg_association(struct bio *dst, struct bio *src)
- {
--	if (src->bi_blkg) {
--		if (dst->bi_blkg)
--			blkg_put(dst->bi_blkg);
--		blkg_get(src->bi_blkg);
--		dst->bi_blkg = src->bi_blkg;
--	}
-+	if (src->bi_blkg)
-+		bio_associate_blkg_from_css(dst, &bio_blkcg(src)->css);
- }
- EXPORT_SYMBOL_GPL(bio_clone_blkg_association);
- 
--- 
-2.35.3
-
+greg k-h
