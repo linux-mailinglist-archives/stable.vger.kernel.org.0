@@ -2,105 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740F4544FE8
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 16:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A329B5450B6
+	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 17:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241545AbiFIOz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 10:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35000 "EHLO
+        id S237587AbiFIPYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 11:24:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343489AbiFIOzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 10:55:54 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DDF37F906;
-        Thu,  9 Jun 2022 07:55:52 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 4BFC121FA9;
-        Thu,  9 Jun 2022 14:55:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1654786551; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OP+FCzdv75xf3AHqKnJ+4LChpmPuksRBqF0JcYhkehA=;
-        b=SQObC06khT/SS84YZt1lyljm9Cr5+NeogHGlZxt5pxfF9ZvnQLukKnj55bh+5fUCYBr7Yi
-        NlraG861F/YQs96MkzjDx/3/U+FfUtp5HlV7liTe3y13/Ld9SWoy9qp1WgypBmB1npDRMw
-        KIkohhqcvxF2/4K0d+30WALHcLZjlZg=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E70FD13A8C;
-        Thu,  9 Jun 2022 14:55:50 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id OFs0N/YJomK9fAAAMHmgww
-        (envelope-from <mkoutny@suse.com>); Thu, 09 Jun 2022 14:55:50 +0000
-Date:   Thu, 9 Jun 2022 16:55:49 +0200
-From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>
-Cc:     kernel test robot <oliver.sang@intel.com>,
-        0day robot <lkp@intel.com>, Tejun Heo <tj@kernel.org>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, cgroups@vger.kernel.org,
-        lkp@lists.01.org, netdev@vger.kernel.org, bpf@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
-Subject: Re: [cgroup] 3c87862ca1:
- WARNING:at_kernel/softirq.c:#__local_bh_enable_ip
-Message-ID: <20220609145549.GA28484@blackbody.suse.cz>
-References: <20220609085641.GB17678@xsang-OptiPlex-9020>
- <b39cdb9c-aa2a-0f49-318b-8632b2989433@linaro.org>
+        with ESMTP id S1344479AbiFIPYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 11:24:18 -0400
+X-Greylist: delayed 535 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 09 Jun 2022 08:24:16 PDT
+Received: from outbound-smtp03.blacknight.com (outbound-smtp03.blacknight.com [81.17.249.16])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF004B866
+        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 08:24:16 -0700 (PDT)
+Received: from mail.blacknight.com (pemlinmail02.blacknight.ie [81.17.254.11])
+        by outbound-smtp03.blacknight.com (Postfix) with ESMTPS id 40F9415C002
+        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 16:15:18 +0100 (IST)
+Received: (qmail 23872 invoked from network); 9 Jun 2022 15:15:18 -0000
+Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.198.246])
+  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 9 Jun 2022 15:15:17 -0000
+Date:   Thu, 9 Jun 2022 16:15:16 +0100
+From:   Mel Gorman <mgorman@techsingularity.net>
+To:     Muchun Song <songmuchun@bytedance.com>
+Cc:     mcgrof@kernel.org, keescook@chromium.org, yzaikin@google.com,
+        akpm@linux-foundation.org, vbabka@suse.cz, peterz@infradead.org,
+        dhowells@redhat.com, willy@infradead.org, Liam.Howlett@oracle.com,
+        mhocko@suse.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm: sysctl: fix missing numa_stat when
+ !CONFIG_HUGETLB_PAGE
+Message-ID: <20220609151516.GA30825@techsingularity.net>
+References: <20220609104032.18350-1-songmuchun@bytedance.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <b39cdb9c-aa2a-0f49-318b-8632b2989433@linaro.org>
+In-Reply-To: <20220609104032.18350-1-songmuchun@bytedance.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Tadeusz.
+On Thu, Jun 09, 2022 at 06:40:32PM +0800, Muchun Song wrote:
+> "numa_stat" should not be included in the scope of CONFIG_HUGETLB_PAGE, if
+> CONFIG_HUGETLB_PAGE is not configured even if CONFIG_NUMA is configured,
+> "numa_stat" is missed form /proc. Move it out of CONFIG_HUGETLB_PAGE to
+> fix it.
+> 
+> Fixes: 4518085e127d ("mm, sysctl: make NUMA stats configurable")
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> Cc: <stable@vger.kernel.org>
 
-On Thu, Jun 09, 2022 at 07:30:41AM -0700, Tadeusz Struk <tadeusz.struk@linaro.org> wrote:
-> Are you interested in fixing this at syzbot issue all?
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
 
-The (original) syzbot report is conditioned by allocation failure that's
-unlikely under normal conditions (AFAIU). Hence I don't treat it extra
-high urgent.
-OTOH, it's interesting and it points to some disparity worth fixing --
-so I try helping (as time permits, so far I can only run the reproducers
-via the syzbot).
-
-> Do you have any more feedback on this?
-
-Ad the patch v2 with spinlock per css -- that looks like an overkill to
-me, I didn't look deeper into it.
-
-Ad the in-thread patch with ancestry css_get(), the ->parent ref:
-  - is inc'd in init_and_link_css(),
-  - is dec'd in css_free_rwork_fn()
-and thanks to ->online_cnt offlining is ordered (child before parent).
-
-Where does your patch dec these ancestry references? (Or why would they
-be missing in the first place?)
-
-Thanks for digging into this!
-Michal
+-- 
+Mel Gorman
+SUSE Labs
