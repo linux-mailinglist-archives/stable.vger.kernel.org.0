@@ -2,140 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF635456B8
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 23:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E8754584B
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 01:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234901AbiFIVtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 17:49:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
+        id S231949AbiFIXP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 19:15:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233015AbiFIVti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 17:49:38 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D96715FE22;
-        Thu,  9 Jun 2022 14:49:34 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id cx11so22485800pjb.1;
-        Thu, 09 Jun 2022 14:49:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OqWT2+rs9ONxjJPi5zpOEh7NoBzb3sfwmxsPGIJo9Ek=;
-        b=dsNmKyR8/Kn0lBpff4o8kscF+y8WEiWN7qe/Y1QdBUJkfYtqt9MwF9mcGg/YCgljwa
-         Y3SdusFY+q8XzxCr8RqDXlvJTlUHQtKc+6pfXDQ0LrtZlWo6g0p7DOTE6DLJ3sS1KQPY
-         9psnnZQhQDcBWdHh75S18SvB8u5U3JE2uaK7YrVYXfhByAjQn8xrajALooQWiPCqJwPm
-         w5q6oLhJMERM7qj0N535LyCyA9AhynzGurpljaNmg5kP+u2fy8Vyur1k+9THF1UDR6CW
-         ZkOSEkVTKYk3w3wMQeIIrawX5qwuUSuX2ft0sqqcLgUp/UZSrFrw8P53wav6PHnR4tDO
-         x5mw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OqWT2+rs9ONxjJPi5zpOEh7NoBzb3sfwmxsPGIJo9Ek=;
-        b=l2g40xUDQih8ubgGAMMhYiE9JtdR9kP6yF72quyjqm+5BsNbLh2jk682JbaX+h09pB
-         QRufItF2YhT6IsffiB0b/pGdl549TX59bPCLnneIIC4HQJHmdSkerFJzzzgYo01wA/h3
-         tl0Ijl+Ya4SwtdTGVUjjOEuUx9aTG4VnaG4uDWe1oDQTYEC71i+iwjKuawQcVdeYa4zA
-         zcf510U6ExYj0zyjtUBWS6h9G19fEekJhV8QBi/RkTVnhYusLgWNopmq+tJDy/qpZO7T
-         T22Zx49Zv9c4advvM2yvkPv8c9Cs/gG7XW2uHnA05xa0UezuW52Qv3oIEl+9nZTI2Lfw
-         KJXQ==
-X-Gm-Message-State: AOAM531cDxka46qDq3zzM1fBMzBoUwYvMNJq/HLaXm0LGnKM3ar3dTgN
-        fPt1CvzWQGhW5N9U/FpeMCc=
-X-Google-Smtp-Source: ABdhPJzKuHA3e++qD1J1+2gtrORg9rwJEIfmEkbuCyqSWM3iMvjL2retYMovMhZIVD9PM2dlK7/jTQ==
-X-Received: by 2002:a17:902:854c:b0:163:7dd2:130f with SMTP id d12-20020a170902854c00b001637dd2130fmr41678602plo.57.1654811373949;
-        Thu, 09 Jun 2022 14:49:33 -0700 (PDT)
-Received: from fedora.hsd1.wa.comcast.net ([2601:1c1:4202:28a0::ec2b])
-        by smtp.gmail.com with ESMTPSA id q65-20020a17090a4fc700b001e8520b211bsm152669pjh.53.2022.06.09.14.49.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jun 2022 14:49:33 -0700 (PDT)
-From:   Jared Kangas <kangas.jd@gmail.com>
-To:     vaibhav.sr@gmail.com
-Cc:     elder@kernel.org, gregkh@linuxfoundation.org,
-        greybus-dev@lists.linaro.org, johan@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-staging@lists.linux.dev, mgreer@animalcreek.com,
-        kangas.jd@gmail.com, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH v2] staging: greybus: audio: fix loop cursor use after iteration
-Date:   Thu,  9 Jun 2022 14:45:18 -0700
-Message-Id: <20220609214517.85661-1-kangas.jd@gmail.com>
-X-Mailer: git-send-email 2.34.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S236603AbiFIXP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 19:15:56 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB2F165379;
+        Thu,  9 Jun 2022 16:15:51 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 259N9lNa030155;
+        Thu, 9 Jun 2022 23:15:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=6rV25bVukC0FzXp8C+eOvheKB/Ow7ad3IEMVII0+WpA=;
+ b=RHOtXYOZ9bsKZLp7BpFsh8xAA1w+ADlN0/KyiaOLAfMUmEKpvIjNaVHmuM1ixTKXz3u3
+ 8rdap9v1Q7WMGgOkjy64pZ9O5wfQQ8c1XhuMnzbzTiQhPKj29mhNrTf9+wJ/p52qpHmb
+ pjZxUs48VW1ROKzR6CVJRGFMjYGXI6eKG7a46MN/FlE2B5fRj2odL0WLZNqUGrI0Ht54
+ XHIU52qptcQW51LeTjIuao6Wo0lnRXj++JfG6rO2y66mItDojOgbHHNnaPLOqYra9/zI
+ 9rSPPP9+QStbwwfbnHyJGHAnENcJzUhuZnhPQYAg4V67J1yclMLjXx6cTR+BVAmR9J1P vw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gks69gysn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Jun 2022 23:15:36 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 259NAuRn009191;
+        Thu, 9 Jun 2022 23:15:35 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gks69gys6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Jun 2022 23:15:35 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 259N5ubN001267;
+        Thu, 9 Jun 2022 23:15:32 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gfy19fft3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Jun 2022 23:15:32 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 259NFUKJ21496240
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Jun 2022 23:15:30 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2DE6D11C04C;
+        Thu,  9 Jun 2022 23:15:30 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1AF8011C04A;
+        Thu,  9 Jun 2022 23:15:28 +0000 (GMT)
+Received: from sig-9-65-64-6.ibm.com (unknown [9.65.64.6])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Jun 2022 23:15:27 +0000 (GMT)
+Message-ID: <e44bb6b11573838417b5d561173c27a1571c94b6.camel@linux.ibm.com>
+Subject: Re: [PATCH v8 3/4] arm64: kexec_file: use more system keyrings to
+ verify kernel image signature
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Coiby Xu <coxu@redhat.com>, kexec@lists.infradead.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>
+Date:   Thu, 09 Jun 2022 19:15:27 -0400
+In-Reply-To: <20220512070123.29486-4-coxu@redhat.com>
+References: <20220512070123.29486-1-coxu@redhat.com>
+         <20220512070123.29486-4-coxu@redhat.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: AZVfSAyGR6zReIne5Uk26XJVLhnwfpqj
+X-Proofpoint-ORIG-GUID: mzxr_bl7MDVagn9LqpV5ZEpivnd1vDN9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-09_15,2022-06-09_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ priorityscore=1501 bulkscore=0 adultscore=0 mlxlogscore=999 clxscore=1011
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 mlxscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206090085
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-gbaudio_dapm_free_controls() iterates over widgets using the
-list_for_each_entry*() family of macros from <linux/list.h>, which
-leaves the loop cursor pointing to a meaningless structure if it
-completes a traversal of the list. The cursor was set to NULL at the end
-of the loop body, but would be overwritten by the final loop cursor
-update.
+On Thu, 2022-05-12 at 15:01 +0800, Coiby Xu wrote:
+> Currently, a problem faced by arm64 is if a kernel image is signed by a
+> MOK key, loading it via the kexec_file_load() system call would be
+> rejected with the error "Lockdown: kexec: kexec of unsigned images is
+> restricted; see man kernel_lockdown.7".
+> 
+> This happens because image_verify_sig uses only the primary keyring that
+> contains only kernel built-in keys to verify the kexec image.
 
-Because of this behavior, the widget could be non-null after the loop
-even if the widget wasn't found, and the cleanup logic would treat the
-pointer as a valid widget to free.
+From the git history it's clear that .platform keyring was upstreamed
+during the same open window as commit 732b7b93d849 ("arm64: kexec_file:
+add kernel signature verification support").   Loading the MOK keys
+onto the .platform keyring was upstreamed much later.  For this reason,
+commit 732b7b93d849 only used keys on the  .builtin_trusted_keys
+keyring.   This patch is now addressing it and the newly upstreamed
+.machine keyring.
 
-To fix this, introduce a temporary variable to act as the loop cursor
-and copy it to a variable that can be accessed after the loop finishes.
-Due to not removing any list elements, use list_for_each_entry() instead
-of list_for_each_entry_safe() in the revised loop.
+Only using the .builtin_trusted_keys is the problem statement, which
+should be one of the first lines of the patch description, if not the
+first line.
 
-This was detected with the help of Coccinelle.
+> 
+> This patch allows to verify arm64 kernel image signature using not only
+> .builtin_trusted_keys but also .platform and .secondary_trusted_keys
+> keyring.
 
-Fixes: 510e340efe0c ("staging: greybus: audio: Add helper APIs for dynamic audio modules")
-Cc: stable@vger.kernel.org
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jared Kangas <kangas.jd@gmail.com>
----
+Please remember to update this to include the .machine keyring.
 
-Changes since v1:
- * Removed safe list iteration as suggested by Johan Hovold <johan@kernel.org>
- * Updated patch changelog to explain the list iteration change
- * Added tags to changelog based on feedback (Cc:, Fixes:, Reviewed-by:)
+> 
+> Fixes: 732b7b93d849 ("arm64: kexec_file: add kernel signature verification support")
 
- drivers/staging/greybus/audio_helper.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+Since the MOK keys weren't loaded onto the .platform keyring until much
+later, I would not classify this as a fix.
 
-diff --git a/drivers/staging/greybus/audio_helper.c b/drivers/staging/greybus/audio_helper.c
-index 843760675876..05e91e6bc2a0 100644
---- a/drivers/staging/greybus/audio_helper.c
-+++ b/drivers/staging/greybus/audio_helper.c
-@@ -115,7 +115,7 @@ int gbaudio_dapm_free_controls(struct snd_soc_dapm_context *dapm,
- 			       int num)
- {
- 	int i;
--	struct snd_soc_dapm_widget *w, *next_w;
-+	struct snd_soc_dapm_widget *w, *tmp_w;
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *parent = dapm->debugfs_dapm;
- 	struct dentry *debugfs_w = NULL;
-@@ -124,13 +124,13 @@ int gbaudio_dapm_free_controls(struct snd_soc_dapm_context *dapm,
- 	mutex_lock(&dapm->card->dapm_mutex);
- 	for (i = 0; i < num; i++) {
- 		/* below logic can be optimized to identify widget pointer */
--		list_for_each_entry_safe(w, next_w, &dapm->card->widgets,
--					 list) {
--			if (w->dapm != dapm)
--				continue;
--			if (!strcmp(w->name, widget->name))
-+		w = NULL;
-+		list_for_each_entry(tmp_w, &dapm->card->widgets, list) {
-+			if (tmp_w->dapm == dapm &&
-+			    !strcmp(tmp_w->name, widget->name)) {
-+				w = tmp_w;
- 				break;
--			w = NULL;
-+			}
- 		}
- 		if (!w) {
- 			dev_err(dapm->dev, "%s: widget not found\n",
--- 
-2.34.3
+thanks,
+
+Mimi
 
