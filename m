@@ -2,141 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96928544558
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 10:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA63554456D
+	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 10:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240466AbiFIIIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 04:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59648 "EHLO
+        id S239312AbiFIINi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 04:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240450AbiFIIII (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 04:08:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8BD1157F7;
-        Thu,  9 Jun 2022 01:08:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S240595AbiFIINd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 04:13:33 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3F13C5EDF3
+        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 01:13:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654762411;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0UBhD5YEWFNp4aDc/ahVKPUNtBuVUhhYKUmhLtmUs50=;
+        b=gZzX9GF1NuOTJ/lWGBC+MFKjq/F8t4B2JUwc6fbGAwBAImjs44uBDu2QEXbU8IKCFW/ENw
+        bs/nYZYGBh7QO55PLDFPydIhsRgiKJBEpljSW/Mji6RuG/f5cW4NEszcNhnCBg0iO6bzFr
+        dZBpSLswvlgY21RcqzWIMFbV7noFgt8=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-637-LSqcigi8OVWcf-rDwFRfYQ-1; Thu, 09 Jun 2022 04:13:27 -0400
+X-MC-Unique: LSqcigi8OVWcf-rDwFRfYQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09D9EB82C3C;
-        Thu,  9 Jun 2022 08:08:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39328C34114;
-        Thu,  9 Jun 2022 08:08:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654762084;
-        bh=VUEvKySVaE7RF0deKcJ/G+d/pOEYQYj0Bdn8d40rA4M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Tb3WsxPnTYPcD3Pccnx794lx7pJ5c4UMK7zLwEDQ1XeZI8aVsvbSymsgP+hreuHn0
-         SPwI6gBoYr8MzRG5E1ssWfXPbNGbZHTNN1pwjieT6pQNxqJDM78FlGomqm1qGYfYBA
-         JeWOQjLoHXv9vPcvIBG/3d1TCnQ7zVRu696rBkxY=
-Date:   Thu, 9 Jun 2022 10:08:01 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ron Economos <re@w6rz.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.17 000/772] 5.17.14-rc1 review
-Message-ID: <YqGqYd89cM+IB74e@kroah.com>
-References: <20220607164948.980838585@linuxfoundation.org>
- <0a063e00-360e-7b63-988c-e6c028063cf9@w6rz.net>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AEF381C004E9;
+        Thu,  9 Jun 2022 08:13:26 +0000 (UTC)
+Received: from starship (unknown [10.40.194.180])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C72111121315;
+        Thu,  9 Jun 2022 08:13:22 +0000 (UTC)
+Message-ID: <909920fcfb5a614861fbc2654b3e8c1f0240bb51.camel@redhat.com>
+Subject: Re: [PATCH 4/7] KVM: x86: SVM: fix avic_kick_target_vcpus_fast
+From:   Maxim Levitsky <mlevitsk@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org
+Cc:     Wanpeng Li <wanpengli@tencent.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Joerg Roedel <joro@8bytes.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
+        stable@vger.kernel.org
+Date:   Thu, 09 Jun 2022 11:13:21 +0300
+In-Reply-To: <c7fb78e2-2650-f9a2-3062-5d5ecc34332b@redhat.com>
+References: <20220606180829.102503-1-mlevitsk@redhat.com>
+         <20220606180829.102503-5-mlevitsk@redhat.com>
+         <c7fb78e2-2650-f9a2-3062-5d5ecc34332b@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <0a063e00-360e-7b63-988c-e6c028063cf9@w6rz.net>
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 04:23:04PM -0700, Ron Economos wrote:
-> On 6/7/22 9:53 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.17.14 release.
-> > There are 772 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+On Wed, 2022-06-08 at 15:21 +0200, Paolo Bonzini wrote:
+> On 6/6/22 20:08, Maxim Levitsky wrote:
+> > There are two issues in avic_kick_target_vcpus_fast
 > > 
-> > Responses should be made by Thu, 09 Jun 2022 16:48:02 +0000.
-> > Anything received after that time might be too late.
+> > 1. It is legal to issue an IPI request with APIC_DEST_NOSHORT
+> >     and a physical destination of 0xFF (or 0xFFFFFFFF in case of x2apic),
+> >     which must be treated as a broadcast destination.
 > > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.14-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
-> > and the diffstat can be found below.
+> >     Fix this by explicitly checking for it.
+> >     Also donâ€™t use â€˜indexâ€™ in this case as it gives no new information.
 > > 
-> > thanks,
+> > 2. It is legal to issue a logical IPI request to more than one target.
+> >     Index field only provides index in physical id table of first
+> >     such target and therefore can't be used before we are sure
+> >     that only a single target was addressed.
 > > 
-> > greg k-h
+> >     Instead, parse the ICRL/ICRH, double check that a unicast interrupt
+> >     was requested, and use that info to figure out the physical id
+> >     of the target vCPU.
+> >     At that point there is no need to use the index field as well.
 > > 
-> Regression on RISC-V RV64 (HiFive Unmatched).
+> > 
+> > In addition to fixing the above	issues,	also skip the call to
+> > kvm_apic_match_dest.
+> > 
+> > It is possible to do this now, because now as long as AVIC is not
+> > inhibited, it is guaranteed that none of the vCPUs changed their
+> > apic id from its default value.
+> > 
+> > 
+> > This fixes boot of windows guest with AVIC enabled because it uses
+> > IPI with 0xFF destination and no destination shorthand.
+> > 
+> > Fixes: 7223fd2d5338 ("KVM: SVM: Use target APIC ID to complete AVIC IRQs when possible")
+> > Cc: stable@vger.kernel.org
+> > 
+> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
 > 
-> An Oops occurs when an NFS file system is mounted.
+> Is it possible to use kvm_intr_is_single_vcpu_fast, or am I missing 
+> something?
+
+Yes, except that it needs 'struct kvm_lapic_irq' which we won't have when
+we emulate guest<->guest interrupts, and also it goes over apic map and such,
+which can be be skipped.
+
+It also does more unneeded things like dealing with low priority mode for example,
+which thankfully AVIC doenst' support and if attempted will still VM exit
+with 'incomplete IPI' but with AVIC_IPI_FAILURE_INVALID_INT_TYPE subreason,
+which goes through full APIC register emulation.
+
+I do think about the fact that ICRL/H parsing in the case of logical ID,
+(which depends on cluser mode and x2apic mode) can be moved to some common
+code, but I wasn't able yet to find a clean way to do it.
+
+BTW: there is another case where AVIC must be inhibited: in xapic mode,
+logical ids, don't have to have a single bit set in the mask area of the logical id, 
+(low 4 bits in cluster mode and all 8 bits in flat mode)
+and neither there is a guarnantee that multilple CPUs don't share these bits.
+
+AVIC however has a logical ID table which maps each (bit x cluster value) to a physical id,
+and therefore a single vCPU, so tha later is not possible to support with AVIC.
+
+I haven't studied the code that is responsible for this, I will do this soon.
+
+
+Thankfully IPIv only supports physical IPI mode (this is what I heard, don't know for sure).
+
+I also will write a unit test for this very soon, to test various logical id
+IPIs, messing with logical id registers, etc, etc.
+
+Best regards,
+	Maxim Levitsky
+
+
 > 
-> [   98.244615] FS-Cache: Loaded
-> [   99.311566] NFS: Registering the id_resolver key type
-> [   99.311621] Key type id_resolver registered
-> [   99.311626] Key type id_legacy registered
-> [   99.469053] Unable to handle kernel access to user memory without uaccess
-> routines at virtual address 0000000000000000
-> [   99.479039] Oops [#1]
-> [   99.481246] Modules linked in: rpcsec_gss_krb5 auth_rpcgss nfsv4 nfs
-> lockd grace fscache netfs nvme_fabrics sunrpc binfmt_misc nls_iso8859_1
-> da9063_onkey lm90 at24 uio_pdrv_genirq uio sch_fq_codel dm_multipath
-> scsi_dh_rdac scsi_dh_emc scsi_dh_alua ipmi_devintf ipmi_msghandler drm
-> backlight ip_tables x_tables autofs4 btrfs blake2b_generic zstd_compress
-> raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx
-> xor raid6_pq libcrc32c raid1 raid0 multipath linear rtc_da9063
-> da9063_regulator mscc macsec nvme macb xhci_pci nvme_core xhci_pci_renesas
-> i2c_ocores phylink
-> [   99.532427] CPU: 2 PID: 889 Comm: mount.nfs Not tainted 5.17.13 #1
-> [   99.538572] Hardware name: SiFive HiFive Unmatched A00 (DT)
-> [   99.544133] epc : nfs_fattr_init+0x1e/0x48 [nfs]
-> [   99.549059]  ra : _nfs41_proc_get_locations+0xb4/0x128 [nfsv4]
-> [   99.555877] epc : ffffffff02332e76 ra : ffffffff023c076c sp :
-> ffffffc894793960
-> [   99.563084]  gp : ffffffff81a2ed00 tp : ffffffd896180000 t0 :
-> ffffffd887720000
-> [   99.570294]  t1 : ffffffff81a9c110 t2 : ffffffff81003c04 s0 :
-> ffffffc894793970
-> [   99.577503]  s1 : ffffffd887700000 a0 : 0000000000000000 a1 :
-> ffffffd883de3d80
-> [   99.584721]  a2 : ffffffd887700000 a3 : ffffffc704608a00 a4 :
-> ffffffff0236aa28
-> [   99.591924]  a5 : ffffffff02410cf8 a6 : ffffffff0240fc00 a7 :
-> 0000000000000006
-> [   99.599134]  s2 : ffffffd885df6000 s3 : ffffffc8947939c8 s4 :
-> ffffffc894793998
-> [   99.606343]  s5 : ffffffd881a9f000 s6 : ffffffc704608a00 s7 :
-> ffffffff021c7db8
-> [   99.613552]  s8 : ffffffff0240fd50 s9 : 0000000000000cc0 s10:
-> 0000003fd7d2e260
-> [   99.620762]  s11: 0000000000016700 t3 : 0000000000000020 t4 :
-> 0000000000000001
-> [   99.627971]  t5 : ffffffdbffdde088 t6 : ffffffdbffdde0a8
-> [   99.633266] status: 0000000200000120 badaddr: 0000000000000000 cause:
-> 000000000000000f
-> [   99.641236] ---[ end trace 0000000000000000 ]---
+> Series queued, thanks.
 > 
-> Manually bisected to this commit:
-> 
-> NFSv4: Fix free of uninitialized nfs4_label on referral lookup.
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.17.y&id=9a4a2efee41c4aca43988c43e16d44656f3c2132
+> Paolo
 > 
 
-That's odd you see this here on 5.17, but NOT on 5.18 with the same
-commit merged there.  I'll drop this from 5.17 and as this will probably
-be the last (or next to last) 5.17 kernel release, not worry too much
-about it.
 
-thanks,
-
-greg k-h
