@@ -2,92 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B4954439A
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 08:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 561115443AE
+	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 08:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234405AbiFIGNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 02:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37940 "EHLO
+        id S234405AbiFIGSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 02:18:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbiFIGNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 02:13:01 -0400
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF4936302;
-        Wed,  8 Jun 2022 23:13:00 -0700 (PDT)
-Received: by mail-ej1-f41.google.com with SMTP id y19so45414422ejq.6;
-        Wed, 08 Jun 2022 23:13:00 -0700 (PDT)
+        with ESMTP id S232296AbiFIGSt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 02:18:49 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B84213ADB
+        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 23:18:48 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id y196so20237767pfb.6
+        for <stable@vger.kernel.org>; Wed, 08 Jun 2022 23:18:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Zc9ciXx5GwEusH46DNu7OQeRTu8uPCA0lWBlUIVoYFY=;
+        b=FPJp1qGCAQjElu/s54wtxTEqyTIo4Gxs5nP0LgIXAqluDKJhDqh2YPEbO7xO5sEmc2
+         KtdFjQwB/yd/9PVOLUjQAVNVi5ckB6A5pyl6jV0SqEE82S0J43qdQpFL8JH5f7IICwYW
+         bJn7H4/abJvW2FOXUaelhy7QzYHYBE/QHQGEQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=uenxBnmzX5nP05fED5GFTiUFsAaskSMTNeWhKePY7qQ=;
-        b=nJRRzV2t3Y5/X4JVEPyRqa9eSyRFuNjvjWa4OUViToxRzY1MxqTionQ/AZSaMpYmI/
-         c2vjW/anno2oT2wQoqcqZfu5HbqwyPZtZwb1Sk4TiNmAwqetSoYJoj1IUEUNbsGszQUM
-         3KN/O6o0zYfnBUWaGPPIWO8uaVgPM+NVN95cEvyIV9g2sNxDFHLmcywQpwf51JEwzCox
-         0557IuLAf+zAvjdsxYL6omzQlCKh0CjZ1UtSmWXTYSXgoqHiZO4zg73OvxR6v6HlpGjD
-         NaMHCwuLna8vu/VJ79CKKXCmTtZwCt4GWQ7wo8itRiKEsmBG8XBz7WUIThdLudftN1iZ
-         wXMA==
-X-Gm-Message-State: AOAM532DltHTMyp7aNwu59dDJezkP6Ek8P5IJgiOcbayefeaszoScuRb
-        rniOFg9NixB/9mMoV2UtapE=
-X-Google-Smtp-Source: ABdhPJz7K8CMJOyO6WVb0QaA/pvjh1RDnjIBLOP6yt2mPCH2VopWQh8LhACk61TPMK1vWZ4A3KZqAw==
-X-Received: by 2002:a17:906:64d6:b0:711:fca6:bc2b with SMTP id p22-20020a17090664d600b00711fca6bc2bmr4717295ejn.197.1654755178893;
-        Wed, 08 Jun 2022 23:12:58 -0700 (PDT)
-Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
-        by smtp.gmail.com with ESMTPSA id ft29-20020a170907801d00b0071145c2f494sm6407525ejc.27.2022.06.08.23.12.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Jun 2022 23:12:58 -0700 (PDT)
-Message-ID: <5bdc97df-2543-2716-cfd3-34019ac84c96@kernel.org>
-Date:   Thu, 9 Jun 2022 08:12:56 +0200
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Zc9ciXx5GwEusH46DNu7OQeRTu8uPCA0lWBlUIVoYFY=;
+        b=wBJvKKckD77cgA0eb2x/fP0z48nAcVXO0zYU0ggxU+8muJfwCrfjqqfsq+D3cSjcct
+         UN4/Eddl5PmJo2jNyKP+kQtH8UYUZ+QtQCI1C6mLvniuTkyZUvr3lfrTggRQKDWtYfjp
+         1AeAKoC8N7ZVY6BnZB/NINrOau6YolwZWct4hTyFPtzfWLJJ9Ldb5GpAek6GYok69JCP
+         CPS10j/bIXGc4B3LEAO1VTENeMj+uIy4ci+Ahqad+OD2K0zmJ0+xloz7AyJL8PYsYDSW
+         zJn7+BSSFv0oR4p7D3s55oM4NAAB4ksj5M3hq0ZptCKeFJzHmHFDs6PADvC5/24Iadr5
+         Vkfg==
+X-Gm-Message-State: AOAM531Zv1bslLzVJLqrBwmi0lWanagnZLw31WuHq1BIAR/8jSioTPRe
+        EPKlvFvRcKBFz2YMEi+vdOtFjQrJEMeF6ytdpYMjeg==
+X-Google-Smtp-Source: ABdhPJz6laaOhTm1/LqhS5gL+moibBUAZIoBXJEkGSXtfbv2uUarFGkQ6jjfFH/M3ZdIpAfR8w4WRAqUQvFIbGSErbE=
+X-Received: by 2002:a63:5610:0:b0:3f2:7e19:1697 with SMTP id
+ k16-20020a635610000000b003f27e191697mr32972858pgb.74.1654755527553; Wed, 08
+ Jun 2022 23:18:47 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH 5.18 000/879] 5.18.3-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220607165002.659942637@linuxfoundation.org>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <20220607165002.659942637@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220607095829.1035903-1-dario.binacchi@amarulasolutions.com>
+ <YqGJnORzbp2xiEU3@matsya> <CAOf5uwkxit8kAAmwWGgTqR57m_SRmAxere10rCucOuBHU5+8fw@mail.gmail.com>
+ <YqGODNACHfKKHBOf@matsya>
+In-Reply-To: <YqGODNACHfKKHBOf@matsya>
+From:   Michael Nazzareno Trimarchi <michael@amarulasolutions.com>
+Date:   Thu, 9 Jun 2022 08:18:36 +0200
+Message-ID: <CAOf5uw=8j1F3tLE9fLAjFGhVt4WXsU7GJdCkEhPtAAxvzM2fyg@mail.gmail.com>
+Subject: Re: [RESEND PATCH v2] dmaengine: mxs: fix driver registering
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        linux-kernel@vger.kernel.org,
+        Amarula patchwork <linux-amarula@amarulasolutions.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, dmaengine@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07. 06. 22, 18:51, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.3 release.
-> There are 879 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 09 Jun 2022 16:48:02 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> and the diffstat can be found below.
+Hi Vinod
 
-openSUSE configs¹⁾ all green.
+On Thu, Jun 9, 2022 at 8:07 AM Vinod Koul <vkoul@kernel.org> wrote:
+>
+> On 09-06-22, 08:01, Michael Nazzareno Trimarchi wrote:
+> > Hi
+> >
+> > On Thu, Jun 9, 2022 at 7:48 AM Vinod Koul <vkoul@kernel.org> wrote:
+> > >
+> > > On 07-06-22, 11:58, Dario Binacchi wrote:
+> > > > Driver registration fails on SOC imx8mn as its supplier, the clock
+> > > > control module, is not ready. Since platform_driver_probe(), as
+> > > > reported by its description, is incompatible with deferred probing,
+> > > > we have to use platform_driver_register().
+> > > >
+> > > > Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+> > > > Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+> > > > Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> > > > Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+> > > > Cc: stable@vger.kernel.org
+> > > >
+> > > > ---
+> > > >
+> > > > Changes in v2:
+> > > > - Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
+> > > >
+> > > >  drivers/dma/mxs-dma.c | 11 ++++-------
+> > > >  1 file changed, 4 insertions(+), 7 deletions(-)
+> > > >
+> > > > diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+> > > > index 994fc4d2aca4..b8a3e692330d 100644
+> > > > --- a/drivers/dma/mxs-dma.c
+> > > > +++ b/drivers/dma/mxs-dma.c
+> > > > @@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status(struct dma_chan *chan,
+> > > >       return mxs_chan->status;
+> > > >  }
+> > > >
+> > > > -static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
+> > > > +static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
+> > >
+> > > why drop __init for these...?
+> > >
+> >
+> > I think that you refer to the fact that it can not be compiled as a
+> > module, am I right?
+>
+> It is still declared as a module_platform_driver... From changelog I can
+> understand that you are changing init level from subsys to module (in
+> fact clocks should be moved up as arch level and dmaengine users as
+> module) ...
 
-Tested-by: Jiri Slaby <jirislaby@kernel.org>
+The way the driver was using to register was:
+platform_driver_probe(&driver, driver_probe);
 
-¹⁾ armv6hl armv7hl arm64 i386 ppc64 ppc64le riscv64 s390x x86_64
+The function try to register the driver, one time and if the
+dependences is not satisfied,
+then there will not a next try, so the driver initialized that way can
+not depends to anything
+apart himself, or all the dependencies should be ready at the time the
+driver_probe is called
+
+>
+> But why remove __init declaration from these? Whatever purpose that may
+> solve needs to be documented in changelog and perhaps a different patch
+>
+
+I was thinking that driver can be compiled as module as other driver
+but is bool and not tristate
+
+Michael
+
+>
+> >
+> > Michael
+> >
+> > > >  {
+> > > >       int ret;
+> > > >
+> > > > @@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(struct of_phandle_args *dma_spec,
+> > > >                                    ofdma->of_node);
+> > > >  }
+> > > >
+> > > > -static int __init mxs_dma_probe(struct platform_device *pdev)
+> > > > +static int mxs_dma_probe(struct platform_device *pdev)
+> > > >  {
+> > > >       struct device_node *np = pdev->dev.of_node;
+> > > >       const struct mxs_dma_type *dma_type;
+> > > > @@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_driver = {
+> > > >               .name   = "mxs-dma",
+> > > >               .of_match_table = mxs_dma_dt_ids,
+> > > >       },
+> > > > +     .probe = mxs_dma_probe,
+> > > >  };
+> > > >
+> > > > -static int __init mxs_dma_module_init(void)
+> > > > -{
+> > > > -     return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+> > > > -}
+> > >
+> > > > -subsys_initcall(mxs_dma_module_init);
+> > > > +module_platform_driver(mxs_dma_driver);
+> > > > --
+> > > > 2.32.0
+> > >
+> > > --
+> > > ~Vinod
+>
+> --
+> ~Vinod
+
+
 
 -- 
-js
-suse labs
+Michael Nazzareno Trimarchi
+Co-Founder & Chief Executive Officer
+M. +39 347 913 2170
+michael@amarulasolutions.com
+__________________________________
+
+Amarula Solutions BV
+Joop Geesinkweg 125, 1114 AB, Amsterdam, NL
+T. +31 (0)85 111 9172
+info@amarulasolutions.com
+www.amarulasolutions.com
