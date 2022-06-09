@@ -2,63 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D83085448BB
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 12:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D226544956
+	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 12:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242775AbiFIKYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 06:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
+        id S243258AbiFIKl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 06:41:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232988AbiFIKYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 06:24:36 -0400
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D2C68984
-        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 03:24:35 -0700 (PDT)
-Received: by mail-ot1-x332.google.com with SMTP id a8-20020a05683012c800b0060c027c8afdso6780553otq.10
-        for <stable@vger.kernel.org>; Thu, 09 Jun 2022 03:24:35 -0700 (PDT)
+        with ESMTP id S243289AbiFIKlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 06:41:24 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E699426716E
+        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 03:41:11 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id f8so888876plo.9
+        for <stable@vger.kernel.org>; Thu, 09 Jun 2022 03:41:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=TpTnaHUSYpys6afjxjmQI6pcNurx5KZ9QlazVbW6Q3Y=;
-        b=oDi8yFUBBf7q3AHeEsykoRPd2V2nWoL5eo0pdRfA0RiOLAUp41ch7oQmLO6EFFCst5
-         G6knEMmUDoX3p1mtGKJ+JHj57AbRxFo3LG3Zp4o7eLd8v5vBg6jTOihH2ICVEvnlF8kH
-         q2LxOgi2PlA7EZRNZPnMn/XYEu+1jdzbrCGQlOw/7SrBxCnHBZuHSdi8wwNzOVxxUvLs
-         sAcPphXjh6HaArTrsLI00c0BLj9oVicQt7jWqwbc6Msv+vy18tlZC8WNcsziGJtLJZxz
-         09nnFKPGk18aE1UwwyMCd96fHVtJbjuTalsqFPlKRdrjV9Iq1atSWFrdnf5J/LVmT7MN
-         ME0w==
+        bh=0L4gtE6Nwxhqko2H3PVb/r993pNhceWeKw07NNRQ85Q=;
+        b=NrMB5dQ59veFB/XnXQezjBFT8bcCwIl+jP9JXN1LY3wqizYRbZhWCeG2BBxkzHxgKA
+         TW9eCxYWQ5pRg2LcWQMuXTOq9cGKeQTSaK6UExTCqC9B0AgJMTcxo10PadO4FY01B8dE
+         HHCVZIC4UQ0UOGii059G94L0dyi/EXzmsDHqwzIGVrif4HzFOFuF4zO70v8WaBYuqxoZ
+         ItVHkYfr/Ivd3N58JXuzhQ88h8IlrxdP+0Kv4ZMM4dPVqPkHXlz9wXLfpPywaN0m0HLs
+         kZJuse1PW00OrZqVYQhnMPQJ/7cf71kZ/KMnOIAFW1xrYKZohKGNsw59OZK1s0LJqXf3
+         hMvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=TpTnaHUSYpys6afjxjmQI6pcNurx5KZ9QlazVbW6Q3Y=;
-        b=orJP9NfrYl9bBieUBdKWqKLJTOvXIA6VMBo9CPZuUK//CRhMgGzcLdTvNDEF+PCD0F
-         zhV25psRs+tGNhasAP/2kuasONW3JeDDkg3jpyQ/X2MJ7WsIyNggk2R9VyVdonnfboas
-         Xl887wCt+zCxqDTFJmYwOe21QN23rpXR4n6CSl7z+djHrrTGjSMSIZTRmb8aDjSG+f3F
-         rKMD4oqNkR9l7l4PI/i3V1j5IxlSsGtC4wWqbPv04LeJf0V1KM45BwN2L8RHYTaIlQDJ
-         H/ZFEFzt4tvv9efzUaeDFnSk5wjOOyB/lT42KemAQY/JB+rIaLqv7tW7beBiGdlc8ZbK
-         14og==
-X-Gm-Message-State: AOAM5338ZJc+a/bE0ktWsDlzaIK/i3Q0ZvSsu5aI5BqH/OMYcbQYrCML
-        7ZXuyUbCKeoNlLZNCq7TGwvuF0s6+O2iFh1kNBI=
-X-Google-Smtp-Source: ABdhPJx9jHPbnR5pbsTpYj62C0czqhnQTWtB1HCtBl7Xkt5ed0TIPZktja/MNbMjEm4kfW+Bb6Epjd8MiqUera7/Ktg=
-X-Received: by 2002:a05:6830:4386:b0:60b:3f98:a292 with SMTP id
- s6-20020a056830438600b0060b3f98a292mr16341689otv.111.1654770274903; Thu, 09
- Jun 2022 03:24:34 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0L4gtE6Nwxhqko2H3PVb/r993pNhceWeKw07NNRQ85Q=;
+        b=E6yDkjGGIOoYWQtauD/oq9C8cbEjfMf1g1wKQDABVxv/zQ9AnfXju4tGnQrPqb707g
+         6kgFhgy5P8dINqcD7T1jDb1jr4oeY7HlSBXBBYcwToX1CrxyMQNXqJ/dC1YiCrdSrNPx
+         2WDQ9KSaFqcBIOilmc2oVr6/oLRNw/kMj6T9AY5Qbn0c9Bx9i2DChuvp+438lTSIa2Fg
+         1WhNEJRbn1F9rrckufU41YULNajHP5kr/2KXzm3KKgRml/LQoJgVPxUTMIXXyFH+SKPo
+         x/2Q5Svom217A6yrGJecx8RF0X79/UPm+1sfJO/m3I3C9/P9qKVZfYfVrIk6XLmnM8FE
+         Rbqg==
+X-Gm-Message-State: AOAM531r1jySoRQlmXSMfbKb/SYrbA9fiGHvkQIHdRxfN8eiR8fnd/v0
+        mz2+MgDN1sxH8zvohvN7JGSWQQ==
+X-Google-Smtp-Source: ABdhPJzt6m5YXoPxvbvRGzD1gjnrN+7PwLhdRyVD97c8O32Cyzco5wjx5mltJH0di35bufdVPJ7fhg==
+X-Received: by 2002:a17:90b:2404:b0:1e3:4db0:f32a with SMTP id nr4-20020a17090b240400b001e34db0f32amr2828865pjb.201.1654771271434;
+        Thu, 09 Jun 2022 03:41:11 -0700 (PDT)
+Received: from FVFYT0MHHV2J.bytedance.net ([139.177.225.238])
+        by smtp.gmail.com with ESMTPSA id b127-20020a62cf85000000b0051b9c02e4a3sm17458544pfg.178.2022.06.09.03.41.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jun 2022 03:41:11 -0700 (PDT)
+From:   Muchun Song <songmuchun@bytedance.com>
+To:     mcgrof@kernel.org, keescook@chromium.org, yzaikin@google.com,
+        akpm@linux-foundation.org, vbabka@suse.cz,
+        mgorman@techsingularity.net, peterz@infradead.org,
+        dhowells@redhat.com, willy@infradead.org, Liam.Howlett@Oracle.com,
+        mhocko@suse.com
+Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, Muchun Song <songmuchun@bytedance.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] mm: sysctl: fix missing numa_stat when !CONFIG_HUGETLB_PAGE
+Date:   Thu,  9 Jun 2022 18:40:32 +0800
+Message-Id: <20220609104032.18350-1-songmuchun@bytedance.com>
+X-Mailer: git-send-email 2.32.1 (Apple Git-133)
 MIME-Version: 1.0
-Sender: danikedaniel2@gmail.com
-Received: by 2002:a05:6830:14d:0:0:0:0 with HTTP; Thu, 9 Jun 2022 03:24:34
- -0700 (PDT)
-From:   Kayla Manthey <sgtkaylamanthey612@gmail.com>
-Date:   Thu, 9 Jun 2022 10:24:34 +0000
-X-Google-Sender-Auth: xQ4o2nNCglABQjyukTA0NTof0S4
-Message-ID: <CAJj5oHEHG6gY0yfjnZbuY3LPDX5JFC-C5O+domLikyMsw3Z3pA@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_40,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,7 +71,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ahoj jak jsi se m=C4=9Bl? Je=C5=A1t=C4=9B jsem od v=C3=A1s nedostal odpov=
-=C4=9B=C4=8F na sv=C3=A9 dva
-p=C5=99edchoz=C3=AD e-maily, pros=C3=ADm zkontrolujte a kontaktujte m=C4=9B=
-.
+"numa_stat" should not be included in the scope of CONFIG_HUGETLB_PAGE, if
+CONFIG_HUGETLB_PAGE is not configured even if CONFIG_NUMA is configured,
+"numa_stat" is missed form /proc. Move it out of CONFIG_HUGETLB_PAGE to
+fix it.
+
+Fixes: 4518085e127d ("mm, sysctl: make NUMA stats configurable")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+---
+v2:
+ - Simplify the fix, thanks to Michal.
+
+ kernel/sysctl.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 50a2c29efc94..485d2b1bc873 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -2091,6 +2091,17 @@ static struct ctl_table vm_table[] = {
+ 		.extra1		= SYSCTL_ZERO,
+ 		.extra2		= SYSCTL_TWO_HUNDRED,
+ 	},
++#ifdef CONFIG_NUMA
++	{
++		.procname	= "numa_stat",
++		.data		= &sysctl_vm_numa_stat,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= sysctl_vm_numa_stat_handler,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
++#endif
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	{
+ 		.procname	= "nr_hugepages",
+@@ -2107,15 +2118,6 @@ static struct ctl_table vm_table[] = {
+ 		.mode           = 0644,
+ 		.proc_handler   = &hugetlb_mempolicy_sysctl_handler,
+ 	},
+-	{
+-		.procname		= "numa_stat",
+-		.data			= &sysctl_vm_numa_stat,
+-		.maxlen			= sizeof(int),
+-		.mode			= 0644,
+-		.proc_handler	= sysctl_vm_numa_stat_handler,
+-		.extra1			= SYSCTL_ZERO,
+-		.extra2			= SYSCTL_ONE,
+-	},
+ #endif
+ 	 {
+ 		.procname	= "hugetlb_shm_group",
+-- 
+2.11.0
+
