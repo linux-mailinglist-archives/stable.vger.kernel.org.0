@@ -2,202 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4451354424F
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 06:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A92354426F
+	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 06:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbiFIEEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 00:04:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37800 "EHLO
+        id S231744AbiFIEYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 00:24:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234704AbiFIEEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 00:04:43 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656731A1944
-        for <stable@vger.kernel.org>; Wed,  8 Jun 2022 21:04:42 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id v11-20020a17090a4ecb00b001e2c5b837ccso25603769pjl.3
-        for <stable@vger.kernel.org>; Wed, 08 Jun 2022 21:04:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=zY5mFinMaMydRM+H9UjtKkuWSUe8T7k3YskeQQPjglc=;
-        b=5pcuzgGc3KBBFq/TL1YCOhhPlIrvGxqmJS9pDZOYdOG1VGHxT+uZqf9JOa/4l1K6X5
-         092+6X4ZZO+JXbC4846duJGZd5Wq/uOAFkUeq2NAJ2U6oXcxvor25M8/SfcMktkETzH/
-         VUgKoR43Ka+v5PDqZYzLlChYpe24PNasEDGR9GsJepygHa7n0+SCzVXSIuGBxxHwFM6l
-         dngHYNvRBLMCxY5jYSBB4eAtY1IUsdAOZJNY7GNU7+aBOdX01+Jdp+vktzgtWKmb5saH
-         0NUlHFKxQzknqYr/D26kG/DXegbR0aA6vk/0i+YgfrR7aXTAO9qy0t/ykINGPvQwmZtQ
-         /RlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=zY5mFinMaMydRM+H9UjtKkuWSUe8T7k3YskeQQPjglc=;
-        b=ICnu2xPSDJ7PYHrYbS9T1ynpvAhuwfHoHfBmnOkI4DUYQAEvAfDU+FtILTQE24aKkP
-         QuTSMiD5CYHnJ2ZWpuN2JgK5zotKbhzZp8FmtJTmGmTaLuF3oWKc+2p/+bqAIlXW/WU4
-         8Gq5lvI/IM+U0YoNuJOwdh2UQ+F22ArXAhhm9CeibZfDQjTEUk+W08WZkPcTxGMMVKUm
-         aN0tNgzlHDVhRbt2DriwqZKoybzccnrRREILaTK6JCc2VAg5PUD1iaZ0v5LAY0Lfw9ku
-         CfHssP4VOfGWNBIXqUYWLW4aVbclNZpFSa1QuQowtDbzdiJHE6Onc2DQj/49LYAexvwa
-         XBtA==
-X-Gm-Message-State: AOAM5301rhAHkkX1I4a6myvUegUeDHgTZewlGRuxyR9Dfhvm0q5g+vDI
-        2RpkPrHGAORQm52o8h++pvS+Sg==
-X-Google-Smtp-Source: ABdhPJwLD5D90RbLdd1NhQp9diUE2EhXlyXUqaO7S6k3tR7O5xwtfMN8z7LwN9K2fHURcGSStMdhCA==
-X-Received: by 2002:a17:903:228c:b0:163:baf6:582a with SMTP id b12-20020a170903228c00b00163baf6582amr37184890plh.43.1654747481887;
-        Wed, 08 Jun 2022 21:04:41 -0700 (PDT)
-Received: from FVFYT0MHHV2J.bytedance.net ([139.177.225.238])
-        by smtp.gmail.com with ESMTPSA id t5-20020a170902e84500b00163ffe73300sm15887049plg.137.2022.06.08.21.04.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jun 2022 21:04:41 -0700 (PDT)
-From:   Muchun Song <songmuchun@bytedance.com>
-To:     mcgrof@kernel.org, keescook@chromium.org, yzaikin@google.com,
-        akpm@linux-foundation.org, vbabka@suse.cz,
-        mgorman@techsingularity.net, peterz@infradead.org,
-        dhowells@redhat.com, willy@infradead.org, Liam.Howlett@Oracle.com,
-        kemi.wang@intel.com, mhocko@suse.com
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-mm@kvack.org, Muchun Song <songmuchun@bytedance.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] mm: sysctl: fix missing numa_stat when !CONFIG_HUGETLB_PAGE
-Date:   Thu,  9 Jun 2022 12:03:42 +0800
-Message-Id: <20220609040342.2703-1-songmuchun@bytedance.com>
-X-Mailer: git-send-email 2.32.1 (Apple Git-133)
+        with ESMTP id S231596AbiFIEYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 00:24:07 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A9765A1;
+        Wed,  8 Jun 2022 21:24:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=9akt0WRbm8VhbkHPMG7ib27G3A8dyPTDT3oedzm9Nvs=; b=30yEhEYgT/oSmXfYX2lGmCZ8A6
+        z4AAz+k4xjmDWF9nfovG9ragV+VMSCgDv9VqJaqZbyVItCOQU0NQ1R3yu2/UcBlyxrXepSDqk9Cna
+        PyTtQE3TirsvisuaqxWYTi4m2hdqJHSuXDeNdUNQCgKQAfNIlIBUBxFuSyBu2BL7+MO7lk1DC9S3U
+        ILkUUc0jxbHa/oX7rDmhX5D6MiHEW/1JA1coUJsepZB9Sk9XgyLBs91zbPZ+EUUK+unm9XVUNXii3
+        xU0FR9XMXWyikxtJ1NgGQOy7XxTMmsr0Hdk11dQwwFmMMVOheNtjinsG0iNxiTDgJB51whENmuHUf
+        sJVSb4ag==;
+Received: from [2001:4bb8:190:726c:6663:143:2578:b59a] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nz9iG-00GfBG-Eg; Thu, 09 Jun 2022 04:24:04 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     stable@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.18-stable] block, loop: support partitions without scanning
+Date:   Thu,  9 Jun 2022 06:24:02 +0200
+Message-Id: <20220609042402.1656851-1-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"numa_stat" should not be included in the scope of CONFIG_HUGETLB_PAGE,
-if CONFIG_HUGETLB_PAGE is not configured even if CONFIG_NUMA is configured,
-"numa_stat" is missed form /proc.  Remove it out of CONFIG_HUGETLB_PAGE
-and move numa_stat sysctl handling to mm/vmstat.c.
+commit b9684a71fca793213378dd410cd11675d973eaa1 upstream.
 
-Fixes: 4518085e127d ("mm, sysctl: make NUMA stats configurable")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
+Historically we did distinguish between a flag that surpressed partition
+scanning, and a combinations of the minors variable and another flag if
+any partitions were supported.  This was generally confusing and doesn't
+make much sense, but some corner case uses of the loop driver actually
+do want to support manually added partitions on a device that does not
+actively scan for partitions.  To make things worsee the loop driver
+also wants to dynamically toggle the scanning for partitions on a live
+gendisk, which makes the disk->flags updates non-atomic.
+
+Introduce a new GD_SUPPRESS_PART_SCAN bit in disk->state that disables
+just scanning for partitions, and toggle that instead of GENHD_FL_NO_PART
+in the loop driver.
+
+Fixes: 1ebe2e5f9d68 ("block: remove GENHD_FL_EXT_DEVT")
+Reported-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20220527055806.1972352-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- include/linux/vmstat.h |  5 -----
- kernel/sysctl.c        |  9 ---------
- mm/vmstat.c            | 52 +++++++++++++++++++++++++-------------------------
- 3 files changed, 26 insertions(+), 40 deletions(-)
+ block/genhd.c          | 2 ++
+ drivers/block/loop.c   | 8 ++++----
+ include/linux/blkdev.h | 1 +
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/vmstat.h b/include/linux/vmstat.h
-index bfe38869498d..1297a6b8ba23 100644
---- a/include/linux/vmstat.h
-+++ b/include/linux/vmstat.h
-@@ -13,12 +13,7 @@
- extern int sysctl_stat_interval;
+diff --git a/block/genhd.c b/block/genhd.c
+index b8b6759d670f01..3008ec2136543e 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -385,6 +385,8 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
  
- #ifdef CONFIG_NUMA
--#define ENABLE_NUMA_STAT   1
--#define DISABLE_NUMA_STAT   0
--extern int sysctl_vm_numa_stat;
- DECLARE_STATIC_KEY_TRUE(vm_numa_stat_key);
--int sysctl_vm_numa_stat_handler(struct ctl_table *table, int write,
--		void *buffer, size_t *length, loff_t *ppos);
- #endif
+ 	if (disk->flags & (GENHD_FL_NO_PART | GENHD_FL_HIDDEN))
+ 		return -EINVAL;
++	if (test_bit(GD_SUPPRESS_PART_SCAN, &disk->state))
++		return -EINVAL;
+ 	if (disk->open_partitions)
+ 		return -EBUSY;
  
- struct reclaim_stat {
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index e52b6e372c60..3d6f36f230bb 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -2107,15 +2107,6 @@ static struct ctl_table vm_table[] = {
- 		.mode           = 0644,
- 		.proc_handler   = &hugetlb_mempolicy_sysctl_handler,
- 	},
--	{
--		.procname		= "numa_stat",
--		.data			= &sysctl_vm_numa_stat,
--		.maxlen			= sizeof(int),
--		.mode			= 0644,
--		.proc_handler	= sysctl_vm_numa_stat_handler,
--		.extra1			= SYSCTL_ZERO,
--		.extra2			= SYSCTL_ONE,
--	},
- #endif
- 	 {
- 		.procname	= "hugetlb_shm_group",
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index 373d2730fcf2..e10afbee888e 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -33,8 +33,6 @@
- #include "internal.h"
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index a58595f5ee2c8f..ba3627f982f241 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1066,7 +1066,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 		lo->lo_flags |= LO_FLAGS_PARTSCAN;
+ 	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
+ 	if (partscan)
+-		lo->lo_disk->flags &= ~GENHD_FL_NO_PART;
++		clear_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
  
- #ifdef CONFIG_NUMA
--int sysctl_vm_numa_stat = ENABLE_NUMA_STAT;
--
- /* zero numa counters within a zone */
- static void zero_zone_numa_counters(struct zone *zone)
- {
-@@ -73,35 +71,37 @@ static void invalid_numa_statistics(void)
- 	zero_global_numa_counters();
- }
+ 	loop_global_unlock(lo, is_loop);
+ 	if (partscan)
+@@ -1185,7 +1185,7 @@ static void __loop_clr_fd(struct loop_device *lo, bool release)
+ 	 */
+ 	lo->lo_flags = 0;
+ 	if (!part_shift)
+-		lo->lo_disk->flags |= GENHD_FL_NO_PART;
++		set_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
+ 	mutex_lock(&lo->lo_mutex);
+ 	lo->lo_state = Lo_unbound;
+ 	mutex_unlock(&lo->lo_mutex);
+@@ -1295,7 +1295,7 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
  
--static DEFINE_MUTEX(vm_numa_stat_lock);
--
--int sysctl_vm_numa_stat_handler(struct ctl_table *table, int write,
--		void *buffer, size_t *length, loff_t *ppos)
-+static int sysctl_numa_stat_handler(struct ctl_table *table, int write,
-+				    void *buffer, size_t *length, loff_t *ppos)
- {
--	int ret, oldval;
-+	int ret;
-+	struct static_key *key = table->data;
-+	static DEFINE_MUTEX(lock);
+ 	if (!err && (lo->lo_flags & LO_FLAGS_PARTSCAN) &&
+ 	     !(prev_lo_flags & LO_FLAGS_PARTSCAN)) {
+-		lo->lo_disk->flags &= ~GENHD_FL_NO_PART;
++		clear_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
+ 		partscan = true;
+ 	}
+ out_unlock:
+@@ -2045,7 +2045,7 @@ static int loop_add(int i)
+ 	 * userspace tools. Parameters like this in general should be avoided.
+ 	 */
+ 	if (!part_shift)
+-		disk->flags |= GENHD_FL_NO_PART;
++		set_bit(GD_SUPPRESS_PART_SCAN, &disk->state);
+ 	atomic_set(&lo->lo_refcnt, 0);
+ 	mutex_init(&lo->lo_mutex);
+ 	lo->lo_number		= i;
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 60d01613899711..108e3d114bfc1f 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -147,6 +147,7 @@ struct gendisk {
+ #define GD_DEAD				2
+ #define GD_NATIVE_CAPACITY		3
+ #define GD_ADDED			4
++#define GD_SUPPRESS_PART_SCAN		5
  
--	mutex_lock(&vm_numa_stat_lock);
--	if (write)
--		oldval = sysctl_vm_numa_stat;
--	ret = proc_dointvec_minmax(table, write, buffer, length, ppos);
--	if (ret || !write)
--		goto out;
--
--	if (oldval == sysctl_vm_numa_stat)
--		goto out;
--	else if (sysctl_vm_numa_stat == ENABLE_NUMA_STAT) {
--		static_branch_enable(&vm_numa_stat_key);
--		pr_info("enable numa statistics\n");
--	} else {
--		static_branch_disable(&vm_numa_stat_key);
-+	mutex_lock(&lock);
-+	ret = proc_do_static_key(table, write, buffer, length, ppos);
-+	if (!ret && write && !static_key_enabled(key))
- 		invalid_numa_statistics();
--		pr_info("disable numa statistics, and clear numa counters\n");
--	}
--
--out:
--	mutex_unlock(&vm_numa_stat_lock);
-+	mutex_unlock(&lock);
- 	return ret;
- }
-+
-+static struct ctl_table numa_stat_sysctl[] = {
-+	{
-+		.procname	= "numa_stat",
-+		.data		= &vm_numa_stat_key.key,
-+		.mode		= 0644,
-+		.proc_handler	= sysctl_numa_stat_handler,
-+	},
-+	{ }
-+};
-+
-+static int __init numa_stat_sysctl_init(void)
-+{
-+	register_sysctl_init("vm", numa_stat_sysctl);
-+	return 0;
-+}
-+late_initcall(numa_stat_sysctl_init);
- #endif
- 
- #ifdef CONFIG_VM_EVENT_COUNTERS
+ 	struct mutex open_mutex;	/* open/close mutex */
+ 	unsigned open_partitions;	/* number of open partitions */
 -- 
-2.11.0
+2.30.2
 
