@@ -2,62 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AE6544BFB
-	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 14:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB84544C63
+	for <lists+stable@lfdr.de>; Thu,  9 Jun 2022 14:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235715AbiFIM2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jun 2022 08:28:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
+        id S244167AbiFIMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jun 2022 08:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235368AbiFIM2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 08:28:53 -0400
-Received: from sonata.ens-lyon.org (domu-toccata.ens-lyon.fr [140.77.166.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5093F13F32;
-        Thu,  9 Jun 2022 05:28:48 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by sonata.ens-lyon.org (Postfix) with ESMTP id 61E4B2015C;
-        Thu,  9 Jun 2022 14:28:45 +0200 (CEST)
-Received: from sonata.ens-lyon.org ([127.0.0.1])
-        by localhost (sonata.ens-lyon.org [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id K-HSDGkridoK; Thu,  9 Jun 2022 14:28:45 +0200 (CEST)
-Received: from begin (ip-185-104-137-33.ptr.icomera.net [185.104.137.33])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by sonata.ens-lyon.org (Postfix) with ESMTPSA id 948A620157;
-        Thu,  9 Jun 2022 14:28:44 +0200 (CEST)
-Received: from samy by begin with local (Exim 4.95)
-        (envelope-from <samuel.thibault@ens-lyon.org>)
-        id 1nzHHD-00DgPa-Cr;
-        Thu, 09 Jun 2022 14:28:39 +0200
-Date:   Thu, 9 Jun 2022 14:28:39 +0200
-From:   Samuel Thibault <samuel.thibault@ens-lyon.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Zheng Bin <zhengbin13@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        w.d.hubbs@gmail.com, chris@the-brannons.com, kirk@reisers.ca,
-        trix@redhat.com, salah.triki@gmail.com, speakup@linux-speakup.org
-Subject: Re: [PATCH AUTOSEL 5.18 31/68] accessiblity: speakup: Add missing
- misc_deregister in softsynth_probe
-Message-ID: <20220609122839.35vn5vtukmuuxch3@begin>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        w.d.hubbs@gmail.com, chris@the-brannons.com, kirk@reisers.ca,
-        trix@redhat.com, salah.triki@gmail.com, speakup@linux-speakup.org
-References: <20220607174846.477972-1-sashal@kernel.org>
- <20220607174846.477972-31-sashal@kernel.org>
+        with ESMTP id S1343883AbiFIMof (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jun 2022 08:44:35 -0400
+Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C982A59B8A
+        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 05:44:33 -0700 (PDT)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id A9CDD1BF210;
+        Thu,  9 Jun 2022 12:44:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1654778664;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=F5ZSToeEB4YLYYrt0Hm/nSJBH+HVxSfxNH1oQ0BpYBA=;
+        b=X3lE4bYA80dhA8Tjx2zzr4vxS9eWKSv0kf9+Y0lVmwEzPyP308WNYQeZmZnmNAdfj8F3Uu
+        jBpNtGMPOnLBAshF5LDSf5RDQR1WZlVLz/jL02iV3f45wz/t2K2Z9F+MecULTxfb7mFS5p
+        ZZJgd6RuJodW1MzYJ0luARRy04Vn74OAAZEsYjta4vJggKLbL6R5Ip+LUKcIJRDCnZh2Y8
+        D2HWvBASgwvyUzpnu1ldXCnoq3hpMNxTge2VffCzgrCzoR2CfW5nmHy/Ooc3VNXC0+lPDD
+        Qv8ed5eKrpLT8aSY/J3+T5YXrH1y9UxsmovY9RY/UwK9udO44msGGEoPDmeSFg==
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Peng Wu <wupeng58@huawei.com>, miquel.raynal@bootlin.com,
+        richard@nod.at, vigneshr@ti.com, christophe.jaillet@wanadoo.fr
+Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, liwei391@huawei.com
+Subject: Re: [PATCH v2] mtd: rawnand: cafe: fix drivers probe/remove methods
+Date:   Thu,  9 Jun 2022 14:44:23 +0200
+Message-Id: <20220609124423.209280-1-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220520084425.116686-1-wupeng58@huawei.com>
+References: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-linux-mtd-patch-notification: thanks
+X-linux-mtd-patch-commit: b'18178e03b124b0c6be17abbbca914157642f5d7a'
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220607174846.477972-31-sashal@kernel.org>
-Organization: I am not organized
-User-Agent: NeoMutt/20170609 (1.8.3)
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -65,43 +54,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin, le mar. 07 juin 2022 13:47:57 -0400, a ecrit:
-> From: Zheng Bin <zhengbin13@huawei.com>
+On Fri, 2022-05-20 at 08:44:25 UTC, Peng Wu wrote:
+> Driver should call pci_disable_device() if it returns from
+> cafe_nand_probe() with error.
 > 
-> [ Upstream commit 106101303eda8f93c65158e5d72b2cc6088ed034 ]
+> Meanwhile, the driver calls pci_enable_device() in
+> cafe_nand_probe(), but never calls pci_disable_device()
+> during removal.
 > 
-> softsynth_probe misses a call misc_deregister() in an error path, this
-> patch fixes that.
-> 
-> Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-> Link: https://lore.kernel.org/r/20220511032937.2736738-1-zhengbin13@huawei.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> Signed-off-by: Peng Wu <wupeng58@huawei.com>
 
-Reviewed-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Applied to https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git nand/next, thanks.
 
-> ---
->  drivers/accessibility/speakup/speakup_soft.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/accessibility/speakup/speakup_soft.c b/drivers/accessibility/speakup/speakup_soft.c
-> index 19824e7006fe..786dc5d080f3 100644
-> --- a/drivers/accessibility/speakup/speakup_soft.c
-> +++ b/drivers/accessibility/speakup/speakup_soft.c
-> @@ -397,6 +397,7 @@ static int softsynth_probe(struct spk_synth *synth)
->  	synthu_device.name = "softsynthu";
->  	synthu_device.fops = &softsynthu_fops;
->  	if (misc_register(&synthu_device)) {
-> +		misc_deregister(&synth_device);
->  		pr_warn("Couldn't initialize miscdevice /dev/softsynthu.\n");
->  		return -ENODEV;
->  	}
-> -- 
-> 2.35.1
-> 
-
--- 
-Samuel
----
-Pour une évaluation indépendante, transparente et rigoureuse !
-Je soutiens la Commission d'Évaluation de l'Inria.
+Miquel
