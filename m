@@ -2,79 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A09546139
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 11:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4BFA545E59
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 10:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245028AbiFJJNP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 10 Jun 2022 05:13:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39364 "EHLO
+        id S1347251AbiFJIQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 04:16:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245749AbiFJJMX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 05:12:23 -0400
-Received: from mail.univ-alger.dz (mail.univ-alger.dz [193.194.83.97])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534013B295
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 02:10:13 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.univ-alger.dz (Postfix) with ESMTP id 34B4A52A6838;
-        Thu,  9 Jun 2022 22:21:51 +0100 (CET)
-Received: from mail.univ-alger.dz ([127.0.0.1])
-        by localhost (mail.univ-alger.dz [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Ttq-RjuHGy0E; Thu,  9 Jun 2022 22:21:51 +0100 (CET)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.univ-alger.dz (Postfix) with ESMTP id D653D52826CD;
-        Thu,  9 Jun 2022 19:10:24 +0100 (CET)
-X-Virus-Scanned: amavisd-new at mail.univ-alger.dz
-Received: from mail.univ-alger.dz ([127.0.0.1])
-        by localhost (mail.univ-alger.dz [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id DuAzydnA2-BL; Thu,  9 Jun 2022 19:10:24 +0100 (CET)
-Received: from [10.5.0.2] (unknown [192.145.81.88])
-        by mail.univ-alger.dz (Postfix) with ESMTPSA id B106F52A299A;
-        Thu,  9 Jun 2022 18:41:24 +0100 (CET)
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S1347240AbiFJIQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 04:16:22 -0400
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0800520BE38;
+        Fri, 10 Jun 2022 01:16:20 -0700 (PDT)
+X-UUID: 27dbc41a7ef04a39ab7536496f27eeda-20220610
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.5,REQID:614c2f41-da2e-468e-b0ae-436387fea7c1,OB:10,L
+        OB:0,IP:0,URL:0,TC:0,Content:0,EDM:0,RT:0,SF:51,FILE:0,RULE:Release_Ham,AC
+        TION:release,TS:51
+X-CID-INFO: VERSION:1.1.5,REQID:614c2f41-da2e-468e-b0ae-436387fea7c1,OB:10,LOB
+        :0,IP:0,URL:0,TC:0,Content:0,EDM:0,RT:0,SF:51,FILE:0,RULE:Release_Ham,ACTI
+        ON:release,TS:51
+X-CID-META: VersionHash:2a19b09,CLOUDID:c09a61e5-2ba2-4dc1-b6c5-11feb6c769e0,C
+        OID:76bb7d13e64c,Recheck:0,SF:28|17|19|48,TC:nil,Content:-5,EDM:-3,IP:nil,
+        URL:0,File:nil,QS:0,BEC:nil
+X-UUID: 27dbc41a7ef04a39ab7536496f27eeda-20220610
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
+        (envelope-from <mark-pk.tsai@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 120229064; Fri, 10 Jun 2022 16:16:11 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.185) by
+ mtkmbs11n1.mediatek.inc (172.21.101.185) with ShadowRedundancy id 15.2.792.3;
+ Fri, 10 Jun 2022 08:15:39 +0000
+Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
+ mtkmbs11n1.mediatek.inc (172.21.101.185) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
+ Fri, 10 Jun 2022 14:36:22 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.792.3 via Frontend Transport; Fri, 10 Jun 2022 14:36:22 +0800
+From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+To:     <will@kernel.org>, <stable@vger.kernel.org>
+CC:     <alexandru.elisei@arm.com>, <catalin.marinas@arm.com>,
+        <jean-philippe.brucker@arm.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <mark-pk.tsai@mediatek.com>,
+        <matthias.bgg@gmail.com>, <maz@kernel.org>,
+        <yj.chiang@mediatek.com>
+Subject: Re: [PATCH] arm64: Clear OS lock in enable_debug_monitors
+Date:   Fri, 10 Jun 2022 14:36:19 +0800
+Message-ID: <20220610063619.7921-1-mark-pk.tsai@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20220609115716.GA2427@willie-the-truck>
+References: <20220609115716.GA2427@willie-the-truck>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: BVBA
-To:     Recipients <m.hadadou@univ-alger.dz>
-From:   m.hadadou@univ-alger.dz
-Date:   Thu, 09 Jun 2022 10:41:17 -0700
-Reply-To: quartercoinc@gmail.com
-Message-Id: <20220609174125.B106F52A299A@mail.univ-alger.dz>
-X-Spam-Status: No, score=4.1 required=5.0 tests=BAYES_80,
-        FREEMAIL_FORGED_REPLYTO,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,RDNS_NONE,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY
         autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Goede dag,
+> On Thu, Jun 09, 2022 at 11:33:18AM +0800, Mark-PK Tsai wrote:
+> > Always clear OS lock before enable debug event.
+> > 
+> > The OS lock is clear in cpuhp ops in recent kernel,
+> > but when the debug exception happened before it
+> > kernel might crash because debug event enable didn't
+> > take effect when OS lock is hold.
+> > 
+> > Below is the use case that having this problem:
+> > 
+> > Register kprobe in console_unlock and kernel will
+> > panic at secondary_start_kernel on secondary core.
+> > 
+> > CPU: 1 PID: 0 Comm: swapper/1 Tainted: P
+> > ...
+> > pstate: 004001c5 (nzcv dAIF +PAN -UAO)
+> > pc : do_undefinstr+0x5c/0x60
+> > lr : do_undefinstr+0x2c/0x60
+> > sp : ffffffc01338bc50
+> > pmr_save: 000000f0
+> > x29: ffffffc01338bc50 x28: ffffff8115e95a00 T
+> > x27: ffffffc01258e000 x26: ffffff8115e95a00
+> > x25: 00000000ffffffff x24: 0000000000000000
+> > x23: 00000000604001c5 x22: ffffffc014015008
+> > x21: 000000002232f000 x20: 00000000000000f0 j
+> > x19: ffffffc01338bc70 x18: ffffffc0132ed040
+> > x17: ffffffc01258eb48 x16: 0000000000000403 L&
+> > x15: 0000000000016480 x14: ffffffc01258e000 i/
+> > x13: 0000000000000006 x12: 0000000000006985
+> > x11: 00000000d5300000 x10: 0000000000000000
+> > x9 : 9f6c79217a8a0400 x8 : 00000000000000c5
+> > x7 : 0000000000000000 x6 : ffffffc01338bc08 2T
+> > x5 : ffffffc01338bc08 x4 : 0000000000000002
+> > x3 : 0000000000000000 x2 : 0000000000000004
+> > x1 : 0000000000000000 x0 : 0000000000000001 *q
+> > Call trace:
+> >  do_undefinstr+0x5c/0x60
+> >  el1_undef+0x10/0xb4
+> >  0xffffffc014015008
+> >  vprintk_func+0x210/0x290
+> >  printk+0x64/0x90
+> >  cpuinfo_detect_icache_policy+0x80/0xe0
+> >  __cpuinfo_store_cpu+0x150/0x160
+> >  secondary_start_kernel+0x154/0x440
+> > 
+> > The root cause is that OS_LSR_EL1.OSLK is reset
+> > to 1 on a cold reset[1] and the firmware didn't
+> > unlock it by default.
+> > So the core didn't go to el1_dbg as expected after
+> > kernel_enable_single_step and eret.
+> 
+> Hmm, I thought we didn't use hardware single-step for kprobes after
+> 7ee31a3aa8f4 ("arm64: kprobes: Use BRK instead of single-step when executing
+> instructions out-of-line"). What is triggering this exception?
+> 
+> Will
 
-Wij verstrekken leningen aan particulieren en bedrijven met een rente van 2% per jaar.
-Wij zijn geïnteresseerd in het financieren van grootschalige projecten en het verstrekken van leningen. De terugbetalingstermijn is 1-30 jaar en met gratis 6 maanden uitstel.
+You're right.
+Actually this issue happend in 5.4 LTS, and the commit you mentioned
+can avoid the kernel panic by not using hardware single-step.
 
-Wij bieden: -
-* Project financiering
-* Zakelijke lening
-* Persoonlijke lening
+I think 5.4 LTS should apply this commit.
 
-Neem dan contact met ons op via onderstaande gegevens, zodat wij u kunnen informeren over de voorwaarden van de lening.
+7ee31a3aa8f4 ("arm64: kprobes: Use BRK instead of single-step when executing instructions out-of-line")
 
-Benodigd leenbedrag:
-Looptijd:
-Mobiel nummer:
+Cc: stable@vger.kernel.org
 
-Reageer voor meer informatie.
 
-Groeten
-Online reclame makelaar.
-------------------------------------------------------------
 
-We offer Personal/business loans at 2% interest rate. Should you be interested? do not hesitate to contact us for more details.
+And I'm not sure if there is other use case may have problem if the
+kernel don't clear OS lock in enable_debug_monitors everytime.
+So should we do this to prevent someone face the similar issue?
 
-Thanks,
-------------------------------------------------------------
-Regards
-Online advertising agency
