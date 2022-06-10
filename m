@@ -2,135 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D35E754666F
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 14:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A9D5466C6
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 14:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348795AbiFJMSN convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 10 Jun 2022 08:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34082 "EHLO
+        id S232127AbiFJMpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 08:45:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348837AbiFJMSM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 08:18:12 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D9F6E2732D6
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 05:18:08 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-317-aDi4xA9AOVCCz2X-8OmFHQ-1; Fri, 10 Jun 2022 13:18:05 +0100
-X-MC-Unique: aDi4xA9AOVCCz2X-8OmFHQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.36; Fri, 10 Jun 2022 13:18:03 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.036; Fri, 10 Jun 2022 13:18:03 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Alexander Lobakin' <alexandr.lobakin@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Yury Norov <yury.norov@gmail.com>
-CC:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Brian Cain <bcain@quicinc.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "Yoshinori Sato" <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Kees Cook <keescook@chromium.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>,
-        Tony Luck <tony.luck@intel.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>
-Subject: RE: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
- in ia64_get_irr()
-Thread-Topic: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
- in ia64_get_irr()
-Thread-Index: AQHYfL5z40oI9Qjgz0qz+n7lpkip7a1Ijjiw
-Date:   Fri, 10 Jun 2022 12:18:03 +0000
-Message-ID: <8711f7d6bdc148bd916d87515e71b3c2@AcuMS.aculab.com>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-2-alexandr.lobakin@intel.com>
-In-Reply-To: <20220610113427.908751-2-alexandr.lobakin@intel.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S229571AbiFJMpv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 08:45:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87B8017AB0
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 05:45:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25CBC60A6F
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 12:45:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350F0C34114;
+        Fri, 10 Jun 2022 12:45:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1654865148;
+        bh=F//sqH+SQ5GxcwUFcWDK4U3+KReIk6qVigVrd90s5p0=;
+        h=Subject:To:From:Date:From;
+        b=nP4naDBzfg12yhBcH+QgfUgWGpve0GQhuvdYZQoz4rr1Jj2+Lp/LarW3BmX+yoEmr
+         99/gLuY/ePSGMMLiSnSyBznZNAYypmzderuRni6RnepcxC14r5kB69EjuBn/cgeFvJ
+         BM/xivjbVdp8QxYf/V3n1jBSMhZ8qSD+lRYw+kRg=
+Subject: patch "usb: gadget: f_fs: change ep->status safe in ffs_epfile_io()" added to usb-linus
+To:     quic_linyyuan@quicinc.com, gregkh@linuxfoundation.org,
+        john@metanate.com, michael@allwinnertech.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 10 Jun 2022 14:45:45 +0200
+Message-ID: <1654865145110172@kroah.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin
-> Sent: 10 June 2022 12:34
-> 
-> test_bit(), as any other bitmap op, takes `unsigned long *` as a
-> second argument (pointer to the actual bitmap), as any bitmap
-> itself is an array of unsigned longs. However, the ia64_get_irr()
-> code passes a ref to `u64` as a second argument.
-> This works with the ia64 bitops implementation due to that they
-> have `void *` as the second argument and then cast it later on.
-> This works with the bitmap API itself due to that `unsigned long`
-> has the same size on ia64 as `u64` (`unsigned long long`), but
-> from the compiler PoV those two are different.
-> Define @irr as `unsigned long` to fix that. That implies no
-> functional changes. Has been hidden for 16 years!
 
-Wouldn't it be better to just test the bit?
-As in:
-	return irr & (1ull << bit);
+This is a note to let you know that I've just added the patch titled
 
-    David
+    usb: gadget: f_fs: change ep->status safe in ffs_epfile_io()
 
-> 
-> Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
-> Cc: stable@vger.kernel.org # 2.6.16+
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-> ---
->  arch/ia64/include/asm/processor.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
-> index 7cbce290f4e5..757c2f6d8d4b 100644
-> --- a/arch/ia64/include/asm/processor.h
-> +++ b/arch/ia64/include/asm/processor.h
-> @@ -538,7 +538,7 @@ ia64_get_irr(unsigned int vector)
->  {
->  	unsigned int reg = vector / 64;
->  	unsigned int bit = vector % 64;
-> -	u64 irr;
-> +	unsigned long irr;
-> 
->  	switch (reg) {
->  	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
-> --
-> 2.36.1
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From fb1f16d74e263baa4ad11e31e28b68f144aa55ed Mon Sep 17 00:00:00 2001
+From: Linyu Yuan <quic_linyyuan@quicinc.com>
+Date: Fri, 10 Jun 2022 20:17:57 +0800
+Subject: usb: gadget: f_fs: change ep->status safe in ffs_epfile_io()
+
+If a task read/write data in blocking mode, it will wait the completion
+in ffs_epfile_io(), if function unbind occurs, ffs_func_unbind() will
+kfree ffs ep, once the task wake up, it still dereference the ffs ep to
+obtain the request status.
+
+Fix it by moving the request status to io_data which is stack-safe.
+
+Cc: <stable@vger.kernel.org> # 5.15
+Reported-by: Michael Wu <michael@allwinnertech.com>
+Tested-by: Michael Wu <michael@allwinnertech.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
+Link: https://lore.kernel.org/r/1654863478-26228-2-git-send-email-quic_linyyuan@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/function/f_fs.c | 34 +++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 4585ee3a444a..e1fcd8bc80a1 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -122,8 +122,6 @@ struct ffs_ep {
+ 	struct usb_endpoint_descriptor	*descs[3];
+ 
+ 	u8				num;
 -
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+-	int				status;	/* P: epfile->mutex */
+ };
+ 
+ struct ffs_epfile {
+@@ -227,6 +225,9 @@ struct ffs_io_data {
+ 	bool use_sg;
+ 
+ 	struct ffs_data *ffs;
++
++	int status;
++	struct completion done;
+ };
+ 
+ struct ffs_desc_helper {
+@@ -707,12 +708,15 @@ static const struct file_operations ffs_ep0_operations = {
+ 
+ static void ffs_epfile_io_complete(struct usb_ep *_ep, struct usb_request *req)
+ {
++	struct ffs_io_data *io_data = req->context;
++
+ 	ENTER();
+-	if (req->context) {
+-		struct ffs_ep *ep = _ep->driver_data;
+-		ep->status = req->status ? req->status : req->actual;
+-		complete(req->context);
+-	}
++	if (req->status)
++		io_data->status = req->status;
++	else
++		io_data->status = req->actual;
++
++	complete(&io_data->done);
+ }
+ 
+ static ssize_t ffs_copy_to_iter(void *data, int data_len, struct iov_iter *iter)
+@@ -1050,7 +1054,6 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 		WARN(1, "%s: data_len == -EINVAL\n", __func__);
+ 		ret = -EINVAL;
+ 	} else if (!io_data->aio) {
+-		DECLARE_COMPLETION_ONSTACK(done);
+ 		bool interrupted = false;
+ 
+ 		req = ep->req;
+@@ -1066,7 +1069,8 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 
+ 		io_data->buf = data;
+ 
+-		req->context  = &done;
++		init_completion(&io_data->done);
++		req->context  = io_data;
+ 		req->complete = ffs_epfile_io_complete;
+ 
+ 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+@@ -1075,7 +1079,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 
+ 		spin_unlock_irq(&epfile->ffs->eps_lock);
+ 
+-		if (wait_for_completion_interruptible(&done)) {
++		if (wait_for_completion_interruptible(&io_data->done)) {
+ 			/*
+ 			 * To avoid race condition with ffs_epfile_io_complete,
+ 			 * dequeue the request first then check
+@@ -1083,17 +1087,17 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 			 * condition with req->complete callback.
+ 			 */
+ 			usb_ep_dequeue(ep->ep, req);
+-			wait_for_completion(&done);
+-			interrupted = ep->status < 0;
++			wait_for_completion(&io_data->done);
++			interrupted = io_data->status < 0;
+ 		}
+ 
+ 		if (interrupted)
+ 			ret = -EINTR;
+-		else if (io_data->read && ep->status > 0)
+-			ret = __ffs_epfile_read_data(epfile, data, ep->status,
++		else if (io_data->read && io_data->status > 0)
++			ret = __ffs_epfile_read_data(epfile, data, io_data->status,
+ 						     &io_data->data);
+ 		else
+-			ret = ep->status;
++			ret = io_data->status;
+ 		goto error_mutex;
+ 	} else if (!(req = usb_ep_alloc_request(ep->ep, GFP_ATOMIC))) {
+ 		ret = -ENOMEM;
+-- 
+2.36.1
+
 
