@@ -2,64 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F555468DB
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 16:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55755468DD
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 16:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbiFJOzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jun 2022 10:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34260 "EHLO
+        id S229662AbiFJO4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 10:56:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbiFJOzP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 10:55:15 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B301255B3
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 07:55:14 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id o33-20020a17090a0a2400b001ea806e48c6so1419926pjo.1
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 07:55:14 -0700 (PDT)
+        with ESMTP id S229553AbiFJO4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 10:56:16 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A76F55B3;
+        Fri, 10 Jun 2022 07:56:15 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id x138so2258994pfc.12;
+        Fri, 10 Jun 2022 07:56:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=PaNpQDcnsA3HJ7m58pqRg70sSSb/rmi5GzWOFByASQ0=;
-        b=DOvRo1VEJUrCBC3sZHwDyzK5bPUjefZVL8s5MNUsbzdi0GIUThL4C9VH6aXjkdWacP
-         o3PC4kxaX/W1dGHl7nMwv22UWBLolKhGYv7KopVInGqqZL8k+dagajcdsxuPKyhZSms4
-         9I4kqICxjsDuPpVWjBC8v73oQoLNocCdzDNHMOAIWNnk0BUGMmK8Ii5sq6iZE+VbNedp
-         c2TpnKe7qcvOWQiJ26DTIzHlwZXHI4NPgJ/IhP7+f7s80peaN2g1/B9VP774EFEDD7Df
-         bPB/Y1zZMHeDxHpF/AyzrxlGudJxS5FZXo/VSUXrG4TEQ2OT4RVtLnXiisBiJukskIUq
-         k4Kg==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=wJsCFQid4sHaK/ZKO+qfx/hNEBYaCAv7ipedUinRSCA=;
+        b=DmZwOB8yj183zZJrZAw1WK2vDFaNRohRqhiAivoZuMpBDx4rD75d9vSgogfoFOXTyA
+         oNOqJux67XmaerADpU2/fXwgugw/2QujGD062CGuRuRWOHGriavWeAyfSmRPjsXYrExA
+         3ktfE5K0SpyCx0x6WGvPki69v5wXWD2uEOYcLQXQ51qO1U6JAnvQUQyj5AVtLTsHfTcC
+         f0jjVb1O6MdrNnIDy2U1MtQ2xH+PfAOOU8byi6x2hmh1BfIFhx/OiVle9E1mT1zYBVEK
+         1ENBT1mwGJGRuiXSs5mRkHP6HEpH1/etrfnSjTlbECIay3MuEXfJUH9ooLD0ctao/0+y
+         I3JA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=PaNpQDcnsA3HJ7m58pqRg70sSSb/rmi5GzWOFByASQ0=;
-        b=FFOfbQzF0PE0BUnqmc/ydSuuTZ5tmsW8eyNJ7CCX7njcweuQT5x/cUV1N7vXsqxGWc
-         SvLVDS2kYvNQgzKQTD9qIGFfYDzgtgK9Ie6hNEMp9kEuB3eMueCWy0GlT5UP7EoeXXxe
-         jyU02OGJkVjGbgev8qk739wLg/fnkGdf4SL5XRNV8x4jwie9+h7SzV+vCppq3Ryj53Wr
-         zeBqxfasb7JMsolp29GaR838NNQ0cYTjBj3JQa5FhhxynRHDcbNraRw+insRzv30jAY7
-         W5GnHo83ttDpDRs2e+OOuePVzHevvogDfB34tFFaPNGPvFqQqhl6jplas6HB3wpkSVxT
-         UkSQ==
-X-Gm-Message-State: AOAM53095yACgHZcgEr4WldgqjAlyC/WLZckc+iCtWnIJtyVIq6NMxPD
-        HJmQCYmdLRQlBygkCy4b8wUsvGRJoRQ=
-X-Google-Smtp-Source: ABdhPJyJBOcjj5zDPhnwAEvpEH+fh6Kh4YgZ+tw7afGAt5bCSgvoF6YecMBzAWQA+H4yAFjQ9yO9kQ==
-X-Received: by 2002:a17:902:e84b:b0:164:8ba3:9cd9 with SMTP id t11-20020a170902e84b00b001648ba39cd9mr45442520plg.49.1654872914099;
-        Fri, 10 Jun 2022 07:55:14 -0700 (PDT)
-Received: from tokunori-desktop.flets-east.jp ([240b:10:2720:5500:2f3e:9a91:223c:1860])
-        by smtp.gmail.com with ESMTPSA id l4-20020a170902d04400b00161ac982b52sm18792892pll.95.2022.06.10.07.55.11
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wJsCFQid4sHaK/ZKO+qfx/hNEBYaCAv7ipedUinRSCA=;
+        b=M4BNAAhDCRwPVvtC1bI4ECvNWYiUhyEXYuNEXRH1ym4g6ZIDA761QohXw4NMDNhjCB
+         IKsJtL6sRVsnNLIy4bACmUIMOfcm7Hi77muraOAzknwshSc1FpFHVK3s2pZ7u0AOBFft
+         oiC+BR4974SPKa4JnUoYzgOi74TyaN8pXMaN5SmdBurGjxRveFx31/sEExyoFHdLpp6z
+         loHoeIrOrzfo5Lptd6NRGVPmWat3AIQZrflzAyFIT9V2N0SjqTGmiD7dvXUYZAooFySz
+         Z8Dt0UEoG0BjxWd7+5mSlL7LYrdLvRHRzJoPAGQMakfY6JKdc7Lypwpa76GXUH6t8Gdq
+         AAyA==
+X-Gm-Message-State: AOAM532Gh+RlXL76u+pQrDzjqcnpQ5PFeoU91JOEBjZmbgeNgHyEyarg
+        HLKcPPN4Pfheu0wGFc0jtkE+id2Uofijgj9Q
+X-Google-Smtp-Source: ABdhPJxBbi7wAzOxsxQJx2yKTE9EOjkYyRVB0nQ0HCXHa7+Kx6P3rlnHpDEIDoMVIAbd0oJoRk2/sw==
+X-Received: by 2002:a05:6a00:148f:b0:51c:70f9:b62e with SMTP id v15-20020a056a00148f00b0051c70f9b62emr13426346pfu.84.1654872974762;
+        Fri, 10 Jun 2022 07:56:14 -0700 (PDT)
+Received: from fedora ([2601:1c1:4202:28a0::ec2b])
+        by smtp.gmail.com with ESMTPSA id x17-20020a056a000bd100b0051be1b4cfb5sm15393657pfu.5.2022.06.10.07.56.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jun 2022 07:55:13 -0700 (PDT)
-From:   Tokunori Ikegami <ikegami.t@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     Tokunori Ikegami <ikegami.t@gmail.com>, stable@vger.kernel.org,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH for 4.19.y 2/2] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
-Date:   Fri, 10 Jun 2022 23:55:01 +0900
-Message-Id: <20220610145501.624242-2-ikegami.t@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220610145501.624242-1-ikegami.t@gmail.com>
-References: <20220610145501.624242-1-ikegami.t@gmail.com>
+        Fri, 10 Jun 2022 07:56:14 -0700 (PDT)
+Date:   Fri, 10 Jun 2022 07:56:12 -0700
+From:   Jared Kangas <kangas.jd@gmail.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     vaibhav.sr@gmail.com, elder@kernel.org, gregkh@linuxfoundation.org,
+        greybus-dev@lists.linaro.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-staging@lists.linux.dev,
+        mgreer@animalcreek.com, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH v2] staging: greybus: audio: fix loop cursor use after
+ iteration
+Message-ID: <YqNbjINDaEBZktbS@fedora>
+References: <20220609214517.85661-1-kangas.jd@gmail.com>
+ <YqL6A3pVC8LOqE4d@hovoldconsulting.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YqL6A3pVC8LOqE4d@hovoldconsulting.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -70,138 +73,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
-check correct value") buffered writes fail on S29GL064N. This is
-because, on S29GL064N, reads return 0xFF at the end of DQ polling for
-write completion, where as, chip_good() check expects actual data
-written to the last location to be returned post DQ polling completion.
-Fix is to revert to using chip_good() for S29GL064N which only checks
-for DQ lines to settle down to determine write completion.
+On Fri, Jun 10, 2022 at 10:00:03AM +0200, Johan Hovold wrote:
+> On Thu, Jun 09, 2022 at 02:45:18PM -0700, Jared Kangas wrote:
+> > gbaudio_dapm_free_controls() iterates over widgets using the
+> > list_for_each_entry*() family of macros from <linux/list.h>, which
+> > leaves the loop cursor pointing to a meaningless structure if it
+> > completes a traversal of the list. The cursor was set to NULL at the end
+> > of the loop body, but would be overwritten by the final loop cursor
+> > update.
+> > 
+> > Because of this behavior, the widget could be non-null after the loop
+> > even if the widget wasn't found, and the cleanup logic would treat the
+> > pointer as a valid widget to free.
+> > 
+> > To fix this, introduce a temporary variable to act as the loop cursor
+> > and copy it to a variable that can be accessed after the loop finishes.
+> > Due to not removing any list elements, use list_for_each_entry() instead
+> > of list_for_each_entry_safe() in the revised loop.
+> > 
+> > This was detected with the help of Coccinelle.
+> > 
+> > Fixes: 510e340efe0c ("staging: greybus: audio: Add helper APIs for dynamic audio modules")
+> > Cc: stable@vger.kernel.org
+> > Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > Reviewed-by: Johan Hovold <johan@kernel.org>
+> > Signed-off-by: Jared Kangas <kangas.jd@gmail.com>
+> > ---
+> > 
+> > Changes since v1:
+> >  * Removed safe list iteration as suggested by Johan Hovold <johan@kernel.org>
+> >  * Updated patch changelog to explain the list iteration change
+> >  * Added tags to changelog based on feedback (Cc:, Fixes:, Reviewed-by:)
+> 
+> Apparently Greg applied this to staging-next before we had a change to
+> look at it. You should have received a notification from Greg when he
+> did so.
+> 
+> 	https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git/commit/?h=staging-next&id=80c968a04a381dc0e690960c60ffd6b6aee7e157
+> 
+> It seems unlikely that this would cause any issues in real life, but
+> there's still a chance it will be picked up by the stable team despite
+> the lack of a CC stable tag.
+> 
+> I've just sent a follow-up patch to replace the list macro.
+> 
+> Johan
 
-Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
-Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
----
- drivers/mtd/chips/cfi_cmdset_0002.c | 42 +++++++++++++++++++++++------
- include/linux/mtd/cfi.h             |  1 +
- 2 files changed, 35 insertions(+), 8 deletions(-)
+Sorry about that - I got a notification but thought it was still
+revisable. In hindsight, it makes sense that once it gets applied to
+a public branch, changes should be done in additional patches. Thanks to
+both you and Dan for taking the time to review and catch my mistakes.
 
-diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index 51442a189701..fd1814111086 100644
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -49,6 +49,10 @@
- #define SST49LF008A		0x005a
- #define AT49BV6416		0x00d6
- 
-+enum cfi_quirks {
-+	CFI_QUIRK_DQ_TRUE_DATA = BIT(0),
-+};
-+
- static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
- static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
- static int cfi_amdstd_write_buffers(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
-@@ -365,6 +369,15 @@ static void fixup_s29ns512p_sectors(struct mtd_info *mtd)
- 		mtd->name);
- }
- 
-+static void fixup_quirks(struct mtd_info *mtd)
-+{
-+	struct map_info *map = mtd->priv;
-+	struct cfi_private *cfi = map->fldrv_priv;
-+
-+	if (cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01)
-+		cfi->quirks |= CFI_QUIRK_DQ_TRUE_DATA;
-+}
-+
- /* Used to fix CFI-Tables of chips without Extended Query Tables */
- static struct cfi_fixup cfi_nopri_fixup_table[] = {
- 	{ CFI_MFR_SST, 0x234a, fixup_sst39vf }, /* SST39VF1602 */
-@@ -403,6 +416,7 @@ static struct cfi_fixup cfi_fixup_table[] = {
- #if !FORCE_WORD_WRITE
- 	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
- #endif
-+	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_quirks },
- 	{ 0, 0, NULL }
- };
- static struct cfi_fixup jedec_fixup_table[] = {
-@@ -761,6 +775,18 @@ static int __xipram chip_ready(struct map_info *map, unsigned long addr,
- 	return map_word_equal(map, t, *expected);
- }
- 
-+static int __xipram chip_good(struct map_info *map, unsigned long addr,
-+			      map_word *expected)
-+{
-+	struct cfi_private *cfi = map->fldrv_priv;
-+	map_word *datum = expected;
-+
-+	if (cfi->quirks & CFI_QUIRK_DQ_TRUE_DATA)
-+		datum = NULL;
-+
-+	return chip_ready(map, addr, datum);
-+}
-+
- static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
- {
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -1611,11 +1637,11 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_ready" before checking
--		 * "chip_ready" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
- 		 */
- 		if (time_after(jiffies, timeo) &&
--		    !chip_ready(map, adr, &datum)) {
-+		    !chip_good(map, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-@@ -1623,7 +1649,7 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
- 			break;
- 		}
- 
--		if (chip_ready(map, adr, &datum))
-+		if (chip_good(map, adr, &datum))
- 			break;
- 
- 		/* Latency issues. Drop the lock, wait a while and retry */
-@@ -1867,13 +1893,13 @@ static int __xipram do_write_buffer(struct map_info *map, struct flchip *chip,
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_ready" before checking
--		 * "chip_ready" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
- 		 */
--		if (time_after(jiffies, timeo) && !chip_ready(map, adr, &datum))
-+		if (time_after(jiffies, timeo) && !chip_good(map, adr, &datum))
- 			break;
- 
--		if (chip_ready(map, adr, &datum)) {
-+		if (chip_good(map, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			goto op_done;
- 		}
-diff --git a/include/linux/mtd/cfi.h b/include/linux/mtd/cfi.h
-index 9b57a9b1b081..4ead3d1559f5 100644
---- a/include/linux/mtd/cfi.h
-+++ b/include/linux/mtd/cfi.h
-@@ -293,6 +293,7 @@ struct cfi_private {
- 	map_word sector_erase_cmd;
- 	unsigned long chipshift; /* Because they're of the same type */
- 	const char *im_name;	 /* inter_module name for cmdset_setup */
-+	unsigned long quirks;
- 	struct flchip chips[0];  /* per-chip data structure for each chip */
- };
- 
--- 
-2.34.1
-
+Jared
