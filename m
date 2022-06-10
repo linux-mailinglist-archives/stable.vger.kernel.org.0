@@ -2,105 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB599545B81
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 07:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8281545BA0
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 07:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237145AbiFJFPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jun 2022 01:15:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
+        id S231197AbiFJFXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 01:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235342AbiFJFPn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 01:15:43 -0400
-Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A51DBD1
-        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 22:15:42 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5BA495C0069;
-        Fri, 10 Jun 2022 01:15:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Fri, 10 Jun 2022 01:15:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1654838141; x=1654924541; bh=ZS9sUOrf2b
-        gcfU1L6mOfxXPHxq1jRrCvEYfAc0GlTus=; b=tWTrr4ppzdTv+b0P0D1swzeA+A
-        9e6XotdI08SJ2EXWblDaTAuwcRQuYFvGtP+l8uUZxz4W5Dcan0gPnQWAPlvQRZFp
-        W5x/zeTMqy5OW08Sd1qVPmjzY4riHjHph13ehpiRrOhP2G60F+fcZ73wUonkMGgM
-        Yj6xVToimg8yNuHDXIDOCbJTi4MrLYet4B5xlJI65O4xxWHg2/x8qsx1NfaYSlEm
-        swFkTU8tTRF+RBPDMrnSwtr/Fvhp+X8L7YkbkwNOd/WYxIXKc1oONV5q4D0UsrY8
-        lZqM+3n+s6Fp3Q0c0nXzh0/x29J3ogVj+Qvpb9XFZjl0YRSBJ+8++2qZ1OLg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1654838141; x=1654924541; bh=ZS9sUOrf2bgcfU1L6mOfxXPHxq1j
-        RrCvEYfAc0GlTus=; b=HgGAPrypzvtzn0LMJHSdnw+xz/a7TqOkAX9dBtkvYO5s
-        um9M0vYjufJUoD3IDpEraQhM1OnNrF38j/5BzFAM2VcftULT9maaMbu7sc2+tVu6
-        a0Fy78HHp8wi896Q6Gva6/p+r7G4Pp90PgxVu3Hc+K0/PD1ewvwEci/ordU/q448
-        WGfoOpGzFUQYkDGqdvI17ANGUpL82Hqt+/8MJLhHQwcqVISJlxHGMBC2sG6afdK8
-        oquRfF5skFBy+5896n0vbqQrJ3DrBI/MHhi2to7v8oECm2vcpbi5ycmpLx6EUjzb
-        W0vYGEYEpaCVYSTHmwJhEFr1ftXsWgN1g6p4uGrkYA==
-X-ME-Sender: <xms:fdOiYmPCnodQ7sXvMSygA7A1p9PnpMWvwfmbWS8RH0RWm8Yb-Rac1Q>
-    <xme:fdOiYk_Sd7YuOyxcs5ueQHkpSHwmDB-e4WYBk7FptaqUECi4K2mlmCzE0LNWixbLr
-    Lbkl3s11dzTnw>
-X-ME-Received: <xmr:fdOiYtTdK7J5LHWwY8uQEWQRCNva41Tt2_t6uldN0FaGM9_SUfLFtpla9Gg4_gBKBQl2hU5TKIL0V1NR3A7_HAzoLc99Z4MB>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedruddutddgleduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
-    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:fdOiYmtXTeKNaYI5dXP472cA-C421rgg4Xveeiukh1OCGy9g5Wl3Dw>
-    <xmx:fdOiYuceYHQJJ2PQlIXEQlrL_L-EGCO7fbBCMTsy_EHa3tK477R66w>
-    <xmx:fdOiYq1OizgtJ_bboVj_ymicsObpDsuvfAcPjE9PA0mINB8d0uCdAA>
-    <xmx:fdOiYvqBw2AHtTU1vGSZC8NkitaplrTn-J10t2Run9KT1hPVjTmC_w>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 10 Jun 2022 01:15:40 -0400 (EDT)
-Date:   Fri, 10 Jun 2022 07:15:37 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Jason Self <jason@bluehome.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: Build error on openrisc with CONFIG_CRYPTO_LIB_CURVE25519
-Message-ID: <YqLTecx7MGFPOvhw@kroah.com>
-References: <20220609162943.6e3bba4f@valencia>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220609162943.6e3bba4f@valencia>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        with ESMTP id S234813AbiFJFXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 01:23:07 -0400
+X-Greylist: delayed 63 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 09 Jun 2022 22:23:04 PDT
+Received: from smtp687out9.mel.oss-core.net (smtp687out9.mel.oss-core.net [210.50.216.236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7B5FB1F37AA
+        for <stable@vger.kernel.org>; Thu,  9 Jun 2022 22:23:04 -0700 (PDT)
+X-IPAS-Result: =?us-ascii?q?A2DQUABh1KJi/2o43G9aGgEBAQEBDS8BAQEBAgIBAQEBA?=
+ =?us-ascii?q?gEBAQEDAQEBAQELCQmBSIE6AgGkQ4cZG4IliWMLAQEBITAEAQGEeAEBWQWEc?=
+ =?us-ascii?q?yY4EwECBAEBAQEDAgMBAQEBAQEDAQEGAQEBAQEBBgSBHIUvRoZUIAcBgVYBD?=
+ =?us-ascii?q?gEehXYBATGsHYEzDXSEWRSCEAQKgnOBOwIBAQGJSoVgfYEQhBABhX2DQIIuB?=
+ =?us-ascii?q?JI6hUEEGzoDHxUTNBKBIUUsAQgGBgcKBTIGAgwYFAQCExJTHQISDAocDlQZD?=
+ =?us-ascii?q?A8DEgMRAQcCCxIIFSwIAwIDCAMCAy4CAxcJBwoDHQgKChISEBQCBAYNHgsIA?=
+ =?us-ascii?q?xkfLAkCBA4DRQgLCgMRBAMTGAsWCBAEBgMJLw0oCwMUDwEGAwYCBQUBAyADF?=
+ =?us-ascii?q?AMFJwcDIQcLJg0NBCMdAwMFJgMCAhsHAgIDAgYXBgICbwomDQgECAQMEB0kE?=
+ =?us-ascii?q?AUCBzEFBC8CHgQFBhEJAhYCBgQFAgQEFgICEggCCCcbBxY2GQEFDk8GCwkhH?=
+ =?us-ascii?q?AkgEQUGFgMjcQVIDyk1NjwQHyEcCiwGfA+dIJJIkEOeNgqDTgUpB4EKB55MM?=
+ =?us-ascii?q?YNjAZcTEQEngVeLVJZqqBKBGYF+cBWCCIEcUCidEIEQAgYLAQEDCY5cAQE?=
+IronPort-Data: A9a23:0MniMKAVB4ExUhVW/6vhw5YqxClBgxIJ4kV8jS/XYbTApGgkgTIAx
+ jcXUW6EPPyNMzD2c913O4ri8BgPvsLXmtI3OVdlrnsFo1Bi95OZWYzxwmQcns+2BpeeJK6yx
+ 5xGMrEsFC2wJ5Pljk/F3oLJ9BGQ7onVAOulYAL4EnopH1U8Fn550UsLd9MR2+aEv/DoW2thh
+ vuqyyHvEAfNN+lcaz98Bwqr8XuDjdyq0N8qlgVWicNj4Dcyo0Io4Kc3fsldGZdXrr58RYZWT
+ 86bpF2wE/iwEx0FUrtJmZ6jGqEGryK70QWm0hJrt6aebhdqmDcsi/oQNuQlWGh5iyqWz95Ny
+ pJBjMnlIespFvWkdOU1bDh+VgMhEoNq0pbgfCGd2SCR5xSfKj22ma0oUR9wZNVGkgp0KTgmG
+ fgwKTYDaTiGjuS60fSwTewEasELfJO3Z9hG4SwIITfxP/IoY7yZW4rz2+QE2jc8iPFyNNria
+ J9MAdZoRFGaC/FVAX8MFJs0mOqAmHbyaXtbpUiTqK5x5HLcpDGdy5C0aYOQIIbSAJgL2x/A+
+ CTd422/HRsAM9WTwzOD/jSqi/OJlD6TtJ8uKYBUP8VC2DW7rlH/wjVPPbdniZFVUnKDZu8=
+IronPort-HdrOrdr: A9a23:GIMj/KGCQ/jZWZD0pLqEi8eALOsnbusQ8zAXPidKJiC9E/b1qy
+ nAppUmPHPP4wr5JktBpTnoAsDpfZq7z/BICOIqV4tKMjOKhFeV
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-AV: E=Sophos;i="5.91,288,1647262800"; 
+   d="scan'208";a="82433135"
+Received: from 111-220-56-106.sta.wbroadband.net.au (HELO WIN-J7GFDBAO51J) ([111.220.56.106])
+  by smtp687.mel.oss-core.net with ESMTP; 10 Jun 2022 15:21:57 +1000
+From:   "Perry Davidson" <info@mandy.com>
+Subject: Acknowledge this message
+To:     <stable@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Reply-To: <pd1086787@gmail.com>
+Date:   Thu, 9 Jun 2022 22:21:57 -0700
+Message-Id: <202209062221569CBCA39DA1$0AB08CB367@mandy.com>
+X-Spam-Status: Yes, score=7.8 required=5.0 tests=BAYES_50,
+        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_BL_SPAMCOP_NET,RCVD_IN_DNSWL_LOW,RCVD_IN_SBL_CSS,SPF_HELO_NONE,
+        SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
         version=3.4.6
+X-Spam-Report: * -0.7 RCVD_IN_DNSWL_LOW RBL: Sender listed at https://www.dnswl.org/,
+        *       low trust
+        *      [210.50.216.236 listed in list.dnswl.org]
+        *  3.3 RCVD_IN_SBL_CSS RBL: Received via a relay in Spamhaus SBL-CSS
+        *      [111.220.56.106 listed in zen.spamhaus.org]
+        *  1.3 RCVD_IN_BL_SPAMCOP_NET RBL: Received via a relay in
+        *      bl.spamcop.net
+        *      [Blocked - see <https://www.spamcop.net/bl.shtml?111.220.56.106>]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.7 SPF_SOFTFAIL SPF: sender does not match SPF record (softfail)
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [pd1086787[at]gmail.com]
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 09, 2022 at 04:29:43PM -0700, Jason Self wrote:
-> In building 5.15.46 & 5.10.121 with CRYPTO_LIB_CURVE25519=m I get the
-> following. My workaround is to leave it as CRYPTO_LIB_CURVE25519=n
-> for now.
-> 
-> CONFIG_OR1K_1200=y
-> CONFIG_OPENRISC_BUILTIN_DTB="or1ksim"
-> 
->   sed 's/\.ko$/\.o/' modules.order | scripts/mod/modpost    -o
->   modules-only.symvers -i vmlinux.symvers   -T - ERROR: modpost:
->   "__crypto_memneq" [lib/crypto/libcurve25519.ko] undefined! make[1]:
->   *** [scripts/Makefile.modpost:134: modules-only.symvers] Error 1
->   make[1]: *** Deleting file 'modules-only.symvers' make: ***
->   [Makefile:1783: modules] Error 2
+I will send you more details as soon as you acknowledge this message.
+Thank you.
+Perry Davidson.
 
-
-Is this a new problem, or has it always been there for these kernel
-trees?
-
-thanks,
-
-greg k-h
