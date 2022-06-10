@@ -2,40 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F065461AF
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 11:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D7F0546248
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 11:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348640AbiFJJTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jun 2022 05:19:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56356 "EHLO
+        id S1349157AbiFJJa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 05:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349062AbiFJJSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 05:18:42 -0400
-Received: from fornost.hmeau.com (helcar.hmeau.com [216.24.177.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07DB52DABF4;
-        Fri, 10 Jun 2022 02:16:52 -0700 (PDT)
-Received: from gwarestrin.arnor.me.apana.org.au ([192.168.103.7])
-        by fornost.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-        id 1nzakz-005Mf6-QQ; Fri, 10 Jun 2022 19:16:43 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Fri, 10 Jun 2022 17:16:42 +0800
-Date:   Fri, 10 Jun 2022 17:16:42 +0800
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Eric Biggers <ebiggers@kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        gaochao <gaochao49@huawei.com>, Ard Biesheuvel <ardb@kernel.org>,
+        with ESMTP id S1349214AbiFJJaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 05:30:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8702014AF4F;
+        Fri, 10 Jun 2022 02:28:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BC92B83306;
+        Fri, 10 Jun 2022 09:28:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E83C34114;
+        Fri, 10 Jun 2022 09:28:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654853336;
+        bh=CLCvHvNlhBAnG9nVL5AUdRdQtVsmAEqYEs6yQeTN8vw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=onLBBvMxCXwVIOKoWgH43B6jefHNhaqmvQc5Ml/FbGjq0hDImoE2QJmDk+W1Drjak
+         pGCESq8FNnP2qlBtkiRQZo6Cg5l7tkJf1K3lawapBTl09BZ+zxp4xiL2WScmBQiqH4
+         3/R1nUKfU3HE07VSaPhD33QKcfQPJ1JYr8KBIfy4i7Wh0hDhYkfUvFsp7GkgesBzSN
+         uHtT4QagDouqh+tLAFhk4P3uy/klznB68XGsVfVN25IMQXSMnPA+pYS+ooIfNO1qlw
+         NgwlNuprEPVumV54/AYdbYxU7jjTzVHljPyGPs1b2hSZI0hP2QHqXVkJQ/6pDZAs9v
+         dMllYLEm7LsCQ==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1nzawn-00H6Dt-Ud; Fri, 10 Jun 2022 10:28:54 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Oliver Upton <oupton@google.com>,
+        Will Deacon <will@kernel.org>, Fuad Tabba <tabba@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Reiji Watanabe <reijiw@google.com>, kernel-team@android.com,
         stable@vger.kernel.org
-Subject: Re: [PATCH crypto v4] crypto: blake2s - remove shash module
-Message-ID: <YqML+uyz1b7Gw1Bh@gondor.apana.org.au>
-References: <CAHmME9ozranfubv1qGbVvOWhmFpTn8OuALB0KY2yvJZJLcw3eg@mail.gmail.com>
- <20220528194407.302903-1-Jason@zx2c4.com>
+Subject: [PATCH v2 01/19] KVM: arm64: Always start with clearing SVE flag on load
+Date:   Fri, 10 Jun 2022 10:28:20 +0100
+Message-Id: <20220610092838.1205755-2-maz@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220610092838.1205755-1-maz@kernel.org>
+References: <20220610092838.1205755-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220528194407.302903-1-Jason@zx2c4.com>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, oupton@google.com, will@kernel.org, tabba@google.com, qperret@google.com, broonie@kernel.org, reijiw@google.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -43,48 +70,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 28, 2022 at 09:44:07PM +0200, Jason A. Donenfeld wrote:
-> BLAKE2s has no currently known use as an shash. Just remove all of this
-> unnecessary plumbing. Removing this shash was something we talked about
-> back when we were making BLAKE2s a built-in, but I simply never got
-> around to doing it. So this completes that project.
-> 
-> Importantly, this fixs a bug in which the lib code depends on
-> crypto_simd_disabled_for_test, causing linker errors.
-> 
-> Also add more alignment tests to the selftests and compare SIMD and
-> non-SIMD compression functions, to make up for what we lose from
-> testmgr.c.
-> 
-> Reported-by: gaochao <gaochao49@huawei.com>
-> Cc: Eric Biggers <ebiggers@kernel.org>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: stable@vger.kernel.org
-> Fixes: 6048fdcc5f26 ("lib/crypto: blake2s: include as built-in")
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
->  arch/arm/crypto/Kconfig           |   2 +-
->  arch/arm/crypto/Makefile          |   4 +-
->  arch/arm/crypto/blake2s-shash.c   |  75 -----------
->  arch/x86/crypto/Makefile          |   4 +-
->  arch/x86/crypto/blake2s-glue.c    |   3 +-
->  arch/x86/crypto/blake2s-shash.c   |  77 -----------
->  crypto/Kconfig                    |  20 +--
->  crypto/Makefile                   |   1 -
->  crypto/blake2s_generic.c          |  75 -----------
->  crypto/tcrypt.c                   |  12 --
->  crypto/testmgr.c                  |  24 ----
->  crypto/testmgr.h                  | 217 ------------------------------
->  include/crypto/internal/blake2s.h | 108 ---------------
->  lib/crypto/blake2s-selftest.c     |  41 ++++++
->  lib/crypto/blake2s.c              |  37 ++++-
->  15 files changed, 76 insertions(+), 624 deletions(-)
->  delete mode 100644 arch/arm/crypto/blake2s-shash.c
->  delete mode 100644 arch/x86/crypto/blake2s-shash.c
->  delete mode 100644 crypto/blake2s_generic.c
+On each vcpu load, we set the KVM_ARM64_HOST_SVE_ENABLED
+flag if SVE is enabled for EL0 on the host. This is used to restore
+the correct state on vpcu put.
 
-Patch applied.  Thanks.
+However, it appears that nothing ever clears this flag. Once
+set, it will stick until the vcpu is destroyed, which has the
+potential to spuriously enable SVE for userspace.
+
+We probably never saw the issue because no VMM uses SVE, but
+that's still pretty bad. Unconditionally clearing the flag
+on vcpu load addresses the issue.
+
+Fixes: 8383741ab2e7 ("KVM: arm64: Get rid of host SVE tracking/saving")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220528113829.1043361-2-maz@kernel.org
+---
+ arch/arm64/kvm/fpsimd.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/kvm/fpsimd.c b/arch/arm64/kvm/fpsimd.c
+index 3d251a4d2cf7..8267ff4642d3 100644
+--- a/arch/arm64/kvm/fpsimd.c
++++ b/arch/arm64/kvm/fpsimd.c
+@@ -80,6 +80,7 @@ void kvm_arch_vcpu_load_fp(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.flags &= ~KVM_ARM64_FP_ENABLED;
+ 	vcpu->arch.flags |= KVM_ARM64_FP_HOST;
+ 
++	vcpu->arch.flags &= ~KVM_ARM64_HOST_SVE_ENABLED;
+ 	if (read_sysreg(cpacr_el1) & CPACR_EL1_ZEN_EL0EN)
+ 		vcpu->arch.flags |= KVM_ARM64_HOST_SVE_ENABLED;
+ 
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.34.1
+
