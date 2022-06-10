@@ -2,69 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 447DB54689E
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 16:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E205468DA
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 16:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236683AbiFJOof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jun 2022 10:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
+        id S229752AbiFJOzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 10:55:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237508AbiFJOo1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 10:44:27 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E2C1E6F81
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 07:44:22 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id u2so24051190pfc.2
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 07:44:22 -0700 (PDT)
+        with ESMTP id S229662AbiFJOzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 10:55:12 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2BF25F8
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 07:55:10 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id u2so24075533pfc.2
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 07:55:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gGXmxiPiq/H1UclMpVPv5/Qgfv06wSp3ksL9v9oLJgc=;
-        b=bZRdzxBN7gMLZi4+/x+OVWdO8Cd8DRvRKJ3ZFBiiUVqxmiW3fmbankCJjLDq9LfF+8
-         ci0xANErpGOXSnk7DpMOACO5MlDA+/N5gtJshZaSvKD2YStHViDZli1vrxT4b/uhcXgf
-         Ml3wTvLKSptzRQEr442XA36K95P8i+p2i1EAw=
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pgMEQ3ZipxPOjZ+e73k4NqGunb13HHNETLbPFj6PNZE=;
+        b=lCOgWX3YaTKAtgoaFcbziF65qr4Ot7v5OBEGMyvT3aUiHkylQeosSp4hZUJ8uL0aW8
+         N15pyv2AUNCMAB/XBQupXa5E1syrAMGhFfQZaNgP7Bbqm2SzEhT9wr78vpfEwzrho8Qy
+         VLy5a5agmuI3DGDD139paXt12mjUEksGt6Q7QlfTE0156bWnjMSUA0SGAv+KQTipEJBx
+         FNruJ1oGF3wREHU3qGj5mHO2xSEDeZUrIuQBvUmrxx4feL1qRVM3uMOmZ0g61JRRdU1w
+         ORH9J/zVSy8jg7VH5jwMZ1M4buMnNZJYpwJOzYLwh0ZqvtFcliPKBXdZBW+4yHn8VQVX
+         1mZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gGXmxiPiq/H1UclMpVPv5/Qgfv06wSp3ksL9v9oLJgc=;
-        b=StEqmPoZqqAv4nn4BmNLJ/Vrd5g3Y47tIU5kmeaL/oFHOpRvJBYxKg6W7lT39EsCHD
-         Qf4AM77h1pY8lrbKFoaPPpUdBjUe8F/4oKdLKpPUeLAW84YAb7pTMyyHO7GjVDYddY30
-         9o/b5Quz5HofCY3aTb7HrZGI51zqRLoMb4VzL7tkkz21O5ItPp+3rd4zaGdFR0GcLGUL
-         pxcI6bP9CUkaG5jPyLMFEkPVXjiqtuZrUCy1t39pLUN/3hGscxuah6gkfWH7wCLK+EKB
-         ToPmCPxVOjED6EsQfCUV/A7xiQ/DLcaWSZ7EdN2SUf6r909IinVwGzMxXYXF7cJU2vKk
-         Tiiw==
-X-Gm-Message-State: AOAM530n/Bb8JbezsDlx0+jkjihdn1csf7+34Ypnbanct7gVEVsdeOpx
-        s0KWrXHS7ih6CIQYbFVscCB7qg/FGFi4gEXFdvWw4w==
-X-Google-Smtp-Source: ABdhPJw4wcjZSOMWeVevnGECplKcQZYTs22PVBsIbmPSyjOHqhMtqvvKvcsYCz1Wm3UM/2xfLr8+s/JQ/74QhCOoSgU=
-X-Received: by 2002:a05:6a00:2402:b0:4e1:3df2:5373 with SMTP id
- z2-20020a056a00240200b004e13df25373mr113238475pfh.40.1654872262293; Fri, 10
- Jun 2022 07:44:22 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pgMEQ3ZipxPOjZ+e73k4NqGunb13HHNETLbPFj6PNZE=;
+        b=faOhr90sfawIW27LFIRD9fQEt8WAmrOayceeKin8mA4u89+5Bnuwz9x+ndOQJwTIdT
+         fyUU/gl+vieasiC3LRfPsT6Px0GtwstLDi3BffoeleLTEXUBnxpeNWqiJd3yWEUX3Vhr
+         PQ7WV/m9wP8Im0x3cb0/uoZ+LQqMCbMN5Kqf+EmkLO9FARVlgpDL0lQ/OuDiSvCtzYM3
+         adbmLjdhIynIVJhXo8BJ1MceYUI3mIbcH43h8qUctg1zCQpKfWLa3/tV4/1BfP6IPyGQ
+         Ynxh70KHrkOZ8clU2cj2ehuasxE+qj4ifby/3AMbloHavXXp1ZkDETpB6MdGsVMHJBqn
+         yMmQ==
+X-Gm-Message-State: AOAM532jmkftTNvHzbwkyQBBLG6CM2fAffNN4wMquP6Wclo5SxJp495/
+        jjNFSz3W4kVHmlRB0jriPVM=
+X-Google-Smtp-Source: ABdhPJzK+H585Ep/N9c3MLO/OEi+i8yEbHHAVjI2naHYhWpkPU6mCXQ+iQqypRWHsYsBSOPmHxH49Q==
+X-Received: by 2002:a62:d40c:0:b0:51b:bc02:703b with SMTP id a12-20020a62d40c000000b0051bbc02703bmr45885621pfh.65.1654872910090;
+        Fri, 10 Jun 2022 07:55:10 -0700 (PDT)
+Received: from tokunori-desktop.flets-east.jp ([240b:10:2720:5500:2f3e:9a91:223c:1860])
+        by smtp.gmail.com with ESMTPSA id l4-20020a170902d04400b00161ac982b52sm18792892pll.95.2022.06.10.07.55.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jun 2022 07:55:09 -0700 (PDT)
+From:   Tokunori Ikegami <ikegami.t@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     Tokunori Ikegami <ikegami.t@gmail.com>, stable@vger.kernel.org,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH for 4.19.y 1/2] mtd: cfi_cmdset_0002: Move and rename chip_check/chip_ready/chip_good_for_write
+Date:   Fri, 10 Jun 2022 23:55:00 +0900
+Message-Id: <20220610145501.624242-1-ikegami.t@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220607095829.1035903-1-dario.binacchi@amarulasolutions.com>
- <YqGJnORzbp2xiEU3@matsya> <CAOf5uwkxit8kAAmwWGgTqR57m_SRmAxere10rCucOuBHU5+8fw@mail.gmail.com>
- <YqGODNACHfKKHBOf@matsya> <CAOf5uw=8j1F3tLE9fLAjFGhVt4WXsU7GJdCkEhPtAAxvzM2fyg@mail.gmail.com>
- <YqNLmixdb3fv7Cgs@matsya>
-In-Reply-To: <YqNLmixdb3fv7Cgs@matsya>
-From:   Michael Nazzareno Trimarchi <michael@amarulasolutions.com>
-Date:   Fri, 10 Jun 2022 16:44:10 +0200
-Message-ID: <CAOf5uwmYCi0EfOL7M5yKpN8U5Hidn8uTpGwh_dZMHu8ZNioGEw@mail.gmail.com>
-Subject: Re: [RESEND PATCH v2] dmaengine: mxs: fix driver registering
-To:     Vinod Koul <vkoul@kernel.org>
-Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        linux-kernel@vger.kernel.org,
-        Amarula patchwork <linux-amarula@amarulasolutions.com>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, dmaengine@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,120 +68,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-HI
+This is a preparation patch for the S29GL064N buffer writes fix. There
+is no functional change.
 
-On Fri, Jun 10, 2022 at 3:48 PM Vinod Koul <vkoul@kernel.org> wrote:
->
-> On 09-06-22, 08:18, Michael Nazzareno Trimarchi wrote:
-> > Hi Vinod
-> >
-> > On Thu, Jun 9, 2022 at 8:07 AM Vinod Koul <vkoul@kernel.org> wrote:
-> > >
-> > > On 09-06-22, 08:01, Michael Nazzareno Trimarchi wrote:
-> > > > Hi
-> > > >
-> > > > On Thu, Jun 9, 2022 at 7:48 AM Vinod Koul <vkoul@kernel.org> wrote:
-> > > > >
-> > > > > On 07-06-22, 11:58, Dario Binacchi wrote:
-> > > > > > Driver registration fails on SOC imx8mn as its supplier, the clock
-> > > > > > control module, is not ready. Since platform_driver_probe(), as
-> > > > > > reported by its description, is incompatible with deferred probing,
-> > > > > > we have to use platform_driver_register().
-> > > > > >
-> > > > > > Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
-> > > > > > Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-> > > > > > Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> > > > > > Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-> > > > > > Cc: stable@vger.kernel.org
-> > > > > >
-> > > > > > ---
-> > > > > >
-> > > > > > Changes in v2:
-> > > > > > - Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
-> > > > > >
-> > > > > >  drivers/dma/mxs-dma.c | 11 ++++-------
-> > > > > >  1 file changed, 4 insertions(+), 7 deletions(-)
-> > > > > >
-> > > > > > diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-> > > > > > index 994fc4d2aca4..b8a3e692330d 100644
-> > > > > > --- a/drivers/dma/mxs-dma.c
-> > > > > > +++ b/drivers/dma/mxs-dma.c
-> > > > > > @@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status(struct dma_chan *chan,
-> > > > > >       return mxs_chan->status;
-> > > > > >  }
-> > > > > >
-> > > > > > -static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
-> > > > > > +static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
-> > > > >
-> > > > > why drop __init for these...?
-> > > > >
-> > > >
-> > > > I think that you refer to the fact that it can not be compiled as a
-> > > > module, am I right?
-> > >
-> > > It is still declared as a module_platform_driver... From changelog I can
-> > > understand that you are changing init level from subsys to module (in
-> > > fact clocks should be moved up as arch level and dmaengine users as
-> > > module) ...
-> >
-> > The way the driver was using to register was:
-> > platform_driver_probe(&driver, driver_probe);
-> >
-> > The function try to register the driver, one time and if the
-> > dependences is not satisfied,
-> > then there will not a next try, so the driver initialized that way can
-> > not depends to anything
-> > apart himself, or all the dependencies should be ready at the time the
-> > driver_probe is called
->
-> There are two ways to solve this, you lowered the init level of this
-> driver but your consumers are going to have same issue...
->
+Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
+Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-2-ikegami.t@gmail.com
+---
+ drivers/mtd/chips/cfi_cmdset_0002.c | 77 ++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 45 deletions(-)
 
-Consumers are platform drivers that support -EPROBE_DEFER. Is a problem
-this approach?
-
-> >
-> > >
-> > > But why remove __init declaration from these? Whatever purpose that may
-> > > solve needs to be documented in changelog and perhaps a different patch
-> > >
-> >
-> > I was thinking that driver can be compiled as module as other driver
-> > but is bool and not tristate
->
-> Ok, but why drop __init()
-
-Was a mistake. Things marked as __init are dropped in the init
-section. As I said this driver
-can not be a .ko and must be in the kernel image, the __init can stay
-there. Now I don't remember
-how init section are used when a part of the kernel is compiled as
-module, but anyway this driver
-as only one initialization time
-
-Sorry Vinod, but if you are not happy with the answer, I have the
-feeling that you need to give more large
-lesson on this topic
-
-Michael
-
-
->
-> --
-> ~Vinod
-
-
-
+diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+index 3ab75d3e2ce3..51442a189701 100644
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -731,50 +731,34 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
+ }
+ 
+ /*
+- * Return true if the chip is ready.
++ * Return true if the chip is ready and has the correct value.
+  *
+  * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
+  * non-suspended sector) and is indicated by no toggle bits toggling.
+  *
++ * Error are indicated by toggling bits or bits held with the wrong value,
++ * or with bits toggling.
++ *
+  * Note that anything more complicated than checking if no bits are toggling
+  * (including checking DQ5 for an error status) is tricky to get working
+  * correctly and is therefore not done	(particularly with interleaved chips
+  * as each chip must be checked independently of the others).
+  */
+-static int __xipram chip_ready(struct map_info *map, unsigned long addr)
++static int __xipram chip_ready(struct map_info *map, unsigned long addr,
++			       map_word *expected)
+ {
+ 	map_word d, t;
++	int ret;
+ 
+ 	d = map_read(map, addr);
+ 	t = map_read(map, addr);
+ 
+-	return map_word_equal(map, d, t);
+-}
++	ret = map_word_equal(map, d, t);
+ 
+-/*
+- * Return true if the chip is ready and has the correct value.
+- *
+- * Ready is one of: read mode, query mode, erase-suspend-read mode (in any
+- * non-suspended sector) and it is indicated by no bits toggling.
+- *
+- * Error are indicated by toggling bits or bits held with the wrong value,
+- * or with bits toggling.
+- *
+- * Note that anything more complicated than checking if no bits are toggling
+- * (including checking DQ5 for an error status) is tricky to get working
+- * correctly and is therefore not done	(particularly with interleaved chips
+- * as each chip must be checked independently of the others).
+- *
+- */
+-static int __xipram chip_good(struct map_info *map, unsigned long addr, map_word expected)
+-{
+-	map_word oldd, curd;
+-
+-	oldd = map_read(map, addr);
+-	curd = map_read(map, addr);
++	if (!ret || !expected)
++		return ret;
+ 
+-	return	map_word_equal(map, oldd, curd) &&
+-		map_word_equal(map, curd, expected);
++	return map_word_equal(map, t, *expected);
+ }
+ 
+ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
+@@ -791,7 +775,7 @@ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr
+ 
+ 	case FL_STATUS:
+ 		for (;;) {
+-			if (chip_ready(map, adr))
++			if (chip_ready(map, adr, NULL))
+ 				break;
+ 
+ 			if (time_after(jiffies, timeo)) {
+@@ -829,7 +813,7 @@ static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr
+ 		chip->state = FL_ERASE_SUSPENDING;
+ 		chip->erase_suspended = 1;
+ 		for (;;) {
+-			if (chip_ready(map, adr))
++			if (chip_ready(map, adr, NULL))
+ 				break;
+ 
+ 			if (time_after(jiffies, timeo)) {
+@@ -1360,7 +1344,7 @@ static int do_otp_lock(struct map_info *map, struct flchip *chip, loff_t adr,
+ 	/* wait for chip to become ready */
+ 	timeo = jiffies + msecs_to_jiffies(2);
+ 	for (;;) {
+-		if (chip_ready(map, adr))
++		if (chip_ready(map, adr, NULL))
+ 			break;
+ 
+ 		if (time_after(jiffies, timeo)) {
+@@ -1627,10 +1611,11 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
+ 		}
+ 
+ 		/*
+-		 * We check "time_after" and "!chip_good" before checking
+-		 * "chip_good" to avoid the failure due to scheduling.
++		 * We check "time_after" and "!chip_ready" before checking
++		 * "chip_ready" to avoid the failure due to scheduling.
+ 		 */
+-		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum)) {
++		if (time_after(jiffies, timeo) &&
++		    !chip_ready(map, adr, &datum)) {
+ 			xip_enable(map, chip, adr);
+ 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
+ 			xip_disable(map, chip, adr);
+@@ -1638,7 +1623,7 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
+ 			break;
+ 		}
+ 
+-		if (chip_good(map, adr, datum))
++		if (chip_ready(map, adr, &datum))
+ 			break;
+ 
+ 		/* Latency issues. Drop the lock, wait a while and retry */
+@@ -1882,13 +1867,13 @@ static int __xipram do_write_buffer(struct map_info *map, struct flchip *chip,
+ 		}
+ 
+ 		/*
+-		 * We check "time_after" and "!chip_good" before checking "chip_good" to avoid
+-		 * the failure due to scheduling.
++		 * We check "time_after" and "!chip_ready" before checking
++		 * "chip_ready" to avoid the failure due to scheduling.
+ 		 */
+-		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum))
++		if (time_after(jiffies, timeo) && !chip_ready(map, adr, &datum))
+ 			break;
+ 
+-		if (chip_good(map, adr, datum)) {
++		if (chip_ready(map, adr, &datum)) {
+ 			xip_enable(map, chip, adr);
+ 			goto op_done;
+ 		}
+@@ -2022,7 +2007,7 @@ static int cfi_amdstd_panic_wait(struct map_info *map, struct flchip *chip,
+ 	 * If the driver thinks the chip is idle, and no toggle bits
+ 	 * are changing, then the chip is actually idle for sure.
+ 	 */
+-	if (chip->state == FL_READY && chip_ready(map, adr))
++	if (chip->state == FL_READY && chip_ready(map, adr, NULL))
+ 		return 0;
+ 
+ 	/*
+@@ -2039,7 +2024,7 @@ static int cfi_amdstd_panic_wait(struct map_info *map, struct flchip *chip,
+ 
+ 		/* wait for the chip to become ready */
+ 		for (i = 0; i < jiffies_to_usecs(timeo); i++) {
+-			if (chip_ready(map, adr))
++			if (chip_ready(map, adr, NULL))
+ 				return 0;
+ 
+ 			udelay(1);
+@@ -2103,13 +2088,13 @@ static int do_panic_write_oneword(struct map_info *map, struct flchip *chip,
+ 	map_write(map, datum, adr);
+ 
+ 	for (i = 0; i < jiffies_to_usecs(uWriteTimeout); i++) {
+-		if (chip_ready(map, adr))
++		if (chip_ready(map, adr, NULL))
+ 			break;
+ 
+ 		udelay(1);
+ 	}
+ 
+-	if (!chip_good(map, adr, datum)) {
++	if (!chip_ready(map, adr, &datum)) {
+ 		/* reset on all failures. */
+ 		map_write(map, CMD(0xF0), chip->start);
+ 		/* FIXME - should have reset delay before continuing */
+@@ -2250,6 +2235,7 @@ static int __xipram do_erase_chip(struct map_info *map, struct flchip *chip)
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	int ret = 0;
+ 	int retry_cnt = 0;
++	map_word datum = map_word_ff(map);
+ 
+ 	adr = cfi->addr_unlock1;
+ 
+@@ -2304,7 +2290,7 @@ static int __xipram do_erase_chip(struct map_info *map, struct flchip *chip)
+ 			chip->erase_suspended = 0;
+ 		}
+ 
+-		if (chip_good(map, adr, map_word_ff(map)))
++		if (chip_ready(map, adr, &datum))
+ 			break;
+ 
+ 		if (time_after(jiffies, timeo)) {
+@@ -2346,6 +2332,7 @@ static int __xipram do_erase_oneblock(struct map_info *map, struct flchip *chip,
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	int ret = 0;
+ 	int retry_cnt = 0;
++	map_word datum = map_word_ff(map);
+ 
+ 	adr += chip->start;
+ 
+@@ -2400,7 +2387,7 @@ static int __xipram do_erase_oneblock(struct map_info *map, struct flchip *chip,
+ 			chip->erase_suspended = 0;
+ 		}
+ 
+-		if (chip_good(map, adr, map_word_ff(map)))
++		if (chip_ready(map, adr, &datum))
+ 			break;
+ 
+ 		if (time_after(jiffies, timeo)) {
+@@ -2593,7 +2580,7 @@ static int __maybe_unused do_ppb_xxlock(struct map_info *map,
+ 	 */
+ 	timeo = jiffies + msecs_to_jiffies(2000);	/* 2s max (un)locking */
+ 	for (;;) {
+-		if (chip_ready(map, adr))
++		if (chip_ready(map, adr, NULL))
+ 			break;
+ 
+ 		if (time_after(jiffies, timeo)) {
 -- 
-Michael Nazzareno Trimarchi
-Co-Founder & Chief Executive Officer
-M. +39 347 913 2170
-michael@amarulasolutions.com
-__________________________________
+2.34.1
 
-Amarula Solutions BV
-Joop Geesinkweg 125, 1114 AB, Amsterdam, NL
-T. +31 (0)85 111 9172
-info@amarulasolutions.com
-www.amarulasolutions.com
