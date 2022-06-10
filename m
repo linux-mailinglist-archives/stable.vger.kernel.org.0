@@ -2,148 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C686E546BAE
-	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 19:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB8E546BBD
+	for <lists+stable@lfdr.de>; Fri, 10 Jun 2022 19:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346245AbiFJRcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jun 2022 13:32:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
+        id S1346385AbiFJRif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jun 2022 13:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245357AbiFJRce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 13:32:34 -0400
-Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4922FFD5
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 10:32:31 -0700 (PDT)
-Received: by mail-io1-xd2f.google.com with SMTP id d123so7009515iof.10
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 10:32:31 -0700 (PDT)
+        with ESMTP id S1346472AbiFJRid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jun 2022 13:38:33 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98A53CA4A
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 10:38:31 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id s23-20020a257717000000b00660719d9f2fso19375470ybc.23
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 10:38:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mYaarscCDbiYRQpS283kg18dErtB3WbPTISYZjeM1fg=;
-        b=XI5SlOSdJe1INtlhWj4qWgSBvxqioEZ1C1eHjSENKnAALpsMLQnmHIl7ofJ8ddr82+
-         AKcCrGbmvjkIEmkpO85nUOhBth3ZUYlKOMv2CzXt/rY5gQ0rTl/5bKaZl2/RoXyI9iGb
-         5WaFMaUgqZ7YZseM5sE9+mfJ+F35Pgto9VjZb2JjEVY4D/MYDEJZQRl4Fh39a5tzZZ4V
-         fCRkC6BdLFm0ZjmJpSilx7QznCErM5109JNzVOQx4E2bc150u8Q7aclLOmXCfqHPGbWM
-         aoNQdALMTQYeaqJBNxJ5yQQMEREbtUs2xupMRo4QCDv2hZw5nEIS33TeV17Kdus9/het
-         bJ4w==
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=5fmQszK1Ftmw30V0gwN1AZaU6pQNh3b494ZogsrG54w=;
+        b=QGT7zos6PMA4nXZmokylnJRPrMcP3oyvrZKGohf5aZSXTn/UheG2FCg5yKy29JsjSN
+         eZSdktXiLVEzvErtwWSo7D3GPQedGFu1CySEfelpPuvGc5+kPlMy1F11sDFL7nveEsQt
+         HjdR6s3jW9l1P7m5y2fAIT8HR/vNIzTz4DnSiZ44GnKtm7drGyA2z/iJjfsvWlNCK1cM
+         Yz5pUQ1uhf0s95Yor3DODnYdVMmWKM1Ad1xVRkLz9bXhY84nxexLIitGVw7Gs2HyoVjZ
+         JyHN0C8XoIBPk0GlyHy+HKIEOTkjHLYujG5EH/8kZpHAw7vSTBubzvRVShRyUJAbYSiU
+         b/og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mYaarscCDbiYRQpS283kg18dErtB3WbPTISYZjeM1fg=;
-        b=SNMWF8/dydITgqPewfQrWzobkVtm8o0eT7JMat9F0a2dmzgzS/0p1SGSGqXP4UJTmg
-         OmHfxnqpp+z+q+oumNxbeRxNtiawwxx5seHZsCJlAj9b4sKkqt206EL6mjX34UpOTtVm
-         kYm5+TUNVU3KDD0K+F7uiVLj8BiwA9g1ieiyVr7EYUHX15z+/UemEHaf7cpMK7nxnpVb
-         71/Uw2ju8MBZT1I2MyMIskfAuxH54X7qctkZB6X7+hUuiuq2D+v6v7XXEpzAIJ/dTNgA
-         MdDobqva5lDjbjIR063S/Pw4LiS66o2PLPibH5Z3Z5qqneyLK8699Q53NXHnZwazOGMJ
-         5A7A==
-X-Gm-Message-State: AOAM533c+qUv5DPBLtIegT35mrncVKuV8c9fBU7KVJhiWH/jGb+/Q4V1
-        UQzDWa4mNCYTOfuAyn6Y/5DPwFl/pDi7dvWWr5Fvjw==
-X-Google-Smtp-Source: ABdhPJzi4n+BiEugpCfRZawhd4LlJudPgFHb/9fD3ahN+VmylkhLwh3Qhr5k4K2Z/P7/U2b/mPvy1OVGt3qs4TagwNo=
-X-Received: by 2002:a6b:bac1:0:b0:669:b1fe:58e4 with SMTP id
- k184-20020a6bbac1000000b00669b1fe58e4mr4354104iof.171.1654882350815; Fri, 10
- Jun 2022 10:32:30 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220603205741.12888-1-axelrasmussen@google.com> <YqJpny7cU+tBa093@xz-m1.local>
-In-Reply-To: <YqJpny7cU+tBa093@xz-m1.local>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=5fmQszK1Ftmw30V0gwN1AZaU6pQNh3b494ZogsrG54w=;
+        b=0yIaBTPZqNf/Khs1HcUQCm4zGoPu0PRPyU7W02EXyfJ5VN64nCrzVEJW0lzExuFYgO
+         lG59O6bVHZ+bm3OlNSqiOioFKgLr+y/lZmkXI/xNgm9Bc02XH+yLwi8RIylnVfVFP02y
+         RkASvQl0RHlLrmCXWUkkOGHINgfKFSxirxxTsSnuSIYsFanGo/K1/4enXLMKv6g3fz0i
+         OV0FwJIiEVL2Ub8fMVWnbHa6G+qiOpHqmABoRxf1P1VSPuuCjgiVlkwcoKmIi+zEKSQ2
+         qt0lKvwfXy8mocP28IADiu/803vucUG4dKRlGCDr9AiN9fLVHPKjkEsKn3B7Mejco09r
+         6fBQ==
+X-Gm-Message-State: AOAM530aFW/LEgRqcfsXP7ihSIwb9hTrAly4EOwICH+xNb9yaVoZOnel
+        z60lO7qTEoIILR6iZ4pB2rExgy1EghvybPFd45W6
+X-Google-Smtp-Source: ABdhPJzSqTsvnb1ZC/aD7CdAHop/d77Nuh2d8nZpHySjd4kmLswDFlqFdL1Bx2WtIJ/Tzlole4EE2ZwSXQwJGB8+JpE5
+X-Received: from ajr0.svl.corp.google.com ([2620:15c:2cd:203:9a0c:4d31:bfe1:5abd])
+ (user=axelrasmussen job=sendgmr) by 2002:a25:58f:0:b0:664:628a:374b with SMTP
+ id 137-20020a25058f000000b00664628a374bmr4604612ybf.329.1654882711003; Fri,
+ 10 Jun 2022 10:38:31 -0700 (PDT)
+Date:   Fri, 10 Jun 2022 10:38:12 -0700
+Message-Id: <20220610173812.1768919-1-axelrasmussen@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.36.1.476.g0c4daa206d-goog
+Subject: [PATCH v2] mm: userfaultfd: fix UFFDIO_CONTINUE on fallocated shmem pages
 From:   Axel Rasmussen <axelrasmussen@google.com>
-Date:   Fri, 10 Jun 2022 10:31:53 -0700
-Message-ID: <CAJHvVcg92v28j+m5Cs2kg8W5dz_rqZBAY7Oqfod=wJkUMTMwLQ@mail.gmail.com>
-Subject: Re: [PATCH] mm: userfaultfd: fix UFFDIO_CONTINUE on fallocated shmem pages
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>, Linux MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>
+Cc:     Axel Rasmussen <axelrasmussen@google.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ah, thanks for pointing this out Peter, it is definitely something I missed.
+When fallocate() is used on a shmem file, the pages we allocate can end
+up with !PageUptodate.
 
-You're right that elsewhere in mm/userfaultfd.c we use -ENOENT for
-some special case. I think for mcontinue_atomic_pte, we don't want to
-change the status quo - if we fail to lookup an existing page, we
-should just return -EFAULT just like we were doing before. We
-certainly shouldn't return -ENOENT, as that causes us to take a wrong,
-unrelated code path a couple of callers up, as you mentioned.
+Since UFFDIO_CONTINUE tries to find the existing page the user wants to
+map with SGP_READ, we would fail to find such a page, since
+shmem_getpage_gfp returns with a "NULL" pagep for SGP_READ if it
+discovers !PageUptodate. As a result, UFFDIO_CONTINUE returns -EFAULT,
+as it would do if the page wasn't found in the page cache at all.
 
-I'll send a v2 with this small modification.
+This isn't the intended behavior. UFFDIO_CONTINUE is just trying to find
+if a page exists, and doesn't care whether it still needs to be cleared
+or not. So, instead of SGP_READ, pass in SGP_NOALLOC. This is the same,
+except for one critical difference: in the !PageUptodate case,
+SGP_NOALLOC will clear the page and then return it. With this change,
+UFFDIO_CONTINUE works properly (succeeds) on a shmem file which has been
+fallocated, but otherwise not modified.
 
-On Thu, Jun 9, 2022 at 2:44 PM Peter Xu <peterx@redhat.com> wrote:
->
-> Hi, Axel,
->
-> Sorry to read this late.
->
-> On Fri, Jun 03, 2022 at 01:57:41PM -0700, Axel Rasmussen wrote:
-> > When fallocate() is used on a shmem file, the pages we allocate can end
-> > up with !PageUptodate.
-> >
-> > Since UFFDIO_CONTINUE tries to find the existing page the user wants to
-> > map with SGP_READ, we would fail to find such a page, since
-> > shmem_getpage_gfp returns with a "NULL" pagep for SGP_READ if it
-> > discovers !PageUptodate. As a result, UFFDIO_CONTINUE returns -EFAULT,
-> > as it would do if the page wasn't found in the page cache at all.
-> >
-> > This isn't the intended behavior. UFFDIO_CONTINUE is just trying to find
-> > if a page exists, and doesn't care whether it still needs to be cleared
-> > or not. So, instead of SGP_READ, pass in SGP_NOALLOC. This is the same,
-> > except for one critical difference: in the !PageUptodate case,
-> > SGP_NOALLOC will clear the page and then return it. With this change,
-> > UFFDIO_CONTINUE works properly (succeeds) on a shmem file which has been
-> > fallocated, but otherwise not modified.
-> >
-> > Fixes: 153132571f02 ("userfaultfd/shmem: support UFFDIO_CONTINUE for shmem")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
-> > ---
-> >  mm/userfaultfd.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-> > index 4f4892a5f767..c156f7f5b854 100644
-> > --- a/mm/userfaultfd.c
-> > +++ b/mm/userfaultfd.c
-> > @@ -246,7 +246,7 @@ static int mcontinue_atomic_pte(struct mm_struct *dst_mm,
-> >       struct page *page;
-> >       int ret;
-> >
-> > -     ret = shmem_getpage(inode, pgoff, &page, SGP_READ);
-> > +     ret = shmem_getpage(inode, pgoff, &page, SGP_NOALLOC);
-> >       if (ret)
-> >               goto out;
-> >       if (!page) {
->
-> It all looks sane if the page is !uptodate as you described.  Though I've a
-> question on what'll happen if the page is actually missing rather than just
-> !PageUptodate().
->
-> My reading is previously it'll keep returning 0 on shmem_getpage_gfp() for
-> both cases, but now for the missing page shmem_getpage_gfp() will return
-> -ENOENT instead.
->
-> This reminded me on whether this will errornously let __mcopy_atomic() go
-> into the special path to copy the page without mmap lock, please see this
-> commit:
->
-> b6ebaedb4cb1 ("userfaultfd: avoid mmap_sem read recursion in mcopy_atomic", 2015-09-04)
->
-> Would that be a problem?  Or could I read it wrong?
->
-> This also reminded me that whether we'd better need some protection in the
-> -ENOENT handling in __mcopy_atomic() to be always safe.
->
-> Thanks,
->
-> --
-> Peter Xu
->
+Fixes: 153132571f02 ("userfaultfd/shmem: support UFFDIO_CONTINUE for shmem")
+Cc: stable@vger.kernel.org
+Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
+---
+ mm/userfaultfd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
+index 4f4892a5f767..07d3befc80e4 100644
+--- a/mm/userfaultfd.c
++++ b/mm/userfaultfd.c
+@@ -246,7 +246,10 @@ static int mcontinue_atomic_pte(struct mm_struct *dst_mm,
+ 	struct page *page;
+ 	int ret;
+ 
+-	ret = shmem_getpage(inode, pgoff, &page, SGP_READ);
++	ret = shmem_getpage(inode, pgoff, &page, SGP_NOALLOC);
++	/* Our caller expects us to return -EFAULT if we failed to find page. */
++	if (ret == -ENOENT)
++		ret = -EFAULT;
+ 	if (ret)
+ 		goto out;
+ 	if (!page) {
+-- 
+2.36.1.476.g0c4daa206d-goog
+
