@@ -2,95 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA3F5476F0
-	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 19:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B6A547787
+	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 22:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231190AbiFKRjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jun 2022 13:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52032 "EHLO
+        id S229861AbiFKUdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jun 2022 16:33:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231331AbiFKRjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 13:39:24 -0400
-Received: from bluehome.net (bluehome.net [96.66.250.149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD5449274
-        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 10:39:23 -0700 (PDT)
-Received: from valencia (valencia.lan [10.0.0.17])
-        by bluehome.net (Postfix) with ESMTPSA id 566E84B40507
-        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 10:39:22 -0700 (PDT)
-Date:   Sat, 11 Jun 2022 10:39:21 -0700
-From:   Jason Self <jason@bluehome.net>
-To:     stable@vger.kernel.org
-Subject: Re: Build error on openrisc with CONFIG_CRYPTO_LIB_CURVE25519
-Message-ID: <20220611103921.7b56a960@valencia>
-In-Reply-To: <819bb33c-bb9a-1da8-395a-67c9f4da798e@gmail.com>
-References: <20220609162943.6e3bba4f@valencia>
-        <YqLTecx7MGFPOvhw@kroah.com>
-        <20220610182523.2f5620a2@valencia>
-        <819bb33c-bb9a-1da8-395a-67c9f4da798e@gmail.com>
+        with ESMTP id S229528AbiFKUdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 16:33:31 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26136112C
+        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 13:33:30 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id g7so2812119eda.3
+        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 13:33:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=zbXZdx4tUetQKzs1xcJRM4xya4FHmSuRDE4vR6M7xQk=;
+        b=flCGpc45gVP6yu+p5xZRFnv1ErWllDVbIir9+Mq7Jy69zwpiXOrH/U+YCA78ks46kF
+         m++OMJ7L+T6UB0N9Xk3PW+4//bH1aaq6t7vX+rivPW7NqQBfZs1urPv0hRfOX8gCQ85Q
+         zPPmMtLA6nEKXATacILZ1lTC3GuDE+a+f6H7oQlHnvx0s9+cUlem5Y0y/SxpcMFPcdbn
+         ayziJFRvMG+887hx5nm0E073Uwn5ndAWgDZyL4zMXnPhFVBpt+y6XInZX3nwQyVtJjdm
+         o6sqkbmxm1cXREmQ/IXS/qEDnphiK3JHABTtrg+vUbim7JiMPu3tjeAEXg5AesvNaC4v
+         ibrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=zbXZdx4tUetQKzs1xcJRM4xya4FHmSuRDE4vR6M7xQk=;
+        b=JBJ/dc2T6OYJ+m1Kr65fupei7i2iVaAxq6LwrCYASeq/ZUAV6YYTRuu5NItujkzk2x
+         3M83lpG0IPtZ43nwQYeNKbFt9nNlMimjeDM7+620SiKOmVR65KyU7FTRdD/h5MAuqhpP
+         a99vQBfLCUBQ+v7UVUMHQEsiyLpxNNYZiShQWB1oZ9boOpGmsJl2vMY0hpob57G/aiCv
+         neIV2VeytUF98G+5kslMESmomdQkZcvpI2j12UWhmqmSwzHObOR02ZGvz0dBHKxgRjJH
+         3kJdfJ2TNW1/E3B1owNBnxNL+vyZyhnCFrYPgg0QDiVqcS64f5D0WZz4UzofUMNdJdya
+         Pj+Q==
+X-Gm-Message-State: AOAM530kIfxA0t8fUJY8NvvdkiuCDO6RRWd4lw2icJTgPnSARymnyddi
+        wd8wEnxtBZ/lHQARwdRUKxQMkXVgoszqupcKD1A=
+X-Google-Smtp-Source: ABdhPJye4PceNV1qyDRFADvN4MDhFTDVlT9OOJH7HbTwkHti20JE5Hhh9tLaen/95x00S4tJDHHPHvEKnaf8Jh4/fvs=
+X-Received: by 2002:aa7:c508:0:b0:42d:cc6b:df80 with SMTP id
+ o8-20020aa7c508000000b0042dcc6bdf80mr57343758edq.393.1654979608733; Sat, 11
+ Jun 2022 13:33:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/Kuu04gsrvhLm36sS_/Xj307";
- protocol="application/pgp-signature"; micalg=pgp-sha512
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Received: by 2002:a54:3151:0:0:0:0:0 with HTTP; Sat, 11 Jun 2022 13:33:28
+ -0700 (PDT)
+Reply-To: bonchzarem@gmail.com
+From:   Bonch Zarem <paolomark015@gmail.com>
+Date:   Sat, 11 Jun 2022 20:33:28 +0000
+Message-ID: <CAJaxUb+-cBnisabNDQ9PRO3nON9U1MqyZRsbVoFa9=vMYAwVaw@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---Sig_/Kuu04gsrvhLm36sS_/Xj307
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 11 Jun 2022 14:29:53 +0700
-Bagas Sanjaya <bagasdotme@gmail.com> wrote:
-
-> > It's new; it began in 5.15.45 & 5.10.120, which is when make
-> > oldconfig first prompted about CONFIG_CRYPTO_LIB_CURVE25519. =20
->=20
-> What did you answer for that new config?
-
-Initially "m" but "y" also seems to not matter. With "y":
-
-or1k-linux-ld: lib/crypto/curve25519-selftest.o: in function
-`curve25519_selftest': curve25519-selftest.c:(.init.text+0x7c):
-undefined reference to `__crypto_memneq'
-curve25519-selftest.c:(.init.text+0x7c): relocation truncated to fit:
-R_OR1K_INSN_REL_26 against undefined symbol `__crypto_memneq'
-or1k-linux-ld: curve25519-selftest.c:(.init.text+0x110): undefined
-reference to `__crypto_memneq'
-curve25519-selftest.c:(.init.text+0x110): relocation truncated to
-fit: R_OR1K_INSN_REL_26 against undefined symbol `__crypto_memneq'
-or1k-linux-ld: curve25519-selftest.c:(.init.text+0x140): undefined
-reference to `__crypto_memneq'
-curve25519-selftest.c:(.init.text+0x140): relocation truncated to
-fit: R_OR1K_INSN_REL_26 against undefined symbol `__crypto_memneq'
-or1k-linux-ld: curve25519-selftest.c:(.init.text+0x188): undefined
-reference to `__crypto_memneq'
-curve25519-selftest.c:(.init.text+0x188): relocation truncated to
-fit: R_OR1K_INSN_REL_26 against undefined symbol `__crypto_memneq'
-make: *** [Makefile:1183: vmlinux] Error 1
-
---Sig_/Kuu04gsrvhLm36sS_/Xj307
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE9hGpCP+hZcaZWE7UnQ2zG1RaMZgFAmKk00kACgkQnQ2zG1Ra
-MZgalQ/7BV7ufVPcJD0M88UzBsHI/CC59HV5sCLmhx6mXyArJlrPGt3qT8tCsrkS
-W8iW08C5GJeirZODAtxMfjnXiU/rxjD/RN9tW3RsLNiXzkAmRBf+FHWSg84bh/8Y
-Gd2s+fxomXn28+yscisgd11YsIc61QPHR1WZdOMF4Wz05z8MlrGALEi7F6ECQL+q
-vwiXl1ENHFvTAfMIigQC6QU7uJ9LfmyQ/oQH5kZFdp42yUSeySX+0ntg47N6otvY
-kfHH/CxHyzwjLhMdp14yfgDxrLbuOLXfJ8CmHkOUH9QXUsAYLbvuQRo46MVkW9Tn
-iTdZGm/H3BXhDLbT7433UrKDZ+8Fu2/RGveW0VUwQHPPVqULp97sT6pg56QlLLt3
-NQVEOSIu5TxxHeamk0tkbt6a7zNNrSCG2QHV45LlFSqxxyLj/HaY0sIwrbUazCJW
-C8ZJPS322M3wnf7ueGLNFHBI3Knk1QUJ6BnoCWN3WjBa19f+Ed/irq1wYRtRMUz0
-m3LXU1hYnSL/GuoPVmEh1BgRSLxM+x6oFBSZYJDSdp1e8opd+AANkLtdCquVYjt0
-ZYIHrVse8qDjbEP/oUnJ5kCovXAnbx0+xAb7dwTsfiUjU7sR7hFs1WXq+MRhCkjn
-vce6ZCziIQ34y0gfgoUt/dDmgaRfPfJ+l/ywNK9GCuBO+kl6SZI=
-=h/T+
------END PGP SIGNATURE-----
-
---Sig_/Kuu04gsrvhLm36sS_/Xj307--
+My name is Bonch Zarem ,can we work regarding to one of your family
+member who died here in our country and left some huge amount of money
+in one of our bank  and share this project together. If interested get
+email back for more details Please reply to this email:-
+bonchzarem@gmail.com
