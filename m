@@ -2,77 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB285474A3
-	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 14:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5AE547594
+	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 16:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbiFKM4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jun 2022 08:56:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44446 "EHLO
+        id S233313AbiFKOSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jun 2022 10:18:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233405AbiFKM4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 08:56:21 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 130554C7B0
-        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 05:56:20 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id l204so2844978ybf.10
-        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 05:56:20 -0700 (PDT)
+        with ESMTP id S230319AbiFKOSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 10:18:16 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF99910572;
+        Sat, 11 Jun 2022 07:18:14 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id m24so1884326wrb.10;
+        Sat, 11 Jun 2022 07:18:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=/KdWH1L1ADeIuY5k7RqU2jmHtnJKpm5JvBU7o8h1qZY=;
-        b=o9zPZsRneVwSPNTHg6uAo72gOrI8EqOVonqFb9mzmEGP5+dL90muHToULmLXOtCOyp
-         uOrWkst5BWFCkGxFGYTQBzH8ZlGpqabDKAntguFAS2yZnE4NOGLW/u0u35bg02+0mro7
-         CSrxBY8+BHvrDso0EsG46tSlMyVOuusco2vZVQAoduxXqOjllDGEfxk0ITT4o4TYDSJ9
-         TompYA9l2IwIScwc7TaqE7jfFhMscsfIdYCEqRuoT3m+eUJGx7882e51vNdkp2OSEY2u
-         l6TxD6tqiN8f0XZoOqebT5T31uuBCbVWJaK1XAtB7g2naKa45g9hDc4o7UpJAG/ymPDx
-         +uSw==
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=ITBoLYA2N5MuLO3gqnXnaF4OTMmFSVYBYZ7MPGfv98c=;
+        b=CosyK9y8uyI6z7UiVBwQHZ7V3roQMVGBnGiDI6XrD6rMEuNsI+GrkViig8YkorsqzZ
+         QxDTaPI+4iI+RkhZn2rzNMOhkCOGKOlHkYj9FAs1e69xXRdX4ygHFGY9w5CenwRMj/hR
+         sDAkPzYyyC6bYt3JnAxdhMvSIWqpR1us/VzYgDiC1HFp8ktKRGxhELxaEMrU16bJHsoW
+         vgL73GIquT3Jhq7gRhkLPNSVxD93f+/NVGrnHOCaotdU5wyBAYX4PR9MKzd70JrBIw0t
+         PowbThrSchM5vvtRRdFQCNlX3muycViiIM7199UbU/wJtNn2S+rwA27nqh3UncKHJ6Be
+         HHdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=/KdWH1L1ADeIuY5k7RqU2jmHtnJKpm5JvBU7o8h1qZY=;
-        b=1qEwnDrI9MvNJ4oRh7ysVE89D55IKQgUkhBgq/ZmZdsIJTCdATfzFBb0Au4hy3enXD
-         kgzI06yAPUIy5newqwlE4FbpYC4mvOHjqRTthnaDJLluuKZ9MkPMlMz+B2kxH29DJuUr
-         nE5gXZ/MeADiBkkqj7knfeXzd8lW4YFcL0x4oOaBS95RGLTxD2TothBhNTY07GHcV7e2
-         Ppas+DQtXgjSAJ8nypp7J8VJs4BWd1i/iJGaYmJ6OsxyessdxQ9QgjcjT6yXPoc0F4gd
-         q0Vcsbnh40wAA0oc+Mfi3DSDyOjEQgg8SjH1tzn6rZQceHYFmLxeiodl/7mUM8XKtDsc
-         JliA==
-X-Gm-Message-State: AOAM532yx/RNwd0IFRckNPW7IPlP+J9DYJoIBwtkEng1nKAavnZ6ohar
-        6ZTST9gT0klCtvixYJ9yXAdMyJiCNdTHKBwNnrc=
-X-Google-Smtp-Source: ABdhPJyb2AkrN4CiBhlBlVTmNfyXaBFjK4uHXqDjeK1xW/uJwDf9TAFZRm0ysx+FYMh1LwZuOCEjBd0P4wJdqoG3BiI=
-X-Received: by 2002:a05:6902:a:b0:65c:b38e:6d9f with SMTP id
- l10-20020a056902000a00b0065cb38e6d9fmr51339830ybh.36.1654952179039; Sat, 11
- Jun 2022 05:56:19 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:7010:e38d:b0:2d6:ff68:4ed1 with HTTP; Sat, 11 Jun 2022
- 05:56:18 -0700 (PDT)
-From:   "mydesk.ceoinfo@barclaysbank.co.uk" <allanjones.secretary@gmail.com>
-Date:   Sat, 11 Jun 2022 13:56:18 +0100
-Message-ID: <CA+BTBaR2PFGoCxtPmjcYnaB+r=_wvNCSO8pbK7MXm+6U2RZEgA@mail.gmail.com>
-Subject: RE PAYMENT NOTIFICATION UPDATE
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.7 required=5.0 tests=BAYES_50,DEAR_BENEFICIARY,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FROM_2_EMAILS_SHORT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        SUBJ_ALL_CAPS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=ITBoLYA2N5MuLO3gqnXnaF4OTMmFSVYBYZ7MPGfv98c=;
+        b=6PZaI4uBT5iUz8U6hV1J1DevCExW6Yt4IaAvWmI2WBmI/UsQB3z/kfp/CYd2/StapY
+         QDRexTXLs3hIPGPA8fqQDkeWlRbIcMvcL92up1Pm51xp+doyG13TH72OycgqLqSn3sjU
+         GgM0Q5IS7Jz6aNhQbqDUSY+sL+6wf7ggB/nyLURjSxH0691wE9K5Lu3OtSEodnw2KHoe
+         MmyPcOJslXyiksH9EGbZO9HhPkCq+DD2gZaXusdzkvVVSrOPMR65xQPlb7j+d2qwffh7
+         MiaWdmnkESnY9TBimEgMK49lIX4Ps5NzQMwjlhiNK7sBxNpR/ihtodN4gGqEgsL/WgwR
+         K1VA==
+X-Gm-Message-State: AOAM5321//9tT9H5GhKcIyEf4UxmmfnrDFyyZWbqXVYhWraVjSRVTvL3
+        sW9tNTnX3FwKKBqLO88DnBpa5TBUPIi9GQ==
+X-Google-Smtp-Source: ABdhPJzhksldhSpuMrQXGmaC+i4KujXhjL1ZD15ZkzgePaXPsBUiLjWfbR0ZYRlvgT7qv3JhL0MNrQ==
+X-Received: by 2002:a5d:4c49:0:b0:210:353c:1c91 with SMTP id n9-20020a5d4c49000000b00210353c1c91mr49318338wrt.159.1654957093371;
+        Sat, 11 Jun 2022 07:18:13 -0700 (PDT)
+Received: from smtpclient.apple ([167.99.200.149])
+        by smtp.gmail.com with ESMTPSA id i7-20020a1c3b07000000b0039744bd664esm6950127wma.13.2022.06.11.07.18.11
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 11 Jun 2022 07:18:12 -0700 (PDT)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
+Subject: Re: Regression in 5.18.3 from "xhci: Set HCD flag to defer primary
+ roothub registration"
+From:   Christian Hewitt <christianshewitt@gmail.com>
+In-Reply-To: <YqRFH2i3s/jL28ZG@kroah.com>
+Date:   Sat, 11 Jun 2022 18:18:08 +0400
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        linux-usb@vger.kernel.org,
+        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
+        stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <AF1EDC5C-7304-48F4-A981-CD8DDBFAB5EE@gmail.com>
+References: <743F7369-2794-4189-8891-5DA62E4B62DA@gmail.com>
+ <YqRFH2i3s/jL28ZG@kroah.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+X-Mailer: Apple Mail (2.3696.100.31)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Dear Fund Beneficiary,
 
-Refer to my previous emails informing you again and again that your
-fund has been released. Please be advised that your long delayed
-payment has just been released and loaded onto an ATM Master
-Card.Please reconfirm your names and address for delivery.
+> On 11 Jun 2022, at 11:32 am, Greg Kroah-Hartman =
+<gregkh@linuxfoundation.org> wrote:
+>=20
+> On Sat, Jun 11, 2022 at 10:49:23AM +0400, Christian Hewitt wrote:
+>> Commit 6c64a664e1cff339ec698d803fa8cbb9af5d95ce =E2=80=9Cxhci: Set =
+HCD flag to defer
+>> primary roothub registration=E2=80=9D added for Linux 5.18.3 caused a =
+regression on
+>> some Amlogic S912 devices (original user forum report with an Android =
+TV box
+>> and confirmed with a Khadas VIM2 board). I do not see issues with =
+older S905
+>> (WeTeK Play2) or newer S922X (Odroid N2+) devices running the same =
+kernel.
+>> There are no kernel splats or error messages but lsusb shows no =
+output and
+>> nothing works. Simple revert restores the previous good working =
+behaviour.
+>>=20
+>> dmesg with commit http://ix.io/3ZTv
+>> dmesg with revert http://ix.io/3ZTw
+>>=20
+>> I=E2=80=99m not a coder so will need to be fed instructions to assist =
+with debugging
+>> the issue further if you don't have access to an Amlogic S912 device. =
+I can
+>> share devices online for remote poking around if needed.
+>=20
+> Does 5.19-rc1 also have this problem?
 
-Looking forward to hearing from you,
+No, and in the process of fixing up my normal patchset to test 5.19-rc1 =
+I=E2=80=99ve
+spotted some other USB patches picked from lists. Once dropped from =
+5.18.3 usb
+works again. So my bad, sorry for the noise!
 
-Nigel Higgins, (Barclays Group Chairman),
-Barclays Bank Plc,
-1 Churchill Place, London, ENG E14 5HP,
+Christian=
