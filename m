@@ -2,152 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F978547462
-	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 13:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB285474A3
+	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 14:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbiFKLqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jun 2022 07:46:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35010 "EHLO
+        id S233413AbiFKM4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jun 2022 08:56:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiFKLqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 07:46:22 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 547BF50002
-        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 04:46:16 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LKwyW6DpPz4xYN;
-        Sat, 11 Jun 2022 21:46:11 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1654947972;
-        bh=M8pFdJdK1hkd1LuFpKKNjtRrfY18IAYXSE7IT9jP2/M=;
-        h=From:To:Cc:Subject:Date:From;
-        b=JyA7AOCLenKIAVbwQy8ih5tPtE/iu+QYw3s01cnGjQu1VQvOSEfJBM3oEv5Zddp2S
-         oqtKfxhkI4YaADQuY9c5vAmjrSasn5sjpBfY5X95j1mA5yhWQ/p+Nra7MZbe+RCCEa
-         RhcnnICsXjRQuAvyT3D0ZmT1btzJSpHvrGBTxyxxh59Kh3YzR2oJXGgfVMP44nEo0W
-         iG4KQTJxU/+bkkbtCgOBKAzd6MeivDgzbVDsscnC4GZ9YZXQhOGYvJEDEnKnDb31Tw
-         1o7+7NZ9qifZKhAPoOBk99ArYfCq/ZszwrFsQz2zPtMbqs11pLJWCDsp/a2PMpsiFw
-         aN00s4XJvdRdA==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
-Cc:     <linuxppc-dev@lists.ozlabs.org>, <sashal@kernel.org>
-Subject: [PATCH v4.19] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
-Date:   Sat, 11 Jun 2022 21:46:06 +1000
-Message-Id: <20220611114606.970210-1-mpe@ellerman.id.au>
-X-Mailer: git-send-email 2.35.3
+        with ESMTP id S233405AbiFKM4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 08:56:21 -0400
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 130554C7B0
+        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 05:56:20 -0700 (PDT)
+Received: by mail-yb1-xb29.google.com with SMTP id l204so2844978ybf.10
+        for <stable@vger.kernel.org>; Sat, 11 Jun 2022 05:56:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=/KdWH1L1ADeIuY5k7RqU2jmHtnJKpm5JvBU7o8h1qZY=;
+        b=o9zPZsRneVwSPNTHg6uAo72gOrI8EqOVonqFb9mzmEGP5+dL90muHToULmLXOtCOyp
+         uOrWkst5BWFCkGxFGYTQBzH8ZlGpqabDKAntguFAS2yZnE4NOGLW/u0u35bg02+0mro7
+         CSrxBY8+BHvrDso0EsG46tSlMyVOuusco2vZVQAoduxXqOjllDGEfxk0ITT4o4TYDSJ9
+         TompYA9l2IwIScwc7TaqE7jfFhMscsfIdYCEqRuoT3m+eUJGx7882e51vNdkp2OSEY2u
+         l6TxD6tqiN8f0XZoOqebT5T31uuBCbVWJaK1XAtB7g2naKa45g9hDc4o7UpJAG/ymPDx
+         +uSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=/KdWH1L1ADeIuY5k7RqU2jmHtnJKpm5JvBU7o8h1qZY=;
+        b=1qEwnDrI9MvNJ4oRh7ysVE89D55IKQgUkhBgq/ZmZdsIJTCdATfzFBb0Au4hy3enXD
+         kgzI06yAPUIy5newqwlE4FbpYC4mvOHjqRTthnaDJLluuKZ9MkPMlMz+B2kxH29DJuUr
+         nE5gXZ/MeADiBkkqj7knfeXzd8lW4YFcL0x4oOaBS95RGLTxD2TothBhNTY07GHcV7e2
+         Ppas+DQtXgjSAJ8nypp7J8VJs4BWd1i/iJGaYmJ6OsxyessdxQ9QgjcjT6yXPoc0F4gd
+         q0Vcsbnh40wAA0oc+Mfi3DSDyOjEQgg8SjH1tzn6rZQceHYFmLxeiodl/7mUM8XKtDsc
+         JliA==
+X-Gm-Message-State: AOAM532yx/RNwd0IFRckNPW7IPlP+J9DYJoIBwtkEng1nKAavnZ6ohar
+        6ZTST9gT0klCtvixYJ9yXAdMyJiCNdTHKBwNnrc=
+X-Google-Smtp-Source: ABdhPJyb2AkrN4CiBhlBlVTmNfyXaBFjK4uHXqDjeK1xW/uJwDf9TAFZRm0ysx+FYMh1LwZuOCEjBd0P4wJdqoG3BiI=
+X-Received: by 2002:a05:6902:a:b0:65c:b38e:6d9f with SMTP id
+ l10-20020a056902000a00b0065cb38e6d9fmr51339830ybh.36.1654952179039; Sat, 11
+ Jun 2022 05:56:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:7010:e38d:b0:2d6:ff68:4ed1 with HTTP; Sat, 11 Jun 2022
+ 05:56:18 -0700 (PDT)
+From:   "mydesk.ceoinfo@barclaysbank.co.uk" <allanjones.secretary@gmail.com>
+Date:   Sat, 11 Jun 2022 13:56:18 +0100
+Message-ID: <CA+BTBaR2PFGoCxtPmjcYnaB+r=_wvNCSO8pbK7MXm+6U2RZEgA@mail.gmail.com>
+Subject: RE PAYMENT NOTIFICATION UPDATE
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.7 required=5.0 tests=BAYES_50,DEAR_BENEFICIARY,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        FROM_2_EMAILS_SHORT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        SUBJ_ALL_CAPS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8e1278444446fc97778a5e5c99bca1ce0bbc5ec9 upstream.
-
-The ptrace PEEKUSR/POKEUSR (aka PEEKUSER/POKEUSER) API allows a process
-to read/write registers of another process.
-
-To get/set a register, the API takes an index into an imaginary address
-space called the "USER area", where the registers of the process are
-laid out in some fashion.
-
-The kernel then maps that index to a particular register in its own data
-structures and gets/sets the value.
-
-The API only allows a single machine-word to be read/written at a time.
-So 4 bytes on 32-bit kernels and 8 bytes on 64-bit kernels.
-
-The way floating point registers (FPRs) are addressed is somewhat
-complicated, because double precision float values are 64-bit even on
-32-bit CPUs. That means on 32-bit kernels each FPR occupies two
-word-sized locations in the USER area. On 64-bit kernels each FPR
-occupies one word-sized location in the USER area.
-
-Internally the kernel stores the FPRs in an array of u64s, or if VSX is
-enabled, an array of pairs of u64s where one half of each pair stores
-the FPR. Which half of the pair stores the FPR depends on the kernel's
-endianness.
-
-To handle the different layouts of the FPRs depending on VSX/no-VSX and
-big/little endian, the TS_FPR() macro was introduced.
-
-Unfortunately the TS_FPR() macro does not take into account the fact
-that the addressing of each FPR differs between 32-bit and 64-bit
-kernels. It just takes the index into the "USER area" passed from
-userspace and indexes into the fp_state.fpr array.
-
-On 32-bit there are 64 indexes that address FPRs, but only 32 entries in
-the fp_state.fpr array, meaning the user can read/write 256 bytes past
-the end of the array. Because the fp_state sits in the middle of the
-thread_struct there are various fields than can be overwritten,
-including some pointers. As such it may be exploitable.
-
-It has also been observed to cause systems to hang or otherwise
-misbehave when using gdbserver, and is probably the root cause of this
-report which could not be easily reproduced:
-  https://lore.kernel.org/linuxppc-dev/dc38afe9-6b78-f3f5-666b-986939e40fc6@keymile.com/
-
-Rather than trying to make the TS_FPR() macro even more complicated to
-fix the bug, or add more macros, instead add a special-case for 32-bit
-kernels. This is more obvious and hopefully avoids a similar bug
-happening again in future.
-
-Note that because 32-bit kernels never have VSX enabled the code doesn't
-need to consider TS_FPRWIDTH/OFFSET at all. Add a BUILD_BUG_ON() to
-ensure that 32-bit && VSX is never enabled.
-
-Fixes: 87fec0514f61 ("powerpc: PTRACE_PEEKUSR/PTRACE_POKEUSER of FPR registers in little endian builds")
-Cc: stable@vger.kernel.org # v3.13+
-Reported-by: Ariel Miculas <ariel.miculas@belden.com>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
----
- arch/powerpc/kernel/ptrace.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
-diff --git a/arch/powerpc/kernel/ptrace.c b/arch/powerpc/kernel/ptrace.c
-index e08b32ccf1d9..073117ba75fe 100644
---- a/arch/powerpc/kernel/ptrace.c
-+++ b/arch/powerpc/kernel/ptrace.c
-@@ -3007,8 +3007,13 @@ long arch_ptrace(struct task_struct *child, long request,
- 
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&tmp, &child->thread.TS_FPR(fpidx),
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					tmp = ((u32 *)child->thread.fp_state.fpr)[fpidx];
-+				} else {
-+					memcpy(&tmp, &child->thread.TS_FPR(fpidx),
-+					       sizeof(long));
-+				}
- 			else
- 				tmp = child->thread.fp_state.fpscr;
- 		}
-@@ -3040,8 +3045,13 @@ long arch_ptrace(struct task_struct *child, long request,
- 
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&child->thread.TS_FPR(fpidx), &data,
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					((u32 *)child->thread.fp_state.fpr)[fpidx] = data;
-+				} else {
-+					memcpy(&child->thread.TS_FPR(fpidx), &data,
-+					       sizeof(long));
-+				}
- 			else
- 				child->thread.fp_state.fpscr = data;
- 			ret = 0;
 -- 
-2.35.3
+Dear Fund Beneficiary,
 
+Refer to my previous emails informing you again and again that your
+fund has been released. Please be advised that your long delayed
+payment has just been released and loaded onto an ATM Master
+Card.Please reconfirm your names and address for delivery.
+
+Looking forward to hearing from you,
+
+Nigel Higgins, (Barclays Group Chairman),
+Barclays Bank Plc,
+1 Churchill Place, London, ENG E14 5HP,
