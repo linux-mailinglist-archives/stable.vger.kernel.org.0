@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A88547222
-	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 07:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4164B547246
+	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 07:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229462AbiFKFJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jun 2022 01:09:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42186 "EHLO
+        id S229605AbiFKFvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jun 2022 01:51:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbiFKFJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 01:09:17 -0400
+        with ESMTP id S229645AbiFKFvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 01:51:43 -0400
 Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A978E1208C
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 22:09:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2075250E
+        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 22:51:41 -0700 (PDT)
 Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LKm8M4Jvsz4xD3;
-        Sat, 11 Jun 2022 15:09:07 +1000 (AEST)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LKn5S0T9Dz4xD3;
+        Sat, 11 Jun 2022 15:51:40 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1654924147;
-        bh=FhOalpnI/+I9rXvRtHIyt2sKKspl2W2BwIzV/GOUnJ4=;
+        s=201909; t=1654926700;
+        bh=jqLHmZQPlPTDrh3903074ZZl72DXRvnF/K24MiuPSgM=;
         h=From:To:Cc:Subject:Date:From;
-        b=X/QMVcLGS2Gw799dVfwNTz5bOBoK16m4ddNeZhvWQJpqozRSkUp03yafzGEknnnVo
-         AfNFCauzH1T+nABzSwyNtwyBx2j8ScjCchRbLem3Z/HuoWAeoCf/eTieniMn0kPoN7
-         1XG1aSC7eGiYUnadWsMNtAOkfYf/dfn+mJXWn91/xMMuKSRRRsCrz6Gz4j3tDpNYlz
-         3EIbwE+bVUQIo30avXzENpXOzGwgLfMwISvjsMk1jUkKq9/mnnrBWbIVw68p/ZtnTc
-         iRkpBxXL5HVp9CGXvk3RW+lphYlXH/Twnt3EgyJDxLq0toQ+A+oG/wp7S094jAE5A4
-         zlfyVZc08W23A==
+        b=dwHDl6236k8rmJv7b+xWXGSDEI9GnIHu4+fvX/a6UGwpETI5jYbDrw9QLGjihIYEA
+         VIWRdS8WkWV+8O7AOrt4rY1a1+uiiYCs6/3fQRBEApTexuigxCvGE0aREGdkXQwHCa
+         QixACI64JZ0rkU9RiYGFoLxSsX4xtXvZEg6k+Lx6HbfNBuh+6S33Ynoj1HDYRtd1jH
+         BeFDF3AMHpao3UMBYUUYbJz0H/imJLyGcY4Ozw2oJyByo8DBRIz4vpqcPfgJ+S9E2P
+         ZuM4aP9bBCAgH+q6X8CvohLiWDJeemK/zWJtTR9fJ8Qll+ccoZPt0v1MUnlDziXcGn
+         syYN9kL7PpBcQ==
 From:   Michael Ellerman <mpe@ellerman.id.au>
 To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
-Cc:     <sashal@kernel.org>, <linuxppc-dev@lists.ozlabs.org>
-Subject: [PATCH v5.10] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
-Date:   Sat, 11 Jun 2022 15:09:01 +1000
-Message-Id: <20220611050901.949379-1-mpe@ellerman.id.au>
+Cc:     <linuxppc-dev@lists.ozlabs.org>, <sashal@kernel.org>
+Subject: [PATCH v5.4] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
+Date:   Sat, 11 Jun 2022 15:51:10 +1000
+Message-Id: <20220611055110.955499-1-mpe@ellerman.id.au>
 X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -109,14 +109,14 @@ Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
 ---
- arch/powerpc/kernel/ptrace/ptrace.c | 21 +++++++++++++++++----
+ arch/powerpc/kernel/ptrace.c | 21 +++++++++++++++++----
  1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/kernel/ptrace/ptrace.c b/arch/powerpc/kernel/ptrace/ptrace.c
-index f6e51be47c6e..9ea9ee513ae1 100644
---- a/arch/powerpc/kernel/ptrace/ptrace.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace.c
-@@ -75,8 +75,13 @@ long arch_ptrace(struct task_struct *child, long request,
+diff --git a/arch/powerpc/kernel/ptrace.c b/arch/powerpc/kernel/ptrace.c
+index 8c92febf5f44..63bfc5250b67 100644
+--- a/arch/powerpc/kernel/ptrace.c
++++ b/arch/powerpc/kernel/ptrace.c
+@@ -3014,8 +3014,13 @@ long arch_ptrace(struct task_struct *child, long request,
  
  			flush_fp_to_thread(child);
  			if (fpidx < (PT_FPSCR - PT_FPR0))
@@ -132,7 +132,7 @@ index f6e51be47c6e..9ea9ee513ae1 100644
  			else
  				tmp = child->thread.fp_state.fpscr;
  		}
-@@ -108,8 +113,13 @@ long arch_ptrace(struct task_struct *child, long request,
+@@ -3047,8 +3052,13 @@ long arch_ptrace(struct task_struct *child, long request,
  
  			flush_fp_to_thread(child);
  			if (fpidx < (PT_FPSCR - PT_FPR0))
@@ -148,10 +148,10 @@ index f6e51be47c6e..9ea9ee513ae1 100644
  			else
  				child->thread.fp_state.fpscr = data;
  			ret = 0;
-@@ -478,4 +488,7 @@ void __init pt_regs_check(void)
- 	 * real registers.
- 	 */
- 	BUILD_BUG_ON(PT_DSCR < sizeof(struct user_pt_regs) / sizeof(unsigned long));
+@@ -3398,4 +3408,7 @@ void __init pt_regs_check(void)
+ 		     offsetof(struct user_pt_regs, result));
+ 
+ 	BUILD_BUG_ON(sizeof(struct user_pt_regs) > sizeof(struct pt_regs));
 +
 +	// ptrace_get/put_fpr() rely on PPC32 and VSX being incompatible
 +	BUILD_BUG_ON(IS_ENABLED(CONFIG_PPC32) && IS_ENABLED(CONFIG_VSX));
