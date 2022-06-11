@@ -2,160 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4164B547246
-	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 07:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C0654726A
+	for <lists+stable@lfdr.de>; Sat, 11 Jun 2022 08:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbiFKFvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jun 2022 01:51:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
+        id S229495AbiFKGtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jun 2022 02:49:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbiFKFvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 01:51:43 -0400
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2075250E
-        for <stable@vger.kernel.org>; Fri, 10 Jun 2022 22:51:41 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LKn5S0T9Dz4xD3;
-        Sat, 11 Jun 2022 15:51:40 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1654926700;
-        bh=jqLHmZQPlPTDrh3903074ZZl72DXRvnF/K24MiuPSgM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dwHDl6236k8rmJv7b+xWXGSDEI9GnIHu4+fvX/a6UGwpETI5jYbDrw9QLGjihIYEA
-         VIWRdS8WkWV+8O7AOrt4rY1a1+uiiYCs6/3fQRBEApTexuigxCvGE0aREGdkXQwHCa
-         QixACI64JZ0rkU9RiYGFoLxSsX4xtXvZEg6k+Lx6HbfNBuh+6S33Ynoj1HDYRtd1jH
-         BeFDF3AMHpao3UMBYUUYbJz0H/imJLyGcY4Ozw2oJyByo8DBRIz4vpqcPfgJ+S9E2P
-         ZuM4aP9bBCAgH+q6X8CvohLiWDJeemK/zWJtTR9fJ8Qll+ccoZPt0v1MUnlDziXcGn
-         syYN9kL7PpBcQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
-Cc:     <linuxppc-dev@lists.ozlabs.org>, <sashal@kernel.org>
-Subject: [PATCH v5.4] powerpc/32: Fix overread/overwrite of thread_struct via ptrace
-Date:   Sat, 11 Jun 2022 15:51:10 +1000
-Message-Id: <20220611055110.955499-1-mpe@ellerman.id.au>
-X-Mailer: git-send-email 2.35.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229626AbiFKGtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 02:49:33 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A48CD120B6;
+        Fri, 10 Jun 2022 23:49:29 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id o8so1091743wro.3;
+        Fri, 10 Jun 2022 23:49:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:content-transfer-encoding:mime-version:subject:message-id:date
+         :to;
+        bh=2mnLJx/YLtGg6XB3yrCKXBONKfuMv1V1OCyuSTcWLew=;
+        b=UEHygF8XU7HI1eHnGVcveKltbaP0GmmI92POtL5a6zilfHSvYYnTKPrt2HU021uGSd
+         G5IDJoCyRnSK7IDadSVPwtjewfuk/1I2Zw1/FgHm7iE31gWkzUBjUIHjqFA4a6Uwbgsm
+         hPUFrdYQlzW5YipDjGielnHHQjziwUkm+6TRoZXYs0PM5JIL4bi3ra9k4tnOt9sSnzqT
+         Amy17oPNgWQcnWaJs+dJXZgRIUv9IOFNCxH9EyWss/X1mauFtGSKxdw7iIB7bmkNxTuV
+         wurBKBOBfmNNkJE0RcTB5P3edmQdmCz3wlGjgQgoUERW/Fl/t2JhZ89k9TQtjPBQHKZD
+         LudQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:content-transfer-encoding:mime-version
+         :subject:message-id:date:to;
+        bh=2mnLJx/YLtGg6XB3yrCKXBONKfuMv1V1OCyuSTcWLew=;
+        b=K3bu8DWBb4Vu2Yeqt7Gq20FqkP4VNIRmSXu5M9Wxn+75DrD1Vkjuni1DRcYtLhbz20
+         8iKNAAcuihPjU8ZoiS/CPrfrxSBIen4HZpoImuTcsA9KCT/HWnSquuPz78+iDJ8A/y85
+         51XZxOzoC3pYHK2bvN09IgmCITg/e1emb5UEG6abdNuUWCdAIASFNbj7ZV5ltSPZEDEg
+         X4HskAnitWyjl5KlEH/PH9RTn31GHG/dwK/4+5cVQetSj9ekoqgjdxwMJFVwC3/fpDh8
+         B3eqgKCVGmLKg3+/vk0QMtnDUxsQoxmr7K6cUSFugN8LBphWvaIZYIsjWvdVDnG5mvDQ
+         Maqw==
+X-Gm-Message-State: AOAM533G7ltvrFkqlJMbyiC5VvHPmDhhbrY7FwvWsjRKceThTS8+41YW
+        gTY8njP+IfnRYqgeRmHw/ZYYfpQEGnf+Aw==
+X-Google-Smtp-Source: ABdhPJxHNyWOzUNETd/M21rDxElmX7TvMc2ZdG8j8u5bGnHDc5kubegQK/UQxGq7RhBoJ4IviPS9Kg==
+X-Received: by 2002:a5d:4c47:0:b0:210:2f9f:a21b with SMTP id n7-20020a5d4c47000000b002102f9fa21bmr48064948wrt.493.1654930168120;
+        Fri, 10 Jun 2022 23:49:28 -0700 (PDT)
+Received: from smtpclient.apple ([167.99.200.149])
+        by smtp.gmail.com with ESMTPSA id k11-20020a056000004b00b0020d02262664sm1580865wrx.25.2022.06.10.23.49.25
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 10 Jun 2022 23:49:27 -0700 (PDT)
+From:   Christian Hewitt <christianshewitt@gmail.com>
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
+Subject: Regression in 5.18.3 from "xhci: Set HCD flag to defer primary
+ roothub registration"
+Message-Id: <743F7369-2794-4189-8891-5DA62E4B62DA@gmail.com>
+Date:   Sat, 11 Jun 2022 10:49:23 +0400
+To:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        linux-usb@vger.kernel.org, linux-amlogic@lists.infradead.org,
+        stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Neil Armstrong <narmstrong@baylibre.com>
+X-Mailer: Apple Mail (2.3696.100.31)
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8e1278444446fc97778a5e5c99bca1ce0bbc5ec9 upstream.
+Commit 6c64a664e1cff339ec698d803fa8cbb9af5d95ce =E2=80=9Cxhci: Set HCD =
+flag to defer
+primary roothub registration=E2=80=9D added for Linux 5.18.3 caused a =
+regression on
+some Amlogic S912 devices (original user forum report with an Android TV =
+box
+and confirmed with a Khadas VIM2 board). I do not see issues with older =
+S905
+(WeTeK Play2) or newer S922X (Odroid N2+) devices running the same =
+kernel.
+There are no kernel splats or error messages but lsusb shows no output =
+and
+nothing works. Simple revert restores the previous good working =
+behaviour.
 
-The ptrace PEEKUSR/POKEUSR (aka PEEKUSER/POKEUSER) API allows a process
-to read/write registers of another process.
+dmesg with commit http://ix.io/3ZTv
+dmesg with revert http://ix.io/3ZTw
 
-To get/set a register, the API takes an index into an imaginary address
-space called the "USER area", where the registers of the process are
-laid out in some fashion.
+I=E2=80=99m not a coder so will need to be fed instructions to assist =
+with debugging
+the issue further if you don't have access to an Amlogic S912 device. I =
+can
+share devices online for remote poking around if needed.
 
-The kernel then maps that index to a particular register in its own data
-structures and gets/sets the value.
-
-The API only allows a single machine-word to be read/written at a time.
-So 4 bytes on 32-bit kernels and 8 bytes on 64-bit kernels.
-
-The way floating point registers (FPRs) are addressed is somewhat
-complicated, because double precision float values are 64-bit even on
-32-bit CPUs. That means on 32-bit kernels each FPR occupies two
-word-sized locations in the USER area. On 64-bit kernels each FPR
-occupies one word-sized location in the USER area.
-
-Internally the kernel stores the FPRs in an array of u64s, or if VSX is
-enabled, an array of pairs of u64s where one half of each pair stores
-the FPR. Which half of the pair stores the FPR depends on the kernel's
-endianness.
-
-To handle the different layouts of the FPRs depending on VSX/no-VSX and
-big/little endian, the TS_FPR() macro was introduced.
-
-Unfortunately the TS_FPR() macro does not take into account the fact
-that the addressing of each FPR differs between 32-bit and 64-bit
-kernels. It just takes the index into the "USER area" passed from
-userspace and indexes into the fp_state.fpr array.
-
-On 32-bit there are 64 indexes that address FPRs, but only 32 entries in
-the fp_state.fpr array, meaning the user can read/write 256 bytes past
-the end of the array. Because the fp_state sits in the middle of the
-thread_struct there are various fields than can be overwritten,
-including some pointers. As such it may be exploitable.
-
-It has also been observed to cause systems to hang or otherwise
-misbehave when using gdbserver, and is probably the root cause of this
-report which could not be easily reproduced:
-  https://lore.kernel.org/linuxppc-dev/dc38afe9-6b78-f3f5-666b-986939e40fc6@keymile.com/
-
-Rather than trying to make the TS_FPR() macro even more complicated to
-fix the bug, or add more macros, instead add a special-case for 32-bit
-kernels. This is more obvious and hopefully avoids a similar bug
-happening again in future.
-
-Note that because 32-bit kernels never have VSX enabled the code doesn't
-need to consider TS_FPRWIDTH/OFFSET at all. Add a BUILD_BUG_ON() to
-ensure that 32-bit && VSX is never enabled.
-
-Fixes: 87fec0514f61 ("powerpc: PTRACE_PEEKUSR/PTRACE_POKEUSER of FPR registers in little endian builds")
-Cc: stable@vger.kernel.org # v3.13+
-Reported-by: Ariel Miculas <ariel.miculas@belden.com>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220609133245.573565-1-mpe@ellerman.id.au
----
- arch/powerpc/kernel/ptrace.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
-
-diff --git a/arch/powerpc/kernel/ptrace.c b/arch/powerpc/kernel/ptrace.c
-index 8c92febf5f44..63bfc5250b67 100644
---- a/arch/powerpc/kernel/ptrace.c
-+++ b/arch/powerpc/kernel/ptrace.c
-@@ -3014,8 +3014,13 @@ long arch_ptrace(struct task_struct *child, long request,
- 
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&tmp, &child->thread.TS_FPR(fpidx),
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					tmp = ((u32 *)child->thread.fp_state.fpr)[fpidx];
-+				} else {
-+					memcpy(&tmp, &child->thread.TS_FPR(fpidx),
-+					       sizeof(long));
-+				}
- 			else
- 				tmp = child->thread.fp_state.fpscr;
- 		}
-@@ -3047,8 +3052,13 @@ long arch_ptrace(struct task_struct *child, long request,
- 
- 			flush_fp_to_thread(child);
- 			if (fpidx < (PT_FPSCR - PT_FPR0))
--				memcpy(&child->thread.TS_FPR(fpidx), &data,
--				       sizeof(long));
-+				if (IS_ENABLED(CONFIG_PPC32)) {
-+					// On 32-bit the index we are passed refers to 32-bit words
-+					((u32 *)child->thread.fp_state.fpr)[fpidx] = data;
-+				} else {
-+					memcpy(&child->thread.TS_FPR(fpidx), &data,
-+					       sizeof(long));
-+				}
- 			else
- 				child->thread.fp_state.fpscr = data;
- 			ret = 0;
-@@ -3398,4 +3408,7 @@ void __init pt_regs_check(void)
- 		     offsetof(struct user_pt_regs, result));
- 
- 	BUILD_BUG_ON(sizeof(struct user_pt_regs) > sizeof(struct pt_regs));
-+
-+	// ptrace_get/put_fpr() rely on PPC32 and VSX being incompatible
-+	BUILD_BUG_ON(IS_ENABLED(CONFIG_PPC32) && IS_ENABLED(CONFIG_VSX));
- }
--- 
-2.35.3
-
+Christian=
