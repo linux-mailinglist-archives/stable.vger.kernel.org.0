@@ -2,64 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01351547B51
-	for <lists+stable@lfdr.de>; Sun, 12 Jun 2022 19:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F04547B5F
+	for <lists+stable@lfdr.de>; Sun, 12 Jun 2022 20:00:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbiFLRtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jun 2022 13:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
+        id S232796AbiFLRxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jun 2022 13:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232238AbiFLRtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jun 2022 13:49:35 -0400
-Received: from sonata.ens-lyon.org (sonata.ens-lyon.org [140.77.166.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6E617E39;
-        Sun, 12 Jun 2022 10:49:32 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by sonata.ens-lyon.org (Postfix) with ESMTP id D4F6F20188;
-        Sun, 12 Jun 2022 19:49:29 +0200 (CEST)
-Received: from sonata.ens-lyon.org ([127.0.0.1])
-        by localhost (sonata.ens-lyon.org [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id BSDcosFd3M4d; Sun, 12 Jun 2022 19:49:29 +0200 (CEST)
-Received: from begin (anantes-655-1-33-15.w83-195.abo.wanadoo.fr [83.195.225.15])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S232884AbiFLRxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jun 2022 13:53:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233C91D30B;
+        Sun, 12 Jun 2022 10:53:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sonata.ens-lyon.org (Postfix) with ESMTPSA id 1FED420184;
-        Sun, 12 Jun 2022 19:49:29 +0200 (CEST)
-Received: from samy by begin with local (Exim 4.95)
-        (envelope-from <samuel.thibault@ens-lyon.org>)
-        id 1o0RiK-001SSp-VT;
-        Sun, 12 Jun 2022 19:49:28 +0200
-Date:   Sun, 12 Jun 2022 19:49:28 +0200
-From:   Samuel Thibault <samuel.thibault@ens-lyon.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        w.d.hubbs@gmail.com, chris@the-brannons.com, kirk@reisers.ca,
-        trix@redhat.com, salah.triki@gmail.com, speakup@linux-speakup.org
-Subject: Re: [PATCH AUTOSEL 5.10 21/38] accessiblity: speakup: Add missing
- misc_deregister in softsynth_probe
-Message-ID: <20220612174928.msxmjn67cngztfcc@begin>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Sasha Levin <sashal@kernel.org>, Pavel Machek <pavel@denx.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Zheng Bin <zhengbin13@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        w.d.hubbs@gmail.com, chris@the-brannons.com, kirk@reisers.ca,
-        trix@redhat.com, salah.triki@gmail.com, speakup@linux-speakup.org
-References: <20220607175835.480735-1-sashal@kernel.org>
- <20220607175835.480735-21-sashal@kernel.org>
- <20220608210830.GA1306@duo.ucw.cz>
- <YqYmt5wAXWt7Ggzu@sashalap>
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4D07B801BD;
+        Sun, 12 Jun 2022 17:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66B57C34115;
+        Sun, 12 Jun 2022 17:53:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655056406;
+        bh=FHOoI9Bvueryu9nc8DfiD0JvSgQ9coBdVoJ4gucyOLI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XQFyg3EqUKZRnNa3PuJ6j2YCNh39QrRoIxBTCyiYvqhfFhrorvd5IwaLORfMGesdy
+         lNZwgoQ0YHdubJAUPMcfkR7cXV3VfwQWfsp7fiM8DkCdle/EXaTTTCtHmG2df/Bple
+         rajymnAHsx+nYVK2N7aEX+iFQT3jdDLPQ78wBISKdW2ywTSlG6VfmDWI0L4f0B8Hkd
+         pXhfHEUoJyu3Qc1W4YnnajvZh5IiAipCjM5cHhMG9weU9T0+woFAh/xo4gafmrXG8I
+         2UDWsckSx6n4S7JLG+rjC1iJH0Z1LGdad7UAh3lJzQfvy8/YeuiO6RB6CDBZh3dXPL
+         +asCGrP5VQKZw==
+Date:   Sun, 12 Jun 2022 13:53:25 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Guoqing Jiang <guoqing.jiang@linux.dev>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        snitzer@kernel.org, linux-raid@vger.kernel.org,
+        Song Liu <song@kernel.org>, dm-devel@redhat.com,
+        Donald Buczek <buczek@molgen.mpg.de>, agk@redhat.com
+Subject: Re: [dm-devel] [PATCH AUTOSEL 5.18 35/68] md: don't unregister
+ sync_thread with reconfig_mutex held
+Message-ID: <YqYoFQ42N6YNlNnX@sashalap>
+References: <20220607174846.477972-1-sashal@kernel.org>
+ <20220607174846.477972-35-sashal@kernel.org>
+ <f369ed06-d268-6fa9-f4aa-e9f5cd5ce53a@linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <YqYmt5wAXWt7Ggzu@sashalap>
-Organization: I am not organized
-User-Agent: NeoMutt/20170609 (1.8.3)
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+In-Reply-To: <f369ed06-d268-6fa9-f4aa-e9f5cd5ce53a@linux.dev>
+X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,19 +59,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin, le dim. 12 juin 2022 13:47:35 -0400, a ecrit:
-> On Wed, Jun 08, 2022 at 11:08:30PM +0200, Pavel Machek wrote:
-> > > From: Zheng Bin <zhengbin13@huawei.com>
-> > > 
-> > > [ Upstream commit 106101303eda8f93c65158e5d72b2cc6088ed034 ]
-> > > 
-> > > softsynth_probe misses a call misc_deregister() in an error path, this
-> > > patch fixes that.
-> > 
-> > This seems incorrect. Registration failed, we can't really deregister.
+On Wed, Jun 08, 2022 at 04:43:26PM +0800, Guoqing Jiang wrote:
+>Hi,
+>
+>Pls drop this one from all stable kernel versions since it caused 
+>regression.
 
-The synthu_device registration failed, yes, but the patch is about
-unregistering synth_device, which was registered just above (notice
-synth_device != synthu_device)
+Will do, thanks.
 
-Samuel
+-- 
+Thanks,
+Sasha
