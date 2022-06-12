@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42750547970
-	for <lists+stable@lfdr.de>; Sun, 12 Jun 2022 11:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB8654796F
+	for <lists+stable@lfdr.de>; Sun, 12 Jun 2022 11:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235597AbiFLJBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jun 2022 05:01:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41194 "EHLO
+        id S235658AbiFLJBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jun 2022 05:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235596AbiFLJBh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jun 2022 05:01:37 -0400
-X-Greylist: delayed 428 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 12 Jun 2022 02:01:21 PDT
+        with ESMTP id S235457AbiFLJBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jun 2022 05:01:36 -0400
 Received: from nautica.notk.org (nautica.notk.org [91.121.71.147])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B847612B3
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B10D5F272
         for <stable@vger.kernel.org>; Sun, 12 Jun 2022 02:01:19 -0700 (PDT)
 Received: by nautica.notk.org (Postfix, from userid 108)
-        id 97D35C020; Sun, 12 Jun 2022 10:54:11 +0200 (CEST)
+        id 588EEC022; Sun, 12 Jun 2022 10:54:15 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1655024051; bh=diOrVOPA1DrszPTKQ6G1Sn5TRoaAaysLytyk8w/ytPM=;
+        t=1655024055; bh=NGrM8aOLW3P+D4Rx7zur1lNPPJiOVKsmRGPxJVvnPDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEqxsZOpI5UY8L6k/Hyl9zKBUgUhWi3iBUg6SAtx1bW4XJDs8x37Ed3znXtHO5bLH
-         vV6l5qcd9yXSzShsEWowXq9AH5LAPrVIlUypkHj2bA8llA/uKgx2+T9WXfkky8H8HD
-         uy268qCy2OERouN5ewO8UqD8/Rx+LIYYiP1EuxgmSB1QltwB83G3vu8ytmf51YG+t8
-         pZ0uvws+TWP6bHSlVqTrE9hQg0QmOjy3hbY3n5lcA4nGIggARi2K61OpGQmpJw6hWo
-         laXoHOoWufPuyu2RmHMM5U6/mQcD/Mqzj/eqWW/bxiupIwCZoZyoKdJQLYEtcUE2P+
-         cxYQ/hTqc+TYA==
+        b=oKvYGL0B9tcmmAYPevuw7CIc9o+pAtZr6haB5YQiuGao/Alip1H1REebw+hGJpFUB
+         jMMRfYcP72Fx5gR8FoFC/Zp7BUuxsaELWTG+Tb8mjbxQHxA7V9SQf/UToasJr9LWaX
+         EQC91qVZtNkDh8Mr6zNBt/89VcQg2/P+j+VKv38XZ5lvU1CQTlARjFDP7ZMcXv7zrZ
+         YVoLifracoufWYgUPjxoyCb+6fwqauLOdLNVpOfM86XK35la4JpbFEeP9nnglEcHGz
+         yCfiJ5cL5AkIaRgQiPbF4as24QyRobtOCaceF79fZk/l5Q4ra6+EycUHyWhPUNAQyB
+         ey8VNNC2Vji5w==
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 X-Spam-Level: 
@@ -34,20 +33,20 @@ X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
         version=3.4.6
 Received: from odin.codewreck.org (localhost [127.0.0.1])
-        by nautica.notk.org (Postfix) with ESMTPS id 0F523C009;
-        Sun, 12 Jun 2022 10:54:07 +0200 (CEST)
+        by nautica.notk.org (Postfix) with ESMTPS id 626F2C01C;
+        Sun, 12 Jun 2022 10:54:11 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1655024050; bh=diOrVOPA1DrszPTKQ6G1Sn5TRoaAaysLytyk8w/ytPM=;
+        t=1655024054; bh=NGrM8aOLW3P+D4Rx7zur1lNPPJiOVKsmRGPxJVvnPDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7+Fyk0YaikTR8PDuzHujHv0wrzZ6pAYvxQ6nilzdjvHQtMbQTqvQF7m7cT5D2lm1
-         3ZUqWJdzV3yzlq6ob156CtpbKHCood01UscjCfoOh6AfHaMmqoSUqV0s/wH08Bdcf1
-         RvrBmeKPof54b1OKaWGJKhXuzFJwOGetEVpc86KIMKBMzLyStIU4JurOL08seMZhEd
-         e55j+UTc1NmESduVJLC8FXzlY9JDauq/rZ8AegrtuOoGP8YocXqyG1QhZjSKI8Zrif
-         e/ivgLARLT6UBuSBFgeAEco2IlCNQh6Hw3L7K7naIYVvAioRtSgJYBUfMTP4XnBfag
-         UQICS8ngDN5UQ==
+        b=I8JxRLMQM5jMQ6KIrOGYGqQ2cTmfPMaiDXcawSxqCTrcOe9i7TXA1CdG6yvXQvFF1
+         P+hMvGTH7qo4uK5y4HYLxqlMdIsqhpiL6/IBHfibkpMMVQEnlyz0qKoXVj6UMN1idn
+         VnoSI0xhPBkzFp+PzsHljfmsQTzDGpPV5F7ot/rgvom9PbQzNM/BT5Tz6S1fx5t0yz
+         6J558nM8AteTMbpWweNCRspQgPB8K/pMWqyEM5c1nS2NaJspr2kppuFK+a7lHIe/+K
+         1D2f7tfU2UFzhQVXknU3b/A8P4/4Scq+Y1kbWyPHAAaHBQUevvgOONEyT+nOZFFSGE
+         ISxArtJEqAsRA==
 Received: from localhost (odin.codewreck.org [local])
-        by odin.codewreck.org (OpenSMTPD) with ESMTPA id 0605f16d;
-        Sun, 12 Jun 2022 08:54:05 +0000 (UTC)
+        by odin.codewreck.org (OpenSMTPD) with ESMTPA id afea8486;
+        Sun, 12 Jun 2022 08:54:08 +0000 (UTC)
 From:   Dominique Martinet <asmadeus@codewreck.org>
 To:     Christian Schoenebeck <linux_oss@crudebyte.com>,
         Tyler Hicks <tyhicks@linux.microsoft.com>,
@@ -57,9 +56,9 @@ To:     Christian Schoenebeck <linux_oss@crudebyte.com>,
         Jianyong Wu <jianyong.wu@arm.com>
 Cc:     v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH 01/06] 9p: fix fid refcount leak in v9fs_vfs_atomic_open_dotl
-Date:   Sun, 12 Jun 2022 17:53:24 +0900
-Message-Id: <20220612085330.1451496-2-asmadeus@codewreck.org>
+Subject: [PATCH 02/06] 9p: fix fid refcount leak in v9fs_vfs_get_link
+Date:   Sun, 12 Jun 2022 17:53:25 +0900
+Message-Id: <20220612085330.1451496-3-asmadeus@codewreck.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220612085330.1451496-1-asmadeus@codewreck.org>
 References: <20220612085330.1451496-1-asmadeus@codewreck.org>
@@ -69,46 +68,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We need to release directory fid if we fail halfway through open
-
-This fixes fid leaking with xfstests generic 531
+we check for protocol version later than required, after a fid has
+been obtained. Just move the version check earlier.
 
 Fixes: 6636b6dcc3db ("9p: add refcount to p9_fid struct")
 Cc: stable@vger.kernel.org
-Reported-by: Tyler Hicks <tyhicks@linux.microsoft.com>
 Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 ---
- fs/9p/vfs_inode_dotl.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/9p/vfs_inode.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/9p/vfs_inode_dotl.c b/fs/9p/vfs_inode_dotl.c
-index d17502a738a9..b6eb1160296c 100644
---- a/fs/9p/vfs_inode_dotl.c
-+++ b/fs/9p/vfs_inode_dotl.c
-@@ -274,6 +274,7 @@ v9fs_vfs_atomic_open_dotl(struct inode *dir, struct dentry *dentry,
- 	if (IS_ERR(ofid)) {
- 		err = PTR_ERR(ofid);
- 		p9_debug(P9_DEBUG_VFS, "p9_client_walk failed %d\n", err);
-+		p9_client_clunk(dfid);
- 		goto out;
- 	}
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+index 55367ecb9442..18c780ffd4b5 100644
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -1250,15 +1250,15 @@ static const char *v9fs_vfs_get_link(struct dentry *dentry,
+ 		return ERR_PTR(-ECHILD);
  
-@@ -285,6 +286,7 @@ v9fs_vfs_atomic_open_dotl(struct inode *dir, struct dentry *dentry,
- 	if (err) {
- 		p9_debug(P9_DEBUG_VFS, "Failed to get acl values in creat %d\n",
- 			 err);
-+		p9_client_clunk(dfid);
- 		goto error;
- 	}
- 	err = p9_client_create_dotl(ofid, name, v9fs_open_to_dotl_flags(flags),
-@@ -292,6 +294,7 @@ v9fs_vfs_atomic_open_dotl(struct inode *dir, struct dentry *dentry,
- 	if (err < 0) {
- 		p9_debug(P9_DEBUG_VFS, "p9_client_open_dotl failed in creat %d\n",
- 			 err);
-+		p9_client_clunk(dfid);
- 		goto error;
- 	}
- 	v9fs_invalidate_inode_attr(dir);
+ 	v9ses = v9fs_dentry2v9ses(dentry);
+-	fid = v9fs_fid_lookup(dentry);
++	if (!v9fs_proto_dotu(v9ses))
++		return ERR_PTR(-EBADF);
++
+ 	p9_debug(P9_DEBUG_VFS, "%pd\n", dentry);
++	fid = v9fs_fid_lookup(dentry);
+ 
+ 	if (IS_ERR(fid))
+ 		return ERR_CAST(fid);
+ 
+-	if (!v9fs_proto_dotu(v9ses))
+-		return ERR_PTR(-EBADF);
+-
+ 	st = p9_client_stat(fid);
+ 	p9_client_clunk(fid);
+ 	if (IS_ERR(st))
 -- 
 2.35.1
 
