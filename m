@@ -2,82 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33C7F54780C
-	for <lists+stable@lfdr.de>; Sun, 12 Jun 2022 02:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B38547918
+	for <lists+stable@lfdr.de>; Sun, 12 Jun 2022 08:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbiFLAdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jun 2022 20:33:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44318 "EHLO
+        id S234565AbiFLG5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jun 2022 02:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232842AbiFLAdn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jun 2022 20:33:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76F93DDC7;
-        Sat, 11 Jun 2022 17:33:42 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ADB1B80B74;
-        Sun, 12 Jun 2022 00:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 368F6C34116;
-        Sun, 12 Jun 2022 00:33:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654994020;
-        bh=YK+v++7aHXh6ZVsNGPhoQ32la+K/dqkHHmiEfw1ISHg=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=Hh6uL5u9xn3vFbB7R+vcU+f8l+A2htz8iUC8hP7V9VGu2rmdOC8N8sZ8oXs3LK42M
-         QNj0xZyYREMyzdCEYboJOaCxEWkEYZ8JD1ElOEENCEYqGb74xgiTdg1EY4odTQdwbc
-         zBGbR+qS0GadrEnC1JQni46mScY/n01yG/I5hmjWcQOpgtc9jl2cInzhZtVmY3uT+1
-         T3p0S2BKDXu/6cIeXcdsInzM+bvvTbkcTsJGvm9yMzNZzQl1hJgVlBvwdGNYXeL2t8
-         sDGoRWACJMAVz2yoaga6ZP0+Ionzq3Z1viWp7C2+e0X+aPLneP25IKXDRwAjQq3n3l
-         5WObU+CphcP4Q==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 2315FE737F0;
-        Sun, 12 Jun 2022 00:33:40 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio,vdpa: fixes
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20220611034848-mutt-send-email-mst@kernel.org>
-References: <20220611034848-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20220611034848-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: eacea844594ff338db06437806707313210d4865
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: abe71eb32f3051f461d2975c674c0857549d0b93
-Message-Id: <165499402013.23172.7490053891155613764.pr-tracker-bot@kernel.org>
-Date:   Sun, 12 Jun 2022 00:33:40 +0000
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dan.carpenter@oracle.com, elic@nvidia.com, fam.zheng@bytedance.com,
-        gautam.dawar@xilinx.com, jasowang@redhat.com,
-        johannes@sipsolutions.net, liubo03@inspur.com, mst@redhat.com,
-        oliver.sang@intel.com, pilgrimtao@gmail.com, si-wei.liu@oracle.com,
-        stable@vger.kernel.org,
-        syzbot+5b59d6d459306a556f54@syzkaller.appspotmail.com,
-        vincent.whitchurch@axis.com, wangxiang@cdjrlc.com,
-        xieyongji@bytedance.com
-X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S234559AbiFLG5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jun 2022 02:57:44 -0400
+Received: from fornost.hmeau.com (helcar.hmeau.com [216.24.177.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3C3166AD2;
+        Sat, 11 Jun 2022 23:57:41 -0700 (PDT)
+Received: from gwarestrin.arnor.me.apana.org.au ([192.168.103.7])
+        by fornost.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1o0HXK-005qwQ-1k; Sun, 12 Jun 2022 16:57:27 +1000
+Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Sun, 12 Jun 2022 14:57:26 +0800
+Date:   Sun, 12 Jun 2022 14:57:26 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Jason Self <jason@bluehome.net>, stable@vger.kernel.org,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-crypto@vger.kernel.org
+Subject: Re: Build error on openrisc with CONFIG_CRYPTO_LIB_CURVE25519
+Message-ID: <YqWOVp2P8Qp/9/Ek@gondor.apana.org.au>
+References: <20220609162943.6e3bba4f@valencia>
+ <YqLTecx7MGFPOvhw@kroah.com>
+ <20220610182523.2f5620a2@valencia>
+ <20220610184255.20ecde41@valencia>
+ <YqQHZB6/u4nrFzIm@sol.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YqQHZB6/u4nrFzIm@sol.localdomain>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pull request you sent on Sat, 11 Jun 2022 03:48:48 -0400:
+On Fri, Jun 10, 2022 at 08:09:24PM -0700, Eric Biggers wrote:
+>
+> It looks like "crypto: memneq - move into lib/" is going to fix this
+> (https://lore.kernel.org/linux-crypto/20220528102429.189731-1-Jason@zx2c4.com).
+> At the moment it's queued in cryptodev/master.  Herbert, are you planning to
+> send it upstream soon?
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+OK I have added it to the crypto tree.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/abe71eb32f3051f461d2975c674c0857549d0b93
-
-Thank you!
-
+Thanks,
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
