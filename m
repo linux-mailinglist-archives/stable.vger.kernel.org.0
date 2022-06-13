@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3718D5493B8
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A55549871
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385665AbiFMOp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
+        id S1376593AbiFMNWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385692AbiFMOnl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22853B2E9E;
-        Mon, 13 Jun 2022 04:50:55 -0700 (PDT)
+        with ESMTP id S1377497AbiFMNUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6C76B036;
+        Mon, 13 Jun 2022 04:23:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C652B80D31;
-        Mon, 13 Jun 2022 11:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D935FC34114;
-        Mon, 13 Jun 2022 11:50:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31506B80D3A;
+        Mon, 13 Jun 2022 11:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88C9EC3411C;
+        Mon, 13 Jun 2022 11:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121053;
-        bh=cik2UWmz0PBmx+Cme4rzLA38B3Rv2FNtIkAKFF7lmls=;
+        s=korg; t=1655119396;
+        bh=oQaEf7TcFQLf12PeD593fPUkHJ8E0yg6lQV1dyKGqcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXtNXjteSmjDubuuEOaEXgD8OQ6jukV/TPrGZ59/Q9ev4W4zz1KrXPaTZALNRUO4l
-         wM+jwebksioC8rO6E3RSud3QQt2KsBfdWeuY45RyD7TPoFaryq5OG7EBKNETS5XrsP
-         n1T2C/21kPq7CmDzBbvTBRyGkS2RGTDugDewaT+4=
+        b=bZyRq+xpoDvLl625dfG9T5k3YzAoLDjvkSGuRHjk4jAS96IBQhTCNuYms1J3Fhtg+
+         atul8fOcnIVR4Sm9MbG0XlwaEIwvTuF+JPrF/FBmmtJzv2Vs7D1LcHsbQbUUwwdMHl
+         k3dyp0zcurmyGmzG9M4+H1bEkHAzLJyiXKSbRFKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 255/298] platform/x86: hp-wmi: Fix hp_wmi_read_int() reporting error (0x05)
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: [PATCH 5.15 247/247] zonefs: fix handling of explicit_open option on mount
 Date:   Mon, 13 Jun 2022 12:12:29 +0200
-Message-Id: <20220613094932.812347505@linuxfoundation.org>
+Message-Id: <20220613094930.437208619@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Lopez <jorge.lopez2@hp.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 12b19f14a21a2ee6348825d95b642ef2cd16794f ]
+commit a2a513be7139b279f1b5b2cee59c6c4950c34346 upstream.
 
-The purpose of this patch is to introduce a fix to hp_wmi_read_int()
-and eliminate failure error (0x05). Several WMI queries leverage
-hp_wmi_read_int() to read their data and were failing with error 0x05.
+Ignoring the explicit_open mount option on mount for devices that do not
+have a limit on the number of open zones must be done after the mount
+options are parsed and set in s_mount_opts. Move the check to ignore
+the explicit_open option after the call to zonefs_parse_options() in
+zonefs_fill_super().
 
-HPWMI_DISPLAY_QUERY
-HPWMI_HDDTEMP_QUERY
-HPWMI_ALS_QUERY
-HPWMI_HARDWARE_QUERY
-HPWMI_WIRELESS_QUERY
-HPWMI_POSTCODEERROR_QUERY
-
-The failure occurs because hp_wmi_read_int() calls
-hp_wmi_perform_query() with input parameter of size greater than zero.
-Invoking those WMI commands with an input buffer size greater than
-zero causes the command to be rejected and error 0x05 be returned.
-
-All changes were validated on a HP ZBook Workstation notebook,
-HP EliteBook x360, and HP EliteBook 850 G8.
-
-Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
-Link: https://lore.kernel.org/r/20220310210853.28367-2-jorge.lopez2@hp.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/hp-wmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/zonefs/super.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index 88f0bfd6ecf1..29ae35d15a41 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -347,7 +347,7 @@ static int hp_wmi_read_int(int query)
- 	int val = 0, ret;
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -1694,11 +1694,6 @@ static int zonefs_fill_super(struct supe
+ 	sbi->s_mount_opts = ZONEFS_MNTOPT_ERRORS_RO;
+ 	sbi->s_max_open_zones = bdev_max_open_zones(sb->s_bdev);
+ 	atomic_set(&sbi->s_open_zones, 0);
+-	if (!sbi->s_max_open_zones &&
+-	    sbi->s_mount_opts & ZONEFS_MNTOPT_EXPLICIT_OPEN) {
+-		zonefs_info(sb, "No open zones limit. Ignoring explicit_open mount option\n");
+-		sbi->s_mount_opts &= ~ZONEFS_MNTOPT_EXPLICIT_OPEN;
+-	}
  
- 	ret = hp_wmi_perform_query(query, HPWMI_READ, &val,
--				   sizeof(val), sizeof(val));
-+				   0, sizeof(val));
- 
+ 	ret = zonefs_read_super(sb);
  	if (ret)
- 		return ret < 0 ? ret : -EINVAL;
--- 
-2.35.1
-
+@@ -1717,6 +1712,12 @@ static int zonefs_fill_super(struct supe
+ 	zonefs_info(sb, "Mounting %u zones",
+ 		    blkdev_nr_zones(sb->s_bdev->bd_disk));
+ 
++	if (!sbi->s_max_open_zones &&
++	    sbi->s_mount_opts & ZONEFS_MNTOPT_EXPLICIT_OPEN) {
++		zonefs_info(sb, "No open zones limit. Ignoring explicit_open mount option\n");
++		sbi->s_mount_opts &= ~ZONEFS_MNTOPT_EXPLICIT_OPEN;
++	}
++
+ 	/* Create root directory inode */
+ 	ret = -ENOMEM;
+ 	inode = new_inode(sb);
 
 
