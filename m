@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B40C54880D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E478654870C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384850AbiFMOpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58722 "EHLO
+        id S239889AbiFMNN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385596AbiFMOnT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AC7B1C3F;
-        Mon, 13 Jun 2022 04:50:44 -0700 (PDT)
+        with ESMTP id S1359788AbiFMNKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:10:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 598B43BA6C;
+        Mon, 13 Jun 2022 04:21:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD82561499;
-        Mon, 13 Jun 2022 11:50:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE65C34114;
-        Mon, 13 Jun 2022 11:50:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9578B80EA8;
+        Mon, 13 Jun 2022 11:21:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D746EC34114;
+        Mon, 13 Jun 2022 11:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121037;
-        bh=0/OPehuoJpxf3SgM/ilGfsr7BWC3yKaBiuwbOz7xEW8=;
+        s=korg; t=1655119292;
+        bh=9iiuiFCgsrm+sHgYub5Z3TgK2n+4XPqxCQptH1jhPjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghKs8gSOWuPDA2ndhffxd4ufTj/N2uQgv2ULFL9dstKFspn2veMvFEMpuEQLf9dh7
-         NvdLo8BugStqjAMEQ+Zr8UegFxQo0CNhAFhoJTaMSC9LrPMzxtfCgf3lrZyMr8exi7
-         8n3OinCZP7En1lcC9KFdG2mPuyZC8WOs0kU1YInI=
+        b=tl9r6qSTky8d2uYjFcuEYVRa6KJMye0bGXOjHdhV8OcDcAlbENNJPcyanw8nZYKK1
+         laFRw9b9dYI0ksnWzQYQV1H3ZGA09Wzw0AZa60toj6sZOBlMM/ybRWghHuUAEh8xuC
+         ua8gwKpE88DyDmzBlYN58TxHwkMOBCnUyxQyD7RM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 215/298] soundwire: qcom: adjust autoenumeration timeout
-Date:   Mon, 13 Jun 2022 12:11:49 +0200
-Message-Id: <20220613094931.625532551@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 210/247] drm/amd/pm: use bitmap_{from,to}_arr32 where appropriate
+Date:   Mon, 13 Jun 2022 12:11:52 +0200
+Message-Id: <20220613094929.310086712@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
+References: <20220613094922.843438024@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +63,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Yury Norov <yury.norov@gmail.com>
 
-[ Upstream commit 74da272400b46f2e898f115d1b1cd60828766919 ]
+[ Upstream commit 525d6515604eb1373ce5e6372a6b6640953b2d6a ]
 
-Currently timeout for autoenumeration during probe and bus reset is set to
-2 secs which is really a big value. This can have an adverse effect on
-boot time if the slave device is not ready/reset.
-This was the case with wcd938x which was not reset yet but we spent 2
-secs waiting in the soundwire controller probe. Reduce this time to
-1/10 of Hz which should be good enough time to finish autoenumeration
-if any slaves are available on the bus.
+The smu_v1X_0_set_allowed_mask() uses bitmap_copy() to convert
+bitmap to 32-bit array. This may be wrong due to endiannes issues.
+Fix it by switching to bitmap_{from,to}_arr32.
 
-Reported-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220506084705.18525-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+CC: Alexander Gordeev <agordeev@linux.ibm.com>
+CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+CC: Christian Borntraeger <borntraeger@linux.ibm.com>
+CC: Claudio Imbrenda <imbrenda@linux.ibm.com>
+CC: David Hildenbrand <david@redhat.com>
+CC: Heiko Carstens <hca@linux.ibm.com>
+CC: Janosch Frank <frankja@linux.ibm.com>
+CC: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+CC: Sven Schnelle <svens@linux.ibm.com>
+CC: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/qcom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c | 2 +-
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
-index 54813417ef8e..249f1b69ec94 100644
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -99,7 +99,7 @@
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
+index 87b055466a33..e6c93396434f 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
+@@ -772,7 +772,7 @@ int smu_v11_0_set_allowed_mask(struct smu_context *smu)
+ 		goto failed;
+ 	}
  
- #define SWRM_SPECIAL_CMD_ID	0xF
- #define MAX_FREQ_NUM		1
--#define TIMEOUT_MS		(2 * HZ)
-+#define TIMEOUT_MS		100
- #define QCOM_SWRM_MAX_RD_LEN	0x1
- #define QCOM_SDW_MAX_PORTS	14
- #define DEFAULT_CLK_FREQ	9600000
+-	bitmap_copy((unsigned long *)feature_mask, feature->allowed, 64);
++	bitmap_to_arr32(feature_mask, feature->allowed, 64);
+ 
+ 	ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetAllowedFeaturesMaskHigh,
+ 					  feature_mask[1], NULL);
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
+index 8d4aa16b2ae7..6211570fb64f 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
+@@ -721,7 +721,7 @@ int smu_v13_0_set_allowed_mask(struct smu_context *smu)
+ 	if (bitmap_empty(feature->allowed, SMU_FEATURE_MAX) || feature->feature_num < 64)
+ 		goto failed;
+ 
+-	bitmap_copy((unsigned long *)feature_mask, feature->allowed, 64);
++	bitmap_to_arr32(feature_mask, feature->allowed, 64);
+ 
+ 	ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetAllowedFeaturesMaskHigh,
+ 					      feature_mask[1], NULL);
 -- 
 2.35.1
 
