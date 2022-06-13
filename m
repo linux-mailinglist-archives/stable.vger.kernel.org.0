@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C94435491C0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20410548C17
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380552AbiFMOGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51914 "EHLO
+        id S245287AbiFMKpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382247AbiFMOFg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99B4939EE;
-        Mon, 13 Jun 2022 04:40:32 -0700 (PDT)
+        with ESMTP id S245056AbiFMKli (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:41:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5601122BE0;
+        Mon, 13 Jun 2022 03:23:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16941612D0;
-        Mon, 13 Jun 2022 11:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 253F0C3411B;
-        Mon, 13 Jun 2022 11:40:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14E26B80E90;
+        Mon, 13 Jun 2022 10:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B646C34114;
+        Mon, 13 Jun 2022 10:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120426;
-        bh=jdGwrjvobpzMm2qGCl2OlF4BwcuG1X9pQUn5LjqBk/o=;
+        s=korg; t=1655115833;
+        bh=ZFNXhbHfbocFCUSfvXMVgWSinwDEA9oa7M4fSnZ4Qwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MkMcmDFYxKh8GeNySsrx+Dfbijl6/ix21SA2qiFYLs326X3MHSRIYY2bhzdZAoeSV
-         vLRp7WyqQ9gARzAhNZSvgHqkWKudQl2iV65u3Ua3vuCpRvi4PLEqYSsGnBZSkeWtdX
-         MTrLWXIg80Fa5nAkcwHmusEbzowBtqoNAt3hToQU=
+        b=eQ0XXlT9+Pinjq/Y/lCee3zJX3inHx9+AoLgIRqXt2sLbu+JtxVAlATjbTyBJ/23c
+         Lqa4luLcvak4i3Re1kF0sSGzgkGCTq9qwRbJxIrRO6mhlbu2HTTIz9QcW94d9F+/xh
+         e8NQRWAATBJ9gXFg2tREo0nvZHdE+ESF+IaLVaIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 011/298] remoteproc: imx_rproc: Ignore create mem entry for resource table
+Subject: [PATCH 4.14 047/218] drm: fix EDID struct for old ARM OABI format
 Date:   Mon, 13 Jun 2022 12:08:25 +0200
-Message-Id: <20220613094925.266760276@linuxfoundation.org>
+Message-Id: <20220613094919.530639897@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +61,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 58b7c856519fe946620ee68dd0c37bd3c695484a ]
+[ Upstream commit 47f15561b69e226bfc034e94ff6dbec51a4662af ]
 
-Resource table is used by Linux to get information published by
-remote processor. It should be not be used for memory allocation, so
-not create rproc mem entry.
+When building the kernel for arm with the "-mabi=apcs-gnu" option, gcc
+will force alignment of all structures and unions to a word boundary
+(see also STRUCTURE_SIZE_BOUNDARY and the "-mstructure-size-boundary=XX"
+option if you're a gcc person), even when the members of said structures
+do not want or need said alignment.
 
-Fixes: b29b4249f8f0 ("remoteproc: imx_rproc: add i.MX specific parse fw hook")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/20220415025737.1561976-1-peng.fan@oss.nxp.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+This completely messes up the structure alignment of 'struct edid' on
+those targets, because even though all the embedded structures are
+marked with "__attribute__((packed))", the unions that contain them are
+not.
+
+This was exposed by commit f1e4c916f97f ("drm/edid: add EDID block count
+and size helpers"), but the bug is pre-existing.  That commit just made
+the structure layout problem cause a build failure due to the addition
+of the
+
+        BUILD_BUG_ON(sizeof(*edid) != EDID_LENGTH);
+
+sanity check in drivers/gpu/drm/drm_edid.c:edid_block_data().
+
+This legacy union alignment should probably not be used in the first
+place, but we can fix the layout by adding the packed attribute to the
+union entries even when each member is already packed and it shouldn't
+matter in a sane build environment.
+
+You can see this issue with a trivial test program:
+
+  union {
+	struct {
+		char c[5];
+	};
+	struct {
+		char d;
+		unsigned e;
+	} __attribute__((packed));
+  } a = { "1234" };
+
+where building this with a normal "gcc -S" will result in the expected
+5-byte size of said union:
+
+	.type	a, @object
+	.size	a, 5
+
+but with an ARM compiler and the old ABI:
+
+    arm-linux-gnu-gcc -mabi=apcs-gnu -mfloat-abi=soft -S t.c
+
+you get
+
+	.type	a, %object
+	.size	a, 8
+
+instead, because even though each member of the union is packed, the
+union itself still gets aligned.
+
+This was reported by Sudip for the spear3xx_defconfig target.
+
+Link: https://lore.kernel.org/lkml/YpCUzStDnSgQLNFN@debian/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/imx_rproc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/drm/drm_edid.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/remoteproc/imx_rproc.c b/drivers/remoteproc/imx_rproc.c
-index 7a096f1891e6..91eb037089ef 100644
---- a/drivers/remoteproc/imx_rproc.c
-+++ b/drivers/remoteproc/imx_rproc.c
-@@ -423,6 +423,9 @@ static int imx_rproc_prepare(struct rproc *rproc)
- 		if (!strcmp(it.node->name, "vdev0buffer"))
- 			continue;
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index 267e0426c479..0262e32ab59e 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -115,7 +115,7 @@ struct detailed_data_monitor_range {
+ 			u8 supported_scalings;
+ 			u8 preferred_refresh;
+ 		} __attribute__((packed)) cvt;
+-	} formula;
++	} __attribute__((packed)) formula;
+ } __attribute__((packed));
  
-+		if (!strcmp(it.node->name, "rsc-table"))
-+			continue;
-+
- 		rmem = of_reserved_mem_lookup(it.node);
- 		if (!rmem) {
- 			dev_err(priv->dev, "unable to acquire memory-region\n");
+ struct detailed_data_wpindex {
+@@ -148,7 +148,7 @@ struct detailed_non_pixel {
+ 		struct detailed_data_wpindex color;
+ 		struct std_timing timings[6];
+ 		struct cvt_timing cvt[4];
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define EDID_DETAIL_EST_TIMINGS 0xf7
+@@ -166,7 +166,7 @@ struct detailed_timing {
+ 	union {
+ 		struct detailed_pixel_timing pixel_data;
+ 		struct detailed_non_pixel other_data;
+-	} data;
++	} __attribute__((packed)) data;
+ } __attribute__((packed));
+ 
+ #define DRM_EDID_INPUT_SERRATION_VSYNC (1 << 0)
 -- 
 2.35.1
 
