@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3178B548688
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC558548611
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381009AbiFMOHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:07:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41542 "EHLO
+        id S1385494AbiFMOpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:45:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380985AbiFMODV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:03:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73BAD8FFB6;
-        Mon, 13 Jun 2022 04:38:26 -0700 (PDT)
+        with ESMTP id S1385893AbiFMOn5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:43:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A6EB41D1;
+        Mon, 13 Jun 2022 04:51:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1195B80ECE;
-        Mon, 13 Jun 2022 11:38:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 121FCC34114;
-        Mon, 13 Jun 2022 11:38:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B90F1B80EDF;
+        Mon, 13 Jun 2022 11:51:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C41DC34114;
+        Mon, 13 Jun 2022 11:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120303;
-        bh=eSd1ELFsAoy1oMuc2JFhD/6t5LSqKBh+HAHIcUu/rcE=;
+        s=korg; t=1655121061;
+        bh=IBXMgi2m7jjJOg4V5lMk5wKC20WA1H57SOGcxCiq9to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAHWOzl2ur08n/jPOAim6QO9PyiVR1qSvbwcwxeclPSssqbo1mA/BW6jvRvR0Oh1O
-         UrK5LQca5yAWpTszyCipHb1+3OOVz1YlZyHmEq3YN4lUlJo4ayCWU8T+hOmGAW+uur
-         tFtJFe7atnoJ4+0IWRk/5XEdaHBgyA4E4NINWGNA=
+        b=rndYg5vwt+ygcOBIIoYm3Ag/XV/+7XTwUien2pawSwEuC3i7YmT56qLhCaAg2RMxm
+         z72GqCeRp1bwlkrHzgTGnuG/eOLtopkzLXP6T6FuGwwhqnI/nqFEw5g85gjfF2XWeR
+         D5dO1G9ieSqLqU+RtG5nRaLc7WchkAT7HWleEqys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.18 323/339] vduse: Fix NULL pointer dereference on sysfs access
-Date:   Mon, 13 Jun 2022 12:12:28 +0200
-Message-Id: <20220613094936.543634199@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Andr=C3=A9=20Kapelrud?= <a.kapelrud@gmail.com>
+Subject: [PATCH 5.17 258/298] ALSA: usb-audio: Set up (implicit) sync for Saffire 6
+Date:   Mon, 13 Jun 2022 12:12:32 +0200
+Message-Id: <20220613094932.902572931@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b27ee76c74dc831d6e092eaebc2dfc9c0beed1c9 upstream.
+commit e0469d6581aecb0e34e2ec64f39f88e6985cc52f upstream.
 
-The control device has no drvdata. So we will get a
-NULL pointer dereference when accessing control
-device's msg_timeout attribute via sysfs:
+Focusrite Saffire 6 has fixed audioformat quirks with multiple
+endpoints assigned to a single altsetting.  Unfortunately the generic
+parser couldn't detect the sync endpoint correctly as the implicit
+sync due to the missing EP attribute bits.  In the former kernels, it
+used to work somehow casually, but it's been broken for a while after
+the large code change in 5.11.
 
-[ 132.841881][ T3644] BUG: kernel NULL pointer dereference, address: 00000000000000f8
-[ 132.850619][ T3644] RIP: 0010:msg_timeout_show (drivers/vdpa/vdpa_user/vduse_dev.c:1271)
-[ 132.869447][ T3644] dev_attr_show (drivers/base/core.c:2094)
-[ 132.870215][ T3644] sysfs_kf_seq_show (fs/sysfs/file.c:59)
-[ 132.871164][ T3644] ? device_remove_bin_file (drivers/base/core.c:2088)
-[ 132.872082][ T3644] kernfs_seq_show (fs/kernfs/file.c:164)
-[ 132.872838][ T3644] seq_read_iter (fs/seq_file.c:230)
-[ 132.873578][ T3644] ? __vmalloc_area_node (mm/vmalloc.c:3041)
-[ 132.874532][ T3644] kernfs_fop_read_iter (fs/kernfs/file.c:238)
-[ 132.875513][ T3644] __kernel_read (fs/read_write.c:440 (discriminator 1))
-[ 132.876319][ T3644] kernel_read (fs/read_write.c:459)
-[ 132.877129][ T3644] kernel_read_file (fs/kernel_read_file.c:94)
-[ 132.877978][ T3644] kernel_read_file_from_fd (include/linux/file.h:45 fs/kernel_read_file.c:186)
-[ 132.879019][ T3644] __do_sys_finit_module (kernel/module.c:4207)
-[ 132.879930][ T3644] __ia32_sys_finit_module (kernel/module.c:4189)
-[ 132.880930][ T3644] do_int80_syscall_32 (arch/x86/entry/common.c:112 arch/x86/entry/common.c:132)
-[ 132.881847][ T3644] entry_INT80_compat (arch/x86/entry/entry_64_compat.S:419)
+This patch cures the regression by the following:
+- Allow the static quirk table to provide the sync EP information;
+  we just need to fill the fields and let the generic parser skipping
+  parsing if sync_ep is already set.
+- Add the sync endpoint information to the entry for Saffire 6.
 
-To fix it, don't create the unneeded attribute for
-control device anymore.
-
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Message-Id: <20220426073656.229-1-xieyongji@bytedance.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 7b0efea4baf0 ("ALSA: usb-audio: Add missing ep_idx in fixed EP quirks")
+Reported-and-tested-by: André Kapelrud <a.kapelrud@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220606160910.6926-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ sound/usb/pcm.c          |    3 +++
+ sound/usb/quirks-table.h |    7 ++++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1344,9 +1344,9 @@ static int vduse_create_dev(struct vduse
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -291,6 +291,9 @@ int snd_usb_audioformat_set_sync_ep(stru
+ 	bool is_playback;
+ 	int err;
  
- 	dev->minor = ret;
- 	dev->msg_timeout = VDUSE_MSG_DEFAULT_TIMEOUT;
--	dev->dev = device_create(vduse_class, NULL,
--				 MKDEV(MAJOR(vduse_major), dev->minor),
--				 dev, "%s", config->name);
-+	dev->dev = device_create_with_groups(vduse_class, NULL,
-+				MKDEV(MAJOR(vduse_major), dev->minor),
-+				dev, vduse_dev_groups, "%s", config->name);
- 	if (IS_ERR(dev->dev)) {
- 		ret = PTR_ERR(dev->dev);
- 		goto err_dev;
-@@ -1595,7 +1595,6 @@ static int vduse_init(void)
- 		return PTR_ERR(vduse_class);
- 
- 	vduse_class->devnode = vduse_devnode;
--	vduse_class->dev_groups = vduse_dev_groups;
- 
- 	ret = alloc_chrdev_region(&vduse_major, 0, VDUSE_DEV_MAX, "vduse");
- 	if (ret)
++	if (fmt->sync_ep)
++		return 0; /* already set up */
++
+ 	alts = snd_usb_get_host_interface(chip, fmt->iface, fmt->altsetting);
+ 	if (!alts)
+ 		return 0;
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2658,7 +2658,12 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 					.nr_rates = 2,
+ 					.rate_table = (unsigned int[]) {
+ 						44100, 48000
+-					}
++					},
++					.sync_ep = 0x82,
++					.sync_iface = 0,
++					.sync_altsetting = 1,
++					.sync_ep_idx = 1,
++					.implicit_fb = 1,
+ 				}
+ 			},
+ 			{
 
 
