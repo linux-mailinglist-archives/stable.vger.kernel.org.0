@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84ECB548AEF
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ECB05498C7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239644AbiFMNAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
+        id S1358656AbiFMMHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:07:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357513AbiFMM66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:58:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907296272;
-        Mon, 13 Jun 2022 04:17:50 -0700 (PDT)
+        with ESMTP id S1359354AbiFMMFo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B862B18E;
+        Mon, 13 Jun 2022 04:00:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2E23B80EAA;
-        Mon, 13 Jun 2022 11:17:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20E38C3411C;
-        Mon, 13 Jun 2022 11:17:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3082B80D3A;
+        Mon, 13 Jun 2022 10:59:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC3FC3411C;
+        Mon, 13 Jun 2022 10:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119067;
-        bh=8EvTYHAAQjtW/JIG1V4RPkytBda6WRtxdBfG0KfJQ7I=;
+        s=korg; t=1655117997;
+        bh=ZRMaL50SIMEkO456BZqAREZjkYPymIv0UKEaPWvWl6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdSzIzH+AHwYWJ36kJaeUtm96PUT9tvsTxVyTCuBEVxOl4zZFn/43h/A6niS8D4oe
-         lXNeBImeti/82PqgGpn/Hz8qvK6gJQK6Zn77I4bJdoGtpk+OYyo3VnDhxyf1YgxRpe
-         HbnBLmzrtDFPUQH+HilgeMSGuuLPi2E8O8sZKV4Q=
+        b=SCX3pogYX0usIGppDFICuFkjqk81OWONS34b893uL6UoOFRqhP9soRH2YMkBE5b/I
+         kDkIBinnV/rXqF23GG5PhQwPUmeasv2lX1nG9UDXybhL06AP6r9sTFpzyhA9deQ+ct
+         rAPYso1aKc2XZQIzTviLmtM1ExhPvcX4QqGtsw+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 128/247] f2fs: fix to tag gcing flag on page during file defragment
+Subject: [PATCH 4.19 206/287] serial: 8250_fintek: Check SER_RS485_RTS_* only with RS485
 Date:   Mon, 13 Jun 2022 12:10:30 +0200
-Message-Id: <20220613094926.843493931@linuxfoundation.org>
+Message-Id: <20220613094930.109269076@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 2d1fe8a86bf5e0663866fd0da83c2af1e1b0e362 ]
+[ Upstream commit af0179270977508df6986b51242825d7edd59caf ]
 
-In order to garantee migrated data be persisted during checkpoint,
-otherwise out-of-order persistency between data and node may cause
-data corruption after SPOR.
+SER_RS485_RTS_ON_SEND and SER_RS485_RTS_AFTER_SEND relate to behavior
+within RS485 operation. The driver checks if they have the same value
+which is not possible to realize with the hardware. The check is taken
+regardless of SER_RS485_ENABLED flag and -EINVAL is returned when the
+check fails, which creates problems.
 
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+This check makes it unnecessarily complicated to turn RS485 mode off as
+simple zeroed serial_rs485 struct will trigger that equal values check.
+In addition, the driver itself memsets its rs485 structure to zero when
+RS485 is disabled but if userspace would try to make an TIOCSRS485
+ioctl() call with the very same struct, it would end up failing with
+-EINVAL which doesn't make much sense.
+
+Resolve the problem by moving the check inside SER_RS485_ENABLED block.
+
+Fixes: 7ecc77011c6f ("serial: 8250_fintek: Return -EINVAL on invalid configuration")
+Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/035c738-8ea5-8b17-b1d7-84a7b3aeaa51@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/8250/8250_fintek.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index c67756a6e32a..bfcafc20eada 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -2673,6 +2673,7 @@ static int f2fs_defragment_range(struct f2fs_sb_info *sbi,
- 			}
+diff --git a/drivers/tty/serial/8250/8250_fintek.c b/drivers/tty/serial/8250/8250_fintek.c
+index 79a4958b3f5c..440023069f4f 100644
+--- a/drivers/tty/serial/8250/8250_fintek.c
++++ b/drivers/tty/serial/8250/8250_fintek.c
+@@ -197,12 +197,12 @@ static int fintek_8250_rs485_config(struct uart_port *port,
+ 	if (!pdata)
+ 		return -EINVAL;
  
- 			set_page_dirty(page);
-+			set_page_private_gcing(page);
- 			f2fs_put_page(page, 1);
+-	/* Hardware do not support same RTS level on send and receive */
+-	if (!(rs485->flags & SER_RS485_RTS_ON_SEND) ==
+-			!(rs485->flags & SER_RS485_RTS_AFTER_SEND))
+-		return -EINVAL;
  
- 			idx++;
+ 	if (rs485->flags & SER_RS485_ENABLED) {
++		/* Hardware do not support same RTS level on send and receive */
++		if (!(rs485->flags & SER_RS485_RTS_ON_SEND) ==
++		    !(rs485->flags & SER_RS485_RTS_AFTER_SEND))
++			return -EINVAL;
+ 		memset(rs485->padding, 0, sizeof(rs485->padding));
+ 		config |= RS485_URA;
+ 	} else {
 -- 
 2.35.1
 
