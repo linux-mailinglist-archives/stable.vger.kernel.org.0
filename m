@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A6C54969F
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10B254963C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378222AbiFMNmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58252 "EHLO
+        id S1382517AbiFMORn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379228AbiFMNkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:04 -0400
+        with ESMTP id S1383572AbiFMOQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:16:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B76D122;
-        Mon, 13 Jun 2022 04:30:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8AD9EB7E;
+        Mon, 13 Jun 2022 04:43:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3527360F18;
-        Mon, 13 Jun 2022 11:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49030C34114;
-        Mon, 13 Jun 2022 11:30:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85A7B61425;
+        Mon, 13 Jun 2022 11:43:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A69C34114;
+        Mon, 13 Jun 2022 11:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119848;
-        bh=71pftw3OoNE6+mQQHohO9Rn9Lsf9BTrdcnxHCcIWmas=;
+        s=korg; t=1655120579;
+        bh=RRrSilXv0dh4cPf2Huogff/V0w2p5hK7rB8FV0PCHQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZIno9HC2UieKZ8wJJuMhNloV8EEf24RbfJCfHR5ne6f8lZHK5L8N9hPTNJN8Fgz7
-         jCG3RuaE9Kf0S33xSe/V/m6AQSfQ6gYIrqPgZZbrN2pX90papoc3bgJFPX5jY9EgGa
-         ZTlyrH1sYSUMGBYKYkARt/XtRqJdMZLtqrSFa7zU=
+        b=b5vDfwM9HQVY3hB8l5/dhI/mFnrb9RhoGqXmlBDaEU32d3qx8v1RHhKqysjwzRtfp
+         n/DHPfIXsApWXNCHxEO+l9ZMDOqm8F/UMNKlVdGphYXNqnxT4lz2b381Ji6ttRM42G
+         GhGyikkxn6jHBVLd9WPHMeg6TyGVwnHfFrZxogMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Vincent Ray <vray@kalrayinc.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 152/339] Bluetooth: hci_sync: Fix attempting to suspend with unfiltered passive scan
+Subject: [PATCH 5.17 083/298] net: sched: fixed barrier to prevent skbuff sticking in qdisc backlog
 Date:   Mon, 13 Jun 2022 12:09:37 +0200
-Message-Id: <20220613094931.293769457@linuxfoundation.org>
+Message-Id: <20220613094927.463971589@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,142 +55,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Vincent Ray <vray@kalrayinc.com>
 
-[ Upstream commit 3b42055388c30f2761a2d9cd9af2c99611dfe457 ]
+[ Upstream commit a54ce3703613e41fe1d98060b62ec09a3984dc28 ]
 
-When suspending the passive scanning _must_ have its filter_policy set
-to 0x01 to use the accept list otherwise _any_ advertise report would
-end up waking up the system.
+In qdisc_run_begin(), smp_mb__before_atomic() used before test_bit()
+does not provide any ordering guarantee as test_bit() is not an atomic
+operation. This, added to the fact that the spin_trylock() call at
+the beginning of qdisc_run_begin() does not guarantee acquire
+semantics if it does not grab the lock, makes it possible for the
+following statement :
 
-In order to fix the filter_policy the code now checks for
-hdev->suspended && HCI_CONN_FLAG_REMOTE_WAKEUP
-first, since the MGMT_OP_SET_DEVICE_FLAGS will reject any attempt to
-set HCI_CONN_FLAG_REMOTE_WAKEUP when it cannot be programmed in the
-acceptlist, so it can return success causing the proper filter_policy
-to be used.
+if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215768
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+to be executed before an enqueue operation called before
+qdisc_run_begin().
+
+As a result the following race can happen :
+
+           CPU 1                             CPU 2
+
+      qdisc_run_begin()               qdisc_run_begin() /* true */
+        set(MISSED)                            .
+      /* returns false */                      .
+          .                            /* sees MISSED = 1 */
+          .                            /* so qdisc not empty */
+          .                            __qdisc_run()
+          .                                    .
+          .                              pfifo_fast_dequeue()
+ ----> /* may be done here */                  .
+|         .                                clear(MISSED)
+|         .                                    .
+|         .                                smp_mb __after_atomic();
+|         .                                    .
+|         .                                /* recheck the queue */
+|         .                                /* nothing => exit   */
+|   enqueue(skb1)
+|         .
+|   qdisc_run_begin()
+|         .
+|     spin_trylock() /* fail */
+|         .
+|     smp_mb__before_atomic() /* not enough */
+|         .
+ ---- if (test_bit(MISSED))
+        return false;   /* exit */
+
+In the above scenario, CPU 1 and CPU 2 both try to grab the
+qdisc->seqlock at the same time. Only CPU 2 succeeds and enters the
+bypass code path, where it emits its skb then calls __qdisc_run().
+
+CPU1 fails, sets MISSED and goes down the traditionnal enqueue() +
+dequeue() code path. But when executing qdisc_run_begin() for the
+second time, after enqueuing its skbuff, it sees the MISSED bit still
+set (by itself) and consequently chooses to exit early without setting
+it again nor trying to grab the spinlock again.
+
+Meanwhile CPU2 has seen MISSED = 1, cleared it, checked the queue
+and found it empty, so it returned.
+
+At the end of the sequence, we end up with skb1 enqueued in the
+backlog, both CPUs out of __dev_xmit_skb(), the MISSED bit not set,
+and no __netif_schedule() called made. skb1 will now linger in the
+qdisc until somebody later performs a full __qdisc_run(). Associated
+to the bypass capacity of the qdisc, and the ability of the TCP layer
+to avoid resending packets which it knows are still in the qdisc, this
+can lead to serious traffic "holes" in a TCP connection.
+
+We fix this by replacing the smp_mb__before_atomic() / test_bit() /
+set_bit() / smp_mb__after_atomic() sequence inside qdisc_run_begin()
+by a single test_and_set_bit() call, which is more concise and
+enforces the needed memory barriers.
+
+Fixes: 89837eb4b246 ("net: sched: add barrier to ensure correct ordering for lockless qdisc")
+Signed-off-by: Vincent Ray <vray@kalrayinc.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220526001746.2437669-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 58 +++++++++++++++++++++++++++++-----------
- 1 file changed, 43 insertions(+), 15 deletions(-)
+ include/net/sch_generic.h | 36 ++++++++----------------------------
+ 1 file changed, 8 insertions(+), 28 deletions(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 13600bf120b0..6b8d1cd65de4 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -1664,20 +1664,19 @@ static int hci_le_add_accept_list_sync(struct hci_dev *hdev,
- 	struct hci_cp_le_add_to_accept_list cp;
- 	int err;
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index 472843eedbae..4fe0892dde1a 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -187,37 +187,17 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
+ 		if (spin_trylock(&qdisc->seqlock))
+ 			return true;
  
-+	/* During suspend, only wakeable devices can be in acceptlist */
-+	if (hdev->suspended &&
-+	    !test_bit(HCI_CONN_FLAG_REMOTE_WAKEUP, params->flags))
-+		return 0;
-+
- 	/* Select filter policy to accept all advertising */
- 	if (*num_entries >= hdev->le_accept_list_size)
- 		return -ENOSPC;
- 
- 	/* Accept list can not be used with RPAs */
- 	if (!use_ll_privacy(hdev) &&
--	    hci_find_irk_by_addr(hdev, &params->addr, params->addr_type)) {
-+	    hci_find_irk_by_addr(hdev, &params->addr, params->addr_type))
- 		return -EINVAL;
--	}
+-		/* Paired with smp_mb__after_atomic() to make sure
+-		 * STATE_MISSED checking is synchronized with clearing
+-		 * in pfifo_fast_dequeue().
++		/* No need to insist if the MISSED flag was already set.
++		 * Note that test_and_set_bit() also gives us memory ordering
++		 * guarantees wrt potential earlier enqueue() and below
++		 * spin_trylock(), both of which are necessary to prevent races
+ 		 */
+-		smp_mb__before_atomic();
 -
--	/* During suspend, only wakeable devices can be in acceptlist */
--	if (hdev->suspended &&
--	    !test_bit(HCI_CONN_FLAG_REMOTE_WAKEUP, params->flags))
--		return 0;
+-		/* If the MISSED flag is set, it means other thread has
+-		 * set the MISSED flag before second spin_trylock(), so
+-		 * we can return false here to avoid multi cpus doing
+-		 * the set_bit() and second spin_trylock() concurrently.
+-		 */
+-		if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
++		if (test_and_set_bit(__QDISC_STATE_MISSED, &qdisc->state))
+ 			return false;
  
- 	/* Attempt to program the device in the resolving list first to avoid
- 	 * having to rollback in case it fails since the resolving list is
-@@ -4881,10 +4880,28 @@ static int hci_update_event_filter_sync(struct hci_dev *hdev)
- 	return 0;
- }
- 
-+/* This function disables scan (BR and LE) and mark it as paused */
-+static int hci_pause_scan_sync(struct hci_dev *hdev)
-+{
-+	if (hdev->scanning_paused)
-+		return 0;
-+
-+	/* Disable page scan if enabled */
-+	if (test_bit(HCI_PSCAN, &hdev->flags))
-+		hci_write_scan_enable_sync(hdev, SCAN_DISABLED);
-+
-+	hci_scan_disable_sync(hdev);
-+
-+	hdev->scanning_paused = true;
-+
-+	return 0;
-+}
-+
- /* This function performs the HCI suspend procedures in the follow order:
-  *
-  * Pause discovery (active scanning/inquiry)
-  * Pause Directed Advertising/Advertising
-+ * Pause Scanning (passive scanning in case discovery was not active)
-  * Disconnect all connections
-  * Set suspend_status to BT_SUSPEND_DISCONNECT if hdev cannot wakeup
-  * otherwise:
-@@ -4910,15 +4927,11 @@ int hci_suspend_sync(struct hci_dev *hdev)
- 	/* Pause other advertisements */
- 	hci_pause_advertising_sync(hdev);
- 
--	/* Disable page scan if enabled */
--	if (test_bit(HCI_PSCAN, &hdev->flags))
--		hci_write_scan_enable_sync(hdev, SCAN_DISABLED);
+-		/* Set the MISSED flag before the second spin_trylock(),
+-		 * if the second spin_trylock() return false, it means
+-		 * other cpu holding the lock will do dequeuing for us
+-		 * or it will see the MISSED flag set after releasing
+-		 * lock and reschedule the net_tx_action() to do the
+-		 * dequeuing.
+-		 */
+-		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
 -
- 	/* Suspend monitor filters */
- 	hci_suspend_monitor_sync(hdev);
- 
- 	/* Prevent disconnects from causing scanning to be re-enabled */
--	hdev->scanning_paused = true;
-+	hci_pause_scan_sync(hdev);
- 
- 	/* Soft disconnect everything (power off) */
- 	err = hci_disconnect_all_sync(hdev, HCI_ERROR_REMOTE_POWER_OFF);
-@@ -4989,6 +5002,22 @@ static void hci_resume_monitor_sync(struct hci_dev *hdev)
+-		/* spin_trylock() only has load-acquire semantic, so use
+-		 * smp_mb__after_atomic() to ensure STATE_MISSED is set
+-		 * before doing the second spin_trylock().
+-		 */
+-		smp_mb__after_atomic();
+-
+-		/* Retry again in case other CPU may not see the new flag
+-		 * after it releases the lock at the end of qdisc_run_end().
++		/* Try to take the lock again to make sure that we will either
++		 * grab it or the CPU that still has it will see MISSED set
++		 * when testing it in qdisc_run_end()
+ 		 */
+ 		return spin_trylock(&qdisc->seqlock);
  	}
- }
- 
-+/* This function resume scan and reset paused flag */
-+static int hci_resume_scan_sync(struct hci_dev *hdev)
-+{
-+	if (!hdev->scanning_paused)
-+		return 0;
-+
-+	hci_update_scan_sync(hdev);
-+
-+	/* Reset passive scanning to normal */
-+	hci_update_passive_scan_sync(hdev);
-+
-+	hdev->scanning_paused = false;
-+
-+	return 0;
-+}
-+
- /* This function performs the HCI suspend procedures in the follow order:
-  *
-  * Restore event mask
-@@ -5011,10 +5040,9 @@ int hci_resume_sync(struct hci_dev *hdev)
- 
- 	/* Clear any event filters and restore scan state */
- 	hci_clear_event_filter_sync(hdev);
--	hci_update_scan_sync(hdev);
- 
--	/* Reset passive scanning to normal */
--	hci_update_passive_scan_sync(hdev);
-+	/* Resume scanning */
-+	hci_resume_scan_sync(hdev);
- 
- 	/* Resume monitor filters */
- 	hci_resume_monitor_sync(hdev);
 -- 
 2.35.1
 
