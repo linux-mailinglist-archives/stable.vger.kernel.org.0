@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 129595496F7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD85F54973C
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344448AbiFMNMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43460 "EHLO
+        id S1384001AbiFMOgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:36:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359443AbiFMNJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E893139699;
-        Mon, 13 Jun 2022 04:20:39 -0700 (PDT)
+        with ESMTP id S1384021AbiFMOeu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:34:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63392AE255;
+        Mon, 13 Jun 2022 04:49:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C8DEB80D31;
-        Mon, 13 Jun 2022 11:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CAEC34114;
-        Mon, 13 Jun 2022 11:20:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C003613CA;
+        Mon, 13 Jun 2022 11:49:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79FE6C34114;
+        Mon, 13 Jun 2022 11:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119237;
-        bh=ZGTc8NAbbTjfxFouD80Ckbaghw1HwQote5WRz/Lbuus=;
+        s=korg; t=1655120956;
+        bh=Dw/3gXXoXHY7mgJ/HZYNJmtxF73sLdFYSq0budvTY5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGf2GORvA9U7bHqvf0rNidX7hrUhIdwKST9KRedbTukGVeJWUyG9n4aI9Qn5dqwXi
-         OT2aY8dbfem7DzskCgtJQA4jVIN2N1Q01NZzRygrFS3WQ3DqndfilXyDMLG4Z5D/TE
-         VmGslA5TwKzjxF76xFyPnuz9VoZPv/oRn3lqYtUo=
+        b=Ou1aLlT3P2pS2N08Kvi/D0S2vXkoFEP9kVSg9Vhe8R83NlIyKFTOSmVvWaUfEe5Zo
+         RAeO22VEhWxM1dyGwapPVQ2KV2pwSK2CkA+gOu/VF+PJM4mV5+Eo7Eo6Y5PoinK2K9
+         qRJLJ4u/jPa/UT/DfMNgu9YyOouz+YnUt5S8/6L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Wang Cheng <wanngchenng@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Xiaoke Wang <xkernel.wang@foxmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 189/247] staging: rtl8712: fix uninit-value in r871xu_drv_init()
+Subject: [PATCH 5.17 197/298] staging: rtl8712: fix a potential memory leak in r871xu_drv_init()
 Date:   Mon, 13 Jun 2022 12:11:31 +0200
-Message-Id: <20220613094928.684630224@linuxfoundation.org>
+Message-Id: <20220613094931.081668757@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,86 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
+[ Upstream commit 7288ff561de650d4139fab80e9cb0da9b5b32434 ]
 
-When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
-'mac[6]' will not be initialized.
+In r871xu_drv_init(), if r8712_init_drv_sw() fails, then the memory
+allocated by r8712_alloc_io_queue() in r8712_usb_dvobj_init() is not
+properly released as there is no action will be performed by
+r8712_usb_dvobj_deinit().
+To properly release it, we should call r8712_free_io_queue() in
+r8712_usb_dvobj_deinit().
 
-BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
- usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
- usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
- hub_port_connect drivers/usb/core/hub.c:5358 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
- port_event drivers/usb/core/hub.c:5660 [inline]
- hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
- process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
- worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
- kthread+0x3c7/0x500 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
+Besides, in r871xu_dev_remove(), r8712_usb_dvobj_deinit() will be called
+by r871x_dev_unload() under condition `padapter->bup` and
+r8712_free_io_queue() is called by r8712_free_drv_sw().
+However, r8712_usb_dvobj_deinit() does not rely on `padapter->bup` and
+calling r8712_free_io_queue() in r8712_free_drv_sw() is negative for
+better understading the code.
+So I move r8712_usb_dvobj_deinit() into r871xu_dev_remove(), and remove
+r8712_free_io_queue() from r8712_free_drv_sw().
 
-Local variable mac created at:
- r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
-
-KMSAN: uninit-value in r871xu_drv_init
-https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
-
-Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
 Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_B8048C592777830380A23A7C4409F9DF1305@qq.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ drivers/staging/rtl8712/os_intfs.c | 1 -
  drivers/staging/rtl8712/usb_intf.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/staging/rtl8712/os_intfs.c b/drivers/staging/rtl8712/os_intfs.c
+index d15d52c0d1a7..003e97205124 100644
+--- a/drivers/staging/rtl8712/os_intfs.c
++++ b/drivers/staging/rtl8712/os_intfs.c
+@@ -332,7 +332,6 @@ void r8712_free_drv_sw(struct _adapter *padapter)
+ 	r8712_free_evt_priv(&padapter->evtpriv);
+ 	r8712_DeInitSwLeds(padapter);
+ 	r8712_free_mlme_priv(&padapter->mlmepriv);
+-	r8712_free_io_queue(padapter);
+ 	_free_xmit_priv(&padapter->xmitpriv);
+ 	_r8712_free_sta_priv(&padapter->stapriv);
+ 	_r8712_free_recv_priv(&padapter->recvpriv);
 diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index a61dd96ab2a4..6db2493e6d3a 100644
+index ee4c61f85a07..56450ede9f23 100644
 --- a/drivers/staging/rtl8712/usb_intf.c
 +++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -536,13 +536,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
- 		} else {
- 			AutoloadFail = false;
+@@ -265,6 +265,7 @@ static uint r8712_usb_dvobj_init(struct _adapter *padapter)
+ 
+ static void r8712_usb_dvobj_deinit(struct _adapter *padapter)
+ {
++	r8712_free_io_queue(padapter);
+ }
+ 
+ void rtl871x_intf_stop(struct _adapter *padapter)
+@@ -302,9 +303,6 @@ void r871x_dev_unload(struct _adapter *padapter)
+ 			rtl8712_hal_deinit(padapter);
  		}
--		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
-+		if ((!AutoloadFail) ||
-+		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
- 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
- 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
- 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
- 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
--		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
--		     (!AutoloadFail)) {
-+		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
- 			mac[0] = 0x00;
- 			mac[1] = 0xe0;
- 			mac[2] = 0x4c;
+ 
+-		/*s6.*/
+-		if (padapter->dvobj_deinit)
+-			padapter->dvobj_deinit(padapter);
+ 		padapter->bup = false;
+ 	}
+ }
+@@ -607,6 +605,8 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
+ 	/* Stop driver mlme relation timer */
+ 	r8712_stop_drv_timers(padapter);
+ 	r871x_dev_unload(padapter);
++	if (padapter->dvobj_deinit)
++		padapter->dvobj_deinit(padapter);
+ 	r8712_free_drv_sw(padapter);
+ 	free_netdev(pnetdev);
+ 
 -- 
 2.35.1
 
