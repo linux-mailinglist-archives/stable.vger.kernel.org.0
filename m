@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4525494A3
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C53A548CA0
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243784AbiFMKpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36776 "EHLO
+        id S1356400AbiFMLzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:55:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346172AbiFMKnc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:43:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FCADEE3;
-        Mon, 13 Jun 2022 03:24:43 -0700 (PDT)
+        with ESMTP id S1357675AbiFMLy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:54:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8463A2F032;
+        Mon, 13 Jun 2022 03:55:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 207EDB80E92;
-        Mon, 13 Jun 2022 10:24:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71FFBC34114;
-        Mon, 13 Jun 2022 10:24:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 089DDB80E59;
+        Mon, 13 Jun 2022 10:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67296C34114;
+        Mon, 13 Jun 2022 10:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115880;
-        bh=5mBlhkjwWXgi0xMQF9pdIdex1IHSBgSikstvXevTeC4=;
+        s=korg; t=1655117746;
+        bh=ECdQ9I43DPykn1gIG+cN430Lb5IygqEwrtxx66g9LwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSihxK+4BHquMYv2p2pki4HC6lM9D2b51JswTo3SYMlecdoQdNVYjpxE2toP+2/KC
-         etoOnIpr8js4mf5DYLVLB54yiHxeEshFUjuA8GJloH5pR6zXsJpjqMF1xoXYkGAXsR
-         qWDgl62Xl9UieXpqrilwB8LPsKZwiWvvQjZT2Bhk=
+        b=vSoTz36G7c5NHmDr5bMUdMjf33czSMkMiOQzuloSOKjNGYcRFdQGVfGiJHSyNbiX1
+         NBhz2N259L89NcyomqStecUSlZMnypAYCk6y1LDrVR1QY0U5Dwu/mbt46on6vhjlPO
+         rDeSQfW1z0+zGC64F0nSVp2fMFeGejU3EAc+SFNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com,
-        Ying Hsu <yinghsu@chromium.org>,
-        Joseph Hwang <josephsih@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/218] Bluetooth: fix dangling sco_conn and use-after-free in sco_sock_timeout
+Subject: [PATCH 4.19 109/287] soc: qcom: smp2p: Fix missing of_node_put() in smp2p_parse_ipc
 Date:   Mon, 13 Jun 2022 12:08:53 +0200
-Message-Id: <20220613094922.663875866@linuxfoundation.org>
+Message-Id: <20220613094927.183353390@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,84 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying Hsu <yinghsu@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 7aa1e7d15f8a5b65f67bacb100d8fc033b21efa2 ]
+[ Upstream commit 8fd3f18ea31a398ecce4a6d3804433658678b0a3 ]
 
-Connecting the same socket twice consecutively in sco_sock_connect()
-could lead to a race condition where two sco_conn objects are created
-but only one is associated with the socket. If the socket is closed
-before the SCO connection is established, the timer associated with the
-dangling sco_conn object won't be canceled. As the sock object is being
-freed, the use-after-free problem happens when the timer callback
-function sco_sock_timeout() accesses the socket. Here's the call trace:
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-dump_stack+0x107/0x163
-? refcount_inc+0x1c/
-print_address_description.constprop.0+0x1c/0x47e
-? refcount_inc+0x1c/0x7b
-kasan_report+0x13a/0x173
-? refcount_inc+0x1c/0x7b
-check_memory_region+0x132/0x139
-refcount_inc+0x1c/0x7b
-sco_sock_timeout+0xb2/0x1ba
-process_one_work+0x739/0xbd1
-? cancel_delayed_work+0x13f/0x13f
-? __raw_spin_lock_init+0xf0/0xf0
-? to_kthread+0x59/0x85
-worker_thread+0x593/0x70e
-kthread+0x346/0x35a
-? drain_workqueue+0x31a/0x31a
-? kthread_bind+0x4b/0x4b
-ret_from_fork+0x1f/0x30
-
-Link: https://syzkaller.appspot.com/bug?extid=2bef95d3ab4daa10155b
-Reported-by: syzbot+2bef95d3ab4daa10155b@syzkaller.appspotmail.com
-Fixes: e1dee2c1de2b ("Bluetooth: fix repeated calls to sco_sock_kill")
-Signed-off-by: Ying Hsu <yinghsu@chromium.org>
-Reviewed-by: Joseph Hwang <josephsih@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 50e99641413e ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308071942.22942-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/soc/qcom/smp2p.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 5c411118b30d..22761a404e0d 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -563,19 +563,24 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- 	    addr->sa_family != AF_BLUETOOTH)
- 		return -EINVAL;
+diff --git a/drivers/soc/qcom/smp2p.c b/drivers/soc/qcom/smp2p.c
+index 7908e7f2850f..5721a353d95f 100644
+--- a/drivers/soc/qcom/smp2p.c
++++ b/drivers/soc/qcom/smp2p.c
+@@ -428,6 +428,7 @@ static int smp2p_parse_ipc(struct qcom_smp2p *smp2p)
+ 	}
  
--	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND)
--		return -EBADFD;
-+	lock_sock(sk);
-+	if (sk->sk_state != BT_OPEN && sk->sk_state != BT_BOUND) {
-+		err = -EBADFD;
-+		goto done;
-+	}
- 
--	if (sk->sk_type != SOCK_SEQPACKET)
--		return -EINVAL;
-+	if (sk->sk_type != SOCK_SEQPACKET) {
-+		err = -EINVAL;
-+		goto done;
-+	}
- 
- 	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
--	if (!hdev)
--		return -EHOSTUNREACH;
-+	if (!hdev) {
-+		err = -EHOSTUNREACH;
-+		goto done;
-+	}
- 	hci_dev_lock(hdev);
- 
--	lock_sock(sk);
--
- 	/* Set destination address and psm */
- 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+ 	smp2p->ipc_regmap = syscon_node_to_regmap(syscon);
++	of_node_put(syscon);
+ 	if (IS_ERR(smp2p->ipc_regmap))
+ 		return PTR_ERR(smp2p->ipc_regmap);
  
 -- 
 2.35.1
