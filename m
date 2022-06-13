@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6781549260
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7762C5498CD
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378649AbiFMNmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36136 "EHLO
+        id S244492AbiFMKto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379226AbiFMNkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:40:04 -0400
+        with ESMTP id S1348145AbiFMKtK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:10 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E00D101;
-        Mon, 13 Jun 2022 04:30:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8847A20F56;
+        Mon, 13 Jun 2022 03:26:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 58C98CE118D;
-        Mon, 13 Jun 2022 11:30:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C8E4C34114;
-        Mon, 13 Jun 2022 11:30:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C43BFCE0EEB;
+        Mon, 13 Jun 2022 10:26:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC73C34114;
+        Mon, 13 Jun 2022 10:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119837;
-        bh=ynOFQ8Z5PHk22tFvFXyTLb5N/IoZjn9NfGABCiTAL7E=;
+        s=korg; t=1655116001;
+        bh=N+XI1wzcd9Kxu8XYioKt1zD2W6+6VitmPYqJQxlxEXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pknfhRid3PqIPjG8BA2CivZEMZS0YAX507d/WBOYz6b1ZO20eJdKLCJQY+n3ul5OQ
-         5BVV/9GnWz0/AvF8+IRVdJ/zz3deoqlC6ajVWrO9ATAFqoABy3L6k9dI1JEZ9ERH1g
-         ORxkUGUtTqyZde3U6lICBxkfe/8V4EdHXXxvty3E=
+        b=VEFABxKBHmeuUIDdR7H0U+pI7dQ03Q2UdWyccLQnNGt0iEPbexp+b+3RvsL1pExY5
+         43GaLG0B6Xm5KSFMWzqJyYTrBEN7PbBFXQWdxDIG1p3P29pAtwrh5OUMOtu2rS9qK5
+         k4J5ejoYRWkXRlKAU+D/dAOkC+kSCPzRlAWmCKeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Gal Pressman <gal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 137/339] net: ping6: Fix ping -6 with interface name
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: =?UTF-8?q?=5BPATCH=204=2E14=20104/218=5D=20fs-writeback=3A=20writeback=5Fsb=5Finodes=EF=BC=9ARecalculate=20wrote=20according=20skipped=20pages?=
 Date:   Mon, 13 Jun 2022 12:09:22 +0200
-Message-Id: <20220613094930.837070203@linuxfoundation.org>
+Message-Id: <20220613094923.709526796@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,70 +54,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit e6652a8ef3e64d953168a95878fe29b934ad78ac ]
+commit 68f4c6eba70df70a720188bce95c85570ddfcc87 upstream.
 
-When passing interface parameter to ping -6:
-$ ping -6 ::11:141:84:9 -I eth2
-Results in:
-PING ::11:141:84:10(::11:141:84:10) from ::11:141:84:9 eth2: 56 data bytes
-ping: sendmsg: Invalid argument
-ping: sendmsg: Invalid argument
+Commit 505a666ee3fc ("writeback: plug writeback in wb_writeback() and
+writeback_inodes_wb()") has us holding a plug during wb_writeback, which
+may cause a potential ABBA dead lock:
 
-Initialize the fl6's outgoing interface (OIF) before triggering
-ip6_datagram_send_ctl. Don't wipe fl6 after ip6_datagram_send_ctl() as
-changes in fl6 that may happen in the function are overwritten explicitly.
-Update comment accordingly.
+    wb_writeback		fat_file_fsync
+blk_start_plug(&plug)
+for (;;) {
+  iter i-1: some reqs have been added into plug->mq_list  // LOCK A
+  iter i:
+    progress = __writeback_inodes_wb(wb, work)
+    . writeback_sb_inodes // fat's bdev
+    .   __writeback_single_inode
+    .   . generic_writepages
+    .   .   __block_write_full_page
+    .   .   . . 	    __generic_file_fsync
+    .   .   . . 	      sync_inode_metadata
+    .   .   . . 	        writeback_single_inode
+    .   .   . . 		  __writeback_single_inode
+    .   .   . . 		    fat_write_inode
+    .   .   . . 		      __fat_write_inode
+    .   .   . . 		        sync_dirty_buffer	// fat's bdev
+    .   .   . . 			  lock_buffer(bh)	// LOCK B
+    .   .   . . 			    submit_bh
+    .   .   . . 			      blk_mq_get_tag	// LOCK A
+    .   .   . trylock_buffer(bh)  // LOCK B
+    .   .   .   redirty_page_for_writepage
+    .   .   .     wbc->pages_skipped++
+    .   .   --wbc->nr_to_write
+    .   wrote += write_chunk - wbc.nr_to_write  // wrote > 0
+    .   requeue_inode
+    .     redirty_tail_locked
+    if (progress)    // progress > 0
+      continue;
+  iter i+1:
+      queue_io
+      // similar process with iter i, infinite for-loop !
+}
+blk_finish_plug(&plug)   // flush plug won't be called
 
-Fixes: 13651224c00b ("net: ping6: support setting basic SOL_IPV6 options via cmsg")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220531084544.15126-1-tariqt@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Above process triggers a hungtask like:
+[  399.044861] INFO: task bb:2607 blocked for more than 30 seconds.
+[  399.046824]       Not tainted 5.18.0-rc1-00005-gefae4d9eb6a2-dirty
+[  399.051539] task:bb              state:D stack:    0 pid: 2607 ppid:
+2426 flags:0x00004000
+[  399.051556] Call Trace:
+[  399.051570]  __schedule+0x480/0x1050
+[  399.051592]  schedule+0x92/0x1a0
+[  399.051602]  io_schedule+0x22/0x50
+[  399.051613]  blk_mq_get_tag+0x1d3/0x3c0
+[  399.051640]  __blk_mq_alloc_requests+0x21d/0x3f0
+[  399.051657]  blk_mq_submit_bio+0x68d/0xca0
+[  399.051674]  __submit_bio+0x1b5/0x2d0
+[  399.051708]  submit_bio_noacct+0x34e/0x720
+[  399.051718]  submit_bio+0x3b/0x150
+[  399.051725]  submit_bh_wbc+0x161/0x230
+[  399.051734]  __sync_dirty_buffer+0xd1/0x420
+[  399.051744]  sync_dirty_buffer+0x17/0x20
+[  399.051750]  __fat_write_inode+0x289/0x310
+[  399.051766]  fat_write_inode+0x2a/0xa0
+[  399.051783]  __writeback_single_inode+0x53c/0x6f0
+[  399.051795]  writeback_single_inode+0x145/0x200
+[  399.051803]  sync_inode_metadata+0x45/0x70
+[  399.051856]  __generic_file_fsync+0xa3/0x150
+[  399.051880]  fat_file_fsync+0x1d/0x80
+[  399.051895]  vfs_fsync_range+0x40/0xb0
+[  399.051929]  __x64_sys_fsync+0x18/0x30
+
+In my test, 'need_resched()' (which is imported by 590dca3a71 "fs-writeback:
+unplug before cond_resched in writeback_sb_inodes") in function
+'writeback_sb_inodes()' seldom comes true, unless cond_resched() is deleted
+from write_cache_pages().
+
+Fix it by correcting wrote number according number of skipped pages
+in writeback_sb_inodes().
+
+Goto Link to find a reproducer.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215837
+Cc: stable@vger.kernel.org # v4.3
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220510133805.1988292-1-chengzhihao1@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ping.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/fs-writeback.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv6/ping.c b/net/ipv6/ping.c
-index ff033d16549e..ecf3a553a0dc 100644
---- a/net/ipv6/ping.c
-+++ b/net/ipv6/ping.c
-@@ -101,6 +101,9 @@ static int ping_v6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	ipc6.sockc.tsflags = sk->sk_tsflags;
- 	ipc6.sockc.mark = sk->sk_mark;
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -1565,11 +1565,12 @@ static long writeback_sb_inodes(struct s
+ 	};
+ 	unsigned long start_time = jiffies;
+ 	long write_chunk;
+-	long wrote = 0;  /* count both pages and inodes */
++	long total_wrote = 0;  /* count both pages and inodes */
  
-+	memset(&fl6, 0, sizeof(fl6));
-+	fl6.flowi6_oif = oif;
-+
- 	if (msg->msg_controllen) {
- 		struct ipv6_txoptions opt = {};
+ 	while (!list_empty(&wb->b_io)) {
+ 		struct inode *inode = wb_inode(wb->b_io.prev);
+ 		struct bdi_writeback *tmp_wb;
++		long wrote;
  
-@@ -112,17 +115,14 @@ static int ping_v6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 			return err;
+ 		if (inode->i_sb != sb) {
+ 			if (work->sb) {
+@@ -1645,7 +1646,9 @@ static long writeback_sb_inodes(struct s
  
- 		/* Changes to txoptions and flow info are not implemented, yet.
--		 * Drop the options, fl6 is wiped below.
-+		 * Drop the options.
+ 		wbc_detach_inode(&wbc);
+ 		work->nr_pages -= write_chunk - wbc.nr_to_write;
+-		wrote += write_chunk - wbc.nr_to_write;
++		wrote = write_chunk - wbc.nr_to_write - wbc.pages_skipped;
++		wrote = wrote < 0 ? 0 : wrote;
++		total_wrote += wrote;
+ 
+ 		if (need_resched()) {
+ 			/*
+@@ -1667,7 +1670,7 @@ static long writeback_sb_inodes(struct s
+ 		tmp_wb = inode_to_wb_and_lock_list(inode);
+ 		spin_lock(&inode->i_lock);
+ 		if (!(inode->i_state & I_DIRTY_ALL))
+-			wrote++;
++			total_wrote++;
+ 		requeue_inode(inode, tmp_wb, &wbc);
+ 		inode_sync_complete(inode);
+ 		spin_unlock(&inode->i_lock);
+@@ -1681,14 +1684,14 @@ static long writeback_sb_inodes(struct s
+ 		 * bail out to wb_writeback() often enough to check
+ 		 * background threshold and other termination conditions.
  		 */
- 		ipc6.opt = NULL;
+-		if (wrote) {
++		if (total_wrote) {
+ 			if (time_is_before_jiffies(start_time + HZ / 10UL))
+ 				break;
+ 			if (work->nr_pages <= 0)
+ 				break;
+ 		}
  	}
+-	return wrote;
++	return total_wrote;
+ }
  
--	memset(&fl6, 0, sizeof(fl6));
--
- 	fl6.flowi6_proto = IPPROTO_ICMPV6;
- 	fl6.saddr = np->saddr;
- 	fl6.daddr = *daddr;
--	fl6.flowi6_oif = oif;
- 	fl6.flowi6_mark = ipc6.sockc.mark;
- 	fl6.flowi6_uid = sk->sk_uid;
- 	fl6.fl6_icmp_type = user_icmph.icmp6_type;
--- 
-2.35.1
-
+ static long __writeback_inodes_wb(struct bdi_writeback *wb,
 
 
