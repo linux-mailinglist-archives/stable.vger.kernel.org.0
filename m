@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1478548A30
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3E6154942E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356419AbiFMM40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45264 "EHLO
+        id S243509AbiFMKXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:23:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358203AbiFMMzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:55:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84083586D;
-        Mon, 13 Jun 2022 04:14:38 -0700 (PDT)
+        with ESMTP id S243202AbiFMKWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:22:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 162342228A;
+        Mon, 13 Jun 2022 03:17:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71EECB80EA7;
-        Mon, 13 Jun 2022 11:14:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7AFDC34114;
-        Mon, 13 Jun 2022 11:14:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BAEB60765;
+        Mon, 13 Jun 2022 10:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDB8C34114;
+        Mon, 13 Jun 2022 10:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118876;
-        bh=ycNyE3kopVPnenzNRMD4UBheYYl2GGGnBKF9x0dU4cU=;
+        s=korg; t=1655115470;
+        bh=tPVdObRCf4jD02zkVDH9d2P8GA52Yveimx0Zooul6Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkTyBnePzxBlJly3lUfoEjEDOYWXU1MGbaouvlp4jnkSgpI513Hak/ug7I9ODeUnF
-         /HJTcdNgolhkrhZcsEi3nxpiXiti1NheNaqQlWIevvM7AjPVd77nSDk26Bi7SbFnnX
-         ojZzHI6q+Wl/VBDK021vILsYn2IR9I5MkKmGgtXk=
+        b=uhu1WkFvpob2Ok3Q45kRmYh4p7jHqSCUvWHQ/GtjIfl4l4XriXGKdVBVM/YynH0mF
+         wIH7dXCfTnZAz603+rhiglWXGYcr7lbbx3UQ0c1ZzgRGT2diWqY4gVSxiVpZ/CN7AV
+         eBA0c5I2vtU9H/gyhWUk/0w/UaTrhoiodVi/ez2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@st.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/247] serial: st-asc: Sanitize CSIZE and correct PARENB for CS7
+        stable@vger.kernel.org, Guoqing Jiang <guoqing.jiang@linux.dev>,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 4.9 088/167] md: fix an incorrect NULL check in does_sb_need_changing
 Date:   Mon, 13 Jun 2022 12:09:22 +0200
-Message-Id: <20220613094924.776974134@linuxfoundation.org>
+Message-Id: <20220613094901.545593883@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 52bb1cb7118564166b04d52387bd8403632f5190 ]
+commit fc8738343eefc4ea8afb6122826dea48eacde514 upstream.
 
-Only CS7 and CS8 seem supported but CSIZE is not sanitized from CS5 or
-CS6 to CS8. In addition, ASC_CTL_MODE_7BIT_PAR suggests that CS7 has
-to have parity, thus add PARENB.
+The bug is here:
+	if (!rdev)
 
-Incorrect CSIZE results in miscalculation of the frame bits in
-tty_get_char_size() or in its predecessor where the roughly the same
-code is directly within uart_update_timeout().
+The list iterator value 'rdev' will *always* be set and non-NULL
+by rdev_for_each(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element found.
+Otherwise it will bypass the NULL check and lead to invalid memory
+access passing the check.
 
-Fixes: c4b058560762 (serial:st-asc: Add ST ASC driver.)
-Cc: Srinivas Kandagatla <srinivas.kandagatla@st.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220519081808.3776-8-ilpo.jarvinen@linux.intel.com
+To fix the bug, use a new variable 'iter' as the list iterator,
+while using the original variable 'rdev' as a dedicated pointer to
+point to the found element.
+
+Cc: stable@vger.kernel.org
+Fixes: 2aa82191ac36 ("md-cluster: Perform a lazy update")
+Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Acked-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/st-asc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/md.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/st-asc.c b/drivers/tty/serial/st-asc.c
-index 87e480cc8206..5a45633aaea8 100644
---- a/drivers/tty/serial/st-asc.c
-+++ b/drivers/tty/serial/st-asc.c
-@@ -535,10 +535,14 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
- 	/* set character length */
- 	if ((cflag & CSIZE) == CS7) {
- 		ctrl_val |= ASC_CTL_MODE_7BIT_PAR;
-+		cflag |= PARENB;
- 	} else {
- 		ctrl_val |= (cflag & PARENB) ?  ASC_CTL_MODE_8BIT_PAR :
- 						ASC_CTL_MODE_8BIT;
-+		cflag &= ~CSIZE;
-+		cflag |= CS8;
- 	}
-+	termios->c_cflag = cflag;
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -2254,14 +2254,16 @@ static void sync_sbs(struct mddev *mddev
  
- 	/* set stop bit */
- 	ctrl_val |= (cflag & CSTOPB) ? ASC_CTL_STOP_2BIT : ASC_CTL_STOP_1BIT;
--- 
-2.35.1
-
+ static bool does_sb_need_changing(struct mddev *mddev)
+ {
+-	struct md_rdev *rdev;
++	struct md_rdev *rdev = NULL, *iter;
+ 	struct mdp_superblock_1 *sb;
+ 	int role;
+ 
+ 	/* Find a good rdev */
+-	rdev_for_each(rdev, mddev)
+-		if ((rdev->raid_disk >= 0) && !test_bit(Faulty, &rdev->flags))
++	rdev_for_each(iter, mddev)
++		if ((iter->raid_disk >= 0) && !test_bit(Faulty, &iter->flags)) {
++			rdev = iter;
+ 			break;
++		}
+ 
+ 	/* No good device found. */
+ 	if (!rdev)
 
 
