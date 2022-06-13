@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C58D548B73
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D040549254
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383699AbiFMO1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:27:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51824 "EHLO
+        id S1380216AbiFMN63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:58:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383997AbiFMOY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5702625;
-        Mon, 13 Jun 2022 04:46:26 -0700 (PDT)
+        with ESMTP id S1380311AbiFMNyF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:54:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BA9742EC5;
+        Mon, 13 Jun 2022 04:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1226E613EF;
-        Mon, 13 Jun 2022 11:46:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F6A9C34114;
-        Mon, 13 Jun 2022 11:46:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E610B80ECB;
+        Mon, 13 Jun 2022 11:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9442C3411F;
+        Mon, 13 Jun 2022 11:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120785;
-        bh=yfZ7WBBpm7u5gPfub4ZrISybkBll8pBdaWDZQlZ77yo=;
+        s=korg; t=1655120077;
+        bh=6nfGQcmOO+nzmnVXs7EuA6e3s87z59d7FQhJE3qTKds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2Hmg/9RYYEsjie27Upq/yndB4UvrPJl1jaB/bE11BZcBM0debSj4HorrrKJnQeKP
-         OP9vIq+qqtjDh8nu3vfZUbMUWuIJlEO/uMmLmrCCiK5k1G+rhTP4ps8WnPLB6wuzCT
-         rpbWkw3uHX+1wcztBbmYgzB94zYCzwG73ce9l0xY=
+        b=x2yMGzrOcCRdrF3xd0w/Jywio05uledJgISZKzMV+kEmoYIH7Ql8Kxcw/t1UhFILu
+         YyMPlNJx8iHDYaTi3tIt1cBG/PNBuXbM0Nv6FzTF6U6oIvzvq/aQyuW1tS8Goh+gpW
+         RqB99R9KgQ6HpSd0PNh8JHq6s5gP4c9//fBx/YqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        stable@vger.kernel.org,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 157/298] drm/panfrost: Job should reference MMU not file_priv
+Subject: [PATCH 5.18 226/339] lkdtm/usercopy: Expand size of "out of frame" object
 Date:   Mon, 13 Jun 2022 12:10:51 +0200
-Message-Id: <20220613094929.698871834@linuxfoundation.org>
+Message-Id: <20220613094933.514097310@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6e516faf04317db2c46cbec4e3b78b4653a5b109 ]
+[ Upstream commit f387e86d3a74407bdd9c5815820ac9d060962840 ]
 
-For a while now it's been allowed for a MMU context to outlive it's
-corresponding panfrost_priv, however the job structure still references
-panfrost_priv to get hold of the MMU context. If panfrost_priv has been
-freed this is a use-after-free which I've been able to trigger resulting
-in a splat.
+To be sufficiently out of range for the usercopy test to see the lifetime
+mismatch, expand the size of the "bad" buffer, which will let it be
+beyond current_stack_pointer regardless of stack growth direction.
+Paired with the recent addition of stack depth checking under
+CONFIG_HARDENED_USERCOPY=y, this will correctly start tripping again.
 
-To fix this, drop the reference to panfrost_priv in the job structure
-and add a direct reference to the MMU structure which is what's actually
-needed.
-
-Fixes: 7fdc48cc63a3 ("drm/panfrost: Make sure MMU context lifetime is not bound to panfrost_priv")
-Signed-off-by: Steven Price <steven.price@arm.com>
-Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220519152003.81081-1-steven.price@arm.com
+Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Link: https://lore.kernel.org/lkml/762faf1b-0443-5ddf-4430-44a20cf2ec4d@collabora.com/
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_drv.c | 5 +++--
- drivers/gpu/drm/panfrost/panfrost_job.c | 6 +++---
- drivers/gpu/drm/panfrost/panfrost_job.h | 2 +-
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/misc/lkdtm/usercopy.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index 96bb5a465627..012af6eaaf62 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -233,6 +233,7 @@ static int panfrost_ioctl_submit(struct drm_device *dev, void *data,
- 		struct drm_file *file)
+diff --git a/drivers/misc/lkdtm/usercopy.c b/drivers/misc/lkdtm/usercopy.c
+index 9161ce7ed47a..3fead5efe523 100644
+--- a/drivers/misc/lkdtm/usercopy.c
++++ b/drivers/misc/lkdtm/usercopy.c
+@@ -30,12 +30,12 @@ static const unsigned char test_text[] = "This is a test.\n";
+  */
+ static noinline unsigned char *trick_compiler(unsigned char *stack)
  {
- 	struct panfrost_device *pfdev = dev->dev_private;
-+	struct panfrost_file_priv *file_priv = file->driver_priv;
- 	struct drm_panfrost_submit *args = data;
- 	struct drm_syncobj *sync_out = NULL;
- 	struct panfrost_job *job;
-@@ -262,12 +263,12 @@ static int panfrost_ioctl_submit(struct drm_device *dev, void *data,
- 	job->jc = args->jc;
- 	job->requirements = args->requirements;
- 	job->flush_id = panfrost_gpu_get_latest_flush_id(pfdev);
--	job->file_priv = file->driver_priv;
-+	job->mmu = file_priv->mmu;
+-	return stack + 0;
++	return stack + unconst;
+ }
  
- 	slot = panfrost_job_get_slot(job);
+ static noinline unsigned char *do_usercopy_stack_callee(int value)
+ {
+-	unsigned char buf[32];
++	unsigned char buf[128];
+ 	int i;
  
- 	ret = drm_sched_job_init(&job->base,
--				 &job->file_priv->sched_entity[slot],
-+				 &file_priv->sched_entity[slot],
- 				 NULL);
- 	if (ret)
- 		goto out_put_job;
-diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-index 908d79520853..016bec72b7ce 100644
---- a/drivers/gpu/drm/panfrost/panfrost_job.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -201,7 +201,7 @@ static void panfrost_job_hw_submit(struct panfrost_job *job, int js)
- 		return;
+ 	/* Exercise stack to avoid everything living in registers. */
+@@ -43,7 +43,12 @@ static noinline unsigned char *do_usercopy_stack_callee(int value)
+ 		buf[i] = value & 0xff;
  	}
  
--	cfg = panfrost_mmu_as_get(pfdev, job->file_priv->mmu);
-+	cfg = panfrost_mmu_as_get(pfdev, job->mmu);
+-	return trick_compiler(buf);
++	/*
++	 * Put the target buffer in the middle of stack allocation
++	 * so that we don't step on future stack users regardless
++	 * of stack growth direction.
++	 */
++	return trick_compiler(&buf[(128/2)-32]);
+ }
  
- 	job_write(pfdev, JS_HEAD_NEXT_LO(js), lower_32_bits(jc_head));
- 	job_write(pfdev, JS_HEAD_NEXT_HI(js), upper_32_bits(jc_head));
-@@ -431,7 +431,7 @@ static void panfrost_job_handle_err(struct panfrost_device *pfdev,
- 		job->jc = 0;
+ static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
+@@ -66,6 +71,12 @@ static noinline void do_usercopy_stack(bool to_user, bool bad_frame)
+ 		bad_stack -= sizeof(unsigned long);
  	}
  
--	panfrost_mmu_as_put(pfdev, job->file_priv->mmu);
-+	panfrost_mmu_as_put(pfdev, job->mmu);
- 	panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
- 
- 	if (signal_fence)
-@@ -452,7 +452,7 @@ static void panfrost_job_handle_done(struct panfrost_device *pfdev,
- 	 * happen when we receive the DONE interrupt while doing a GPU reset).
- 	 */
- 	job->jc = 0;
--	panfrost_mmu_as_put(pfdev, job->file_priv->mmu);
-+	panfrost_mmu_as_put(pfdev, job->mmu);
- 	panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
- 
- 	dma_fence_signal_locked(job->done_fence);
-diff --git a/drivers/gpu/drm/panfrost/panfrost_job.h b/drivers/gpu/drm/panfrost/panfrost_job.h
-index 77e6d0e6f612..8becc1ba0eb9 100644
---- a/drivers/gpu/drm/panfrost/panfrost_job.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.h
-@@ -17,7 +17,7 @@ struct panfrost_job {
- 	struct kref refcount;
- 
- 	struct panfrost_device *pfdev;
--	struct panfrost_file_priv *file_priv;
-+	struct panfrost_mmu *mmu;
- 
- 	/* Fence to be signaled by IRQ handler when the job is complete. */
- 	struct dma_fence *done_fence;
++#ifdef ARCH_HAS_CURRENT_STACK_POINTER
++	pr_info("stack     : %px\n", (void *)current_stack_pointer);
++#endif
++	pr_info("good_stack: %px-%px\n", good_stack, good_stack + sizeof(good_stack));
++	pr_info("bad_stack : %px-%px\n", bad_stack, bad_stack + sizeof(good_stack));
++
+ 	user_addr = vm_mmap(NULL, 0, PAGE_SIZE,
+ 			    PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			    MAP_ANONYMOUS | MAP_PRIVATE, 0);
 -- 
 2.35.1
 
