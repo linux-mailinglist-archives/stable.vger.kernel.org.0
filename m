@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABA654911A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9953549891
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344411AbiFMKlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36782 "EHLO
+        id S1353737AbiFMLYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:24:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348594AbiFMKjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:39:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222E8D111;
-        Mon, 13 Jun 2022 03:23:29 -0700 (PDT)
+        with ESMTP id S1352285AbiFMLV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:21:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE44C3C4A5;
+        Mon, 13 Jun 2022 03:42:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5664B80E2D;
-        Mon, 13 Jun 2022 10:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B30FC3411C;
-        Mon, 13 Jun 2022 10:23:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7537961217;
+        Mon, 13 Jun 2022 10:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5BCC34114;
+        Mon, 13 Jun 2022 10:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115806;
-        bh=/953q/88NYY7KN6eDC1zjmV2cIOg6xVZnzsRPJMRLv8=;
+        s=korg; t=1655116925;
+        bh=nuoO4moBmrAVmTFd9DML1WfHpsxKMChhxHXKm92I5I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nA50QsVbOq6F56GLg+Fv6STpwS58uL5G1MNEDvU9/D7aKRLKyAAZnP3mpWEbG/6Nv
-         MQQJRnmn9hyKEKgay9olJPMewWjKgFr4k7bUJ5xs1ghdsjx86nlBuORWoGxt7SuK1H
-         aoaoWO5PUg0cDv0qMA+ikwuWu3lSsdWzYC//KNL8=
+        b=2fzd0Ht1Vt5AeSkn8+kIV8U/2tkuZ82tFXykbsFnACpTelSiNQP3Cwvyt2PlIDDoO
+         I1va1vJJvD4kWxipDw6Ti0+HCt6Y+bp7Ip2JNLFLk3me2kO3GFB2bAyvvjUtYVEwrx
+         8dKxOzlaVI1MEC20F0pFcbehUCiKKoDLVuVfoYD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 040/218] ARM: dts: exynos: add atmel,24c128 fallback to Samsung EEPROM
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 225/411] ext4: fix bug_on in ext4_writepages
 Date:   Mon, 13 Jun 2022 12:08:18 +0200
-Message-Id: <20220613094917.837386926@linuxfoundation.org>
+Message-Id: <20220613094935.392585940@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
+References: <20220613094928.482772422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit f038e8186fbc5723d7d38c6fa1d342945107347e ]
+commit ef09ed5d37b84d18562b30cf7253e57062d0db05 upstream.
 
-The Samsung s524ad0xd1 EEPROM should use atmel,24c128 fallback,
-according to the AT24 EEPROM bindings.
+we got issue as follows:
+EXT4-fs error (device loop0): ext4_mb_generate_buddy:1141: group 0, block bitmap and bg descriptor inconsistent: 25 vs 31513 free cls
+------------[ cut here ]------------
+kernel BUG at fs/ext4/inode.c:2708!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 2 PID: 2147 Comm: rep Not tainted 5.18.0-rc2-next-20220413+ #155
+RIP: 0010:ext4_writepages+0x1977/0x1c10
+RSP: 0018:ffff88811d3e7880 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000001 RCX: ffff88811c098000
+RDX: 0000000000000000 RSI: ffff88811c098000 RDI: 0000000000000002
+RBP: ffff888128140f50 R08: ffffffffb1ff6387 R09: 0000000000000000
+R10: 0000000000000007 R11: ffffed10250281ea R12: 0000000000000001
+R13: 00000000000000a4 R14: ffff88811d3e7bb8 R15: ffff888128141028
+FS:  00007f443aed9740(0000) GS:ffff8883aef00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020007200 CR3: 000000011c2a4000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ do_writepages+0x130/0x3a0
+ filemap_fdatawrite_wbc+0x83/0xa0
+ filemap_flush+0xab/0xe0
+ ext4_alloc_da_blocks+0x51/0x120
+ __ext4_ioctl+0x1534/0x3210
+ __x64_sys_ioctl+0x12c/0x170
+ do_syscall_64+0x3b/0x90
 
-Reported-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220426183443.243113-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It may happen as follows:
+1. write inline_data inode
+vfs_write
+  new_sync_write
+    ext4_file_write_iter
+      ext4_buffered_write_iter
+        generic_perform_write
+          ext4_da_write_begin
+            ext4_da_write_inline_data_begin -> If inline data size too
+            small will allocate block to write, then mapping will has
+            dirty page
+                ext4_da_convert_inline_data_to_extent ->clear EXT4_STATE_MAY_INLINE_DATA
+2. fallocate
+do_vfs_ioctl
+  ioctl_preallocate
+    vfs_fallocate
+      ext4_fallocate
+        ext4_convert_inline_data
+          ext4_convert_inline_data_nolock
+            ext4_map_blocks -> fail will goto restore data
+            ext4_restore_inline_data
+              ext4_create_inline_data
+              ext4_write_inline_data
+              ext4_set_inode_state -> set inode EXT4_STATE_MAY_INLINE_DATA
+3. writepages
+__ext4_ioctl
+  ext4_alloc_da_blocks
+    filemap_flush
+      filemap_fdatawrite_wbc
+        do_writepages
+          ext4_writepages
+            if (ext4_has_inline_data(inode))
+              BUG_ON(ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
+
+The root cause of this issue is we destory inline data until call
+ext4_writepages under delay allocation mode.  But there maybe already
+convert from inline to extent.  To solve this issue, we call
+filemap_flush first..
+
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220516122634.1690462-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/exynos5250-smdk5250.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/inline.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-index a3c4b9e03fbf..dc539a4eb27a 100644
---- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
-+++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-@@ -128,7 +128,7 @@
- 	samsung,i2c-max-bus-freq = <20000>;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -2013,6 +2013,18 @@ int ext4_convert_inline_data(struct inod
+ 	if (!ext4_has_inline_data(inode)) {
+ 		ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ 		return 0;
++	} else if (!ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)) {
++		/*
++		 * Inode has inline data but EXT4_STATE_MAY_INLINE_DATA is
++		 * cleared. This means we are in the middle of moving of
++		 * inline data to delay allocated block. Just force writeout
++		 * here to finish conversion.
++		 */
++		error = filemap_flush(inode->i_mapping);
++		if (error)
++			return error;
++		if (!ext4_has_inline_data(inode))
++			return 0;
+ 	}
  
- 	eeprom@50 {
--		compatible = "samsung,s524ad0xd1";
-+		compatible = "samsung,s524ad0xd1", "atmel,24c128";
- 		reg = <0x50>;
- 	};
- 
-@@ -287,7 +287,7 @@
- 	samsung,i2c-max-bus-freq = <20000>;
- 
- 	eeprom@51 {
--		compatible = "samsung,s524ad0xd1";
-+		compatible = "samsung,s524ad0xd1", "atmel,24c128";
- 		reg = <0x51>;
- 	};
- 
--- 
-2.35.1
-
+ 	needed_blocks = ext4_writepage_trans_blocks(inode);
 
 
