@@ -2,54 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7573454874D
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 313DD548624
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:55:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353892AbiFMLbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
+        id S1354444AbiFMLcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 07:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354370AbiFML3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80D012314F;
-        Mon, 13 Jun 2022 03:43:37 -0700 (PDT)
+        with ESMTP id S1354259AbiFML3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A9A3ED20;
+        Mon, 13 Jun 2022 03:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2850FB80D3B;
-        Mon, 13 Jun 2022 10:43:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5905EC34114;
-        Mon, 13 Jun 2022 10:43:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 722886124F;
+        Mon, 13 Jun 2022 10:43:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821ADC34114;
+        Mon, 13 Jun 2022 10:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117014;
-        bh=1deBv8pWO4EhlblSV+d3qc0OS1zA34siQuYQ1ppkR98=;
+        s=korg; t=1655116986;
+        bh=isilzAeni0jy00oxPlLWnaC0R+yeZKqVfUubavwfJDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxcBibQvBElkkDbmkwCo0mKwVVL7xeDVGL6wQvvKMOetj2sXXnNDgMa1XkYOpE91L
-         DByhTGyRmlM32GoRTTmCZdry1hjZ/FNY1zetXQ5d42WpBBcO1mXtgzDM7jQWApo0sU
-         Qaa1q5VTBEjJpJq69E7Xpnl0NI1em+K3xS2iRwrs=
+        b=NrFlSKSbeQcPxq/nkhXzFQRrKGyTktuvK8QcUTFG/HGDG5PayhVeu4jHvMrGJh55S
+         aF1prSmo4WYj9eQ6G6HIKIwhFPho4BFJR8bnGU2GIz4tJTE9DHzjsekFptAbxeRjBm
+         6eRh3xlb/nZODxP2EAkxdniqdnitK8lYIqClPY5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe de Dinechin <christophe@dinechin.org>,
-        Christophe de Dinechin <dinechin@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ben Segall <bsegall@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.4 256/411] nodemask.h: fix compilation error with GCC12
-Date:   Mon, 13 Jun 2022 12:08:49 +0200
-Message-Id: <20220613094936.441817314@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 257/411] hugetlb: fix huge_pmd_unshare address update
+Date:   Mon, 13 Jun 2022 12:08:50 +0200
+Message-Id: <20220613094936.471951916@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
 References: <20220613094928.482772422@linuxfoundation.org>
@@ -67,92 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe de Dinechin <dinechin@redhat.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit 37462a920392cb86541650a6f4121155f11f1199 upstream.
+commit 48381273f8734d28ef56a5bdf1966dd8530111bc upstream.
 
-With gcc version 12.0.1 20220401 (Red Hat 12.0.1-0), building with
-defconfig results in the following compilation error:
+The routine huge_pmd_unshare() is passed a pointer to an address
+associated with an area which may be unshared.  If unshare is successful
+this address is updated to 'optimize' callers iterating over huge page
+addresses.  For the optimization to work correctly, address should be
+updated to the last huge page in the unmapped/unshared area.  However, in
+the common case where the passed address is PUD_SIZE aligned, the address
+is incorrectly updated to the address of the preceding huge page.  That
+wastes CPU cycles as the unmapped/unshared range is scanned twice.
 
-|   CC      mm/swapfile.o
-| mm/swapfile.c: In function `setup_swap_info':
-| mm/swapfile.c:2291:47: error: array subscript -1 is below array bounds
-|  of `struct plist_node[]' [-Werror=array-bounds]
-|  2291 |                                 p->avail_lists[i].prio = 1;
-|       |                                 ~~~~~~~~~~~~~~^~~
-| In file included from mm/swapfile.c:16:
-| ./include/linux/swap.h:292:27: note: while referencing `avail_lists'
-|   292 |         struct plist_node avail_lists[]; /*
-|       |                           ^~~~~~~~~~~
-
-This is due to the compiler detecting that the mask in
-node_states[__state] could theoretically be zero, which would lead to
-first_node() returning -1 through find_first_bit.
-
-I believe that the warning/error is legitimate.  I first tried adding a
-test to check that the node mask is not emtpy, since a similar test exists
-in the case where MAX_NUMNODES == 1.
-
-However, adding the if statement causes other warnings to appear in
-for_each_cpu_node_but, because it introduces a dangling else ambiguity.
-And unfortunately, GCC is not smart enough to detect that the added test
-makes the case where (node) == -1 impossible, so it still complains with
-the same message.
-
-This is why I settled on replacing that with a harmless, but relatively
-useless (node) >= 0 test.  Based on the warning for the dangling else, I
-also decided to fix the case where MAX_NUMNODES == 1 by moving the
-condition inside the for loop.  It will still only be tested once.  This
-ensures that the meaning of an else following for_each_node_mask or
-derivatives would not silently have a different meaning depending on the
-configuration.
-
-Link: https://lkml.kernel.org/r/20220414150855.2407137-3-dinechin@redhat.com
-Signed-off-by: Christophe de Dinechin <christophe@dinechin.org>
-Signed-off-by: Christophe de Dinechin <dinechin@redhat.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220524205003.126184-1-mike.kravetz@oracle.com
+Fixes: 39dde65c9940 ("shared page table for hugetlb page")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/nodemask.h |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ mm/hugetlb.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/include/linux/nodemask.h
-+++ b/include/linux/nodemask.h
-@@ -375,14 +375,13 @@ static inline void __nodes_fold(nodemask
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5033,7 +5033,14 @@ int huge_pmd_unshare(struct mm_struct *m
+ 	pud_clear(pud);
+ 	put_page(virt_to_page(ptep));
+ 	mm_dec_nr_pmds(mm);
+-	*addr = ALIGN(*addr, HPAGE_SIZE * PTRS_PER_PTE) - HPAGE_SIZE;
++	/*
++	 * This update of passed address optimizes loops sequentially
++	 * processing addresses in increments of huge page size (PMD_SIZE
++	 * in this case).  By clearing the pud, a PUD_SIZE area is unmapped.
++	 * Update address to the 'last page' in the cleared area so that
++	 * calling loop can move to first page past this area.
++	 */
++	*addr |= PUD_SIZE - PMD_SIZE;
+ 	return 1;
  }
- 
- #if MAX_NUMNODES > 1
--#define for_each_node_mask(node, mask)			\
--	for ((node) = first_node(mask);			\
--		(node) < MAX_NUMNODES;			\
--		(node) = next_node((node), (mask)))
-+#define for_each_node_mask(node, mask)				    \
-+	for ((node) = first_node(mask);				    \
-+	     (node >= 0) && (node) < MAX_NUMNODES;		    \
-+	     (node) = next_node((node), (mask)))
- #else /* MAX_NUMNODES == 1 */
--#define for_each_node_mask(node, mask)			\
--	if (!nodes_empty(mask))				\
--		for ((node) = 0; (node) < 1; (node)++)
-+#define for_each_node_mask(node, mask)                                  \
-+	for ((node) = 0; (node) < 1 && !nodes_empty(mask); (node)++)
- #endif /* MAX_NUMNODES */
- 
- /*
+ #define want_pmd_share()	(1)
 
 
