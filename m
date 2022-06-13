@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87278548C32
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D15E5488E1
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353255AbiFMLb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:31:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49716 "EHLO
+        id S245154AbiFMKph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:45:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354381AbiFML30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:29:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ACEFD107;
-        Mon, 13 Jun 2022 03:43:49 -0700 (PDT)
+        with ESMTP id S1347898AbiFMKoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:44:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C42C20BD8;
+        Mon, 13 Jun 2022 03:25:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0777F60FDB;
-        Mon, 13 Jun 2022 10:43:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B5E3C34114;
-        Mon, 13 Jun 2022 10:43:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 216ED60EFB;
+        Mon, 13 Jun 2022 10:25:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D5E9C34114;
+        Mon, 13 Jun 2022 10:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117028;
-        bh=zLNYGnhl3HROVhvLdtptN+k7B+4om0XZMN1MPs90rtQ=;
+        s=korg; t=1655115913;
+        bh=xzGCfSZLzTsBiin7Dgz+G3EE85Jy2LOqbeb2Sx8S30o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBx6XGcSJh+Pim1UqCxqCoV1aJHt/jmccN2TpJ00x+0rrrOulxkvHqll5FKXoc+O8
-         CIQVn0ofGVaaD8zAhW4H4Onw4/oVLBZerHq7CfYvfR+1wTJ4e7yjet9Pk6zUJtDG9R
-         RM5karNFTKrpVmMBe/jpLOSdkPv/6AZq+Kx9nLUQ=
+        b=2KPLErRKufUCTyAX65hLfrl/Fm9tc4c9jiefe5FAOYas5AP/WJdX8nCN5mM6dK55q
+         TOPgIEGn925wqnvO0nPAVGxVz++a4e+lGPm25/6obYxR2T+o1NRhnHcx6NGfHCMfyI
+         Xg8Wt5DkIDXKNvA5FB5fGfMZcfGukpEN1YH0a5qE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 272/411] RDMA/rxe: Generate a completion for unsupported/invalid opcode
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 087/218] pinctrl: mvebu: Fix irq_of_parse_and_map() return value
 Date:   Mon, 13 Jun 2022 12:09:05 +0200
-Message-Id: <20220613094936.914688291@linuxfoundation.org>
+Message-Id: <20220613094923.172492679@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094928.482772422@linuxfoundation.org>
-References: <20220613094928.482772422@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@fujitsu.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 2f917af777011c88e977b9b9a5d00b280d3a59ce upstream.
+[ Upstream commit 71bc7cf3be65bab441e03667cf215c557712976c ]
 
-Current rxe_requester() doesn't generate a completion when processing an
-unsupported/invalid opcode. If rxe driver doesn't support a new opcode
-(e.g. RDMA Atomic Write) and RDMA library supports it, an application
-using the new opcode can reproduce this issue. Fix the issue by calling
-"goto err;".
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220410113513.27537-1-yangx.jy@fujitsu.com
-Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2f227605394b ("pinctrl: armada-37xx: Add irqchip support")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220422105339.78810-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c |    2 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -680,7 +680,7 @@ next_wqe:
- 	opcode = next_opcode(qp, wqe, wqe->wr.opcode);
- 	if (unlikely(opcode < 0)) {
- 		wqe->status = IB_WC_LOC_QP_OP_ERR;
--		goto exit;
-+		goto err;
- 	}
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index 9f7d917458c7..d90aae2a5cfd 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -710,7 +710,7 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
+ 	for (i = 0; i < nr_irq_parent; i++) {
+ 		int irq = irq_of_parse_and_map(np, i);
  
- 	mask = rxe_opcode[opcode].mask;
+-		if (irq < 0)
++		if (!irq)
+ 			continue;
+ 
+ 		gpiochip_set_chained_irqchip(gc, irqchip, irq,
+-- 
+2.35.1
+
 
 
