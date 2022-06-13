@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4A3548858
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E822548685
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356075AbiFMLsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
+        id S1346382AbiFMKiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357411AbiFMLqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:46:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62FEA4B42C;
-        Mon, 13 Jun 2022 03:52:17 -0700 (PDT)
+        with ESMTP id S1346417AbiFMKhQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:37:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D19F1274C;
+        Mon, 13 Jun 2022 03:22:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 673B761346;
-        Mon, 13 Jun 2022 10:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749D4C34114;
-        Mon, 13 Jun 2022 10:52:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5C232CE1161;
+        Mon, 13 Jun 2022 10:22:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73420C34114;
+        Mon, 13 Jun 2022 10:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655117535;
-        bh=c/sh0ADfc8YO6RjUcVirxMAJQkJ6AkcflF2WlJjEjmA=;
+        s=korg; t=1655115764;
+        bh=4aS/8hYxzSt4H7hZdqXY+bmP+Vk22zeCBsIQIb3iUIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUr8HLB+Yu96A2B2WkI49S8g0OhnhBEXqmOHuVH/QDBejtjmroCdnYfFd452lxRGT
-         cXbwHEeqb0it/R6/12nUHH9IrMOBjEtwJ2f4CYYOtrbxx7UlWwEheW/f/MIbvo284B
-         NKzHIsLGY49ZtfAUn25j6tVbFcs2FmZOW/aFuxtI=
+        b=abCdNjlFTrHmqAgMVXIoNlFRrITkO5ttrp+DYMjMDuLOkk/uV1aIbGQrWRGnZ8cu+
+         TEZ5Ak97q9F7fQMab8AOGHFgociUHeot++Yidz44wvVxKdqIdANY9bpI+4P4FI0WNL
+         bEaHj1NhA6Rm28LUdXQPo3VrmVm1g+ewEfj9o1fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Douglas Miller <doug.miller@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/287] RDMA/hfi1: Prevent panic when SDMA is disabled
-Date:   Mon, 13 Jun 2022 12:08:00 +0200
-Message-Id: <20220613094925.566240775@linuxfoundation.org>
+Subject: [PATCH 4.14 023/218] ASoC: dapm: Dont fold register value changes into notifications
+Date:   Mon, 13 Jun 2022 12:08:01 +0200
+Message-Id: <20220613094913.780642885@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
-References: <20220613094923.832156175@linuxfoundation.org>
+In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
+References: <20220613094908.257446132@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <doug.miller@cornelisnetworks.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 629e052d0c98e46dde9f0824f0aa437f678d9b8f ]
+[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
 
-If the hfi1 module is loaded with HFI1_CAP_SDMA off, a call to
-hfi1_write_iter() will dereference a NULL pointer and panic. A typical
-stack frame is:
+DAPM tracks and reports the value presented to the user from DAPM controls
+separately to the register value, these may diverge during initialisation
+or when an autodisable control is in use.
 
-  sdma_select_user_engine [hfi1]
-  hfi1_user_sdma_process_request [hfi1]
-  hfi1_write_iter [hfi1]
-  do_iter_readv_writev
-  do_iter_write
-  vfs_writev
-  do_writev
-  do_syscall_64
+When writing DAPM controls we currently report that a change has occurred
+if either the DAPM value or the value stored in the register has changed,
+meaning that if the two are out of sync we may appear to report a spurious
+event to userspace. Since we use this folded in value for nothing other
+than the value reported to userspace simply drop the folding in of the
+register change.
 
-The fix is to test for SDMA in hfi1_write_iter() and fail the I/O with
-EINVAL.
-
-Link: https://lore.kernel.org/r/20220520183706.48973.79803.stgit@awfm-01.cornelisnetworks.com
-Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/file_ops.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/soc-dapm.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
-index adeb259458de..64ee11542a56 100644
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -308,6 +308,8 @@ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
- 	unsigned long dim = from->nr_segs;
- 	int idx;
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index dd3053c243c1..320d262c16c9 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -3282,7 +3282,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
  
-+	if (!HFI1_CAP_IS_KSET(SDMA))
-+		return -EINVAL;
- 	idx = srcu_read_lock(&fd->pq_srcu);
- 	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
- 	if (!cq || !pq) {
+ 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
+ 						  rconnect);
+@@ -3388,7 +3387,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
+ 
+ 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
+ 
 -- 
 2.35.1
 
