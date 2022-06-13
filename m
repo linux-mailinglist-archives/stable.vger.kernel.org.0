@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7B0B54873E
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB64B54874B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243094AbiFMKXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
+        id S1382247AbiFMORA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:17:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243000AbiFMKV4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:21:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8790722284;
-        Mon, 13 Jun 2022 03:17:50 -0700 (PDT)
+        with ESMTP id S1383511AbiFMOQB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:16:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CF09E9FC;
+        Mon, 13 Jun 2022 04:43:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DC456CE1167;
-        Mon, 13 Jun 2022 10:17:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02738C3411E;
-        Mon, 13 Jun 2022 10:17:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62F61613F9;
+        Mon, 13 Jun 2022 11:43:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74061C34114;
+        Mon, 13 Jun 2022 11:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115467;
-        bh=4zIDa8Jt57FN8UcnNyEjVkF+lIqAgViE30R+au2FGwk=;
+        s=korg; t=1655120598;
+        bh=58t3a21QM1+D/RKpGEpYCld2O32dL7KkNcO/l5AN8Pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+ne+RChe47wqKV1Dk4cNWj9cHWbk35Vb7fTz8BPsC1GlUXeJtnnua3T4wTQ2Z4rp
-         if49gO32kshzA1TqPjpUfcmIYh3lj8r7iLk/jbWyv47i+NlELH8f1BBQEFHzC3pTzt
-         ddgMeZiY1Gqg8dcqVa93JQ4IkMppw11f3HWlbny4=
+        b=tAguwrarXcy+bsN70RohmFy4pcTFiwfStzitTcMlU2ijVd2IU4P/CwsZkA1FgFHf8
+         RkQYS4s04G2ZW/5oDcUxcFk7FArXcposbdMhp11EsLC0gc528eujcldXPdl99+AUzu
+         SWSSbfBhhn7QUWpvNUdJ9SBL//UyGp6qaZnCqSRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 4.9 087/167] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 067/298] firmware: dmi-sysfs: Fix memory leak in dmi_sysfs_register_handle
 Date:   Mon, 13 Jun 2022 12:09:21 +0200
-Message-Id: <20220613094901.299964819@linuxfoundation.org>
+Message-Id: <20220613094926.978743451@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 8fb6c44fe8468f92ac7b8bbfcca4404a4e88645f upstream.
+[ Upstream commit 660ba678f9998aca6db74f2dd912fa5124f0fa31 ]
 
-If the display is not enable()d, then we aren't holding a runtime PM
-reference here. Thus, it's easy to accidentally cause a hang, if user
-space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
+kobject_init_and_add() takes reference even when it fails.
+According to the doc of kobject_init_and_add()
 
-Let's get a runtime PM reference, and check that we "see" the panel.
-Don't force any panel power-up, etc., because that can be intrusive, and
-that's not what other drivers do (see
-drivers/gpu/drm/bridge/ti-sn65dsi86.c and
-drivers/gpu/drm/bridge/parade-ps8640.c.)
+   If this function returns an error, kobject_put() must be called to
+   properly clean up the memory associated with the object.
 
-Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
-Cc: <stable@vger.kernel.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220301181107.v4.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid
+Fix this issue by calling kobject_put().
+
+Fixes: 948af1f0bbc8 ("firmware: Basic dmi-sysfs support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220511071421.9769-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/firmware/dmi-sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1275,8 +1275,19 @@ static ssize_t analogix_dpaux_transfer(s
- 				       struct drm_dp_aux_msg *msg)
- {
- 	struct analogix_dp_device *dp = to_dp(aux);
-+	int ret;
+diff --git a/drivers/firmware/dmi-sysfs.c b/drivers/firmware/dmi-sysfs.c
+index 3a353776bd34..66727ad3361b 100644
+--- a/drivers/firmware/dmi-sysfs.c
++++ b/drivers/firmware/dmi-sysfs.c
+@@ -604,7 +604,7 @@ static void __init dmi_sysfs_register_handle(const struct dmi_header *dh,
+ 				    "%d-%d", dh->type, entry->instance);
  
--	return analogix_dp_transfer(dp, msg);
-+	pm_runtime_get_sync(dp->dev);
-+
-+	ret = analogix_dp_detect_hpd(dp);
-+	if (ret)
-+		goto out;
-+
-+	ret = analogix_dp_transfer(dp, msg);
-+out:
-+	pm_runtime_put(dp->dev);
-+
-+	return ret;
- }
+ 	if (*ret) {
+-		kfree(entry);
++		kobject_put(&entry->kobj);
+ 		return;
+ 	}
  
- int analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
+-- 
+2.35.1
+
 
 
