@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAEA554921A
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8E15496A2
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380070AbiFMN50 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:57:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35288 "EHLO
+        id S1352250AbiFMMYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:24:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381127AbiFMN4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:56:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD0EE87A22;
-        Mon, 13 Jun 2022 04:36:39 -0700 (PDT)
+        with ESMTP id S1354125AbiFMMVW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:21:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599A857998;
+        Mon, 13 Jun 2022 04:03:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1B06B80ECA;
-        Mon, 13 Jun 2022 11:36:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29E9C34114;
-        Mon, 13 Jun 2022 11:36:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49A6F61347;
+        Mon, 13 Jun 2022 11:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C78DC34114;
+        Mon, 13 Jun 2022 11:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120196;
-        bh=WOZZ81gRLciIhVRawU+i1v+Da6F8SDjqNSRRDxrrypA=;
+        s=korg; t=1655118205;
+        bh=MoPOMp3HkRc27P0VlZQzSm3a57AYXjopJQxk/auGAOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gx/h2CvMe8w5T19lU7gp6M6ajEkj2vzA6gmHLbN7zjVC9glERyVz7ZfLtarx4wlAO
-         PCHYgZxkiPXZE72Gbd4AJRZs9FxAVPYP4E9nEzUPVFUVr9kwaH71tTG9u4bPnIfVLe
-         62mFld0WWfwCQ7Xb4+TxbDTZnQjwJ3SgkKurNYcQ=
+        b=MlxIukFBDqitWfiX0bekp5itenfY+vzUq67n3wWkNnNOs46mRdE2/nhZuf2DirwgU
+         HoBwqH3Qxt3VzJmBIfu84YVMYMOJodV0aBKwCVyI6OdDRnz4XlVmxutuuU1+QlUq2G
+         QauDwKIuUQRAOdnZpzViXSw5x4gF473059aDe5xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 265/339] drm/amd/display: Check zero planes for OTG disable W/A on clock change
+Subject: [PATCH 4.19 266/287] Revert "net: af_key: add check for pfkey_broadcast in function pfkey_process"
 Date:   Mon, 13 Jun 2022 12:11:30 +0200
-Message-Id: <20220613094934.686145142@linuxfoundation.org>
+Message-Id: <20220613094932.069549506@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
-References: <20220613094926.497929857@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,78 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Michal Kubecek <mkubecek@suse.cz>
 
-[ Upstream commit 66a197203794339b028eedfa880bff9367fce783 ]
+[ Upstream commit 9c90c9b3e50e16d03c7f87d63e9db373974781e0 ]
 
-[Why]
-A display clock change hang can occur when switching between DIO and HPO
-enabled modes during the optimize_bandwidth in dc_commit_state_no_check
-call.
+This reverts commit 4dc2a5a8f6754492180741facf2a8787f2c415d7.
 
-This happens when going from 4k120 8bpc 420 to 4k144 10bpc 444.
+A non-zero return value from pfkey_broadcast() does not necessarily mean
+an error occurred as this function returns -ESRCH when no registered
+listener received the message. In particular, a call with
+BROADCAST_PROMISC_ONLY flag and null one_sk argument can never return
+zero so that this commit in fact prevents processing any PF_KEY message.
+One visible effect is that racoon daemon fails to find encryption
+algorithms like aes and refuses to start.
 
-Display clock in the DIO case is 1200MHz, but pixel rate is 600MHz
-because the pixel format is 420.
+Excluding -ESRCH return value would fix this but it's not obvious that
+we really want to bail out here and most other callers of
+pfkey_broadcast() also ignore the return value. Also, as pointed out by
+Steffen Klassert, PF_KEY is kind of deprecated and newer userspace code
+should use netlink instead so that we should only disturb the code for
+really important fixes.
 
-Display clock in the HPO case is less (800MHz?) because of ODM combine
-which results in a smaller divider.
+v2: add a comment explaining why is the return value ignored
 
-The DIO is still active in prepare but not active in the optimize which
-results in the hang occuring.
-
-During this change there are no planes on the stream so it's safe to
-apply the workaround, but dpms_off = false and signal type is not
-virtual.
-
-[How]
-Check for plane_count == 0, no planes on the stream.
-
-It's easiest to check pipe->plane_state == NULL as an equivalent check
-rather than trying to search for the stream status in the context
-associated with the stream, so let's do that.
-
-The primary, non MPO pipe should not have a NULL plane state.
-
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c | 3 ++-
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_clk_mgr.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/key/af_key.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
-index 8be4c1970628..3bf2ab2ff7f8 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn315/dcn315_clk_mgr.c
-@@ -91,7 +91,8 @@ static void dcn315_disable_otg_wa(struct clk_mgr *clk_mgr_base, bool disable)
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 1bbb6ec89ff3..af67e0d265c0 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2836,10 +2836,12 @@ static int pfkey_process(struct sock *sk, struct sk_buff *skb, const struct sadb
+ 	void *ext_hdrs[SADB_EXT_MAX];
+ 	int err;
  
- 		if (pipe->top_pipe || pipe->prev_odm_pipe)
- 			continue;
--		if (pipe->stream && (pipe->stream->dpms_off || dc_is_virtual_signal(pipe->stream->signal))) {
-+		if (pipe->stream && (pipe->stream->dpms_off || pipe->plane_state == NULL ||
-+				     dc_is_virtual_signal(pipe->stream->signal))) {
- 			if (disable)
- 				pipe->stream_res.tg->funcs->immediate_disable_crtc(pipe->stream_res.tg);
- 			else
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_clk_mgr.c
-index 3121dd2d2a91..fc3af81ed6c6 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn316/dcn316_clk_mgr.c
-@@ -122,7 +122,8 @@ static void dcn316_disable_otg_wa(struct clk_mgr *clk_mgr_base, bool disable)
+-	err = pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
+-			      BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
+-	if (err)
+-		return err;
++	/* Non-zero return value of pfkey_broadcast() does not always signal
++	 * an error and even on an actual error we may still want to process
++	 * the message so rather ignore the return value.
++	 */
++	pfkey_broadcast(skb_clone(skb, GFP_KERNEL), GFP_KERNEL,
++			BROADCAST_PROMISC_ONLY, NULL, sock_net(sk));
  
- 		if (pipe->top_pipe || pipe->prev_odm_pipe)
- 			continue;
--		if (pipe->stream && (pipe->stream->dpms_off || dc_is_virtual_signal(pipe->stream->signal))) {
-+		if (pipe->stream && (pipe->stream->dpms_off || pipe->plane_state == NULL ||
-+				     dc_is_virtual_signal(pipe->stream->signal))) {
- 			if (disable)
- 				pipe->stream_res.tg->funcs->immediate_disable_crtc(pipe->stream_res.tg);
- 			else
+ 	memset(ext_hdrs, 0, sizeof(ext_hdrs));
+ 	err = parse_exthdrs(skb, hdr, ext_hdrs);
 -- 
 2.35.1
 
