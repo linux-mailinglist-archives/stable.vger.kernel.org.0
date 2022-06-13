@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1801F5490D4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520FE549768
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239468AbiFMMzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
+        id S1380876AbiFMOHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:07:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356316AbiFMMyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:54:00 -0400
+        with ESMTP id S1382465AbiFMOFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:05:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2663C3F32E;
-        Mon, 13 Jun 2022 04:12:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5231195A18;
+        Mon, 13 Jun 2022 04:40:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C1860B76;
-        Mon, 13 Jun 2022 11:12:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4A02C34114;
-        Mon, 13 Jun 2022 11:12:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 142BC61236;
+        Mon, 13 Jun 2022 11:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F0EBC3411B;
+        Mon, 13 Jun 2022 11:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118763;
-        bh=H9Mml7Wvm3lhnTaVOjmzCox/xg4okfnoDXKTBsKkDo0=;
+        s=korg; t=1655120443;
+        bh=AsXd4pQ9cFEd10STZjFmrqlZ/EuZiXMpQlQ1ZA6OWnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rc4RFm1AdL/IeQn1iXWkkj77dFjWnhmDzAvhycJDADc0+yGWzC15kUY8dPSqNsvS7
-         aDdIvnhhriP2PRsuQoypN2RBhbdrhX0nXYzUw9FRYmpLaFh67zYEXp56DbQTf4I4g2
-         LTot5xqNoKLWXlivVUv+8pIx0YSAzJmKM5QvVH7A=
+        b=PuX2Sy31aFQ/FqmRiUt44V+sVTGYfqdHTRXCHvI/rSektpUYgsPL/9I6WaZHfg67B
+         X7rxLaJzjx2nqmH1QBBxlL4rruzklacXyeye4TSBqMn/6C1HcMu+1G9UT2u4Z2kSA4
+         hOYws0WIFCFd3S02o9Xs50VCWN8g7ktI8JYmUZCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/247] lkdtm/bugs: Check for the NULL pointer after calling kmalloc
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 012/298] phy: rockchip-inno-usb2: Fix muxed interrupt support
 Date:   Mon, 13 Jun 2022 12:08:26 +0200
-Message-Id: <20220613094923.032482667@linuxfoundation.org>
+Message-Id: <20220613094925.298273946@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 4a9800c81d2f34afb66b4b42e0330ae8298019a2 ]
+[ Upstream commit 6a98df08ccd55e87947d253b19925691763e755c ]
 
-As the possible failure of the kmalloc(), the not_checked and checked
-could be NULL pointer.
-Therefore, it should be better to check it in order to avoid the
-dereference of the NULL pointer.
-Also, we need to kfree the 'not_checked' and 'checked' to avoid
-the memory leak if fails.
-And since it is just a test, it may directly return without error
-number.
+This commit fixes two issues with the muxed interrupt handler. First,
+the OTG port has the "bvalid" interrupt enabled, not "linestate". Since
+only the linestate interrupt was handled, and not the bvalid interrupt,
+plugging in a cable to the OTG port caused an interrupt storm.
 
-Fixes: ae2e1aad3e48 ("drivers/misc/lkdtm/bugs.c: add arithmetic overflow and array bounds checks")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220120092936.1874264-1-jiasheng@iscas.ac.cn
+Second, the return values from the individual port IRQ handlers need to
+be OR-ed together. Otherwise, the lack of an interrupt from the last
+port would cause the handler to erroneously return IRQ_NONE.
+
+Fixes: ed2b5a8e6b98 ("phy: phy-rockchip-inno-usb2: support muxed interrupts")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Michael Riesch <michael.riesch@wolfvision.net>
+Link: https://lore.kernel.org/r/20220414032258.40984-2-samuel@sholland.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/bugs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/lkdtm/bugs.c b/drivers/misc/lkdtm/bugs.c
-index 4282b625200f..072e3b742edf 100644
---- a/drivers/misc/lkdtm/bugs.c
-+++ b/drivers/misc/lkdtm/bugs.c
-@@ -248,6 +248,11 @@ void lkdtm_ARRAY_BOUNDS(void)
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+index eca77e44a4c1..cba5c32cbaee 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -940,8 +940,14 @@ static irqreturn_t rockchip_usb2phy_irq(int irq, void *data)
+ 		if (!rport->phy)
+ 			continue;
  
- 	not_checked = kmalloc(sizeof(*not_checked) * 2, GFP_KERNEL);
- 	checked = kmalloc(sizeof(*checked) * 2, GFP_KERNEL);
-+	if (!not_checked || !checked) {
-+		kfree(not_checked);
-+		kfree(checked);
-+		return;
-+	}
+-		/* Handle linestate irq for both otg port and host port */
+-		ret = rockchip_usb2phy_linestate_irq(irq, rport);
++		switch (rport->port_id) {
++		case USB2PHY_PORT_OTG:
++			ret |= rockchip_usb2phy_otg_mux_irq(irq, rport);
++			break;
++		case USB2PHY_PORT_HOST:
++			ret |= rockchip_usb2phy_linestate_irq(irq, rport);
++			break;
++		}
+ 	}
  
- 	pr_info("Array access within bounds ...\n");
- 	/* For both, touch all bytes in the actual member size. */
+ 	return ret;
 -- 
 2.35.1
 
