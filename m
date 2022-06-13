@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D780549862
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088F15497B7
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385622AbiFMOpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:45:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35780 "EHLO
+        id S1385648AbiFMOp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:45:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386220AbiFMOoq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:44:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37565B715B;
-        Mon, 13 Jun 2022 04:51:30 -0700 (PDT)
+        with ESMTP id S1386355AbiFMOpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:45:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91814B82FB;
+        Mon, 13 Jun 2022 04:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E612FB80D31;
-        Mon, 13 Jun 2022 11:51:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F887C34114;
-        Mon, 13 Jun 2022 11:51:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C8796124E;
+        Mon, 13 Jun 2022 11:51:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ECB5C3411B;
+        Mon, 13 Jun 2022 11:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655121080;
-        bh=5fgkOH7xDgS6Kb/TqVo4BBb+cplA2IpxfR8lxDeJRPE=;
+        s=korg; t=1655121083;
+        bh=nQaHxOXP2yncMBs2yPCI+6GHFW5RJnn8Ysvi5hX2qRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zg/OCLdiVYb3nGS1Cj/kmUNBW0p4T512ytdHnTtaXUuJxIjxTzu5zQ3Ux4HOfcagQ
-         ZQ7GpNAh/WTQsHKNV5cSroUflRI9ErHnqRAaZroQuWwJBz6SAxJIjqDMy+N5rmRfCf
-         OxY0y1GCcYGhirDjABa1BLIqCwDeEMdbmDJL8AJM=
+        b=mAd0juPS4F5CfnkWzFRrtIJ6g+5qLW2nXbpBMOBI/eUxWWDk2D5iro64ZnYfGWVXI
+         wQljmWMs4GHS40As591KeB2X8JZB3wJdwY4Zkfapqk1xb7XK4uyFyehQTmpUyb8Ian
+         bxxWnnA8tb7zPD0RqXgsw8cNm9kiEOUbxiDLHZw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.17 264/298] cifs: populate empty hostnames for extra channels
-Date:   Mon, 13 Jun 2022 12:12:38 +0200
-Message-Id: <20220613094933.079890708@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael English <michael.english@seagate.com>,
+        Muhammad Ahmad <muhammad.ahmad@seagate.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Tyler Erickson <tyler.erickson@seagate.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.17 265/298] scsi: sd: Fix interpretation of VPD B9h length
+Date:   Mon, 13 Jun 2022 12:12:39 +0200
+Message-Id: <20220613094933.110413856@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
 References: <20220613094924.913340374@linuxfoundation.org>
@@ -53,54 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Tyler Erickson <tyler.erickson@seagate.com>
 
-commit 4c14d7043fede258957d7b01da0cad2d9fe3a205 upstream.
+commit f92de9d110429e39929a49240d823251c2fe903e upstream.
 
-Currently, the secondary channels of a multichannel session
-also get hostname populated based on the info in primary channel.
-However, this will end up with a wrong resolution of hostname to
-IP address during reconnect.
+Fixing the interpretation of the length of the B9h VPD page (Concurrent
+Positioning Ranges). Adding 4 is necessary as the first 4 bytes of the page
+is the header with page number and length information.  Adding 3 was likely
+a misinterpretation of the SBC-5 specification which sets all offsets
+starting at zero.
 
-This change fixes this by not populating hostname info for all
-secondary channels.
+This fixes the error in dmesg:
 
-Fixes: 5112d80c162f ("cifs: populate server_hostname for extra channels")
+[ 9.014456] sd 1:0:0:0: [sda] Invalid Concurrent Positioning Ranges VPD page
+
+Link: https://lore.kernel.org/r/20220602225113.10218-4-tyler.erickson@seagate.com
+Fixes: e815d36548f0 ("scsi: sd: add concurrent positioning ranges support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Tested-by: Michael English <michael.english@seagate.com>
+Reviewed-by: Muhammad Ahmad <muhammad.ahmad@seagate.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Tyler Erickson <tyler.erickson@seagate.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c |    4 ++++
- fs/cifs/sess.c    |    5 ++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/scsi/sd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -97,6 +97,10 @@ static int reconn_set_ipaddr_from_hostna
- 	if (!server->hostname)
- 		return -EINVAL;
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -3171,7 +3171,7 @@ static void sd_read_cpr(struct scsi_disk
+ 		goto out;
  
-+	/* if server hostname isn't populated, there's nothing to do here */
-+	if (server->hostname[0] == '\0')
-+		return 0;
-+
- 	len = strlen(server->hostname) + 3;
- 
- 	unc = kmalloc(len, GFP_KERNEL);
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -274,7 +274,10 @@ cifs_ses_add_channel(struct cifs_sb_info
- 	/* Auth */
- 	ctx.domainauto = ses->domainAuto;
- 	ctx.domainname = ses->domainName;
--	ctx.server_hostname = ses->server->hostname;
-+
-+	/* no hostname for extra channels */
-+	ctx.server_hostname = "";
-+
- 	ctx.username = ses->user_name;
- 	ctx.password = ses->password;
- 	ctx.sectype = ses->sectype;
+ 	/* We must have at least a 64B header and one 32B range descriptor */
+-	vpd_len = get_unaligned_be16(&buffer[2]) + 3;
++	vpd_len = get_unaligned_be16(&buffer[2]) + 4;
+ 	if (vpd_len > buf_len || vpd_len < 64 + 32 || (vpd_len & 31)) {
+ 		sd_printk(KERN_ERR, sdkp,
+ 			  "Invalid Concurrent Positioning Ranges VPD page\n");
 
 
