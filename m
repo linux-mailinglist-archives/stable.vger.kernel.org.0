@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59475487B0
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF13548678
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343689AbiFMKaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41154 "EHLO
+        id S1358256AbiFMMGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344926AbiFMK3U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:29:20 -0400
+        with ESMTP id S1359171AbiFMMFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:05:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D67125C62;
-        Mon, 13 Jun 2022 03:20:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931F218B00;
+        Mon, 13 Jun 2022 03:59:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C975560C5B;
-        Mon, 13 Jun 2022 10:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D540AC34114;
-        Mon, 13 Jun 2022 10:20:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F884613EF;
+        Mon, 13 Jun 2022 10:59:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35650C34114;
+        Mon, 13 Jun 2022 10:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115630;
-        bh=x3KhVWC0ll/qL0hqYrVnjfMXp95Ww5ZMIt+AkkTdFUI=;
+        s=korg; t=1655117967;
+        bh=vSKJlShFtifJudFMtcKg8Jn/ExM+1XIH1Zyt7CST3Jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQhjKnmM1IaxxqE1S65zO138h7QMwu+ewagLP4ABhLJ0r6wGCPyJatpEMPFsB5yle
-         W+qfO2KvkgUwtLrda5tFq/7UKAuVjz7KfaWqQmQiS4P2YTUBL/IVoBRtWyXZEmd037
-         eOha7KgaNnLGhWFxiaLIcthPQjvGl7q3LHl0JDBg=
+        b=R8A1Z7ZlGuOgsUW4ko7EUApSN01xKN+MstN5Lz+aHOaIJhyGvbp109Lv4wYxOJqSW
+         2LVG9E/Dr4WLUbfyh6igWKY6x3mmvYWQO84KsMRCq5ap1vxj0mvOg21grvZ3XYB3cl
+         2Yci7nAMAInOkGFiYSGXg9Bc8OQnz5BeNyr6GU94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 144/167] drivers: tty: serial: Fix deadlock in sa1100_set_termios()
-Date:   Mon, 13 Jun 2022 12:10:18 +0200
-Message-Id: <20220613094914.656704097@linuxfoundation.org>
+Subject: [PATCH 4.19 195/287] usb: musb: Fix missing of_node_put() in omap2430_probe
+Date:   Mon, 13 Jun 2022 12:10:19 +0200
+Message-Id: <20220613094929.778125207@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 62b2caef400c1738b6d22f636c628d9f85cd4c4c ]
+[ Upstream commit 424bef51fa530389b0b9008c9e144e40c10e8458 ]
 
-There is a deadlock in sa1100_set_termios(), which is shown
-below:
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-   (Thread 1)              |      (Thread 2)
-                           | sa1100_enable_ms()
-sa1100_set_termios()       |  mod_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | sa1100_timeout()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
-
-We hold sport->port.lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need sport->port.lock in position (2) of thread 2. As a result,
-sa1100_set_termios() will block forever.
-
-This patch moves del_timer_sync() before spin_lock_irqsave()
-in order to prevent the deadlock.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220417111626.7802-1-duoming@zju.edu.cn
+Fixes: 8934d3e4d0e7 ("usb: musb: omap2430: Don't use omap_get_control_dev()")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220309111033.24487-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sa1100.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/musb/omap2430.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/sa1100.c b/drivers/tty/serial/sa1100.c
-index fd3d1329d48c..68eb1c9faa29 100644
---- a/drivers/tty/serial/sa1100.c
-+++ b/drivers/tty/serial/sa1100.c
-@@ -452,6 +452,8 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
- 	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
- 	quot = uart_get_divisor(port, baud);
- 
-+	del_timer_sync(&sport->timer);
-+
- 	spin_lock_irqsave(&sport->port.lock, flags);
- 
- 	sport->port.read_status_mask &= UTSR0_TO_SM(UTSR0_TFS);
-@@ -482,8 +484,6 @@ sa1100_set_termios(struct uart_port *port, struct ktermios *termios,
- 				UTSR1_TO_SM(UTSR1_ROR);
- 	}
- 
--	del_timer_sync(&sport->timer);
--
- 	/*
- 	 * Update the per-port timeout.
- 	 */
+diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
+index 24e622c05638..5f1c41e95f56 100644
+--- a/drivers/usb/musb/omap2430.c
++++ b/drivers/usb/musb/omap2430.c
+@@ -433,6 +433,7 @@ static int omap2430_probe(struct platform_device *pdev)
+ 	control_node = of_parse_phandle(np, "ctrl-module", 0);
+ 	if (control_node) {
+ 		control_pdev = of_find_device_by_node(control_node);
++		of_node_put(control_node);
+ 		if (!control_pdev) {
+ 			dev_err(&pdev->dev, "Failed to get control device\n");
+ 			ret = -EINVAL;
 -- 
 2.35.1
 
