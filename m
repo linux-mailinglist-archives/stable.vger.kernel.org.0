@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99E55487C7
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C57654869E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 17:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376393AbiFMNVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:21:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
+        id S1376283AbiFMNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:21:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377232AbiFMNUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7596A039;
-        Mon, 13 Jun 2022 04:23:19 -0700 (PDT)
+        with ESMTP id S1377249AbiFMNUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:20:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88A336A062;
+        Mon, 13 Jun 2022 04:23:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1FDB61121;
-        Mon, 13 Jun 2022 11:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFED2C341C5;
-        Mon, 13 Jun 2022 11:22:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B088BB80EB5;
+        Mon, 13 Jun 2022 11:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF49C34114;
+        Mon, 13 Jun 2022 11:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119363;
-        bh=XR4pBaO0NMis/STcgabovWoFuXApSW2ZcL7eX6Yn8E4=;
+        s=korg; t=1655119383;
+        bh=PuqB4YyKvwdx+4buQKALMr2m1gWs1fXxzTsrNCO7bpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVZ78e4oL1/5SNLi4xc4HjCyTKp4W14FtzDQrL+pEsLOvbSHHMr/JmL6TSLFuQWc4
-         VlrWxhkR0O7smgBLBAQPZjiZDxbHpsh+CtOmeNwdnnsulqgNtVTLXThkwT72vVxGdi
-         aRjiUM2LAGx684F/lEsmARRoQATMHqwYIer2N+PQ=
+        b=l1BYvhc3LXuRIDI6MBUX3rN5OMHRNDF8mR5dP5OPKIGZPZ0BRYB4vGIcDZ/kP2hRG
+         0iWbXXojZqF3WYb+iQ18sZsyLk8hdC8ukb9jBgCFJd4IFnJBB+DETiteQcgTdBQN0O
+         MdaimMKBj1eM+cB201fY60eNV+5kp5DrQXJHMZX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Ying <victor.liu@oss.nxp.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 5.15 236/247] drm/atomic: Force bridge self-refresh-exit on CRTC switch
-Date:   Mon, 13 Jun 2022 12:12:18 +0200
-Message-Id: <20220613094930.102199941@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 242/247] random: mark bootloader randomness code as __init
+Date:   Mon, 13 Jun 2022 12:12:24 +0200
+Message-Id: <20220613094930.286887669@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
 References: <20220613094922.843438024@linuxfoundation.org>
@@ -55,74 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit e54a4424925a27ed94dff046db3ce5caf4b1e748 upstream.
+commit 39e0f991a62ed5efabd20711a7b6e7da92603170 upstream.
 
-It's possible to change which CRTC is in use for a given
-connector/encoder/bridge while we're in self-refresh without fully
-disabling the connector/encoder/bridge along the way. This can confuse
-the bridge encoder/bridge, because
-(a) it needs to track the SR state (trying to perform "active"
-    operations while the panel is still in SR can be Bad(TM)); and
-(b) it tracks the SR state via the CRTC state (and after the switch, the
-    previous SR state is lost).
+add_bootloader_randomness() and the variables it touches are only used
+during __init and not after, so mark these as __init. At the same time,
+unexport this, since it's only called by other __init code that's
+built-in.
 
-Thus, we need to either somehow carry the self-refresh state over to the
-new CRTC, or else force an encoder/bridge self-refresh transition during
-such a switch.
-
-I choose the latter, so we disable the encoder (and exit PSR) before
-attaching it to the new CRTC (where we can continue to assume a clean
-(non-self-refresh) state).
-
-This fixes PSR issues seen on Rockchip RK3399 systems with
-drivers/gpu/drm/bridge/analogix/analogix_dp_core.c.
-
-Change in v2:
-
-- Drop "->enable" condition; this could possibly be "->active" to
-  reflect the intended hardware state, but it also is a little
-  over-specific. We want to make a transition through "disabled" any
-  time we're exiting PSR at the same time as a CRTC switch.
-  (Thanks Liu Ying)
-
-Cc: Liu Ying <victor.liu@oss.nxp.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220228122522.v2.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid
+Cc: stable@vger.kernel.org
+Fixes: 428826f5358c ("fdt: add support for rng-seed")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_atomic_helper.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/char/random.c  |    7 +++----
+ include/linux/random.h |    2 +-
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -996,9 +996,19 @@ crtc_needs_disable(struct drm_crtc_state
- 		return drm_atomic_crtc_effectively_active(old_state);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -789,8 +789,8 @@ static void __cold _credit_init_bits(siz
+  *
+  **********************************************************************/
  
- 	/*
--	 * We need to run through the crtc_funcs->disable() function if the CRTC
--	 * is currently on, if it's transitioning to self refresh mode, or if
--	 * it's in self refresh mode and needs to be fully disabled.
-+	 * We need to disable bridge(s) and CRTC if we're transitioning out of
-+	 * self-refresh and changing CRTCs at the same time, because the
-+	 * bridge tracks self-refresh status via CRTC state.
-+	 */
-+	if (old_state->self_refresh_active &&
-+	    old_state->crtc != new_state->crtc)
-+		return true;
-+
-+	/*
-+	 * We also need to run through the crtc_funcs->disable() function if
-+	 * the CRTC is currently on, if it's transitioning to self refresh
-+	 * mode, or if it's in self refresh mode and needs to be fully
-+	 * disabled.
- 	 */
- 	return old_state->active ||
- 	       (old_state->self_refresh_active && !new_state->active) ||
+-static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
+-static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
++static bool trust_cpu __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
++static bool trust_bootloader __initdata = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
+ static int __init parse_trust_cpu(char *arg)
+ {
+ 	return kstrtobool(arg, &trust_cpu);
+@@ -886,13 +886,12 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
+  * Handle random seed passed by bootloader, and credit it if
+  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
+  */
+-void __cold add_bootloader_randomness(const void *buf, size_t len)
++void __init add_bootloader_randomness(const void *buf, size_t len)
+ {
+ 	mix_pool_bytes(buf, len);
+ 	if (trust_bootloader)
+ 		credit_init_bits(len * 8);
+ }
+-EXPORT_SYMBOL_GPL(add_bootloader_randomness);
+ 
+ struct fast_pool {
+ 	struct work_struct mix;
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -13,7 +13,7 @@
+ struct notifier_block;
+ 
+ void add_device_randomness(const void *buf, size_t len);
+-void add_bootloader_randomness(const void *buf, size_t len);
++void __init add_bootloader_randomness(const void *buf, size_t len);
+ void add_input_randomness(unsigned int type, unsigned int code,
+ 			  unsigned int value) __latent_entropy;
+ void add_interrupt_randomness(int irq) __latent_entropy;
 
 
