@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F67548930
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6B154909B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:26:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383410AbiFMO2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52196 "EHLO
+        id S236816AbiFMKcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382830AbiFMOZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:25:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89BF24A3D2;
-        Mon, 13 Jun 2022 04:47:11 -0700 (PDT)
+        with ESMTP id S236465AbiFMKad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:30:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7458621E07;
+        Mon, 13 Jun 2022 03:21:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2D0761425;
-        Mon, 13 Jun 2022 11:47:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C6AC34114;
-        Mon, 13 Jun 2022 11:47:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8E70B80E94;
+        Mon, 13 Jun 2022 10:21:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 357F3C34114;
+        Mon, 13 Jun 2022 10:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120829;
-        bh=yRje9zJj6k4Qpu7HfECVlAhlL7PYsk56cdaU6S3uQd0=;
+        s=korg; t=1655115676;
+        bh=//b4YhDz4deef/VaPhG43OVx0wkPvH71VetrAukn15o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5sMlRsbyaQhtQsl7dQ5UnU53shZ3I361q4lzxcqMd0h3zpS8knsj+7c+4y9IS7Yd
-         U/gM0L2dOLDyxtJuoA4h0fdgjXvP0m3GactqiuU9W86gLz2DBwYevhY8JWzRiqUxgH
-         onQ7H5Z10je7w5SKScsNBWyTk0IWqyPtO0lahNhU=
+        b=fzyiiTKYdQEHOD6Z3teUdq9KUtcCP8EZCyBaN2HYd7wAJyiRb5uxLRfokFx5T4pLX
+         QYWvBAQCZoNiAnXdlM8rglxd28JPv2yOotMEFk2vkPN5u8fUPgGqdERgMUnb9ov/Wa
+         GiQyPDOAkwKv8cCFsQNmNjeaxAmc65bOu7kxb+0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Xie <xiehuan09@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 138/298] tracing: Make tp_printk work on syscall tracepoints
+        stable@vger.kernel.org, huangwenhui <huangwenhuia@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 158/167] ALSA: hda/conexant - Fix loopback issue with CX20632
 Date:   Mon, 13 Jun 2022 12:10:32 +0200
-Message-Id: <20220613094929.128988826@linuxfoundation.org>
+Message-Id: <20220613094918.000549194@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,116 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Xie <xiehuan09@gmail.com>
+From: huangwenhui <huangwenhuia@uniontech.com>
 
-[ Upstream commit cb1c45fb68b8a4285ccf750842b1136f26cfe267 ]
+commit d5ea7544c32ba27c2c5826248e4ff58bd50a2518 upstream.
 
-Currently the tp_printk option has no effect on syscall tracepoint.
-When adding the kernel option parameter tp_printk, then:
+On a machine with CX20632, Alsamixer doesn't have 'Loopback
+Mixing' and 'Line'.
 
-echo 1 > /sys/kernel/debug/tracing/events/syscalls/enable
-
-When running any application, no trace information is printed on the
-terminal.
-
-Now added printk for syscall tracepoints.
-
-Link: https://lkml.kernel.org/r/20220410145025.681144-1-xiehuan09@gmail.com
-
-Signed-off-by: Jeff Xie <xiehuan09@gmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220607065631.10708-1-huangwenhuia@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_syscalls.c | 35 +++++++++++------------------------
- 1 file changed, 11 insertions(+), 24 deletions(-)
+ sound/pci/hda/patch_conexant.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/kernel/trace/trace_syscalls.c b/kernel/trace/trace_syscalls.c
-index f755bde42fd0..b69e207012c9 100644
---- a/kernel/trace/trace_syscalls.c
-+++ b/kernel/trace/trace_syscalls.c
-@@ -154,7 +154,7 @@ print_syscall_enter(struct trace_iterator *iter, int flags,
- 			goto end;
- 
- 		/* parameter types */
--		if (tr->trace_flags & TRACE_ITER_VERBOSE)
-+		if (tr && tr->trace_flags & TRACE_ITER_VERBOSE)
- 			trace_seq_printf(s, "%s ", entry->types[i]);
- 
- 		/* parameter values */
-@@ -296,9 +296,7 @@ static void ftrace_syscall_enter(void *data, struct pt_regs *regs, long id)
- 	struct trace_event_file *trace_file;
- 	struct syscall_trace_enter *entry;
- 	struct syscall_metadata *sys_data;
--	struct ring_buffer_event *event;
--	struct trace_buffer *buffer;
--	unsigned int trace_ctx;
-+	struct trace_event_buffer fbuffer;
- 	unsigned long args[6];
- 	int syscall_nr;
- 	int size;
-@@ -321,20 +319,16 @@ static void ftrace_syscall_enter(void *data, struct pt_regs *regs, long id)
- 
- 	size = sizeof(*entry) + sizeof(unsigned long) * sys_data->nb_args;
- 
--	trace_ctx = tracing_gen_ctx();
--
--	event = trace_event_buffer_lock_reserve(&buffer, trace_file,
--			sys_data->enter_event->event.type, size, trace_ctx);
--	if (!event)
-+	entry = trace_event_buffer_reserve(&fbuffer, trace_file, size);
-+	if (!entry)
- 		return;
- 
--	entry = ring_buffer_event_data(event);
-+	entry = ring_buffer_event_data(fbuffer.event);
- 	entry->nr = syscall_nr;
- 	syscall_get_arguments(current, regs, args);
- 	memcpy(entry->args, args, sizeof(unsigned long) * sys_data->nb_args);
- 
--	event_trigger_unlock_commit(trace_file, buffer, event, entry,
--				    trace_ctx);
-+	trace_event_buffer_commit(&fbuffer);
- }
- 
- static void ftrace_syscall_exit(void *data, struct pt_regs *regs, long ret)
-@@ -343,9 +337,7 @@ static void ftrace_syscall_exit(void *data, struct pt_regs *regs, long ret)
- 	struct trace_event_file *trace_file;
- 	struct syscall_trace_exit *entry;
- 	struct syscall_metadata *sys_data;
--	struct ring_buffer_event *event;
--	struct trace_buffer *buffer;
--	unsigned int trace_ctx;
-+	struct trace_event_buffer fbuffer;
- 	int syscall_nr;
- 
- 	syscall_nr = trace_get_syscall_nr(current, regs);
-@@ -364,20 +356,15 @@ static void ftrace_syscall_exit(void *data, struct pt_regs *regs, long ret)
- 	if (!sys_data)
- 		return;
- 
--	trace_ctx = tracing_gen_ctx();
--
--	event = trace_event_buffer_lock_reserve(&buffer, trace_file,
--			sys_data->exit_event->event.type, sizeof(*entry),
--			trace_ctx);
--	if (!event)
-+	entry = trace_event_buffer_reserve(&fbuffer, trace_file, sizeof(*entry));
-+	if (!entry)
- 		return;
- 
--	entry = ring_buffer_event_data(event);
-+	entry = ring_buffer_event_data(fbuffer.event);
- 	entry->nr = syscall_nr;
- 	entry->ret = syscall_get_return_value(current, regs);
- 
--	event_trigger_unlock_commit(trace_file, buffer, event, entry,
--				    trace_ctx);
-+	trace_event_buffer_commit(&fbuffer);
- }
- 
- static int reg_event_syscall_enter(struct trace_event_file *file,
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -942,6 +942,13 @@ static int patch_conexant_auto(struct hd
+ 		snd_hda_pick_fixup(codec, cxt5051_fixup_models,
+ 				   cxt5051_fixups, cxt_fixups);
+ 		break;
++	case 0x14f15098:
++		codec->pin_amp_workaround = 1;
++		spec->gen.mixer_nid = 0x22;
++		spec->gen.add_stereo_mix_input = HDA_HINT_STEREO_MIX_AUTO;
++		snd_hda_pick_fixup(codec, cxt5066_fixup_models,
++				   cxt5066_fixups, cxt_fixups);
++		break;
+ 	case 0x14f150f2:
+ 		codec->power_save_node = 1;
+ 		/* Fall through */
 
 
