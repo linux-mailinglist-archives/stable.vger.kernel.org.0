@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5988548FCD
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C793549297
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235483AbiFMKTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:19:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
+        id S1378155AbiFMNky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:40:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242682AbiFMKSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:18:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67D4DF37;
-        Mon, 13 Jun 2022 03:16:17 -0700 (PDT)
+        with ESMTP id S1378917AbiFMNjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:39:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EEA07935C;
+        Mon, 13 Jun 2022 04:28:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0DAB2CE1106;
-        Mon, 13 Jun 2022 10:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0534CC34114;
-        Mon, 13 Jun 2022 10:16:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 55AF5CE110D;
+        Mon, 13 Jun 2022 11:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5858CC34114;
+        Mon, 13 Jun 2022 11:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655115374;
-        bh=9AWYvwpbknsiS/4G3LdwateIgFBMMn2KK4bA6s5Ljp4=;
+        s=korg; t=1655119677;
+        bh=7z+N3KMvMkb3XEW6HZ1NlJrXCA4y2wOP47eUpURj/FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0e/1RHeoLnw2NwUi+U31MgZtBhCkn5m4mqskBta8LEbctKEbLLNWDpKCMv0rETY4C
-         0E0yPnWUcqH4zRvr+RPDtgNgOCyrNrArJX36shcsXM6kL/fEBA/Jjcff4B0vjbveLX
-         I2+zQhBNvDAItHAKN/bwoZKo4/BMV2xLrUGd4Kfo=
+        b=y2NKnl/e8mUU4OyQaNO4+tdkXG8mOaG0eB7CmR7VxVVTwS7m7S6aV+w0H+I93quyR
+         fcomo2lC7zJyuHbmUXzNLn0F6VNWQYPHsme6O3RZSI1T6yH/3lI9ld/XVf6HefwHAP
+         75oGAcyamXl/A8PaAXzbMs3plECogcgwzgsIqJHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 051/167] drm/msm: return an error pointer in msm_gem_prime_get_sg_table()
+Subject: [PATCH 5.18 100/339] jffs2: fix memory leak in jffs2_do_fill_super
 Date:   Mon, 13 Jun 2022 12:08:45 +0200
-Message-Id: <20220613094852.941038391@linuxfoundation.org>
+Message-Id: <20220613094929.544880034@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
-References: <20220613094840.720778945@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit cf575e31611eb6dccf08fad02e57e35b2187704d ]
+[ Upstream commit c14adb1cf70a984ed081c67e9d27bc3caad9537c ]
 
-The msm_gem_prime_get_sg_table() needs to return error pointers on
-error.  This is called from drm_gem_map_dma_buf() and returning a
-NULL will lead to a crash in that function.
+If jffs2_iget() or d_make_root() in jffs2_do_fill_super() returns
+an error, we can observe the following kmemleak report:
 
-Fixes: ac45146733b0 ("drm/msm: fix msm_gem_prime_get_sg_table()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/485023/
-Link: https://lore.kernel.org/r/YnOmtS5tfENywR9m@kili
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+--------------------------------------------
+unreferenced object 0xffff888105a65340 (size 64):
+  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff859c45e5>] kmem_cache_alloc_trace+0x475/0x8a0
+    [<ffffffff86160146>] jffs2_sum_init+0x96/0x1a0
+    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
+    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
+    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
+    [...]
+unreferenced object 0xffff8881bd7f0000 (size 65536):
+  comm "mount", pid 710, jiffies 4302851558 (age 58.239s)
+  hex dump (first 32 bytes):
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+  backtrace:
+    [<ffffffff858579ba>] kmalloc_order+0xda/0x110
+    [<ffffffff85857a11>] kmalloc_order_trace+0x21/0x130
+    [<ffffffff859c2ed1>] __kmalloc+0x711/0x8a0
+    [<ffffffff86160189>] jffs2_sum_init+0xd9/0x1a0
+    [<ffffffff86140e25>] jffs2_do_mount_fs+0x745/0x2120
+    [<ffffffff86149fec>] jffs2_do_fill_super+0x35c/0x810
+    [<ffffffff8614aae9>] jffs2_fill_super+0x2b9/0x3b0
+    [...]
+--------------------------------------------
+
+This is because the resources allocated in jffs2_sum_init() are not
+released. Call jffs2_sum_exit() to release these resources to solve
+the problem.
+
+Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem_prime.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jffs2/fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
-index 13403c6da6c7..7e4664968106 100644
---- a/drivers/gpu/drm/msm/msm_gem_prime.c
-+++ b/drivers/gpu/drm/msm/msm_gem_prime.c
-@@ -26,7 +26,7 @@ struct sg_table *msm_gem_prime_get_sg_table(struct drm_gem_object *obj)
- 	int npages = obj->size >> PAGE_SHIFT;
- 
- 	if (WARN_ON(!msm_obj->pages))  /* should have already pinned! */
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 
- 	return drm_prime_pages_to_sg(msm_obj->pages, npages);
- }
+diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
+index 71f03a5d36ed..f83a468b6488 100644
+--- a/fs/jffs2/fs.c
++++ b/fs/jffs2/fs.c
+@@ -604,6 +604,7 @@ int jffs2_do_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	jffs2_free_raw_node_refs(c);
+ 	kvfree(c->blocks);
+ 	jffs2_clear_xattr_subsystem(c);
++	jffs2_sum_exit(c);
+  out_inohash:
+ 	kfree(c->inocache_list);
+  out_wbuf:
 -- 
 2.35.1
 
