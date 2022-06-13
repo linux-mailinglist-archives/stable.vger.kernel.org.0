@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00568548F92
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD4654953B
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352402AbiFMLQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36094 "EHLO
+        id S1383934AbiFMObX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 10:31:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352551AbiFMLN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:13:59 -0400
+        with ESMTP id S1384150AbiFMO24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:28:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F4D36161;
-        Mon, 13 Jun 2022 03:36:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A68C4551D;
+        Mon, 13 Jun 2022 04:47:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCF0DB80E93;
-        Mon, 13 Jun 2022 10:36:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAFFC34114;
-        Mon, 13 Jun 2022 10:36:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D7E5B80D3A;
+        Mon, 13 Jun 2022 11:47:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E31C2C34114;
+        Mon, 13 Jun 2022 11:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116585;
-        bh=gJV/Dd5leOXeTUIaJ5WEAtiBjlOWMbXoC66IahCIXf4=;
+        s=korg; t=1655120851;
+        bh=voYXGHQ0EmEGqrT//5SsbK1zE1x2gYhf/na/v6VV+DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FdQrBXYMMycVrKG7NVHWbc1uvy7lmNCIo1/K6j6OreRalkU0Qfe68C8NjuOv7YPs1
-         /Lta6i/CEJ9fJIMKBG3nC1jH1TWXs7AqATPRj42ljv1C2oQIU25GM7wph1QdnXm9Em
-         FikE+LN8ibP7Ds5P5R9zhCAmH3lDMyS/XFlzIByA=
+        b=pbGKByjn+P4iAA9FBEfxoO7dzhAXd6Ffw1COcvBtOUATA68blsXsE16JiWolR2Gh2
+         wNmv7MIsmyqlCVKSF3Blh4LoLqXLpTXrLpUnvsZRCkqj92Y5jRAgFpnpm+abQBrNml
+         GqQE5g+IzdLIfVikVmP1Wl9Lrt0zw7Vwo8UnAcHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tokunori Ikegami <ikegami.t@gmail.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.14 217/218] mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        NeilBrown <neilb@suse.de>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 181/298] SUNRPC: Fix the calculation of xdr->end in xdr_get_next_encode_buffer()
 Date:   Mon, 13 Jun 2022 12:11:15 +0200
-Message-Id: <20220613094927.210294807@linuxfoundation.org>
+Message-Id: <20220613094930.422317056@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
+References: <20220613094924.913340374@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,138 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tokunori Ikegami <ikegami.t@gmail.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 0a8e98305f63deaf0a799d5cf5532cc83af035d1 upstream.
+[ Upstream commit 6c254bf3b637dd4ef4f78eb78c7447419c0161d7 ]
 
-Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
-check correct value") buffered writes fail on S29GL064N. This is
-because, on S29GL064N, reads return 0xFF at the end of DQ polling for
-write completion, where as, chip_good() check expects actual data
-written to the last location to be returned post DQ polling completion.
-Fix is to revert to using chip_good() for S29GL064N which only checks
-for DQ lines to settle down to determine write completion.
+I found that NFSD's new NFSv3 READDIRPLUS XDR encoder was screwing up
+right at the end of the page array. xdr_get_next_encode_buffer() does
+not compute the value of xdr->end correctly:
 
-Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
-Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220323170458.5608-3-ikegami.t@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ * The check to see if we're on the final available page in xdr->buf
+   needs to account for the space consumed by @nbytes.
+
+ * The new xdr->end value needs to account for the portion of @nbytes
+   that is to be encoded into the previous buffer.
+
+Fixes: 2825a7f90753 ("nfsd4: allow encoding across page boundaries")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: NeilBrown <neilb@suse.de>
+Reviewed-by: J. Bruce Fields <bfields@fieldses.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c |   42 +++++++++++++++++++++++++++++-------
- include/linux/mtd/cfi.h             |    1 
- 2 files changed, 35 insertions(+), 8 deletions(-)
+ net/sunrpc/xdr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -49,6 +49,10 @@
- #define SST49LF008A		0x005a
- #define AT49BV6416		0x00d6
- 
-+enum cfi_quirks {
-+	CFI_QUIRK_DQ_TRUE_DATA = BIT(0),
-+};
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index df194cc07035..b57cf9df4de8 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -979,7 +979,11 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
+ 	 */
+ 	xdr->p = (void *)p + frag2bytes;
+ 	space_left = xdr->buf->buflen - xdr->buf->len;
+-	xdr->end = (void *)p + min_t(int, space_left, PAGE_SIZE);
++	if (space_left - nbytes >= PAGE_SIZE)
++		xdr->end = (void *)p + PAGE_SIZE;
++	else
++		xdr->end = (void *)p + space_left - frag1bytes;
 +
- static int cfi_amdstd_read (struct mtd_info *, loff_t, size_t, size_t *, u_char *);
- static int cfi_amdstd_write_words(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
- static int cfi_amdstd_write_buffers(struct mtd_info *, loff_t, size_t, size_t *, const u_char *);
-@@ -365,6 +369,15 @@ static void fixup_s29ns512p_sectors(stru
- 		mtd->name);
- }
- 
-+static void fixup_quirks(struct mtd_info *mtd)
-+{
-+	struct map_info *map = mtd->priv;
-+	struct cfi_private *cfi = map->fldrv_priv;
-+
-+	if (cfi->mfr == CFI_MFR_AMD && cfi->id == 0x0c01)
-+		cfi->quirks |= CFI_QUIRK_DQ_TRUE_DATA;
-+}
-+
- /* Used to fix CFI-Tables of chips without Extended Query Tables */
- static struct cfi_fixup cfi_nopri_fixup_table[] = {
- 	{ CFI_MFR_SST, 0x234a, fixup_sst39vf }, /* SST39VF1602 */
-@@ -403,6 +416,7 @@ static struct cfi_fixup cfi_fixup_table[
- #if !FORCE_WORD_WRITE
- 	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_use_write_buffers },
- #endif
-+	{ CFI_MFR_ANY, CFI_ID_ANY, fixup_quirks },
- 	{ 0, 0, NULL }
- };
- static struct cfi_fixup jedec_fixup_table[] = {
-@@ -760,6 +774,18 @@ static int __xipram chip_ready(struct ma
- 	return map_word_equal(map, t, *expected);
- }
- 
-+static int __xipram chip_good(struct map_info *map, unsigned long addr,
-+			      map_word *expected)
-+{
-+	struct cfi_private *cfi = map->fldrv_priv;
-+	map_word *datum = expected;
-+
-+	if (cfi->quirks & CFI_QUIRK_DQ_TRUE_DATA)
-+		datum = NULL;
-+
-+	return chip_ready(map, addr, datum);
-+}
-+
- static int get_chip(struct map_info *map, struct flchip *chip, unsigned long adr, int mode)
- {
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -1612,11 +1638,11 @@ static int __xipram do_write_oneword(str
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_ready" before checking
--		 * "chip_ready" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
- 		 */
- 		if (time_after(jiffies, timeo) &&
--		    !chip_ready(map, adr, &datum)) {
-+		    !chip_good(map, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
- 			xip_disable(map, chip, adr);
-@@ -1624,7 +1650,7 @@ static int __xipram do_write_oneword(str
- 			break;
- 		}
- 
--		if (chip_ready(map, adr, &datum))
-+		if (chip_good(map, adr, &datum))
- 			break;
- 
- 		/* Latency issues. Drop the lock, wait a while and retry */
-@@ -1868,13 +1894,13 @@ static int __xipram do_write_buffer(stru
- 		}
- 
- 		/*
--		 * We check "time_after" and "!chip_ready" before checking
--		 * "chip_ready" to avoid the failure due to scheduling.
-+		 * We check "time_after" and "!chip_good" before checking
-+		 * "chip_good" to avoid the failure due to scheduling.
- 		 */
--		if (time_after(jiffies, timeo) && !chip_ready(map, adr, &datum))
-+		if (time_after(jiffies, timeo) && !chip_good(map, adr, &datum))
- 			break;
- 
--		if (chip_ready(map, adr, &datum)) {
-+		if (chip_good(map, adr, &datum)) {
- 			xip_enable(map, chip, adr);
- 			goto op_done;
- 		}
---- a/include/linux/mtd/cfi.h
-+++ b/include/linux/mtd/cfi.h
-@@ -293,6 +293,7 @@ struct cfi_private {
- 	map_word sector_erase_cmd;
- 	unsigned long chipshift; /* Because they're of the same type */
- 	const char *im_name;	 /* inter_module name for cmdset_setup */
-+	unsigned long quirks;
- 	struct flchip chips[0];  /* per-chip data structure for each chip */
- };
- 
+ 	xdr->buf->page_len += frag2bytes;
+ 	xdr->buf->len += nbytes;
+ 	return p;
+-- 
+2.35.1
+
 
 
