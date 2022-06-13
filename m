@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F891548B90
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A25A4548AC4
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383646AbiFMO04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 10:26:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56458 "EHLO
+        id S1380537AbiFMN7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 09:59:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383973AbiFMOYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 10:24:23 -0400
+        with ESMTP id S1380162AbiFMNxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:53:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97AC65D5;
-        Mon, 13 Jun 2022 04:46:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B6BB7FB;
+        Mon, 13 Jun 2022 04:34:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66D4061342;
-        Mon, 13 Jun 2022 11:46:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76520C34114;
-        Mon, 13 Jun 2022 11:46:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C6396124B;
+        Mon, 13 Jun 2022 11:34:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A06C34114;
+        Mon, 13 Jun 2022 11:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655120771;
-        bh=EmXXkwtr+OdQj9M0ROu7qd3hWmwk2maZ/xMKVUEiJcI=;
+        s=korg; t=1655120039;
+        bh=swWzbn2TpIpi73RFLngVo0lUDHXK3tIvjiipGZ76mpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHuB1uhluJDtom9LczIJc8sAgqmcxVWiXcC1Ea7X3Q4iTAvssvqaK95E1/ywtqprv
-         QxEFSBcBtXL22qFD9S0ytHXbrP3D7eo1npEuMnMsM/67fegLVDCtTZq8stTk/QXTVR
-         M0OaaWrAYpnNRhhfl3E6mV5Llha1pf/2woVsFPfU=
+        b=bulihAumDrGz1nt1YOF3aZ17Dw8UtvuWytsIalqp9vy6MOGvBJM0tBX7py9q7dRYD
+         orJPLveiFZgtyGnUmFedWcD836/wzCiM98JZHY/Mlo/ZQOlr5Wn+X5NXd3TSD0ewgG
+         NXgaT7zPrunHh85YMIRiTqkoscTfnrT9yDj+aH3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Anton Makarov <am@3a-alliance.com>,
+        Andrea Mayer <andrea.mayer@uniroma2.it>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 152/298] m68knommu: fix undefined reference to `mach_get_rtc_pll
+Subject: [PATCH 5.18 221/339] net: seg6: fix seg6_lookup_any_nexthop() to handle VRFs using flowi_l3mdev
 Date:   Mon, 13 Jun 2022 12:10:46 +0200
-Message-Id: <20220613094929.547493133@linuxfoundation.org>
+Message-Id: <20220613094933.359666192@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094924.913340374@linuxfoundation.org>
-References: <20220613094924.913340374@linuxfoundation.org>
+In-Reply-To: <20220613094926.497929857@linuxfoundation.org>
+References: <20220613094926.497929857@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Ungerer <gerg@linux-m68k.org>
+From: Andrea Mayer <andrea.mayer@uniroma2.it>
 
-[ Upstream commit 1300eec9e51f23c34c4487d2b06f58ca22e1ad3d ]
+[ Upstream commit a3bd2102e464202b58d57390a538d96f57ffc361 ]
 
-Configuring for a nommu classic m68k target and enabling the generic rtc
-driver (CONFIG_RTC_DRV_GENERIC) will result in the following compile
-error:
+Commit 40867d74c374 ("net: Add l3mdev index to flow struct and avoid oif
+reset for port devices") adds a new entry (flowi_l3mdev) in the common
+flow struct used for indicating the l3mdev index for later rule and
+table matching.
+The l3mdev_update_flow() has been adapted to properly set the
+flowi_l3mdev based on the flowi_oif/flowi_iif. In fact, when a valid
+flowi_iif is supplied to the l3mdev_update_flow(), this function can
+update the flowi_l3mdev entry only if it has not yet been set (i.e., the
+flowi_l3mdev entry is equal to 0).
 
-   m68k-linux-ld: arch/m68k/kernel/time.o: in function `rtc_ioctl':
-   time.c:(.text+0x82): undefined reference to `mach_get_rtc_pll'
-   m68k-linux-ld: time.c:(.text+0xbc): undefined reference to `mach_set_rtc_pll'
-   m68k-linux-ld: time.c:(.text+0xf4): undefined reference to `mach_set_rtc_pll'
+The SRv6 End.DT6 behavior in VRF mode leverages a VRF device in order to
+force the routing lookup into the associated routing table. This routing
+operation is performed by seg6_lookup_any_nextop() preparing a flowi6
+data structure used by ip6_route_input_lookup() which, in turn,
+(indirectly) invokes l3mdev_update_flow().
 
-There are no definitions of "mach_set_rtc_pll" and "mach_get_rtc_pll" in the
-nommu code paths. Move these definitions and the associated "mach_hwclk",
-so that they are around their use case in time.c. This means they will
-always be defined on the builds that require them, and not on those that
-cannot use them - such as ColdFire (both with and without MMU enabled).
+However, seg6_lookup_any_nexthop() does not initialize the new
+flowi_l3mdev entry which is filled with random garbage data. This
+prevents l3mdev_update_flow() from properly updating the flowi_l3mdev
+with the VRF index, and thus SRv6 End.DT6 (VRF mode)/DT46 behaviors are
+broken.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+This patch correctly initializes the flowi6 instance allocated and used
+by seg6_lookup_any_nexhtop(). Specifically, the entire flowi6 instance
+is wiped out: in case new entries are added to flowi/flowi6 (as happened
+with the flowi_l3mdev entry), we should no longer have incorrectly
+initialized values. As a result of this operation, the value of
+flowi_l3mdev is also set to 0.
+
+The proposed fix can be tested easily. Starting from the commit
+referenced in the Fixes, selftests [1],[2] indicate that the SRv6
+End.DT6 (VRF mode)/DT46 behaviors no longer work correctly. By applying
+this patch, those behaviors are back to work properly again.
+
+[1] - tools/testing/selftests/net/srv6_end_dt46_l3vpn_test.sh
+[2] - tools/testing/selftests/net/srv6_end_dt6_l3vpn_test.sh
+
+Fixes: 40867d74c374 ("net: Add l3mdev index to flow struct and avoid oif reset for port devices")
+Reported-by: Anton Makarov <am@3a-alliance.com>
+Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220608091917.20345-1-andrea.mayer@uniroma2.it
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/setup_mm.c | 7 -------
- arch/m68k/kernel/setup_no.c | 1 -
- arch/m68k/kernel/time.c     | 9 +++++++++
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ net/ipv6/seg6_local.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index 49e573b94326..811c7b85db87 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -87,15 +87,8 @@ void (*mach_sched_init) (void) __initdata = NULL;
- void (*mach_init_IRQ) (void) __initdata = NULL;
- void (*mach_get_model) (char *model);
- void (*mach_get_hardware_list) (struct seq_file *m);
--/* machine dependent timer functions */
--int (*mach_hwclk) (int, struct rtc_time*);
--EXPORT_SYMBOL(mach_hwclk);
- unsigned int (*mach_get_ss)(void);
--int (*mach_get_rtc_pll)(struct rtc_pll_info *);
--int (*mach_set_rtc_pll)(struct rtc_pll_info *);
- EXPORT_SYMBOL(mach_get_ss);
--EXPORT_SYMBOL(mach_get_rtc_pll);
--EXPORT_SYMBOL(mach_set_rtc_pll);
- void (*mach_reset)( void );
- void (*mach_halt)( void );
- void (*mach_power_off)( void );
-diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
-index 5e4104f07a44..19eea73d3c17 100644
---- a/arch/m68k/kernel/setup_no.c
-+++ b/arch/m68k/kernel/setup_no.c
-@@ -50,7 +50,6 @@ char __initdata command_line[COMMAND_LINE_SIZE];
+diff --git a/net/ipv6/seg6_local.c b/net/ipv6/seg6_local.c
+index 9fbe243a0e81..98a34287439c 100644
+--- a/net/ipv6/seg6_local.c
++++ b/net/ipv6/seg6_local.c
+@@ -218,6 +218,7 @@ seg6_lookup_any_nexthop(struct sk_buff *skb, struct in6_addr *nhaddr,
+ 	struct flowi6 fl6;
+ 	int dev_flags = 0;
  
- /* machine dependent timer functions */
- void (*mach_sched_init)(void) __initdata = NULL;
--int (*mach_hwclk) (int, struct rtc_time*);
- 
- /* machine dependent reboot functions */
- void (*mach_reset)(void);
-diff --git a/arch/m68k/kernel/time.c b/arch/m68k/kernel/time.c
-index 340ffeea0a9d..a97600b2af50 100644
---- a/arch/m68k/kernel/time.c
-+++ b/arch/m68k/kernel/time.c
-@@ -63,6 +63,15 @@ void timer_heartbeat(void)
- #endif /* CONFIG_HEARTBEAT */
- 
- #ifdef CONFIG_M68KCLASSIC
-+/* machine dependent timer functions */
-+int (*mach_hwclk) (int, struct rtc_time*);
-+EXPORT_SYMBOL(mach_hwclk);
-+
-+int (*mach_get_rtc_pll)(struct rtc_pll_info *);
-+int (*mach_set_rtc_pll)(struct rtc_pll_info *);
-+EXPORT_SYMBOL(mach_get_rtc_pll);
-+EXPORT_SYMBOL(mach_set_rtc_pll);
-+
- #if !IS_BUILTIN(CONFIG_RTC_DRV_GENERIC)
- void read_persistent_clock64(struct timespec64 *ts)
- {
++	memset(&fl6, 0, sizeof(fl6));
+ 	fl6.flowi6_iif = skb->dev->ifindex;
+ 	fl6.daddr = nhaddr ? *nhaddr : hdr->daddr;
+ 	fl6.saddr = hdr->saddr;
 -- 
 2.35.1
 
