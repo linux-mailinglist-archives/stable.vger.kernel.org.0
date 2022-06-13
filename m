@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD45E548FE4
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A09EF548A77
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355323AbiFMMbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 08:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41980 "EHLO
+        id S236897AbiFMKai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 06:30:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358748AbiFMM3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:29:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC2C5A598;
-        Mon, 13 Jun 2022 04:06:49 -0700 (PDT)
+        with ESMTP id S1344320AbiFMK24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:28:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD26255B6;
+        Mon, 13 Jun 2022 03:20:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 277E961435;
-        Mon, 13 Jun 2022 11:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33BF3C34114;
-        Mon, 13 Jun 2022 11:06:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8B8FBCE1102;
+        Mon, 13 Jun 2022 10:20:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB6EC36B07;
+        Mon, 13 Jun 2022 10:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655118407;
-        bh=Us5cevsHlpX53cLnlX7pKUx0cNQOjP1PciUAUcFtUUA=;
+        s=korg; t=1655115621;
+        bh=vdHmBAw1oESu3mBgdYJHfUNiSBmK3oQCUHtDEM6Fx5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZ057T+8yPvKjKlpOd6/tjHaSlcI6xSe49JLMMBlA2K18WdBwzb0KlUUM2Resmhch
-         fe0DJ5gWLWUDSa5uPBsUTEWVaWt3T5zKcXbUXYw2ea4DXU/P5/wxhh7jUQYzovr3gu
-         zvMxOQeIw/0CTjVfMNZ0yApF85r6Ypk3+UPK+bd4=
+        b=XPaGdE4Adzz07hkawUovR1OUDmsKMDb8afHWJF1pB6N6mHkFQa4Wu8RvbBzwpxVke
+         z1X4wELJRX0IGyQ35TrpZFRH+NgN+kx8UqAdtQXZA3XZnRsQ5NirtaU9+md2jH2hku
+         F8GjkU8xsxQ9+EjOxmx4zZfi8I06Z9BShgfzlOFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changcheng Liu <jerrliu@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Petr Mladek <pmladek@suse.com>,
+        John Ogness <john.ogness@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/172] net/mlx5: correct ECE offset in query qp output
+Subject: [PATCH 4.9 151/167] serial: msm_serial: disable interrupts in __msm_console_write()
 Date:   Mon, 13 Jun 2022 12:10:25 +0200
-Message-Id: <20220613094906.041920103@linuxfoundation.org>
+Message-Id: <20220613094916.316552520@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094850.166931805@linuxfoundation.org>
-References: <20220613094850.166931805@linuxfoundation.org>
+In-Reply-To: <20220613094840.720778945@linuxfoundation.org>
+References: <20220613094840.720778945@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changcheng Liu <jerrliu@nvidia.com>
+From: John Ogness <john.ogness@linutronix.de>
 
-[ Upstream commit 3fc2a9e89b3508a5cc0c324f26d7b4740ba8c456 ]
+[ Upstream commit aabdbb1b7a5819e18c403334a31fb0cc2c06ad41 ]
 
-ECE field should be after opt_param_mask in query qp output.
+__msm_console_write() assumes that interrupts are disabled, but
+with threaded console printers it is possible that the write()
+callback of the console is called with interrupts enabled.
 
-Fixes: 6b646a7e4af6 ("net/mlx5: Add ability to read and write ECE options")
-Signed-off-by: Changcheng Liu <jerrliu@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Explicitly disable interrupts using local_irq_save() to preserve
+the assumed context.
+
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20220506213324.470461-1-john.ogness@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mlx5/mlx5_ifc.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/msm_serial.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index eba1f1cbc9fb..6ca97729b54a 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -4877,12 +4877,11 @@ struct mlx5_ifc_query_qp_out_bits {
+diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
+index c284e61ed4fc..33d035f9fded 100644
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -1578,6 +1578,7 @@ static inline struct uart_port *msm_get_port_from_line(unsigned int line)
+ static void __msm_console_write(struct uart_port *port, const char *s,
+ 				unsigned int count, bool is_uartdm)
+ {
++	unsigned long flags;
+ 	int i;
+ 	int num_newlines = 0;
+ 	bool replaced = false;
+@@ -1595,6 +1596,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
+ 			num_newlines++;
+ 	count += num_newlines;
  
- 	u8         syndrome[0x20];
++	local_irq_save(flags);
++
+ 	if (port->sysrq)
+ 		locked = 0;
+ 	else if (oops_in_progress)
+@@ -1640,6 +1643,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
  
--	u8         reserved_at_40[0x20];
--	u8         ece[0x20];
-+	u8         reserved_at_40[0x40];
+ 	if (locked)
+ 		spin_unlock(&port->lock);
++
++	local_irq_restore(flags);
+ }
  
- 	u8         opt_param_mask[0x20];
- 
--	u8         reserved_at_a0[0x20];
-+	u8         ece[0x20];
- 
- 	struct mlx5_ifc_qpc_bits qpc;
- 
+ static void msm_console_write(struct console *co, const char *s,
 -- 
 2.35.1
 
