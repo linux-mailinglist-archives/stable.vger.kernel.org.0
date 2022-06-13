@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD7D549317
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2529548EB8
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359507AbiFMNNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 09:13:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
+        id S1354828AbiFMMR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359326AbiFMNJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 09:09:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D089638DAF;
-        Mon, 13 Jun 2022 04:20:09 -0700 (PDT)
+        with ESMTP id S1359315AbiFMMOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8122120A2;
+        Mon, 13 Jun 2022 04:02:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B8FD60EAD;
-        Mon, 13 Jun 2022 11:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 697CBC3411C;
-        Mon, 13 Jun 2022 11:20:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F3B9B80EA8;
+        Mon, 13 Jun 2022 11:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67637C34114;
+        Mon, 13 Jun 2022 11:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655119208;
-        bh=H/ojBjv8RedJ1tRhj7i5pR0yqtBqO8nR4KB/LsnXy2I=;
+        s=korg; t=1655118139;
+        bh=ahCWFjMh8WyDj8Acc6WZ3lx9b4o/NO9n4MoAfv21HLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLA16y3t/vPZzbWZrDu9KW18KBVxY+DzXqL/tVJXnwRr5LLs4HfY33pupQdGfY1Jw
-         /11TdS0E84I43c3lbHf64Hqe+p6DW+HE1Nf8qz0WPgaLHxURRVVcv8DqDeBTw4eK6O
-         Y3VdHnqSQ9NLyeJnblPPOPcFkY/yAjftl+OA+qC0=
+        b=0PqPO3Ci0iy64AKwxY7F3cuVjdfgw5PJnoP54az6DmC69q9q6VcEk7MefvBigkuxo
+         nKgCDjky9QTvicKKuaWVaEK+9iFX2iihlWgoVzvH4rExqKt76jqPQvGQbRlRNqHQMJ
+         +2JKnQ1T0HLdf1XX3UhFB4EZ+1/FwFn+bt3SsOQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Billauer <eli.billauer@gmail.com>,
-        Hangyu Hua <hbh25y@gmail.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 180/247] char: xillybus: fix a refcount leak in cleanup_dev()
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 258/287] usb: dwc2: gadget: dont reset gadgets driver->bus
 Date:   Mon, 13 Jun 2022 12:11:22 +0200
-Message-Id: <20220613094928.413835108@linuxfoundation.org>
+Message-Id: <20220613094931.833055169@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094922.843438024@linuxfoundation.org>
-References: <20220613094922.843438024@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit b67d19662fdee275c479d21853bc1239600a798f ]
+[ Upstream commit 3120aac6d0ecd9accf56894aeac0e265f74d3d5a ]
 
-usb_get_dev is called in xillyusb_probe. So it is better to call
-usb_put_dev before xdev is released.
+UDC driver should not touch gadget's driver internals, especially it
+should not reset driver->bus. This wasn't harmful so far, but since
+commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets") gadget
+subsystem got it's own bus and messing with ->bus triggers the
+following NULL pointer dereference:
 
-Acked-by: Eli Billauer <eli.billauer@gmail.com>
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220406075703.23464-1-hbh25y@gmail.com
+dwc2 12480000.hsotg: bound driver g_ether
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[00000000] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in: ...
+CPU: 0 PID: 620 Comm: modprobe Not tainted 5.18.0-rc5-next-20220504 #11862
+Hardware name: Samsung Exynos (Flattened Device Tree)
+PC is at module_add_driver+0x44/0xe8
+LR is at sysfs_do_create_link_sd+0x84/0xe0
+...
+Process modprobe (pid: 620, stack limit = 0x(ptrval))
+...
+ module_add_driver from bus_add_driver+0xf4/0x1e4
+ bus_add_driver from driver_register+0x78/0x10c
+ driver_register from usb_gadget_register_driver_owner+0x40/0xb4
+ usb_gadget_register_driver_owner from do_one_initcall+0x44/0x1e0
+ do_one_initcall from do_init_module+0x44/0x1c8
+ do_init_module from load_module+0x19b8/0x1b9c
+ load_module from sys_finit_module+0xdc/0xfc
+ sys_finit_module from ret_fast_syscall+0x0/0x54
+Exception stack(0xf1771fa8 to 0xf1771ff0)
+...
+dwc2 12480000.hsotg: new device is high-speed
+---[ end trace 0000000000000000 ]---
+
+Fix this by removing driver->bus entry reset.
+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220505104618.22729-1-m.szyprowski@samsung.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/xillybus/xillyusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc2/gadget.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/char/xillybus/xillyusb.c b/drivers/char/xillybus/xillyusb.c
-index dc3551796e5e..39bcbfd908b4 100644
---- a/drivers/char/xillybus/xillyusb.c
-+++ b/drivers/char/xillybus/xillyusb.c
-@@ -549,6 +549,7 @@ static void cleanup_dev(struct kref *kref)
- 	if (xdev->workq)
- 		destroy_workqueue(xdev->workq);
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 1e46005929e4..85d25f7e9c27 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -4326,7 +4326,6 @@ static int dwc2_hsotg_udc_start(struct usb_gadget *gadget,
  
-+	usb_put_dev(xdev->udev);
- 	kfree(xdev->channels); /* Argument may be NULL, and that's fine */
- 	kfree(xdev);
- }
+ 	WARN_ON(hsotg->driver);
+ 
+-	driver->driver.bus = NULL;
+ 	hsotg->driver = driver;
+ 	hsotg->gadget.dev.of_node = hsotg->dev->of_node;
+ 	hsotg->gadget.speed = USB_SPEED_UNKNOWN;
 -- 
 2.35.1
 
