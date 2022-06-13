@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D22355495DC
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 989E154965E
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351271AbiFMLFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 07:05:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45508 "EHLO
+        id S238915AbiFMMPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:15:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351854AbiFMLFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 07:05:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5A13220F1;
-        Mon, 13 Jun 2022 03:34:18 -0700 (PDT)
+        with ESMTP id S1358394AbiFMMOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:14:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F98541A3;
+        Mon, 13 Jun 2022 04:01:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B820B80E93;
-        Mon, 13 Jun 2022 10:34:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1728DC34114;
-        Mon, 13 Jun 2022 10:34:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6257611B3;
+        Mon, 13 Jun 2022 11:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C902FC3411E;
+        Mon, 13 Jun 2022 11:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116456;
-        bh=5BluxnSDrX5xmfsuO8eB9nr6S+Osya+W3XJiCwT/gNQ=;
+        s=korg; t=1655118096;
+        bh=WbYBjSc71f8cIlWrPUklZin8m5JpGhUfr03nU2I9gGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8whNj21cdGe7qaXWm2VN4oWe4wbqrfBycsOnHqdwKo5HDilPoyYh3HmO/uhknkeg
-         NA9v3j2wwYoz5Bc/B+R1mqYg3U+vCTFbtXgqn2OCBwSmgKuEMK/VjyemulzvyyqFa1
-         ZwobYqr/kVuoKkiXMqJ+3m4BVvXj2az+C1Gpuah4=
+        b=g+4qNhOVZFW+jD/Rvp3sS0mKPQeJ4TtrhdiRRKmgX2wefK3oBJ08CJgWw896mYEJA
+         QcHvrZJQaiu+QdGpUuc7RqyyLK5OXezXpOnitj6f6A8KpRkIhRt1OhPZ4bokTHNDx7
+         h9G51eRGpp9LN3jykCo8pXoeFQ6X4pbFjoZnkJqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Wang Cheng <wanngchenng@gmail.com>,
+        stable@vger.kernel.org, Jun Miao <jun.miao@intel.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 194/218] staging: rtl8712: fix uninit-value in r871xu_drv_init()
+Subject: [PATCH 4.19 228/287] tracing: Fix sleeping function called from invalid context on RT kernel
 Date:   Mon, 13 Jun 2022 12:10:52 +0200
-Message-Id: <20220613094926.503844770@linuxfoundation.org>
+Message-Id: <20220613094930.929442442@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: Jun Miao <jun.miao@intel.com>
 
-[ Upstream commit 0458e5428e5e959d201a40ffe71d762a79ecedc4 ]
+[ Upstream commit 12025abdc8539ed9d5014e2d647a3fd1bd3de5cd ]
 
-When 'tmpU1b' returns from r8712_read8(padapter, EE_9346CR) is 0,
-'mac[6]' will not be initialized.
+When setting bootparams="trace_event=initcall:initcall_start tp_printk=1" in the
+cmdline, the output_printk() was called, and the spin_lock_irqsave() was called in the
+atomic and irq disable interrupt context suitation. On the PREEMPT_RT kernel,
+these locks are replaced with sleepable rt-spinlock, so the stack calltrace will
+be triggered.
+Fix it by raw_spin_lock_irqsave when PREEMPT_RT and "trace_event=initcall:initcall_start
+tp_printk=1" enabled.
 
-BUG: KMSAN: uninit-value in r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- r871xu_drv_init+0x2d54/0x3070 drivers/staging/rtl8712/usb_intf.c:541
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_set_configuration+0x37e9/0x3ed0 drivers/usb/core/message.c:2170
- usb_generic_driver_probe+0x13c/0x300 drivers/usb/core/generic.c:238
- usb_probe_device+0x309/0x570 drivers/usb/core/driver.c:293
- really_probe+0x653/0x14b0 drivers/base/dd.c:596
- __driver_probe_device+0x3e9/0x530 drivers/base/dd.c:752
- driver_probe_device drivers/base/dd.c:782 [inline]
- __device_attach_driver+0x79f/0x1120 drivers/base/dd.c:899
- bus_for_each_drv+0x2d6/0x3f0 drivers/base/bus.c:427
- __device_attach+0x593/0x8e0 drivers/base/dd.c:970
- device_initial_probe+0x4a/0x60 drivers/base/dd.c:1017
- bus_probe_device+0x17b/0x3e0 drivers/base/bus.c:487
- device_add+0x1fff/0x26e0 drivers/base/core.c:3405
- usb_new_device+0x1b8e/0x2950 drivers/usb/core/hub.c:2566
- hub_port_connect drivers/usb/core/hub.c:5358 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
- port_event drivers/usb/core/hub.c:5660 [inline]
- hub_event+0x58e3/0x89e0 drivers/usb/core/hub.c:5742
- process_one_work+0xdb6/0x1820 kernel/workqueue.c:2307
- worker_thread+0x10b3/0x21e0 kernel/workqueue.c:2454
- kthread+0x3c7/0x500 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
+ BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
+ in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper/0
+ preempt_count: 2, expected: 0
+ RCU nest depth: 0, expected: 0
+ Preemption disabled at:
+ [<ffffffff8992303e>] try_to_wake_up+0x7e/0xba0
+ CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.17.1-rt17+ #19 34c5812404187a875f32bee7977f7367f9679ea7
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x60/0x8c
+  dump_stack+0x10/0x12
+  __might_resched.cold+0x11d/0x155
+  rt_spin_lock+0x40/0x70
+  trace_event_buffer_commit+0x2fa/0x4c0
+  ? map_vsyscall+0x93/0x93
+  trace_event_raw_event_initcall_start+0xbe/0x110
+  ? perf_trace_initcall_finish+0x210/0x210
+  ? probe_sched_wakeup+0x34/0x40
+  ? ttwu_do_wakeup+0xda/0x310
+  ? trace_hardirqs_on+0x35/0x170
+  ? map_vsyscall+0x93/0x93
+  do_one_initcall+0x217/0x3c0
+  ? trace_event_raw_event_initcall_level+0x170/0x170
+  ? push_cpu_stop+0x400/0x400
+  ? cblist_init_generic+0x241/0x290
+  kernel_init_freeable+0x1ac/0x347
+  ? _raw_spin_unlock_irq+0x65/0x80
+  ? rest_init+0xf0/0xf0
+  kernel_init+0x1e/0x150
+  ret_from_fork+0x22/0x30
+  </TASK>
 
-Local variable mac created at:
- r871xu_drv_init+0x1771/0x3070 drivers/staging/rtl8712/usb_intf.c:394
- usb_probe_interface+0xf19/0x1600 drivers/usb/core/driver.c:396
+Link: https://lkml.kernel.org/r/20220419013910.894370-1-jun.miao@intel.com
 
-KMSAN: uninit-value in r871xu_drv_init
-https://syzkaller.appspot.com/bug?id=3cd92b1d85428b128503bfa7a250294c9ae00bd8
-
-Reported-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Tested-by: <syzbot+6f5ecd144854c0d8580b@syzkaller.appspotmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Link: https://lore.kernel.org/r/14c3886173dfa4597f0704547c414cfdbcd11d16.1652618244.git.wanngchenng@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jun Miao <jun.miao@intel.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/usb_intf.c | 6 +++---
+ kernel/trace/trace.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index 8be4fcc54ad6..b7bd37b62861 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -569,13 +569,13 @@ static int r871xu_drv_init(struct usb_interface *pusb_intf,
- 		} else {
- 			AutoloadFail = false;
- 		}
--		if (((mac[0] == 0xff) && (mac[1] == 0xff) &&
-+		if ((!AutoloadFail) ||
-+		    ((mac[0] == 0xff) && (mac[1] == 0xff) &&
- 		     (mac[2] == 0xff) && (mac[3] == 0xff) &&
- 		     (mac[4] == 0xff) && (mac[5] == 0xff)) ||
- 		    ((mac[0] == 0x00) && (mac[1] == 0x00) &&
- 		     (mac[2] == 0x00) && (mac[3] == 0x00) &&
--		     (mac[4] == 0x00) && (mac[5] == 0x00)) ||
--		     (!AutoloadFail)) {
-+		     (mac[4] == 0x00) && (mac[5] == 0x00))) {
- 			mac[0] = 0x00;
- 			mac[1] = 0xe0;
- 			mac[2] = 0x4c;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 063b434c89d2..017c8dd46b0f 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2331,7 +2331,7 @@ trace_event_buffer_lock_reserve(struct ring_buffer **current_rb,
+ }
+ EXPORT_SYMBOL_GPL(trace_event_buffer_lock_reserve);
+ 
+-static DEFINE_SPINLOCK(tracepoint_iter_lock);
++static DEFINE_RAW_SPINLOCK(tracepoint_iter_lock);
+ static DEFINE_MUTEX(tracepoint_printk_mutex);
+ 
+ static void output_printk(struct trace_event_buffer *fbuffer)
+@@ -2352,14 +2352,14 @@ static void output_printk(struct trace_event_buffer *fbuffer)
+ 
+ 	event = &fbuffer->trace_file->event_call->event;
+ 
+-	spin_lock_irqsave(&tracepoint_iter_lock, flags);
++	raw_spin_lock_irqsave(&tracepoint_iter_lock, flags);
+ 	trace_seq_init(&iter->seq);
+ 	iter->ent = fbuffer->entry;
+ 	event_call->event.funcs->trace(iter, 0, event);
+ 	trace_seq_putc(&iter->seq, 0);
+ 	printk("%s", iter->seq.buffer);
+ 
+-	spin_unlock_irqrestore(&tracepoint_iter_lock, flags);
++	raw_spin_unlock_irqrestore(&tracepoint_iter_lock, flags);
+ }
+ 
+ int tracepoint_printk_sysctl(struct ctl_table *table, int write,
 -- 
 2.35.1
 
