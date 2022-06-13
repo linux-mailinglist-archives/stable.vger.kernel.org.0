@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB37E5489E5
-	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64C2B548C76
+	for <lists+stable@lfdr.de>; Mon, 13 Jun 2022 18:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345302AbiFMKue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jun 2022 06:50:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
+        id S1358165AbiFMMGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jun 2022 08:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348420AbiFMKtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 06:49:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFE22DD7F;
-        Mon, 13 Jun 2022 03:26:57 -0700 (PDT)
+        with ESMTP id S1358605AbiFMMEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jun 2022 08:04:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBB7427D3;
+        Mon, 13 Jun 2022 03:57:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A665B80E95;
-        Mon, 13 Jun 2022 10:26:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E6A3C34114;
-        Mon, 13 Jun 2022 10:26:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43F9A61346;
+        Mon, 13 Jun 2022 10:57:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5014FC34114;
+        Mon, 13 Jun 2022 10:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1655116014;
-        bh=U8LQa6wfLg8oa/eSS6e4ejT7/fpc/kO3+1GrXW02XnY=;
+        s=korg; t=1655117851;
+        bh=+7lMIGEEM0SyYdAaiK7TVCobrDsuPE+uowxjx/D62q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kN+/kO/41F0fd2MACTE5LgxlK1UX6vc541BgRKY5PIOf7IvVztUmqsIuVqrhiauYE
-         h27qu01LH6cK8C67VJ5CUFPhAlQ5BcUKJ9Ev7fwQjBLp6XNhFvKfUN4BifjQXikXaa
-         zow1YLVWarm712ahN/LZ0OgWKXYZ/0nWoFLQiaEE=
+        b=mONa9Q4/t44pm63p3Ac2DnWeoUbvu2Jd2dTcWlY/TkJx2rp7BBv/98OH3DvlLALx6
+         3OcmV26ZGNBaz1+PyTYosNUXF03lHhIMOw/V6MAFukJO1MknDrxOcd+umLcXyQL3mA
+         yxTZRdoq1objwEqUetnGRqPIIuBJ4i6LPe5hUiAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>
-Subject: [PATCH 4.14 109/218] dlm: fix plock invalid read
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.19 143/287] wifi: mac80211: fix use-after-free in chanctx code
 Date:   Mon, 13 Jun 2022 12:09:27 +0200
-Message-Id: <20220613094923.867195837@linuxfoundation.org>
+Message-Id: <20220613094928.212812400@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220613094908.257446132@linuxfoundation.org>
-References: <20220613094908.257446132@linuxfoundation.org>
+In-Reply-To: <20220613094923.832156175@linuxfoundation.org>
+References: <20220613094923.832156175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,198 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 42252d0d2aa9b94d168241710a761588b3959019 upstream.
+commit 2965c4cdf7ad9ce0796fac5e57debb9519ea721e upstream.
 
-This patch fixes an invalid read showed by KASAN. A unlock will allocate a
-"struct plock_op" and a followed send_op() will append it to a global
-send_list data structure. In some cases a followed dev_read() moves it
-to recv_list and dev_write() will cast it to "struct plock_xop" and access
-fields which are only available in those structures. At this point an
-invalid read happens by accessing those fields.
+In ieee80211_vif_use_reserved_context(), when we have an
+old context and the new context's replace_state is set to
+IEEE80211_CHANCTX_REPLACE_NONE, we free the old context
+in ieee80211_vif_use_reserved_reassign(). Therefore, we
+cannot check the old_ctx anymore, so we should set it to
+NULL after this point.
 
-To fix this issue the "callback" field is moved to "struct plock_op" to
-indicate that a cast to "plock_xop" is allowed and does the additional
-"plock_xop" handling if set.
+However, since the new_ctx replace state is clearly not
+IEEE80211_CHANCTX_REPLACES_OTHER, we're not going to do
+anything else in this function and can just return to
+avoid accessing the freed old_ctx.
 
-Example of the KASAN output which showed the invalid read:
-
-[ 2064.296453] ==================================================================
-[ 2064.304852] BUG: KASAN: slab-out-of-bounds in dev_write+0x52b/0x5a0 [dlm]
-[ 2064.306491] Read of size 8 at addr ffff88800ef227d8 by task dlm_controld/7484
-[ 2064.308168]
-[ 2064.308575] CPU: 0 PID: 7484 Comm: dlm_controld Kdump: loaded Not tainted 5.14.0+ #9
-[ 2064.310292] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[ 2064.311618] Call Trace:
-[ 2064.312218]  dump_stack_lvl+0x56/0x7b
-[ 2064.313150]  print_address_description.constprop.8+0x21/0x150
-[ 2064.314578]  ? dev_write+0x52b/0x5a0 [dlm]
-[ 2064.315610]  ? dev_write+0x52b/0x5a0 [dlm]
-[ 2064.316595]  kasan_report.cold.14+0x7f/0x11b
-[ 2064.317674]  ? dev_write+0x52b/0x5a0 [dlm]
-[ 2064.318687]  dev_write+0x52b/0x5a0 [dlm]
-[ 2064.319629]  ? dev_read+0x4a0/0x4a0 [dlm]
-[ 2064.320713]  ? bpf_lsm_kernfs_init_security+0x10/0x10
-[ 2064.321926]  vfs_write+0x17e/0x930
-[ 2064.322769]  ? __fget_light+0x1aa/0x220
-[ 2064.323753]  ksys_write+0xf1/0x1c0
-[ 2064.324548]  ? __ia32_sys_read+0xb0/0xb0
-[ 2064.325464]  do_syscall_64+0x3a/0x80
-[ 2064.326387]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 2064.327606] RIP: 0033:0x7f807e4ba96f
-[ 2064.328470] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 39 87 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 7c 87 f8 ff 48
-[ 2064.332902] RSP: 002b:00007ffd50cfe6e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
-[ 2064.334658] RAX: ffffffffffffffda RBX: 000055cc3886eb30 RCX: 00007f807e4ba96f
-[ 2064.336275] RDX: 0000000000000040 RSI: 00007ffd50cfe7e0 RDI: 0000000000000010
-[ 2064.337980] RBP: 00007ffd50cfe7e0 R08: 0000000000000000 R09: 0000000000000001
-[ 2064.339560] R10: 000055cc3886eb30 R11: 0000000000000293 R12: 000055cc3886eb80
-[ 2064.341237] R13: 000055cc3886eb00 R14: 000055cc3886f590 R15: 0000000000000001
-[ 2064.342857]
-[ 2064.343226] Allocated by task 12438:
-[ 2064.344057]  kasan_save_stack+0x1c/0x40
-[ 2064.345079]  __kasan_kmalloc+0x84/0xa0
-[ 2064.345933]  kmem_cache_alloc_trace+0x13b/0x220
-[ 2064.346953]  dlm_posix_unlock+0xec/0x720 [dlm]
-[ 2064.348811]  do_lock_file_wait.part.32+0xca/0x1d0
-[ 2064.351070]  fcntl_setlk+0x281/0xbc0
-[ 2064.352879]  do_fcntl+0x5e4/0xfe0
-[ 2064.354657]  __x64_sys_fcntl+0x11f/0x170
-[ 2064.356550]  do_syscall_64+0x3a/0x80
-[ 2064.358259]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 2064.360745]
-[ 2064.361511] Last potentially related work creation:
-[ 2064.363957]  kasan_save_stack+0x1c/0x40
-[ 2064.365811]  __kasan_record_aux_stack+0xaf/0xc0
-[ 2064.368100]  call_rcu+0x11b/0xf70
-[ 2064.369785]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
-[ 2064.372404]  receive_from_sock+0x290/0x770 [dlm]
-[ 2064.374607]  process_recv_sockets+0x32/0x40 [dlm]
-[ 2064.377290]  process_one_work+0x9a8/0x16e0
-[ 2064.379357]  worker_thread+0x87/0xbf0
-[ 2064.381188]  kthread+0x3ac/0x490
-[ 2064.383460]  ret_from_fork+0x22/0x30
-[ 2064.385588]
-[ 2064.386518] Second to last potentially related work creation:
-[ 2064.389219]  kasan_save_stack+0x1c/0x40
-[ 2064.391043]  __kasan_record_aux_stack+0xaf/0xc0
-[ 2064.393303]  call_rcu+0x11b/0xf70
-[ 2064.394885]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
-[ 2064.397694]  receive_from_sock+0x290/0x770 [dlm]
-[ 2064.399932]  process_recv_sockets+0x32/0x40 [dlm]
-[ 2064.402180]  process_one_work+0x9a8/0x16e0
-[ 2064.404388]  worker_thread+0x87/0xbf0
-[ 2064.406124]  kthread+0x3ac/0x490
-[ 2064.408021]  ret_from_fork+0x22/0x30
-[ 2064.409834]
-[ 2064.410599] The buggy address belongs to the object at ffff88800ef22780
-[ 2064.410599]  which belongs to the cache kmalloc-96 of size 96
-[ 2064.416495] The buggy address is located 88 bytes inside of
-[ 2064.416495]  96-byte region [ffff88800ef22780, ffff88800ef227e0)
-[ 2064.422045] The buggy address belongs to the page:
-[ 2064.424635] page:00000000b6bef8bc refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0xef22
-[ 2064.428970] flags: 0xfffffc0000200(slab|node=0|zone=1|lastcpupid=0x1fffff)
-[ 2064.432515] raw: 000fffffc0000200 ffffea0000d68b80 0000001400000014 ffff888001041780
-[ 2064.436110] raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
-[ 2064.439813] page dumped because: kasan: bad access detected
-[ 2064.442548]
-[ 2064.443310] Memory state around the buggy address:
-[ 2064.445988]  ffff88800ef22680: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
-[ 2064.449444]  ffff88800ef22700: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
-[ 2064.452941] >ffff88800ef22780: 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc
-[ 2064.456383]                                                     ^
-[ 2064.459386]  ffff88800ef22800: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
-[ 2064.462788]  ffff88800ef22880: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
-[ 2064.466239] ==================================================================
-
-reproducer in python:
-
-import argparse
-import struct
-import fcntl
-import os
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument('-f', '--file',
-		    help='file to use fcntl, must be on dlm lock filesystem e.g. gfs2')
-
-args = parser.parse_args()
-
-f = open(args.file, 'wb+')
-
-lockdata = struct.pack('hhllhh', fcntl.F_WRLCK,0,0,0,0,0)
-fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
-lockdata = struct.pack('hhllhh', fcntl.F_UNLCK,0,0,0,0,0)
-fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
-
-Fixes: 586759f03e2e ("gfs2: nfs lock support for gfs2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Fixes: 5bcae31d9cb1 ("mac80211: implement multi-vif in-place reservations")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220601091926.df419d91b165.I17a9b3894ff0b8323ce2afdb153b101124c821e5@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/plock.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ net/mac80211/chan.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/fs/dlm/plock.c
-+++ b/fs/dlm/plock.c
-@@ -26,11 +26,11 @@ struct plock_op {
- 	struct list_head list;
- 	int done;
- 	struct dlm_plock_info info;
-+	int (*callback)(struct file_lock *fl, int result);
- };
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -1638,12 +1638,9 @@ int ieee80211_vif_use_reserved_context(s
  
- struct plock_xop {
- 	struct plock_op xop;
--	int (*callback)(struct file_lock *fl, int result);
- 	void *fl;
- 	void *file;
- 	struct file_lock flc;
-@@ -132,19 +132,18 @@ int dlm_posix_lock(dlm_lockspace_t *lock
- 		/* fl_owner is lockd which doesn't distinguish
- 		   processes on the nfs client */
- 		op->info.owner	= (__u64) fl->fl_pid;
--		xop->callback	= fl->fl_lmops->lm_grant;
-+		op->callback	= fl->fl_lmops->lm_grant;
- 		locks_init_lock(&xop->flc);
- 		locks_copy_lock(&xop->flc, fl);
- 		xop->fl		= fl;
- 		xop->file	= file;
- 	} else {
- 		op->info.owner	= (__u64)(long) fl->fl_owner;
--		xop->callback	= NULL;
+ 	if (new_ctx->replace_state == IEEE80211_CHANCTX_REPLACE_NONE) {
+ 		if (old_ctx)
+-			err = ieee80211_vif_use_reserved_reassign(sdata);
+-		else
+-			err = ieee80211_vif_use_reserved_assign(sdata);
++			return ieee80211_vif_use_reserved_reassign(sdata);
+ 
+-		if (err)
+-			return err;
++		return ieee80211_vif_use_reserved_assign(sdata);
  	}
  
- 	send_op(op);
- 
--	if (xop->callback == NULL) {
-+	if (!op->callback) {
- 		rv = wait_event_interruptible(recv_wq, (op->done != 0));
- 		if (rv == -ERESTARTSYS) {
- 			log_debug(ls, "dlm_posix_lock: wait killed %llx",
-@@ -206,7 +205,7 @@ static int dlm_plock_callback(struct plo
- 	file = xop->file;
- 	flc = &xop->flc;
- 	fl = xop->fl;
--	notify = xop->callback;
-+	notify = op->callback;
- 
- 	if (op->info.rv) {
- 		notify(fl, op->info.rv);
-@@ -439,10 +438,9 @@ static ssize_t dev_write(struct file *fi
- 		if (op->info.fsid == info.fsid &&
- 		    op->info.number == info.number &&
- 		    op->info.owner == info.owner) {
--			struct plock_xop *xop = (struct plock_xop *)op;
- 			list_del_init(&op->list);
- 			memcpy(&op->info, &info, sizeof(info));
--			if (xop->callback)
-+			if (op->callback)
- 				do_callback = 1;
- 			else
- 				op->done = 1;
+ 	/*
 
 
